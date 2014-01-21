@@ -221,7 +221,7 @@ function MembergroupMembers()
 
 	// Fix the membergroup icons.
 	$context['group']['icons'] = explode('#', $context['group']['icons']);
-	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $context['group']['icons'][1] . '" alt="*" />', $context['group']['icons'][0]) : '';
+	$context['group']['icons'] = !empty($context['group']['icons'][0]) && !empty($context['group']['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $context['group']['icons'][1] . '" alt="*">', $context['group']['icons'][0]) : '';
 	$context['group']['can_moderate'] = allowedTo('manage_membergroups') && (allowedTo('admin_forum') || $context['group']['group_type'] != 1);
 
 	$context['linktree'][] = array(
@@ -460,7 +460,7 @@ function GroupRequests()
 	// We've submitted?
 	if (isset($_POST[$context['session_var']]) && !empty($_POST['groupr']) && !empty($_POST['req_action']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('mod-gr');
 
 		// Clean the values.
@@ -604,7 +604,7 @@ function GroupRequests()
 
 						$emaildata = loadEmailTemplate('mc_group_approve', $replacements, $email['language']);
 
-						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, 'grpapp' . $email['rid'], false, 2);
 					}
 				}
 				// Otherwise, they are getting rejected (With or without a reason).
@@ -626,7 +626,7 @@ function GroupRequests()
 
 						$emaildata = loadEmailTemplate(empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason', $replacements, $email['language']);
 
-						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $email['rid'], false, 2);
 					}
 				}
 			}
@@ -723,13 +723,13 @@ function GroupRequests()
 			),
 			'action' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);" />',
+					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="groupr[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="groupr[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id' => false,
 						),
@@ -758,7 +758,7 @@ function GroupRequests()
 						<option value="reject">' . $txt['mc_groupr_reject'] . '</option>
 						<option value="reason">' . $txt['mc_groupr_reject_w_reason'] . '</option>
 					</select>
-					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button_submit" />',
+					<input type="submit" name="go" value="' . $txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . $txt['mc_groupr_warning'] . '\')) return false;" class="button_submit">',
 				'class' => 'floatright',
 			),
 		),

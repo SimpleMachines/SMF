@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -309,7 +309,7 @@ function template_main()
 				</div>
 			</div>
 		</div>
-		<br class="clear" />
+		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="stats_icon history"></span>', $txt['forum_history'], '
@@ -343,7 +343,7 @@ function template_main()
 			echo '
 				<tr class="windowbg2" valign="middle" align="center" id="year_', $id, '">
 					<th class="lefttext">
-						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*" /> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
+						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*"> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
 					</th>
 					<th>', $year['new_topics'], '</th>
 					<th>', $year['new_posts'], '</th>
@@ -362,7 +362,7 @@ function template_main()
 				echo '
 				<tr class="windowbg2" valign="middle" align="center" id="tr_month_', $month['id'], '">
 					<th class="stats_month">
-						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '" /> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
+						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '"> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
 					</th>
 					<th>', $month['new_topics'], '</th>
 					<th>', $month['new_posts'], '</th>

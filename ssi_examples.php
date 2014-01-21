@@ -43,7 +43,7 @@ template_ssi_above();
 			<h2>Some notes on usage</h2>
 			<p>All the functions have an output method parameter.  This can either be &quot;echo&quot; (the default) or &quot;array&quot;</p>
 			<p>If it is &quot;echo&quot;, the function will act normally - otherwise, it will return an array containing information about the requested task. For example, it might return a list of topics for ssi_recentTopics.</p>
-			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br /><img src=&quot;http://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot; />'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
+			<p onclick="if (getInnerHTML(this).indexOf('Bird') == -1) setInnerHTML(this, getInnerHTML(this) + '<br><img src=&quot;http://www.simplemachines.org/images/chocobo.jpg&quot; title=&quot;Bird-san&quot; alt=&quot;Chocobo!&quot;>'); return false;">This functionality can be used to allow you to present the information in any way you wish.</p>
 
 			<h2>Additional Guides &amp; FAQ</h2>
 			<p>Need more information on using SSI.php? Check out <a href="http://docs.simplemachines.org/index.php?topic=400.0">Using SSI.php article</a> or <a href="http://www.simplemachines.org/community/index.php?topic=14906.0">the SSI FAQ</a>.</p>
@@ -90,7 +90,7 @@ template_ssi_above();
 						<li><a href="#" onclick="showSSIBlock('ssi_recentAttachments'); return false;">Recent Attachments</a></li>
 					</ul>
 					<?php if ($user_info['is_admin']) { ?>
-					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo $settings['images_url']; ?>/helptopics.png" alt="" /></h3>
+					<h3>Advanced Functions <img class="help" title="Functions that require additional tweaking, not just copy and paste." src="<?php echo $settings['images_url']; ?>/helptopics.png" alt=""></h3>
 					<ul>
 						<li><a href="#" onclick="showSSIBlock('ssi_showPoll'); return false;">Show Single Poll</a></li>
 						<li><a href="#" onclick="showSSIBlock('ssi_fetchPosts'); return false;">Show Single Post</a></li>
@@ -417,7 +417,7 @@ function template_ssi_above()
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>SMF 2.1 Alpha 1 SSI.php Examples</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style type="text/css">
 			#wrapper
@@ -517,11 +517,11 @@ function template_ssi_above()
 		<div id="header">
 			<div class="frame">
 				<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
 		</div>
 		<div id="wrapper">
-			<div id="upper_section"><p><br /></p></div>
+			<div id="upper_section"><p><br></p></div>
 			<div id="content_section">
 				<div id="main_content_section">
 					<div id="liftup" class="flow_auto">';
@@ -591,7 +591,7 @@ function template_homepage_sample1($method = 'source')
 
 	$footer = '
 	<div id="footer">
-		<a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/publicdomain/88x31.png" /></a>
+		<a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/publicdomain/88x31.png"></a>
 		This sample website layout is dedicated to the <a target="_blank" rel="license" href="http://creativecommons.org/licenses/publicdomain/">Public Domain</a>.
 	</div>
 </div>
@@ -626,7 +626,7 @@ function template_homepage_sample1_php()
 
 	echo '
 
-		</ul><br />
+		</ul><br>
 
 		<h3>Online Users</h3>';
 		ssi_logOnline();
@@ -638,7 +638,7 @@ function template_homepage_sample1_php()
 
 		ssi_welcome();
 		echo '
-		<br /><br />
+		<br><br>
 
 		<h2>News</h2>';
 
@@ -667,12 +667,12 @@ foreach ($topics as $topic)
 
 unset($topics);
 ?>
-		</ul><br />
+		</ul><br>
 		<h3>Online Users</h3>
 		<?php ssi_logOnline(); ?>
 	</div>
 	<div id="content">
-		<?php ssi_welcome(); ?><br /><br />
+		<?php ssi_welcome(); ?><br><br>
 		<h2>News</h2>
 		<?php ssi_boardNews(); ?>
 	</div>';

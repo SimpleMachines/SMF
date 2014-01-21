@@ -3,14 +3,21 @@
 
 global $boardurl;
 
+// Some payment gateways need language specific information.
+$txt['lang_paypal'] = 'US';
+
 // Symbols.
 $txt['usd_symbol'] = '$%1.2f';
 $txt['eur_symbol'] = '&euro;%1.2f';
 $txt['gbp_symbol'] = '&pound;%1.2f';
+$txt['cad_symbol'] = 'C$%1.2f';
+$txt['aud_symbol'] = 'A$%1.2f';
 
 $txt['usd'] = 'USD ($)';
 $txt['eur'] = 'EURO (&euro;)';
 $txt['gbp'] = 'GBP (&pound;)';
+$txt['cad'] = 'CAD (C$)';
+$txt['aud'] = 'AUD (A$)';
 $txt['other'] = 'Other';
 
 $txt['paid_username'] = 'Username';
@@ -56,10 +63,10 @@ $txt['nochex_email'] = 'Nochex email address';
 $txt['nochex_email_desc'] = 'Email of a merchant account at Nochex. Leave blank if you are not using Nochex';
 $txt['paid_settings_save'] = 'Save';
 
-$txt['paid_note'] = '<strong class="alert">Note:</strong><br />For subscriptions to be automatically updated for your users, you
-	will need to setup a return URL for each of your payment methods. For all payment types, this return URL should be set as:<br /><br />
-	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br /><br />
-	You can edit the link for paypal directly, by clicking <a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify" target="_blank">here</a>.<br />
+$txt['paid_note'] = '<strong class="alert">Note:</strong><br>For subscriptions to be automatically updated for your users, you
+	will need to setup a return URL for each of your payment methods. For all payment types, this return URL should be set as:<br><br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br><br>
+	You can edit the link for paypal directly, by clicking <a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify" target="_blank">here</a>.<br>
 	For the other gateways (If installed) you can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.';
 
 // View subscription strings.
@@ -93,6 +100,8 @@ $txt['paid_mod_email_desc'] = 'Where {NAME} is members name; {FORUM} is communit
 $txt['paid_mod_cost_usd'] = 'Cost (USD)';
 $txt['paid_mod_cost_eur'] = 'Cost (EUR)';
 $txt['paid_mod_cost_gbp'] = 'Cost (GBP)';
+$txt['paid_mod_cost_cad'] = 'Cost (CAD)';
+$txt['paid_mod_cost_aud'] = 'Cost (AUD)';
 $txt['paid_mod_cost_blank'] = 'Leave this blank to not offer this currency.';
 $txt['paid_mod_span'] = 'Length of Subscription';
 $txt['paid_mod_span_days'] = 'Days';
@@ -107,7 +116,7 @@ $txt['paid_mod_add_groups'] = 'Additional Groups upon Subscription';
 $txt['paid_mod_add_groups_desc'] = 'Additional groups to add the user to after subscription.';
 $txt['paid_mod_no_group'] = 'Don\'t Change';
 $txt['paid_mod_edit_note'] = 'Note that as this group has existing subscribers the group settings cannot be changed!';
-$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br /><br />If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br />';
+$txt['paid_mod_delete_warning'] = '<strong>WARNING</strong><br><br>If you delete this subscription all users currently subscribed will lose any access rights granted by the subscription. Unless you are sure you want to do this it is recommended that you simply deactivate a subscription rather than delete it.<br>';
 $txt['paid_mod_repeatable'] = 'Allow user to auto-renew this subscription';
 $txt['paid_mod_allow_partial'] = 'Allow partial subscription';
 $txt['paid_mod_allow_partial_desc'] = 'If this option is enabled, in the case where the user pays less than required they will be granted a subscription for the percentage of the duration they have paid for.';

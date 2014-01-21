@@ -1858,7 +1858,7 @@ function MessagePost()
 
 		if (isset($_REQUEST['quote']))
 		{
-			// Remove any nested quotes and <br />...
+			// Remove any nested quotes and <br>...
 			$form_message = preg_replace('~<br ?/?' . '>~i', "\n", $row_quoted['body']);
 			if (!empty($modSettings['removeNestedQuotes']))
 				$form_message = preg_replace(array('~\n?\[quote.*?\].+?\[/quote\]\n?~is', '~^\n~', '~\[/quote\]~'), '', $form_message);
@@ -3212,7 +3212,7 @@ function ManageLabels()
 
 	if (isset($_POST[$context['session_var']]))
 	{
-		checkSession('post');
+		checkSession();
 
 		// This will be for updating messages.
 		$message_changes = array();
@@ -3465,7 +3465,7 @@ function MessageSettings()
 	// Are they saving?
 	if (isset($_REQUEST['save']))
 	{
-		checkSession('post');
+		checkSession();
 
 		// Mimic what profile would do.
 		$_POST = htmltrim__recursive($_POST);
@@ -3539,7 +3539,7 @@ function ReportMessage()
 	else
 	{
 		// Check the session before proceeding any further!
-		checkSession('post');
+		checkSession();
 
 		// First, pull out the message contents, and verify it actually went to them!
 		$request = $smcFunc['db_query']('', '
@@ -3757,7 +3757,7 @@ function ManageRules()
 	// Saving?
 	elseif (isset($_GET['save']))
 	{
-		checkSession('post');
+		checkSession();
 		$context['rid'] = isset($_GET['rid']) && isset($context['rules'][$_GET['rid']])? (int) $_GET['rid'] : 0;
 
 		// Name is easy!
@@ -3867,7 +3867,7 @@ function ManageRules()
 	// Deleting?
 	elseif (isset($_POST['delselected']) && !empty($_POST['delrule']))
 	{
-		checkSession('post');
+		checkSession();
 		$toDelete = array();
 		foreach ($_POST['delrule'] as $k => $v)
 			$toDelete[] = (int) $k;

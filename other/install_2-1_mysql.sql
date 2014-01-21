@@ -26,7 +26,8 @@ VALUES
 	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
 	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
 	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+	(4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
+	(5, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
 # --------------------------------------------------------
 
 #
@@ -762,7 +763,8 @@ CREATE TABLE {$db_prefix}log_actions (
   KEY log_time (log_time),
   KEY id_member (id_member),
   KEY id_board (id_board),
-  KEY id_msg (id_msg)
+  KEY id_msg (id_msg),
+  KEY id_topic_id_log (id_topic, id_log)
 ) ENGINE=MyISAM;
 
 #
@@ -2048,10 +2050,7 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_gender', '0'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
-	(1, 'show_member_bar', '1'),
-	(1, 'linktree_link', '1'),
 	(1, 'show_profile_buttons', '1'),
-	(1, 'show_mark_read', '1'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '5000'),
 	(1, 'additional_options_collapsable', '1'),

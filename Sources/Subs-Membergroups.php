@@ -24,11 +24,11 @@ if (!defined('SMF'))
  * Deletes the permissions linked to the membergroup.
  * Takes members out of the deleted membergroups.
  * @param array $groups
- * @return boolean
+ * @return mixed bool true for success, otherwise an identifier as to reason for failure
  */
 function deleteMembergroups($groups)
 {
-	global $sourcedir, $smcFunc, $modSettings;
+	global $sourcedir, $smcFunc, $modSettings, $txt;
 
 	// Make sure it's an array.
 	if (!is_array($groups))
@@ -64,7 +64,33 @@ function deleteMembergroups($groups)
 	// Make sure they don't delete protected groups!
 	$groups = array_diff($groups, array_unique($protected_groups));
 	if (empty($groups))
-		return false;
+		return 'no_group_found';
+
+	// Make sure they don't try to delete a group attached to a paid subscription.
+	$subscriptions = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT id_subscribe, name, id_group, add_groups
+		FROM {db_prefix}subscriptions
+		ORDER BY name');
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (in_array($row['id_group'], $groups))
+			$subscriptions[] = $row['name'];
+		else
+		{
+			$add_groups = explode(',', $row['add_groups']);
+			if (count(array_intersect($add_groups, $groups)) != 0)
+				$subscriptions[] = $row['name'];
+		}
+	}
+	$smcFunc['db_free_result']($request);
+	if (!empty($subscriptions))
+	{
+		// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
+		loadLanguage('ManageMembers');
+		$txt['membergroups_cannot_delete_paid'] = sprintf($txt['membergroups_cannot_delete_paid'], implode(', ', $subscriptions));
+		return 'group_cannot_delete_sub';
+	}
 
 	// Log the deletion.
 	$request = $smcFunc['db_query']('', '
@@ -709,7 +735,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'type' => $row['group_type'],
 			'num_members' => $row['num_members'],
 			'moderators' => array(),
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		$context['can_moderate'] |= $row['can_moderate'];

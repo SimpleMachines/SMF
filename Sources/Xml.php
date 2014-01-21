@@ -177,9 +177,9 @@ function sig_preview()
 		list($current_signature) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 		censorText($current_signature);
-		$current_signature = parse_bbc($current_signature, true, 'sig' . $user);
+		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user) : $txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : '';
+		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : $txt['no_signature_set'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)
@@ -287,7 +287,7 @@ function warning_preview()
 	else
 		$context['post_error']['messages'][] = array('value' => $txt['cannot_issue_warning'], 'attributes' => array('type' => 'error'));
 
-	$context['sub_template'] = 'pm';
+	$context['sub_template'] = 'warning';
 }
 
 ?>

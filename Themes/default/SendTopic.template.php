@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -57,19 +57,19 @@ function template_main()
 								<label for="y_name"><strong>', $txt['sendtopic_sender_name'], ':</strong></label>
 							</dt>
 							<dd>
-								<input type="text" id="y_name" name="y_name" size="30" maxlength="40" value="', $context['user']['name'], '" class="input_text" />
+								<input type="text" id="y_name" name="y_name" size="30" maxlength="40" value="', $context['user']['name'], '" class="input_text">
 							</dd>
 							<dt>
 								<label for="y_email"><strong>', $txt['sendtopic_sender_email'], ':</strong></label>
 							</dt>
 							<dd>
-								<input type="text" id="y_email" name="y_email" size="30" maxlength="50" value="', $context['user']['email'], '" class="input_text" />
+								<input type="text" id="y_email" name="y_email" size="30" maxlength="50" value="', $context['user']['email'], '" class="input_text">
 							</dd>
 							<dt>
 								<label for="comment"><strong>', $txt['sendtopic_comment'], ':</strong></label>
 							</dt>
 							<dd>
-								<input type="text" id="comment" name="comment" size="30" maxlength="100" class="input_text" />
+								<input type="text" id="comment" name="comment" size="30" maxlength="100" class="input_text">
 							</dd>
 						</dl>
 					</fieldset>
@@ -79,19 +79,19 @@ function template_main()
 								<label for="r_name"><strong>', $txt['sendtopic_receiver_name'], ':</strong></label>
 							</dt>
 							<dd>
-								<input type="text" id="r_name" name="r_name" size="30" maxlength="40" class="input_text" />
+								<input type="text" id="r_name" name="r_name" size="30" maxlength="40" class="input_text">
 							</dd>
 							<dt>
 								<label for="r_email"><strong>', $txt['sendtopic_receiver_email'], ':</strong></label>
 							</dt>
 							<dd>
-								<input type="text" id="r_email" name="r_email" size="30" maxlength="50" class="input_text" />
+								<input type="text" id="r_email" name="r_email" size="30" maxlength="50" class="input_text">
 							</dd>
 						</dl>
 					</fieldset>
 					<div class="flow_auto">
-						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					</div>
 				</div>
 			</div>
@@ -132,7 +132,7 @@ function template_custom_email()
 							', $context['recipient']['email_link'], '
 						</dd>
 					</dl>
-					<hr />
+					<hr>
 					<dl class="settings send_mail">';
 
 	// If it's a guest we need their details.
@@ -142,20 +142,20 @@ function template_custom_email()
 							<label for="y_name"><strong>', $txt['sendtopic_sender_name'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" id="y_name" name="y_name" size="24" maxlength="40" value="', $context['user']['name'], '" class="input_text" />
+							<input type="text" id="y_name" name="y_name" size="24" maxlength="40" value="', $context['user']['name'], '" class="input_text">
 						</dd>
 						<dt>
-							<label for="y_email"><strong>', $txt['sendtopic_sender_email'], ':</strong></label><br />
+							<label for="y_email"><strong>', $txt['sendtopic_sender_email'], ':</strong></label><br>
 							<span class="smalltext">', $txt['send_email_disclosed'], '</span>
 						</dt>
 						<dd>
-							<input type="text" id="y_mail" name="y_email" size="24" maxlength="50" value="', $context['user']['email'], '" class="input_text" />
+							<input type="text" id="y_mail" name="y_email" size="24" maxlength="50" value="', $context['user']['email'], '" class="input_text">
 						</dt>';
 	// Otherwise show the user that we know their email.
 	else
 		echo '
 						<dt>
-							<strong>', $txt['sendtopic_sender_email'], ':</strong><br />
+							<strong>', $txt['sendtopic_sender_email'], ':</strong><br>
 							<span class="smalltext">', $txt['send_email_disclosed'], '</span>
 						</dt>
 						<dd>
@@ -167,7 +167,7 @@ function template_custom_email()
 							<label for="email_subject"><strong>', $txt['send_email_subject'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" id="email_subject" name="email_subject" size="50" maxlength="100" class="input_text" />
+							<input type="text" id="email_subject" name="email_subject" size="50" maxlength="100" class="input_text">
 						</dd>
 						<dt>
 							<label for="email_body"><strong>', $txt['message'], ':</strong></label>
@@ -176,19 +176,19 @@ function template_custom_email()
 							<textarea id="email_body" name="email_body" rows="10" cols="20" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 90%; min-width: 90%' : 'width: 90%') . ';"></textarea>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
+					<hr class="hrcolor">
 					<div class="flow_auto">
-						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit" />
+						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit">
 					</div>
 				</div>
 			</div>';
 
 	foreach ($context['form_hidden_vars'] as $key => $value)
 		echo '
-			<input type="hidden" name="', $key, '" value="', $value, '" />';
+			<input type="hidden" name="', $key, '" value="', $value, '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div>';
 }
@@ -200,7 +200,7 @@ function template_report()
 	echo '
 	<div id="report_topic">
 		<form action="', $scripturl, '?action=reporttm;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="msg" value="' . $context['message_id'] . '" />
+			<input type="hidden" name="msg" value="' . $context['message_id'] . '">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['report_to_mod'], '</h3>
 				</div>
@@ -229,7 +229,7 @@ function template_report()
 
 	echo '
 						<p class="noticebox">', $txt['report_to_mod_func'], '</p>
-						<br />
+						<br>
 						<dl class="settings" id="report_post">';
 
 	echo '
@@ -243,8 +243,8 @@ function template_report()
 	echo '
 						</dl>
 						<div class="flow_auto">
-							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit" />
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit">
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						</div>
 					</div>
 				</div>

@@ -390,6 +390,11 @@ function EditBoard()
 	require_once($sourcedir . '/ManagePermissions.php');
 	loadPermissionProfiles();
 
+	// People with manage-boards are special.
+	require_once($sourcedir . '/Subs-Members.php');
+	$groups = groupsAllowedTo('manage_boards', null);
+	$context['board_managers'] = $groups['allowed']; // We don't need *all* this in $context.
+
 	// id_board must be a number....
 	$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
 	if (!isset($boards[$_REQUEST['boardid']]))
@@ -658,6 +663,15 @@ function EditBoard2()
 				elseif ($action == 'deny')
 					$boardOptions['deny_groups'][] = (int) $group;
 			}
+
+		// People with manage-boards are special.
+		require_once($sourcedir . '/Subs-Members.php');
+		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = array_diff($board_managers['allowed'], array(1)); // We don't need to list admins anywhere.
+		// Firstly, we can't ever deny them.
+		$boardOptions['deny_groups'] = array_diff($boardOptions['deny_groups'], $board_managers);
+		// Secondly, make sure those with super cow powers (like apt-get, or in this case manage boards) are upgraded.
+		$boardOptions['access_groups'] = array_unique(array_merge($boardOptions['access_groups'], $board_managers));
 
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);

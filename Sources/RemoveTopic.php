@@ -1194,7 +1194,7 @@ function RestoreTopic()
 
 	// Didn't find some things?
 	if (!empty($unfound_messages))
-		fatal_lang_error('restore_not_found', false, array(implode('<br />', $unfound_messages)));
+		fatal_lang_error('restore_not_found', false, array(implode('<br>', $unfound_messages)));
 
 	// Just send them to the index if they get here.
 	redirectexit();

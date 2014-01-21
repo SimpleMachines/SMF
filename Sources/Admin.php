@@ -6,7 +6,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -593,7 +593,7 @@ function DisplayAdminFile()
 
 	// @todo Temp
 	// Figure out if sesc is still being used.
-	if (strpos($file_data, ';sesc=') !== false)
+	if (strpos($file_data, ';sesc=') !== false && $filetype == 'text/javascript')
 		$file_data = '
 if (!(\'smfForum_sessionvar\' in window))
 	window.smfForum_sessionvar = \'sesc\';

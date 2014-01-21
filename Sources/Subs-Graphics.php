@@ -418,7 +418,6 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 		if (checkImagick())
 		{
-
 			$imagick = New Imagick($destName);
 			$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
 			$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
@@ -458,14 +457,14 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) || !empty($max_height))
 		{
-			if (!empty($max_width) && (empty($max_height) || $src_height * $max_width / $src_width <= $max_height))
+			if (!empty($max_width) && (empty($max_height) || round($src_height * $max_width / $src_width) <= $max_height))
 			{
 				$dst_width = $max_width;
-				$dst_height = floor($src_height * $max_width / $src_width);
+				$dst_height = round($src_height * $max_width / $src_width);
 			}
 			elseif (!empty($max_height))
 			{
-				$dst_width = floor($src_width * $max_height / $src_height);
+				$dst_width = round($src_width * $max_height / $src_height);
 				$dst_height = $max_height;
 			}
 

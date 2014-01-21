@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -18,10 +18,10 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	</head>
 	<body id="likes_popup">
@@ -35,7 +35,7 @@ function template_popup()
 					<span class="floatleft avatar">', $like_details['profile']['avatar']['image'], '</span>
 					<span class="floatright">', $like_details['time'], '</span>
 					<span class="floatleft">
-						', $like_details['profile']['link_color'], '<br />
+						', $like_details['profile']['link_color'], '<br>
 						', $like_details['profile']['group'], '
 					</span>
 				</li>';
@@ -43,7 +43,7 @@ function template_popup()
 
 	echo '
 			</ul>
-			<br class="clear" />
+			<br class="clear">
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
 	</body>

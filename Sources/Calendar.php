@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir;
+	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info, $smcFunc;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -55,6 +55,38 @@ function CalendarMain()
 	// You can't do anything if the calendar is off.
 	if (empty($modSettings['cal_enabled']))
 		fatal_lang_error('calendar_off', false);
+
+	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
+	if (isset($_GET['event']))
+	{
+		$evid = (int) $_GET['event'];
+		if ($evid > 0)
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT start_date
+				FROM {db_prefix}calendar
+				WHERE id_event = {int:event_id}',
+				array(
+					'event_id' => $evid,
+				)
+			);
+			if ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				// We know the format is going to be in yyyy-mm-dd from the database, so let's run with that.
+				list($_REQUEST['year'], $_REQUEST['month']) = explode('-', $row['start_date']);
+				$_REQUEST['year'] = (int) $_REQUEST['year'];
+				$_REQUEST['month'] = (int) $_REQUEST['month'];
+
+				// And we definitely don't want weekly view.
+				unset ($_GET['viewweek']);
+
+				// We might use this later.
+				$context['selected_event'] = $evid;
+			}
+			$smcFunc['db_free_result']($request);
+		}
+		unset ($_GET['event']);
+	}
 
 	// Set the page title to mention the calendar ;).
 	$context['page_title'] = $txt['calendar'];
@@ -126,6 +158,15 @@ function CalendarMain()
 		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
 
 	// Basic template stuff.
+	$context['allow_calendar_event'] = allowedTo('calendar_post');
+	
+	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
+	if ($context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	{
+		$boards_can_post = boardsAllowedTo('post_new');
+		$context['allow_calendar_event'] &= !empty($boards_can_post);
+	}
+
 	$context['can_post'] = $context['allow_calendar_event'];
 	$context['current_day'] = $curPage['day'];
 	$context['current_month'] = $curPage['month'];
@@ -202,7 +243,7 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
 
 		// New - and directing?
-		if ($_REQUEST['eventid'] == -1 && isset($_POST['link_to_board']))
+		if ($_REQUEST['eventid'] == -1 && (isset($_POST['link_to_board']) || empty($modSettings['allow_cal_unlinked'])))
 		{
 			$_REQUEST['calendar'] = 1;
 			require_once($sourcedir . '/Post.php');

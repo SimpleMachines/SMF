@@ -53,6 +53,9 @@ function ModifyKarma()
 	// Applauding or smiting?
 	$dir = $_REQUEST['sa'] != 'applaud' ? -1 : 1;
 
+	if (($dir == 1 && empty($modSettings['karmaApplaudLabel'])) || ($dir == -1 && empty($modSettings['karmaSmiteLabel'])))
+		fatal_lang_error('feature_disabled', false);
+
 	// Delete any older items from the log. (karmaWaitTime is by hour.)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_karma

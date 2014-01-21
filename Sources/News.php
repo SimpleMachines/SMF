@@ -290,8 +290,8 @@ function ShowXmlFeed()
 		echo '
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
-	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="alternate" type="text/html" href="', $scripturl, '">
+	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '">
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -320,7 +320,7 @@ function ShowXmlFeed()
 
 		foreach ($xml as $item)
 			echo '
-				<rdf:li rdf:resource="', $item['link'], '" />';
+				<rdf:li rdf:resource="', $item['link'], '">';
 
 		echo '
 			</rdf:Seq>
@@ -477,15 +477,15 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		// Grr, I hate kludges... almost worth doing it properly, here, but not quite.
 		if ($xml_format == 'atom' && $key == 'link')
 		{
-			echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '" />';
+			echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '">';
 			continue;
 		}
 
 		// If it's empty/0/nothing simply output an empty tag.
 		if ($val == '')
-			echo '<', $key, ' />';
+			echo '<', $key, '>';
 		elseif ($xml_format == 'atom' && $key == 'category')
-			echo '<', $key, ' term="', $val, '" />';
+			echo '<', $key, ' term="', $val, '">';
 		else
 		{
 			// Beginning tag.
@@ -507,7 +507,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 				echo "\n", str_repeat("\t", $i), '</', $key, '>';
 			}
 			// A string with returns in it.... show this as a multiline element.
-			elseif (strpos($val, "\n") !== false || strpos($val, '<br />') !== false)
+			elseif (strpos($val, "\n") !== false || strpos($val, '<br>') !== false)
 				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i), '</', $key, '>';
 			// A simple string.
 			else
@@ -648,8 +648,8 @@ function getXmlNews($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Limit the length of the message, if the option is set.
-		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br />', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
-			$row['body'] = strtr($smcFunc['substr'](str_replace('<br />', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br />')) . '...';
+		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
+			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -800,8 +800,8 @@ function getXmlRecent($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Limit the length of the message, if the option is set.
-		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br />', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
-			$row['body'] = strtr($smcFunc['substr'](str_replace('<br />', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br />')) . '...';
+		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
+			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 

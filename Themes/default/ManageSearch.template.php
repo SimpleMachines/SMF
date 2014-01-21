@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -24,51 +24,51 @@ function template_modify_weights()
 				<div class="content">
 					<dl class="settings">
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight1_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><label for="weight1_val">
 							', $txt['search_weight_frequency'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight2_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><label for="weight2_val">
 							', $txt['search_weight_age'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight3_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><label for="weight3_val">
 							', $txt['search_weight_length'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight4_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><label for="weight4_val">
 							', $txt['search_weight_subject'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" /></a><label for="weight5_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><label for="weight5_val">
 							', $txt['search_weight_first_message'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 						</dd>
 						<dt class="large_caption">
-							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top" /></a><label for="weight6_val">
+							<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" align="top"></a><label for="weight6_val">
 							', $txt['search_weight_sticky'], ':</label>
 						</dt>
 						<dd class="large_caption">
-							<span class="search_weight"><input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3" class="input_text" /></span>
+							<span class="search_weight"><input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 							<span id="weight6" class="search_weight">', $context['relative_weights']['search_weight_sticky'], '%</span>
 						</dd>
 						<dt class="large_caption">
@@ -79,9 +79,9 @@ function template_modify_weights()
 							<span class="search_weight"><strong>100%</strong></span>
 						</dd>
 					</dl>
-					<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '" />
+					<input type="submit" name="save" value="', $txt['search_weights_save'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-msw_token_var'], '" value="', $context['admin-msw_token'], '">
 				</div>
 			</div>
 		</form>
@@ -130,7 +130,7 @@ function template_select_search_method()
 					<fieldset class="search_settings floatleft">
 						<legend>', $txt['search_index'], '</legend>
 						<dl>
-							<dt><input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked="checked"' : '', ' class="input_radio" />
+							<dt><input type="radio" name="search_index" value=""', empty($modSettings['search_index']) ? ' checked' : '', ' class="input_radio">
 							', $txt['search_index_none'], '
 							</dt>';
 
@@ -138,7 +138,7 @@ function template_select_search_method()
 	{
 		echo '
 							<dt>
-								<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked="checked"' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"': '', ' class="input_radio" />
+								<input type="radio" name="search_index" value="fulltext"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'fulltext' ? ' checked' : '', empty($context['fulltext_index']) ? ' onclick="alert(\'' . $txt['search_method_fulltext_warning'] . '\'); selectRadioByName(this.form.search_index, \'fulltext\');"': '', ' class="input_radio">
 								', $txt['search_method_fulltext_index'], '
 							</dt>
 							<dd>
@@ -152,7 +152,7 @@ function template_select_search_method()
 									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_fulltext_cannot_create'];
 	else
 		echo '
-									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br />
+									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removefulltext;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_method_fulltext_remove'], '</a>]<br>
 									<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['fulltext_length'];
 	echo '
 									</span>
@@ -161,18 +161,18 @@ function template_select_search_method()
 
 	echo '
 							<dt>
-								<input type="radio" name="search_index" value="custom"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'custom' ? ' checked="checked"' : '', $context['custom_index'] ? '' : ' onclick="alert(\'' . $txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', ' class="input_radio" />
+								<input type="radio" name="search_index" value="custom"', !empty($modSettings['search_index']) && $modSettings['search_index'] == 'custom' ? ' checked' : '', $context['custom_index'] ? '' : ' onclick="alert(\'' . $txt['search_index_custom_warning'] . '\'); selectRadioByName(this.form.search_method, \'1\');"', ' class="input_radio">
 								', $txt['search_index_custom'], '
 							</dt>
 							<dd>
 								<span class="smalltext">';
 	if ($context['custom_index'])
 		echo '
-									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>]<br />
+									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_already_exists'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>]<br>
 									<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['custom_index_length'];
 	elseif ($context['partial_custom_index'])
 		echo '
-									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_partial'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>] [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_resume'], '</a>]<br />
+									<strong>', $txt['search_index_label'], ':</strong> ', $txt['search_method_index_partial'], ' [<a href="', $scripturl, '?action=admin;area=managesearch;sa=removecustom;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_remove'], '</a>] [<a href="', $scripturl, '?action=admin;area=managesearch;sa=createmsgindex;resume;', $context['session_var'], '=', $context['session_id'], ';', $context['admin-msm_token_var'], '=', $context['admin-msm_token'], '">', $txt['search_index_custom_resume'], '</a>]<br>
 									<strong>', $txt['search_index_size'], ':</strong> ', $context['table_info']['custom_index_length'];
 	else
 		echo '
@@ -188,7 +188,7 @@ function template_select_search_method()
 
 		echo '
 							<dt>
-								<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty($modSettings['search_index']) && $modSettings['search_index'] == $api['setting_index'] ? ' checked="checked"' : '', ' class="input_radio" />
+								<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty($modSettings['search_index']) && $modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', ' class="input_radio">
 								', $api['label'] ,'
 							</dt>';
 
@@ -204,13 +204,13 @@ function template_select_search_method()
 					</fieldset>
 					<fieldset class="search_settings floatright">
 					<legend>', $txt['search_method'], '</legend>
-						<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_force_index_check">', $txt['search_force_index'], '</label><br />
-						<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked="checked"', ' class="input_check" /><label for="search_match_words_check">', $txt['search_match_words'], '</label>
+						<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty($modSettings['search_force_index']) ? '' : ' checked', ' class="input_check"><label for="search_force_index_check">', $txt['search_force_index'], '</label><br>
+						<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty($modSettings['search_match_words']) ? '' : ' checked', ' class="input_check"><label for="search_match_words_check">', $txt['search_match_words'], '</label>
 					</fieldset>
 					<br class="clear"/>
-					<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '" />
+					<input type="submit" name="save" value="', $txt['search_method_save'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-msmpost_token_var'], '" value="', $context['admin-msmpost_token'], '">
 				</div>
 			</div>
 		</form>
@@ -236,14 +236,14 @@ function template_create_index()
 						<dd>
 							<select name="bytes_per_word" id="predefine_select">
 								<option value="2">', $txt['search_predefined_small'], '</option>
-								<option value="4" selected="selected">', $txt['search_predefined_moderate'], '</option>
+								<option value="4" selected>', $txt['search_predefined_moderate'], '</option>
 								<option value="5">', $txt['search_predefined_large'], '</option>
 							</select>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
-					<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<hr class="hrcolor">
+					<input type="submit" name="save" value="', $txt['search_create_index_start'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 			</div>
 	</form>
@@ -268,14 +268,14 @@ function template_create_index_progress()
 							<div class="green_percent" style="width: ', $context['percentage'], '%;">&nbsp;</div>
 						</div>
 					</div>
-					<hr class="hrcolor" />
-					<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit" />
+					<hr class="hrcolor">
+					<input type="submit" name="b" value="', $txt['search_create_index_continue'], '" class="button_submit">
 				</div>
 			</div>
-			<input type="hidden" name="step" value="', $context['step'], '" />
-			<input type="hidden" name="start" value="', $context['start'], '" />
-			<input type="hidden" name="bytes_per_word" value="', $context['index_settings']['bytes_per_word'], '" />
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="hidden" name="step" value="', $context['step'], '">
+			<input type="hidden" name="start" value="', $context['start'], '">
+			<input type="hidden" name="bytes_per_word" value="', $context['index_settings']['bytes_per_word'], '">
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div>
 	<script><!-- // --><![CDATA[
@@ -334,31 +334,31 @@ function template_spider_edit()
 				<div class="content">
 					<dl class="settings">
 						<dt>
-							<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br />
+							<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br>
 							<span class="smalltext">', $txt['spider_name_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="spider_name" id="spider_name" value="', $context['spider']['name'], '" class="input_text" />
+							<input type="text" name="spider_name" id="spider_name" value="', $context['spider']['name'], '" class="input_text">
 						</dd>
 						<dt>
-							<strong><label for="spider_agent">', $txt['spider_agent'], ':</label></strong><br />
+							<strong><label for="spider_agent">', $txt['spider_agent'], ':</label></strong><br>
 							<span class="smalltext">', $txt['spider_agent_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="spider_agent" id="spider_agent" value="', $context['spider']['agent'], '" class="input_text" />
+							<input type="text" name="spider_agent" id="spider_agent" value="', $context['spider']['agent'], '" class="input_text">
 						</dd>
 						<dt>
-							<strong><label for="spider_ip">', $txt['spider_ip_info'], ':</label></strong><br />
+							<strong><label for="spider_ip">', $txt['spider_ip_info'], ':</label></strong><br>
 							<span class="smalltext">', $txt['spider_ip_info_desc'], '</span>
 						</dt>
 						<dd>
 							<textarea name="spider_ip" id="spider_ip" rows="4" cols="20">', $context['spider']['ip_info'], '</textarea>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />
-					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '" />
+					<hr class="hrcolor">
+					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-ses_token_var'], '" value="', $context['admin-ses_token'], '">
 				</div>
 			</div>
 		</form>
@@ -377,7 +377,7 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-		<br class="clear" />
+		<br class="clear">
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['spider_logs_delete'], '</h3>
@@ -386,12 +386,12 @@ function template_show_spider_logs()
 				<div class="content">
 					<p>
 						', $txt['spider_logs_delete_older'], '
-						<input type="text" name="older" id="older" value="7" size="3" class="input_text" />
+						<input type="text" name="older" id="older" value="7" size="3" class="input_text">
 						', $txt['spider_logs_delete_day'], '
 					</p>
-					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '" />
+					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-sl_token_var'], '" value="', $context['admin-sl_token'], '">
 				</div>
 			</div>
 		</form>
@@ -417,13 +417,13 @@ function template_show_spider_stats()
 			<div class="windowbg">
 				<div class="content">
 					<p>
-						', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3" class="input_text" />'), '
+						', sprintf($txt['spider_stats_delete_older'], '<input type="text" name="older" id="older" value="90" size="3" class="input_text">'), '
 					</p>
-					<hr class="hrcolor" />
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-					<input type="hidden" name="', $context['admin-ss_token_var'], '" value="', $context['admin-ss_token'], '" />
-					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit" />
-					<br />
+					<hr class="hrcolor">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-ss_token_var'], '" value="', $context['admin-ss_token'], '">
+					<input type="submit" name="delete_entries" value="', $txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes($txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button_submit">
+					<br>
 				</div>
 			</div>
 		</form>

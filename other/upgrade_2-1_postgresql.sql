@@ -364,6 +364,66 @@ upgrade_query("
 ---#
 
 /******************************************************************************/
+--- Updating board access rules
+/******************************************************************************/
+---# Updating board access rules
+---{
+$member_groups = array(
+	'allowed' => array(),
+	'denied' => array(),
+);
+
+$request = $smcFunc['db_query']('', '
+	SELECT id_group, add_deny
+	FROM {db_prefix}permissions
+	WHERE permission = {string:permission}',
+	array(
+		'permission' => 'manage_boards',
+	)
+);
+while ($row = $smcFunc['db_fetch_assoc']($request))
+	$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+$smcFunc['db_free_result']($request);
+
+$member_groups = array_diff($member_groups['allowed'], $member_groups['denied']);
+
+if (!empty($member_groups))
+{
+	$count = count($member_groups);
+	$changes = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, member_groups
+		FROM {db_prefix}boards');
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$current_groups = explode(',', $row['member_groups']);
+		if (count(array_intersect($current_groups, $member_groups)) != $count)
+		{
+			$new_groups = array_unique(array_merge($current_groups, $member_groups));
+			$changes[$row['id_board']] = implode(',', $new_groups);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($changes))
+	{
+		foreach ($changes as $id_board => $member_groups)
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}boards
+				SET member_groups = {string:member_groups}
+					WHERE id_board = {int:id_board}',
+				array(
+					'member_groups' => $member_groups,
+					'id_board' => $id_board,
+				)
+			);
+	}
+}
+---}
+---#
+
+/******************************************************************************/
 --- Adding support for category descriptions
 /******************************************************************************/
 ---# Adding new columns to categories...
@@ -696,23 +756,85 @@ WHERE variable = 'avatar_action_too_large'
 	AND (value = 'option_html_resize' OR value = 'option_js_resize');
 ---#
 
+---# Cleaning up the old Core Features page.
+---{
+	// First get the original value
+	$request = $smcFunc['db_query']('', '
+		SELECT value
+		FROM {db_prefix}settings
+		WHERE variable = {literal:admin_features}');
+	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// Some of these *should* already be set but you never know.
+		$new_settings = array();
+		$admin_features = explode(',', $row['value']);
+
+		// Now, let's just recap something.
+		// cd = calendar, should also have set cal_enabled already
+		// cp = custom profile fields, which already has several fields that cover tracking
+		// k = karma, should also have set karmaMode already
+		// ps = paid subs, should also have set paid_enabled already
+		// rg = reports generation, which is now permanently on
+		// sp = spider tracking, should also have set spider_mode already
+		// w = warning system, which will be covered with warning_settings
+
+		// The rest we have to deal with manually.
+		// Moderation log - modlog_enabled itself should be set but we have others now
+		if (in_array('ml', $admin_features))
+		{
+			$new_settings[] = array('adminlog_enabled', '1');
+			$new_settings[] = array('userlog_enabled', '1');
+		}
+
+		// Post moderation
+		if (in_array('pm', $admin_features))
+		{
+			$new_settings[] = array('postmod_active', '1');
+		}
+
+		// And now actually apply it.
+		if (!empty($new_settings))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				$new_settings,
+				array('variable')
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+---}
+---#
+
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features');
 ---#
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link');
 ---#
 
 /******************************************************************************/
---- Removing old Simple Machines files we do not need to fetch any more
+--- Updating files that fetched from simplemachines.org
 /******************************************************************************/
----# We no longer call on the latest packages list.
+---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
 WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
+---#
+
+---# But we do need new files.
+---{
+$smcFunc['db_insert']('',
+	'{db_prefix}admin_info_files',
+	array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
+	array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+	array('id_file')
+);
+---}
 ---#
 
 /******************************************************************************/

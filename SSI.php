@@ -362,7 +362,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		censorText($row['subject']);
 		censorText($row['body']);
 
-		$preview = strip_tags(strtr($row['body'], array('<br />' => '&#10;')));
+		$preview = strip_tags(strtr($row['body'], array('<br>' => '&#10;')));
 
 		// Build the array.
 		$posts[] = array(
@@ -503,7 +503,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	$posts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']), array('<br />' => '&#10;')));
+		$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']), array('<br>' => '&#10;')));
 		if ($smcFunc['strlen']($row['body']) > 128)
 			$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
 
@@ -546,7 +546,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 			'new' => !empty($row['is_read']),
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
-			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" align="middle" alt="' . $row['icon'] . '" />',
+			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" align="middle" alt="' . $row['icon'] . '">',
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -773,7 +773,7 @@ function ssi_latestMember($output_method = 'echo')
 
 	if ($output_method == 'echo')
 		echo '
-	', sprintf($txt['welcome_newest_member'], $context['common_stats']['latest_member']['link']), '<br />';
+	', sprintf($txt['welcome_newest_member'], $context['common_stats']['latest_member']['link']), '<br>';
 	else
 		return $context['common_stats']['latest_member'];
 }
@@ -916,8 +916,8 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 			<tr>
 				<td align="right" valign="top" nowrap="nowrap">
 					', $query_members[$member]['link'], '
-					<br />', $query_members[$member]['blurb'], '
-					<br />', $query_members[$member]['avatar']['image'], '
+					<br>', $query_members[$member]['blurb'], '
+					<br>', $query_members[$member]['avatar']['image'], '
 				</td>
 			</tr>';
 	}
@@ -967,10 +967,10 @@ function ssi_boardStats($output_method = 'echo')
 		return $totals;
 
 	echo '
-		', $txt['total_members'], ': <a href="', $scripturl . '?action=mlist">', comma_format($totals['members']), '</a><br />
-		', $txt['total_posts'], ': ', comma_format($totals['posts']), '<br />
-		', $txt['total_topics'], ': ', comma_format($totals['topics']), ' <br />
-		', $txt['total_cats'], ': ', comma_format($totals['categories']), '<br />
+		', $txt['total_members'], ': <a href="', $scripturl . '?action=mlist">', comma_format($totals['members']), '</a><br>
+		', $txt['total_posts'], ': ', comma_format($totals['posts']), '<br>
+		', $txt['total_topics'], ': ', comma_format($totals['topics']), ' <br>
+		', $txt['total_cats'], ': ', comma_format($totals['categories']), '<br>
 		', $txt['total_boards'], ': ', comma_format($totals['boards']);
 }
 
@@ -1010,12 +1010,12 @@ function ssi_whosOnline($output_method = 'echo')
 	if (!empty($bracketList))
 		echo ' (' . implode(', ', $bracketList) . ')';
 
-	echo '<br />
+	echo '<br>
 			', implode(', ', $return['list_users_online']);
 
 	// Showing membergroups?
 	if (!empty($settings['show_group_key']) && !empty($return['membergroups']))
-		echo '<br />
+		echo '<br>
 			[' . implode(']&nbsp;&nbsp;[', $return['membergroups']) . ']';
 }
 
@@ -1046,10 +1046,10 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 			<table border="0" cellspacing="1" cellpadding="0" class="ssi_table">
 				<tr>
 					<td align="right"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
-					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text" /></td>
+					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
 				</tr><tr>
 					<td align="right"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
-					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password" /></td>
+					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
 				</tr>';
 
 	// Open ID?
@@ -1058,12 +1058,12 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 					<td colspan="2" align="center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
 				</tr><tr>
 					<td align="right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
-					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17" /></td>
+					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17"></td>
 				</tr>';
 
 	echo '<tr>
-					<td><input type="hidden" name="cookielength" value="-1" /></td>
-					<td><input type="submit" value="', $txt['login'], '" class="button_submit" /></td>
+					<td><input type="hidden" name="cookielength" value="-1"></td>
+					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>
 			</table>
 		</form>';
@@ -1179,7 +1179,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '" />'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . ($topPollInstead ? 'top-' : 'recent-') . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
 		);
 	}
 
@@ -1192,17 +1192,17 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 	{
 		echo '
 		<form class="ssi_poll" action="', $boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', $context['character_set'], '">
-			<strong>', $return['question'], '</strong><br />
-			', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br />' : '';
+			<strong>', $return['question'], '</strong><br>
+			', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
 		foreach ($return['options'] as $option)
 			echo '
-			<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br />';
+			<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 		echo '
-			<input type="submit" value="', $txt['poll_vote'], '" class="button_submit" />
-			<input type="hidden" name="poll" value="', $return['id'], '" />
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+			<input type="submit" value="', $txt['poll_vote'], '" class="button_submit">
+			<input type="hidden" name="poll" value="', $return['id'], '">
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>';
 	}
 	else
@@ -1330,7 +1330,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'percent' => $bar,
 			'votes' => $option[1],
 			'option' => parse_bbc($option[0]),
-			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '" />'
+			'vote_button' => '<input type="' . ($row['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($row['max_votes'] > 1 ? 'check' : 'radio') . '">'
 		);
 	}
 
@@ -1343,17 +1343,17 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 	{
 		echo '
 			<form class="ssi_poll" action="', $boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', $context['character_set'], '">
-				<strong>', $return['question'], '</strong><br />
-				', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br />' : '';
+				<strong>', $return['question'], '</strong><br>
+				', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
 		foreach ($return['options'] as $option)
 			echo '
-				<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br />';
+				<label for="', $option['id'], '">', $option['vote_button'], ' ', $option['option'], '</label><br>';
 
 		echo '
-				<input type="submit" value="', $txt['poll_vote'], '" class="button_submit" />
-				<input type="hidden" name="poll" value="', $return['id'], '" />
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+				<input type="submit" value="', $txt['poll_vote'], '" class="button_submit">
+				<input type="hidden" name="poll" value="', $return['id'], '">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>';
 	}
 	elseif ($return['allow_view_results'])
@@ -1390,10 +1390,10 @@ function ssi_pollVote()
 
 	if (!isset($_POST[$context['session_var']]) || $_POST[$context['session_var']] != $sc || empty($_POST['options']) || !isset($_POST['poll']))
 	{
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		echo '<!DOCTYPE html>
 <html>
 <head>
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		history.go(-1);
 	// ]]></script>
 </head>
@@ -1504,7 +1504,7 @@ function ssi_quickSearch($output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '">
-			<input type="hidden" name="advanced" value="0" /><input type="text" name="ssi_search" size="30" class="input_text" /> <input type="submit" value="', $txt['search'], '" class="button_submit" />
+			<input type="hidden" name="advanced" value="0"><input type="text" name="ssi_search" size="30" class="input_text"> <input type="submit" value="', $txt['search'], '" class="button_submit">
 		</form>';
 }
 
@@ -1610,7 +1610,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 
 	if (!empty($return['calendar_holidays']))
 		echo '
-			<span class="holiday">' . $txt['calendar_prompt'] . ' ' . implode(', ', $return['calendar_holidays']) . '<br /></span>';
+			<span class="holiday">' . $txt['calendar_prompt'] . ' ' . implode(', ', $return['calendar_holidays']) . '<br></span>';
 	if (!empty($return['calendar_birthdays']))
 	{
 		echo '
@@ -1619,7 +1619,7 @@ function ssi_todaysCalendar($output_method = 'echo')
 			echo '
 			<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
 		echo '
-			<br />';
+			<br>';
 	}
 	if (!empty($return['calendar_events']))
 	{
@@ -1771,7 +1771,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		$return[] = array(
 			'id' => $row['id_topic'],
 			'message_id' => $row['id_msg'],
-			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '" />',
+			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => forum_time(true, $row['poster_time']),
@@ -1817,7 +1817,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 
 		if (!$news['is_last'])
 			echo '
-			<hr />';
+			<hr>';
 	}
 }
 
@@ -1991,7 +1991,7 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 				'filesize' => round($row['filesize'] /1024, 2) . $txt['kilobyte'],
 				'downloads' => $row['downloads'],
 				'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
-				'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt="" /> <a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
+				'link' => '<img src="' . $settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
 				'is_image' => !empty($row['width']) && !empty($row['height']) && !empty($modSettings['attachmentShowImages']),
 			),
 			'topic' => array(
@@ -2011,10 +2011,10 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 				'id' => $id_thumb,
 				'width' => $row['width'],
 				'height' => $row['height'],
-				'img' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image" alt="' . $filename . '" />',
-				'thumb' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '" />',
+				'img' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image" alt="' . $filename . '">',
+				'thumb' => '<img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '">',
 				'href' => $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image',
-				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image"><img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '" /></a>',
+				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . ';image"><img src="' . $scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $id_thumb . ';image" alt="' . $filename . '"></a>',
 			);
 		}
 	}

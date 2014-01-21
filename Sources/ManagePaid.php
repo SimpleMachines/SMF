@@ -91,7 +91,7 @@ function ModifySubscriptionSettings($return_config = false)
 	{
 		// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
 		$modSettings['paid_currency'] = !empty($modSettings['paid_currency_code']) ? $modSettings['paid_currency_code'] : '';
-		if (!empty($modSettings['paid_currency_code']) && !in_array($modSettings['paid_currency_code'], array('usd', 'eur', 'gbp')))
+		if (!empty($modSettings['paid_currency_code']) && !in_array($modSettings['paid_currency_code'], array('usd', 'eur', 'gbp', 'cad', 'aud')))
 			$modSettings['paid_currency'] = 'other';
 
 		// These are all the default settings.
@@ -101,7 +101,7 @@ function ModifySubscriptionSettings($return_config = false)
 				array('select', 'paid_email', array(0 => $txt['paid_email_no'], 1 => $txt['paid_email_error'], 2 => $txt['paid_email_all']), 'subtext' => $txt['paid_email_desc']),
 				array('text', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
 			'',
-				'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
+				'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'cad' => $txt['cad'], 'aud' => $txt['aud'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
 				array('text', 'paid_currency_code', 'subtext' => $txt['paid_currency_code_desc'], 'size' => 5, 'force_div_id' => 'custom_currency_code_div'),
 				array('text', 'paid_currency_symbol', 'subtext' => $txt['paid_currency_symbol_desc'], 'size' => 8, 'force_div_id' => 'custom_currency_symbol_div'),
 				array('check', 'paidsubs_test', 'subtext' => $txt['paidsubs_test_desc'], 'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . $txt['paidsubs_test_confirm'] . '\') : true;'),
@@ -371,7 +371,7 @@ function ViewSubscriptions()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit" />',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
 			),
 		),
 	);
@@ -404,8 +404,89 @@ function ModifySubscription()
 		checkSession();
 		validateToken('admin-pmsd');
 
+		// Before we delete the subscription we need to find out if anyone currently has said subscription.
+		$request = $smcFunc['db_query']('', '
+			SELECT ls.id_member, ls.old_id_group, mem.id_group, mem.additional_groups
+			FROM {db_prefix}log_subscribed AS ls
+				INNER JOIN {db_prefix}members AS mem ON (ls.id_member = mem.id_member)
+			WHERE id_subscribe = {int:current_subscription}
+				AND status = {int:is_active}',
+			array(
+				'current_subscription' => $context['sub_id'],
+				'is_active' => 1,
+			)
+		);
+		$members = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$id_member = array_shift($row);
+			$members[$id_member] = $row;
+		}
+		$smcFunc['db_free_result']($request);
+
+		// If there are any members with this subscription, we have to do some more work before we go any further.
+		if (!empty($members))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_group, add_groups
+				FROM {db_prefix}subscriptions
+				WHERE id_subscribe = {int:current_subscription}',
+				array(
+					'current_subscription' => $context['sub_id'],
+				)
+			);
+			$id_group = 0;
+			$add_groups = '';
+			if ($smcFunc['db_num_rows']($request))
+				list ($id_group, $add_groups) = $smcFunc['db_fetch_row']($request);
+			$smcFunc['db_free_result']($request);
+
+			$changes = array();
+
+			// Is their group changing? This subscription may not have changed primary group.
+			if (!empty($id_group))
+			{
+				foreach ($members as $id_member => $member_data)
+				{
+					// If their current primary group isn't what they had before the subscription, and their current group was
+					// granted by the sub, remove it.
+					if ($member_data['old_id_group'] != $member_data['id_group'] && $member_data['id_group'] == $id_group)
+						$changes[$id_member]['id_group'] = $member_data['old_id_group'];
+				}
+			}
+
+			// Did this subscription add secondary groups?
+			if (!empty($add_groups))
+			{
+				$add_groups = explode(',', $add_groups);
+				foreach ($members as $id_member => $member_data)
+				{
+					// First let's get their groups sorted.
+					$current_groups = explode(',', $member_data['additional_groups']);
+					$new_groups = implode(',', array_diff($current_groups, $add_groups));
+					if ($new_groups != $member_data['additional_groups'])
+						$changes[$id_member]['additional_groups'] = $new_groups;
+				}
+			}
+
+			// We're going through changes...
+			if (!empty($changes))
+				foreach ($changes as $id_member => $new_values)
+					updateMemberData($id_member, $new_values);
+		}
+
+		// Delete the subscription
 		$smcFunc['db_query']('delete_subscription', '
 			DELETE FROM {db_prefix}subscriptions
+			WHERE id_subscribe = {int:current_subscription}',
+			array(
+				'current_subscription' => $context['sub_id'],
+			)
+		);
+
+		// And delete any subscriptions to it to clear the phantom data too.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}',
 			array(
 				'current_subscription' => $context['sub_id'],
@@ -802,7 +883,7 @@ function ViewSubscribedUsers()
 					'function' => create_function('$rowData', '
 						global $context, $txt, $scripturl;
 
-						return \'<input type="checkbox" name="delsub[\' . $rowData[\'id\'] . \']" class="input_check" />\';
+						return \'<input type="checkbox" name="delsub[\' . $rowData[\'id\'] . \']" class="input_check">\';
 					'),
 					'class' => 'centercol',
 				),
@@ -815,17 +896,17 @@ function ViewSubscribedUsers()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit" />
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit" />
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit" />
+					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit">
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit">
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit">
 				',
 			),
 			array(
 				'position' => 'top_of_list',
 				'value' => '
 					<div class="flow_auto">
-						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" style="margin-top: 3px;" />
-						<input type="text" name="sub_search" value="" class="input_text floatright" />
+						<input type="submit" name="ssearch" value="' . $txt['search_sub'] . '" class="button_submit" style="margin-top: 3px;">
+						<input type="text" name="sub_search" value="" class="input_text floatright">
 					</div>
 				',
 			),

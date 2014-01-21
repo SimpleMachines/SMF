@@ -41,7 +41,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Basically, htmlspecialchars it minus &. (for entities!)
 	$error_message = strtr($error_message, array('<' => '&lt;', '>' => '&gt;', '"' => '&quot;'));
-	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br />', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br />'));
+	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>'));
 
 	// Add a file and line to the error message?
 	// Don't use the actual txt entries for file and line but instead use %1$s for file and %2$s for line
@@ -83,6 +83,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'template',
 		'debug',
 		'cron',
+		'paidsubs',
 	);
 
 	// This prevents us from infinite looping if the hook or call produces an error.
@@ -228,8 +229,8 @@ function error_handler($error_level, $error_string, $file, $line)
 		}
 
 		// Debugging!  This should look like a PHP error message.
-		echo '<br />
-<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br />';
+		echo '<br>
+<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br>';
 	}
 
 	$error_type = stripos($error_string, 'undefined') !== false ? 'undefined_vars' : 'general';
@@ -352,7 +353,7 @@ function display_maintenance_message()
 		echo '<!DOCTYPE html>
 <html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>', $mtitle, '</title>
 	</head>
 	<body>
@@ -399,7 +400,7 @@ function display_db_error()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Connection Problems</title>
 	</head>
 	<body>
@@ -426,7 +427,7 @@ function display_loadavg_error()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Temporarily Unavailable</title>
 	</head>
 	<body>

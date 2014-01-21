@@ -156,7 +156,7 @@ function EditNews()
 
 						if (is_numeric($news[\'id\']))
 							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
-							<br />
+							<br>
 							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
 						else
 							return $news[\'unparsed\'];
@@ -178,14 +178,14 @@ function EditNews()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$news', '
 
 						if (is_numeric($news[\'id\']))
-							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check" />\';
+							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check">\';
 						else
 							return \'\';
 					'),
@@ -206,8 +206,8 @@ function EditNews()
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
 					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" />
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit">
+				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit">',
 			),
 		),
 		'javascript' => '
@@ -250,7 +250,7 @@ function EditNews()
 						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
 							<td style="width: 50%;">
 									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 95%') . ';"></textarea>
-									<br />
+									<br>
 									<div class="floatleft" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
 							</td>
 							<td style="width: 45%;">
@@ -819,7 +819,7 @@ function SendMailing($clean_only = false)
 	{
 		// Prepare the message for HTML.
 		if (!empty($_POST['parse_html']))
-			$_POST['message'] = str_replace(array("\n", '  '), array('<br />' . "\n", '&nbsp; '), $_POST['message']);
+			$_POST['message'] = str_replace(array("\n", '  '), array('<br>' . "\n", '&nbsp; '), $_POST['message']);
 
 		// This is here to prevent spam filters from tagging this as spam.
 		if (preg_match('~\<html~i', $_POST['message']) == 0)
@@ -898,7 +898,7 @@ function SendMailing($clean_only = false)
 			$email
 		);
 
-		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, null, !empty($_POST['send_html']), 5);
+		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
 
 		// Done another...
 		$i++;
@@ -1005,7 +1005,7 @@ function SendMailing($clean_only = false)
 
 			// Send the actual email - or a PM!
 			if (!$context['send_pm'])
-				sendmail($row['email_address'], $subject, $message, null, null, !empty($_POST['send_html']), 5);
+				sendmail($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}

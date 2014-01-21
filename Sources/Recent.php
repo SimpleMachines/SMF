@@ -53,7 +53,7 @@ function getLastPost()
 	censorText($row['subject']);
 	censorText($row['body']);
 
-	$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled']), array('<br />' => '&#10;')));
+	$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled']), array('<br>' => '&#10;')));
 	if ($smcFunc['strlen']($row['body']) > 128)
 		$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
 
@@ -433,7 +433,7 @@ function UnreadTopics()
 		die;
 	}
 
-	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
+	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
 
 	$context['showing_all_topics'] = isset($_GET['all']);
 	$context['start'] = (int) $_REQUEST['start'];
@@ -1166,10 +1166,10 @@ function UnreadTopics()
 		if (!empty($settings['message_index_preview']))
 		{
 			// Limit them to 128 characters - do this FIRST because it's a lot of wasted censoring otherwise.
-			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br />' => '&#10;')));
+			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['first_body']) > 128)
 				$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, 128) . '...';
-			$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br />' => '&#10;')));
+			$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['last_body']) > 128)
 				$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, 128) . '...';
 
@@ -1334,44 +1334,41 @@ function UnreadTopics()
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
 
-	if ($settings['show_mark_read'])
+	// Build the recent button array.
+	if ($is_topics)
 	{
-		// Build the recent button array.
-		if ($is_topics)
-		{
-			$context['recent_buttons'] = array(
-				'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+		$context['recent_buttons'] = array(
+			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+		);
+
+		if ($context['showCheckboxes'])
+			$context['recent_buttons']['markselectread'] = array(
+				'text' => 'quick_mod_markread',
+				'image' => 'markselectedread.png',
+				'lang' => true,
+				'url' => 'javascript:document.quickModForm.submit();',
 			);
 
-			if ($context['showCheckboxes'])
-				$context['recent_buttons']['markselectread'] = array(
-					'text' => 'quick_mod_markread',
-					'image' => 'markselectedread.png',
-					'lang' => true,
-					'url' => 'javascript:document.quickModForm.submit();',
-				);
-
-			if (!empty($context['topics']) && !$context['showing_all_topics'])
-				$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
-		}
-		elseif (!$is_topics && isset($context['topics_to_mark']))
-		{
-			$context['recent_buttons'] = array(
-				'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-			);
-
-			if ($context['showCheckboxes'])
-				$context['recent_buttons']['markselectread'] = array(
-					'text' => 'quick_mod_markread',
-					'image' => 'markselectedread.png',
-					'lang' => true,
-					'url' => 'javascript:document.quickModForm.submit();',
-				);
-		}
-
-		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_recent_buttons');
+		if (!empty($context['topics']) && !$context['showing_all_topics'])
+			$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
 	}
+	elseif (!$is_topics && isset($context['topics_to_mark']))
+	{
+		$context['recent_buttons'] = array(
+			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		);
+
+		if ($context['showCheckboxes'])
+			$context['recent_buttons']['markselectread'] = array(
+				'text' => 'quick_mod_markread',
+				'image' => 'markselectedread.png',
+				'lang' => true,
+				'url' => 'javascript:document.quickModForm.submit();',
+			);
+	}
+
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_recent_buttons');
 
 	$context['no_topic_listing'] = empty($context['topics']);
 

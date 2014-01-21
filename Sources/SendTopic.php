@@ -136,7 +136,7 @@ function SendTopic()
 
 	$emaildata = loadEmailTemplate($emailtemplate, $replacements);
 	// And off we go!
-	sendmail($_POST['r_email'], $emaildata['subject'], $emaildata['body'], $_POST['y_email']);
+	sendmail($_POST['r_email'], $emaildata['subject'], $emaildata['body'], $_POST['y_email'], 'sendtopic');
 
 	// Back to the topic!
 	redirectexit('topic=' . $topic . '.0;topicsent');
@@ -258,7 +258,7 @@ function CustomEmail()
 
 		// Get the template and get out!
 		$emaildata = loadEmailTemplate('send_email', $replacements);
-		sendmail($context['recipient']['email'], $emaildata['subject'], $emaildata['body'], $from_email, null, false, 1, null, true);
+		sendmail($context['recipient']['email'], $emaildata['subject'], $emaildata['body'], $from_email, 'custemail', false, 1, null, true);
 
 		// Now work out where to go!
 		if (isset($_REQUEST['uid']))

@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -14,34 +14,6 @@
 function template_edit_holiday()
 {
 	global $context, $scripturl, $txt, $modSettings;
-
-	// Start with javascript for getting the calendar dates right.
-	echo '
-		<script><!-- // --><![CDATA[
-			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-			function generateDays()
-			{
-				var days = 0, selected = 0;
-				var dayElement = document.getElementById("day"), yearElement = document.getElementById("year"), monthElement = document.getElementById("month");
-
-				monthLength[1] = 28;
-				if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-					monthLength[1] = 29;
-
-				selected = dayElement.selectedIndex;
-				while (dayElement.options.length)
-					dayElement.options[0] = null;
-
-				days = monthLength[monthElement.value - 1];
-
-				for (i = 1; i <= days; i++)
-					dayElement.options[dayElement.length] = new Option(i, i);
-
-				if (selected < days)
-					dayElement.selectedIndex = selected;
-			}
-		// ]]></script>';
 
 	// Show a form for all the holiday information.
 	echo '
@@ -57,18 +29,18 @@ function template_edit_holiday()
 							<strong>', $txt['holidays_title_label'], ':</strong>
 						</dt>
 						<dd class="small_caption">
-							<input type="text" name="title" value="', $context['holiday']['title'], '" size="55" maxlength="60" />
+							<input type="text" name="title" value="', $context['holiday']['title'], '" size="55" maxlength="60">
 						</dd>
 						<dt class="small_caption">
 							<strong>', $txt['calendar_year'], '</strong>
 						</dt>
 						<dd class="small_caption">
 							<select name="year" id="year" onchange="generateDays();">
-								<option value="0000"', $context['holiday']['year'] == '0000' ? ' selected="selected"' : '', '>', $txt['every_year'], '</option>';
+								<option value="0000"', $context['holiday']['year'] == '0000' ? ' selected' : '', '>', $txt['every_year'], '</option>';
 	// Show a list of all the years we allow...
 	for ($year = $modSettings['cal_minyear']; $year <= $modSettings['cal_maxyear']; $year++)
 		echo '
-								<option value="', $year, '"', $year == $context['holiday']['year'] ? ' selected="selected"' : '', '>', $year, '</option>';
+								<option value="', $year, '"', $year == $context['holiday']['year'] ? ' selected' : '', '>', $year, '</option>';
 
 	echo '
 							</select>&nbsp;
@@ -78,7 +50,7 @@ function template_edit_holiday()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-								<option value="', $month, '"', $month == $context['holiday']['month'] ? ' selected="selected"' : '', '>', $txt['months'][$month], '</option>';
+								<option value="', $month, '"', $month == $context['holiday']['month'] ? ' selected' : '', '>', $txt['months'][$month], '</option>';
 
 	echo '
 							</select>&nbsp;
@@ -88,24 +60,24 @@ function template_edit_holiday()
 	// This prints out all the days in the current month - this changes dynamically as we switch months.
 	for ($day = 1; $day <= $context['holiday']['last_day']; $day++)
 		echo '
-								<option value="', $day, '"', $day == $context['holiday']['day'] ? ' selected="selected"' : '', '>', $day, '</option>';
+								<option value="', $day, '"', $day == $context['holiday']['day'] ? ' selected' : '', '>', $day, '</option>';
 
 	echo '
 							</select>
 						</dd>
 					</dl>
-					<hr class="hrcolor" />';
+					<hr class="hrcolor">';
 
 	if ($context['is_new'])
 		echo '
-					<input type="submit" value="', $txt['holidays_button_add'], '" class="button_submit" />';
+					<input type="submit" value="', $txt['holidays_button_add'], '" class="button_submit">';
 	else
 		echo '
-					<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" class="button_submit" />
-					<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" class="button_submit" />
-					<input type="hidden" name="holiday" value="', $context['holiday']['id'], '" />';
+					<input type="submit" name="edit" value="', $txt['holidays_button_edit'], '" class="button_submit">
+					<input type="submit" name="delete" value="', $txt['holidays_button_remove'], '" class="button_submit">
+					<input type="hidden" name="holiday" value="', $context['holiday']['id'], '">';
 	echo '
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 			</div>
 		</form>
