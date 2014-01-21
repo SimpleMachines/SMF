@@ -3091,6 +3091,7 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 
 .generic_icons.del_small {
 	background-position: -80px -64px;
+	cursor: pointer;
 	width: 9px;
 	height: 9px;
 }

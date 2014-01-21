@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -60,8 +60,7 @@ function template_pm_popup()
 				<a href="', $scripturl, '?action=pm;sa=settings">', $txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox floatleft">
-				', $txt['pm_unread'], '
-				| <a href="', $scripturl, '?action=pm">', $txt['inbox'], '</a>
+				<a href="', $scripturl, '?action=pm">', $txt['inbox'], '</a>
 				| <a href="', $scripturl, '?action=pm;f=sent">', $txt['pm_sent_short'], '</a>
 			</div>
 		</div>
@@ -1000,6 +999,7 @@ function template_send()
 					</div>
 				</div>
 			</div>
+			<br class="clear">
 		</div>';
 
 	// Main message editing box.
