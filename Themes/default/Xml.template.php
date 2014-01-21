@@ -148,7 +148,7 @@ function template_pm()
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
+		<subject><![CDATA[', $txt['preview'], ' - ', !empty($context['preview_subject']) ? $context['preview_subject'] : $txt['no_subject'], ']]></subject>
 		<body><![CDATA[', $context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty($context['error_type']) || $context['error_type'] != 'serious' ? '0' : '1', '">';

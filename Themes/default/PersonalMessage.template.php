@@ -999,6 +999,7 @@ function template_send()
 					</div>
 				</div>
 			</div>
+			<br class="clear">
 		</div>';
 
 	// Main message editing box.
