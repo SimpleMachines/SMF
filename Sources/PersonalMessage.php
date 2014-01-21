@@ -4004,7 +4004,7 @@ function ApplyRules($all_messages = false)
 			$inserts = array();
 			// Now we insert the label info
 			foreach ($realLabels as $a_label)
-				$inserts[] = array($user_info['id'], $pm, $label);
+				$inserts[] = array($pm, $label);
 
 			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 		}
