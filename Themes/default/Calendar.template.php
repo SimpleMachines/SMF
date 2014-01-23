@@ -282,9 +282,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			// Otherwise, assuming it's not a mini-calendar, we can show previous / next month days!
 			elseif ($is_mini === false)
 			{
-				if ($current_month_started === false && !empty($context['calendar_grid_prev']))
+				if (empty($current_month_started) && !empty($context['calendar_grid_prev']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_prev']['current_year'], ';month=', $context['calendar_grid_prev']['current_month'], '">', $context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- + 1, '</a>';
-				elseif (!empty($context['calendar_grid_next']))
+				elseif (!empty($current_month_started) && !empty($context['calendar_grid_next']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_next']['current_year'], ';month=', $context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? $txt['months_short'][$context['calendar_grid_next']['current_month']] . ' ' : $txt['months_titles'][$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
 			}
 
