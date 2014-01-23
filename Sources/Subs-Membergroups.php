@@ -247,7 +247,7 @@ function deleteMembergroups($groups)
  */
 function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false, $ignoreProtected = false)
 {
-	global $smcFunc, $user_info, $modSettings, $sourcedir;
+	global $smcFunc, $modSettings, $sourcedir;
 
 	// You're getting nowhere without this permission, unless of course you are the group's moderator.
 	if (!$permissionCheckDone)
@@ -473,7 +473,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
-	global $smcFunc, $user_info, $modSettings, $sourcedir;
+	global $smcFunc, $modSettings, $sourcedir;
 
 	// Show your licence, but only if it hasn't been done yet.
 	if (!$permissionCheckDone)

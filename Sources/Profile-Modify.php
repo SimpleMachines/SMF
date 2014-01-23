@@ -931,7 +931,7 @@ function saveProfileFields()
  */
 function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 {
-	global $user_info, $txt, $user_profile;
+	global $txt, $user_profile;
 	global $context, $sourcedir;
 	global $smcFunc;
 
@@ -1747,7 +1747,7 @@ function getAvatars($directory, $level)
  */
 function theme($memID)
 {
-	global $txt, $context, $user_profile, $user_info, $smcFunc;
+	global $txt, $context, $user_profile, $smcFunc;
 
 	loadThemeOptions($memID);
 	if (allowedTo(array('profile_extra_own', 'profile_extra_any')))
@@ -1857,7 +1857,7 @@ function authentication($memID, $saving = false)
  */
 function notification($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $context, $smcFunc, $sourcedir;
 
 	// Going to want this for consistency.
 	loadCSSFile('admin.css', array(), 'admin');
@@ -1882,7 +1882,7 @@ function notification($memID)
 
 function alert_configuration($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
 
 	$context['token_check'] = 'profile-nt' . $memID;
 	is_not_guest();
@@ -2082,7 +2082,7 @@ function alert_configuration($memID)
 
 function alert_notifications_topics($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_topics']))
@@ -2222,7 +2222,7 @@ function alert_notifications_topics($memID)
 
 function alert_notifications_boards($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $user_profile, $context, $smcFunc, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
 	if (isset($_POST['edit_notify_boards']))
@@ -2517,7 +2517,7 @@ function loadThemeOptions($memID)
  */
 function ignoreboards($memID)
 {
-	global $txt, $user_info, $context, $modSettings, $smcFunc, $cur_profile;
+	global $txt, $context, $modSettings, $smcFunc, $cur_profile;
 
 	// Have the admins enabled this option?
 	if (empty($modSettings['allow_ignore_boards']))
@@ -3453,7 +3453,7 @@ function profileSendActivation()
  */
 function groupMembership($memID)
 {
-	global $txt, $scripturl, $user_profile, $user_info, $context, $smcFunc;
+	global $txt, $scripturl, $user_profile, $context, $smcFunc;
 
 	$curMember = $user_profile[$memID];
 	$context['primary_group'] = $curMember['id_group'];

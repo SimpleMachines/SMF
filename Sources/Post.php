@@ -2186,7 +2186,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $txt, $user_info, $sourcedir, $smcFunc;
+	global $language, $scripturl, $txt, $sourcedir, $smcFunc;
 
 	checkSession();
 
