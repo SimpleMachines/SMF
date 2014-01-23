@@ -37,7 +37,8 @@ $txt['mc_reportedp_by'] = 'by';
 $txt['mc_reportedp_reported_by'] = 'Reported By';
 $txt['mc_reportedp_last_reported'] = 'Last Reported';
 $txt['mc_reportedp_none_found'] = 'No Reports Found';
-
+$txt['mc_reportedp_comment_edit'] = 'Edit';
+$txt['mc_reportedp_comment_delete'] = 'Delete';
 $txt['mc_reportedp_details'] = 'Details';
 $txt['mc_reportedp_close'] = 'Close';
 $txt['mc_reportedp_open'] = 'Open';

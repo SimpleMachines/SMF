@@ -948,7 +948,7 @@ function ModReport()
 				array('id_task')
 			);
 
-			// Redirect to prevent double submittion.
+			// Redirect to prevent double submission.
 			redirectexit($scripturl . '?action=moderate;area=reports;report=' . $_REQUEST['report']);
 		}
 	}
@@ -1024,6 +1024,7 @@ function ModReport()
 			'id' => $row['id_comment'],
 			'message' => parse_bbc($row['body']),
 			'time' => timeformat($row['log_time']),
+			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['moderator'],
