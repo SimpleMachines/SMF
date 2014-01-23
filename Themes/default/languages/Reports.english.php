@@ -62,7 +62,6 @@ $txt['board_perms_name_post_autosave_draft'] = 'Automatically save drafts of pos
 $txt['board_perms_name_remove_any'] = 'Remove any topic';
 $txt['board_perms_name_remove_own'] = 'Remove own topics';
 $txt['board_perms_name_report_any'] = 'Report any post';
-$txt['board_perms_name_send_topic'] = 'Send topics to friends';
 $txt['board_perms_name_split_any'] = 'Split any topics';
 $txt['board_perms_name_view_attachments'] = 'View attachments';
 

@@ -901,6 +901,11 @@ DELETE FROM {$db_prefix}board_permissions
 WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
 ---#
 
+---# Removing the send-topic permission
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'send_topic';
+---#
+
 ---# Adding "profile_password_own"
 ---{
 $inserts = array();
