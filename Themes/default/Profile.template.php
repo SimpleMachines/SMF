@@ -99,8 +99,7 @@ function template_alerts_popup()
 				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
-				', $txt['unread_alerts'], '
-				| <a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+				<a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
 			</div>
 		</div>
 		<div class="alerts_unread">';
