@@ -96,7 +96,7 @@ function template_unread()
 	{
 		echo '
 			<div class="pagesection">
-				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
 				<div class="pagelinks floatleft">', $context['page_index'], '</div>
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
@@ -213,7 +213,7 @@ function template_unread()
 			</div>
 			<div class="pagesection">
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				', $context['menu_separator'], '<a href="#recent" class="topbottom floatleft">', $txt['go_up'], '</a>
 				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 	}
@@ -254,7 +254,7 @@ function template_replies()
 	{
 		echo '
 			<div class="pagesection">
-				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
 				<div class="pagelinks floatleft">', $context['page_index'], '</div>
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 			</div>';
@@ -367,7 +367,7 @@ function template_replies()
 			</div>
 			<div class="pagesection">
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
-				', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#recent" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+				', $context['menu_separator'], '<a href="#recent" class="topbottom floatleft">', $txt['go_up'], '</a>
 				<div class="pagelinks">', $context['page_index'], '</div>
 			</div>';
 	}
