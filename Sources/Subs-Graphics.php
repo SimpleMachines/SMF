@@ -855,10 +855,14 @@ function showCodeImage($code)
 	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
 	$font_list = array();
 	$ttfont_list = array();
+	$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
 	while ($entry = $font_dir->read())
 	{
 		if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1)
-			$font_list[] = $entry;
+		{
+			if ($endian ^ (strpos($entry, '_end.gdf') === false))
+				$font_list[] = $entry;
+		}
 		elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
 			$ttfont_list[] = $entry;
 	}
@@ -945,7 +949,6 @@ function showCodeImage($code)
 		{
 			// Can we use true type fonts?
 			$can_do_ttf = function_exists('imagettftext');
-
 
 			// How much rotation will we give?
 			if ($rotationType == 'none')

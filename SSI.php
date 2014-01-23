@@ -672,7 +672,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 // Shows the top topics.
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
-	global $txt, $scripturl, $user_info, $modSettings, $smcFunc, $context;
+	global $txt, $scripturl, $modSettings, $smcFunc, $context;
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
@@ -868,7 +868,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $scripturl, $txt, $user_info;
+	global $context, $scripturl, $txt;
 	global $modSettings, $smcFunc, $memberContext;
 
 	if ($query_where === null)
