@@ -4,7 +4,6 @@
 $txt['topic_na'] = '(private topic)';
 $txt['board_na'] = '(private board)';
 
-$txt['unread_alerts'] = 'Unread';
 $txt['all_alerts'] = 'All alerts';
 $txt['mark_alerts_read'] = 'Mark read';
 $txt['alert_settings'] = 'Settings';
