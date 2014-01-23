@@ -80,7 +80,6 @@ $txt['whotopic_printpage'] = 'Printing the topic &quot;<a href="' . $scripturl .
 $txt['whotopic_quickmod2'] = 'Moderating the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
 $txt['whotopic_removepoll'] = 'Removing the poll in &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot;.';
 $txt['whotopic_removetopic2'] = 'Removing the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
-$txt['whotopic_sendtopic'] = 'Sending the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; to a friend.';
 $txt['whotopic_splittopics'] = 'Splitting the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; into two topics.';
 $txt['whotopic_sticky'] = 'Setting the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; as sticky.';
 $txt['whotopic_vote'] = 'Voting in <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
