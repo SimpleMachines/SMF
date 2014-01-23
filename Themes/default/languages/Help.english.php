@@ -255,8 +255,6 @@ $helptxt['trackStats'] = 'Stats:<br>This will allow users to see the latest post
 		Page views:<br>Adds another column to the stats page with the number of pageviews on your forum.';
 $helptxt['titlesEnable'] = 'Switching Custom Titles on will allow members with the relevant permission to create a special title for themselves.
 		This will be shown underneath the name.<br><em>For example:</em><br>Jeff<br>Cool Guy';
-$helptxt['topbottomEnable'] = 'This will add go up and go down buttons, so that member can go to the top and bottom of a page
-		without scrolling.';
 $helptxt['onlineEnable'] = 'This will show an image to indicate whether the member is online or offline';
 $helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot; instead of the date.<br><br>
 		<strong>Examples:</strong><br><br>
