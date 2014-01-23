@@ -303,9 +303,6 @@ function ReportToModerator()
 		$context['preview_message'] = $smcFunc['htmlspecialchars']($_POST['comment'], ENT_QUOTES);
 		preparsecode($context['preview_message']);
 
-		// Do all bulletin board code tags, with or without smileys.
-		$context['preview_message'] = parse_bbc($context['preview_message']);
-
 		// We censor for your protection...
 		censorText($context['preview_message']);
 
