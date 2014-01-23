@@ -283,9 +283,10 @@ function CustomEmail()
  */
 function ReportToModerator()
 {
-	global $txt, $topic, $context, $smcFunc;
+	global $txt, $topic, $context, $smcFunc, $sourcedir;
 
 	$context['robot_no_index'] = true;
+	$context['comment_body'] = '';
 
 	// No guests!
 	is_not_guest();
@@ -293,8 +294,26 @@ function ReportToModerator()
 	// You can't use this if it's off or you are not allowed to do it.
 	isAllowedTo('report_any');
 
+	// Previewing or modifying?
+	if (isset($_POST['preview']) && !isset($_POST['save']))
+	{
+		require_once($sourcedir . '/Subs-Post.php');
+
+		// Set up the preview message.
+		$context['preview_message'] = $smcFunc['htmlspecialchars']($_POST['comment'], ENT_QUOTES);
+		preparsecode($context['preview_message']);
+
+		// Do all bulletin board code tags, with or without smileys.
+		$context['preview_message'] = parse_bbc($context['preview_message']);
+
+		// We censor for your protection...
+		censorText($context['preview_message']);
+
+		$context['comment_body'] = !empty($_POST['comment']) ? trim($_POST['comment']) : '';
+	}
+
 	// If they're posting, it should be processed by ReportToModerator2.
-	if ((isset($_POST[$context['session_var']]) || isset($_POST['save'])) && empty($context['post_errors']))
+	if ((isset($_POST[$context['session_var']]) || isset($_POST['save'])) && empty($context['post_errors']) && !isset($_POST['preview']))
 		ReportToModerator2();
 
 	// We need a message ID to check!
@@ -349,8 +368,6 @@ function ReportToModerator()
 		}
 	});', true);
 
-	$context['comment_body'] = !isset($_POST['comment']) ? '' : trim($_POST['comment']);
-
 	// This is here so that the user could, in theory, be redirected back to the topic.
 	$context['start'] = $_REQUEST['start'];
 	$context['message_id'] = $_REQUEST['msg'];
@@ -381,6 +398,9 @@ function ReportToModerator2()
 
 	require_once($sourcedir . '/Subs-Post.php');
 
+	// Prevent double submission of this form.
+	checkSubmitOnce('check');
+
 	// No errors, yet.
 	$post_errors = array();
 
@@ -391,6 +411,7 @@ function ReportToModerator2()
 	// Make sure we have a comment and it's clean.
 	if (!isset($_POST['comment']) || $smcFunc['htmltrim']($_POST['comment']) === '')
 		$post_errors[] = 'no_comment';
+
 	$poster_comment = strtr($smcFunc['htmlspecialchars']($_POST['comment']), array("\r" => '', "\t" => ''));
 
 	if ($smcFunc['strlen']($poster_comment) > 254)
