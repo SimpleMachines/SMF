@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Handles reported posts and moderation comments
+ * Handles reported posts and moderation comments.
  *
  * Simple Machines Forum (SMF)
  *
@@ -17,13 +17,11 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Shows both open and closed reports as well as their respective comments
- * calls a function based on each subaction.
+ * Sets and call a function based on the given subaction.
  * It requires the moderate_forum permission.
  *
  * @uses ModerationCenter template.
  * @uses ModerationCenter language file.
-
  *
  */
 function ReportedPosts()
@@ -52,22 +50,40 @@ function ReportedPosts()
 		isAllowedTo('moderate_forum');
 
 	$sub_actions = array(
-		'close' => 'CloseReport',
+		'open' => 'OpenReports',
+		'closed' => 'ClosedReports',
+		'handle' => 'HandleReport', // Deals with closing/opening reports.
 		'disregard' => 'DisregardReport',
-		'details' => 'ReportDetails',
+		'details' => 'ReportDetails', // Shows a single report and its comments.
 		'addcomment' => 'AddComment',
 		'editcomment' => 'EditComment',
 		'deletecomment' => 'DeleteComment',
 	);
 
-	// Go ahead and add your own sub-actions
+	// Go ahead and add your own sub-actions.
 	call_integration_hook('integrate_reported_posts', array(&$sub_actions));
 
-	// By default we call the open sub-action
+	// By default we call the open sub-action.
 	if (isset($_REQUEST['sa']) && isset($sub_actions[$_REQUEST['sa']]))
 		$context['sub_action'] = $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_REQUEST['sa']), ENT_QUOTES);
 
 	else
 		$context['sub_action'] = 'open';
+
+	// Call the function!
+	$sub_actions[$context['sub_action']]();
+}
+
+/**
+ * Shows all open reported posts.
+ * It requires the moderate_forum permission.
+ *
+ * @uses ModerationCenter template.
+ * @uses ModerationCenter language file.
+ *
+ */
+function OpenReports
+{
+
 }
 ?>
