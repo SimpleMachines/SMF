@@ -392,6 +392,11 @@ function updateSettingsFile($config_vars)
 				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
 		}
 	}
+
+	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
+	// it seems that there are times it might not. So let's MAKE it dump the cache.
+	if (function_exists('opcache_invalidate'))
+		opcache_invalidate($boarddir . '/Settings.php', true);
 }
 
 /**
