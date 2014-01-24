@@ -404,15 +404,15 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 	foreach ($posts as $post)
 		echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td class="valign righttext nowrap">
 					[', $post['board']['link'], ']
 				</td>
-				<td valign="top">
+				<td class="valign">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 				</td>
-				<td align="right" nowrap="nowrap">
+				<td class="righttext nowrap">
 					', $post['time'], '
 				</td>
 			</tr>';
@@ -560,15 +560,15 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 	foreach ($posts as $post)
 		echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td class="valign righttext nowrap">
 					[', $post['board']['link'], ']
 				</td>
-				<td valign="top">
+				<td class="valign">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>', '
 				</td>
-				<td align="right" nowrap="nowrap">
+				<td class="righttext nowrap">
 					', $post['time'], '
 				</td>
 			</tr>';
@@ -654,16 +654,16 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 	echo '
 		<table class="ssi_table">
 			<tr>
-				<th align="left">', $txt['board'], '</th>
-				<th align="left">', $txt['board_topics'], '</th>
-				<th align="left">', $txt['posts'], '</th>
+				<th class="lefttext">', $txt['board'], '</th>
+				<th class="lefttext">', $txt['board_topics'], '</th>
+				<th class="lefttext">', $txt['posts'], '</th>
 			</tr>';
 	foreach ($boards as $board)
 		echo '
 			<tr>
 				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
-				<td align="right">', comma_format($board['num_topics']), '</td>
-				<td align="right">', comma_format($board['num_posts']), '</td>
+				<td class="righttext">', comma_format($board['num_topics']), '</td>
+				<td class="righttext">', comma_format($board['num_posts']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -737,18 +737,18 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 	echo '
 		<table class="ssi_table">
 			<tr>
-				<th align="left"></th>
-				<th align="left">', $txt['views'], '</th>
-				<th align="left">', $txt['replies'], '</th>
+				<th class="lefttext"></th>
+				<th class="lefttext">', $txt['views'], '</th>
+				<th class="lefttext">', $txt['replies'], '</th>
 			</tr>';
 	foreach ($topics as $topic)
 		echo '
 			<tr>
-				<td align="left">
+				<td class="lefttext">
 					', $topic['link'], '
 				</td>
-				<td align="right">', comma_format($topic['num_views']), '</td>
-				<td align="right">', comma_format($topic['num_replies']), '</td>
+				<td class="righttext">', comma_format($topic['num_views']), '</td>
+				<td class="righttext">', comma_format($topic['num_replies']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -914,7 +914,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 		if ($output_method == 'echo')
 			echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td class="valign righttext nowrap">
 					', $query_members[$member]['link'], '
 					<br>', $query_members[$member]['blurb'], '
 					<br>', $query_members[$member]['avatar']['image'], '
@@ -1045,23 +1045,25 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 		<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
 			<table border="0" cellspacing="1" cellpadding="0" class="ssi_table">
 				<tr>
-					<td align="right"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
+					<td class="righttext"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
 					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
-				</tr><tr>
-					<td align="right"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="righttext"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
 					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
 				</tr>';
 
 	// Open ID?
 	if (!empty($modSettings['enableOpenID']))
 		echo '<tr>
-					<td colspan="2" align="center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
-				</tr><tr>
-					<td align="right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
+					<td colspan="2" class="centertext"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
+				</tr>
+				<tr>
+					<td class="righttext"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
 					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17"></td>
 				</tr>';
 
-	echo '<tr>
+		echo '<tr>
 					<td><input type="hidden" name="cookielength" value="-1"></td>
 					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>
@@ -1367,9 +1369,8 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			echo '
 					<dt>', $option['option'], '</dt>
 					<dd>
-						<div class="ssi_poll_bar" style="border: 1px solid #666; height: 1em">
-							<div class="ssi_poll_bar_fill" style="background: #ccf; height: 1em; width: ', $option['percent'], '%;">
-							</div>
+						<div class="ssi_poll_bar">
+							<div class="ssi_poll_bar_fill" style="width: ', $option['percent'], '%;"></div>
 						</div>
 						', $option['votes'], ' (', $option['percent'], '%)
 					</dd>';
@@ -1624,12 +1625,12 @@ function ssi_todaysCalendar($output_method = 'echo')
 	if (!empty($return['calendar_events']))
 	{
 		echo '
-			<span class="event">' . $txt['events_upcoming'] . '</span> ';
+			<span class="ssi_event">' . $txt['events_upcoming'] . '</span> ';
 		foreach ($return['calendar_events'] as $event)
 		{
 			if ($event['can_edit'])
 				echo '
-			<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+			<a href="' . $event['modify_href'] . '">*</a> ';
 			echo '
 			' . $event['link'] . (!$event['is_last'] ? ', ' : '');
 		}
@@ -1805,13 +1806,13 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	foreach ($return as $news)
 	{
 		echo '
-			<div class="news_item">
+			<div class="ssi_news_item">
 				<h3 class="news_header">
 					', $news['icon'], '
 					<a href="', $news['href'], '">', $news['subject'], '</a>
 				</h3>
 				<div class="news_timestamp">', $news['time'], ' ', $txt['by'], ' ', $news['poster']['link'], '</div>
-				<div class="news_body" style="padding: 2ex 0;">', $news['body'], '</div>
+				<div class="news_body">', $news['body'], '</div>
 				', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '
 			</div>';
 
@@ -1892,13 +1893,13 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 
 	// Well the output method is echo.
 	echo '
-			<span class="event">' . $txt['events'] . '</span> ';
+			<span class="ssi_event">' . $txt['events'] . '</span> ';
 	foreach ($return as $mday => $array)
 		foreach ($array as $event)
 		{
 			if ($event['can_edit'])
 				echo '
-				<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+				<a href="' . $event['modify_href'] . '">*</a> ';
 
 			echo '
 				' . $event['link'] . (!$event['is_last'] ? ', ' : '');
@@ -2028,17 +2029,17 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 	echo '
 		<table class="ssi_downloads" cellpadding="2">
 			<tr>
-				<th align="left">', $txt['file'], '</th>
-				<th align="left">', $txt['posted_by'], '</th>
-				<th align="left">', $txt['downloads'], '</th>
-				<th align="left">', $txt['filesize'], '</th>
+				<th class="lefttext">', $txt['file'], '</th>
+				<th class="lefttext">', $txt['posted_by'], '</th>
+				<th class="lefttext">', $txt['downloads'], '</th>
+				<th class="lefttext">', $txt['filesize'], '</th>
 			</tr>';
 	foreach ($attachments as $attach)
 		echo '
 			<tr>
 				<td>', $attach['file']['link'], '</td>
 				<td>', $attach['member']['link'], '</td>
-				<td align="center">', $attach['file']['downloads'], '</td>
+				<td class="centertext">', $attach['file']['downloads'], '</td>
 				<td>', $attach['file']['filesize'], '</td>
 			</tr>';
 	echo '

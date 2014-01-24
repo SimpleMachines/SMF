@@ -322,6 +322,12 @@ h3.largetext {
 .double_height {
 	line-height: 2em;
 }
+.valign {
+	vertical-align: top;
+}
+.nowrap {
+	white-space: nowrap;
+}
 /* some common padding styles */
 .padding {
 	padding: 8px;
@@ -2153,6 +2159,22 @@ div#pollmoderation {
 #poll_options .submitbutton {
 	float: right;
 	width: 100%;
+}
+
+/* SSI */
+.ssi_poll .ssi_poll_bar {
+	border: 1px solid #666;
+	height: 1em;
+}
+.ssi_poll .ssi_poll_bar_fill {
+	background: #ccf;
+	height: 1em; 
+}
+.ssi_event a {
+	color: #ff0000;
+}
+.ssi_news_item .news_body {
+	 padding: 2ex 0;
 }
 
 /* On to the posts */
