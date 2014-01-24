@@ -1865,6 +1865,7 @@ function notification($memID)
 	// This is just a bootstrap for everything else.
 	$sa = array(
 		'alerts' => 'alert_configuration',
+		'markread' => 'alert_markread',
 		'topics' => 'alert_notifications_topics',
 		'boards' => 'alert_notifications_boards',
 	);
@@ -2078,6 +2079,42 @@ function alert_configuration($memID)
 	}
 
 	createToken($context['token_check'], 'post');
+}
+
+function alert_markread($memID)
+{
+	global $context, $db_show_debug, $smcFunc;
+
+	// We do not want to output debug information here.
+	$db_show_debug = false;
+
+	// We only want to output our little layer here.
+	$context['template_layers'] = array();
+	$context['sub_template'] = 'alerts_all_read';
+
+	loadLanguage('Alerts');
+
+	// Now we're all set up.
+	is_not_guest();
+	if (!$context['user']['is_owner'])
+		fatal_error('no_access');
+
+	checkSession('get');
+
+	// Assuming we're here, mark everything as read and head back.
+	// We only spit back the little layer because this should be called AJAXively.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts
+		SET is_read = {int:now}
+		WHERE id_member = {int:current_member}
+			AND is_read = 0',
+		array(
+			'now' => time(),
+			'current_member' => $memID,
+		)
+	);
+
+	updateMemberData($memID, array('alerts' => 0));
 }
 
 function alert_notifications_topics($memID)
