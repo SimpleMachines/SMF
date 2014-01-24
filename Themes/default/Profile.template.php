@@ -95,7 +95,7 @@ function template_alerts_popup()
 	echo '
 		<div class="alert_bar">
 			<div class="alerts_opts floatright">
-				<a href="' . $scripturl . '?action=pm;sa=send">', $txt['mark_alerts_read'], '</a>
+				<a href="' . $scripturl . '?action=profile;area=notification;sa=markread;', $context['session_var'], '=', $context['session_id'], '" onclick="return markAlertsRead(this)">', $txt['mark_alerts_read'], '</a>
 				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
@@ -106,8 +106,7 @@ function template_alerts_popup()
 
 	if (empty($context['unread_alerts']))
 	{
-		echo '
-			<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
+		template_alerts_all_read();
 	}
 	else
 	{
@@ -125,7 +124,28 @@ function template_alerts_popup()
 	}
 
 	echo '
-		</div>';
+		</div>
+		<script><!-- // --><![CDATA[
+		function markAlertsRead(obj) {
+			ajax_indicator(true);
+			$.get(
+				obj.href,
+				function(data) {
+					ajax_indicator(false);
+					$("#alerts_menu_top span.amt").remove();
+					$("#alerts_menu div.alerts_unread").html(data);
+				}
+			);
+			return false;
+		}
+		// ]]></script>';
+}
+
+function template_alerts_all_read()
+{
+	global $txt;
+
+	echo '<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
 }
 
 // This template displays users details without any option to edit them.

@@ -1885,8 +1885,20 @@ function loadTheme($id_theme = 0, $initialize = true)
 			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
 		}
 		window.setTimeout("smfAutoTask();", 1);');
-
 		}
+	}
+
+	// And we should probably trigger the cron too.
+	if (empty($modSettings['cron_is_real_cron']))
+	{
+		$ts = time();
+		$ts -= $ts % 15;
+		addInlineJavaScript('
+	function triggerCron() {
+		var tempImage = new Image();
+		tempImage.src = ' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '";
+	}
+	window.setTimeout(triggerCron, 1);', true);
 	}
 
 	// Any files to include at this point?
