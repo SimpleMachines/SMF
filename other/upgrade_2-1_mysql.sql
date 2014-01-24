@@ -389,7 +389,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   content_type varchar(255) NOT NULL default '',
   content_id int(10) unsigned NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
-  is_read tinyint(3) unsigned NOT NULL default '0',
+  is_read int(10) unsigned NOT NULL default '0',
   extra text NOT NULL,
   PRIMARY KEY (id_alert),
   KEY id_member (id_member),
