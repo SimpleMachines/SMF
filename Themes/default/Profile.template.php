@@ -389,9 +389,12 @@ function template_summary()
 					<dt>', $txt['language'], ':</dt>
 					<dd>', $context['member']['language'], '</dd>';
 
-	echo '
+	if ($context['member']['online']['is_online'])
+		echo '
 					<dt>', $txt['lastLoggedIn'], ': </dt>
-					<dd>', $context['member']['last_login'], '</dd>
+					<dd>', $context['member']['last_login'], (!empty($context['member']['is_hidden']) ? ' (' . $txt['hidden'] . ')' : ''), '</dd>';
+
+	echo '
 				</dl>';
 
 	// Are there any custom profile fields for the summary?

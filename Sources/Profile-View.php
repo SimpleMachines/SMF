@@ -188,6 +188,9 @@ function summary($memID)
 		$smcFunc['db_free_result']($request);
 	}
 
+	// Are they hidden?
+	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
+		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
 }
 
