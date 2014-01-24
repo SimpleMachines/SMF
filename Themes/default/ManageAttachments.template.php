@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -24,8 +24,6 @@ function template_avatar_settings_below()
 		document.getElementById("avatar_max_width_external").disabled = document.getElementById("avatar_download_external").checked;
 		document.getElementById("avatar_max_height_external").disabled = document.getElementById("avatar_download_external").checked;
 		document.getElementById("avatar_action_too_large").disabled = document.getElementById("avatar_download_external").checked;
-		document.getElementById("custom_avatar_dir").disabled = document.getElementById("custom_avatar_enabled").value == 0;
-		document.getElementById("custom_avatar_url").disabled = document.getElementById("custom_avatar_enabled").value == 0;
 
 	}
 	addLoadEvent(fUpdateStatus);

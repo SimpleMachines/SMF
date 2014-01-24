@@ -62,7 +62,6 @@ $txt['board_perms_name_post_autosave_draft'] = 'Automatically save drafts of pos
 $txt['board_perms_name_remove_any'] = 'Remove any topic';
 $txt['board_perms_name_remove_own'] = 'Remove own topics';
 $txt['board_perms_name_report_any'] = 'Report any post';
-$txt['board_perms_name_send_topic'] = 'Send topics to friends';
 $txt['board_perms_name_split_any'] = 'Split any topics';
 $txt['board_perms_name_view_attachments'] = 'View attachments';
 
@@ -82,6 +81,7 @@ $txt['member_group_access'] = 'Board Access';
 $txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
+$txt['board_redirect'] = 'Redirection Board, redirects to';
 $txt['board_num_topics'] = 'Number of Topics';
 $txt['board_num_posts'] = 'Number of Posts';
 $txt['board_count_posts'] = 'Count Posts';

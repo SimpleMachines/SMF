@@ -1543,7 +1543,7 @@ function WrapAction()
 		$settings['catch_action']['function']();
 	}
 	// And finally, the main sub template ;).
-	elseif (isset($settings['catch_action']['sub_template']))
+	if (isset($settings['catch_action']['sub_template']))
 		$context['sub_template'] = $settings['catch_action']['sub_template'];
 }
 
@@ -1637,7 +1637,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $settings, $scripturl, $boarddir, $smcFunc;
+	global $context, $settings, $scripturl, $boarddir, $smcFunc, $txt;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1672,6 +1672,7 @@ function EditTheme()
 	// Get the directory of the theme we are editing.
 	$currentTheme = get_single_theme($_GET['th']);
 	$context['theme_id'] = $currentTheme['id'];
+	$context['browse_title'] = sprintf($txt['themeadmin_browsing_theme'], $currentTheme['name']);
 
 	if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css'))
 		fatal_lang_error('theme_edit_missing', false);
@@ -1687,7 +1688,7 @@ function EditTheme()
 				$_GET['directory'] = preg_replace(array('~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'), array('', '/', '/'), $_GET['directory']);
 
 				$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
-				if (empty($temp) || substr($temp, 0, strlen(realpath($theme_dir))) != realpath($theme_dir))
+				if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir']))
 					$_GET['directory'] = '';
 			}
 		}

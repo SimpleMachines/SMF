@@ -227,7 +227,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $scripturl, $user_info, $user_settings, $options;
+	global $txt, $context, $scripturl, $user_settings, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
@@ -1182,7 +1182,7 @@ function ShowNotice()
  */
 function ViewWatchedUsers()
 {
-	global $smcFunc, $modSettings, $context, $txt, $scripturl, $user_info, $sourcedir;
+	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
 
 	// Some important context!
 	$context['page_title'] = $txt['mc_watched_users_title'];
@@ -1521,7 +1521,7 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
  */
 function list_getWatchedUserPostsCount($approve_query)
 {
-	global $smcFunc, $modSettings, $user_info;
+	global $smcFunc, $modSettings;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -1552,7 +1552,7 @@ function list_getWatchedUserPostsCount($approve_query)
  */
 function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards)
 {
-	global $smcFunc, $txt, $scripturl, $modSettings, $user_info;
+	global $smcFunc, $txt, $scripturl, $modSettings;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_msg, m.id_topic, m.id_board, m.id_member, m.subject, m.body, m.poster_time,
@@ -1752,7 +1752,7 @@ function list_getWarningCount()
  */
 function list_getWarnings($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl, $user_info;
+	global $smcFunc, $txt, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name_col,

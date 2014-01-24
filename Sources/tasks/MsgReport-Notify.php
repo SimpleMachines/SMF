@@ -97,7 +97,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
+							'report_link' => '?action=moderate;area=reports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)
 					),
 				);

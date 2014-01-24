@@ -34,7 +34,7 @@ $databases = array(
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'alter_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
@@ -54,7 +54,7 @@ $databases = array(
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysql_get_server_info();',
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'alter_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
@@ -69,7 +69,7 @@ $databases = array(
 		'supported' => function_exists('pg_connect'),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
@@ -121,7 +121,7 @@ $databases = array(
 		'supported' => is_callable(array('sqlite3', 'version')),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'utf8_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
@@ -540,6 +540,7 @@ function CheckFilesWritable()
 	$writable_files = array(
 		'attachments',
 		'avatars',
+		'custom_avatar',
 		'cache',
 		'Packages',
 		'Smileys',
@@ -1087,7 +1088,7 @@ function DatabasePopulation()
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
 	// If the UTF-8 setting was enabled, add it to the table definitions.
-	if (empty($databases[$db_type]['utf8_required']) && isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
+	if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1578,6 +1579,7 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		)
 	);
+	$context['utf8'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8';
 	if ($smcFunc['db_num_rows']($request) > 0)
 		updateStats('subject', 1, htmlspecialchars($txt['default_topic_subject']));
 	$smcFunc['db_free_result']($request);
@@ -2017,6 +2019,11 @@ function updateSettingsFile($vars)
 	}
 	fwrite($fp, $settingsArray[$i] . '?' . '>');
 	fclose($fp);
+
+	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
+	// it seems that there are times it might not. So let's MAKE it dump the cache.
+	if (function_exists('opcache_invalidate'))
+		opcache_invalidate(dirname(__FILE__) . '/Settings.php', true);
 
 	return true;
 }

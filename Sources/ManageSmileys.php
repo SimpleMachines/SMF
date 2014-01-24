@@ -1699,7 +1699,7 @@ function ImportSmileys($smileyPath)
  */
 function EditMessageIcons()
 {
-	global $user_info, $context, $settings, $txt;
+	global $context, $settings, $txt;
 	global $boarddir, $smcFunc, $scripturl, $sourcedir;
 
 	// Get a list of icons.
@@ -1966,7 +1966,7 @@ function EditMessageIcons()
  */
 function list_getMessageIcons($start, $items_per_page, $sort)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name

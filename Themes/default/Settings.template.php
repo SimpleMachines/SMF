@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -163,10 +163,6 @@ function template_settings()
 			'size' => 8,
 		),
 	'',
-		array(
-			'id' => 'linktree_link',
-			'label' => $txt['current_pos_text_img'],
-		),
 		array(
 			'id' => 'enable_news',
 			'label' => $txt['enable_random_news'],

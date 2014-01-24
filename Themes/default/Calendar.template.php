@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -271,7 +271,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 									</a>
 								';
 							}
-							echo $event['link'], $event['is_last'] ? '' : '<br>';
+							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'], $event['is_last'] ? '' : '<br>';
 						}
 
 						echo '</div>';
@@ -282,9 +282,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			// Otherwise, assuming it's not a mini-calendar, we can show previous / next month days!
 			elseif ($is_mini === false)
 			{
-				if ($current_month_started === false && !empty($context['calendar_grid_prev']))
+				if (empty($current_month_started) && !empty($context['calendar_grid_prev']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_prev']['current_year'], ';month=', $context['calendar_grid_prev']['current_month'], '">', $context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- + 1, '</a>';
-				elseif (!empty($context['calendar_grid_next']))
+				elseif (!empty($current_month_started) && !empty($context['calendar_grid_next']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_next']['current_year'], ';month=', $context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? $txt['months_short'][$context['calendar_grid_next']['current_month']] . ' ' : $txt['months_titles'][$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
 			}
 
@@ -519,43 +519,9 @@ function template_calendar_base($col_span = 1)
 // Template for posting a calendar event.
 function template_event_post()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
-	// Start the javascript for drop down boxes...
 	echo '
-		<script><!-- // --><![CDATA[
-			var monthLength;
-			monthLength = [
-				31, 28, 31, 30,
-				31, 30, 31, 31,
-				30, 31, 30, 31
-			];
-			function generateDays()
-			{
-				var days, selected, dayElement, monthElement, yearElement;
-				dayElement = document.getElementById("day"), yearElement = document.getElementById("year"), monthElement = document.getElementById("month");
-
-				monthLength[1] = 28;
-				if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-					monthLength[1] = 29;
-
-				selected = dayElement.selectedIndex;
-				while (dayElement.options.length)
-				{
-					dayElement.options[0] = null;
-				}
-				days = monthLength[monthElement.value - 1];
-
-				for (i = 0; i <= days; ++i)
-				{
-					dayElement.options[dayElement.length] = new Option(i, i);
-				}
-
-				if (selected < days)
-					dayElement.selectedIndex = selected;
-			}
-		// ]]></script>
-
 		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);smc_saveEntities(\'postevent\', [\'evtitle\']);" style="margin: 0;">';
 
 	if (!empty($context['event']['new']))

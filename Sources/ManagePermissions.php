@@ -1093,7 +1093,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'delete_own',
 		'modify_own',
 		'report_any',
-		'send_topic',
 	);
 
 	// Standard - ie. members.  They can do anything Restrictive can.
@@ -1181,7 +1180,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	$boardLevels['locked'] = array(
 		'poll_view',
 		'report_any',
-		'send_topic',
 		'view_attachments',
 	);
 
@@ -1470,7 +1468,6 @@ function loadAllPermissions()
 			'post_reply' => array(true, 'topic'),
 			'merge_any' => array(false, 'topic'),
 			'split_any' => array(false, 'topic'),
-			'send_topic' => array(false, 'topic'),
 			'make_sticky' => array(false, 'topic'),
 			'move' => array(true, 'topic', 'moderate'),
 			'lock' => array(true, 'topic', 'moderate'),

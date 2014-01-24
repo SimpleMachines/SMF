@@ -77,7 +77,8 @@ if (isset($_GET['scheduled']))
 	require_once($sourcedir . '/ScheduledTasks.php');
 	AutoTask();
 }
-// Displaying attached avatars
+
+// Displaying attached avatars, legacy.
 elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && $_GET['type'] == 'avatar')
 {
 	require_once($sourcedir. '/Avatar.php');
@@ -334,7 +335,6 @@ function smf_main()
 		'search' => array('Search.php', 'PlushSearch1'),
 		'search2' => array('Search.php', 'PlushSearch2'),
 		'sendactivation' => array('Register.php', 'SendActivation'),
-		'sendtopic' => array('SendTopic.php', 'EmailUser'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
 		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
@@ -368,6 +368,14 @@ function smf_main()
 		{
 			require_once($sourcedir . '/Themes.php');
 			return 'WrapAction';
+		}
+
+		$fallbackActions = call_integration_hook('integrate_fallback_action');
+		foreach ($fallbackActions as $fallbackAction)
+		{
+			$call = strpos($defaultAction, '::') !== false ? explode('::', $fallbackAction) : $fallbackAction;
+			if (!empty($call) && is_callable($call))
+				return $call;
 		}
 
 		// Fall through to the board index then...

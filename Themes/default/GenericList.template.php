@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -15,7 +15,9 @@ function template_show_list($list_id = null)
 	global $context, $scripturl, $txt, $modSettings;
 
 	// Get a shortcut to the current list.
-	$list_id = $list_id === null ? $context['default_list'] : $list_id;
+	$list_id = $list_id === null ? (!empty($context['default_list']) ? $context['default_list'] : '') : $list_id;
+	if (empty($list_id) || empty($context[$list_id]))
+		return;
 	$cur_list = &$context[$list_id];
 
 	// These are the main tabs that is used all around the template.

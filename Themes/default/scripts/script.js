@@ -358,7 +358,7 @@ smc_PopupMenu.prototype.add = function (sItem, sUrl)
 		e.preventDefault();
 		if (e.target != this)
 			return;
-			
+
 		e.data.obj.toggle(sItem);
 	});
 }
@@ -388,7 +388,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 
 	// Now set up closing the menu if we click off.
 	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest('#top_info').length)
+		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
 			return;
 		e.data.obj.closeAll();
 		$(document).off('click.menu');
@@ -1543,12 +1543,16 @@ function pollOptions()
 function generateDays(offset)
 {
 	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : 0;
+	offset = typeof(offset) != 'undefined' ? offset : '';
 
 	var days = 0, selected = 0;
 	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
 
-	monthLength[1] = 28;
+	var monthLength = [
+		31, 28, 31, 30,
+		31, 30, 31, 31,
+		30, 31, 30, 31
+	];
 	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
 		monthLength[1] = 29;
 

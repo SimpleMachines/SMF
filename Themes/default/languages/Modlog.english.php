@@ -33,7 +33,7 @@ $txt['modlog_ac_clearlog_moderate'] = 'Cleared the moderation log';
 $txt['modlog_ac_clearlog_admin'] = 'Cleared the administration log';
 $txt['modlog_enter_comment'] = 'Enter Moderation Comment';
 $txt['modlog_moderation_log'] = 'Moderation Log';
-$txt['modlog_moderation_log_desc'] = 'Below is a list of all the moderation actions that have been carried out by moderators of the forum.<br><strong>Please note:</strong> Entries cannot be removed from this log until they are at least twenty-four hours old.';
+$txt['modlog_moderation_log_desc'] = 'Below is a list of all the moderation actions that have been carried out by moderators of the forum.';
 $txt['modlog_no_entries_found'] = 'There are currently no moderation log entries.';
 $txt['modlog_remove'] = 'Delete Selected';
 $txt['modlog_removeall'] = 'Clear Log';
@@ -57,7 +57,7 @@ $txt['modlog_ac_ban_trigger_ip_range'] = ' <em>IP:</em> {ip_range}';
 $txt['modlog_ac_ban_trigger_hostname'] = ' <em>Hostname:</em> {hostname}';
 
 $txt['modlog_admin_log'] = 'Administration Log';
-$txt['modlog_admin_log_desc'] = 'Below is a list of administration actions which have been logged on your forum.<br><strong>Please note:</strong> Entries cannot be removed from this log until they are at least twenty-four hours old.';
+$txt['modlog_admin_log_desc'] = 'Below is a list of administration actions which have been logged on your forum.';
 $txt['modlog_admin_log_no_entries_found'] = 'There are currently no administration log entries.';
 
 // Admin type strings.
@@ -97,7 +97,7 @@ $txt['modlog_ac_remove_attach'] = 'Removed unapproved &quot;{filename}&quot; in 
 // Handling reports on posts
 $txt['modlog_report'] = 'report';
 $txt['modlog_ac_close_report'] = 'Closed {report} on &quot;{message}&quot;';
-$txt['modlog_ac_ignore_report'] = 'Ignored {report} on &quot;{message}&quot;';
+$txt['modlog_ac_ignore_report'] = 'Disregarded {report} on &quot;{message}&quot;';
 $txt['modlog_ac_open_report'] = 'Reopened {report} on &quot;{message}&quot;';
-$txt['modlog_ac_unignore_report'] = 'Un-ignored {report} on &quot;{message}&quot;';
+$txt['modlog_ac_unignore_report'] = 'Undone disregard of {report} on &quot;{message}&quot;';
 ?>

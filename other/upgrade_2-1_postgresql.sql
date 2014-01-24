@@ -40,7 +40,7 @@ if (!isset($modSettings['allow_no_censored']))
 		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
-	
+
 	// Is it set for either "default" or the one they've set as default?
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -50,7 +50,7 @@ if (!isset($modSettings['allow_no_censored']))
 				INSERT INTO {$db_prefix}settings
 				VALUES ('allow_no_censored', 1)
 			");
-			
+
 			// Don't do this twice...
 			break;
 		}
@@ -69,6 +69,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 
 ---# Converting legacy attachments.
 ---{
+
+// Need to know a few things first.
+$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+
+// This little fellow has to cooperate...
+if (!is_writable($custom_av_dir))
+	@chmod($custom_av_dir, 0777);
+
 $request = upgrade_query("
 	SELECT MAX(id_attach)
 	FROM {$db_prefix}attachments");
@@ -142,8 +150,17 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
-		// And we try to move it.
-		rename($oldFile, $newFile);
+		// Check if the av is an attachment
+		if ($row['id_member'] != 0)
+			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+				upgrade_query("
+					UPDATE {$db_prefix}attachments
+					SET file_hash = '', attachment_type = 1
+					WHERE id_attach = $row[id_attach]");
+
+		// Just a regular attachment.
+		else
+			rename($oldFile, $newFile);
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
@@ -446,7 +463,7 @@ CREATE TABLE {$db_prefix}user_alerts (
   content_type varchar(255) NOT NULL default '',
   content_id int NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
-  is_read smallint NOT NULL default '0',
+  is_read int NOT NULL default '0',
   extra text NOT NULL,
   PRIMARY KEY (id_alert)
 );
@@ -739,23 +756,85 @@ WHERE variable = 'avatar_action_too_large'
 	AND (value = 'option_html_resize' OR value = 'option_js_resize');
 ---#
 
+---# Cleaning up the old Core Features page.
+---{
+	// First get the original value
+	$request = $smcFunc['db_query']('', '
+		SELECT value
+		FROM {db_prefix}settings
+		WHERE variable = {literal:admin_features}');
+	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// Some of these *should* already be set but you never know.
+		$new_settings = array();
+		$admin_features = explode(',', $row['value']);
+
+		// Now, let's just recap something.
+		// cd = calendar, should also have set cal_enabled already
+		// cp = custom profile fields, which already has several fields that cover tracking
+		// k = karma, should also have set karmaMode already
+		// ps = paid subs, should also have set paid_enabled already
+		// rg = reports generation, which is now permanently on
+		// sp = spider tracking, should also have set spider_mode already
+		// w = warning system, which will be covered with warning_settings
+
+		// The rest we have to deal with manually.
+		// Moderation log - modlog_enabled itself should be set but we have others now
+		if (in_array('ml', $admin_features))
+		{
+			$new_settings[] = array('adminlog_enabled', '1');
+			$new_settings[] = array('userlog_enabled', '1');
+		}
+
+		// Post moderation
+		if (in_array('pm', $admin_features))
+		{
+			$new_settings[] = array('postmod_active', '1');
+		}
+
+		// And now actually apply it.
+		if (!empty($new_settings))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				$new_settings,
+				array('variable')
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+---}
+---#
+
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable');
 ---#
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link');
 ---#
 
 /******************************************************************************/
---- Removing old Simple Machines files we do not need to fetch any more
+--- Updating files that fetched from simplemachines.org
 /******************************************************************************/
----# We no longer call on the latest packages list.
+---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
 WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
+---#
+
+---# But we do need new files.
+---{
+$smcFunc['db_insert']('',
+	'{db_prefix}admin_info_files',
+	array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
+	array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+	array('id_file')
+);
+---}
 ---#
 
 /******************************************************************************/
@@ -840,6 +919,11 @@ DELETE FROM {$db_prefix}board_permissions
 WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
 ---#
 
+---# Removing the send-topic permission
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'send_topic';
+---#
+
 ---# Adding "profile_password_own"
 ---{
 $inserts = array();
@@ -848,7 +932,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_identity_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_password_own', $row[add_deny])";
@@ -878,7 +962,7 @@ $request = upgrade_query("
 	SELECT id_group, add_deny
 	FROM {$db_prefix}permissions
 	WHERE permission = 'profile_extra_own'");
-	
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'profile_blurb_own', $row[add_deny])";
@@ -965,7 +1049,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 				$inserts[] = array($row['id_member'], $label);
 			}
 		}
-		
+
 		$smcFunc['db_free_result']($get_labels);
 
 		if (!empty($inserts))
@@ -1028,7 +1112,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 					continue;
 
 				$new_label_info = $label_info_2[$row['id_member']][$a_label];
-				$inserts[] = array($row['id_pm'], $new_label_info); 
+				$inserts[] = array($row['id_pm'], $new_label_info);
 			}
 		}
 
@@ -1074,7 +1158,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 				array(
 					'actions' => $actions,
 					'id_rule' => $row['id_rule'],
-				)	
+				)
 			);
 		}
 

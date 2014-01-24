@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -14,19 +14,6 @@
 /*	This template contains two humble sub templates - main. Its job is pretty
 	simple: it collects the information we need to actually send the topic.
 
-	The main sub template gets shown from:
-		'?action=emailuser;sa=sendtopic;topic=##.##'
-	And should submit to:
-		'?action=emailuser;sa=sendtopic;topic=' . $context['current_topic'] . '.' . $context['start']
-	It should send the following fields:
-		y_name: sender's name.
-		y_email: sender's email.
-		comment: any additional comment.
-		r_name: receiver's name.
-		r_email: receiver's email address.
-		send: this just needs to be set, as by the submit button.
-		sc: the session id, or $context['session_id'].
-
 	The report sub template gets shown from:
 		'?action=reporttm;topic=##.##;msg=##'
 	It should submit to:
@@ -35,69 +22,6 @@
 		comment: an additional comment to give the moderator.
 		sc: the session id, or $context['session_id'].
 */
-
-// This is where we get information about who they want to send the topic to, etc.
-function template_main()
-{
-	global $context, $txt, $scripturl;
-
-	echo '
-	<div id="send_topic">
-		<form action="', $scripturl, '?action=emailuser;sa=sendtopic;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">
-					<span class="generic_icons mail icon"></span>', $context['page_title'], '
-				</h3>
-			</div>
-			<div class="windowbg2">
-				<div class="content">
-					<fieldset id="sender" class="send_topic">
-						<dl class="settings send_topic">
-							<dt>
-								<label for="y_name"><strong>', $txt['sendtopic_sender_name'], ':</strong></label>
-							</dt>
-							<dd>
-								<input type="text" id="y_name" name="y_name" size="30" maxlength="40" value="', $context['user']['name'], '" class="input_text">
-							</dd>
-							<dt>
-								<label for="y_email"><strong>', $txt['sendtopic_sender_email'], ':</strong></label>
-							</dt>
-							<dd>
-								<input type="text" id="y_email" name="y_email" size="30" maxlength="50" value="', $context['user']['email'], '" class="input_text">
-							</dd>
-							<dt>
-								<label for="comment"><strong>', $txt['sendtopic_comment'], ':</strong></label>
-							</dt>
-							<dd>
-								<input type="text" id="comment" name="comment" size="30" maxlength="100" class="input_text">
-							</dd>
-						</dl>
-					</fieldset>
-					<fieldset id="recipient" class="send_topic">
-						<dl class="settings send_topic">
-							<dt>
-								<label for="r_name"><strong>', $txt['sendtopic_receiver_name'], ':</strong></label>
-							</dt>
-							<dd>
-								<input type="text" id="r_name" name="r_name" size="30" maxlength="40" class="input_text">
-							</dd>
-							<dt>
-								<label for="r_email"><strong>', $txt['sendtopic_receiver_email'], ':</strong></label>
-							</dt>
-							<dd>
-								<input type="text" id="r_email" name="r_email" size="30" maxlength="50" class="input_text">
-							</dd>
-						</dl>
-					</fieldset>
-					<div class="flow_auto">
-						<input type="submit" name="send" value="', $txt['sendtopic_send'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>';
-}
 
 // Send an email to a user!
 function template_custom_email()

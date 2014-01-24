@@ -617,7 +617,7 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 				$entries[$k]['extra'][$type] = sprintf($txt['modlog_id'], $entry['extra'][$type]);
 
 		if (isset($entry['extra']['report']))
-			$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=modlog;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+			$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];

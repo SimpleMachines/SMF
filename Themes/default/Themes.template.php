@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -887,7 +887,15 @@ function template_edit_browse()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<div id="admincenter">
+	<div id="admincenter">';
+
+	if (!empty($context['browse_title']))
+		echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $context['browse_title'], '</h3>
+		</div>';
+
+	echo '
 		<table class="table_grid tborder">
 		<thead>
 			<tr class="catbg">

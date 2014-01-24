@@ -278,7 +278,7 @@ function viewLikes($like_type, $like_content)
 		}
 
 		$context['likers'][$liker]['profile'] = &$memberContext[$liker];
-		$context['likers'][$liker]['time'] = timeformat($dummy['timestamp']);
+		$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
 	}
 
 	$count = count($context['likers']);
