@@ -43,6 +43,10 @@ function ReportedPosts()
 		'description' => $txt['mc_reported_posts_desc'],
 	);
 
+	// Set up the comforting bits...
+	$context['page_title'] = $txt['mc_reported_posts'];
+	$context['sub_template'] = 'reported_posts';
+
 	// This comes under the umbrella of moderating posts.
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
@@ -55,5 +59,15 @@ function ReportedPosts()
 		'editcomment' => 'EditComment',
 		'deletecomment' => 'DeleteComment',
 	);
+
+	// Go ahead and add your own sub-actions
+	call_integration_hook('integrate_reported_posts', array(&$sub_actions));
+
+	// By default we call the open sub-action
+	if (isset($_REQUEST['sa']) && isset($sub_actions[$_REQUEST['sa']]))
+		$context['sub_action'] = $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_REQUEST['sa']), ENT_QUOTES);
+
+	else
+		$context['sub_action'] = 'open';
 }
 ?>
