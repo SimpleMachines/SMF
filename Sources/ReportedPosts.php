@@ -28,6 +28,32 @@ if (!defined('SMF'))
  */
 function ReportedPosts()
 {
-	global $txt, $context;
+	global $txt, $context, $scripturl, $user_info, $smcFunc;
+
+	loadLanguage('ModerationCenter');
+	loadTemplate('ModerationCenter');
+
+	// Set an empty var for the server response.
+	$context['report_post_action'] = '';
+
+	// Put the open and closed options into tabs, because we can...
+	$context[$context['moderation_menu_name']]['tab_data'] = array(
+		'title' => $txt['mc_reported_posts'],
+		'help' => '',
+		'description' => $txt['mc_reported_posts_desc'],
+	);
+
+	// This comes under the umbrella of moderating posts.
+	if ($user_info['mod_cache']['bq'] == '0=1')
+		isAllowedTo('moderate_forum');
+
+	$sub_actions = array(
+		'close' => 'CloseReport',
+		'disregard' => 'DisregardReport',
+		'details' => 'ReportDetails',
+		'addcomment' => 'AddComment',
+		'editcomment' => 'EditComment',
+		'deletecomment' => 'DeleteComment',
+	);
 }
 ?>
