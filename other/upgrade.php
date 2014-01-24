@@ -3618,8 +3618,8 @@ function template_upgrade_above()
 					</div>';
 
 	echo '
-				<div id="substep_bar_div" class="smalltext" style="display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
-				<div id="substep_bar_div2" style="font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 50%; margin: 5px auto; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
+				<div id="substep_bar_div" class="smalltext" style="float: left;width: 50%;margin-top: 0.6em;display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">', isset($upcontext['substep_progress_name']) ? trim(strtr($upcontext['substep_progress_name'], array('.' => ''))) : '', ':</div>
+				<div id="substep_bar_div2" style="float: left;font-size: 8pt; height: 12pt; border: 1px solid black; background-color: white; width: 33%; margin: 0.6em auto 0 6em; display: ', isset($upcontext['substep_progress']) ? '' : 'none', ';">
 					<div id="substep_text" style="color: #000; position: absolute; margin-left: -5em;">', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : '', '%</div>
 				<div id="substep_progress" style="width: ', isset($upcontext['substep_progress']) ? $upcontext['substep_progress'] : 0, '%; height: 12pt; z-index: 1; background-color: #eebaf4;">&nbsp;</div>
 								</div>';
@@ -3629,7 +3629,7 @@ function template_upgrade_above()
 	$mins = (int) ($elapsed / 60);
 	$seconds = $elapsed - $mins * 60;
 	echo '
-								<br> <br> <br> <br>
+								<br> <br> <br> <br> <br>
 								<div class="smalltext" style="padding: 5px; text-align: center;"><br>', $txt['upgrade_time_elapsed'], ':
 									<span id="mins_elapsed">', $mins, '</span> ', $txt['upgrade_time_mins'], ', <span id="secs_elapsed">', $seconds, '</span> ', $txt['upgrade_time_secs'], '.
 								</div>';
