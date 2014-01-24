@@ -463,7 +463,7 @@ CREATE TABLE {$db_prefix}user_alerts (
   content_type varchar(255) NOT NULL default '',
   content_id int NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
-  is_read smallint NOT NULL default '0',
+  is_read int NOT NULL default '0',
   extra text NOT NULL,
   PRIMARY KEY (id_alert)
 );
