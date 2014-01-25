@@ -168,7 +168,7 @@ function ShowXmlFeed()
 	}
 
 	// Show in rss or proprietary format?
-	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf', 'webslice')) ? $_GET['type'] : 'smf';
+	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'smf';
 
 	// @todo Birthdays?
 
@@ -185,17 +185,6 @@ function ShowXmlFeed()
 
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
-
-	// @todo Temp - webslices doesn't do everything yet.
-	if ($xml_format == 'webslice' && $_GET['sa'] != 'recent')
-		$xml_format = 'rss2';
-	// If this is webslices we kinda cheat - we allow a template that we call direct for the HTML, and we override the CDATA.
-	elseif ($xml_format == 'webslice')
-	{
-		$context['user'] += $user_info;
-		$cdata_override = true;
-		loadTemplate('Xml');
-	}
 
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa']);
@@ -228,7 +217,7 @@ function ShowXmlFeed()
 
 	if ($xml_format == 'smf' || isset($_REQUEST['debug']))
 		header('Content-Type: text/xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
-	elseif ($xml_format == 'rss' || $xml_format == 'rss2' || $xml_format == 'webslice')
+	elseif ($xml_format == 'rss' || $xml_format == 'rss2')
 		header('Content-Type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	elseif ($xml_format == 'atom')
 		header('Content-Type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
@@ -254,30 +243,6 @@ function ShowXmlFeed()
 
 		// Output the footer of the xml.
 		echo '
-	</channel>
-</rss>';
-	}
-	elseif ($xml_format == 'webslice')
-	{
-		$context['recent_posts_data'] = $xml;
-		$context['can_pm_read'] = allowedTo('pm_read');
-
-		// This always has RSS 2
-		echo '
-<rss version="2.0" xmlns:mon="http://www.microsoft.com/schemas/rss/monitoring/2007" xml:lang="', strtr($txt['lang_locale'], '_', '-'), '">
-	<channel>
-		<title>', $feed_title, ' - ', $txt['recent_posts'], '</title>
-		<link>', $scripturl, '?action=recent</link>
-		<description><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></description>
-		<item>
-			<title>', $feed_title, ' - ', $txt['recent_posts'], '</title>
-			<link>', $scripturl, '?action=recent</link>
-			<description><![CDATA[
-				', template_webslice_header_above(), '
-				', template_webslice_recent_posts(), '
-				', template_webslice_header_below(), '
-			]]></description>
-		</item>
 	</channel>
 </rss>';
 	}
@@ -320,7 +285,7 @@ function ShowXmlFeed()
 
 		foreach ($xml as $item)
 			echo '
-				<rdf:li rdf:resource="', $item['link'], '">';
+				<rdf:li rdf:resource="', $item['link'], '" />';
 
 		echo '
 			</rdf:Seq>
