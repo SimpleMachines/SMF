@@ -290,8 +290,8 @@ function ShowXmlFeed()
 		echo '
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
-	<link rel="alternate" type="text/html" href="', $scripturl, '">
-	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '">
+	<link rel="alternate" type="text/html" href="', $scripturl, '" />
+	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -477,7 +477,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		// Grr, I hate kludges... almost worth doing it properly, here, but not quite.
 		if ($xml_format == 'atom' && $key == 'link')
 		{
-			echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '">';
+			echo '<link rel="alternate" type="text/html" href="', fix_possible_url($val), '" />';
 			continue;
 		}
 
@@ -485,7 +485,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		if ($val == '')
 			echo '<', $key, '>';
 		elseif ($xml_format == 'atom' && $key == 'category')
-			echo '<', $key, ' term="', $val, '">';
+			echo '<', $key, ' term="', $val, '" />';
 		else
 		{
 			// Beginning tag.
