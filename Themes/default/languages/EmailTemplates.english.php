@@ -599,7 +599,7 @@ You may update your profile by visiting this page after you login:
 	@description:
 */
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_pending_body'] = 'Hello {REALNAME}, our registration request at {FORUMNAME} has been received, {REALNAME}.
+$txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
 The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
