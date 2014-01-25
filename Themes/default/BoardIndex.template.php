@@ -298,11 +298,7 @@ function template_ic_block_recent()
 					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
-			<div class="hslice" id="recent_posts_content">
-				<div class="entry-title" style="display: none;">', $context['forum_name_html_safe'], ' - ', $txt['recent_posts'], '</div>
-				<div class="entry-content" style="display: none;">
-					<a rel="feedurl" href="', $scripturl, '?action=.xml;type=webslice">', $txt['subscribe_webslice'], '</a>
-				</div>';
+			<div id="recent_posts_content">';
 
 	// Only show one post.
 	if ($settings['number_recent_posts'] == 1)

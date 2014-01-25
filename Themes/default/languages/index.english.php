@@ -777,7 +777,6 @@ $txt['openid'] = 'OpenID';
 
 $txt['downloads'] = 'Downloads';
 $txt['filesize'] = 'Filesize';
-$txt['subscribe_webslice'] = 'Subscribe to Webslice';
 
 // Restore topic
 $txt['restore_topic'] = 'Restore Topic';
