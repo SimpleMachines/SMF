@@ -313,7 +313,7 @@ $helptxt['attachmentShowImages'] = 'If the uploaded file is a picture, it will b
 $helptxt['attachmentThumbnails'] = 'If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.';
 $helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width to resize attachments down from.  They will be resized proportionally.';
 $helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum height to resize attachments down from.  They will be resized proportionally.';
-$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory help text';
+$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory';
 $helptxt['attachmentEnable'] = 'This option enables you to configure how attachments can be made.<br><br>
 	<ul class="normallist">
 		<li>
