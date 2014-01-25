@@ -2979,7 +2979,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_external">
-									<div class="smalltext">', $txt['avatar_by_url'], '</div>
+									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', $context['member']['avatar']['external'], '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text">
 								</div>';
 	}
@@ -2989,8 +2989,8 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_upload">
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file">
-									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file">', template_max_size('upload'), '
+									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
 
@@ -3028,6 +3028,22 @@ function template_profile_avatar_select()
 									}
 								// ]]></script>
 							</dd>';
+}
+
+// This is just a really little helper to avoid duplicating code unnecessarily
+function template_max_size($type)
+{
+	global $modSettings, $txt;
+
+	$w = !empty($modSettings['avatar_max_width_' . $type]) ? comma_format($modSettings['avatar_max_width_' . $type]) : 0;
+	$h = !empty($modSettings['avatar_max_height_' . $type]) ? comma_format($modSettings['avatar_max_height_' . $type]) : 0;
+
+	$suffix = (!empty($w) ? 'w' : '') . (!empty($h) ? 'h' : '');
+	if (empty($suffix))
+		return;
+
+	echo '
+									<div class="smalltext">', sprintf($txt['avatar_max_size_' . $suffix], $w, $h), '</div>';
 }
 
 // Callback for modifying karam.
