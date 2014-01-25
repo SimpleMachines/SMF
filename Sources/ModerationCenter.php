@@ -681,23 +681,6 @@ function ReportedPosts()
 		$context['report_post_action'] = 'close_all';
 	}
 
-	// How many entries are we viewing?
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}log_reported AS lr
-		WHERE lr.closed = {int:view_closed}
-			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']),
-		array(
-			'view_closed' => $context['view_closed'],
-		)
-	);
-	list ($context['total_reports']) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	// So, that means we can page index, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports' . ($context['view_closed'] ? ';sa=closed' : ''), $_GET['start'], $context['total_reports'], 10);
-	$context['start'] = $_GET['start'];
-
 	// By George, that means we in a position to get the reports, golly good.
 	$request = $smcFunc['db_query']('', '
 		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,

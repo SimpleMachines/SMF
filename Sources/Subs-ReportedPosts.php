@@ -23,7 +23,7 @@ if (!defined('SMF'))
  * @param integer $value The new value to update.
  * @params integer $report_id The affected report.
  */
-function UpdateReport($action, $value, $report_id)
+function updateReport($action, $value, $report_id)
 {
 	global $smcFunc, $user_info, $context;
 
@@ -73,4 +73,28 @@ function UpdateReport($action, $value, $report_id)
 	updateSettings(array('last_mod_report_action' => time()));
 	recountOpenReports();
 }
+
+function countReports($closed = 0)
+{
+	global $smcFunc, $context, $user_info;
+
+	$context['start'] = $_GET['start'];
+
+	// How many entries are we viewing?
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}log_reported AS lr
+		WHERE lr.closed = {int:view_closed}
+			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']),
+		array(
+			'view_closed' => $closed,
+		)
+	);
+	list ($context['total_reports']) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	// So, that means we can page index, yes?
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports' . ($closed ? ';sa=closed' : ''), $context['start'], $context['total_reports'], 10);
+}
+
 ?>
