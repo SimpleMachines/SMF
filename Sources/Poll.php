@@ -280,6 +280,8 @@ function LockVoting()
 		)
 	);
 
+	logAction(($voting_locked ? '' : 'un') . 'lock_poll', array('topic' => $topic));
+
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
@@ -885,6 +887,25 @@ function EditPoll2()
 
 	call_integration_hook('integrate_poll_add_edit', array($bcinfo['id_poll'], $isEdit));
 
+	/* Log this edit, but don't go crazy.
+		Only specifically adding a poll	or resetting votes is logged.
+		Everything else is simply an edit.*/
+	if (isset($_REQUEST['add']))
+	{
+		// Added a poll
+		logAction('add_poll', array('topic' => $topic));
+	}
+	elseif (isset($_REQUEST['deletevotes']))
+	{
+		// Reset votes
+		logAction('reset_poll', array('topic' => $topic));
+	}
+	else
+	{
+		// Something else
+		logAction('editpoll', array('topic' => $topic));
+	}
+
 	// Off we go.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -979,6 +1000,9 @@ function RemovePoll()
 
 	// A mod might have logged this (social network?), so let them remove, it too
 	call_integration_hook('integrate_poll_remove', array($pollID));
+
+	// Log this!
+	logAction('remove_poll', array('topic' => $topic));
 
 	// Take the moderator back to the topic.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);

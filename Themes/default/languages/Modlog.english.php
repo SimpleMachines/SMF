@@ -100,4 +100,12 @@ $txt['modlog_ac_close_report'] = 'Closed {report} on &quot;{message}&quot;';
 $txt['modlog_ac_ignore_report'] = 'Disregarded {report} on &quot;{message}&quot;';
 $txt['modlog_ac_open_report'] = 'Reopened {report} on &quot;{message}&quot;';
 $txt['modlog_ac_unignore_report'] = 'Undone disregard of {report} on &quot;{message}&quot;';
+
+// Poll stuff
+$txt['modlog_add_poll'] = 'Added a poll to &quot;{topic}&quot;';
+$txt['modlog_edit_poll'] = 'Edited the poll in &quot;{topic}&quot;';
+$txt['modlog_lock_poll'] = 'Locked voting in the poll in &quot;{topic}&quot;';
+$txt['modlog_remove_poll'] = 'Removed the poll from &quot;{topic}&quot;';
+$txt['modlog_reset_poll'] = 'Reset votes in the poll in &quot;{topic}&quot;';
+$txt['modlog_unlock_poll'] = 'Unlocked voting in the poll in &quot;{topic}&quot;';
 ?>
