@@ -747,15 +747,6 @@ function recountOpenReports()
 }
 
 /**
- * Get details about the moderation report... specified in
- * $_REQUEST['report'].
- */
-function ModReport()
-{
-
-}
-
-/**
  * Show a notice sent to a user.
  */
 function ShowNotice()

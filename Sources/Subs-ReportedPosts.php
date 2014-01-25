@@ -101,6 +101,9 @@ function getReports($closed = 0)
 {
 	global $smcFunc, $context, $scripturl;
 
+	// Lonely, standalone var.
+	$reports = array();
+
 	// By George, that means we in a position to get the reports, golly good.
 	$request = $smcFunc['db_query']('', '
 		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
@@ -116,14 +119,14 @@ function getReports($closed = 0)
 			'view_closed' => $context['view_closed'],
 		)
 	);
-	$context['reports'] = array();
+
 	$report_ids = array();
 	$report_boards_ids = array();
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$report_ids[] = $row['id_report'];
 		$report_boards_ids[] = $row['id_board'];
-		$context['reports'][$row['id_report']] = array(
+		$reports[$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
 			'topic' => array(
@@ -169,9 +172,9 @@ function getReports($closed = 0)
 			$board_names[$row['id_board']] = $row['name'];
 		$smcFunc['db_free_result']($request);
 
-		foreach ($context['reports'] as $id_report => $report)
+		foreach ($reports as $id_report => $report)
 			if (!empty($board_names[$report['topic']['id_board']]))
-				$context['reports'][$id_report]['topic']['board_name'] = $board_names[$report['topic']['id_board']];
+				$reports[$id_report]['topic']['board_name'] = $board_names[$report['topic']['id_board']];
 	}
 
 	// Now get all the people who reported it.
@@ -189,7 +192,7 @@ function getReports($closed = 0)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$context['reports'][$row['id_report']]['comments'][] = array(
+			$reports[$row['id_report']]['comments'][] = array(
 				'id' => $row['id_comment'],
 				'message' => $row['comment'],
 				'time' => timeformat($row['time_sent']),
