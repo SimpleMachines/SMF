@@ -285,7 +285,7 @@ function ShowXmlFeed()
 
 		foreach ($xml as $item)
 			echo '
-				<rdf:li rdf:resource="', $item['link'], '">';
+				<rdf:li rdf:resource="', $item['link'], '" />';
 
 		echo '
 			</rdf:Seq>
