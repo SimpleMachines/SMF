@@ -96,7 +96,7 @@ while (!$is_done)
 	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash
+		SELECT id_attach, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -166,6 +166,22 @@ while (!$is_done)
 				UPDATE {$db_prefix}attachments
 				SET file_hash = '$fileHash'
 				WHERE id_attach = $row[id_attach]");
+
+		// While we're here, do we need to update the mime_type?
+		if (empty($row['mime_type']) && file_exists($newFile))
+		{
+			$size = @getimagesize($newFile);
+			if (!empty($size['mime']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}attachments
+					SET mime_type = {string:mime_type}
+					WHERE id_attach = {int:id_attach}',
+					array(
+						'id_attach' => $row['id_attach'],
+						'mime_type' => substr($size['mime'], 0, 20),
+					)
+				);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -174,6 +190,37 @@ while (!$is_done)
 }
 
 unset($_GET['a']);
+---}
+---#
+
+---# Fixing invalid sizes on attachments
+---{
+$attachs = array();
+// If id_member = 0, then it's not an avatar
+// If attachment_type = 0, then it's also not a thumbnail
+// Theory says there shouldn't be *that* many of these
+$request = $smcFunc['db_query']('', '
+	SELECT id_attach, mime_type, width, height
+	FROM {db_prefix}attachments
+	WHERE id_member = 0
+		AND attachment_type = 0');
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
+		$attachs[] = $row['id_attach'];
+}
+$smcFunc['db_free_result']($request);
+
+if (!empty($attachs))
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}attachments
+		SET width = 0,
+			height = 0
+		WHERE id_attach IN ({array_int:attachs})',
+		array(
+			'attachs' => $attachs,
+		)
+	);
 ---}
 ---#
 

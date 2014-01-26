@@ -296,7 +296,7 @@ $txt['permission_settings_enable_postgroups'] = 'Enable permissions for post cou
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['permission_disable_postgroups_warning'] = 'Disabling this setting will remove permissions currently set to post count based groups.';
 
-$txt['permissions_post_moderation_desc'] = 'Post Moderation is the situation where posts are &quot;moderated&quot;, where the author and the moderation team can view posts and decide whether to permit them to be visible to other users or not. From this page you can easily change which groups have their posts moderated for a particular permissions profile.';
+$txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
 $txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';
 $txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced permissions enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
 $txt['permissions_post_moderation_select'] = 'Select Profile';
