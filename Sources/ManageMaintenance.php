@@ -2132,6 +2132,7 @@ function MaintainRecountPosts()
 			'zero' => 0,
 			'string_zero' => '0',
 			'db_error_skip' => true,
+			'recycle' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 		)
 	) !== false;
 
