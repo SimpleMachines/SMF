@@ -27,22 +27,13 @@ if (!defined('SMF'))
 function ReportedPosts()
 {
 	global $txt, $context, $scripturl, $user_info, $smcFunc;
+	global $sourcedir;
 
 	loadLanguage('ModerationCenter');
 	loadTemplate('ReportedPosts');
 
-	// Set an empty var for the server response.
-	$context['report_post_action'] = '';
-
 	// We need this little rough gem.
 	require_once($sourcedir . '/Subs-ReportedPosts.php');
-
-	// Put the open and closed options into tabs, because we can...
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_reported_posts'],
-		'help' => '',
-		'description' => $txt['mc_reported_posts_desc'],
-	);
 
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_posts'];
@@ -84,15 +75,25 @@ function ReportedPosts()
  */
 function ShowReports()
 {
-	// Showing closed ones?
-	if (isset($_GET['closed']))
+	global $context, $txt;
 
-	getReports();
+	// Put the open and closed options into tabs, because we can...
+	$context[$context['moderation_menu_name']]['tab_data'] = array(
+		'title' => $txt['mc_reported_posts'],
+		'help' => '',
+		'description' => $txt['mc_reported_posts_desc'],
+	);
+
+	// Showing closed ones?
+	$context['view_closed'] = isset($_GET['closed']);
+	$context['sub_template'] = 'reported_posts';
+	$context['reports'] = getReports($context['view_closed']);
 }
 
 function ReportDetails()
 {
-	global $user_info, $context, $sourcedir, $scripturl, $txt, $smcFunc;
+	global $user_info, $context, $sourcedir, $scripturl, $txt;
+	global $smcFunc;
 
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['report']))
