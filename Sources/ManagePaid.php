@@ -502,7 +502,6 @@ function ModifySubscription()
 	if (isset($_POST['save']))
 	{
 		checkSession();
-		validateToken('admin-pms');
 
 		// Some cleaning...
 		$isActive = isset($_POST['active']) ? 1 : 0;
@@ -514,6 +513,19 @@ function ModifySubscription()
 		// Is this a fixed one?
 		if ($_POST['duration_type'] == 'fixed')
 		{
+			// There are sanity check limits on these things.
+			$limits = array(
+				'D' => 90,
+				'W' => 52,
+				'M' => 24,
+				'Y' => 5,
+			);
+			if (empty($_POST['span_unit']) || empty($limits[$_POST['span_unit']]) || empty($_POST['span_value']) || $_POST['span_value'] < 1)
+				fatal_lang_error('paid_invalid_duration', false);
+
+			if ($_POST['span_value'] > $limits[$_POST['span_unit']])
+				fatal_lang_error('paid_invalid_duration_' . $_POST['span_unit'], false);
+
 			// Clean the span.
 			$span = $_POST['span_value'] . $_POST['span_unit'];
 
@@ -540,6 +552,9 @@ function ModifySubscription()
 				fatal_lang_error('paid_all_freq_blank');
 		}
 		$cost = serialize($cost);
+
+		// Having now validated everything that might throw an error, let's also now deal with the token.
+		validateToken('admin-pms');
 
 		// Yep, time to do additional groups.
 		$addgroups = array();
