@@ -709,12 +709,14 @@ function template_single_post($message, $force_alternate = null)
 								<h5>
 									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? sprintf($txt['reply_number'], $message['counter']) : '', ' - ', $message['subject'], '" class="smalltext">', $message['time'], '</a>';
 
-	// Show "<< Last Edit: Time by Person >>" if this post was edited.
+	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
+	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
+	echo '
+									<span class="smalltext modified" id="modified_', $message['id'], '">';
+	
 	if ($settings['show_modify'] && !empty($message['modified']['name']))
-		echo '
-									<span class="smalltext modified" id="modified_', $message['id'], '">
-										', $message['modified']['last_edit_text'], '
-									</span>';
+		echo $message['modified']['last_edit_text'];
+	echo '</span>';
 
 	echo '
 								</h5>
