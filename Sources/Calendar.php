@@ -333,17 +333,22 @@ function CalendarPost()
 		// Get list of boards that can be posted in.
 		$boards = boardsAllowedTo('post_new');
 		if (empty($boards))
-			fatal_lang_error('cannot_post_new', 'permission');
-
-		// Load the list of boards and categories in the context.
-		require_once($sourcedir . '/Subs-MessageIndex.php');
-		$boardListOptions = array(
-			'included_boards' => in_array(0, $boards) ? null : $boards,
-			'not_redirection' => true,
-			'use_permissions' => true,
-			'selected_board' => $modSettings['cal_defaultboard'],
-		);
-		$context['event']['categories'] = getBoardList($boardListOptions);
+		{
+			// You can post new events but can't link them to anything...
+			$context['event']['categories'] = array();
+		}
+		else
+		{
+			// Load the list of boards and categories in the context.
+			require_once($sourcedir . '/Subs-MessageIndex.php');
+			$boardListOptions = array(
+				'included_boards' => in_array(0, $boards) ? null : $boards,
+				'not_redirection' => true,
+				'use_permissions' => true,
+				'selected_board' => $modSettings['cal_defaultboard'],
+			);
+			$context['event']['categories'] = getBoardList($boardListOptions);
+		}
 	}
 	else
 	{
