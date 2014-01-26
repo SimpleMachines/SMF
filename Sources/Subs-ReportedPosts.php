@@ -76,9 +76,9 @@ function updateReport($action, $value, $report_id)
 
 function countReports($closed = 0)
 {
-	global $smcFunc, $context, $user_info;
+	global $smcFunc, $user_info;
 
-	$context['start'] = $_GET['start'];
+	$total_reports = 0;
 
 	// How many entries are we viewing?
 	$request = $smcFunc['db_query']('', '
@@ -87,14 +87,13 @@ function countReports($closed = 0)
 		WHERE lr.closed = {int:view_closed}
 			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']),
 		array(
-			'view_closed' => $closed,
+			'view_closed' => (int) $closed,
 		)
 	);
-	list ($context['total_reports']) = $smcFunc['db_fetch_row']($request);
+	list ($total_reports) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// So, that means we can page index, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports' . ($closed ? ';sa=closed' : ''), $context['start'], $context['total_reports'], 10);
+	return $total_reports;
 }
 
 function getReports($closed = 0)
@@ -116,7 +115,7 @@ function getReports($closed = 0)
 		ORDER BY lr.time_updated DESC
 		LIMIT ' . $context['start'] . ', 10',
 		array(
-			'view_closed' => $closed,
+			'view_closed' => (int) $closed,
 		)
 	);
 

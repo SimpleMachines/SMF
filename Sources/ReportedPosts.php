@@ -75,18 +75,33 @@ function ReportedPosts()
  */
 function ShowReports()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_reported_posts'],
 		'help' => '',
 		'description' => $txt['mc_reported_posts_desc'],
+		'tabs' => array(
+			'show' => array($txt['mc_reportedp_active']),
+			'show;closed' => array($txt['mc_reportedp_closed']),
+		),
 	);
 
-	// Showing closed ones?
-	$context['view_closed'] = isset($_GET['closed']);
+	// Showing closed or open ones? regardless, turn this to an integer for better handling.
+	$context['view_closed'] = (int) isset($_GET['closed']);
+
+	// Call the right template.
 	$context['sub_template'] = 'reported_posts';
+	$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+
+	// Before anything, we need to know just how many reports do we have.
+	$context['total_reports'] = countReports($context['view_closed']);
+
+	// So, that means we can have pagination, yes?
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show' . ($context['view_closed'] ? ';closed' : ''), $context['start'], $context['total_reports'], 10);
+
+	// Get the reposts at once!
 	$context['reports'] = getReports($context['view_closed']);
 }
 
