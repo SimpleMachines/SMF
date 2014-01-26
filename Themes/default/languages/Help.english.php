@@ -174,29 +174,14 @@ $helptxt['userlog'] = '<strong>Profile Edits Log</strong><br>
 $helptxt['warning_enable'] = '<strong>User Warning System</strong><br>
 	This feature enables members of the admin and moderation team to issue warnings to members - and to use a members warning level to determine the
 	actions available to them on the forum. Upon enabling this feature a permission will be available within the permissions section to define
-	which groups may assign warnings to members. Warning levels can be adjusted from a members profile. The following additional options are available:
-	<ul class="normallist">
-		<li>
-			<strong>Warning Level for Member Watch</strong><br>
-			This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member.
-			Any member who is being &quot;watched&quot; will appear in the relevant area of the moderation center.
-		</li>
-		<li>
-			<strong>Warning Level for Post Moderation</strong><br>
-			Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum
-			community. This will override any local board permissions which may exist related to post moderation.
-		</li>
-		<li>
-			<strong>Warning Level for Member Muting</strong><br>
-			If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.
-		</li>
-		<li>
-			<strong>Maximum Member Warning Point per Day</strong><br>
-			This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This will
+	which groups may assign warnings to members. Warning levels can be adjusted from a members profile.';
+$helptxt['warning_watch'] = 'This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member. Any member who is being &quot;watched&quot; will appear in the relevant area of the moderation center.';
+$helptxt['warning_moderate'] = 'Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum community. This will override any local board permissions which may exist related to post moderation.';
+$helptxt['warning_mute'] = 'If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.';
+$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This will
 			can be used to limit what a moderator can do in a small period of time. This setting can be disabled by setting to a value of zero. Note that
-			any member with administrator permissions are not affected by this value.
-		</li>
-	</ul>';
+			any member with administrator permissions are not affected by this value.';
+
 $helptxt['error_log'] = '<strong>Error Log</strong><br>
 	The error log tracks logs every serious error encountered by users using your forum. It lists all of these errors by date which can be sorted
 	by clicking the black arrow next to each date. Additionally you can filter the errors by clicking the picture next to each error statistic. This
