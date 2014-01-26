@@ -29,7 +29,7 @@ function ReportedPosts()
 	global $txt, $context, $scripturl, $user_info, $smcFunc;
 
 	loadLanguage('ModerationCenter');
-	loadTemplate('ModerationCenter');
+	loadTemplate('ReportedPosts');
 
 	// Set an empty var for the server response.
 	$context['report_post_action'] = '';
@@ -342,7 +342,6 @@ function ReportDetails()
 		$context[$context['moderation_menu_name']]['current_subsection'] = 'closed';
 
 	// Finally we are done :P
-	loadTemplate('ModerationCenter');
 	$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
 	$context['sub_template'] = 'viewmodreport';
 }

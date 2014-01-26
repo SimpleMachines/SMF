@@ -170,6 +170,7 @@ function getReports($closed = 0)
 
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$board_names[$row['id_board']] = $row['name'];
+
 		$smcFunc['db_free_result']($request);
 
 		foreach ($reports as $id_report => $report)
@@ -211,6 +212,7 @@ function getReports($closed = 0)
 	$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
 	$context['report_manage_bans'] = allowedTo('manage_bans');
 
+	return $reports;
 }
 
 /**
