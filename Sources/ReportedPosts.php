@@ -53,13 +53,11 @@ function ReportedPosts()
 		isAllowedTo('moderate_forum');
 
 	$sub_actions = array(
-		'show' => 'ShowReports',
+		'show' => 'ShowReports', // Both open and closed reports
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
 		'disregard' => 'DisregardReport',
 		'details' => 'ReportDetails', // Shows a single report and its comments.
-		'addcomment' => 'AddComment',
-		'editcomment' => 'EditComment',
-		'deletecomment' => 'DeleteComment',
+		'handlecomment' => 'AddComment', // CRUD actions for moderator comments.
 	);
 
 	// Go ahead and add your own sub-actions.
@@ -70,7 +68,7 @@ function ReportedPosts()
 		$context['sub_action'] = $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_REQUEST['sa']), ENT_QUOTES);
 
 	else
-		$context['sub_action'] = 'open';
+		$context['sub_action'] = 'show';
 
 	// Call the function!
 	$sub_actions[$context['sub_action']]();

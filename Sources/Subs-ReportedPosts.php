@@ -264,7 +264,7 @@ function getReportDetails($report_id)
 
 	// So did we find anything?
 	if (!$smcFunc['db_num_rows']($request))
-		return false;;
+		return false;
 
 	// Woohoo we found a report and they can see it!
 	$row = $smcFunc['db_fetch_assoc']($request);
