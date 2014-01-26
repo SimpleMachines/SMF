@@ -98,7 +98,7 @@ while (!$is_done)
 	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash
+		SELECT id_attach, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -168,6 +168,22 @@ while (!$is_done)
 				UPDATE {$db_prefix}attachments
 				SET file_hash = '$fileHash'
 				WHERE id_attach = $row[id_attach]");
+
+		// While we're here, do we need to update the mime_type?
+		if (empty($row['mime_type']) && file_exists($newFile))
+		{
+			$size = @getimagesize($newFile);
+			if (!empty($size['mime']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}attachments
+					SET mime_type = {string:mime_type}
+					WHERE id_attach = {int:id_attach}',
+					array(
+						'id_attach' => $row['id_attach'],
+						'mime_type' => substr($size['mime'], 0, 20),
+					)
+				);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
