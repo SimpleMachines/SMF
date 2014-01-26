@@ -240,6 +240,36 @@ function recountOpenReports()
 		'reports' => $open_reports,
 	);
 
-	$context['open_mod_reports'] = $open_reports;
+	return $open_reports;
+}
+
+function getReportDetails($report_id)
+{
+	global $smcFunc, $user_info;
+
+	// Get the report details, need this so we can limit access to a particular board.
+	$request = $smcFunc['db_query']('', '
+		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
+			lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+			IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
+		FROM {db_prefix}log_reported AS lr
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
+		WHERE lr.id_report = {int:id_report}
+			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+		LIMIT 1',
+		array(
+			'id_report' => $_REQUEST['report'],
+		)
+	);
+
+	// So did we find anything?
+	if (!$smcFunc['db_num_rows']($request))
+		return false;;
+
+	// Woohoo we found a report and they can see it!
+	$row = $smcFunc['db_fetch_assoc']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $row;
 }
 ?>

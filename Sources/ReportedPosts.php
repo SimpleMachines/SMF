@@ -84,7 +84,7 @@ function ReportedPosts()
  * @uses ModerationCenter language file.
  *
  */
-function ShowReports
+function ShowReports()
 {
 	// Showing closed ones?
 	if (isset($_GET['closed']))
@@ -92,39 +92,22 @@ function ShowReports
 	getReports();
 }
 
-function ReportDetails
+function ReportDetails()
 {
 	global $user_info, $context, $sourcedir, $scripturl, $txt, $smcFunc;
 
-	// Have to at least give us something
+	// Have to at least give us something to work with.
 	if (empty($_REQUEST['report']))
 		fatal_lang_error('mc_no_modreport_specified');
 
 	// Integers only please
 	$_REQUEST['report'] = (int) $_REQUEST['report'];
 
-	// Get the report details, need this so we can limit access to a particular board
-	$request = $smcFunc['db_query']('', '
-		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
-			lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-			IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
-		FROM {db_prefix}log_reported AS lr
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
-		WHERE lr.id_report = {int:id_report}
-			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
-		LIMIT 1',
-		array(
-			'id_report' => $_REQUEST['report'],
-		)
-	);
+	// Get the report details.
+	$report = getReportDetails($_REQUEST['report']);
 
-	// So did we find anything?
-	if (!$smcFunc['db_num_rows']($request))
+	if(!$report)
 		fatal_lang_error('mc_no_modreport_found');
-
-	// Woohoo we found a report and they can see it!  Bad news is we have more work to do
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
 
 	// If they are adding a comment then... add a comment.
 	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
