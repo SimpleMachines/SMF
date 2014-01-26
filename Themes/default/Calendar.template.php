@@ -615,7 +615,7 @@ function template_event_post()
 	}
 
 	// If this is a new event let the user specify which board they want the linked post to be put into.
-	if ($context['event']['new'])
+	if ($context['event']['new'] && !empty($context['event']['categories']))
 	{
 		echo '
 							<li>
