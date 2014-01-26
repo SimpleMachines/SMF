@@ -185,6 +185,11 @@ $txt['paid_admin_add'] = 'Add This Subscription';
 
 $txt['paid_not_set_currency'] = 'You have not setup your currency yet. Please do so from the <a href="%1$s">Settings</a> section before continuing.';
 $txt['paid_no_cost_value'] = 'You must enter a cost and subscription length.';
+$txt['paid_invalid_duration'] = 'You must enter a valid duration for this subscription.';
+$txt['paid_invalid_duration_D'] = 'If putting in a subscription length measured in days, you can only use 1 to 90 days. If you want a subscription that long, you should use weeks, months or years.';
+$txt['paid_invalid_duration_W'] = 'If putting in a subscription length measured in weeks, you can only use 1 to 52 weeks. If you want a subscription that long, you should use months or years';
+$txt['paid_invalid_duration_M'] = 'If putting in a subscription length measured in months, you can only use 1 to 24 months. If you want a subscription that long, you should use years';
+$txt['paid_invalid_duration_Y'] = 'If putting in a subscription length measured in years, you can only use 1 to 5 years.';
 $txt['paid_all_freq_blank'] = 'You must enter a cost for at least one of the four durations.';
 
 // Some error strings.
