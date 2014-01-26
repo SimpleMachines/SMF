@@ -34,6 +34,9 @@ function ReportedPosts()
 	// Set an empty var for the server response.
 	$context['report_post_action'] = '';
 
+	// We need this little rough gem.
+	require_once($sourcedir . '/Subs-ReportedPosts.php');
+
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_reported_posts'],
@@ -50,8 +53,7 @@ function ReportedPosts()
 		isAllowedTo('moderate_forum');
 
 	$sub_actions = array(
-		'open' => 'OpenReports',
-		'closed' => 'ClosedReports',
+		'show' => 'ShowReports',
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
 		'disregard' => 'DisregardReport',
 		'details' => 'ReportDetails', // Shows a single report and its comments.
@@ -75,16 +77,19 @@ function ReportedPosts()
 }
 
 /**
- * Shows all open reported posts.
+ * Shows all open or closed reported posts.
  * It requires the moderate_forum permission.
  *
  * @uses ModerationCenter template.
  * @uses ModerationCenter language file.
  *
  */
-function OpenReports
+function ShowReports
 {
+	// Showing closed ones?
+	if (isset($_GET['closed']))
 
+	getReports();
 }
 
 function ReportDetails

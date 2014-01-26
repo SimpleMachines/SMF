@@ -717,36 +717,6 @@ function ModerateGroups()
 }
 
 /**
- * How many open reports do we have?
- */
-function recountOpenReports()
-{
-	global $user_info, $context, $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}log_reported
-		WHERE ' . $user_info['mod_cache']['bq'] . '
-			AND closed = {int:not_closed}
-			AND ignore_all = {int:not_ignored}',
-		array(
-			'not_closed' => 0,
-			'not_ignored' => 0,
-		)
-	);
-	list ($open_reports) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	$_SESSION['rc'] = array(
-		'id' => $user_info['id'],
-		'time' => time(),
-		'reports' => $open_reports,
-	);
-
-	$context['open_mod_reports'] = $open_reports;
-}
-
-/**
  * Show a notice sent to a user.
  */
 function ShowNotice()

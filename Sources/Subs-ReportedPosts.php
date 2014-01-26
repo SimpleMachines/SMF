@@ -99,7 +99,7 @@ function countReports($closed = 0)
 
 function getReports($closed = 0)
 {
-	global $smcFunc, $context, $scripturl;
+	global $smcFunc, $context, $user_info, $scripturl;
 
 	// Lonely, standalone var.
 	$reports = array();
@@ -116,7 +116,7 @@ function getReports($closed = 0)
 		ORDER BY lr.time_updated DESC
 		LIMIT ' . $context['start'] . ', 10',
 		array(
-			'view_closed' => $context['view_closed'],
+			'view_closed' => $closed,
 		)
 	);
 
@@ -211,5 +211,35 @@ function getReports($closed = 0)
 	$context['report_remove_any_boards'] = $user_info['is_admin'] ? $report_boards_ids : array_intersect($report_boards_ids, boardsAllowedTo('remove_any'));
 	$context['report_manage_bans'] = allowedTo('manage_bans');
 
+}
+
+/**
+ * How many open reports do we have?
+ */
+function recountOpenReports()
+{
+	global $user_info, $context, $smcFunc;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT COUNT(*)
+		FROM {db_prefix}log_reported
+		WHERE ' . $user_info['mod_cache']['bq'] . '
+			AND closed = {int:not_closed}
+			AND ignore_all = {int:not_ignored}',
+		array(
+			'not_closed' => 0,
+			'not_ignored' => 0,
+		)
+	);
+	list ($open_reports) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
+
+	$_SESSION['rc'] = array(
+		'id' => $user_info['id'],
+		'time' => time(),
+		'reports' => $open_reports,
+	);
+
+	$context['open_mod_reports'] = $open_reports;
 }
 ?>
