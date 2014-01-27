@@ -80,7 +80,7 @@ function template_main()
 
 		echo '
 							</td>
-							<td nowrap="nowrap">', $member['time'], '</td>
+							<td style="white-space: nowrap">', $member['time'], '</td>
 							<td>', $member['action'], '</td>
 						</tr>';
 
