@@ -395,35 +395,6 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 			$count = 0;
 	}
 
-	// An adjustment value to apply to all calculated week numbers.
-	if (!empty($calendarOptions['show_week_num']))
-	{
-		// If the first day of the year is a Sunday, then there is no
-		// adjustment to be made. However, if the first day of the year is not
-		// a Sunday, then there is a partial week at the start of the year
-		// that needs to be accounted for.
-		if ($calendarOptions['start_day'] === 0)
-			$nWeekAdjust = $month_info['first_day_of_year'] === 0 ? 0 : 1;
-		// If we are viewing the weeks, with a starting date other than Sunday,
-		// then things get complicated! Basically, as PHP is calculating the
-		// weeks with a Sunday starting date, we need to take this into account
-		// and offset the whole year dependant on whether the first day in the
-		// year is above or below our starting date. Note that we offset by
-		// two, as some of this will get undone quite quickly by the statement
-		// below.
-		else
-			$nWeekAdjust = $calendarOptions['start_day'] > $month_info['first_day_of_year'] && $month_info['first_day_of_year'] !== 0 ? 2 : 1;
-
-		// If our week starts on a day greater than the day the month starts
-		// on, then our week numbers will be one too high. So we need to
-		// reduce it by one - all these thoughts of offsets makes my head
-		// hurt...
-		if ($month_info['first_day']['day_of_week'] < $calendarOptions['start_day'] || $month_info['first_day_of_year'] > 4)
-			$nWeekAdjust--;
-	}
-	else
-		$nWeekAdjust = 0;
-
 	// Iterate through each week.
 	$calendarGrid['weeks'] = array();
 	for ($nRow = 0; $nRow < $nRows; $nRow++)
@@ -431,11 +402,7 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
 		// Start off the week - and don't let it go above 52, since that's the number of weeks in a year.
 		$calendarGrid['weeks'][$nRow] = array(
 			'days' => array(),
-			'number' => $month_info['first_day']['week_num'] + $nRow + $nWeekAdjust
 		);
-		// Handle the dreaded "week 53", it can happen, but only once in a blue moon ;)
-		if ($calendarGrid['weeks'][$nRow]['number'] == 53 && $nShift != 4 && $month_info['first_day_of_next_year'] < 4)
-			$calendarGrid['weeks'][$nRow]['number'] = 1;
 
 		// And figure out all the days.
 		for ($nCol = 0; $nCol < 7; $nCol++)
@@ -484,7 +451,7 @@ function getCalendarGrid($month, $year, $calendarOptions, $is_previous = false)
  */
 function getCalendarWeek($month, $year, $day, $calendarOptions)
 {
-	global $scripturl, $modSettings;
+	global $scripturl, $modSettings, $txt;
 
 	// Get today's date.
 	$today = getTodayInfo();
@@ -541,17 +508,8 @@ function getCalendarWeek($month, $year, $day, $calendarOptions)
 		$first_day_of_next_year = (int) strftime('%w', mktime(0, 0, 0, 1, 1, $year + 1));
 		$last_day_of_last_year = (int) strftime('%w', mktime(0, 0, 0, 12, 31, $year - 1));
 
-		// All this is as getCalendarGrid.
-		if ($calendarOptions['start_day'] === 0)
-			$nWeekAdjust = $first_day_of_year === 0 && $first_day_of_year > 3 ? 0 : 1;
-		else
-			$nWeekAdjust = $calendarOptions['start_day'] > $first_day_of_year && $first_day_of_year !== 0 ? 2 : 1;
-
-		$calendarGrid['week_number'] = (int) strftime('%U', mktime(0, 0, 0, $month, $day, $year)) + $nWeekAdjust;
-
-		// If this crosses a year boundry and includes january it should be week one.
-		if ((int) strftime('%Y', $curTimestamp + 518400) != $year && $calendarGrid['week_number'] > 53 && $first_day_of_next_year < 5)
-			$calendarGrid['week_number'] = 1;
+		$timestamp = mktime(0, 0, 0, $month, $day, $year);
+		$calendarGrid['week_title'] = sprintf($txt['calendar_week_beginning'], date('F', $timestamp), date('j', $timestamp), date('Y', $timestamp));
 	}
 
 	// This holds all the main data - there is at least one month!

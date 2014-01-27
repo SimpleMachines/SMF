@@ -206,10 +206,6 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// A lot of stuff, we're not showing on mini-calendars to conserve space.
 				if ($is_mini === false)
 				{
-					// If this is the first day of a week and we're showing week numbers, go ahead and do so now.
-					if ($day['is_first_day'] && !empty($context['tpl_show_week_num']))
-						echo '<span class="smalltext"> - <a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '">', $txt['calendar_week'], ' ', $week['number'], '</a></span>';
-
 					// Holidays are always fun, let's show them!
 					if (!empty($day['holidays']))
 						echo '<div class="smalltext holiday"><span>', $txt['calendar_prompt'], '</span> ', implode(', ', $day['holidays']), '</div>';
@@ -331,15 +327,15 @@ function template_show_week_grid($grid_name)
 					if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
 					{
 						echo '
-							<span class="floatleft xlarge_text>
+							<span class="floatleft xlarge_text">
 								<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
 							</span>
 						';
 					}
 
 					// The Month Title + Week Number...
-					if (!empty($calendar_data['week_number']))
-							echo $txt['calendar_week'], ' ', $calendar_data['week_number'], ' - ', $month_data['current_year'];
+					if (!empty($calendar_data['week_title']))
+							echo $calendar_data['week_title'];
 
 					// Next Week Link...
 					if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))

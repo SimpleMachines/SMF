@@ -207,7 +207,6 @@ $helptxt['cal_week_links'] = 'If this setting is checked, links will be added al
 $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month and next month links will be added to the top of each month for easy navigation.';
 $helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['months_short'][1] . ' 1<br><strong>Disabled:</strong> ' . $txt['months_titles'][1] . ' 1';
 $helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disbaled:</strong> ' . $txt['days'][1];
-$helptxt['cal_week_numbers'] = 'If this setting is checked, the first day of every week will have the week number next to that day.<br><br><strong>Enabled:</strong> March 3 - Week 10</strong><br><strong>Disabled:</strong> March 3';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	Here you can perform the core configuration for your forum. This section includes the database and url settings, as well as other
