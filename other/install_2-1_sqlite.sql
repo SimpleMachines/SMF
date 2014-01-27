@@ -1462,7 +1462,7 @@ CREATE TABLE {$db_prefix}messages (
   smileys_enabled smallint NOT NULL default '1',
   modified_time int NOT NULL default '0',
   modified_name varchar(255) NOT NULL,
-  modified_reason varchar(255) NOT NULL,
+  modified_reason varchar(255) NOT NULL default '',
   body text NOT NULL,
   icon varchar(16) NOT NULL default 'xx',
   approved smallint NOT NULL default '1',
