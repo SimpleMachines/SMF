@@ -499,8 +499,8 @@ function CreateMessageIndex()
 		$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 		$context['step'] = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : 0;
 
-		// admin timeouts are painful when building these long indexes
-		if ($_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
+		// admin timeouts are painful when building these long indexes - but only if we actually have such things enabled
+		if (empty($modSettings['securityDisable']) && $_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
 			$_SESSION['admin_time'] = time();
 	}
 

@@ -1921,7 +1921,7 @@ function MaintainMassMoveTopics()
 	if ($sticky)
 	{
 		$conditions .= '
-			AND t.sticky = {int:sticky}';
+			AND t.is_sticky = {int:sticky}';
 		$params['sticky'] = 1;
 	}
 
