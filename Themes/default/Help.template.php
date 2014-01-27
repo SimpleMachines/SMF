@@ -171,4 +171,19 @@ function template_manual()
 			</div>';
 }
 
+function template_terms()
+{
+	global $txt, $context;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['terms_and_rules'], ' - ', $context['forum_name'], '
+			</h3>
+		</div>
+		<div class="roundframe">
+			', $context['agreement'], '
+		</div>';
+}
+
 ?>
