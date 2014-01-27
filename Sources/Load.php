@@ -1433,7 +1433,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	elseif (!empty($_SESSION['id_theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
 		$id_theme = (int) $_SESSION['id_theme'];
 	// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
-	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
+	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']))
 		$id_theme = $user_info['theme'];
 	// The theme was specified by the board.
 	elseif (!empty($board_info['theme']))
