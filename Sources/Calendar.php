@@ -135,7 +135,6 @@ function CalendarMain()
 			'birthdays' => isset($modSettings['cal_highlight_birthdays']) ? $modSettings['cal_highlight_birthdays'] : 0,
 		),
 		'show_week_num' => true,
-		'tpl_show_week_num' => !empty($modSettings['cal_week_numbers']),
 		'short_day_titles' => !empty($modSettings['cal_short_days']),
 		'short_month_titles' => !empty($modSettings['cal_short_months']),
 		'show_next_prev' => !empty($modSettings['cal_prev_next_links']),
@@ -175,10 +174,9 @@ function CalendarMain()
 	$context['current_year'] = $curPage['year'];
 	$context['show_all_birthdays'] = isset($_GET['showbd']);
 	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
-	$context['tpl_show_week_num'] = !empty($calendarOptions['tpl_show_week_num']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
-	$context['page_title'] .= ' - ' . ($context['view_week'] ? sprintf($txt['calendar_week_title'], $context['calendar_grid_main']['week_number'], ($context['calendar_grid_main']['week_number'] == 53 ? $context['current_year'] - 1 : $context['current_year'])) : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+	$context['page_title'] .= ' - ' . ($context['view_week'] ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -194,7 +192,7 @@ function CalendarMain()
 	if ($context['view_week'])
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
-			'name' => $txt['calendar_week'] . ' ' . $context['calendar_grid_main']['week_number']
+			'name' => $context['calendar_grid_main']['week_title'],
 		);
 
 	// Build the calendar button array.

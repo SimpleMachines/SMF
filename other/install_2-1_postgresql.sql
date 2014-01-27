@@ -2271,7 +2271,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_links', '2'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_prev_next_links', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_days', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_months', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_numbers', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_host', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_port', '25');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_username', '');

@@ -361,7 +361,6 @@ function ModifyCalendarSettings($return_config = false)
 				array('check', 'cal_prev_next_links'),
 				array('check', 'cal_short_days'),
 				array('check', 'cal_short_months'),
-				array('check', 'cal_week_numbers'),
 		);
 	else
 		$config_vars = array(
