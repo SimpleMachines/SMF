@@ -2034,7 +2034,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		// Item codes are complicated buggers... they are implicit [li]s and can make [list]s!
 		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
 		{
-			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", '>')))
+			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", "\n", '>')))
 				continue;
 
 			$tag = $itemcodes[$message[$pos + 1]];
@@ -2080,7 +2080,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false))
 			{
 				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 6), $matches);
-				$message = substr($message, 0, $pos2) . "\n" . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . "\n" . substr($message, $pos2);
+				$message = substr($message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($message, $pos2);
 
 				$open_tags[count($open_tags) - 2]['after'] = '</ul>';
 			}
