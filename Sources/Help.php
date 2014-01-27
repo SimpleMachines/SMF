@@ -24,13 +24,26 @@ if (!defined('SMF'))
  */
 function ShowHelp()
 {
-	global $scripturl, $context, $txt;
-
 	loadTemplate('Help');
 	loadLanguage('Manual');
 
+	$subActions = array(
+		'index' => 'HelpIndex',
+		'rules' => 'HelpRules',
+	);
+
+	$sa = isset($_GET['sa'], $subActions[$_GET['sa']]) ? $_GET['sa'] : 'index';
+	$subActions[$sa]();
+}
+
+function HelpIndex()
+{
+	global $scripturl, $context, $txt;
+
 	// We need to know where our wiki is.
 	$context['wiki_url'] = 'http://wiki.simplemachines.org/smf';
+
+	$context['canonical_url'] = $scripturl . '?action=help';
 
 	// Sections were are going to link...
 	$context['manual_sections'] = array(
@@ -55,6 +68,41 @@ function ShowHelp()
 	// Lastly, some minor template stuff.
 	$context['page_title'] = $txt['manual_smf_user_help'];
 	$context['sub_template'] = 'manual';
+}
+
+function HelpRules()
+{
+	global $context, $txt, $boarddir, $user_info, $scripturl;
+
+	// Build the link tree.
+	$context['linktree'][] = array(
+		'url' => $scripturl . '?action=help',
+		'name' => $txt['help'],
+	);
+	$context['linktree'][] = array(
+		'url' => $scripturl . '?action=help;sa=rules',
+		'name' => $txt['terms_and_rules'],
+	);
+
+	// Have we got a localized one?
+	if (file_exists($boarddir . '/agreement.' . $user_info['language'] . '.txt'))
+		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.' . $user_info['language'] . '.txt'), true, 'agreement_' . $user_info['language']);
+	elseif (file_exists($boarddir . '/agreement.txt'))
+		$context['agreement'] = parse_bbc(file_get_contents($boarddir . '/agreement.txt'), true, 'agreement');
+	else
+		$context['agreement'] = '';
+
+	// Nothing to show, so let's get out of here
+	if (empty($context['agreement']))
+	{
+		// No file found or a blank file! Just leave...
+		redirectexit();
+	}
+
+	$context['canonical_url'] = $scripturl . '?action=help;sa=rules';
+
+	$context['page_title'] = $txt['terms_and_rules'];
+	$context['sub_template'] = 'terms';
 }
 
 /**

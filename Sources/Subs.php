@@ -3730,13 +3730,6 @@ function setupMenuContext()
 				),
 				'is_last' => $context['right_to_left'],
 			),
-			'help' => array(
-				'title' => $txt['help'],
-				'href' => $scripturl . '?action=help',
-				'show' => true,
-				'sub_buttons' => array(
-				),
-			),
 			'search' => array(
 				'title' => $txt['search'],
 				'href' => $scripturl . '?action=search',

@@ -330,7 +330,7 @@ function template_body_above()
 
 function template_body_below()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	echo '
 			</div>
@@ -346,6 +346,9 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 		echo '
 			<a href="#top_section" id="bot" class="go_up">', $txt['go_up'], '</a>
+			<ul class="floatright">
+				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> | <a href="', $scripturl, '?action=help;sa=rules">', $txt['terms_and_rules'], '</a></li>
+			</ul>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
 			</ul>';
