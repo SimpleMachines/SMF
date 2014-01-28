@@ -75,13 +75,6 @@ function Memberlist()
 				'up' => 'mem.real_name ASC'
 			),
 		),
-		'email_address' => array(
-			'label' => $txt['email'],
-			'sort' => array(
-				'down' => allowedTo('moderate_forum') ? 'mem.email_address DESC' : 'mem.hide_email DESC, mem.email_address DESC',
-				'up' => allowedTo('moderate_forum') ? 'mem.email_address ASC' : 'mem.hide_email ASC, mem.email_address ASC'
-			),
-		),
 		'website_url' => array(
 			'label' => $txt['website'],
 			'link_with' => 'website',

@@ -81,13 +81,13 @@ function template_download_language()
 						<th class="first_th" scope="col">
 							', $txt['languages_download_filename'], '
 						</th>
-						<th scope="col" width="100">
+						<th scope="col" style="width: 100px">
 							', $txt['languages_download_writable'], '
 						</th>
-						<th scope="col" width="100">
+						<th scope="col" style="width: 100px">
 							', $txt['languages_download_exists'], '
 						</th>
-						<th class="last_th centercol" scope="col" width="4%">
+						<th class="last_th centercol" scope="col" style="width: 4%">
 							', $txt['languages_download_copy'], '
 						</th>
 					</tr>

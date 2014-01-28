@@ -490,7 +490,7 @@ function template_user_subscription()
 		<table class="table_grid">
 			<thead>
 				<tr class="catbg">
-					<th class="first_th" width="30%">', $txt['paid_name'], '</th>
+					<th class="first_th" style="width: 30%">', $txt['paid_name'], '</th>
 					<th align="center">', $txt['paid_status'], '</th>
 					<th align="center">', $txt['start_date'], '</th>
 					<th class="last_th" align="center">', $txt['end_date'], '</th>

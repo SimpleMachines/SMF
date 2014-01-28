@@ -676,18 +676,23 @@ pre.file_content {
 }
 .perm_read {
 	background-color: #d1f7bf;
+	width: 8%;
 }
 .perm_write {
 	background-color: #ffbbbb;
+	width: 8%;
 }
 .perm_execute {
 	background-color: #fdd7af;
+	width: 8%;
 }
 .perm_custom {
 	background-color: #c2c6c0;
+	width: 8%;
 }
 .perm_nochange {
 	background-color: #eee;
+	width: 8%;
 }
 
 .select_spot {

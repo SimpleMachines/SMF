@@ -435,7 +435,7 @@ function template_coppa_form()
 
 	// Show the form (As best we can)
 	echo '
-		<table border="0" width="100%" cellpadding="3" cellspacing="0" class="tborder" align="center">
+		<table style="width: 100%; padding: 3px; border: 0" class="tborder" align="center">
 			<tr>
 				<td align="left">', $context['forum_contacts'], '</td>
 			</tr><tr>
