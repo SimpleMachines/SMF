@@ -245,7 +245,7 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
 
 		// New - and directing?
-		if ($_REQUEST['eventid'] == -1 && (isset($_POST['link_to_board']) || empty($modSettings['allow_cal_unlinked'])))
+		if ($_REQUEST['eventid'] == -1 && (isset($_POST['link_to_board']) || empty($modSettings['cal_allow_unlinked'])))
 		{
 			$_REQUEST['calendar'] = 1;
 			require_once($sourcedir . '/Post.php');
