@@ -16,35 +16,12 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main handling function for sending specialist (Or otherwise) emails to a user.
- */
-function EmailUser()
-{
-	global $context;
-
-	// Don't index anything here.
-	$context['robot_no_index'] = true;
-
-	// Load the template.
-	loadTemplate('SendTopic');
-
-	$sub_actions = array(
-		'email' => 'CustomEmail',
-	);
-
-	if (!isset($_GET['sa']) || !isset($sub_actions[$_GET['sa']]))
-		$_GET['sa'] = 'email';
-
-	$sub_actions[$_GET['sa']]();
-}
-
-/**
  * Allow a user to send an email.
  * Send an email to the user - allow the sender to write the message.
  * Can either be passed a user ID as uid or a message id as msg.
  * Does not check permissions for a message ID as there is no information disclosed.
  */
-function CustomEmail()
+function EmailUser()
 {
 	global $context, $user_info, $smcFunc, $txt, $scripturl, $sourcedir;
 
@@ -53,6 +30,12 @@ function CustomEmail()
 		fatal_lang_error('no_access', false);
 
 	isAllowedTo('send_email_to_members');
+
+	// Don't index anything here.
+	$context['robot_no_index'] = true;
+
+	// Load the template.
+	loadTemplate('SendTopic');
 
 	// Are we sending to a user?
 	$context['form_hidden_vars'] = array();

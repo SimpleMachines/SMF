@@ -72,9 +72,6 @@ function template_main()
 						', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" class="centericon">' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 					</td>
 					<td class="lefttext">', $member['link'], '</td>';
-			if ($context['can_send_email'])
-				echo '
-					<td class="centertext">', $member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>', '</td>';
 
 		if (!isset($context['disabled_fields']['website']))
 			echo '
