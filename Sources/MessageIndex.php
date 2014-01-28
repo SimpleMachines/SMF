@@ -45,6 +45,18 @@ function MessageIndex()
 	else
 		loadTemplate('MessageIndex');
 
+	if (!$user_info['is_guest'])
+	{
+		// We can't know they read it if we allow prefetches.
+		// But we'll actually mark it read later after we've done everything else.
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
+		{
+			ob_end_clean();
+			header('HTTP/1.1 403 Prefetch Forbidden');
+			die;
+		}
+	}
+
 	$context['name'] = $board_info['name'];
 	$context['description'] = $board_info['description'];
 	if (!empty($board_info['description']))
@@ -138,82 +150,6 @@ function MessageIndex()
 	{
 	 	$context['linktree'][count($context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
 	}
-
-	// Mark current and parent boards as seen.
-	if (!$user_info['is_guest'])
-	{
-		// We can't know they read it if we allow prefetches.
-		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
-		{
-			ob_end_clean();
-			header('HTTP/1.1 403 Prefetch Forbidden');
-			die;
-		}
-
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}log_boards',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-			array($modSettings['maxMsgID'], $user_info['id'], $board),
-			array('id_member', 'id_board')
-		);
-
-		if (!empty($board_info['parent_boards']))
-		{
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_boards
-				SET id_msg = {int:id_msg}
-				WHERE id_member = {int:current_member}
-					AND id_board IN ({array_int:board_list})',
-				array(
-					'current_member' => $user_info['id'],
-					'board_list' => array_keys($board_info['parent_boards']),
-					'id_msg' => $modSettings['maxMsgID'],
-				)
-			);
-
-			// We've seen all these boards now!
-			foreach ($board_info['parent_boards'] as $k => $dummy)
-				if (isset($_SESSION['topicseen_cache'][$k]))
-					unset($_SESSION['topicseen_cache'][$k]);
-		}
-
-		if (isset($_SESSION['topicseen_cache'][$board]))
-			unset($_SESSION['topicseen_cache'][$board]);
-
-		$request = $smcFunc['db_query']('', '
-			SELECT sent
-			FROM {db_prefix}log_notify
-			WHERE id_board = {int:current_board}
-				AND id_member = {int:current_member}
-			LIMIT 1',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
-		$context['is_marked_notify'] = $smcFunc['db_num_rows']($request) != 0;
-		if ($context['is_marked_notify'])
-		{
-			list ($sent) = $smcFunc['db_fetch_row']($request);
-			if (!empty($sent))
-			{
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_notify
-					SET sent = {int:is_sent}
-					WHERE id_board = {int:current_board}
-						AND id_member = {int:current_member}',
-					array(
-						'current_board' => $board,
-						'current_member' => $user_info['id'],
-						'is_sent' => 0,
-					)
-				);
-			}
-		}
-		$smcFunc['db_free_result']($request);
-	}
-	else
-		$context['is_marked_notify'] = false;
 
 	// 'Print' the header and board info.
 	$context['page_title'] = strip_tags($board_info['name']);
@@ -549,6 +485,7 @@ function MessageIndex()
 				'is_redirect' => !empty($row['id_redirect_topic']),
 				'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 				'is_posted_in' => false,
+				'is_watched' => false,
 				'icon' => $row['first_icon'],
 				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 				'subject' => $row['first_subject'],
@@ -658,6 +595,82 @@ function MessageIndex()
 		call_integration_hook('integrate_quick_mod_actions');
 	}
 
+	// Mark current and parent boards as seen.
+	if (!$user_info['is_guest'])
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}log_boards',
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+			array($modSettings['maxMsgID'], $user_info['id'], $board),
+			array('id_member', 'id_board')
+		);
+
+		if (!empty($board_info['parent_boards']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}log_boards
+				SET id_msg = {int:id_msg}
+				WHERE id_member = {int:current_member}
+					AND id_board IN ({array_int:board_list})',
+				array(
+					'current_member' => $user_info['id'],
+					'board_list' => array_keys($board_info['parent_boards']),
+					'id_msg' => $modSettings['maxMsgID'],
+				)
+			);
+
+			// We've seen all these boards now!
+			foreach ($board_info['parent_boards'] as $k => $dummy)
+				if (isset($_SESSION['topicseen_cache'][$k]))
+					unset($_SESSION['topicseen_cache'][$k]);
+		}
+
+		if (isset($_SESSION['topicseen_cache'][$board]))
+			unset($_SESSION['topicseen_cache'][$board]);
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_topic, id_board, sent
+			FROM {db_prefix}log_notify
+			WHERE id_member = {int:current_member}
+				AND (' . (!empty($context['topics']) ? 'id_topic IN ({array_int:topics}) OR ' : '') . 'id_board = {int:current_board})',
+			array(
+				'current_board' => $board,
+				'topics' => !empty($context['topics']) ? array_keys($context['topics']) : array(),
+				'current_member' => $user_info['id'],
+			)
+		);
+		$context['is_marked_notify'] = false; // this is for the *board* only
+		$notify = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['id_board']))
+			{
+				$context['is_marked_notify'] = true;
+				$board_sent = $row['sent'];
+			}
+			if (!empty($row['id_topic']))
+				$context['topics'][$row['id_topic']]['is_watched'] = true;
+		}
+		$smcFunc['db_free_result']($request);
+
+		if ($context['is_marked_notify'] && !empty($board_sent))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}log_notify
+				SET sent = {int:is_sent}
+				WHERE id_member = {int:current_member}
+					AND id_board = {int:current_board}',
+				array(
+					'current_board' => $board,
+					'current_member' => $user_info['id'],
+					'is_sent' => 0,
+				)
+			);
+		}
+	}
+	else
+		$context['is_marked_notify'] = false;
+
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
 
@@ -665,7 +678,7 @@ function MessageIndex()
 	$context['normal_buttons'] = array(
 		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
 		'post_poll' => array('test' => 'can_post_poll', 'text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll'),
-		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unnotify' : 'notify', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unwatch_board' : 'watch_board', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'markread' => array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']),
 	);
 
