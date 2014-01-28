@@ -1911,6 +1911,36 @@ function ViewOperations()
 		$theme_paths[$row['id_theme']][$row['variable']] = $row['value'];
 	$smcFunc['db_free_result']($request);
 
+	// If we're viewing uninstall operations, only consider themes that
+	// the package is actually installed into.
+	if (isset($_REQUEST['reverse']) && !empty($_REQUEST['install_id']))
+	{
+		$install_id = (int) $_REQUEST['install_id'];
+		if ($install_id > 0)
+		{
+			$old_themes = array();
+			$request = $smcFunc['db_query']('', '
+				SELECT themes_installed
+				FROM {db_prefix}log_packages
+				WHERE id_install = {int:install_id}',
+				array(
+					'install_id' => $install_id,
+				)
+			);
+			
+			if ($smcFunc['db_num_rows']($request) == 1)
+			{
+				list ($old_themes) = $smcFunc['db_fetch_row']($request);
+				$old_themes = explode(',', $old_themes);
+
+				foreach ($theme_paths as $id => $data)
+					if ($id != 1 && !in_array($id, $old_themes))
+						unset($theme_paths[$id]);
+			}
+			$smcFunc['db_free_result']($request);
+		}
+	}
+
 	// Boardmod?
 	if (isset($_REQUEST['boardmod']))
 		$mod_actions = parseBoardMod(@file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $_REQUEST['filename']), true, $reverse, $theme_paths);
