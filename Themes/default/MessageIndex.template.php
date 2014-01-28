@@ -250,6 +250,9 @@ function template_main()
 			// Now we handle the icons
 			echo '
 							<div class="icons">';
+			if ($topic['is_watched'])
+				echo '
+								<span class="generic_icons watch floatright" title="', $txt['watching_this_topic'], '"></span>';
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock floatright"></span>';
