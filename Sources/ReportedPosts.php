@@ -110,6 +110,8 @@ function ReportDetails()
 	global $user_info, $context, $sourcedir, $scripturl, $txt;
 	global $smcFunc;
 
+	$report = array();
+
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['report']))
 		fatal_lang_error('mc_no_modreport_specified');
@@ -123,89 +125,31 @@ function ReportDetails()
 	if(!$report)
 		fatal_lang_error('mc_no_modreport_found');
 
-
-
+	// Build the report data.
 	$context['report'] = array(
-		'id' => $row['id_report'],
-		'topic_id' => $row['id_topic'],
-		'board_id' => $row['id_board'],
-		'message_id' => $row['id_msg'],
-		'message_href' => $scripturl . '?msg=' . $row['id_msg'],
-		'message_link' => '<a href="' . $scripturl . '?msg=' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
-		'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
+		'id' => $report['id_report'],
+		'topic_id' => $report['id_topic'],
+		'board_id' => $report['id_board'],
+		'message_id' => $report['id_msg'],
+		'message_href' => $scripturl . '?msg=' . $report['id_msg'],
+		'message_link' => '<a href="' . $scripturl . '?msg=' . $report['id_msg'] . '">' . $report['subject'] . '</a>',
+		'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $report['id_report'],
 		'author' => array(
-			'id' => $row['id_author'],
-			'name' => $row['author_name'],
-			'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
-			'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
+			'id' => $report['id_author'],
+			'name' => $report['author_name'],
+			'link' => $report['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $report['id_author'] . '">' . $report['author_name'] . '</a>' : $report['author_name'],
+			'href' => $scripturl . '?action=profile;u=' . $report['id_author'],
 		),
 		'comments' => array(),
 		'mod_comments' => array(),
-		'time_started' => timeformat($row['time_started']),
-		'last_updated' => timeformat($row['time_updated']),
-		'subject' => $row['subject'],
-		'body' => parse_bbc($row['body']),
-		'num_reports' => $row['num_reports'],
-		'closed' => $row['closed'],
-		'ignore' => $row['ignore_all']
+		'time_started' => timeformat($report['time_started']),
+		'last_updated' => timeformat($report['time_updated']),
+		'subject' => $report['subject'],
+		'body' => parse_bbc($report['body']),
+		'num_reports' => $report['num_reports'],
+		'closed' => $report['closed'],
+		'ignore' => $report['ignore_all']
 	);
-
-	// So what bad things do the reporters have to say about it?
-	$request = $smcFunc['db_query']('', '
-		SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.membername) AS reporter
-		FROM {db_prefix}log_reported_comments AS lrc
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
-		WHERE lrc.id_report = {int:id_report}',
-		array(
-			'id_report' => $context['report']['id'],
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$context['report']['comments'][] = array(
-			'id' => $row['id_comment'],
-			'message' => strtr($row['comment'], array("\n" => '<br>')),
-			'time' => timeformat($row['time_sent']),
-			'member' => array(
-				'id' => $row['id_member'],
-				'name' => empty($row['reporter']) ? $txt['guest'] : $row['reporter'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? $txt['guest'] : $row['reporter']),
-				'href' => $row['id_member'] ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
-				'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . $scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
-			),
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Hang about old chap, any comments from moderators on this one?
-	$request = $smcFunc['db_query']('', '
-		SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS moderator
-		FROM {db_prefix}log_comments AS lc
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
-		WHERE lc.id_notice = {int:id_report}
-			AND lc.comment_type = {literal:reportc}',
-		array(
-			'id_report' => $context['report']['id'],
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$context['report']['mod_comments'][] = array(
-			'id' => $row['id_comment'],
-			'message' => parse_bbc($row['body']),
-			'time' => timeformat($row['log_time']),
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
-			'member' => array(
-				'id' => $row['id_member'],
-				'name' => $row['moderator'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['moderator'] . '</a>' : $row['moderator'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-			),
-		);
-	}
-	$smcFunc['db_free_result']($request);
 
 	// What have the other moderators done to this message?
 	require_once($sourcedir . '/Modlog.php');
