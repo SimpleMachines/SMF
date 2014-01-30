@@ -48,7 +48,7 @@ function ReportedPosts()
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
 		'disregard' => 'DisregardReport',
 		'details' => 'ReportDetails', // Shows a single report and its comments.
-		'handlecomment' => 'AddComment', // CRUD actions for moderator comments.
+		'handlecomment' => 'HandleComment', // CRUD actions for moderator comments.
 	);
 
 	// Go ahead and add your own sub-actions.
@@ -115,59 +115,15 @@ function ReportDetails()
 		fatal_lang_error('mc_no_modreport_specified');
 
 	// Integers only please
-	$_REQUEST['report'] = (int) $_REQUEST['report'];
+	$report_id = (int) $_REQUEST['report'];
 
 	// Get the report details.
-	$report = getReportDetails($_REQUEST['report']);
+	$report = getReportDetails($report_id);
 
 	if(!$report)
 		fatal_lang_error('mc_no_modreport_found');
 
-	// If they are adding a comment then... add a comment.
-	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
-	{
-		checkSession();
 
-		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
-
-		// In it goes.
-		if (!empty($newComment))
-		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_comments',
-				array(
-					'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-					'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
-				),
-				array(
-					$user_info['id'], $user_info['name'], 'reportc', '',
-					$_REQUEST['report'], $newComment, time(),
-				),
-				array('id_comment')
-			);
-			$last_comment = $smcFunc['db_insert_id']('{db_prefix}log_comments', 'id_comment');
-
-			// And get ready to notify people.
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/MsgReportReply-Notify.php', 'MsgReportReply_Notify_Background', serialize(array(
-					'report_id' => $_REQUEST['report'],
-					'comment_id' => $last_comment,
-					'msg_id' => $row['id_msg'],
-					'topic_id' => $row['id_topic'],
-					'board_id' => $row['id_board'],
-					'sender_id' => $user_info['id'],
-					'sender_name' => $user_info['name'],
-					'time' => time(),
-				)), 0),
-				array('id_task')
-			);
-
-			// Redirect to prevent double submission.
-			redirectexit($scripturl . '?action=moderate;area=reports;report=' . $_REQUEST['report']);
-		}
-	}
 
 	$context['report'] = array(
 		'id' => $row['id_report'],
@@ -360,5 +316,54 @@ function ReportDetails()
 	// Finally we are done :P
 	$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
 	$context['sub_template'] = 'viewmodreport';
+}
+
+function HandleComment()
+{
+	// If they are adding a comment then... add a comment.
+	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
+	{
+		checkSession();
+
+		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
+
+		// In it goes.
+		if (!empty($newComment))
+		{
+			$smcFunc['db_insert']('',
+				'{db_prefix}log_comments',
+				array(
+					'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
+					'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
+				),
+				array(
+					$user_info['id'], $user_info['name'], 'reportc', '',
+					$_REQUEST['report'], $newComment, time(),
+				),
+				array('id_comment')
+			);
+			$last_comment = $smcFunc['db_insert_id']('{db_prefix}log_comments', 'id_comment');
+
+			// And get ready to notify people.
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/MsgReportReply-Notify.php', 'MsgReportReply_Notify_Background', serialize(array(
+					'report_id' => $_REQUEST['report'],
+					'comment_id' => $last_comment,
+					'msg_id' => $row['id_msg'],
+					'topic_id' => $row['id_topic'],
+					'board_id' => $row['id_board'],
+					'sender_id' => $user_info['id'],
+					'sender_name' => $user_info['name'],
+					'time' => time(),
+				)), 0),
+				array('id_task')
+			);
+
+			// Redirect to prevent double submission.
+			redirectexit($scripturl . '?action=moderate;area=reports;report=' . $_REQUEST['report']);
+		}
+	}
 }
 ?>

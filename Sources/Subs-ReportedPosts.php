@@ -134,7 +134,7 @@ function getReports($closed = 0)
 				'id_board' => $row['id_board'],
 				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),
-			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;sa=details;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
