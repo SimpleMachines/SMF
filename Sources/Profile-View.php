@@ -20,7 +20,7 @@ if (!defined('SMF'))
  */
 function summary($memID)
 {
-	global $context, $memberContext, $txt, $modSettings, $user_info, $user_profile, $sourcedir, $scripturl, $smcFunc;
+	global $context, $memberContext, $txt, $modSettings, $user_profile, $sourcedir, $scripturl, $smcFunc;
 
 	// Attempt to load the member's profile data.
 	if (!loadMemberContext($memID) || !isset($memberContext[$memID]))
@@ -188,6 +188,9 @@ function summary($memID)
 		$smcFunc['db_free_result']($request);
 	}
 
+	// Are they hidden?
+	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
+		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
 }
 
@@ -685,7 +688,7 @@ function showPosts($memID)
  */
 function showAttachments($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $board;
+	global $txt, $scripturl, $modSettings, $board;
 	global $context, $user_profile, $sourcedir, $smcFunc;
 
 	// OBEY permissions!
@@ -1088,7 +1091,7 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
  */
 function list_getNumUnwatched($memID)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc;
 
 	// Get the total number of attachments they have posted.
 	$request = $smcFunc['db_query']('', '
@@ -2537,7 +2540,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 function showPermissions($memID)
 {
 	global $scripturl, $txt, $board, $modSettings;
-	global $user_profile, $context, $user_info, $sourcedir, $smcFunc;
+	global $user_profile, $context, $sourcedir, $smcFunc;
 
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('manage_permissions');

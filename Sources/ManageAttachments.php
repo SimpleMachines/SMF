@@ -853,7 +853,7 @@ function RemoveAttachmentBySize()
  */
 function RemoveAttachment()
 {
-	global $txt, $smcFunc, $language;
+	global $txt, $smcFunc, $language, $user_info;
 
 	checkSession();
 
@@ -2006,7 +2006,7 @@ function ManageAttachmentPaths()
 							$path = $boarddir . DIRECTORY_SEPARATOR . $path;
 						}
 
-						if (isset($doit))
+						if (isset($doit) && realpath($path) != realpath($boarddir))
 						{
 							unlink($path . '/.htaccess');
 							unlink($path . '/index.php');

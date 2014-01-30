@@ -101,7 +101,7 @@ function template_modify_subscription()
 					</dl>
 					<hr class="hrcolor">
 					<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'fixed\');">
-					<strong>', $txt['paid_mod_fixed_price'], '</strong>
+					<strong><label for="duration_type_fixed">', $txt['paid_mod_fixed_price'], '</label></strong>
 					<br>
 					<div id="fixed_area" ', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? '' : 'style="display: none;"', '>
 						<fieldset>
@@ -128,7 +128,7 @@ function template_modify_subscription()
 						</fieldset>
 					</div>
 					<input type="radio" name="duration_type" id="duration_type_flexible" value="flexible"', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'flexible\');">
-					<strong>', $txt['paid_mod_flexible_price'], '</strong>
+					<strong><label for="duration_type_flexible">', $txt['paid_mod_flexible_price'], '</label></strong>
 					<br>
 					<div id="flexible_area" ', !empty($context['sub']['duration']) && $context['sub']['duration'] == 'flexible' ? '' : 'style="display: none;"', '>
 						<fieldset>';
@@ -408,14 +408,14 @@ function template_user_subscription()
 	if (empty($context['subscriptions']))
 	{
 		echo '
-			<div class="information">
+			<div class="description">
 				', $txt['paid_subs_none'], '
 			</div>';
 	}
 	else
 	{
 		echo '
-			<div class="information">
+			<div class="description">
 				', $txt['paid_subs_desc'], '
 			</div>';
 
@@ -484,13 +484,13 @@ function template_user_subscription()
 		<div class="title_bar">
 			<h3 class="titlebg">', $txt['paid_current'], '</h3>
 		</div>
-		<div class="information">
+		<div class="description">
 			', $txt['paid_current_desc'], '
 		</div>
 		<table class="table_grid">
 			<thead>
 				<tr class="catbg">
-					<th class="first_th" width="30%">', $txt['paid_name'], '</th>
+					<th class="first_th" style="width: 30%">', $txt['paid_name'], '</th>
 					<th align="center">', $txt['paid_status'], '</th>
 					<th align="center">', $txt['start_date'], '</th>
 					<th class="last_th" align="center">', $txt['end_date'], '</th>

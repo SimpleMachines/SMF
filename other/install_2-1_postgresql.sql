@@ -346,7 +346,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'view_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_new');
@@ -367,7 +366,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'make_sticky');
@@ -400,7 +398,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'make_sticky');
@@ -432,7 +429,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'view_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_new');
@@ -453,7 +449,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'make_sticky');
@@ -486,7 +481,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'make_sticky');
@@ -514,7 +508,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'view_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_new');
@@ -535,7 +528,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'make_sticky');
@@ -568,7 +560,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'make_sticky');
@@ -586,7 +577,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_view');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_vote');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'view_attachments');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_new');
@@ -607,7 +597,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'make_sticky');
@@ -640,7 +629,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_edit_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'report_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'send_topic');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'delete_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'modify_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'make_sticky');
@@ -1792,7 +1780,7 @@ CREATE TABLE {$db_prefix}messages (
   smileys_enabled smallint NOT NULL default '1',
   modified_time int NOT NULL default '0',
   modified_name varchar(255) NOT NULL,
-  modified_reason varchar(255) NOT NULL,
+  modified_reason varchar(255) NOT NULL default '',
   body text NOT NULL,
   icon varchar(16) NOT NULL default 'xx',
   approved smallint NOT NULL default '1',
@@ -2283,7 +2271,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_links', '2'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_prev_next_links', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_days', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_short_months', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('cal_week_numbers', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_host', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_port', '25');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('smtp_username', '');
@@ -2669,7 +2656,7 @@ CREATE TABLE {$db_prefix}user_alerts (
   content_type varchar(255) NOT NULL default '',
   content_id int NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
-  is_read smallint NOT NULL default '0',
+  is_read int NOT NULL default '0',
   extra text NOT NULL,
   PRIMARY KEY (id_alert)
 );

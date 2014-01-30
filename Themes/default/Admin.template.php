@@ -1544,12 +1544,12 @@ function template_clean_cache_button_below()
 
 function template_admin_quick_search()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 	if ($context['user']['is_admin'])
 		echo '
 							<object id="quick_search">
 								<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
-									<img class="icon" src="', $settings['images_url'] , '/filter.png" alt="">
+									<span class="generic_icons filter centericon"></span>
 									<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text">
 									<select name="search_type">
 										<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>

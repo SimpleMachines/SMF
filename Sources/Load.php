@@ -1433,7 +1433,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	elseif (!empty($_SESSION['id_theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
 		$id_theme = (int) $_SESSION['id_theme'];
 	// The theme is just the user's choice. (might use ?board=1;theme=0 to force board theme.)
-	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']) && (!empty($modSettings['theme_allow']) || allowedTo('admin_forum')))
+	elseif (!empty($user_info['theme']) && !isset($_REQUEST['theme']))
 		$id_theme = $user_info['theme'];
 	// The theme was specified by the board.
 	elseif (!empty($board_info['theme']))
@@ -1885,8 +1885,20 @@ function loadTheme($id_theme = 0, $initialize = true)
 			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
 		}
 		window.setTimeout("smfAutoTask();", 1);');
-
 		}
+	}
+
+	// And we should probably trigger the cron too.
+	if (empty($modSettings['cron_is_real_cron']))
+	{
+		$ts = time();
+		$ts -= $ts % 15;
+		addInlineJavaScript('
+	function triggerCron() {
+		var tempImage = new Image();
+		tempImage.src = ' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '";
+	}
+	window.setTimeout(triggerCron, 1);', true);
 	}
 
 	// Any files to include at this point?
@@ -2548,6 +2560,7 @@ function template_include($filename, $once = false)
 			$txt['template_parse_error'] = 'Template Parse Error!';
 			$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
 			$txt['template_parse_error_details'] = 'There was a problem loading the <tt><strong>%1$s</strong></tt> template or language file.  Please check the syntax and try again - remember, single quotes (<tt>\'</tt>) often have to be escaped with a slash (<tt>\\</tt>).  To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+			$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 		}
 
 		// First, let's get the doctype and language information out of the way.
@@ -2581,8 +2594,10 @@ function template_include($filename, $once = false)
 			require_once($sourcedir . '/Subs-Package.php');
 
 			$error = fetch_web_data($boardurl . strtr($filename, array($boarddir => '', strtr($boarddir, '\\', '/') => '')));
-			if (empty($error) && ini_get('track_errors'))
+			if (empty($error) && ini_get('track_errors') && !empty($php_errormsg))
 				$error = $php_errormsg;
+			if (empty($error))
+				$error = $txt['template_parse_errmsg'];
 
 			$error = strtr($error, array('<b>' => '<strong>', '</b>' => '</strong>'));
 

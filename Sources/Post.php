@@ -1125,12 +1125,12 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
-				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type], comma_format($modSettings[$type], 0));
+				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type], 0));
 				// Show some numbers. If they exist.
 				if ($type == 'attachmentNumPerPostLimit' && $context['attachments']['quantity'] > 0)
 					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
 				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
-					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1028), 0)), 0));
+					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)), 0));
 			}
 	}
 
@@ -2186,7 +2186,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $txt, $user_info, $sourcedir, $smcFunc;
+	global $language, $scripturl, $txt, $sourcedir, $smcFunc;
 
 	checkSession();
 

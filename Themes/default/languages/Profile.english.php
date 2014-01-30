@@ -257,6 +257,9 @@ $txt['own_profile_confirm'] = 'Are you sure you want to delete your account?';
 $txt['view_ips_by'] = 'View IPs used by';
 
 $txt['avatar_will_upload'] = 'Upload an avatar';
+$txt['avatar_max_size_wh'] = 'Max size: %1$spx by %2$spx';
+$txt['avatar_max_size_w'] = 'Max size: %1$spx wide';
+$txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 
 $txt['activate_changed_email_title'] = 'Email Address Changed';
 $txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';

@@ -565,7 +565,7 @@ function DownloadLanguage()
 function ModifyLanguages()
 {
 	global $txt, $context, $scripturl;
-	global $user_info, $smcFunc, $sourcedir, $language, $boarddir, $forum_version;
+	global $smcFunc, $sourcedir, $language, $boarddir, $forum_version;
 
 	// Setting a new default?
 	if (!empty($_POST['set_default']) && !empty($_POST['def_language']))

@@ -237,7 +237,6 @@ function ModifyLayoutSettings($return_config = false)
 		'',
 			// Stuff that just is everywhere - today, search, online, etc.
 			array('select', 'todayMod', array($txt['today_disabled'], $txt['today_only'], $txt['yesterday_today'])),
-			array('check', 'topbottomEnable'),
 			array('check', 'onlineEnable'),
 			array('check', 'enableVBStyleLogin'),
 		'',
@@ -349,7 +348,7 @@ function ModifyWarningSettings($return_config = false)
 	if (!empty($modSettings['warning_settings']) && $currently_enabled)
 		$config_vars += array(
 			'',
-				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'], 'help' => 'warning_enable'),
+				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note']),
 				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
 				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
 				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),

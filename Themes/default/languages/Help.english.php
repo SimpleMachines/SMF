@@ -174,29 +174,14 @@ $helptxt['userlog'] = '<strong>Profile Edits Log</strong><br>
 $helptxt['warning_enable'] = '<strong>User Warning System</strong><br>
 	This feature enables members of the admin and moderation team to issue warnings to members - and to use a members warning level to determine the
 	actions available to them on the forum. Upon enabling this feature a permission will be available within the permissions section to define
-	which groups may assign warnings to members. Warning levels can be adjusted from a members profile. The following additional options are available:
-	<ul class="normallist">
-		<li>
-			<strong>Warning Level for Member Watch</strong><br>
-			This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member.
-			Any member who is being &quot;watched&quot; will appear in the relevant area of the moderation center.
-		</li>
-		<li>
-			<strong>Warning Level for Post Moderation</strong><br>
-			Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum
-			community. This will override any local board permissions which may exist related to post moderation.
-		</li>
-		<li>
-			<strong>Warning Level for Member Muting</strong><br>
-			If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.
-		</li>
-		<li>
-			<strong>Maximum Member Warning Point per Day</strong><br>
-			This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This will
+	which groups may assign warnings to members. Warning levels can be adjusted from a members profile.';
+$helptxt['warning_watch'] = 'This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member. Any member who is being &quot;watched&quot; will appear in the relevant area of the moderation center.';
+$helptxt['warning_moderate'] = 'Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum community. This will override any local board permissions which may exist related to post moderation.';
+$helptxt['warning_mute'] = 'If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.';
+$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This will
 			can be used to limit what a moderator can do in a small period of time. This setting can be disabled by setting to a value of zero. Note that
-			any member with administrator permissions are not affected by this value.
-		</li>
-	</ul>';
+			any member with administrator permissions are not affected by this value.';
+
 $helptxt['error_log'] = '<strong>Error Log</strong><br>
 	The error log tracks logs every serious error encountered by users using your forum. It lists all of these errors by date which can be sorted
 	by clicking the black arrow next to each date. Additionally you can filter the errors by clicking the picture next to each error statistic. This
@@ -222,7 +207,6 @@ $helptxt['cal_week_links'] = 'If this setting is checked, links will be added al
 $helptxt['cal_prev_next_links'] = 'If this setting is checked, previous month and next month links will be added to the top of each month for easy navigation.';
 $helptxt['cal_short_months'] = 'If this setting is checked, month names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['months_short'][1] . ' 1<br><strong>Disabled:</strong> ' . $txt['months_titles'][1] . ' 1';
 $helptxt['cal_short_days'] = 'If this setting is checked, day names within the calendar will be shortened.<br><br><strong>Enabled:</strong> ' . $txt['days_short'][1] . '<br><strong>Disbaled:</strong> ' . $txt['days'][1];
-$helptxt['cal_week_numbers'] = 'If this setting is checked, the first day of every week will have the week number next to that day.<br><br><strong>Enabled:</strong> March 3 - Week 10</strong><br><strong>Disabled:</strong> March 3';
 
 $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	Here you can perform the core configuration for your forum. This section includes the database and url settings, as well as other
@@ -255,8 +239,6 @@ $helptxt['trackStats'] = 'Stats:<br>This will allow users to see the latest post
 		Page views:<br>Adds another column to the stats page with the number of pageviews on your forum.';
 $helptxt['titlesEnable'] = 'Switching Custom Titles on will allow members with the relevant permission to create a special title for themselves.
 		This will be shown underneath the name.<br><em>For example:</em><br>Jeff<br>Cool Guy';
-$helptxt['topbottomEnable'] = 'This will add go up and go down buttons, so that member can go to the top and bottom of a page
-		without scrolling.';
 $helptxt['onlineEnable'] = 'This will show an image to indicate whether the member is online or offline';
 $helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot; instead of the date.<br><br>
 		<strong>Examples:</strong><br><br>
@@ -313,7 +295,7 @@ $helptxt['attachmentShowImages'] = 'If the uploaded file is a picture, it will b
 $helptxt['attachmentThumbnails'] = 'If the above option is selected, this will save a separate (smaller) attachment for the thumbnail to decrease bandwidth.';
 $helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum width to resize attachments down from.  They will be resized proportionally.';
 $helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; option, the maximum height to resize attachments down from.  They will be resized proportionally.';
-$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory help text';
+$helptxt['attachmentDirFileLimit'] = 'Max number of files per directory';
 $helptxt['attachmentEnable'] = 'This option enables you to configure how attachments can be made.<br><br>
 	<ul class="normallist">
 		<li>

@@ -400,19 +400,19 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		return $posts;
 
 	echo '
-		<table border="0" class="ssi_table">';
+		<table style="border: none" class="ssi_table">';
 	foreach ($posts as $post)
 		echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td style="text-align: right; vertical-align: top; white-space: nowrap">
 					[', $post['board']['link'], ']
 				</td>
-				<td valign="top">
+				<td style="vertical-align: top">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', $post['is_new'] ? '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 				</td>
-				<td align="right" nowrap="nowrap">
+				<td style="text-align: right; white-space: nowrap">
 					', $post['time'], '
 				</td>
 			</tr>';
@@ -556,19 +556,19 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		return $posts;
 
 	echo '
-		<table border="0" class="ssi_table">';
+		<table style="border: none" class="ssi_table">';
 	foreach ($posts as $post)
 		echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td style="text-align: right; vertical-align: top; white-space: nowrap">
 					[', $post['board']['link'], ']
 				</td>
-				<td valign="top">
+				<td style="vertical-align: top">
 					<a href="', $post['href'], '">', $post['subject'], '</a>
 					', $txt['by'], ' ', $post['poster']['link'], '
 					', !$post['is_new'] ? '' : '<a href="' . $scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow"><span class="new_posts">' . $txt['new'] . '</span></a>', '
 				</td>
-				<td align="right" nowrap="nowrap">
+				<td style="text-align: right; white-space: nowrap">
 					', $post['time'], '
 				</td>
 			</tr>';
@@ -654,16 +654,16 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 	echo '
 		<table class="ssi_table">
 			<tr>
-				<th align="left">', $txt['board'], '</th>
-				<th align="left">', $txt['board_topics'], '</th>
-				<th align="left">', $txt['posts'], '</th>
+				<th style="text-align: left">', $txt['board'], '</th>
+				<th style="text-align: left">', $txt['board_topics'], '</th>
+				<th style="text-align: left">', $txt['posts'], '</th>
 			</tr>';
 	foreach ($boards as $board)
 		echo '
 			<tr>
 				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
-				<td align="right">', comma_format($board['num_topics']), '</td>
-				<td align="right">', comma_format($board['num_posts']), '</td>
+				<td style="text-align: right">', comma_format($board['num_topics']), '</td>
+				<td style="text-align: right">', comma_format($board['num_posts']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -672,7 +672,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 // Shows the top topics.
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
-	global $txt, $scripturl, $user_info, $modSettings, $smcFunc, $context;
+	global $txt, $scripturl, $modSettings, $smcFunc, $context;
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
@@ -737,18 +737,18 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 	echo '
 		<table class="ssi_table">
 			<tr>
-				<th align="left"></th>
-				<th align="left">', $txt['views'], '</th>
-				<th align="left">', $txt['replies'], '</th>
+				<th style="text-align: left"></th>
+				<th style="text-align: left">', $txt['views'], '</th>
+				<th style="text-align: left">', $txt['replies'], '</th>
 			</tr>';
 	foreach ($topics as $topic)
 		echo '
 			<tr>
-				<td align="left">
+				<td style="text-align: left">
 					', $topic['link'], '
 				</td>
-				<td align="right">', comma_format($topic['num_views']), '</td>
-				<td align="right">', comma_format($topic['num_replies']), '</td>
+				<td style="text-align: right">', comma_format($topic['num_views']), '</td>
+				<td style="text-align: right">', comma_format($topic['num_replies']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -868,7 +868,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $scripturl, $txt, $user_info;
+	global $context, $scripturl, $txt;
 	global $modSettings, $smcFunc, $memberContext;
 
 	if ($query_where === null)
@@ -898,7 +898,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 	// Draw the table!
 	if ($output_method == 'echo')
 		echo '
-		<table border="0" class="ssi_table">';
+		<table style="border: none" class="ssi_table">';
 
 	$query_members = array();
 	foreach ($members as $member)
@@ -914,7 +914,7 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 		if ($output_method == 'echo')
 			echo '
 			<tr>
-				<td align="right" valign="top" nowrap="nowrap">
+				<td style="text-align: right; vertical-align: top; white-space: nowrap">
 					', $query_members[$member]['link'], '
 					<br>', $query_members[$member]['blurb'], '
 					<br>', $query_members[$member]['avatar']['image'], '
@@ -1043,21 +1043,21 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 
 	echo '
 		<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
-			<table border="0" cellspacing="1" cellpadding="0" class="ssi_table">
+			<table style="border: none" class="ssi_table">
 				<tr>
-					<td align="right"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
+					<td style="text-align: right; border-spacing: 1"><label for="user">', $txt['username'], ':</label>&nbsp;</td>
 					<td><input type="text" id="user" name="user" size="9" value="', $user_info['username'], '" class="input_text"></td>
 				</tr><tr>
-					<td align="right"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
+					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
 					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
 				</tr>';
 
 	// Open ID?
 	if (!empty($modSettings['enableOpenID']))
 		echo '<tr>
-					<td colspan="2" align="center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
+					<td colspan="2" style="text-align :center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
 				</tr><tr>
-					<td align="right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
+					<td style="text-align: right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
 					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17"></td>
 				</tr>';
 
@@ -2026,19 +2026,19 @@ function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(),
 
 	// Give them the default.
 	echo '
-		<table class="ssi_downloads" cellpadding="2">
+		<table class="ssi_downloads">
 			<tr>
-				<th align="left">', $txt['file'], '</th>
-				<th align="left">', $txt['posted_by'], '</th>
-				<th align="left">', $txt['downloads'], '</th>
-				<th align="left">', $txt['filesize'], '</th>
+				<th style="text-align: left; padding: 2">', $txt['file'], '</th>
+				<th style="text-align: left; padding: 2">', $txt['posted_by'], '</th>
+				<th style="text-align: left; padding: 2">', $txt['downloads'], '</th>
+				<th style="text-align: left; padding: 2">', $txt['filesize'], '</th>
 			</tr>';
 	foreach ($attachments as $attach)
 		echo '
 			<tr>
 				<td>', $attach['file']['link'], '</td>
 				<td>', $attach['member']['link'], '</td>
-				<td align="center">', $attach['file']['downloads'], '</td>
+				<td style="text-align: center">', $attach['file']['downloads'], '</td>
 				<td>', $attach['file']['filesize'], '</td>
 			</tr>';
 	echo '

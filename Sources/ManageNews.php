@@ -85,7 +85,7 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt, $modSettings, $context, $sourcedir, $user_info, $scripturl;
+	global $txt, $modSettings, $context, $sourcedir, $scripturl;
 	global $smcFunc;
 
 	require_once($sourcedir . '/Subs-Post.php');

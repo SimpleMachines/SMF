@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings, $user_info;
+	global $sourcedir, $context, $user_profile, $modSettings;
 
 	isAllowedTo('moderate_forum');
 
@@ -336,7 +336,7 @@ function issueWarning($memID)
 				),
 				'data' => array(
 					'function' => create_function('$warning', '
-						global $scripturl, $txt, $settings;
+						global $scripturl, $txt;
 
 						$ret = \'
 						<div class="floatleft">
@@ -346,7 +346,7 @@ function issueWarning($memID)
 						if (!empty($warning[\'id_notice\']))
 							$ret .= \'
 						<div class="floatright">
-							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'images_url\'] . \'/filter.png" alt=""></a>
+							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><span class="generic_icons filter centericon"></span></a>
 						</div>\';
 
 						return $ret;'),
@@ -520,7 +520,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $user_info, $modSettings, $cur_profile, $smcFunc;
+	global $txt, $context, $modSettings, $cur_profile, $smcFunc;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');

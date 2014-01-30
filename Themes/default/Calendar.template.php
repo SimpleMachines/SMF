@@ -206,10 +206,6 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				// A lot of stuff, we're not showing on mini-calendars to conserve space.
 				if ($is_mini === false)
 				{
-					// If this is the first day of a week and we're showing week numbers, go ahead and do so now.
-					if ($day['is_first_day'] && !empty($context['tpl_show_week_num']))
-						echo '<span class="smalltext"> - <a href="', $scripturl, '?action=calendar;viewweek;year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $day['day'], '">', $txt['calendar_week'], ' ', $week['number'], '</a></span>';
-
 					// Holidays are always fun, let's show them!
 					if (!empty($day['holidays']))
 						echo '<div class="smalltext holiday"><span>', $txt['calendar_prompt'], '</span> ', implode(', ', $day['holidays']), '</div>';
@@ -282,9 +278,9 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			// Otherwise, assuming it's not a mini-calendar, we can show previous / next month days!
 			elseif ($is_mini === false)
 			{
-				if ($current_month_started === false && !empty($context['calendar_grid_prev']))
+				if (empty($current_month_started) && !empty($context['calendar_grid_prev']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_prev']['current_year'], ';month=', $context['calendar_grid_prev']['current_month'], '">', $context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- + 1, '</a>';
-				elseif (!empty($context['calendar_grid_next']))
+				elseif (!empty($current_month_started) && !empty($context['calendar_grid_next']))
 					echo '<a href="', $scripturl, '?action=calendar;year=', $context['calendar_grid_next']['current_year'], ';month=', $context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? $txt['months_short'][$context['calendar_grid_next']['current_month']] . ' ' : $txt['months_titles'][$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
 			}
 
@@ -331,15 +327,15 @@ function template_show_week_grid($grid_name)
 					if (empty($calendar_data['previous_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
 					{
 						echo '
-							<span class="floatleft xlarge_text>
+							<span class="floatleft xlarge_text">
 								<a href="', $calendar_data['previous_week']['href'], '">&#171;</a>
 							</span>
 						';
 					}
 
 					// The Month Title + Week Number...
-					if (!empty($calendar_data['week_number']))
-							echo $txt['calendar_week'], ' ', $calendar_data['week_number'], ' - ', $month_data['current_year'];
+					if (!empty($calendar_data['week_title']))
+							echo $calendar_data['week_title'];
 
 					// Next Week Link...
 					if (empty($calendar_data['next_calendar']['disabled']) && !empty($calendar_data['show_next_prev']))
@@ -519,7 +515,7 @@ function template_calendar_base($col_span = 1)
 // Template for posting a calendar event.
 function template_event_post()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 		<form action="', $scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', $context['character_set'], '" onsubmit="submitonce(this);smc_saveEntities(\'postevent\', [\'evtitle\']);" style="margin: 0;">';
@@ -615,7 +611,7 @@ function template_event_post()
 	}
 
 	// If this is a new event let the user specify which board they want the linked post to be put into.
-	if ($context['event']['new'])
+	if ($context['event']['new'] && !empty($context['event']['categories']))
 	{
 		echo '
 							<li>

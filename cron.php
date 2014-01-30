@@ -21,7 +21,7 @@
  */
 
 define('SMF', 'BACKGROUND');
-define('FROM_CLI', !isset($_SERVER['REQUEST_METHOD']));
+define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
 define('WIRELESS', false);
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
@@ -65,6 +65,15 @@ if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 if (file_exists($cachedir . '/cron.lock'))
 	obExit_cron();
 
+// Before we go any further, if this is not a CLI request, we need to do some checking.
+if (!FROM_CLI)
+{
+	// We will clean up $_GET shortly. But we want to this ASAP.
+	$ts = isset($_GET['ts']) ? (int) $_GET['ts'] : 0;
+	if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)
+		obExit_cron();
+}
+
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
@@ -107,6 +116,7 @@ while ($task_details = fetch_task())
 		);
 	}
 }
+obExit_cron();
 exit;
 
 // The heart of this cron handler...

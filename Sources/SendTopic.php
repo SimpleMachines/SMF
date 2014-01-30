@@ -16,139 +16,12 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main handling function for sending specialist (Or otherwise) emails to a user.
- */
-function EmailUser()
-{
-	global $context;
-
-	// Don't index anything here.
-	$context['robot_no_index'] = true;
-
-	// Load the template.
-	loadTemplate('SendTopic');
-
-	$sub_actions = array(
-		'email' => 'CustomEmail',
-		'sendtopic' => 'SendTopic',
-	);
-
-	if (!isset($_GET['sa']) || !isset($sub_actions[$_GET['sa']]))
-		$_GET['sa'] = 'sendtopic';
-
-	$sub_actions[$_GET['sa']]();
-}
-
-/**
- * Send a topic to a friend.
- * Uses the SendTopic template, with the main sub template.
- * Requires the send_topic permission.
- * Redirects back to the first page of the topic when done.
- * Is accessed via ?action=emailuser;sa=sendtopic.
- */
-function SendTopic()
-{
-	global $topic, $txt, $context, $scripturl, $sourcedir, $smcFunc, $modSettings;
-
-	// Check permissions...
-	isAllowedTo('send_topic');
-
-	// We need at least a topic... go away if you don't have one.
-	if (empty($topic))
-		fatal_lang_error('not_a_topic', false);
-
-	// Get the topic's subject.
-	$request = $smcFunc['db_query']('', '
-		SELECT m.subject, t.approved
-		FROM {db_prefix}topics AS t
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
-		WHERE t.id_topic = {int:current_topic}
-		LIMIT 1',
-		array(
-			'current_topic' => $topic,
-		)
-	);
-	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('not_a_topic', false);
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
-
-	// Can't send topic if its unapproved and using post moderation.
-	if ($modSettings['postmod_active'] && !$row['approved'])
-		fatal_lang_error('not_approved_topic', false);
-
-	// Censor the subject....
-	censorText($row['subject']);
-
-	// Sending yet, or just getting prepped?
-	if (empty($_POST['send']))
-	{
-		$context['page_title'] = sprintf($txt['sendtopic_title'], $row['subject']);
-		$context['start'] = $_REQUEST['start'];
-
-		return;
-	}
-
-	// Actually send the message...
-	checkSession();
-	spamProtection('sendtopic');
-
-	// This is needed for sendmail().
-	require_once($sourcedir . '/Subs-Post.php');
-
-	// Trim the names..
-	$_POST['y_name'] = trim($_POST['y_name']);
-	$_POST['r_name'] = trim($_POST['r_name']);
-
-	// Make sure they aren't playing "let's use a fake email".
-	if ($_POST['y_name'] == '_' || !isset($_POST['y_name']) || $_POST['y_name'] == '')
-		fatal_lang_error('no_name', false);
-	if (!isset($_POST['y_email']) || $_POST['y_email'] == '')
-		fatal_lang_error('no_email', false);
-	if (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['y_email']) == 0)
-		fatal_lang_error('email_invalid_character', false);
-
-	// The receiver should be valid to.
-	if ($_POST['r_name'] == '_' || !isset($_POST['r_name']) || $_POST['r_name'] == '')
-		fatal_lang_error('no_name', false);
-	if (!isset($_POST['r_email']) || $_POST['r_email'] == '')
-		fatal_lang_error('no_email', false);
-	if (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['r_email']) == 0)
-		fatal_lang_error('email_invalid_character', false);
-
-	// Emails don't like entities...
-	$row['subject'] = un_htmlspecialchars($row['subject']);
-
-	$replacements = array(
-		'TOPICSUBJECT' => $row['subject'],
-		'SENDERNAME' => $_POST['y_name'],
-		'RECPNAME' => $_POST['r_name'],
-		'TOPICLINK' => $scripturl . '?topic=' . $topic . '.0',
-	);
-
-	$emailtemplate = 'send_topic';
-
-	if (!empty($_POST['comment']))
-	{
-		$emailtemplate .= '_comment';
-		$replacements['COMMENT'] = $_POST['comment'];
-	}
-
-	$emaildata = loadEmailTemplate($emailtemplate, $replacements);
-	// And off we go!
-	sendmail($_POST['r_email'], $emaildata['subject'], $emaildata['body'], $_POST['y_email'], 'sendtopic');
-
-	// Back to the topic!
-	redirectexit('topic=' . $topic . '.0;topicsent');
-}
-
-/**
  * Allow a user to send an email.
  * Send an email to the user - allow the sender to write the message.
  * Can either be passed a user ID as uid or a message id as msg.
  * Does not check permissions for a message ID as there is no information disclosed.
  */
-function CustomEmail()
+function EmailUser()
 {
 	global $context, $user_info, $smcFunc, $txt, $scripturl, $sourcedir;
 
@@ -157,6 +30,12 @@ function CustomEmail()
 		fatal_lang_error('no_access', false);
 
 	isAllowedTo('send_email_to_members');
+
+	// Don't index anything here.
+	$context['robot_no_index'] = true;
+
+	// Load the template.
+	loadTemplate('SendTopic');
 
 	// Are we sending to a user?
 	$context['form_hidden_vars'] = array();

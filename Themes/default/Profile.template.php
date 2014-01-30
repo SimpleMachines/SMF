@@ -95,20 +95,18 @@ function template_alerts_popup()
 	echo '
 		<div class="alert_bar">
 			<div class="alerts_opts floatright">
-				<a href="' . $scripturl . '?action=pm;sa=send">', $txt['mark_alerts_read'], '</a>
+				<a href="' . $scripturl . '?action=profile;area=notification;sa=markread;', $context['session_var'], '=', $context['session_id'], '" onclick="return markAlertsRead(this)">', $txt['mark_alerts_read'], '</a>
 				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
-				', $txt['unread_alerts'], '
-				| <a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+				<a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
 			</div>
 		</div>
 		<div class="alerts_unread">';
 
 	if (empty($context['unread_alerts']))
 	{
-		echo '
-			<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
+		template_alerts_all_read();
 	}
 	else
 	{
@@ -126,7 +124,28 @@ function template_alerts_popup()
 	}
 
 	echo '
-		</div>';
+		</div>
+		<script><!-- // --><![CDATA[
+		function markAlertsRead(obj) {
+			ajax_indicator(true);
+			$.get(
+				obj.href,
+				function(data) {
+					ajax_indicator(false);
+					$("#alerts_menu_top span.amt").remove();
+					$("#alerts_menu div.alerts_unread").html(data);
+				}
+			);
+			return false;
+		}
+		// ]]></script>';
+}
+
+function template_alerts_all_read()
+{
+	global $txt;
+
+	echo '<div class="no_unread">', $txt['alerts_no_unread'], '</div>';
 }
 
 // This template displays users details without any option to edit them.
@@ -370,9 +389,12 @@ function template_summary()
 					<dt>', $txt['language'], ':</dt>
 					<dd>', $context['member']['language'], '</dd>';
 
-	echo '
+	if ($context['member']['online']['is_online'])
+		echo '
 					<dt>', $txt['lastLoggedIn'], ': </dt>
-					<dd>', $context['member']['last_login'], '</dd>
+					<dd>', $context['member']['last_login'], (!empty($context['member']['is_hidden']) ? ' (' . $txt['hidden'] . ')' : ''), '</dd>';
+
+	echo '
 				</dl>';
 
 	// Are there any custom profile fields for the summary?
@@ -2957,7 +2979,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_external">
-									<div class="smalltext">', $txt['avatar_by_url'], '</div>
+									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', $context['member']['avatar']['external'], '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text">
 								</div>';
 	}
@@ -2967,8 +2989,8 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_upload">
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file">
-									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file">', template_max_size('upload'), '
+									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
 
@@ -3006,6 +3028,22 @@ function template_profile_avatar_select()
 									}
 								// ]]></script>
 							</dd>';
+}
+
+// This is just a really little helper to avoid duplicating code unnecessarily
+function template_max_size($type)
+{
+	global $modSettings, $txt;
+
+	$w = !empty($modSettings['avatar_max_width_' . $type]) ? comma_format($modSettings['avatar_max_width_' . $type]) : 0;
+	$h = !empty($modSettings['avatar_max_height_' . $type]) ? comma_format($modSettings['avatar_max_height_' . $type]) : 0;
+
+	$suffix = (!empty($w) ? 'w' : '') . (!empty($h) ? 'h' : '');
+	if (empty($suffix))
+		return;
+
+	echo '
+									<div class="smalltext">', sprintf($txt['avatar_max_size_' . $suffix], $w, $h), '</div>';
 }
 
 // Callback for modifying karam.

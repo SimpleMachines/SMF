@@ -18,7 +18,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $language, $modSettings;		
+ 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;		
 
 		// Do we have any group moderators?
 		$request = $smcFunc['db_query']('', '

@@ -120,7 +120,7 @@ function template_main()
 	{
 		echo '
 	<div class="pagesection">
-		', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#bot" class="topbottom floatleft">' . $txt['go_down'] . '</a>' : '', '
+		', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
 		<div class="pagelinks floatleft">', $context['page_index'], '</div>
 		', template_button_strip($context['normal_buttons'], 'right'), '
 	</div>';
@@ -192,14 +192,14 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<th class="last_th" width="4%">&nbsp;</th>';
+					<th class="last_th" style="width: 4%">&nbsp;</th>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
 			echo '
-					<th scope="col" class="first_th" width="8%">&nbsp;</th>
+					<th scope="col" class="first_th" style="width: 8%">&nbsp;</th>
 					<th colspan="3"><strong>', $txt['topic_alert_none'], '</strong></th>
-					<th scope="col" class="last_th" width="8%">&nbsp;</th>';
+					<th scope="col" class="last_th" style="width: 8%">&nbsp;</th>';
 
 		echo '
 				</tr>
@@ -250,6 +250,9 @@ function template_main()
 			// Now we handle the icons
 			echo '
 							<div class="icons">';
+			if ($topic['is_watched'])
+				echo '
+								<span class="generic_icons watch floatright" title="', $txt['watching_this_topic'], '"></span>';
 			if ($topic['is_locked'])
 				echo '
 								<span class="generic_icons lock floatright"></span>';
@@ -357,7 +360,7 @@ function template_main()
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
-		', !empty($modSettings['topbottomEnable']) ? $context['menu_separator'] . '<a href="#main_content_section" class="topbottom floatleft">' . $txt['go_up'] . '</a>' : '', '
+		', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft">', $txt['go_up'], '</a>
 		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 	}

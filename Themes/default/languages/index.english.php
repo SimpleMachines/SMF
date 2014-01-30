@@ -122,6 +122,12 @@ $txt['admin_login'] = 'Administration Login';
 // Use numeric entities in the below string.
 $txt['topic'] = 'Topic';
 $txt['help'] = 'Help';
+$txt['terms_and_rules'] = 'Terms and Rules';
+$txt['watch_board'] = 'Watch this Board';
+$txt['unwatch_board'] = 'Stop Watching Board';
+$txt['watch_topic'] = 'Watch this Topic';
+$txt['unwatch_topic'] = 'Stop Watching Topic';
+$txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
 $txt['notify_request'] = 'Do you want a notification email if someone replies to this topic?';
@@ -363,12 +369,10 @@ $txt['send_topic'] = 'Send this topic';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
 
-$txt['sendtopic_title'] = 'Send the topic &quot;%1$s&quot; to a friend.';
 $txt['sendtopic_sender_name'] = 'Your name';
 $txt['sendtopic_sender_email'] = 'Your email address';
 $txt['sendtopic_receiver_name'] = 'Recipient\'s name';
 $txt['sendtopic_receiver_email'] = 'Recipient\'s email address';
-$txt['sendtopic_comment'] = 'Add a comment';
 
 $txt['allow_user_email'] = 'Allow users to email me';
 
@@ -385,6 +389,7 @@ $txt['database_error_versions'] = '<strong>Note:</strong> It appears that your d
 $txt['template_parse_error'] = 'Template Parse Error!';
 $txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
 $txt['template_parse_error_details'] = 'There was a problem loading the <tt><strong>%1$s</strong></tt> template or language file.  Please check the syntax and try again - remember, single quotes (<tt>\'</tt>) often have to be escaped with a slash (<tt>\\</tt>).  To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 
 $txt['today'] = '<strong>Today</strong> at ';
 $txt['yesterday'] = '<strong>Yesterday</strong> at ';
@@ -485,8 +490,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="Simple Machines Forum" class="new_win">%1$s</a> |
- <a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">SMF &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
+$forum_copyright = '<a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -512,6 +516,8 @@ $txt['calendar_upcoming'] = 'Upcoming Calendar';
 $txt['calendar_today'] = 'Today\'s Calendar';
 $txt['calendar_week'] = 'Week';
 $txt['calendar_week_title'] = 'Week %1$d of %2$d';
+// %1$s is the month, %2$s is the day, %3$s is the year. Change to suit your language.
+$txt['calendar_week_beginning'] = 'Week beginning %1$s %2$s, %3$s';
 $txt['calendar_numb_days'] = 'Number of Days:';
 $txt['calendar_how_edit'] = 'how do you edit these events?';
 $txt['calendar_link_event'] = 'Link Event To Post:';
@@ -779,7 +785,6 @@ $txt['openid'] = 'OpenID';
 
 $txt['downloads'] = 'Downloads';
 $txt['filesize'] = 'Filesize';
-$txt['subscribe_webslice'] = 'Subscribe to Webslice';
 
 // Restore topic
 $txt['restore_topic'] = 'Restore Topic';

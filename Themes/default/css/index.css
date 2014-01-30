@@ -3101,6 +3101,12 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 .generic_icons.split_sel {
 	background-position: -112px -64px;
 }
+.generic_icons.watch {
+	background-position: 0px -80px;
+}
+.generic_icons.filter {
+	background-position: -16px -80px;
+}
 
 /* Styles for (fatal) errors.
 ------------------------------------------------- */

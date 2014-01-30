@@ -720,7 +720,7 @@ function ConvertUtf8()
 function ConvertMsgBody()
 {
 	global $scripturl, $context, $txt, $language, $db_character_set, $db_type;
-	global $modSettings, $user_info, $sourcedir, $smcFunc, $time_start;
+	global $modSettings, $sourcedir, $smcFunc, $time_start;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -1921,7 +1921,7 @@ function MaintainMassMoveTopics()
 	if ($sticky)
 	{
 		$conditions .= '
-			AND t.sticky = {int:sticky}';
+			AND t.is_sticky = {int:sticky}';
 		$params['sticky'] = 1;
 	}
 
@@ -2132,6 +2132,7 @@ function MaintainRecountPosts()
 			'zero' => 0,
 			'string_zero' => '0',
 			'db_error_skip' => true,
+			'recycle' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 		)
 	) !== false;
 
