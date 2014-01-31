@@ -1311,15 +1311,11 @@ function MergeExecute($topics = array())
 	// Assign the first topic ID to be the merged topic.
 	$id_topic = min($topics);
 
-	// Delete the remaining topics.
 	$deleted_topics = array_diff($topics, array($id_topic));
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}topics
-		WHERE id_topic IN ({array_int:deleted_topics})',
-		array(
-			'deleted_topics' => $deleted_topics,
-		)
-	);
+	$updated_topics = array();
+
+	// Create stub topics out of the remaining topics.
+	// We don't want the search index data though.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_search_subjects
 		WHERE id_topic IN ({array_int:deleted_topics})',
@@ -1327,6 +1323,33 @@ function MergeExecute($topics = array())
 			'deleted_topics' => $deleted_topics,
 		)
 	);
+	require_once($sourcedir . '/Subs-Post.php');
+	$posterOptions = array(
+		'id' => $user_info['id'],
+		'update_post_count' => false,
+	);
+	foreach ($deleted_topics as $this_old_topic)
+	{
+		$msgOptions = array(
+			'icon' => 'moved',
+			'subject' => sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']),
+			'body' => sprintf($txt['merged_body'], $scripturl . '?topic=' . $id_topic . '.0', $target_subject),
+			'approved' => 1,
+		);
+		$topicOptions = array(
+			'id' => $this_old_topic,
+			'is_approved' => true,
+			'lock_mode' => 1,
+			'board' => $topic_data[$this_old_topic]['board'],
+		);
+
+		// So we have to make the post. We need to do *this* here so we don't foul up indexes later
+		// and we have to fix them up later once everything else has happened.
+		if (createPost($msgOptions, $topicOptions, $posterOptions))
+		{
+			$updated_topics[$this_old_topic] = $msgOptions['id'];
+		}
+	}
 
 	// Asssign the properties of the newly merged topic.
 	$smcFunc['db_query']('', '
@@ -1381,10 +1404,12 @@ function MergeExecute($topics = array())
 			id_topic = {int:id_topic},
 			id_board = {int:target_board}' . (empty($_POST['enforce_subject']) ? '' : ',
 			subject = {string:subject}') . '
-		WHERE id_topic IN ({array_int:topic_list})',
+		WHERE id_topic IN ({array_int:topic_list})' . (!empty($updated_topics) ? '
+			AND id_msg NOT IN ({array_int:merge_msg})' : ''),
 		array(
 			'topic_list' => $topics,
 			'id_topic' => $id_topic,
+			'merge_msg' => $updated_topics,
 			'target_board' => $target_board,
 			'subject' => $context['response_prefix'] . $target_subject,
 		)
@@ -1563,7 +1588,29 @@ function MergeExecute($topics = array())
 	list($id_board) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	require_once($sourcedir . '/Subs-Post.php');
+	// Having done all that, now make sure we fix the merge/redirect topics upp before we
+	// leave here. Specifically: that there are no replies, no unapproved stuff, that the first
+	// and last posts are the same and so on and so forth.
+	foreach ($updated_topics as $old_topic => $id_msg)
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}topics
+			SET id_first_msg = id_last_msg,
+				id_member_started = {int:current_user},
+				id_member_updated = {int:current_user},
+				id_poll = 0,
+				approved = 1,
+				num_replies = 0,
+				unapproved_posts = 0,
+				id_redirect_topic = {int:new_topic}
+			WHERE id_topic = {int:old_topic}',
+			array(
+				'current_user' => $user_info['id'],
+				'old_topic' => $old_topic,
+				'new_topic' => $id_topic,
+			)
+		);
+	}
 
 	// Update all the statistics.
 	updateStats('topic');
