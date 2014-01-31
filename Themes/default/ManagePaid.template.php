@@ -90,7 +90,7 @@ function template_modify_subscription()
 							', $txt['paid_mod_reminder'], ':<br><span class="smalltext">', $txt['paid_mod_reminder_desc'], '</span>
 						</dt>
 						<dd>
-							<input type="text" name="reminder" value="', $context['sub']['reminder'], '" size="6" class="input_text">
+							<input type="number" name="reminder" value="', $context['sub']['reminder'], '" size="6" class="input_text">
 						</dd>
 						<dt>
 							', $txt['paid_mod_email'], ':<br><span class="smalltext">', $txt['paid_mod_email_desc'], '</span>
@@ -110,13 +110,13 @@ function template_modify_subscription()
 									', $txt['paid_cost'], ' (', str_replace('%1.2f', '', $modSettings['paid_currency_symbol']), '):
 								</dt>
 								<dd>
-									<input type="text" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '0' : $context['sub']['cost']['fixed'], '" size="4" class="input_text">
+									<input type="number" name="cost" value="', empty($context['sub']['cost']['fixed']) ? '0' : $context['sub']['cost']['fixed'], '" size="4" class="input_text">
 								</dd>
 								<dt>
 									', $txt['paid_mod_span'], ':
 								</dt>
 								<dd>
-									<input type="text" name="span_value" value="', $context['sub']['span']['value'], '" size="4" class="input_text">
+									<input type="number" name="span_value" value="', $context['sub']['span']['value'], '" size="4" class="input_text">
 									<select name="span_unit">
 										<option value="D"', $context['sub']['span']['unit'] == 'D' ? ' selected' : '', '>', $txt['paid_mod_span_days'], '</option>
 										<option value="W"', $context['sub']['span']['unit'] == 'W' ? ' selected' : '', '>', $txt['paid_mod_span_weeks'], '</option>
@@ -161,25 +161,25 @@ function template_modify_subscription()
 									', $txt['paid_per_day'], ':
 								</dt>
 								<dd>
-									<input type="text" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5" class="input_text">
+									<input type="number" name="cost_day" value="', empty($context['sub']['cost']['day']) ? '0' : $context['sub']['cost']['day'], '" size="5" class="input_text">
 								</dd>
 								<dt>
 									', $txt['paid_per_week'], ':
 								</dt>
 								<dd>
-									<input type="text" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5" class="input_text">
+									<input type="number" name="cost_week" value="', empty($context['sub']['cost']['week']) ? '0' : $context['sub']['cost']['week'], '" size="5" class="input_text">
 								</dd>
 								<dt>
 									', $txt['paid_per_month'], ':
 								</dt>
 								<dd>
-									<input type="text" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5" class="input_text">
+									<input type="number" name="cost_month" value="', empty($context['sub']['cost']['month']) ? '0' : $context['sub']['cost']['month'], '" size="5" class="input_text">
 								</dd>
 								<dt>
 									', $txt['paid_per_year'], ':
 								</dt>
 								<dd>
-									<input type="text" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5" class="input_text">
+									<input type="number" name="cost_year" value="', empty($context['sub']['cost']['year']) ? '0' : $context['sub']['cost']['year'], '" size="5" class="input_text">
 								</dd>
 							</dl>
 						</fieldset>
@@ -331,8 +331,8 @@ function template_modify_user_subscription()
 
 	echo '
 						</select>
-						', $txt['hour'], ': <input type="text" name="hourend" value="', $context['sub']['end']['hour'], '" size="2" class="input_text">
-						', $txt['minute'], ': <input type="text" name="minuteend" value="', $context['sub']['end']['min'], '" size="2" class="input_text">
+						', $txt['hour'], ': <input type="number" name="hourend" value="', $context['sub']['end']['hour'], '" size="2" class="input_text">
+						', $txt['minute'], ': <input type="number" name="minuteend" value="', $context['sub']['end']['min'], '" size="2" class="input_text">
 					</fieldset>
 					<input type="submit" name="save_sub" value="', $txt['paid_settings_save'], '" class="button_submit">
 				</div>

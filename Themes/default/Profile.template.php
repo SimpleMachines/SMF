@@ -1386,10 +1386,16 @@ function template_edit_options()
 							', $field['value'];
 
 			// Maybe it's a text box - very likely!
-			elseif (in_array($field['type'], array('int', 'float', 'text', 'password')))
-				echo '
-							<input type="', $field['type'] == 'password' ? 'password' : 'text', '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' class="input_', $field['type'] == 'password' ? 'password' : 'text', '">';
+			elseif (in_array($field['type'], array('int', 'float', 'text', 'password', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'number', 'time', 'url')))
+			{
+				if ($field['type'] == 'int' || $field['type'] == 'float')
+					$type = 'number';
+				else
+					$type = $field['type'];
 
+				echo '
+							<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' class="input_', $field['type'] == 'password' ? 'password' : 'text', '">';
+			}
 			// You "checking" me out? ;)
 			elseif ($field['type'] == 'check')
 				echo '
@@ -2989,7 +2995,7 @@ function template_profile_avatar_select()
 	{
 		echo '
 								<div id="avatar_upload">
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file">', template_max_size('upload'), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" class="input_file" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
 									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
@@ -3096,7 +3102,7 @@ function template_profile_timeoffset_modify()
 								<span class="smalltext">', $txt['personal_time_offset'], '</span>
 							</dt>
 							<dd>
-								<input type="text" name="time_offset" id="time_offset" size="5" maxlength="5" value="', $context['member']['time_offset'], '" class="input_text"> ', $txt['hours'], ' [<a href="javascript:void(0);" onclick="currentDate = new Date(', $context['current_forum_time_js'], '); document.getElementById(\'time_offset\').value = autoDetectTimeOffset(currentDate); return false;">', $txt['timeoffset_autodetect'], '</a>]<br>', $txt['current_time'], ': <em>', $context['current_forum_time'], '</em>
+								<input type="number" name="time_offset" id="time_offset" size="5" maxlength="5" value="', $context['member']['time_offset'], '" class="input_text"> ', $txt['hours'], ' [<a href="javascript:void(0);" onclick="currentDate = new Date(', $context['current_forum_time_js'], '); document.getElementById(\'time_offset\').value = autoDetectTimeOffset(currentDate); return false;">', $txt['timeoffset_autodetect'], '</a>]<br>', $txt['current_time'], ': <em>', $context['current_forum_time'], '</em>
 							</dd>';
 }
 

@@ -176,7 +176,7 @@ function loadProfileFields($force_reload = false)
 			'),
 		),
 		'email_address' => array(
-			'type' => 'text',
+			'type' => 'email',
 			'label' => $txt['user_email_address'],
 			'subtext' => $txt['valid_email'],
 			'log_change' => true,
@@ -654,7 +654,7 @@ function loadProfileFields($force_reload = false)
 			'link_with' => 'website',
 		),
 		'website_url' => array(
-			'type' => 'text',
+			'type' => 'url',
 			'label' => $txt['website_url'],
 			'subtext' => $txt['complete_url'],
 			'size' => 50,
