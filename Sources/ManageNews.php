@@ -512,6 +512,7 @@ function ComposeMailing()
 			'post_button' => $txt['sendtopic_send'],
 		),
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 	// Store the ID for old compatibility.
