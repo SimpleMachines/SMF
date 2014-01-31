@@ -1947,11 +1947,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'unapproved_posts = unapproved_posts + {int:counter_increment}',
 			);
 		if ($topicOptions['lock_mode'] !== null)
-			$topics_columns = array(
+			$topics_columns += array(
 				'locked = {int:locked}',
 			);
 		if ($topicOptions['sticky_mode'] !== null)
-			$topics_columns = array(
+			$topics_columns += array(
 				'is_sticky = {int:is_sticky}',
 			);
 
