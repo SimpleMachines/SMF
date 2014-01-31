@@ -3947,27 +3947,13 @@ span.hidelink {
 	width: 115px;
 }
 
-/* Styles for the basic search section.
+/* Styles for the search section.
 ------------------------------------------------- */
-#simple_search p {
-	padding: 6px;
-	margin: 0;
-}
-#simple_search, #simple_search p, #advanced_search {
+#advanced_search {
 	text-align: center !important;
 	margin: 0;
 }
-#search_error {
-	font-style: italic;
-	padding: 4px 12px;
-}
-#search_term_input {
-	font-size: 1.1em;
-	margin: 0 0 12px;
-}
 
-/* Styles for the advanced search section.
-------------------------------------------------- */
 #searchform fieldset {
 	text-align: left;
 	padding: 0;

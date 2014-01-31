@@ -2280,7 +2280,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('timeLoadPageEnable',
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('totalMembers', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('totalTopics', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('totalMessages', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('simpleSearch', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('censor_vulgar', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('censor_proper', '');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enablePostHTML', '0');
