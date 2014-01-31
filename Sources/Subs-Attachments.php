@@ -586,7 +586,7 @@ function attachmentChecks($attachID)
 		}
 
 		// // No room left.... What to do now???
-		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] - 2 > $modSettings['attachmentDirFileLimit']
+		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] > $modSettings['attachmentDirFileLimit']
 			|| (!empty($modSettings['attachmentDirSizeLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
 		{
 			if (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] == 1)
