@@ -1048,7 +1048,7 @@ function saveDBSettings(&$config_vars)
 		elseif ($var[0] == 'float')
 			$setArray[$var[1]] = (float) $_POST[$var[1]];
 		// Text!
-		elseif ($var[0] == 'text' || in_array($var[0], array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'number', 'time')))
+		elseif ($var[0] == 'text' || in_array($var[0], array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
 		// Passwords!
 		elseif ($var[0] == 'password')
