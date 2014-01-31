@@ -718,26 +718,8 @@ function template_search()
 		</div>';
 	}
 
-	if ($context['simple_search'])
-	{
-		echo '
-		<fieldset id="simple_search">
-			<div class="roundframe">
-				<div id="search_term_input">
-					<strong>', $txt['pm_search_text'], ':</strong>
-					<input type="search" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text">
-					<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit">
-				</div>
-				<a href="', $scripturl, '?action=pm;sa=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['pm_search_advanced'], '</a>
-				<input type="hidden" name="advanced" value="0">
-			</div>
-		</fieldset>';
-	}
 
-	// Advanced search!
-	else
-	{
-		echo '
+	echo '
 		<fieldset id="advanced_search">
 			<div class="roundframe">
 				<input type="hidden" name="advanced" value="1">
@@ -772,18 +754,18 @@ function template_search()
 					<dt class="between">', $txt['pm_search_post_age'], ':</dt>
 					<dd>', $txt['pm_search_between'], ' <input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" class="input_text" min="0" max="9999">&nbsp;', $txt['pm_search_between_and'], '&nbsp;<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" class="input_text" min="0" max="9999"> ', $txt['pm_search_between_days'], '</dd>
 				</dl>';
-		if (!$context['currently_using_labels'])
-			echo '
+	if (!$context['currently_using_labels'])
+		echo '
 				<input type="submit" name="pm_search" value="', $txt['pm_search_go'], '" class="button_submit">';
-			echo '
+		echo '
 				<br class="clear_right">
 			</div>
 		</fieldset>';
 
-		// Do we have some labels setup? If so offer to search by them!
-		if ($context['currently_using_labels'])
-		{
-			echo '
+	// Do we have some labels setup? If so offer to search by them!
+	if ($context['currently_using_labels'])
+	{
+		echo '
 		<fieldset class="labels">
 			<div class="roundframe">
 				<div class="title_bar">
@@ -794,14 +776,14 @@ function template_search()
 				<div id="advanced_panel_div">
 					<ul id="searchLabelsExpand" class="reset">';
 
-			foreach ($context['search_labels'] as $label)
-				echo '
+		foreach ($context['search_labels'] as $label)
+			echo '
 						<li>
 							<label for="searchlabel_', $label['id'], '"><input type="checkbox" id="searchlabel_', $label['id'], '" name="searchlabel[', $label['id'], ']" value="', $label['id'], '"', $label['checked'] ? ' checked' : '', ' class="input_check">
 							', $label['name'], '</label>
 						</li>';
 
-			echo '
+		echo '
 					</ul>
 				</div>
 				<p>
@@ -812,8 +794,8 @@ function template_search()
 			</div>
 		</fieldset>';
 
-			// Some javascript for the advanced toggling
-			echo '
+		// Some javascript for the advanced toggling
+		echo '
 		<script><!-- // --><![CDATA[
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
@@ -837,7 +819,6 @@ function template_search()
 				]
 			});
 		// ]]></script>';
-		}
 	}
 
 	echo '

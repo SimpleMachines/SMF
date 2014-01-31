@@ -1206,7 +1206,6 @@ function MessageSearch()
 		}
 	}
 
-	$context['simple_search'] = isset($context['search_params']['advanced']) ? empty($context['search_params']['advanced']) : !empty($modSettings['simpleSearch']) && !isset($_REQUEST['advanced']);
 	$context['page_title'] = $txt['pm_search_title'];
 	$context['sub_template'] = 'search';
 	$context['linktree'][] = array(
