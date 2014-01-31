@@ -1158,6 +1158,8 @@ function Display()
 			'width' => '100%',
 			// We do XML preview here.
 			'preview_type' => 0,
+			// This is required
+			'required' => true,
 		);
 		create_control_richedit($editorOptions);
 

@@ -2003,6 +2003,7 @@ function MessagePost()
 			'post_button' => $txt['send_message'],
 		),
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 

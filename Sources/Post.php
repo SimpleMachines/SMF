@@ -1062,6 +1062,7 @@ function Post($post_errors = array())
 		'width' => '100%',
 		// We do XML preview here.
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 
