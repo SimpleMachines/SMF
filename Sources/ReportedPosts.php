@@ -111,6 +111,7 @@ function ReportDetails()
 	global $smcFunc;
 
 	$report = array();
+	$reportComments = array();
 
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['report']))
@@ -151,6 +152,11 @@ function ReportDetails()
 		'ignore' => $report['ignore_all']
 	);
 
+	$reportComments = getReportComments($report_id);
+
+	if (!empty($reportComments))
+		$context['report'] = array_merge($context['report'], $reportComments);
+
 	// What have the other moderators done to this message?
 	require_once($sourcedir . '/Modlog.php');
 	require_once($sourcedir . '/Subs-List.php');
@@ -162,7 +168,7 @@ function ReportDetails()
 		'title' => $txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
 		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=reports;report=' . $context['report']['id'],
+		'base_href' => $scripturl . '?action=moderate;area=reports;sa=details;report=' . $context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',

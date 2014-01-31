@@ -134,7 +134,7 @@ function getReports($closed = 0)
 				'id_board' => $row['id_board'],
 				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),
-			'report_href' => $scripturl . '?action=moderate;sa=details;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reports;sa=details;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
@@ -248,6 +248,9 @@ function getReportDetails($report_id)
 {
 	global $smcFunc, $user_info;
 
+	if (empty($report_id))
+		return false;
+
 	// Get the report details, need this so we can limit access to a particular board.
 	$request = $smcFunc['db_query']('', '
 		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
@@ -259,7 +262,7 @@ function getReportDetails($report_id)
 			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
 		LIMIT 1',
 		array(
-			'id_report' => $_REQUEST['report'],
+			'id_report' => $report_id,
 		)
 	);
 
@@ -276,6 +279,16 @@ function getReportDetails($report_id)
 
 function getReportComments($report_id)
 {
+	global $smcFunc, $scripturl;
+
+	if (empty($report_id))
+		return false;
+
+	$report = array(
+		'comments' => array(),
+		'mod_comments' => array()
+	);
+
 	// So what bad things do the reporters have to say about it?
 	$request = $smcFunc['db_query']('', '
 		SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
@@ -284,12 +297,13 @@ function getReportComments($report_id)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
 		WHERE lrc.id_report = {int:id_report}',
 		array(
-			'id_report' => $context['report']['id'],
+			'id_report' => $report_id,
 		)
 	);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['report']['comments'][] = array(
+		$report['comments'][] = array(
 			'id' => $row['id_comment'],
 			'message' => strtr($row['comment'], array("\n" => '<br>')),
 			'time' => timeformat($row['time_sent']),
@@ -313,12 +327,13 @@ function getReportComments($report_id)
 		WHERE lc.id_notice = {int:id_report}
 			AND lc.comment_type = {literal:reportc}',
 		array(
-			'id_report' => $context['report']['id'],
+			'id_report' => $report_id,
 		)
 	);
+
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['report']['mod_comments'][] = array(
+		$report['mod_comments'][] = array(
 			'id' => $row['id_comment'],
 			'message' => parse_bbc($row['body']),
 			'time' => timeformat($row['log_time']),
@@ -331,6 +346,9 @@ function getReportComments($report_id)
 			),
 		);
 	}
+
 	$smcFunc['db_free_result']($request);
+
+	return $report;
 }
 ?>
