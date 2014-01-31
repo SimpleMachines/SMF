@@ -99,7 +99,7 @@ function ModifySubscriptionSettings($return_config = false)
 				array('check', 'paid_enabled'),
 			'',
 				array('select', 'paid_email', array(0 => $txt['paid_email_no'], 1 => $txt['paid_email_error'], 2 => $txt['paid_email_all']), 'subtext' => $txt['paid_email_desc']),
-				array('text', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
+				array('email', 'paid_email_to', 'subtext' => $txt['paid_email_to_desc'], 'size' => 60),
 			'',
 				'dummy_currency' => array('select', 'paid_currency', array('usd' => $txt['usd'], 'eur' => $txt['eur'], 'gbp' => $txt['gbp'], 'cad' => $txt['cad'], 'aud' => $txt['aud'], 'other' => $txt['other']), 'javascript' => 'onchange="toggleOther();"'),
 				array('text', 'paid_currency_code', 'subtext' => $txt['paid_currency_code_desc'], 'size' => 5, 'force_div_id' => 'custom_currency_code_div'),
