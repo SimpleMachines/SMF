@@ -743,7 +743,7 @@ function template_search()
 				<input type="hidden" name="advanced" value="1">
 				<span class="enhanced">
 					<strong>', $txt['pm_search_text'], ':</strong>
-					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text">
+					<input type="search" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text">
 					<script><!-- // --><![CDATA[
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
@@ -770,7 +770,7 @@ function template_search()
 						<label for="subject_only"><input type="checkbox" name="subject_only" id="subject_only" value="1"', !empty($context['search_params']['subject_only']) ? ' checked' : '', ' class="input_check"> ', $txt['pm_search_subject_only'], '</label>
 					</dd>
 					<dt class="between">', $txt['pm_search_post_age'], ':</dt>
-					<dd>', $txt['pm_search_between'], ' <input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" class="input_text">&nbsp;', $txt['pm_search_between_and'], '&nbsp;<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" class="input_text"> ', $txt['pm_search_between_days'], '</dd>
+					<dd>', $txt['pm_search_between'], ' <input type="number" name="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="5" class="input_text" min="0" max="9999">&nbsp;', $txt['pm_search_between_and'], '&nbsp;<input type="number" name="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="5" class="input_text" min="0" max="9999"> ', $txt['pm_search_between_days'], '</dd>
 				</dl>';
 		if (!$context['currently_using_labels'])
 			echo '
