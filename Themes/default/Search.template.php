@@ -72,7 +72,7 @@ function template_main()
 						<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 					</dt>
 					<dd>
-						<input type="text" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
+						<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
 
 		if (empty($modSettings['search_simple_fulltext']))
 			echo '
