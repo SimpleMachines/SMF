@@ -1015,6 +1015,9 @@ function WelcomeLogin()
 		$boarddir . '/Settings_bak.php',
 	);
 
+	// Do we need to add this setting?
+	$need_settings_update = empty($modSettings['custom_avatar_dir']);
+
 	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
 
 	// This little fellow has to cooperate...
@@ -1024,6 +1027,8 @@ function WelcomeLogin()
 	// Are we good now?
 	if(!is_writable($custom_av_dir))
 		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
+	elseif ($need_settings_update)
+		updateSettings(array('custom_av_dir' => $custom_av_dir));
 
 	require_once($sourcedir . '/Security.php');
 
