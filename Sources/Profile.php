@@ -751,6 +751,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
+			'title' => $txt['profileEdit'],
 		),
 		array(
 			'menu' => 'edit_profile',
