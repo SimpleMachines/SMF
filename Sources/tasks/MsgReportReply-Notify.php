@@ -96,7 +96,6 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 			'email' => 0x02,
 		);
 		$notifies = array();
-		print_r($prefs);
 
 		foreach ($prefs as $member => $pref_option)
 		{
@@ -106,8 +105,6 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					$notifies[$type][] = $member;
 			}
 		}
-
-		print_r($notifies);
 
 		// Firstly, anyone who wants alerts.
 		if (!empty($notifies['alert']))
