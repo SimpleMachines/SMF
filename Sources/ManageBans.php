@@ -1289,7 +1289,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	global $smcFunc;
 
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_group_id_empty';
+		$context['ban_errors'][] = 'ban_id_empty';
 
 	// Preset all values that are required.
 	$values = array(
@@ -1385,7 +1385,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 	if (empty($ban_item))
 		$context['ban_errors'][] = 'ban_ban_item_empty';
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_group_id_empty';
+		$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($trigger))
 		$context['ban_errors'][] = 'ban_no_triggers';
 

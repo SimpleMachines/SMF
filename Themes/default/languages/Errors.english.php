@@ -187,7 +187,6 @@ $txt['ban_not_found'] = 'Ban not found';
 $txt['ban_unknown_restriction_type'] = 'Restriction type unknown';
 $txt['ban_name_empty'] = 'The name of the ban was left empty';
 $txt['ban_id_empty'] = 'Ban id not found';
-$txt['ban_group_id_empty'] = 'Ban group id missing';
 $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';
 $txt['impossible_insert_new_bangroup'] = 'An error occurred while inserting the new ban';
