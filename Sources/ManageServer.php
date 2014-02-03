@@ -513,14 +513,14 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Set the default values for each option.
 	$default_values = array(
-		'loadavg_auto_opt' => '1.0',
-		'loadavg_search' => '2.5',
-		'loadavg_allunread' => '2.0',
-		'loadavg_unreadreplies' => '3.5',
-		'loadavg_show_posts' => '2.0',
-		'loadavg_userstats' => '10.0',
-		'loadavg_bbc' => '30.0',
-		'loadavg_forum' => '40.0',
+		'loadavg_auto_opt' => 1.0,
+		'loadavg_search' => 2.5,
+		'loadavg_allunread' => 2.0,
+		'loadavg_unreadreplies' => 3.5,
+		'loadavg_show_posts' => 2.0,
+		'loadavg_userstats' => 10.0,
+		'loadavg_bbc' => 30.0,
+		'loadavg_forum' => 40.0,
 	);
 
 	// Loop through the settings.
@@ -528,7 +528,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	{
 		// Use the default value if the setting isn't set yet.
 		$value = !isset($modSettings[$name]) ? $value : $modSettings[$name];
-		$config_vars[] = array('text', $name, 'value' => $value, 'disabled' => $disabled);
+		$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
 	call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
@@ -544,15 +544,18 @@ function ModifyLoadBalancingSettings($return_config = false)
 	{
 		// Stupidity is not allowed.
 		foreach ($_POST as $key => $value)
-		{
+		{			
 			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable')
 				continue;
-			elseif ($key == 'loadavg_auto_opt' && $value <= 1)
-				$_POST['loadavg_auto_opt'] = '1.0';
+			else
+				$_POST[$key] = (float) $value;
+
+			if ($key == 'loadavg_auto_opt' && $value <= 1)
+				$_POST['loadavg_auto_opt'] = 1.0;
 			elseif ($key == 'loadavg_forum' && $value < 10)
-				$_POST['loadavg_forum'] = '10.0';
+				$_POST['loadavg_forum'] = 10.0;
 			elseif ($value < 2)
-				$_POST[$key] = '2.0';
+				$_POST[$key] = 2.0;
 		}
 
 		call_integration_hook('integrate_save_loadavg_settings');
