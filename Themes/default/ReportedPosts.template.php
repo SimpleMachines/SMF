@@ -267,18 +267,18 @@ function template_edit_comment()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reports;sa=editcomment;save;mid=', $context['comment_id'], ';rid=', $context['report_id'] ,'" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=moderate;area=reports;sa=editcomment;mid=', $context['comment_id'], ';rid=', $context['report_id'] ,';save" method="post" accept-charset="', $context['character_set'], '">';
 
 	echo '
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg"></h3>
+				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'] ,'</h3>
 			</div>
 			<div class="windowbg2">
 				<div class="content">';
 
 	echo '
-					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
+					<textarea rows="6" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
 					<div>
 						<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 					</div>
