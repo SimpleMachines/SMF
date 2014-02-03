@@ -61,6 +61,7 @@ $txt['invalid_registration'] = 'Invalid Date Registered value, valid example:';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
+$txt['email_change_logout'] = 'Since you decided to change your email, you will need to reactivate your account. You will now be logged out.';
 
 $txt['timeoffset_autodetect'] = 'auto detect';
 
@@ -260,9 +261,6 @@ $txt['avatar_will_upload'] = 'Upload an avatar';
 $txt['avatar_max_size_wh'] = 'Max size: %1$spx by %2$spx';
 $txt['avatar_max_size_w'] = 'Max size: %1$spx wide';
 $txt['avatar_max_size_h'] = 'Max size: %2$spx high';
-
-$txt['activate_changed_email_title'] = 'Email Address Changed';
-$txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
 
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
