@@ -270,6 +270,8 @@ function ReportDetails()
 
 function HandleComment()
 {
+	global $scripturl;
+
 	// The report ID is a must.
 	if (empty($_REQUEST['report']))
 		fatal_lang_error('mc_no_modreport_specified');
@@ -284,10 +286,10 @@ function HandleComment()
 
 		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
-		saveModComment(array($report_id, $newComment, time()));
+		saveModComment($report_id, array($report_id, $newComment, time()));
 	}
 
 	//Redirect to prevent double submission.
-	redirectexit($scripturl . '?action=moderate;area=reports;report=' . $_REQUEST['report']);
+	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;report=' . $report_id);
 }
 ?>
