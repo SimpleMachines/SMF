@@ -2757,8 +2757,8 @@ function MessageActionsApply()
 			if (!empty($labels_to_apply))
 			{
 				$inserts = array();
-				foreach ($labels_to_apply as $pm => $label)
-					$inserts[] = array($pm, $label);
+				foreach ($labels_to_apply as $label)
+					$inserts[] = array($row['id_pm'], $label);
 				
 				$smcFunc['db_insert']('',
 					'{db_prefix}pm_labeled_messages',
