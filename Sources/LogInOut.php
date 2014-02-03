@@ -43,6 +43,12 @@ function Login()
 		loadLanguage('Login');
 		loadTemplate('Login');
 		$context['sub_template'] = 'login';
+
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+		{
+			$context['from_ajax'] = true;
+			$context['template_layers'] = array();
+		}
 	}
 
 	// Get the template ready.... not really much else to do.

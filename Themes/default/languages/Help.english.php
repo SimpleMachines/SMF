@@ -256,7 +256,6 @@ $helptxt['pollMode'] = 'This selects whether polls are enabled or not. If polls 
 		from the topic listing. You can choose to continue to show the regular topic without their polls by selecting
 		&quot;Show Existing Polls as Topics&quot;.<br><br>To choose who can post polls, view polls, and similar, you
 		can allow and disallow those permissions. Remember this if polls are not working.';
-$helptxt['enableVBStyleLogin'] = 'This will show a more compact login on every page of the forum for guests.';
 $helptxt['enableCompressedOutput'] = 'This option will compress output to lower bandwidth consumption, but it requires
 		zlib to be installed.';
 $helptxt['disableTemplateEval'] = 'By default, templates are evaluated instead of just included. This helps with showing more useful debug information in case a template contains an error.<br><br>

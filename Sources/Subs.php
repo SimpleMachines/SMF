@@ -2841,7 +2841,7 @@ function setupThemeContext($forceload = false)
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
 	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
-	$context['show_quick_login'] = !empty($modSettings['enableVBStyleLogin']) && $user_info['is_guest'];
+	$context['show_quick_login'] = false;
 
 	// Get some news...
 	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
@@ -2912,9 +2912,6 @@ function setupThemeContext($forceload = false)
 
 	// Setup the main menu items.
 	setupMenuContext();
-
-	if (empty($settings['theme_version']))
-		$context['show_vBlogin'] = $context['show_quick_login'];
 
 	// This is here because old index templates might still use it.
 	$context['show_news'] = !empty($settings['enable_news']);

@@ -1685,9 +1685,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (isset($modSettings['load_average']))
 		$context['load_average'] = $modSettings['load_average'];
 
-	// Set some permission related settings.
-	$context['show_login_bar'] = !empty($user_info['is_guest']) && !empty($modSettings['enableVBStyleLogin']);
-
 	// Detect the browser. This is separated out because it's also used in attachment downloads
 	detectBrowser();
 

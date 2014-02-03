@@ -1849,7 +1849,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaMode', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaTimeRestrictAdmins', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enablePreviousNext', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pollMode', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableVBStyleLogin', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableCompressedOutput', '{$enableCompressedOutput}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaWaitTime', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaMinPosts', '0');
