@@ -115,11 +115,11 @@ function ReportDetails()
 	$reportComments = array();
 
 	// Have to at least give us something to work with.
-	if (empty($_REQUEST['report']))
+	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please
-	$report_id = (int) $_REQUEST['report'];
+	$report_id = (int) $_REQUEST['rid'];
 
 	// Get the report details.
 	$report = getReportDetails($report_id);
@@ -135,7 +135,7 @@ function ReportDetails()
 		'message_id' => $report['id_msg'],
 		'message_href' => $scripturl . '?msg=' . $report['id_msg'],
 		'message_link' => '<a href="' . $scripturl . '?msg=' . $report['id_msg'] . '">' . $report['subject'] . '</a>',
-		'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $report['id_report'],
+		'report_href' => $scripturl . '?action=moderate;area=reports;rid=' . $report['id_report'],
 		'author' => array(
 			'id' => $report['id_author'],
 			'name' => $report['author_name'],
@@ -169,7 +169,7 @@ function ReportDetails()
 		'title' => $txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
 		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=reports;sa=details;report=' . $context['report']['id'],
+		'base_href' => $scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',
@@ -274,20 +274,20 @@ function HandleComment()
 	global $smcFunc, $scripturl;
 
 	// The report ID is a must.
-	if (empty($_REQUEST['report']))
+	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please.
-	$report_id = (int) $_REQUEST['report'];
+	$report_id = (int) $_REQUEST['rid'];
 
 	// If they are adding a comment then... add a comment.
 	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
 	{
 		checkSession();
 
-		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
+		$new_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
-		saveModComment($report_id, array($report_id, $newComment, time()));
+		saveModComment($report_id, array($report_id, $new_comment, time()));
 	}
 
 	// Deleting a comment?
@@ -302,16 +302,36 @@ function HandleComment()
 	}
 
 	//Redirect to prevent double submission.
-	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;report=' . $report_id);
+	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
 }
 
 function EditComment()
 {
-	global $context;
-	
+	global $smcFunc, $context, $txt;
+
+	// The report ID is a must.
+	if (empty($_REQUEST['rid']))
+		fatal_lang_error('mc_reportedp_none_found');
+
+	// Integers only please.
+	$report_id = (int) $_REQUEST['rid'];
+
+	$comment_id = (int) $_REQUEST['mid'];
+
+	if (empty($comment_id))
+		fatal_lang_error('mc_reportedp_comment_none_found');
+
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_posts'];
 	$context['sub_template'] = 'edit_comment';
 
+	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
+	{
+		$edit_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
+
+		editModComment($comment_id, $edit_comment);
+	}
+
+	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
 }
 ?>

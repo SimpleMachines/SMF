@@ -181,7 +181,7 @@ function template_viewmodreport()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reports;sa=handlecomment;report=', $context['report']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=moderate;area=reports;sa=handlecomment;rid=', $context['report']['id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', sprintf($txt['mc_viewmodreport'], $context['report']['message_link'], $context['report']['author']['link']), '
@@ -240,7 +240,7 @@ function template_viewmodreport()
 
 	foreach ($context['report']['mod_comments'] as $comment)
 		echo
-					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=editcomment">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=handlecomment;delete">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
+					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?moderate;area=reports;rid='. $context['report']['id'] .';mid='. $comment['id'] .';sa=editcomment">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?moderate;area=reports;rid='. $context['report']['id'] .';mid='. $comment['id'] .';sa=handlecomment;delete">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
 
 	echo '
 					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
@@ -267,7 +267,7 @@ function template_editcomment()
 
 	echo '
 	<div id="modcenter">
-		<form action="', $scripturl, '?action=moderate;area=reports;sa=editcomment;save;mid=', $context['comment']['id'], '" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=moderate;area=reports;sa=editcomment;save;mid=', $context['comment_id'], ';rid=', $context['report_id'] ,'" method="post" accept-charset="', $context['character_set'], '">';
 
 	echo '
 			<br>
@@ -280,7 +280,7 @@ function template_editcomment()
 	echo '
 					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
 					<div>
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 					</div>
 				</div>
 			</div>

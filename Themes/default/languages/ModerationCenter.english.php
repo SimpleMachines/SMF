@@ -86,6 +86,7 @@ $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
 $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
+$txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
 $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
