@@ -134,7 +134,7 @@ function getReports($closed = 0)
 				'id_board' => $row['id_board'],
 				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			),
-			'report_href' => $scripturl . '?action=moderate;area=reports;sa=details;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reports;sa=details;rid=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
@@ -365,21 +365,19 @@ function getCommentModDetails($comment_id)
 		SELECT id_comment, id_notice, log_time, body, id_member
 		FROM {db_prefix}log_comments
 		WHERE id_comment = {int:id_comment}
-			AND comment_type = {literal:modnote}',
+			AND comment_type = {literal:reportc}',
 		array(
-			'id_report' => $comment_id,
+			'id_comment' => $comment_id,
 		)
 	);
 
-	$row = $smcFunc['db_fetch_assoc']($request);
-
-	// Add the permission
-	if (!empty($row))
-		$comment = array(
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
-		);
+	$comment = $smcFunc['db_fetch_assoc']($request);
 
 	$smcFunc['db_free_result']($request);
+
+	// Add the permission
+	if (!empty($comment))
+		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']) && allowedTo('moderate_forum'));
 
 	return $comment;
 }
@@ -391,7 +389,7 @@ function saveModComment($report_id, $data)
 	if (empty($data))
 		return false;
 
-	$data = array_merge(array($user_info['id'], $user_info['name'], 'reportc', ''), $data);
+	$data = array_merge(array($user_info['id'], $user_info['name'], 'modnote', ''), $data);
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_comments',
