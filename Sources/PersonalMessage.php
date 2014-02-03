@@ -907,7 +907,7 @@ function MessageFolder()
 				while($row2 = $smcFunc['db_fetch_assoc']($request2))
 				{
 					$l_id = $row2['id_label'];
-					if (isset($context['labels'][$id_label]))
+					if (isset($context['labels'][$l_id]))
 						$context['message_labels'][$row['id_pm']][$l_id] = array('id' => $l_id, 'name' => $context['labels'][$l_id]['name']);
 				}
 				
@@ -2760,7 +2760,12 @@ function MessageActionsApply()
 				foreach ($labels_to_apply as $pm => $label)
 					$inserts[] = array($pm, $label);
 				
-				$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+				$smcFunc['db_insert']('',
+					'{db_prefix}pm_labeled_messages',
+					array('id_pm' => 'int', 'id_label' => 'int'),
+					$inserts,
+					array()
+				);
 			}
 		}
 		$smcFunc['db_free_result']($request);
@@ -3985,7 +3990,7 @@ function ApplyRules($all_messages = false)
 						$smcFunc['db_query']('', '
 							UPDATE {db_prefix}pm_recipients
 							SET in_inbox = {int:in_inbox}
-							WHERE id_pm = {int:pm}
+							WHERE id_pm = {int:id_pm}
 								AND id_member = {int:current_member}',
 							array(
 								'in_inbox' => 1,
@@ -4004,9 +4009,14 @@ function ApplyRules($all_messages = false)
 			$inserts = array();
 			// Now we insert the label info
 			foreach ($realLabels as $a_label)
-				$inserts[] = array($pm, $label);
+				$inserts[] = array($pm, $a_label);
 
-			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
+			$smcFunc['db_insert']('',
+				'{db_prefix}pm_labeled_messages',
+				array('id_pm' => 'int', 'id_label' => 'int'),
+				$inserts,
+				array()
+			);
 		}
 	}
 }
