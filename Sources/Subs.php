@@ -2841,7 +2841,6 @@ function setupThemeContext($forceload = false)
 	$context['in_maintenance'] = !empty($maintenance);
 	$context['current_time'] = timeformat(time(), false);
 	$context['current_action'] = isset($_GET['action']) ? $smcFunc['htmlspecialchars']($_GET['action']) : '';
-	$context['show_quick_login'] = false;
 
 	// Get some news...
 	$context['news_lines'] = array_filter(explode("\n", str_replace("\r", '', trim(addslashes($modSettings['news'])))));
@@ -3828,13 +3827,6 @@ function setupMenuContext()
 						'show' => true,
 						'is_last' => true,
 					),
-				),
-			),
-			'login' => array(
-				'title' => $txt['login'],
-				'href' => $scripturl . '?action=login',
-				'show' => $user_info['is_guest'],
-				'sub_buttons' => array(
 				),
 			),
 			'register' => array(
