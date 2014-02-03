@@ -336,8 +336,8 @@ function EditComment()
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
 		editModComment($context['comment_id'], $edited_comment);
-	}
 
-	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
+		redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
+	}
 }
 ?>

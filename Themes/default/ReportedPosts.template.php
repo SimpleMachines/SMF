@@ -261,7 +261,7 @@ function template_viewmodreport()
 	</div>';
 }
 
-function template_editcomment()
+function template_edit_comment()
 {
 	global $context, $scripturl, $txt;
 
