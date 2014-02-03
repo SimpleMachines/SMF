@@ -171,8 +171,8 @@ function MessageMain()
 	$context['currently_using_labels'] = count($context['labels']) > 1 ? 1 : 0;
 
 	// Some stuff for the labels...
-	$context['current_label_id'] = isset($_REQUEST['l']) && isset($context['labels'][(int) $_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
-	$context['current_label'] = &$context['labels'][(int) $context['current_label_id']]['name'];
+	$context['current_label_id'] = isset($_REQUEST['l']) && isset($context['labels'][$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
+	$context['current_label'] = &$context['labels'][$context['current_label_id']]['name'];
 	$context['folder'] = !isset($_REQUEST['f']) || $_REQUEST['f'] != 'sent' ? 'inbox' : 'sent';
 
 	// This is convenient.  Do you know how annoying it is to do this every time?!
@@ -310,7 +310,7 @@ function messageIndexBar($area)
 
 			// Add the label to the menu.
 			$pm_areas['labels']['areas']['label' . $label['id']] = array(
-				'label' => $label['name'] . (!empty($label['unread_messages']) ? ' (<strong>' . $label['unread_messages'] . '</strong>)' : ''),
+				'label' => $label['name'] . (!empty($label['unread_messages']) ? ' <span class="amt">' . $label['unread_messages'] . '</span>' : ''),
 				'custom_url' => $scripturl . '?action=pm;l=' . $label['id'],
 				'unread_messages' => $label['unread_messages'],
 				'messages' => $label['messages'],
@@ -318,7 +318,7 @@ function messageIndexBar($area)
 		}
 
 		if (!empty($unread_in_labels))
-			$pm_areas['labels']['title'] .= ' (' . $unread_in_labels . ')';
+			$pm_areas['labels']['title'] .= ' <span class="amt">' . $unread_in_labels . '</span>';
 	}
 
 	$pm_areas['folders']['areas']['inbox']['unread_messages'] = &$context['labels'][-1]['unread_messages'];
@@ -500,7 +500,7 @@ function MessageFolder()
 	elseif ($context['folder'] != 'sent')
 	{
 		$labelJoin = '
-			INNER JOIN {db_prefix}pm_labeled_messages AS pl';
+			INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
 
 		$labelQuery2 = '
 			AND pl.id_label = ' . $context['current_label_id'];
@@ -2757,8 +2757,8 @@ function MessageActionsApply()
 			if (!empty($labels_to_apply))
 			{
 				$inserts = array();
-				foreach ($labels_to_apply as $pm => $label)
-					$inserts[] = array($pm, $label);
+				foreach ($labels_to_apply as $label)
+					$inserts[] = array($row['id_pm'], $label);
 				
 				$smcFunc['db_insert']('',
 					'{db_prefix}pm_labeled_messages',
