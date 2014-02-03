@@ -240,7 +240,7 @@ function template_viewmodreport()
 
 	foreach ($context['report']['mod_comments'] as $comment)
 		echo
-					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=handlecomment;edit">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=handlecomment;delete">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
+					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=editcomment">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?moderate;area=reports;report='. $context['report']['id'] .';mid='. $comment['id'] .';sa=handlecomment;delete">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
 
 	echo '
 					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
@@ -254,6 +254,37 @@ function template_viewmodreport()
 	$alt = false;
 
 	template_show_list('moderation_actions_list');
+
+	echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		</form>
+	</div>';
+}
+
+function template_editcomment()
+{
+	global $context, $scripturl, $txt;
+
+	echo '
+	<div id="modcenter">
+		<form action="', $scripturl, '?action=moderate;area=reports;sa=editcomment;save;mid=', $context['comment']['id'], '" method="post" accept-charset="', $context['character_set'], '">';
+
+	echo '
+			<br>
+			<div class="cat_bar">
+				<h3 class="catbg"></h3>
+			</div>
+			<div class="windowbg2">
+				<div class="content">';
+
+	echo '
+					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<div>
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+					</div>
+				</div>
+			</div>
+			<br>';
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

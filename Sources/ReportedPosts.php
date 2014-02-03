@@ -49,6 +49,7 @@ function ReportedPosts()
 		'disregard' => 'DisregardReport',
 		'details' => 'ReportDetails', // Shows a single report and its comments.
 		'handlecomment' => 'HandleComment', // CRUD actions for moderator comments.
+		'editcomment' => 'EditComment',
 	);
 
 	// Go ahead and add your own sub-actions.
@@ -302,5 +303,15 @@ function HandleComment()
 
 	//Redirect to prevent double submission.
 	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;report=' . $report_id);
+}
+
+function EditComment()
+{
+	global $context;
+	
+	// Set up the comforting bits...
+	$context['page_title'] = $txt['mc_reported_posts'];
+	$context['sub_template'] = 'edit_comment';
+
 }
 ?>
