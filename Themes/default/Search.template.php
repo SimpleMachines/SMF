@@ -30,41 +30,7 @@ function template_main()
 		echo '
 		<p class="noticebox">', $txt['search_warning_ignored_word' . (count($context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', $context['search_ignored']), '</p>';
 
-	// Simple Search?
-	if ($context['simple_search'])
-	{
-		echo '
-		<fieldset id="simple_search">
-			<div class="roundframe">
-				<div id="search_term_input">
-					<strong>', $txt['search_for'], ':</strong>
-					<input type="text" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">
-					', $context['require_verification'] ? '' : '&nbsp;<input type="submit" name="s_search" value="' . $txt['search'] . '" class="button_submit">
-				</div>';
-
-		if (empty($modSettings['search_simple_fulltext']))
-			echo '
-				<p class="smalltext">', $txt['search_example'], '</p>';
-
-		if ($context['require_verification'])
-			echo '
-				<div class="verification>
-					<strong>', $txt['search_visual_verification_label'], ':</strong>
-					<br>', template_control_verification($context['visual_verification_id'], 'all'), '<br>
-					<input id="submit" type="submit" name="s_search" value="' . $txt['search'] . '" class="button_submit">
-				</div>';
-
-		echo '
-				<a href="', $scripturl, '?action=search;advanced" onclick="this.href += \';search=\' + escape(document.forms.searchform.search.value);">', $txt['search_advanced'], '</a>
-				<input type="hidden" name="advanced" value="0">
-			</div>
-		</fieldset>';
-	}
-
-	// Advanced search!
-	else
-	{
-		echo '
+	echo '
 		<fieldset id="advanced_search">
 			<div class="roundframe">
 				<dl class="settings" id="search_options">
@@ -72,13 +38,13 @@ function template_main()
 						<strong><label for="searchfor">', $txt['search_for'], ':</label></strong>
 					</dt>
 					<dd>
-						<input type="text" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
+						<input type="search" name="search" id="searchfor" ', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' maxlength="', $context['search_string_limit'], '" size="40" class="input_text">';
 
-		if (empty($modSettings['search_simple_fulltext']))
-			echo '
+	if (empty($modSettings['search_simple_fulltext']))
+		echo '
 						<em class="smalltext">', $txt['search_example'], '</em>';
 
-		echo '
+	echo '
 					</dd>
 
 					<dt class="righttext"><label for="searchtype">',
@@ -123,7 +89,7 @@ function template_main()
 						$txt['search_post_age'], ':
 					</dt>
 					<dd><label for="minage">',
-						$txt['search_between'], '</label><input type="text" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="text" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
+						$txt['search_between'], '</label><input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
 					</dd>
 				</dl>
 				<script><!-- // --><![CDATA[
@@ -132,30 +98,29 @@ function template_main()
 				// ]]></script>
 				<input type="hidden" name="advanced" value="1">';
 
-		// Require an image to be typed to save spamming?
-		if ($context['require_verification'])
-		{
-			echo '
+	// Require an image to be typed to save spamming?
+	if ($context['require_verification'])
+	{
+		echo '
 				<p>
 					<strong>', $txt['verification'], ':</strong>
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</p>';
-		}
+	}
 
-		// If $context['search_params']['topic'] is set, that means we're searching just one topic.
-		if (!empty($context['search_params']['topic']))
-			echo '
+	// If $context['search_params']['topic'] is set, that means we're searching just one topic.
+	if (!empty($context['search_params']['topic']))
+		echo '
 				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
 				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">';
 
-		echo '
+	echo '
 			</div>
-		</fieldset>
-		';
+		</fieldset>';
 
-		if (empty($context['search_params']['topic']))
-		{
-			echo '
+	if (empty($context['search_params']['topic']))
+	{
+		echo '
 		<fieldset class="flow_hidden">
 			<div class="roundframe">
 				<div class="title_bar">
@@ -167,19 +132,19 @@ function template_main()
 				<div class="flow_auto" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
 					<ul class="ignoreboards floatleft">';
 
-	$i = 0;
-	$limit = ceil($context['num_boards'] / 2);
-	foreach ($context['categories'] as $category)
-	{
-		echo '
+		$i = 0;
+		$limit = ceil($context['num_boards'] / 2);
+		foreach ($context['categories'] as $category)
+		{
+			echo '
 						<li class="category">
 							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
 							<ul>';
 
-		foreach ($category['boards'] as $board)
-		{
-			if ($i == $limit)
-				echo '
+			foreach ($category['boards'] as $board)
+			{
+				if ($i == $limit)
+					echo '
 							</ul>
 						</li>
 					</ul>
@@ -187,27 +152,25 @@ function template_main()
 						<li class="category">
 							<ul>';
 
-			echo '
+				echo '
 								<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
 									<label for="brd', $board['id'], '">
 										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', ' class="input_check"> ', $board['name'], '
 									</label>
 								</li>';
 
-			$i++;
+				$i++;
+			}
+
+			echo '
+							</ul>
+						</li>';
 		}
 
 		echo '
-							</ul>
-						</li>';
-	}
-
-	echo '
 					</ul>
 				</div>
-				<br class="clear">';
-
-			echo '
+				<br class="clear">
 				<div class="padding flow_auto">
 					<input type="checkbox" name="all" id="check_all" value=""', $context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');" class="input_check floatleft">
 					<label for="check_all" class="floatleft"><em>', $txt['check_all'], '</em></label>
@@ -215,8 +178,8 @@ function template_main()
 				</div>
 			</div>
 		</fieldset>';
-		}
-	echo '
+
+		echo '
 	<script><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -239,22 +202,22 @@ function template_main()
 				}
 			]
 		});
-	// ]]></script>
-		<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
-		<script><!-- // --><![CDATA[
-			var oAddMemberSuggest = new smc_AutoSuggest({
-				sSelf: \'oAddMemberSuggest\',
-				sSessionId: smf_session_id,
-				sSessionVar: smf_session_var,
-				sControlId: \'userspec\',
-				sSearchType: \'member\',
-				bItemList: false
-			});
-		// ]]></script>';
+	// ]]></script>';
 	}
 
 	echo '
-	</form>';
+	</form>
+	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
+	<script><!-- // --><![CDATA[
+		var oAddMemberSuggest = new smc_AutoSuggest({
+			sSelf: \'oAddMemberSuggest\',
+			sSessionId: smf_session_id,
+			sSessionVar: smf_session_var,
+			sControlId: \'userspec\',
+			sSearchType: \'member\',
+			bItemList: false
+		});
+	// ]]></script>';
 }
 
 function template_results()

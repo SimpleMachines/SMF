@@ -40,7 +40,7 @@ function template_search_members()
 									</select>
 								</dt>
 								<dd>
-									<input type="text" name="mem_id" id="mem_id" value="" size="6" class="input_text">
+									<input type="number" name="mem_id" id="mem_id" value="" size="6" class="input_text">
 								</dd>
 								<dt class="righttext">
 									<strong><label for="age">', $txt['age'], ':</label></strong>
@@ -53,7 +53,7 @@ function template_search_members()
 									</select>
 								</dt>
 								<dd>
-									<input type="text" name="age" id="age" value="" size="6" class="input_text">
+									<input type="number" name="age" id="age" value="" size="6" class="input_text">
 								</dd>
 								<dt class="righttext">
 									<strong><label for="posts">', $txt['member_postcount'], ':</label></strong>
@@ -66,7 +66,7 @@ function template_search_members()
 									</select>
 								</dt>
 								<dd>
-									<input type="text" name="posts" id="posts" value="" size="6" class="input_text">
+									<input type="number" name="posts" id="posts" value="" size="6" class="input_text">
 								</dd>
 								<dt class="righttext">
 									<strong><label for="reg_date">', $txt['date_registered'], ':</label></strong>
@@ -79,7 +79,7 @@ function template_search_members()
 									</select>
 								</dt>
 								<dd>
-									<input type="text" name="reg_date" id="reg_date" value="" size="10" class="input_text"><span class="smalltext">', $txt['date_format'], '</span>
+									<input type="date" name="reg_date" id="reg_date" value="" size="10" class="input_text"><span class="smalltext">', $txt['date_format'], '</span>
 								</dd>
 								<dt class="righttext">
 									<strong><label for="last_online">', $txt['viewmembers_online'], ':</label></strong>
@@ -132,7 +132,7 @@ function template_search_members()
 									<strong><label for="messenger">', $txt['messenger_address'], ':</label></strong>
 								</dt>
 								<dd>
-									<input type="text" name="messenger" id="messenger" value="" class="input_text">
+									<input type="number" name="messenger" id="messenger" value="" class="input_text">
 								</dd>
 							</dl>
 						</div>

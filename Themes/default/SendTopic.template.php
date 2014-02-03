@@ -73,7 +73,7 @@ function template_custom_email()
 							<span class="smalltext">', $txt['send_email_disclosed'], '</span>
 						</dt>
 						<dd>
-							<input type="text" id="y_mail" name="y_email" size="24" maxlength="50" value="', $context['user']['email'], '" class="input_text">
+							<input type="email" id="y_mail" name="y_email" size="24" maxlength="50" value="', $context['user']['email'], '" class="input_text" required>
 						</dt>';
 	// Otherwise show the user that we know their email.
 	else
@@ -91,13 +91,13 @@ function template_custom_email()
 							<label for="email_subject"><strong>', $txt['send_email_subject'], ':</strong></label>
 						</dt>
 						<dd>
-							<input type="text" id="email_subject" name="email_subject" size="50" maxlength="100" class="input_text">
+							<input type="text" id="email_subject" name="email_subject" size="50" maxlength="100" class="input_text" required>
 						</dd>
 						<dt>
 							<label for="email_body"><strong>', $txt['message'], ':</strong></label>
 						</dt>
 						<dd>
-							<textarea id="email_body" name="email_body" rows="10" cols="20" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 90%; min-width: 90%' : 'width: 90%') . ';"></textarea>
+							<textarea id="email_body" name="email_body" rows="10" cols="20" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 90%; min-width: 90%' : 'width: 90%') . ';" required></textarea>
 						</dd>
 					</dl>
 					<hr class="hrcolor">

@@ -1520,6 +1520,7 @@ function create_control_richedit($editorOptions)
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
 		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'required' => !empty($editorOptions['required']),
 	);
 
 	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.

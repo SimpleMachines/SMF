@@ -512,6 +512,7 @@ function ComposeMailing()
 			'post_button' => $txt['sendtopic_send'],
 		),
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 	// Store the ID for old compatibility.
@@ -1050,7 +1051,7 @@ function ModifyNewsSettings($return_config = false)
 		'',
 			// Just the remaining settings.
 			array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
-			array('text', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
+			array('int', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
 	);
 
 	call_integration_hook('integrate_modify_news_settings', array(&$config_vars));

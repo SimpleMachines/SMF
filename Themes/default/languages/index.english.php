@@ -416,6 +416,8 @@ $txt['quick_login_dec'] = 'Login with username, password and session length';
 $txt['one_hour'] = '1 Hour';
 $txt['moved'] = 'MOVED';
 $txt['moved_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
+$txt['merged_subject'] = '[MERGED] %1$s';
+$txt['merged_body'] = 'This topic has been merged into [url=%1$s]%2$s[/url].';
 $txt['board'] = 'Board';
 $txt['in'] = 'in';
 $txt['sticky_topic'] = 'Sticky Topic';

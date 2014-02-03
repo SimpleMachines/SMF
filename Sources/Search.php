@@ -27,7 +27,7 @@ $GLOBALS['search_versions'] = array(
 /**
  * Ask the user what they want to search for.
  * What it does:
- * - shows the screen to search forum posts (action=search), and uses the simple version if the simpleSearch setting is enabled.
+ * - shows the screen to search forum posts (action=search)
  * - uses the main sub template of the Search template.
  * - uses the Search language file.
  * - requires the search_posts permission.
@@ -228,8 +228,6 @@ function PlushSearch1()
 		$context['search_topic']['link'] = '<a href="' . $context['search_topic']['href'] . '">' . $context['search_topic']['subject'] . '</a>';
 	}
 
-	// Simple or not?
-	$context['simple_search'] = isset($context['search_params']['advanced']) ? empty($context['search_params']['advanced']) : !empty($modSettings['simpleSearch']) && !isset($_REQUEST['advanced']);
 	$context['page_title'] = $txt['set_parameters'];
 
 	call_integration_hook('integrate_search');

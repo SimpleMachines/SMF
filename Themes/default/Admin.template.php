@@ -792,6 +792,9 @@ function template_show_settings()
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
+				
+				// Various HTML5 input types that are basically enhanced textboxes
+				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
 
 				// Show the [?] button.
 				if ($config_var['help'])
@@ -886,10 +889,16 @@ function template_show_settings()
 				elseif ($config_var['type'] == 'var_message')
 					echo '
 											<div', !empty($config_var['name']) ? ' id="' . $config_var['name'] . '"' : '', '>', $config_var['var_message'], '</div>';
-				// Assume it must be a text box.
+				// Assume it must be a text box
 				else
+				{
+					// Figure out the exact type - use "number" for "float" and "int".
+					$type = in_array($config_var['type'], $text_types) ? $config_var['type'] : ($config_var['type'] == 'int' || $config_var['type'] == 'float' ? 'number' : 'text');
+					$step = $config_var['type'] == 'float' ? ' step="0.1"' : '';
+
 					echo '
-											<input type="text"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_text">';
+											<input type="', $type ,'"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_text"', $step, '>';
+				}
 
 				echo isset($config_var['postinput']) ? '
 											' . $config_var['postinput'] : '',
@@ -1229,7 +1238,7 @@ function template_admin_search_results()
 							<h3 class="catbg">
 								<object id="quick_search">
 									<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
-										<input type="text" name="search_term" value="', $context['search_term'], '" class="input_text">
+										<input type="search" name="search_term" value="', $context['search_term'], '" class="input_text">
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit">
 									</form>
