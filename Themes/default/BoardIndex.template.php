@@ -407,7 +407,7 @@ function template_ic_block_stats()
 
 function template_ic_block_online()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings, $settings;
 	// "Users online" - in order of activity.
 	echo '
 			<div class="title_barIC">
@@ -444,7 +444,7 @@ function template_ic_block_online()
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
 			echo '
-				<span class="membergroups">[' . implode(',&nbsp;', $context['membergroups']). ']</span>';
+				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']). '</span>';
 	}
 
 	echo '

@@ -2396,8 +2396,9 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		// Default language directories to try.
 		$language_directories = array(
 			$settings['default_theme_dir'] . '/languages',
-			$settings['actual_theme_dir'] . '/languages',
 		);
+		if (!empty($settings['actual_theme_dir']) && $settings['actual_theme_dir'] != $settings['default_theme_dir'])
+			$language_directories[] = $settings['actual_theme_dir'] . '/languages';
 
 		// We possibly have a base theme directory.
 		if (!empty($settings['base_theme_dir']))

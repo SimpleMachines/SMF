@@ -3224,7 +3224,6 @@ function template_footer()
 
 	foreach (array_reverse($context['template_layers']) as $layer)
 		loadSubTemplate($layer . '_below', true);
-
 }
 
 /**
