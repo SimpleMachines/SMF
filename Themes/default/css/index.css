@@ -1949,6 +1949,12 @@ ul#smfFadeScroller li {
 #upshrinkHeaderIC span.membergroups {
 	display: block;
 }
+#upshrinkHeaderIC span.membergroups:before {
+	content: '[';
+}
+#upshrinkHeaderIC span.membergroups:after {
+	content: ']';
+}
 #upshrinkHeaderIC p.last {
 	border-top: double #ddd;
 	padding-bottom: 0;
