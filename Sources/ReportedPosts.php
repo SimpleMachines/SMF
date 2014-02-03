@@ -307,18 +307,24 @@ function HandleComment()
 
 function EditComment()
 {
-	global $smcFunc, $context, $txt;
+	global $smcFunc, $context, $txt, $scripturl;
+
+	$comment = array();
 
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
 
+	if (empty($_REQUEST['mid']))
+		fatal_lang_error('mc_reportedp_comment_none_found');
+
 	// Integers only please.
-	$report_id = (int) $_REQUEST['rid'];
+	$context['report_id'] = (int) $_REQUEST['rid'];
+	$context['comment_id'] = (int) $_REQUEST['mid'];
 
-	$comment_id = (int) $_REQUEST['mid'];
+	$context['comment'] = getCommentModDetails($context['comment_id']);
 
-	if (empty($comment_id))
+	if (empty($context['comment']))
 		fatal_lang_error('mc_reportedp_comment_none_found');
 
 	// Set up the comforting bits...
@@ -327,11 +333,11 @@ function EditComment()
 
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 	{
-		$edit_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
+		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
-		editModComment($comment_id, $edit_comment);
+		editModComment($context['comment_id'], $edited_comment);
 	}
 
-	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
+	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
 }
 ?>

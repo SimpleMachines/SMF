@@ -352,6 +352,39 @@ function getReportComments($report_id)
 	return $report;
 }
 
+function getCommentModDetails($comment_id)
+{
+	global $smcFunc, $user_info;
+
+	$comment = array();
+
+	if (empty($comment_id))
+		return false;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_comment, id_notice, log_time, body, id_member
+		FROM {db_prefix}log_comments
+		WHERE id_comment = {int:id_comment}
+			AND comment_type = {string:modnote}',
+		array(
+			'id_report' => $comment_id,
+			'modenote' => 'modnote',
+		)
+	);
+
+	$row = $smcFunc['db_fetch_assoc']($request);
+
+	// Add the permission
+	if (!empty($row))
+		$comment = array(
+			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
+		);
+
+	$smcFunc['db_free_result']($request);
+
+	return $comment;
+}
+
 function saveModComment($report_id, $data)
 {
 	global $smcFunc, $user_info;

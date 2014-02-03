@@ -278,7 +278,7 @@ function template_editcomment()
 				<div class="content">';
 
 	echo '
-					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
 					<div>
 						<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 					</div>
