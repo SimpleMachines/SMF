@@ -18,69 +18,76 @@ function template_login()
 	echo '
 		<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 
-		<form action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
 				</h3>
 			</div>
-			<div class="roundframe">';
+			<div class="roundframe">
+				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
 		echo '
-			<p class="errorbox">', implode('<br>', $context['login_errors']), '</p><br>';
+					<p class="errorbox">', implode('<br>', $context['login_errors']), '</p><br>';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
 		echo '
-				<p class="description">', $context['description'], '</p>';
+					<p class="description">', $context['description'], '</p>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
-				<dl>
-					<dt>', $txt['username'], ':</dt>
-					<dd><input type="text" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
-					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-				</dl>';
+					<dl>
+						<dt>', $txt['username'], ':</dt>
+						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
+						<dt>', $txt['password'], ':</dt>
+						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
+					</dl>';
 
 	if (!empty($modSettings['enableOpenID']))
-		echo '<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-				<dl>
-					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon"></a></dd>
-				</dl>
-				<hr>';
+		echo '
+					<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
+					<dl>
+						<dt>', $txt['openid'], ':</dt>
+						<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon"></a></dd>
+					</dl>
+					<hr>';
 
 	echo '
-				<dl>
-					<dt>', $txt['mins_logged_in'], ':</dt>
-					<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text"></dd>
-					<dt>', $txt['always_logged_in'], ':</dt>
-					<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
+					<dl>
+						<dt>', $txt['mins_logged_in'], ':</dt>
+						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text"></dd>
+						<dt>', $txt['always_logged_in'], ':</dt>
+						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset($context['login_show_undelete']))
 		echo '
-					<dt class="alert">', $txt['undelete_account'], ':</dt>
-					<dd><input type="checkbox" name="undelete" class="input_check"></dd>';
+						<dt class="alert">', $txt['undelete_account'], ':</dt>
+						<dd><input type="checkbox" name="undelete" class="input_check"></dd>';
 	echo '
-				</dl>
-				<p><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
-				<p class="smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
-				<input type="hidden" name="hash_passwrd" value="">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-			</div>
-		</div>
-		</form>';
+					</dl>
+					<p><input type="submit" value="', $txt['login'], '" class="button_submit"></p>
+					<p class="smalltext"><a href="', $scripturl, '?action=reminder">', $txt['forgot_your_password'], '</a></p>
+					<input type="hidden" name="hash_passwrd" value="">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
+					<script>
+						setTimeout(function() {
+							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
+						}, 150);
+					</script>
+				</form>';
 
-	// Focus on the correct input - username or password.
+	// It is a long story as to why we have this when we're clearly not going to use it.
+	if (!empty($context['from_ajax']))
+		echo '
+					<br>
+					<a href="javascript:self.close();"></a>';
 	echo '
-		<script><!-- // --><![CDATA[
-			document.forms.frmLogin.', isset($context['default_username']) && $context['default_username'] != '' ? 'passwrd' : 'user', '.focus();
-		// ]]></script>';
+			</div>
+		</div>';
 }
 
 // Tell a guest to get lost or login!

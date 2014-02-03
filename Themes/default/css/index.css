@@ -2851,6 +2851,9 @@ fieldset.merge_options {
 	width: 540px;
 	margin: 0 auto;
 }
+.popup_content .login {
+	width: 100%;
+}
 .login dl {
 	overflow: auto;
 	clear: right;
