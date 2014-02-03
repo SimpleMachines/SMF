@@ -447,7 +447,7 @@ function template_add_edit_group_boards_list($collapse = true)
 			if (empty($modSettings['deny_boards_access']))
 				echo '
 										<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
-											<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="\'allow\'"', $board['allow'] ? ' checked' : '', ' class="input_check"> <label for="brd', $board['id'], '">', $board['name'], '</label>
+											<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', ' class="input_check"> <label for="brd', $board['id'], '">', $board['name'], '</label>
 										</li>';
 			else
 				echo '
