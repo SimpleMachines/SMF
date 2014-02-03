@@ -365,10 +365,9 @@ function getCommentModDetails($comment_id)
 		SELECT id_comment, id_notice, log_time, body, id_member
 		FROM {db_prefix}log_comments
 		WHERE id_comment = {int:id_comment}
-			AND comment_type = {string:modnote}',
+			AND comment_type = {literal:modnote}',
 		array(
 			'id_report' => $comment_id,
-			'modenote' => 'modnote',
 		)
 	);
 
