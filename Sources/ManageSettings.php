@@ -1596,26 +1596,24 @@ function EditCustomProfiles()
 			if (isset($matches[1]))
 				$colname = $initial_colname = 'cust_' . strtolower($matches[1]);
 			else
-				$colname = $initial_colname = 'cust_' . mt_rand(1, 999);
+				$colname = $initial_colname = 'cust_' . mt_rand(1, 9999);
 
 			// Make sure this is unique.
-			// @todo This may not be the most efficient way to do this.
+			$current_fields = array();
+			$request = $smcFunc['db_query']('', '
+				SELECT id_field, col_name
+				FROM {db_prefix}custom_fields');
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				$current_fields[$row['id_field']] = $row['col_name'];
+			$smcFunc['db_free_result']($request);
+
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i ++)
 			{
-				$request = $smcFunc['db_query']('', '
-					SELECT id_field
-					FROM {db_prefix}custom_fields
-					WHERE col_name = {string:current_column}',
-					array(
-						'current_column' => $colname,
-					)
-				);
-				if ($smcFunc['db_num_rows']($request) == 0)
+				if (!in_array($colname, $current_fields))
 					$unique = true;
 				else
 					$colname = $initial_colname . $i;
-				$smcFunc['db_free_result']($request);
 			}
 
 			// Still not a unique colum name? Leave it up to the user, then.
