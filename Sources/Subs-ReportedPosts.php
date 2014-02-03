@@ -351,4 +351,43 @@ function getReportComments($report_id)
 
 	return $report;
 }
+
+function saveModComment($data)
+{
+	global $smcFunc, $user_info;
+
+	if (empty($data))
+		return false;
+
+	$smcFunc['db_insert']('',
+		'{db_prefix}log_comments',
+		array(
+			'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
+			'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
+		),
+		array(
+			$user_info['id'], $user_info['name'], 'reportc', '',
+			$_REQUEST['report'], $newComment, time(),
+		),
+		array('id_comment')
+	);
+	$last_comment = $smcFunc['db_insert_id']('{db_prefix}log_comments', 'id_comment');
+
+	// And get ready to notify people.
+	$smcFunc['db_insert']('insert',
+		'{db_prefix}background_tasks',
+		array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+		array('$sourcedir/tasks/MsgReportReply-Notify.php', 'MsgReportReply_Notify_Background', serialize(array(
+			'report_id' => $_REQUEST['report'],
+			'comment_id' => $last_comment,
+			'msg_id' => $row['id_msg'],
+			'topic_id' => $row['id_topic'],
+			'board_id' => $row['id_board'],
+			'sender_id' => $user_info['id'],
+			'sender_name' => $user_info['name'],
+			'time' => time(),
+		)), 0),
+		array('id_task')
+	);
+}
 ?>
