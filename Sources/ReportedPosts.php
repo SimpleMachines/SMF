@@ -115,7 +115,7 @@ function ReportDetails()
 
 	// Have to at least give us something to work with.
 	if (empty($_REQUEST['report']))
-		fatal_lang_error('mc_no_modreport_specified');
+		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please
 	$report_id = (int) $_REQUEST['report'];
@@ -274,7 +274,7 @@ function HandleComment()
 
 	// The report ID is a must.
 	if (empty($_REQUEST['report']))
-		fatal_lang_error('mc_no_modreport_specified');
+		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please.
 	$report_id = (int) $_REQUEST['report'];
