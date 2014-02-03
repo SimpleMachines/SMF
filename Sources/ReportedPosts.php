@@ -270,6 +270,13 @@ function ReportDetails()
 
 function HandleComment()
 {
+	// The report ID is a must.
+	if (empty($_REQUEST['report']))
+		fatal_lang_error('mc_no_modreport_specified');
+
+	// Integers only please.
+	$report_id = (int) $_REQUEST['report'];
+
 	// If they are adding a comment then... add a comment.
 	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
 	{
@@ -277,7 +284,7 @@ function HandleComment()
 
 		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
-		saveModComment();
+		saveModComment(array($report_id, $newComment, time()));
 	}
 
 	//Redirect to prevent double submission.

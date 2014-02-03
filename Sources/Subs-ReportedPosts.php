@@ -367,7 +367,7 @@ function saveModComment($data)
 		),
 		array(
 			$user_info['id'], $user_info['name'], 'reportc', '',
-			$_REQUEST['report'], $newComment, time(),
+			$data,
 		),
 		array('id_comment')
 	);
