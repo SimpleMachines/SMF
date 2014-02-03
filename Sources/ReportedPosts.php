@@ -270,7 +270,7 @@ function ReportDetails()
 
 function HandleComment()
 {
-	global $scripturl;
+	global $smcFunc, $scripturl;
 
 	// The report ID is a must.
 	if (empty($_REQUEST['report']))
