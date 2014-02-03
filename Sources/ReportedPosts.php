@@ -289,6 +289,17 @@ function HandleComment()
 		saveModComment($report_id, array($report_id, $newComment, time()));
 	}
 
+	// Deleting a comment?
+	if (!empty($REQUEST['delete']))
+	{
+		$comment_id = (int) $_REQUEST['mid'];
+
+		if (empty($comment_id))
+			fatal_lang_error('mc_reportedp_comment_none_found');
+
+		deleteModComment($comment_id);
+	}
+
 	//Redirect to prevent double submission.
 	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;report=' . $report_id);
 }

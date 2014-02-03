@@ -392,4 +392,13 @@ function saveModComment($report_id, $data)
 			array('id_task')
 		);
 }
+
+function deleteModComment($comment_id)
+{
+	global $smcFunc;
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}log_comments
+		WHERE id_comment = {int:id}', array('id' => $comment_id, ));
+}
 ?>
