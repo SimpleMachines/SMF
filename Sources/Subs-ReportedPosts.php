@@ -389,7 +389,7 @@ function saveModComment($report_id, $data)
 	if (empty($data))
 		return false;
 
-	$data = array_merge(array($user_info['id'], $user_info['name'], 'modnote', ''), $data);
+	$data = array_merge(array($user_info['id'], $user_info['name'], 'reportc', ''), $data);
 
 	$smcFunc['db_insert']('',
 		'{db_prefix}log_comments',

@@ -46,7 +46,7 @@ function ReportedPosts()
 	$sub_actions = array(
 		'show' => 'ShowReports', // Both open and closed reports
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
-		'disregard' => 'DisregardReport',
+		'disregard' => 'DisregardReport',  // Ignore/un-ignore
 		'details' => 'ReportDetails', // Shows a single report and its comments.
 		'handlecomment' => 'HandleComment', // CRUD actions for moderator comments.
 		'editcomment' => 'EditComment',
