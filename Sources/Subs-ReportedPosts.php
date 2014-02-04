@@ -428,12 +428,12 @@ function editModComment($comment_id, $edited_comment)
 	global $smcFunc;
 
 	if (empty($comment_id) || empty($edited_comment))
-		return false
+		return false;
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_comments
 		SET  body = {string:body}
-		id_comment = {int:id_comment}',
+		WHERE id_comment = {int:id_comment}',
 		array(
 			'body' => $edited_comment,
 			'id_comment' => $comment_id,
