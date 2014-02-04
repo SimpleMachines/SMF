@@ -2703,7 +2703,7 @@ function MessageActionsApply()
 				// If this label is in the list and we're not adding it, remove it
 				if (array_key_exists($to_label[$row['id_pm']], $labels) && $type !== 'add')
 					unset($labels[$to_label[$row['id_pm']]]);
-				else if ($type !== 'remove')
+				else if ($type !== 'rem')
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 
@@ -2711,7 +2711,7 @@ function MessageActionsApply()
 			if ($type == 'rem' && empty($labels))
 				$in_inbox = 1;
 			// Adding new labels, but removing inbox and applying new ones
-			elseif($type == 'add' && !empty($options['pm_remove_inbox_label']) && !empty($labels))
+			elseif ($type == 'add' && !empty($options['pm_remove_inbox_label']) && !empty($labels))
 				$in_inbox = 0;
 			// Just adding it to the inbox
 			else
@@ -3242,7 +3242,7 @@ function ManageLabels()
 		// Deleting an existing label?
 		elseif (isset($_POST['delete'], $_POST['delete_label']))
 		{
-			foreach ($_POST['delete_label'] AS $label)
+			foreach ($_POST['delete_label'] AS $label => $dummy)
 			{
 				unset($the_labels[$label]);
 				$labels_to_remove[] = $label;
@@ -3315,14 +3315,23 @@ function ManageLabels()
 				DELETE FROM {db_prefix}pm_labels
 				WHERE id_label IN ({array_int:labels_to_delete})',
 				array(
-					'labels_to_delete' => $labels_to_delete,
+					'labels_to_delete' => $labels_to_remove,
+				)
+			);
+
+			// Now remove the now-deleted labels from any PMs...
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}pm_labeled_messages
+				WHERE id_label IN ({array_int:labels_to_delete})',
+				array(
+					'labels_to_delete' => $labels_to_remove,
 				)
 			);
 
 			// Get any PMs with no labels which aren't in the inbox
 			$get_stranded_pms = $smcFunc['db_query']('', '
 				SELECT pmr.id_pm
-				FROM {db_prefix}pm_recipients
+				FROM {db_prefix}pm_recipients AS pmr
 					LEFT JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)
 				WHERE pml.id_label IS NULL
 					AND pmr.in_inbox = {int:not_in_inbox}

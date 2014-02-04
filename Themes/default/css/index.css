@@ -1949,6 +1949,12 @@ ul#smfFadeScroller li {
 #upshrinkHeaderIC span.membergroups {
 	display: block;
 }
+#upshrinkHeaderIC span.membergroups:before {
+	content: '[';
+}
+#upshrinkHeaderIC span.membergroups:after {
+	content: ']';
+}
 #upshrinkHeaderIC p.last {
 	border-top: double #ddd;
 	padding-bottom: 0;
@@ -2844,6 +2850,9 @@ fieldset.merge_options {
 .login {
 	width: 540px;
 	margin: 0 auto;
+}
+.popup_content .login {
+	width: 100%;
 }
 .login dl {
 	overflow: auto;

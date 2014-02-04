@@ -92,7 +92,7 @@ function template_search_members()
 									</select>
 								</dt>
 								<dd>
-									<input type="text" name="last_online" id="last_online" value="" size="10" class="input_text"><span class="smalltext">', $txt['date_format'], '</span>
+									<input type="date" name="last_online" id="last_online" value="" size="10" class="input_text"><span class="smalltext">', $txt['date_format'], '</span>
 								</dd>
 							</dl>
 						</div>
@@ -108,13 +108,13 @@ function template_search_members()
 									<strong><label for="email">', $txt['email_address'], ':</label></strong>
 								</dt>
 								<dd>
-									<input type="text" name="email" id="email" value="" class="input_text">
+									<input type="email" name="email" id="email" value="" class="input_text">
 								</dd>
 								<dt class="righttext">
 									<strong><label for="website">', $txt['website'], ':</label></strong>
 								</dt>
 								<dd>
-									<input type="text" name="website" id="website" value="" class="input_text">
+									<input type="url" name="website" id="website" value="" class="input_text">
 								</dd>
 								<dt class="righttext">
 									<strong><label for="location">', $txt['location'], ':</label></strong>
@@ -132,7 +132,7 @@ function template_search_members()
 									<strong><label for="messenger">', $txt['messenger_address'], ':</label></strong>
 								</dt>
 								<dd>
-									<input type="number" name="messenger" id="messenger" value="" class="input_text">
+									<input type="text" name="messenger" id="messenger" value="" class="input_text">
 								</dd>
 							</dl>
 						</div>

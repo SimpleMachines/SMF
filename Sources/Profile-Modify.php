@@ -181,6 +181,15 @@ function loadProfileFields($force_reload = false)
 			'subtext' => $txt['valid_email'],
 			'log_change' => true,
 			'permission' => 'profile_password',
+			'js_submit' => !empty($modSettings['send_validation_onChange']) ? '
+	form_handle.addEventListener(\'submit\', function(event)
+	{
+		if (this.email_address.value != "'. $cur_profile['email_address'] .'")
+		{
+			alert('. JavaScriptEscape($txt['email_change_logout']) .');
+			return true;
+		}
+	}, false);' : '',
 			'input_validate' => create_function('&$value', '
 				global $context, $old_profile, $profile_vars, $sourcedir, $modSettings;
 
@@ -782,6 +791,29 @@ function setupProfileContext($fields)
 			$context['profile_fields'][$i++]['type'] = 'hr';
 		}
 	}
+
+	// Some spicy JS.
+	addInlineJavascript('
+	var form_handle = document.forms.creator;
+	createEventListener(form_handle);
+	'. (!empty($context['require_password']) ? '
+	form_handle.addEventListener(\'submit\', function(event)
+	{
+		if (this.oldpasswrd.value == "")
+		{
+			event.preventDefault();
+			alert('. (JavaScriptEscape($txt['required_security_reasons'])) .');
+			return false;
+		}
+	}, false);' : ''), true);
+
+	// Any onsubmit javascript?
+	if (!empty($context['profile_onsubmit_javascript']))
+		addInlineJavascript($context['profile_onsubmit_javascript'], true);
+
+	// Any totally custom stuff?
+	if (!empty($context['profile_javascript']))
+		addInlineJavascript($context['profile_javascript'], true);
 
 	// Free up some memory.
 	unset($profile_fields);
@@ -2829,7 +2861,7 @@ function profileLoadAvatarData()
 
 	// Second level selected avatar...
 	$context['avatar_selected'] = substr(strrchr($context['member']['avatar']['server_pic'], '/'), 1);
-	return true;
+	return !empty($context['member']['avatar']['allow_server_stored']) || !empty($context['member']['avatar']['allow_external']) || !empty($context['member']['avatar']['allow_upload']);
 }
 
 /**
@@ -3471,16 +3503,7 @@ function profileSendActivation()
 	$context['user']['is_logged'] = false;
 	$context['user']['is_guest'] = true;
 
-	// Send them to the done-with-registration-login screen.
-	loadTemplate('Register');
-
-	$context['page_title'] = $txt['profile'];
-	$context['sub_template'] = 'after';
-	$context['title'] = $txt['activate_changed_email_title'];
-	$context['description'] = $txt['activate_changed_email_desc'];
-
-	// We're gone!
-	obExit();
+	redirectexit('action=sendactivation');
 }
 
 /**

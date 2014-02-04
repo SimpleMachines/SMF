@@ -195,7 +195,7 @@ function template_body_above()
 	else
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $scripturl . '?action=login'), '</li>
+				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=register'), '</li>
 			</ul>';
 
 	if ($context['allow_search'])
@@ -263,43 +263,8 @@ function template_body_above()
 		<div id="upper_section">
 			<div id="inner_section">
 				<div id="inner_wrap">
-					<div class="user">';
-
-	// Otherwise they're a guest - this time ask them to either register or login - lazy bums...
-	if (!empty($context['show_login_bar']))
-	{
-		echo '
-						<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
-						<form id="guest_form" action="', $scripturl, '?action=login2;quicklogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
-							<input type="text" name="user" size="10" class="input_text">
-							<input type="password" name="passwrd" size="10" class="input_password">
-							<select name="cookielength">
-								<option value="60">', $txt['one_hour'], '</option>
-								<option value="1440">', $txt['one_day'], '</option>
-								<option value="10080">', $txt['one_week'], '</option>
-								<option value="43200">', $txt['one_month'], '</option>
-								<option value="-1" selected>', $txt['forever'], '</option>
-							</select>
-							<input type="submit" value="', $txt['login'], '" class="button_submit">
-							<div>', $txt['quick_login_dec'], '</div>';
-
-		if (!empty($modSettings['enableOpenID']))
-			echo '
-							<br><input type="text" name="openid_identifier" size="25" class="input_text openid_login">';
-
-		echo '
-							<input type="hidden" name="hash_passwrd" value="">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-							<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-						</form>';
-	}
-	else
-	{
-		echo '
-						', $context['current_time'];
-	}
-
-	echo'
+					<div class="user">
+						', $context['current_time'], '
 					</div>';
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty($settings['enable_news']) && !empty($context['random_news_line']))

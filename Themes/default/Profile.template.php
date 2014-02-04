@@ -1300,7 +1300,7 @@ function template_edit_options()
 
 	// The main header!
 	echo '
-		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data" onsubmit="return checkProfileSubmit();">
+		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">';
@@ -1503,38 +1503,6 @@ function template_edit_options()
 				</div>
 			</div>
 		</form>';
-
-	// Some javascript!
-	echo '
-		<script><!-- // --><![CDATA[
-			function checkProfileSubmit()
-			{';
-
-	// If this part requires a password, make sure to give a warning.
-	if ($context['require_password'])
-		echo '
-				// Did you forget to type your password?
-				if (document.forms.creator.oldpasswrd.value == "")
-				{
-					alert("', $txt['required_security_reasons'], '");
-					return false;
-				}';
-
-	// Any onsubmit javascript?
-	if (!empty($context['profile_onsubmit_javascript']))
-		echo '
-				', $context['profile_javascript'];
-
-	echo '
-			}';
-
-	// Any totally custom stuff?
-	if (!empty($context['profile_javascript']))
-		echo '
-			', $context['profile_javascript'];
-
-	echo '
-		// ]]></script>';
 
 	// Any final spellchecking stuff?
 	if (!empty($context['show_spellchecking']))
