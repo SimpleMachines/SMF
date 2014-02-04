@@ -445,8 +445,15 @@ function deleteModComment($comment_id)
 {
 	global $smcFunc;
 
+	if (empty($comment_id))
+		return false;
+
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_comments
-		WHERE id_comment = {int:id}', array('id' => $comment_id, ));
+		WHERE id_comment = {int:comment_id}',
+		array(
+			'comment_id' => $comment_id,
+		)
+	);
 }
 ?>

@@ -240,7 +240,7 @@ function template_viewmodreport()
 
 	foreach ($context['report']['mod_comments'] as $comment)
 		echo
-					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
+					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
 
 	echo '
 					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>

@@ -264,6 +264,11 @@ function ReportDetails()
 	if ($context['report']['closed'])
 		$context[$context['moderation_menu_name']]['current_subsection'] = 'closed';
 
+	addInlineJavascript('
+	$(\'.deleteModComment\').on(\'click\', function() {
+		return confirm('. (JavaScriptEscape($txt['mc_reportedp_delete_confirm'])) .');
+});', true);
+
 	// Finally we are done :P
 	$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
 	$context['sub_template'] = 'viewmodreport';
@@ -291,12 +296,12 @@ function HandleComment()
 	}
 
 	// Deleting a comment?
-	if (!empty($REQUEST['delete']))
+	if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 	{
-		$comment_id = (int) $_REQUEST['mid'];
-
-		if (empty($comment_id))
+		if (empty($_REQUEST['mid']))
 			fatal_lang_error('mc_reportedp_comment_none_found');
+
+		$comment_id = (int) $_REQUEST['mid'];
 
 		deleteModComment($comment_id);
 	}
