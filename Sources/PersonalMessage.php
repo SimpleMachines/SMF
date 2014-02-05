@@ -500,7 +500,7 @@ function MessageFolder()
 	elseif ($context['folder'] != 'sent')
 	{
 		$labelJoin = '
-			INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
+			INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pmr.id_pm)';
 
 		$labelQuery2 = '
 			AND pl.id_label = ' . $context['current_label_id'];
@@ -2655,6 +2655,30 @@ function MessageActionsApply()
 	{
 		$updateErrors = 0;
 
+		// Are we dealing with conversation view? If so, get all the messages in each conversation
+		if ($context['display_mode'] == 2)
+		{
+			$get_pms = $smcFunc['db_query']('', '
+				SELECT pm.id_pm_head, pm.id_pm
+				FROM {db_prefix}personal_messages AS pm
+					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
+				WHERE pm.id_pm_head IN ({array_int:head_pms})
+					AND pm.id_pm NOT IN ({array_int:head_pms})
+					AND pmr.id_recipient = {int:current_member}',
+				array(
+					'head_pms' => array_keys($to_label),
+					'current_member' => $user_info['id'],
+				)
+			);
+
+			while ($other_pms = $smcFunc['db_query']($get_pms))
+			{
+				$to_label[$other_pms['id_pm']] = $to_label[$other_pms['id_pm_head']];
+			}
+
+			$smcFunc['db_free_result']($get_pms);
+		}
+
 		// Get information about each message...
 		$request = $smcFunc['db_query']('', '
 			SELECT id_pm, in_inbox
@@ -2693,6 +2717,29 @@ function MessageActionsApply()
 
 				$smcFunc['db_free_result']($request2);
 			}
+			elseif ($type == 'rem')
+			{
+				// If we're removing from the inbox, see if we have at least one other label.
+				// This query is faster than the one above
+				$request2 = $smcFunc['db_query']('', '
+					SELECT COUNT(l.id_label)
+					FROM {db_prefix}pm_labels AS l
+						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+					WHERE l.id_member = {int:current_member}
+						AND pml.id_pm = {int:current_pm}
+					LIMIT 1',
+					array(
+						'current_member' => $user_info['id'],
+						'current_pm' => $row['id_pm'],
+					)
+				);
+
+				// Good to go here
+				if ($smcFunc['db_num_rows']($request2) == 1);
+					$context['can_remove_inbox'] = true;
+
+				$smcFunc['db_free_result']($request2);
+			}
 
 			// Use this to determine what to do later on...
 			$original_labels = $labels;
@@ -2707,9 +2754,9 @@ function MessageActionsApply()
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 
-			// Removing all labels, so make sure it's in the inbox
+			// Removing all labels or just removing the inbox label
 			if ($type == 'rem' && empty($labels))
-				$in_inbox = 1;
+				$in_inbox = (empty($context['can_remove_inbox']) ? 1 : 0);
 			// Adding new labels, but removing inbox and applying new ones
 			elseif ($type == 'add' && !empty($options['pm_remove_inbox_label']) && !empty($labels))
 				$in_inbox = 0;
