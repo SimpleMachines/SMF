@@ -2726,8 +2726,7 @@ function MessageActionsApply()
 					FROM {db_prefix}pm_labels AS l
 						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 					WHERE l.id_member = {int:current_member}
-						AND pml.id_pm = {int:current_pm}
-					LIMIT 1',
+						AND pml.id_pm = {int:current_pm}',
 					array(
 						'current_member' => $user_info['id'],
 						'current_pm' => $row['id_pm'],
