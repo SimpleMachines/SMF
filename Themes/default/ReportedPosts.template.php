@@ -63,7 +63,7 @@ function template_reported_posts()
 				<br>
 				<ul class="quickbuttons">
 					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reports;sa=disregard', !$report['ignore'] ? ';ignore' : '', ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=reports;sa=handle', !$report['ignore'] ? ';ignore' : '', ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
 					<li><a href="', $scripturl, '?action=moderate;area=reports;sa=handle', !$report['closed'] ? ';close' : '', ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
 
 		// Delete message button.
