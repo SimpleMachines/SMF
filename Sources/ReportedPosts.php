@@ -354,18 +354,21 @@ function HandleReport()
 
 	checkSession('get');
 
-	// The report ID is a must.
-	if (empty($_REQUEST['rid']))
+	// We need to do something!
+	if (empty($_REQUEST['rid']) || !isset($_GET['ignore']) || !isset($_GET['close']))
 		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please.
 	$report_id = (int) $_REQUEST['rid'];
 
+	// What are we gonna do?
+	$action = isset($_GET['ignore']) ? 'ignore' : 'close';
+
 	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
-	$ignore = (int) isset($_GET['ignore']);
+	$value = (int) $_GET[$action];
 
 	// Update the DB entry
-	updateReport('ignore', $ignore, $report_id);
+	updateReport($action, $value, $report_id);
 
 	// Done!
 	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
