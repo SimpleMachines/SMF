@@ -38,8 +38,12 @@ class paypal_display
 
 		$setting_data = array(
 			array(
-				'text', 'paypal_email',
+				'email', 'paypal_email',
 				'subtext' => $txt['paypal_email_desc']
+			),
+			array(
+				'email', 'paypal_sandbox_email',
+				'subtext' => $txt['paypal_sandbox_email_desc']
 			),
 		);
 
@@ -149,7 +153,7 @@ class paypal_payment
 		global $modSettings;
 
 		// Has the user set up an email address?
-		if (empty($modSettings['paypal_email']))
+		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || empty($modSettings['paypal_sandbox_email']))
 			return false;
 		// Check the correct transaction types are even here.
 		if ((!isset($_POST['txn_type']) && !isset($_POST['payment_status'])) || (!isset($_POST['business']) && !isset($_POST['receiver_email'])))
@@ -158,7 +162,10 @@ class paypal_payment
 		if (!isset($_POST['business']))
 			$_POST['business'] = $_POST['receiver_email'];
 
-		if ($modSettings['paypal_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
+		// Are we testing?
+		if (!empty($modSettings['paidsubs_test']) && $modSettings['paypal_sandbox_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
+			return false;
+		elseif ($modSettings['paypal_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
 			return false;
 		return true;
 	}
