@@ -2670,6 +2670,7 @@ function template_deleteAccount()
 		if ($context['can_delete_posts'])
 			echo '
 					<div>
+						<label for="deleteVotes"><input type="checkbox" name="deleteVotes" id="deleteVotes" value="1" class="input_check"> ', $txt['deleteAccount_votes'], ':</label><br>
 						<label for="deletePosts"><input type="checkbox" name="deletePosts" id="deletePosts" value="1" class="input_check"> ', $txt['deleteAccount_posts'], ':</label>
 						<select name="remove_type">
 							<option value="posts">', $txt['deleteAccount_all_posts'], '</option>

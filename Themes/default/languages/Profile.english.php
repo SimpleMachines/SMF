@@ -188,6 +188,7 @@ $txt['deleteAccount_member'] = 'Delete this member\'s account';
 $txt['deleteAccount_posts'] = 'Remove posts made by this member';
 $txt['deleteAccount_all_posts'] = 'Replies to Topics';
 $txt['deleteAccount_topics'] = 'Topics and Posts';
+$txt['deleteAccount_votes'] = 'Remove poll votes made by this member';
 $txt['deleteAccount_confirm'] = 'Are you completely sure you want to delete this account?';
 $txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account\'s deletion before it will be removed.';
 
