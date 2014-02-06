@@ -29,9 +29,6 @@ function template_reported_posts()
 			<h3 class="catbg">
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
 			</h3>
-		</div>
-		<div class="pagesection">
-			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 
 	// Make the buttons.
@@ -66,8 +63,8 @@ function template_reported_posts()
 				<br>
 				<ul class="quickbuttons">
 					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
+					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=disregard' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=reports', $context['view_closed'] ? ';sa=disregard' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
 
 		// Delete message button.
 		if (!$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards'])))
@@ -97,7 +94,7 @@ function template_reported_posts()
 
 	echo '
 		<div class="pagesection">
-			<div class="pagelinks floatleft">', $context['page_index'], '</div>
+			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">'. $context['page_index']. '</div>' : '' ,'
 			<div class="floatright">
 				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
 			</div>

@@ -99,8 +99,11 @@ function ShowReports()
 	// Before anything, we need to know just how many reports do we have.
 	$context['total_reports'] = countReports($context['view_closed']);
 
+	// Just how many items are we showing per page?
+	$context['reports_how_many'] = 10;
+
 	// So, that means we can have pagination, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show' . ($context['view_closed'] ? ';closed' : ''), $context['start'], $context['total_reports'], 10);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show' . ($context['view_closed'] ? ';closed' : ''), $context['start'], $context['total_reports'], $context['reports_how_many']);
 
 	// Get the reposts at once!
 	$context['reports'] = getReports($context['view_closed']);
