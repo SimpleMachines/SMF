@@ -78,6 +78,9 @@ function ShowReports()
 {
 	global $context, $txt, $scripturl;
 
+	// Showing closed or open ones? regardless, turn this to an integer for better handling.
+	$context['view_closed'] = (int) isset($_GET['closed']);
+
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
 		'title' => $txt['mc_reported_posts'],
@@ -88,9 +91,6 @@ function ShowReports()
 			'show;closed' => array($txt['mc_reportedp_closed']),
 		),
 	);
-
-	// Showing closed or open ones? regardless, turn this to an integer for better handling.
-	$context['view_closed'] = (int) isset($_GET['closed']);
 
 	// Call the right template.
 	$context['sub_template'] = 'reported_posts';
