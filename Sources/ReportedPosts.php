@@ -105,7 +105,7 @@ function ShowReports()
 	// So, that means we can have pagination, yes?
 	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show' . ($context['view_closed'] ? ';closed' : ''), $context['start'], $context['total_reports'], $context['reports_how_many']);
 
-	// Get the reposts at once!
+	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
 }
 
@@ -347,5 +347,28 @@ function EditComment()
 
 		redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
 	}
+}
+
+function DisregardReport()
+{
+	global $scripturl;
+
+	checkSession('get');
+
+	// The report ID is a must.
+	if (empty($_REQUEST['rid']))
+		fatal_lang_error('mc_reportedp_none_found');
+
+	// Integers only please.
+	$report_id = (int) $_REQUEST['rid'];
+
+	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
+	$ignore = (int) isset($_GET['ignore']);
+
+	// Update the DB entry
+	updateReport('ignore', $ignore, $report_id);
+
+	// Done!
+	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
 }
 ?>
