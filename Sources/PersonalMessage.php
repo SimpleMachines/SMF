@@ -101,8 +101,9 @@ function MessageMain()
 		);
 
 		// First get the inbox counts
+		// The CASE WHEN here is because is_read is set to 3 when you reply to a message
 		$result = $smcFunc['db_query']('', '
-			SELECT COUNT(*) AS total, SUM(is_read) AS num_read
+			SELECT COUNT(*) AS total, SUM(CASE WHEN is_read & 1 THEN 1 ELSE 0 END) AS num_read
 			FROM {db_prefix}pm_recipients
 			WHERE id_member = {int:current_member}
 				AND in_inbox = {int:in_inbox}
@@ -124,7 +125,7 @@ function MessageMain()
 
 		// Now load info about all the other labels
 		$result = $smcFunc['db_query']('', '
-			SELECT l.id_label, l.name, IFNULL(SUM(pr.is_read), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
+			SELECT l.id_label, l.name, IFNULL(SUM(CASE WHEN pr.is_read & 1 THEN 1 ELSE 0 END), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
 			FROM {db_prefix}pm_labels AS l
 				LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 				LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
