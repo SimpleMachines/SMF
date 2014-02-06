@@ -46,6 +46,7 @@ $txt['mc_reportedp_open'] = 'Open';
 $txt['mc_reportedp_ignore'] = 'Disregard';
 $txt['mc_reportedp_unignore'] = 'Undo Disregard';
 $txt['mc_reportedp_delete'] = 'Delete message';
+$txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
 $txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.

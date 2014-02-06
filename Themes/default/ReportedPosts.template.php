@@ -229,8 +229,7 @@ function template_viewmodreport()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
 			</div>
-			<div class="windowbg2">
-				<div class="content">';
+				<div>';
 
 	if (empty($context['report']['mod_comments']))
 		echo '
@@ -239,19 +238,34 @@ function template_viewmodreport()
 				</div>';
 
 	foreach ($context['report']['mod_comments'] as $comment)
+	{
 		echo
-					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</p>';
+						'<div class="cat_bar">
+						<h4 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'
+						</div></h4>';
+
+		echo '
+						<div class="windowbg">
+							<p class="content">', $comment['message'], '</p>
+						</div>';
+	}
 
 	echo '
-					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
-					<div>
-						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+					<div class="title_bar">
+						<h3 class="titlebg">
+							<span class="floatleft">
+								', $txt['mc_reportedp_new_comment'], '
+							</span>
+						</h3>
+					</div>
+					<div class="content">
+						<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+						<div>
+							<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						</div>
 					</div>
 				</div>
-			</div>
 			<br>';
-
-	$alt = false;
 
 	template_show_list('moderation_actions_list');
 
