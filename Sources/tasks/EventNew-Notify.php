@@ -33,7 +33,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		if (!empty($this->_details['sender_id']) && empty($this->_details['sender_name']))
 		{
 			loadMemberData($this->_details['sender_id'], 'minimal');
-			if (!empty($user_profile[$this->_details['sender_id']))
+			if (!empty($user_profile[$this->_details['sender_id']]))
 				$this->_details['sender_name'] = $user_profile[$this->_details['sender_id']]['real_name'];
 			else
 				$this->_details['sender_id'] = 0;
