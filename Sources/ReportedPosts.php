@@ -119,6 +119,9 @@ function ShowReports()
 
 		if (!empty($toClose))
 			updateReport('closed', 1, $toClose);
+
+		// Force a page refresh.
+		redirectexit($scripturl . '?action=moderate;area=reports');
 	}
 
 	// Show a confirmation if the user wants to disregard a report.

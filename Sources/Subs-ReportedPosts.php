@@ -68,7 +68,7 @@ function updateReport($action, $value, $report_id)
 		$extra[$row['id_report']] = array(
 			'report' => $row['id_report'],
 			'board' => $row['id_board'],
-			'message' => $row['id_message'],
+			'message' => $row['id_msg'],
 			'topic' => $row['id_topic'],
 		);
 
