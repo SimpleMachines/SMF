@@ -130,7 +130,7 @@ function MessageMain()
 				LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 				LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
 			WHERE l.id_member = {int:current_member}
-			GROUP BY l.id_label',
+			GROUP BY l.id_label, l.name',
 			array(
 				'current_member' => $user_info['id'],
 			)
