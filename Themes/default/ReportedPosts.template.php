@@ -197,8 +197,8 @@ function template_viewmodreport()
 		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
 
 		echo '
-						<a href="', $scripturl, '?action=moderate;area=reports;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$context['report']['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
-						<a href="', $scripturl, '?action=moderate;area=reports;close=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a>
+						<a href="', $scripturl, '?action=moderate;area=reports;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="report_ignore" data-ignore="', !$context['report']['ignore'] ,'">', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
+						<a href="', $scripturl, '?action=moderate;area=reports;sa=handle;closed=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a>
 					</span>
 				</h3>
 			</div>
@@ -257,7 +257,7 @@ function template_viewmodreport()
 					</div>
 					<div class="content">
 						<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
-						<div>
+						<div class="padding">
 							<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
 						</div>
 					</div>

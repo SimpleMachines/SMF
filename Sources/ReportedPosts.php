@@ -87,7 +87,7 @@ function ShowReports()
 		'description' => $txt['mc_reported_posts_desc'],
 		'tabs' => array(
 			'show' => array($txt['mc_reportedp_active']),
-			'show;closed' => array($txt['mc_reportedp_closed']),
+			'closed' => array($txt['mc_reportedp_closed']),
 		),
 	);
 
@@ -301,6 +301,15 @@ function ReportDetails()
 	// Finally we are done :P
 	$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
 	$context['sub_template'] = 'viewmodreport';
+
+	// We can ignore a report from this page too so show the confirmation on here as well.
+	addInlineJavascript('
+	$(\'.report_ignore\').on(\'click\', function(){
+		// Need to make sure to only show this when ignoring.
+		if ($(this).data(\'ignore\') == \'1\'){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
+		}
+	});', true);
 }
 
 function HandleComment()
