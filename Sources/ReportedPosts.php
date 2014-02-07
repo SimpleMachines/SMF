@@ -106,6 +106,13 @@ function ShowReports()
 
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
+
+	// Show a confirmation if the user wants to disregard a report.
+	if (!$context['view_closed'])
+		addInlineJavascript('
+	$(\'.report_ignore\').on(\'click\', function(){
+		return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
+	});', true);
 }
 
 function ReportDetails()
