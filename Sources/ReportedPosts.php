@@ -378,6 +378,6 @@ function HandleReport()
 	updateReport($action, $value, $report_id);
 
 	// Done!
-	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
+	redirectexit($scripturl . '?action=moderate;area=reports');
 }
 ?>

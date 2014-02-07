@@ -21,7 +21,7 @@ if (!defined('SMF'))
  *
  * @param string $action The action to perform. Accepts "closed" and "ignore".
  * @param integer $value The new value to update.
- * @params integer $report_id The affected report.
+ * @params integer|array $report_id The affected report.
  */
 function updateReport($action, $value, $report_id)
 {
@@ -38,8 +38,8 @@ function updateReport($action, $value, $report_id)
 	// Update the report...
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
-		SET  {text:action} = {int:value}
-		WHERE id_report = {int:id_report}
+		SET  {string:action} = {int:value}
+		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:report_list})' : 'WHERE id_report = {int:id_report}') .'
 			AND ' . $user_info['mod_cache']['bq'],
 		array(
 			'action' => $action,
