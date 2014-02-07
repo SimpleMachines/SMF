@@ -107,6 +107,20 @@ function ShowReports()
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
 
+	// Are we closing multiple reports?
+	if (isset($_POST['close']) && isset($_POST['close_selected']))
+	{
+		checkSession('post');
+
+		// All the ones to update...
+		$toClose = array();
+		foreach ($_POST['close'] as $rid)
+			$toClose[] = (int) $rid;
+
+		if (!empty($toClose))
+			updateReport('closed', 1, $toClose);
+	}
+
 	// Show a confirmation if the user wants to disregard a report.
 	if (!$context['view_closed'])
 		addInlineJavascript('

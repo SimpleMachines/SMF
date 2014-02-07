@@ -39,7 +39,7 @@ function updateReport($action, $value, $report_id)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
 		SET  {raw:action} = {string:value}
-		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:report_list})' : 'WHERE id_report = {int:id_report}') .'
+		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') .'
 			AND ' . $user_info['mod_cache']['bq'],
 		array(
 			'action' => $action,
@@ -48,19 +48,30 @@ function updateReport($action, $value, $report_id)
 		)
 	);
 
+	// From now on, lets work with arrays, makes life easier.
+	$report_id = (array) $report_id;
+
 	// Get the board, topic and message for this report
 	$request = $smcFunc['db_query']('', '
-		SELECT id_board, id_topic, id_msg
+		SELECT id_board, id_topic, id_msg, id_report
 		FROM {db_prefix}log_reported
-		WHERE id_report = {int:id_report}',
+		WHERE id_report IN ({array_int:id_report})',
 		array(
 			'id_report' => $report_id,
 		)
 	);
 
 	// Set up the data for the log...
-	$extra = array('report' => $report_id);
-	list ($extra['board'], $extra['topic'], $extra['message']) = $smcFunc['db_fetch_row']($request);
+	$extra = array();
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$extra[$row['id_report']] = array(
+			'report' => $row['id_report'],
+			'board' => $row['id_board'],
+			'message' => $row['id_message'],
+			'topic' => $row['id_topic'],
+		);
+
 	$smcFunc['db_free_result']($request);
 
 	// Back to "ignore".
@@ -70,7 +81,9 @@ function updateReport($action, $value, $report_id)
 	$log_report = $action == 'ignore' ? (!empty($value) ? 'ignore' : 'unignore') : (!empty($value) ? 'close' : 'open');
 
 	// Log this action.
-	logAction($log_report . '_report', $extra);
+	if (!empty($extra))
+		foreach ($extra as $report)
+			logAction($log_report . '_report', $report);
 
 	// Time to update.
 	updateSettings(array('last_mod_report_action' => time()));
@@ -222,7 +235,7 @@ function getReports($closed = 0)
  */
 function recountOpenReports()
 {
-	global $user_info, $context, $smcFunc;
+	global $user_info, $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
