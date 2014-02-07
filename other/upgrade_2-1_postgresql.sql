@@ -538,10 +538,8 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to log_topics...
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}log_topics
-	ADD COLUMN unwatched int NOT NULL DEFAULT '0'");
+ALTER TABLE {$db_prefix}log_topics
+ADD COLUMN unwatched int NOT NULL DEFAULT '0';
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
@@ -550,7 +548,6 @@ INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('enable_unwatch', 0);
----}
 ---#
 
 ---# Fixing column name change...
@@ -1040,7 +1037,7 @@ $request = upgrade_query("
 --- Upgrading PM labels...
 /******************************************************************************/
 ---# Creating pm_labels sequence...
-CREATE SEQUENCE {$db_prefix}pm_labels_sequence;
+CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 ---#
 
 ---# Adding pm_labels table...
@@ -1111,7 +1108,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minus_one}, labels)',
+			WHERE FIND_IN_SET({int:minus_one}, labels) != 0',
 			array(
 				'in_inbox' => 1,
 				'minus_one' => -1,
@@ -1176,7 +1173,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			SELECT id_member, id_rule, actions
 			FROM {db_prefix}pm_rules',
 			array(
-			),
+			)
 		);
 
 		// Go through the rules, unserialize the actions, then figure out if there's anything we can use
@@ -1215,7 +1212,8 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
 		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
-}
+---}
+---#
 
 /******************************************************************************/
 --- Adding support for edit reasons
