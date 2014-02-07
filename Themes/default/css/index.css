@@ -2215,7 +2215,7 @@ div#pollmoderation {
 
 .poster .profile .profile_icons li, .poster .im_icons li {
 	display: table-cell;
-	padding-left: 5px;
+	padding-right: 5px;
 }
 
 /* The visible stuff below the avatar. */
