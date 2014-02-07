@@ -362,7 +362,7 @@ function HandleReport()
 	checkSession('get');
 
 	// We need to do something!
-	if (empty($_REQUEST['rid']) || !isset($_GET['ignore']) || !isset($_GET['close']))
+	if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['close'])))
 		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please.
