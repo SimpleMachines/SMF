@@ -111,7 +111,10 @@ function ShowReports()
 	if (!$context['view_closed'])
 		addInlineJavascript('
 	$(\'.report_ignore\').on(\'click\', function(){
-		return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
+		// Need to make sure to only show this when ignoring.
+		if ($(this).data(\'ignore\') == \'1\'){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
+		}
 	});', true);
 }
 
@@ -362,14 +365,14 @@ function HandleReport()
 	checkSession('get');
 
 	// We need to do something!
-	if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['close'])))
+	if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['closed'])))
 		fatal_lang_error('mc_reportedp_none_found');
 
 	// Integers only please.
 	$report_id = (int) $_REQUEST['rid'];
 
 	// What are we gonna do?
-	$action = isset($_GET['ignore']) ? 'ignore' : 'close';
+	$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
 	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
 	$value = (int) $_GET[$action];
