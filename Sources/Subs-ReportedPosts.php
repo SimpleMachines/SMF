@@ -28,7 +28,7 @@ function updateReport($action, $value, $report_id)
 	global $smcFunc, $user_info, $context;
 
 	// Don't bother.
-	if (empty($action)|| empty($report_id) || $action != 'ignore' || $action != 'closed')
+	if (empty($action) || empty($report_id))
 		return false;
 
 	// Add the "_all" thingy.
@@ -38,7 +38,7 @@ function updateReport($action, $value, $report_id)
 	// Update the report...
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
-		SET  {string:action} = {int:value}
+		SET  {raw:action} = {string:value}
 		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:report_list})' : 'WHERE id_report = {int:id_report}') .'
 			AND ' . $user_info['mod_cache']['bq'],
 		array(
