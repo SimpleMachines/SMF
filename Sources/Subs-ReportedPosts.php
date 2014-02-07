@@ -63,11 +63,14 @@ function updateReport($action, $value, $report_id)
 	list ($extra['board'], $extra['topic'], $extra['message']) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Tell the user about it.
-	$context['report_post_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
+	// Back to "ignore".
+	if ($action == 'ignore_all')
+		$action = 'ignore';
 
-	// Log this action
-	logAction($context['report_post_action'] . '_report', $extra);
+	$log_report = $action == 'ignore' ? (!empty($value) ? 'ignore' : 'unignore') : (!empty($value) ? 'close' : 'open');
+
+	// Log this action.
+	logAction($log_report . '_report', $extra);
 
 	// Time to update.
 	updateSettings(array('last_mod_report_action' => time()));
