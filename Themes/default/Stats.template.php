@@ -19,78 +19,70 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="flow_hidden">
-			<div class="title_bar">
-				<h4 class="titlebg statstitle">
+		<div class="roundframe exp1">
+			<div class="info_bar">
+				<h4 class="infobg">
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
-			<div id="stats_left">
-				<div class="windowbg2">
-					<div class="content top_row">
-						<dl class="stats">
-							<dt>', $txt['total_members'], ':</dt>
-							<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
-							<dt>', $txt['total_posts'], ':</dt>
-							<dd>', $context['num_posts'], '</dd>
-							<dt>', $txt['total_topics'], ':</dt>
-							<dd>', $context['num_topics'], '</dd>
-							<dt>', $txt['total_cats'], ':</dt>
-							<dd>', $context['num_categories'], '</dd>
-							<dt>', $txt['users_online'], ':</dt>
-							<dd>', $context['users_online'], '</dd>
-							<dt>', $txt['most_online'], ':</dt>
-							<dd>', $context['most_members_online']['number'], ' - ', $context['most_members_online']['date'], '</dd>
-							<dt>', $txt['users_online_today'], ':</dt>
-							<dd>', $context['online_today'], '</dd>';
+			<div class="stats_left half top_row">
+				<dl class="stats">
+					<dt>', $txt['total_members'], ':</dt>
+					<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
+					<dt>', $txt['total_posts'], ':</dt>
+					<dd>', $context['num_posts'], '</dd>
+					<dt>', $txt['total_topics'], ':</dt>
+					<dd>', $context['num_topics'], '</dd>
+					<dt>', $txt['total_cats'], ':</dt>
+					<dd>', $context['num_categories'], '</dd>
+					<dt>', $txt['users_online'], ':</dt>
+					<dd>', $context['users_online'], '</dd>
+					<dt>', $txt['most_online'], ':</dt>
+					<dd>', $context['most_members_online']['number'], ' - ', $context['most_members_online']['date'], '</dd>
+					<dt>', $txt['users_online_today'], ':</dt>
+					<dd>', $context['online_today'], '</dd>';
 
 	if (!empty($modSettings['hitStats']))
 		echo '
-							<dt>', $txt['num_hits'], ':</dt>
-							<dd>', $context['num_hits'], '</dd>';
+					<dt>', $txt['num_hits'], ':</dt>
+					<dd>', $context['num_hits'], '</dd>';
 
 	echo '
-						</dl>
-					</div>
-				</div>
+				</dl>
 			</div>
-			<div id="stats_right">
-				<div class="windowbg2">
-					<div class="content top_row">
-						<dl class="stats">
-							<dt>', $txt['average_members'], ':</dt>
-							<dd>', $context['average_members'], '</dd>
-							<dt>', $txt['average_posts'], ':</dt>
-							<dd>', $context['average_posts'], '</dd>
-							<dt>', $txt['average_topics'], ':</dt>
-							<dd>', $context['average_topics'], '</dd>
-							<dt>', $txt['total_boards'], ':</dt>
-							<dd>', $context['num_boards'], '</dd>
-							<dt>', $txt['latest_member'], ':</dt>
-							<dd>', $context['common_stats']['latest_member']['link'], '</dd>
-							<dt>', $txt['average_online'], ':</dt>
-							<dd>', $context['average_online'], '</dd>';
+			<div class="stats_right half top_row">
+				<dl class="stats">
+					<dt>', $txt['average_members'], ':</dt>
+					<dd>', $context['average_members'], '</dd>
+					<dt>', $txt['average_posts'], ':</dt>
+					<dd>', $context['average_posts'], '</dd>
+					<dt>', $txt['average_topics'], ':</dt>
+					<dd>', $context['average_topics'], '</dd>
+					<dt>', $txt['total_boards'], ':</dt>
+					<dd>', $context['num_boards'], '</dd>
+					<dt>', $txt['latest_member'], ':</dt>
+					<dd>', $context['common_stats']['latest_member']['link'], '</dd>
+					<dt>', $txt['average_online'], ':</dt>
+					<dd>', $context['average_online'], '</dd>';
 
 	if (!empty($context['gender']))
 		echo '
-							<dt>', $txt['gender_ratio'], ':</dt>
-							<dd>', $context['gender']['ratio'], '</dd>';
+					<dt>', $txt['gender_ratio'], ':</dt>
+					<dd>', $context['gender']['ratio'], '</dd>';
 
 	if (!empty($modSettings['hitStats']))
 		echo '
-							<dt>', $txt['average_hits'], ':</dt>
-							<dd>', $context['average_hits'], '</dd>';
+					<dt>', $txt['average_hits'], ':</dt>
+					<dd>', $context['average_hits'], '</dd>';
 
 	echo '
-						</dl>
-					</div>
-				</div>
+				</dl>
 			</div>
 		</div>
-		<div class="flow_hidden">
+		<div class="roundframe exp1">
 			<div id="top_posters">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon posters"></span>', $txt['top_posters'], '
 					</h4>
 				</div>
@@ -126,8 +118,8 @@ function template_main()
 					</div>
 			</div>
 			<div id="top_boards">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon boards"></span>', $txt['top_boards'], '
 					</h4>
 				</div>
@@ -163,10 +155,10 @@ function template_main()
 					</div>
 			</div>
 		</div>
-		<div class="flow_hidden">
+		<div class="roundframe exp1">
 			<div id="top_topics_replies">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
 					</h4>
 				</div>
@@ -201,8 +193,8 @@ function template_main()
 			</div>
 
 			<div id="top_topics_views">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
 					</h4>
 				</div>
@@ -236,10 +228,10 @@ function template_main()
 				</div>
 			</div>
 		</div>
-		<div class="flow_hidden">
+		<div class="roundframe exp1">
 			<div id="top_topics_starter">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon starters"></span>', $txt['top_starters'], '
 					</h4>
 				</div>
@@ -272,8 +264,8 @@ function template_main()
 				</div>
 			</div>
 			<div id="most_online">
-				<div class="title_bar">
-					<h4 class="titlebg statstitle">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span class="stats_icon history"></span>', $txt['most_time_online'], '
 					</h4>
 				</div>
@@ -315,7 +307,7 @@ function template_main()
 				<span class="stats_icon history"></span>', $txt['forum_history'], '
 			</h3>
 		</div>
-		<div class="flow_hidden">';
+		<div class="roundframe exp1">';
 
 	if (!empty($context['yearly']))
 	{

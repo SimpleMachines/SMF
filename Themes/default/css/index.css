@@ -909,10 +909,6 @@ h4.titlebg .icon {
 	float: left;
 	margin: 0 8px 0 0;
 }
-/* Fix colors for the stats page */
-h3.statstitle, h4.statstitle {
-	color: #a85400;
-}
 
 /* Box-sizing for these should be useful. */
 div.cat_bar, div.title_bar,div.title_barIC {
@@ -3508,41 +3504,21 @@ dl {
 #statistics  div {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
-#statistics div.title_bar {
-	margin: 4px 0 0 0;
-}
-#statistics .titlebg img {
-	margin: 3px 6px 0 3px;
-}
 #statistics .cat_bar {
 	margin: 4px 0 0 0;
-}
-#statistics .flow_hidden {
-	background: #f0f4f7;
-	margin: 4px 0;
-	padding: 2px 6px;
-	border-radius: 7px;
 }
 #statistics div.windowbg2 {
 	background: none;
 }
-#stats_left, #top_posters, #top_topics_replies, #top_topics_starter {
+#top_posters, #top_topics_replies, #top_topics_starter {
 	float: left;
 	width: 50%;
 	padding: 0 3px 0 0;
 }
-#stats_right, #top_boards, #top_topics_views, #most_online {
+#top_boards, #top_topics_views, #most_online {
 	float: right;
 	width: 50%;
 	padding: 0 0 0 3px;
-}
-#stats_left{
-	border-right: 1px solid #bbb;
-	margin-top: 8px;
-}
-#stats_right{
-	border-left: 1px solid #fff;
-	margin-top: 8px;
 }
 .stats_icon {
 	width: 16px;
@@ -3575,9 +3551,6 @@ dl.stats {
 	margin: 0 0 0 0;
 	padding: 0 0 0 0;
 }
-#stats_left dl.stats, #stats_right dl.stats{
-	margin: -8px 0 -12px 0;
-}
 dl.stats dt {
 	width: 50%;
 	float: left;
@@ -3601,21 +3574,6 @@ dl.stats dd {
 	border-radius: 2px;
 	position: relative;
 }
-/* Methinks topic links, etc need a little more oomph next to the orange bars. */
-/* Open to suggestions. */
-#stats_left dt a {
-	color: #232f46;
-}
-.top_row dl.stats dd {
-	background: none; border: none;
-}
-/* Give a bit more room for the date here. */
-#stats_left dt {
-	width: 35%;
-}
-#stats_left dd {
-	width: 65%;
-}
 .statsbar div.bar {
 	float: left;
 	background: orange;
@@ -3623,7 +3581,6 @@ dl.stats dd {
 	border-radius: 1px 0 0 1px;
 	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
-
 	margin: 0 4px 0 0;
 	height: 1.4em;
 }
@@ -4194,7 +4151,7 @@ span.hidelink {
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
 
-#forumposts .windowbg, #forumposts .windowbg2, #statistics .flow_hidden, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages .windowbg, #personal_messages .windowbg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages .windowbg, #personal_messages .windowbg2 {
 	background: /*#e8eff5;*/#f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -4204,28 +4161,6 @@ span.hidelink {
 }
 #forumposts .windowbg2, #personal_messages .windowbg2 {
 	background: #eaf1f4;
-}
-#statistics .flow_hidden {
-	background: #e8eff5;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
-}
-#statistics div.title_bar {
-	background: none;
-	border-bottom: 2px solid #f5f5f5;
-	border-radius: 2px 2px 0 0;
-	margin: 1px 4px 0 4px;
-}
-#statistics h4.titlebg {
-	background: none;
-	border-bottom: 1px solid #bbb;
-	border-radius: 0;
-	padding: 6px 0;
-	margin: 0;
-	font-size: 1.1em;
 }
 /* The generic wrapper thingy for teh awesome cool looks innit. */
 /* This lot will be simplified once I get all the styling hooks in place. */
@@ -4325,12 +4260,12 @@ div#editlang_desc {
 	padding: 3px 4px;
 	margin: 0 0 -10px 0;
 }
-#info_center{
+#info_center {
 	background: #f8f8f8;
 	margin: 12px 0 0 0;
 	padding: 16px 12px 6px 12px;
 }
-#info_center .cat_bar, .table_grid tr.catbg th, #searchform .roundframe .title_bar {
+.table_grid tr.catbg th, #searchform .roundframe .title_bar {
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
@@ -4344,7 +4279,7 @@ div#editlang_desc {
 .table_grid tr.catbg th.centercol, .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
 	text-align: center;
 }
-#info_center .cat_bar, #searchform .roundframe .title_bar {
+#searchform .roundframe .title_bar {
 	border-right: 1px solid #ddd;
 	border-left: 1px solid #ddd;
 	margin: 0 -1px;
@@ -4358,23 +4293,23 @@ tr.catbg th:first-child {
 tr.catbg th:last-child {
 	border-right: 1px solid #ddd;
 }
-#info_center .catbg, #searchform .roundframe .titlebg {
+#searchform .roundframe .titlebg {
 	padding: 6px 12px 5px 12px;
 	background: none;
 	font-size: 1.1em;
 }
-#info_center .catbg, #info_center .catbg a, .table_grid tr.catbg th a, #searchform .roundframe .titlebg {
+.table_grid tr.catbg th a, #searchform .roundframe .titlebg {
 	color: #555;
 	text-shadow: none;
 }
-#info_center .title_barIC, #postmodify .roundframe .title_bar,
+#postmodify .roundframe .title_bar,
 #activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar {
 	background: none;
 	border-top: 1px solid #999;
 	border-bottom: 1px solid #fff;
 	border-radius: 0;
 }
-#info_center h4.titlebg, #postmodify .roundframe .titlebg,
+#postmodify .roundframe .titlebg,
 #activitytime .catbg, #popularposts .catbg, #popularactivity .catbg {
 	border-bottom: 1px solid #ccc;
 	border-top: 1px solid #ccc;
@@ -4384,11 +4319,6 @@ tr.catbg th:last-child {
 	color: #444;
 	text-shadow: none;
 	background:none;
-}
-#info_center .title_barIC:first-child, #info_center .title_barIC:first-child .titlebg {
-	border-top: none;
-	box-shadow: 0 -1px 0 #999 inset;
-	background: none;
 }
 #postmodify .roundframe .title_bar{
 	background: #f7f7f7;
@@ -4475,4 +4405,78 @@ div#manage_boards dl dd textarea[name=desc] {
 
 .full_width {
 	width: 100%;
+}
+
+/* Introduce Information Bar */
+.info_bar {
+	border-right: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	border-top: 2px solid #ff9400;
+	border-bottom: 2px solid #bf6900;
+	background: #fff;
+	color: #666;
+	border-radius: 2px 2px 0 0;
+	text-align: left;
+	margin: 0 -1px;
+}
+h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
+	background: none;
+	color: #555;
+	font-family: "Tahoma", sans-serif;
+	font-weight: bold;	
+	overflow: hidden;
+	padding: 6px 12px 5px 12px;	
+	text-shadow: none;
+}
+.infobg a, .subg a {
+	background: none;
+	color: #555;
+	text-decoration: none;
+}
+
+/* This place is about Info Center on BoardIndex */	
+#info_center .sub_places {
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	text-shadow: none;
+	background: none;
+	box-shadow: 0 -1px 0 #999 inset;
+}
+#info_center .sub_places:first-child {
+	border-top: none;
+}
+
+/* This place is about stats page */
+.exp1 {
+	margin-top: 10px;
+}
+.stats_left {
+	float: left;
+	margin-top: 8px;
+	padding: 6px 15px;
+	border-right: 1px solid #bbb;
+}
+.stats_right{
+	float: right;
+	padding: 6px 15px;
+	margin-top: 8px;
+}
+.stats_left dl.stats, .stats_right dl.stats {
+	margin: -8px 0 -12px 0;
+}
+.stats_left dt a {
+	color: #232f46;
+}
+.stats_left dt {
+	width: 35%;
+}
+.stats_left dd {
+	width: 65%;
+}
+.top_row dl.stats dd {
+	background: none;
+	border: none;
+}
+.half {
+	width: 50%;
 }

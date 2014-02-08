@@ -232,8 +232,8 @@ function template_info_center()
 	// Here's where the "Info Center" starts...
 	echo '
 	<div class="roundframe" id="info_center">
-		<div class="cat_bar">
-			<h3 class="catbg">
+		<div class="info_bar">
+			<h3 class="infobg">
 				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
@@ -293,8 +293,8 @@ function template_ic_block_recent()
 
 	// This is the "Recent Posts" bar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_places">
+				<h4 class="subg">
 					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
@@ -345,8 +345,8 @@ function template_ic_block_calendar()
 
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_places">
+				<h4 class="subg">
 					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="">', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
 				</h4>
 			</div>';
@@ -393,8 +393,8 @@ function template_ic_block_stats()
 
 	// Show statistical style information...
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_places">
+				<h4 class="subg">
 					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="stats_icon boards"></span>', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
@@ -410,8 +410,8 @@ function template_ic_block_online()
 	global $context, $scripturl, $txt, $modSettings, $settings;
 	// "Users online" - in order of activity.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_places">
+				<h4 class="subg">
 					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="stats_icon people"></span>', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
 				</h4>
 			</div>
