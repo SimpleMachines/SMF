@@ -127,6 +127,10 @@ function ModerationMain($dont_call = false)
 					'file' => 'ReportedPosts.php',
 					'function' => 'ReportedPosts',
 					'icon' => 'reports.png',
+					'subsections' => array(
+						'show' => array($txt['mc_reportedp_active']),
+						'closed' => array($txt['mc_reportedp_closed']),
+					),
 				),
 			),
 		),

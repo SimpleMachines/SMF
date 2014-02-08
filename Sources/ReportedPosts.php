@@ -37,14 +37,21 @@ function ReportedPosts()
 
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_posts'];
-	$context['sub_template'] = 'reported_posts';
+
+	// Put the open and closed options into tabs, because we can...
+	$context[$context['moderation_menu_name']]['tab_data'] = array(
+		'title' => $txt['mc_reported_posts'],
+		'help' => '',
+		'description' => $txt['mc_reported_posts_desc'],
+	);
 
 	// This comes under the umbrella of moderating posts.
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
 
 	$sub_actions = array(
-		'show' => 'ShowReports', // Both open and closed reports
+		'show' => 'ShowReports',
+		'closed' => 'ShowClosedReports',
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
 		'details' => 'ReportDetails', // Shows a single report and its comments.
 		'handlecomment' => 'HandleComment', // CRUD actions for moderator comments.
@@ -66,10 +73,9 @@ function ReportedPosts()
 }
 
 /**
- * Shows all open or closed reported posts.
+ * Shows all currently open reported posts.
  * It requires the moderate_forum permission.
  *
- * @uses ModerationCenter template.
  * @uses ModerationCenter language file.
  *
  */
@@ -78,18 +84,7 @@ function ShowReports()
 	global $context, $txt, $scripturl;
 
 	// Showing closed or open ones? regardless, turn this to an integer for better handling.
-	$context['view_closed'] = (int) isset($_GET['closed']);
-
-	// Put the open and closed options into tabs, because we can...
-	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_reported_posts'],
-		'help' => '',
-		'description' => $txt['mc_reported_posts_desc'],
-		'tabs' => array(
-			'show' => array($txt['mc_reportedp_active']),
-			'closed' => array($txt['mc_reportedp_closed']),
-		),
-	);
+	$context['view_closed'] = 0;
 
 	// Call the right template.
 	$context['sub_template'] = 'reported_posts';
@@ -102,7 +97,7 @@ function ShowReports()
 	$context['reports_how_many'] = 10;
 
 	// So, that means we can have pagination, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show' . ($context['view_closed'] ? ';closed' : ''), $context['start'], $context['total_reports'], $context['reports_how_many']);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show', $context['start'], $context['total_reports'], $context['reports_how_many']);
 
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
@@ -127,6 +122,39 @@ function ShowReports()
 	// Show a confirmation if the user wants to disregard a report.
 	if (!$context['view_closed'])
 		addInlineJavascript('
+	$(\'.report_ignore\').on(\'click\', function(){
+		// Need to make sure to only show this when ignoring.
+		if ($(this).data(\'ignore\') == \'1\'){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
+		}
+	});', true);
+}
+
+function ShowClosedReports()
+{
+	global $context, $txt, $scripturl;
+
+	// Showing closed ones.
+	$context['view_closed'] = 1;
+
+	// Call the right template.
+	$context['sub_template'] = 'reported_posts';
+	$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+
+	// Before anything, we need to know just how many reports do we have.
+	$context['total_reports'] = countReports($context['view_closed']);
+
+	// Just how many items are we showing per page?
+	$context['reports_how_many'] = 10;
+
+	// So, that means we can have pagination, yes?
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=closed', $context['start'], $context['total_reports'], $context['reports_how_many']);
+
+	// Get the reports at once!
+	$context['reports'] = getReports($context['view_closed']);
+
+	// Show a confirmation if the user wants to disregard a report.
+	addInlineJavascript('
 	$(\'.report_ignore\').on(\'click\', function(){
 		// Need to make sure to only show this when ignoring.
 		if ($(this).data(\'ignore\') == \'1\'){
