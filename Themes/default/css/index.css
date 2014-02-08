@@ -326,6 +326,12 @@ h3.largetext {
 .main_section, .lower_padding {
 	padding-bottom: 6px;
 }
+.half_content {
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	width: 49%;
+	display: inline-block;
+	padding: 0 3px;
+}
 
 /* Some BBC related styles.
 ------------------------------------------------------- */
