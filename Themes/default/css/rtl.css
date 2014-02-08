@@ -168,19 +168,6 @@ table.table_list a.collapse {
 	background: url(../images/admin/subsection_rtl.png) no-repeat;
 }
 
-
-/* The dropdown menu toggle image */
-#menu_toggle {
-	float: left;
-	margin-right: 0;
-	margin-left: 10px;
-	padding-top: 3px;
-}
-#menu_toggle span {
-	position: relative;
-	left: 0;
-}
-
 li#collapse_button {
 	float: left;
 	position: relative;
@@ -723,12 +710,6 @@ div#admin_menu {
 }
 /* Styles for the statistics center.
 ------------------------------------------------- */
-#stats_left, #top_posters, #top_topics_replies, #top_topics_starter {
-	float: right;
-}
-#stats_right, #top_boards, #top_topics_views, #most_online {
-	float: left;
-}
 dl.stats dt {
 	float: right;
 }

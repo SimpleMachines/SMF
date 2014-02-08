@@ -25,9 +25,9 @@ function template_main()
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
-			<div id="stats_left">
+			<div class="half_content">
 				<div class="windowbg2">
-					<div class="content top_row">
+					<div class="content top_row date">
 						<dl class="stats">
 							<dt>', $txt['total_members'], ':</dt>
 							<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
@@ -54,7 +54,7 @@ function template_main()
 					</div>
 				</div>
 			</div>
-			<div id="stats_right">
+			<div class="half_content">
 				<div class="windowbg2">
 					<div class="content top_row">
 						<dl class="stats">
@@ -88,7 +88,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="flow_hidden">
-			<div id="top_posters">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon posters"></span>', $txt['top_posters'], '
@@ -125,7 +125,7 @@ function template_main()
 						</div>
 					</div>
 			</div>
-			<div id="top_boards">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon boards"></span>', $txt['top_boards'], '
@@ -164,7 +164,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="flow_hidden">
-			<div id="top_topics_replies">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
@@ -200,7 +200,7 @@ function template_main()
 					</div>
 			</div>
 
-			<div id="top_topics_views">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
@@ -237,7 +237,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="flow_hidden">
-			<div id="top_topics_starter">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon starters"></span>', $txt['top_starters'], '
@@ -271,7 +271,7 @@ function template_main()
 					</div>
 				</div>
 			</div>
-			<div id="most_online">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg statstitle">
 						<span class="stats_icon history"></span>', $txt['most_time_online'], '
