@@ -3948,9 +3948,6 @@ span.hidelink {
 #searchform p.clear {
 	clear: both;
 }
-#searchform .roundframe h4.titlebg {
-	border-bottom: none;
-}
 
 /* Styles for the search results page.
 ------------------------------------------------- */
@@ -4265,7 +4262,7 @@ div#editlang_desc {
 	margin: 12px 0 0 0;
 	padding: 16px 12px 6px 12px;
 }
-.table_grid tr.catbg th, #searchform .roundframe .title_bar {
+.table_grid tr.catbg th{
 	border-top: 2px solid #ff9400;
 	border-bottom: 2px solid #bf6900;
 	background: #fff;
@@ -4279,11 +4276,6 @@ div#editlang_desc {
 .table_grid tr.catbg th.centercol, .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
 	text-align: center;
 }
-#searchform .roundframe .title_bar {
-	border-right: 1px solid #ddd;
-	border-left: 1px solid #ddd;
-	margin: 0 -1px;
-}
 .table_grid tr.catbg th {
 	padding: 4px 3px 3px 8px;
 }
@@ -4293,12 +4285,7 @@ tr.catbg th:first-child {
 tr.catbg th:last-child {
 	border-right: 1px solid #ddd;
 }
-#searchform .roundframe .titlebg {
-	padding: 6px 12px 5px 12px;
-	background: none;
-	font-size: 1.1em;
-}
-.table_grid tr.catbg th a, #searchform .roundframe .titlebg {
+.table_grid tr.catbg th a {
 	color: #555;
 	text-shadow: none;
 }

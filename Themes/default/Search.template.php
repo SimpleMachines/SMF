@@ -123,8 +123,8 @@ function template_main()
 		echo '
 		<fieldset class="flow_hidden">
 			<div class="roundframe">
-				<div class="title_bar">
-					<h4 class="titlebg">
+				<div class="info_bar">
+					<h4 class="infobg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>
