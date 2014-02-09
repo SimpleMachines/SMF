@@ -95,8 +95,9 @@ function template_reported_posts()
 	echo '
 		<div class="pagesection">
 			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">'. $context['page_index']. '</div>' : '' ,'
-			<div class="floatright">
-				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
+			<div class="floatright">', !$context['view_closed'] ? '
+				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">
+				<input type="hidden" name="', $context['mod-report-close-all_token_var'], '" value="', $context['mod-report-close-all_token'], '">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

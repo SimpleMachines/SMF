@@ -74,6 +74,7 @@ function ReportedPosts()
 
 	// Lets see, just how many tokens do we need?
 	createToken('mod-report-close');
+	createToken('mod-report-close-all');
 	createToken('mod-report-open');
 	createToken('mod-report-ignore');
 	createToken('mod-report-unignore');
@@ -81,7 +82,7 @@ function ReportedPosts()
 	createToken('mod-reportC-delete');
 	createToken('mod-reportC-add');
 
-	// Call the function!
+	// Hi Ho Silver Away!
 	$sub_actions[$context['sub_action']]();
 }
 
@@ -119,6 +120,7 @@ function ShowReports()
 	if (isset($_POST['close']) && isset($_POST['close_selected']))
 	{
 		checkSession('post');
+		validateToken('mod-report-close-all');
 
 		// All the ones to update...
 		$toClose = array();
