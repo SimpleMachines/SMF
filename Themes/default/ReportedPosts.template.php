@@ -15,7 +15,7 @@ function template_reported_posts()
 	global $context, $txt, $scripturl;
 
 	// Let them know the action was a success.
-	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
+	if (!empty($context['report_post_action']))
 	{
 		echo '
 			<div class="infobox">
@@ -175,6 +175,15 @@ function template_reported_posts_block()
 function template_viewmodreport()
 {
 	global $context, $scripturl, $txt;
+
+	// Let them know the action was a success.
+	if (!empty($context['report_post_action']))
+	{
+		echo '
+			<div class="infobox">
+				', $txt['report_action_'. $context['report_post_action']], '
+			</div>';
+	}
 
 	echo '
 	<div id="modcenter">

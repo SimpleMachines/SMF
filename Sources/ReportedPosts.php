@@ -35,6 +35,10 @@ function ReportedPosts()
 	// We need this little rough gem.
 	require_once($sourcedir . '/Subs-ReportedPosts.php');
 
+	// Do we need to show a confirmation message?
+	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
+	unset($_SESSION['rc_confirmation']);
+
 	// Set up the comforting bits...
 	$context['page_title'] = $txt['mc_reported_posts'];
 
@@ -359,6 +363,9 @@ function HandleComment()
 		$new_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
 		saveModComment($report_id, array($report_id, $new_comment, time()));
+
+		// Everything went better than expected!
+		$_SESSION['rc_confirmation'] = 'message_saved';
 	}
 
 	// Deleting a comment?
@@ -370,6 +377,9 @@ function HandleComment()
 		$comment_id = (int) $_REQUEST['mid'];
 
 		deleteModComment($comment_id);
+
+		// Tell them the message was deleted.
+		$_SESSION['rc_confirmation'] = 'message_deleted';
 	}
 
 	//Redirect to prevent double submission.
@@ -408,6 +418,8 @@ function EditComment()
 
 		editModComment($context['comment_id'], $edited_comment);
 
+		$_SESSION['rc_confirmation'] = 'message_edited';
+
 		redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
 	}
 }
@@ -433,6 +445,9 @@ function HandleReport()
 
 	// Update the DB entry
 	updateReport($action, $value, $report_id);
+
+	// So, time to show a confirmation message, lets do some trickery!
+	$_SESSION['rc_confirmation'] = $action == 'ignore' ? ($value ? 'ignore' : 'unignore') : ($value ? 'close' : 'open');
 
 	// Done!
 	redirectexit($scripturl . '?action=moderate;area=reports');
