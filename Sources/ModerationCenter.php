@@ -372,9 +372,8 @@ function ModBlockNotes()
 			SELECT COUNT(*)
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
-			WHERE lc.comment_type = {string:modnote}',
+			WHERE lc.comment_type = {literal:modnote}',
 			array(
-				'modnote' => 'modnote',
 			)
 		);
 		list ($moderator_notes_total) = $smcFunc['db_fetch_row']($request);
@@ -392,11 +391,10 @@ function ModBlockNotes()
 				lc.log_time, lc.body, lc.id_comment AS id_note
 			FROM {db_prefix}log_comments AS lc
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
-			WHERE lc.comment_type = {string:modnote}
+			WHERE lc.comment_type = {literal:modnote}
 			ORDER BY id_comment DESC
 			LIMIT {int:offset}, 10',
 			array(
-				'modnote' => 'modnote',
 				'offset' => $offset,
 			)
 		);
