@@ -129,6 +129,7 @@ $txt['report_action_message_deleted'] = 'The message was successfully deleted.';
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
+$txt['report_action_close_all'] = 'You successfully closed all reports.';
 $txt['report_action_open'] = 'The report was successfully open.';
 $txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 

@@ -130,6 +130,8 @@ function ShowReports()
 		if (!empty($toClose))
 			updateReport('closed', 1, $toClose);
 
+		$_SESSION['rc_confirmation'] = 'close_all';
+
 		// Force a page refresh.
 		redirectexit($scripturl . '?action=moderate;area=reports');
 	}
