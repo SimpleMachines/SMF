@@ -352,10 +352,9 @@ function ModBlockNotes()
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_comments
 			WHERE id_comment = {int:note}
-				AND comment_type = {string:type}',
+				AND comment_type = {literal:modnote}',
 			array(
 				'note' => $_GET['delete'],
-				'type' => 'modnote',
 			)
 		);
 
