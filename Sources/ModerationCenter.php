@@ -434,6 +434,12 @@ function ModBlockNotes()
 		);
 	}
 
+	// Add a confirm on deleting a modnote
+	addInlineJavascript('
+	$(\'.delete_modnote\').on(\'click\', function(){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
+	});', true);
+
 	return 'notes';
 }
 

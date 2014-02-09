@@ -206,7 +206,7 @@ function template_notes()
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-							<li class="smalltext"><a href="', $note['delete_href'], '"><span class="generic_icons del_small"></span></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+							<li class="smalltext"><a href="', $note['delete_href'], '" class="delete_modnote"><span class="generic_icons del_small"></span></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
 						</ul>
