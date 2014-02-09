@@ -312,13 +312,19 @@ function ModBlockNotes()
 {
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
 
+	// Set a nice and informative message.
 	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
 	unset($_SESSION['rc_confirmation']);
+
+	// Couple tokens for add/delete modnotes
+	createToken('mod-modnote-add');
+	createToken('mod-modnote-del', 'get');
 
 	// Are we saving a note?
 	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
 		checkSession();
+		validateToken('mod-modnote-add');
 
 		$_POST['new_note'] = $smcFunc['htmlspecialchars'](trim($_POST['new_note']));
 		// Make sure they actually entered something.
@@ -353,6 +359,7 @@ function ModBlockNotes()
 	if (isset($_GET['notes']) && isset($_GET['delete']) && is_numeric($_GET['delete']))
 	{
 		checkSession('get');
+		validateToken('mod-modnote-del', 'get');
 
 		// Lets delete it.
 		$smcFunc['db_query']('', '

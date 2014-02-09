@@ -206,7 +206,7 @@ function template_notes()
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)
 				echo '
-							<li class="smalltext"><a href="', $note['delete_href'], '" class="delete_modnote"><span class="generic_icons del_small"></span></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
+							<li class="smalltext"><a href="', $note['delete_href'], ';', $context['mod-modnote-adel_token_var'], '=', $context['mod-modnote-del_token'], '" class="delete_modnote"><span class="generic_icons del_small"></span></a>', $note['time'] ,' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '</li>';
 
 			echo '
 						</ul>
@@ -219,6 +219,7 @@ function template_notes()
 						<div class="floatleft post_note">
 						<input type="text" name="new_note" value="', $txt['mc_click_add_note'], '" style="width: 95%;" onclick="if (this.value == \'', $txt['mc_click_add_note'], '\') this.value = \'\';" class="input_text">
 						</div>
+						<input type="hidden" name="', $context['mod-modnote-add_token_var'], '" value="', $context['mod-modnote-add_token'], '">
 						<input type="submit" name="makenote" value="', $txt['mc_add_note'], '" class="button_submit">
 					</div>
 				</div>
