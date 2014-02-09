@@ -72,6 +72,15 @@ function ReportedPosts()
 	else
 		$context['sub_action'] = 'show';
 
+	// Lets see, just how many tokens do we need?
+	createToken('mod-report-close');
+	createToken('mod-report-open');
+	createToken('mod-report-ignore');
+	createToken('mod-report-unignore');
+	createToken('mod-reportC-edit');
+	createToken('mod-reportC-delete');
+	createToken('mod-reportC-add');
+
 	// Call the function!
 	$sub_actions[$context['sub_action']]();
 }
