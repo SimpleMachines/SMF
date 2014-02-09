@@ -312,6 +312,9 @@ function ModBlockNotes()
 {
 	global $context, $smcFunc, $scripturl, $txt, $user_info;
 
+	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
+	unset($_SESSION['rc_confirmation']);
+
 	// Are we saving a note?
 	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
@@ -339,6 +342,9 @@ function ModBlockNotes()
 			cache_put_data('moderator_notes_total', null, 240);
 		}
 
+		// Everything went better than expected!
+		$_SESSION['rc_confirmation'] = 'message_saved';
+
 		// Redirect otherwise people can resubmit.
 		redirectexit('action=moderate');
 	}
@@ -361,6 +367,9 @@ function ModBlockNotes()
 		// Clear the cache.
 		cache_put_data('moderator_notes', null, 240);
 		cache_put_data('moderator_notes_total', null, 240);
+
+		// Tell them the message was deleted.
+		$_SESSION['rc_confirmation'] = 'message_deleted';
 
 		redirectexit('action=moderate');
 	}

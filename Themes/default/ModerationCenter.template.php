@@ -75,7 +75,7 @@ function template_group_requests_block()
 				</ul>
 			</div>
 		</div>
-		
+
 	<script><!-- // --><![CDATA[
 		var oGroupRequestsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -141,7 +141,7 @@ function template_watched_users()
 				</ul>
 			</div>
 		</div>
-		
+
 	<script><!-- // --><![CDATA[
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
@@ -179,6 +179,15 @@ function template_watched_users()
 function template_notes()
 {
 	global $context, $txt, $scripturl;
+
+	// Let them know the action was a success.
+	if (!empty($context['report_post_action']))
+	{
+		echo '
+			<div class="infobox">
+				', $txt['report_action_'. $context['report_post_action']], '
+			</div>';
+	}
 
 	echo '
 		<div class="modnotes">
