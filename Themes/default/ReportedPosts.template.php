@@ -248,7 +248,7 @@ function template_viewmodreport()
 	{
 		echo
 						'<div class="cat_bar">
-						<h4 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'
+						<h4 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;', $context['mod-reportC-delete_token_var'], '=', $context['mod-reportC-delete_token'], '" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'
 						</div></h4>';
 
 		echo '

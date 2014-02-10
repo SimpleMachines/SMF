@@ -386,6 +386,9 @@ function HandleComment()
 	// Deleting a comment?
 	if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 	{
+		checkSession();
+		validateToken('mod-reportC-delete', 'get');
+
 		if (empty($_REQUEST['mid']))
 			fatal_lang_error('mc_reportedp_comment_none_found');
 
