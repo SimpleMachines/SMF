@@ -309,6 +309,7 @@ function template_edit_comment()
 			<br>';
 
 	echo '
+			<input type="hidden" name="', $context['mod-reportC-edit_token_var'], '" value="', $context['mod-reportC-edit_token'], '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div>';

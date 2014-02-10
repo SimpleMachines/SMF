@@ -432,6 +432,9 @@ function EditComment()
 
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 	{
+		checkSession('get');
+		validateToken('mod-reportC-edit');
+
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
 		editModComment($context['comment_id'], $edited_comment);
