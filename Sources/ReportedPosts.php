@@ -411,7 +411,7 @@ function EditComment()
 
 	$comment = array();
 
-	checkSession();
+	checkSession(isset($_REQUEST['save']) ? 'post' : 'get');
 
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
