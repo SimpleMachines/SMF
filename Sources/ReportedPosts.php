@@ -138,6 +138,9 @@ function ShowReports()
 	// Show a confirmation if the user wants to disregard a report.
 	if (!$context['view_closed'])
 		addInlineJavascript('
+	$(\'.delete_message\').on(\'click\', function(){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
+	});
 	$(\'.report_ignore\').on(\'click\', function(){
 		// Need to make sure to only show this when ignoring.
 		if ($(this).data(\'ignore\') == \'1\'){
@@ -408,6 +411,8 @@ function EditComment()
 
 	$comment = array();
 
+	checkSession();
+
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
 		fatal_lang_error('mc_reportedp_none_found');
@@ -430,7 +435,6 @@ function EditComment()
 
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 	{
-		checkSession();
 		validateToken('mod-reportC-edit');
 
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
