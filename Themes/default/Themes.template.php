@@ -428,7 +428,7 @@ function template_set_options()
 						</dt>
 						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>';
 
-			if (isset($setting['type']) && $settings['type'] == 'number')
+			if (isset($setting['type']) && $setting['type'] == 'number')
 			{
 				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
 				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
