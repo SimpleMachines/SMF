@@ -97,7 +97,7 @@ function template_reported_posts()
 			', !empty($context['total_reports']) && $context['total_reports'] >= $context['reports_how_many'] ? '<div class="pagelinks floatleft">'. $context['page_index']. '</div>' : '' ,'
 			<div class="floatright">', !$context['view_closed'] ? '
 				<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">
-				<input type="hidden" name="', $context['mod-report-close-all_token_var'], '" value="', $context['mod-report-close-all_token'], '">' : '', '
+				<input type="hidden" name="'. $context['mod-report-close-all_token_var'] .'" value="'. $context['mod-report-close-all_token'] .'">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -248,7 +248,7 @@ function template_viewmodreport()
 	{
 		echo
 						'<div class="cat_bar">
-						<h4 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;', $context['mod-reportC-delete_token_var'], '=', $context['mod-reportC-delete_token'], '" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'
+						<h4 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reports;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reports;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;'. $context['mod-reportC-delete_token_var'] .'='. $context['mod-reportC-delete_token'] .'" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'
 						</div></h4>';
 
 		echo '
