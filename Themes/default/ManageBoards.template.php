@@ -18,8 +18,8 @@ function template_main()
 	// Table header.
 	echo '
 	<div id="manage_boards">
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['boardsEdit'], '</h3>
+		<div class="info_bar">
+			<h3 class="infobg">', $txt['boardsEdit'], '</h3>
 		</div>';
 
 	if (!empty($context['move_board']))
@@ -42,8 +42,8 @@ function template_main()
 	{
 		// Link to modify the category.
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
+			<div class="sub_places">
+				<h3 class="subg">
 					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['catModify'], '</a>
 				</h3>
 			</div>';
@@ -117,8 +117,8 @@ function template_modify_category()
 	<div id="manage_boards">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
-				<div class="title_bar">
-					<h3 class="titlebg">
+				<div class="sub_places">
+					<h3 class="subg">
 						', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
 					</h3>
 				</div>
@@ -260,8 +260,8 @@ function template_modify_board()
 	<div id="manage_boards">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">
+			<div class="sub_places">
+				<h3 class="subg">
 					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boardsEdit'], '
 				</h3>
 			</div>

@@ -485,8 +485,8 @@ function template_viewmodreport()
 					', sprintf($txt['mc_viewmodreport'], $context['report']['message_link'], $context['report']['author']['link']), '
 				</h3>
 			</div>
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="info_bar">
+				<h3 class="infobg">
 					<span class="floatleft">
 						', sprintf($txt['mc_modreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '
 					</span>
@@ -526,21 +526,23 @@ function template_viewmodreport()
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
-			</div>
-			<div class="windowbg2">
-				<div class="content">';
-
-	if (empty($context['report']['mod_comments']))
+			</div>';
+			
+		if (empty($context['report']['mod_comments']))
 		echo '
-				<div class="information">
+				<div class="description">
 					<p class="centertext">', $txt['mc_modreport_no_mod_comment'], '</p>
 				</div>';
+	
+		echo '
+			<div class="windowbg2">
+				<div class="content">';
 
 	foreach ($context['report']['mod_comments'] as $comment)
 		echo
 					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em></p>';
 
-	echo '
+		echo '
 					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
 					<div>
 						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">

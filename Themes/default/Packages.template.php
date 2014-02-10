@@ -508,8 +508,8 @@ function template_examine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_examine_file'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['package_file_contents'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
 			<div class="content">
@@ -696,8 +696,8 @@ function template_servers()
 	if ($context['package_download_broken'])
 	{
 		echo '
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['package_ftp_necessary'], '</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['package_ftp_necessary'], '</h3>
 		</div>
 		<div class="windowbg">
 			<div class="content">
@@ -1518,8 +1518,8 @@ function template_file_permissions()
 	</div>
 
 	<form action="', $scripturl, '?action=admin;area=packages;sa=perms;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
-		<div class="title_bar">
-			<h3 class="titlebg">
+		<div class="cat_bar">
+			<h3 class="catbg">
 				<span class="floatleft">', $txt['package_file_perms'], '</span><span class="fperm floatright">', $txt['package_file_perms_new_status'], '</span>
 			</h3>
 		</div>

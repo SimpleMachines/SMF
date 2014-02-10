@@ -143,7 +143,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	margin-left: inherit;
 }
 .button_submit, .button_reset, .button_link {
-	margin: 0 0 0 12px;
+	margin: 5px 0 0 12px;
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
@@ -4173,9 +4173,6 @@ span.hidelink {
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 }
-.generic_list_wrapper {
-	margin-top: -5px;
-}
 .generic_list_wrapper .title_bar{
 	background: none;
 	border-bottom: 1px solid #fff;
@@ -4380,6 +4377,12 @@ div#manage_boards dl dd textarea[name=desc] {
 	text-align: left;
 	margin: 0 -1px;
 }
+.sub_places {
+	border-bottom: 1px solid #ccc;
+	text-shadow: none;
+	background: none;
+	box-shadow: 0 -1px 0 #999 inset;
+}
 h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
 	background: none;
 	color: #555;
@@ -4393,24 +4396,20 @@ h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
 	background: none;
 	color: #555;
 	text-decoration: none;
+}	
+.exp1 {
+	margin-top: 10px;
 }
 
-/* This place is about Info Center on BoardIndex */	
+/* This place is about Info Center on BoardIndex */
 #info_center .sub_places {
 	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
-	text-shadow: none;
-	background: none;
-	box-shadow: 0 -1px 0 #999 inset;
 }
 #info_center .sub_places:first-child {
 	border-top: none;
 }
 
 /* This place is about stats page */
-.exp1 {
-	margin-top: 10px;
-}
 .stats_left {
 	float: left;
 	margin-top: 8px;

@@ -19,8 +19,8 @@ function template_main()
 	echo '
 	<div class="main_section" id="whos_online">
 		<form action="', $scripturl, '?action=who" method="post" id="whoFilter" accept-charset="', $context['character_set'], '">
-			<div class="title_bar">
-				<h4 class="titlebg margin_lower">', $txt['who_title'], '</h4>
+			<div class="cat_bar">
+				<h4 class="catbg">', $txt['who_title'], '</h4>
 			</div>
 			<div class="topic_table" id="mlist">
 				<div class="pagesection">

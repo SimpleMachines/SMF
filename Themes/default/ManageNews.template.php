@@ -17,8 +17,8 @@ function template_email_members()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
+			<div class="sub_places">
+				<h3 class="subg">', $txt['admin_newsletters'], '</h3>
 			</div>
 			<div class="information">
 				', $txt['admin_news_select_recipients'], '
@@ -48,8 +48,8 @@ function template_email_members()
 			</div>
 			<br>
 
-			<div id="advanced_panel_header" class="cat_bar">
-				<h3 class="catbg">
+			<div id="advanced_panel_header" class="info_bar">
+				<h3 class="infobg">
 					<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 					<a href="#" id="advanced_panel_link">', $txt['advanced'], '</a>
 				</h3>

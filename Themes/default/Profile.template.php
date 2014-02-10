@@ -1757,8 +1757,8 @@ function template_alert_configuration()
 		</div>
 		<p class="description">', $txt['alert_prefs_desc'], '</p>
 		<form action="', $scripturl, '?action=profile;area=notification;sa=alerts" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					', $txt['notification_general'], '
 				</h3>
 			</div>
@@ -1823,8 +1823,8 @@ function template_alert_configuration()
 					</dl>
 				</div>
 			</div>
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>

@@ -49,15 +49,9 @@ body.action_admin .navigate_section ul li a {
 /* Can be simplified quite a lot before production builds. */
 
 /* Re-style default cat bars to get rid of header bar mania. */
-#manage_maintenance .cat_bar, #support_credits .cat_bar {
+#manage_maintenance .cat_bar {
 	border: none;
 	border-top: 1px solid #bbb;
-}
-#manage_maintenance .cat_bar .catbg, #manage_boards .cat_bar .catbg,
-#support_credits .cat_bar .catbg, .generic_list_wrapper .cat_bar .catbg {
-	border: none;
-	border-top: 1px solid #fff;
-	text-shadow: none;
 }
 #admin_main_section .cat_bar:first-child, #admin_main_section .cat_bar:first-child h3.catbg,
 #support_credits .cat_bar, #support_credits .cat_bar:first-child,
@@ -250,21 +244,6 @@ div.quick_tasks {
 	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#advanced_panel_header {
-	margin-bottom: 8px;
-
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-	border: 1px solid #ccc;
-	border-radius: 2px;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#advanced_panel_header a {
-	color: #444;
 }
 /*-------------------------------------------*/
 .action_admin .generic_list .flow_auto {
@@ -540,8 +519,10 @@ div.quick_tasks {
 #support_credits h3.catbg, #support_credits .cat_bar:first-child h3.catbg {
 	padding: 12px 6px 6px 6px;
 }
-#support_resources {
+#support_resources, #credits_sections {
 	margin: 16px 0 -24px 0;
+	border: none;
+	border-top: 1px solid #bbb;	
 }
 #credits_logo {
 	position: absolute;
@@ -572,9 +553,6 @@ div.quick_tasks {
 }
 #latestSupport{
 	padding: 0 25px 15px 25px;
-}
-#credits_sections {
-	margin: 0 0 -24px 0;
 }
 #support_credits dl {
 	padding: 0 6px;
@@ -727,13 +705,6 @@ pre.file_content {
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
-}
-#manage_boards .title_bar {
-	background: none;
-	border-bottom: 1px solid #fff;
-}
-#manage_boards .titlebg {
-	border-bottom: 1px solid #bbb;
 }
 #manage_boards .cat_bar, #manage_boards .windowbg {
 	background: none;
@@ -1217,3 +1188,7 @@ h3.grid_header {
 }
 /* These kids and their new-fangled thingummys. :P */
 /* When I were a lad, things were different! */
+
+#support_credits .sub_places {
+	padding: 6px 0px 5px 0px;
+}

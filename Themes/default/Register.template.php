@@ -90,8 +90,8 @@ function template_registration_form()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_form'], '</h3>
 			</div>
-			<div class="title_bar">
-				<h4 class="titlebg">', $txt['required_info'], '</h4>
+			<div class="info_bar exp1">
+				<h4 class="infobg">', $txt['required_info'], '</h4>
 			</div>
 			<div class="windowbg2">
 				<fieldset class="content">
@@ -202,8 +202,8 @@ function template_registration_form()
 	if (!empty($context['profile_fields']) || !empty($context['custom_fields']))
 	{
 		echo '
-			<div class="title_bar">
-				<h4 class="titlebg">', $txt['additional_information'], '</h4>
+			<div class="info_bar exp1">
+				<h4 class="infobg">', $txt['additional_information'], '</h4>
 			</div>
 			<div class="windowbg2">
 				<fieldset class="content">
@@ -318,8 +318,8 @@ function template_registration_form()
 	if ($context['visual_verification'])
 	{
 		echo '
-			<div class="title_bar">
-				<h4 class="titlebg">', $txt['verification'], '</h4>
+			<div class="info_bar exp1">
+				<h4 class="infobg">', $txt['verification'], '</h4>
 			</div>
 			<div class="windowbg2">
 				<fieldset class="content centertext">
@@ -386,8 +386,8 @@ function template_coppa()
 
 	// Formulate a nice complicated message!
 	echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $context['page_title'], '</h3>
+			<div class="info_bar exp1">
+				<h3 class="infobg">', $context['page_title'], '</h3>
 			</div>
 			<div class="windowbg2">
 				<div class="content">
