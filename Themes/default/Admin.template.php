@@ -894,7 +894,13 @@ function template_show_settings()
 				{
 					// Figure out the exact type - use "number" for "float" and "int".
 					$type = in_array($config_var['type'], $text_types) ? $config_var['type'] : ($config_var['type'] == 'int' || $config_var['type'] == 'float' ? 'number' : 'text');
-					$step = $config_var['type'] == 'float' ? ' step="0.1"' : '';
+
+					// Extra options for float/int values - how much to decrease/increase by, the min value and the max value
+					// The step - only set if incrementing by something other than 1 for int or 0.1 for float
+					$step = isset($config_var['step']) ? ' step="' . $config_var['step'] . '"' : ($config_var['type'] == 'float') ? ' step="0.1"' : '';
+					// Minimum allowed value for this setting. Most settings are 0
+					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : ' min="0"';
+					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
 											<input type="', $type ,'"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_text"', $step, '>';

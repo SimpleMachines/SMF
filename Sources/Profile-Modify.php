@@ -152,7 +152,7 @@ function loadProfileFields($force_reload = false)
 			'),
 		),
 		'date_registered' => array(
-			'type' => 'text',
+			'type' => 'date',
 			'value' => empty($cur_profile['date_registered']) ? $txt['not_applicable'] : strftime('%Y-%m-%d', $cur_profile['date_registered'] + ($user_info['time_offset'] + $modSettings['time_offset']) * 3600),
 			'label' => $txt['date_registered'],
 			'log_change' => true,

@@ -426,8 +426,25 @@ function template_set_options()
 							<br><span class="smalltext">', $setting['description'], '</span>';
 		echo '
 						</dt>
-						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>
-							<input type="text" name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', ' class="input_text">';
+						<dd ', $context['theme_options_reset'] ? 'style="width:40%"' : '', '>';
+
+			if (isset($setting['type']) && $settings['type'] == 'number')
+			{
+				$min = isset($setting['min']) ? ' min="' . $setting['min'] . '"' : ' min="0"';
+				$max = isset($setting['max']) ? ' max="' . $setting['max'] . '"' : '';
+				$step = isset($setting['step']) ? ' step="' . $setting['step'] . '"' : '';
+
+				echo '
+							<input type="number"', $min . $max . $step;
+			}
+			else
+			{
+				echo '
+							<input type="text"';
+			}
+
+			
+			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', ' class="input_text">';
 		}
 
 		// end of this defintion

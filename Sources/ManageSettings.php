@@ -163,7 +163,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Number formatting, timezones.
 			array('text', 'time_format'),
-			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours']),
+			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours'], 'step' => 0.25, 'min' => -23.5, 'max' => 23.5),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',
 			// Who's online?
