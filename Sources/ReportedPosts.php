@@ -73,11 +73,9 @@ function ReportedPosts()
 		$context['sub_action'] = 'show';
 
 	// Lets see, just how many tokens do we need?
-	createToken('mod-report-close');
+	createToken('mod-report-closed');
 	createToken('mod-report-close-all');
-	createToken('mod-report-open');
 	createToken('mod-report-ignore');
-	createToken('mod-report-unignore');
 	createToken('mod-reportC-edit');
 	createToken('mod-reportC-delete');
 	createToken('mod-reportC-add');
@@ -432,7 +430,7 @@ function EditComment()
 
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 	{
-		checkSession('get');
+		checkSession();
 		validateToken('mod-reportC-edit');
 
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
@@ -455,20 +453,25 @@ function HandleReport()
 	if (empty($_GET['rid']) && (!isset($_GET['ignore']) || !isset($_GET['closed'])))
 		fatal_lang_error('mc_reportedp_none_found');
 
-	// Integers only please.
-	$report_id = (int) $_REQUEST['rid'];
-
 	// What are we gonna do?
 	$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
 	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
 	$value = (int) $_GET[$action];
 
+	// Figuring out.
+	$message = $action == 'ignore' ? ($value ? 'ignore' : 'unignore') : ($value ? 'close' : 'open');
+
+	validateToken('mod-report-'. $action);
+
+	// Integers only please.
+	$report_id = (int) $_REQUEST['rid'];
+
 	// Update the DB entry
 	updateReport($action, $value, $report_id);
 
 	// So, time to show a confirmation message, lets do some trickery!
-	$_SESSION['rc_confirmation'] = $action == 'ignore' ? ($value ? 'ignore' : 'unignore') : ($value ? 'close' : 'open');
+	$_SESSION['rc_confirmation'] = $message;
 
 	// Done!
 	redirectexit($scripturl . '?action=moderate;area=reports');
