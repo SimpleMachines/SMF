@@ -130,6 +130,7 @@ function ShowReports()
 		if (!empty($toClose))
 			updateReport('closed', 1, $toClose);
 
+		// Set the confirmation message.
 		$_SESSION['rc_confirmation'] = 'close_all';
 
 		// Force a page refresh.
@@ -372,6 +373,7 @@ function HandleComment()
 	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
 	{
 		checkSession();
+		validateToken('mod-reportC-add');
 
 		$new_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
