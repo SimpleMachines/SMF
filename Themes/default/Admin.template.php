@@ -897,13 +897,13 @@ function template_show_settings()
 
 					// Extra options for float/int values - how much to decrease/increase by, the min value and the max value
 					// The step - only set if incrementing by something other than 1 for int or 0.1 for float
-					$step = isset($config_var['step']) ? ' step="' . $config_var['step'] . '"' : ($config_var['type'] == 'float') ? ' step="0.1"' : '';
+					$step = isset($config_var['step']) ? ' step="' . $config_var['step'] . '"' : ($config_var['type'] == 'float' ? ' step="0.1"' : '');
 					// Minimum allowed value for this setting. Most settings are 0
-					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : ' min="0"';
+					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : ($config_var['type'] == 'int' || $config_var['type'] == 'float' ? ' min="0"' : '');
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
-											<input type="', $type ,'"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_text"', $step, '>';
+											<input type="', $type ,'"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_text"', $min . $max . $step, '>';
 				}
 
 				echo isset($config_var['postinput']) ? '
