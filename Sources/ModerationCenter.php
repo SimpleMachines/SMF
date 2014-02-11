@@ -316,10 +316,6 @@ function ModBlockNotes()
 	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
 	unset($_SESSION['rc_confirmation']);
 
-	// Couple tokens for add/delete modnotes
-	createToken('mod-modnote-add');
-	createToken('mod-modnote-del', 'get');
-
 	// Are we saving a note?
 	if (isset($_GET['modnote']) && isset($_POST['makenote']) && isset($_POST['new_note']))
 	{
@@ -446,6 +442,10 @@ function ModBlockNotes()
 	$(\'.delete_modnote\').on(\'click\', function(){
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
 	});', true);
+
+	// Couple tokens for add/delete modnotes
+	createToken('mod-modnote-add');
+	createToken('mod-modnote-del', 'get');
 
 	return 'notes';
 }
