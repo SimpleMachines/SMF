@@ -1278,7 +1278,7 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $mmessage, $cachedir, $upcontext, $db_type;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $mmessage, $cachedir, $upcontext, $db_type, $db_server;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
@@ -1382,6 +1382,19 @@ function UpgradeOptions()
 	// For now we offer a option, this may change in future versions when mysql is completely removed.
 	if (!empty($_POST['convertMysql']) && $db_type == 'mysql')
 		$changes['db_type'] = '\'mysqli\'';
+
+	// If they have a "host:port" setup for the host, split that into separate values
+	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
+	if (strpos($db_server, ':') !== false && ($db_type == 'mysql' || $db_type == 'mysqli'))
+	{
+		list($db_server, $db_port) = explode(':', $db_server);
+		
+		$changes['db_server'] = '\'' . $db_server . '\'';
+	
+		// Only set this if we're not using the default port
+		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+			$changes['db_port'] = (int) $db_port;
+	}
 
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
