@@ -1395,6 +1395,17 @@ function UpgradeOptions()
 		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
 			$changes['db_port'] = (int) $db_port;
 	}
+	elseif(!empty($db_port))
+	{
+		// If db_port is set and is the same as the default, set it to ''
+		if ($db_type == 'mysql' || $db_type == 'mysqli')
+		{
+			if ($db_port == ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
+				$changes['db_port'] = '\'\'';
+			elseif ($db_type == 'postgresql' && $db_port == 5432)
+				$changes['db_port'] = '\'\'';
+		}
+	}
 
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
