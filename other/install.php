@@ -779,9 +779,9 @@ function DatabaseSettings()
 				if (isset($db['default_password']))
 					$incontext['db']['pass'] = ini_get($db['default_password']);
 				if (isset($db['default_port']))
-					$incontext['db_port'] = ini_get($db['default_port']);
+					$incontext['db']['port'] = ini_get($db['default_port']);
 				elseif ($key == 'postgresql')
-					$incontext['db_port'] = 5432;
+					$incontext['db']['port'] = 5432;
 
 				$incontext['db']['type'] = $key;
 				$foundOne = true;
@@ -796,7 +796,9 @@ function DatabaseSettings()
 		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
-		$incontext['db']['port'] = empty($_POST['db_port']) ? '' : $_POST['db_port'];
+		
+		if (!empty($_POST['db_port']))
+			$incontext['db']['port'] = $_POST['db_port'];
 	}
 	else
 	{
