@@ -17,7 +17,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Sets and call a function based on the given subaction.
+ * Sets and call a function based on the given subaction. Acts as a dispatcher function.
  * It requires the moderate_forum permission.
  *
  * @uses ModerationCenter template.
@@ -78,9 +78,7 @@ function ReportedPosts()
 
 /**
  * Shows all currently open reported posts.
- * It requires the moderate_forum permission.
- *
- * @uses ModerationCenter language file.
+ * Handles closing multiple reports
  *
  */
 function ShowReports()
@@ -145,6 +143,10 @@ function ShowReports()
 	createToken('mod-report-closed', 'get');
 }
 
+/**
+ * Shows all currently closed reported posts.
+ *
+ */
 function ShowClosedReports()
 {
 	global $context, $txt, $scripturl;
@@ -184,6 +186,11 @@ function ShowClosedReports()
 	createToken('mod-report-closed', 'get');
 }
 
+/**
+ * Shows detailed information about a report. such as report comments and moderator comments.
+ * Shows a list of moderation actions for the specific report.
+ *
+ */
 function ReportDetails()
 {
 	global $user_info, $context, $sourcedir, $scripturl, $txt;
@@ -368,6 +375,10 @@ function ReportDetails()
 	createToken('mod-report-closed', 'get');
 }
 
+/**
+ * Creates/Deletes moderator comments.
+ *
+ */
 function HandleComment()
 {
 	global $smcFunc, $scripturl;
@@ -414,6 +425,11 @@ function HandleComment()
 	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
 }
 
+/**
+ * Shows a textarea for editing a moderator comment.
+ * Handles the edited comment and stores it on the DB.
+ *
+ */
 function EditComment()
 {
 	global $smcFunc, $context, $txt, $scripturl;
@@ -458,6 +474,10 @@ function EditComment()
 	createToken('mod-reportC-edit');
 }
 
+/**
+ * Performs closing/ignoring actions for a given report.
+ *
+ */
 function HandleReport()
 {
 	global $scripturl;
