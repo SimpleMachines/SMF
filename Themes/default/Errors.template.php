@@ -86,7 +86,7 @@ function template_error_log()
 				</tr>';
 
 	echo '
-				<tr class="titlebg">
+				<tr>
 					<td colspan="3" class="righttext" style="padding: 4px 8px;">
 						<label for="check_all1"><strong>', $txt['check_all'], '</strong></label>&nbsp;
 						<input type="checkbox" id="check_all1" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all2.checked = this.checked;" class="input_check">
@@ -159,7 +159,7 @@ function template_error_log()
 	}
 
 	echo '
-				<tr class="titlebg">
+				<tr>
 					<td colspan="3" class="righttext" style="padding-right: 1.2ex">
 						<label for="check_all2"><strong>', $txt['check_all'], '</strong></label>&nbsp;
 						<input type="checkbox" id="check_all2" onclick="invertAll(this, this.form, \'delete[]\'); this.form.check_all1.checked = this.checked;" class="input_check">

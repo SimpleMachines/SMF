@@ -216,8 +216,8 @@ function template_credits()
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="cat_bar">
-								<h3 class="catbg">
+							<div id="credits_sections" class="sub_places">
+								<h3 class="subg">
 									', $txt['admin_credits'], '
 								</h3>
 							</div>
@@ -1484,7 +1484,7 @@ function template_php_info()
 				{
 					// heading row for the settings section of this categorys settings
 					echo '
-								<tr class="titlebg">
+								<tr class="catbg">
 									<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>

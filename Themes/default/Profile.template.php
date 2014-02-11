@@ -1029,7 +1029,7 @@ function template_showPermissions()
 			echo '
 					<table class="table_grid" cellspacing="0">
 						<thead>
-							<tr class="titlebg">
+							<tr class="catbg">
 								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 							</tr>
@@ -1093,7 +1093,7 @@ function template_showPermissions()
 			echo '
 				<table class="table_grid" cellspacing="0">
 					<thead>
-						<tr class="titlebg">
+						<tr class="catbg">
 							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 						</tr>
@@ -1829,10 +1829,10 @@ function template_alert_configuration()
 				</h3>
 			</div>
 			<table class="table_grid" style="width: 100%">
-				<tr class="titlebg">
+				<tr>
 					<td></td>
-					<td>', $txt['receive_alert'], '</td>
-					<td>', $txt['receive_mail'], '</td>
+					<td align="center">', $txt['receive_alert'], '</td>
+					<td align="center">', $txt['receive_mail'], '</td>
 				</tr>';
 	$use_bg2 = true;
 

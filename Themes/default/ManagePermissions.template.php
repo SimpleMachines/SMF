@@ -856,7 +856,7 @@ function template_postmod_permissions()
 		
 		echo '
 									</tr>
-									<tr class="titlebg">
+									<tr>
 										<th width="30%">
 											', $txt['permissions_post_moderation_group'], '
 										</th>

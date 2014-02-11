@@ -143,7 +143,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	margin-left: inherit;
 }
 .button_submit, .button_reset, .button_link {
-	margin: 5px 0 0 12px;
+	margin: 0 0 0 12px;
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
@@ -200,9 +200,6 @@ input.input_check, input.input_radio {
 	border: none;
 	background: none;
 	vertical-align: top;
-}
-h3.catbg input.input_check {
-	margin: 0 7px 0 7px;
 }
 
 /* Give disabled text input elements a different background color. */
@@ -495,15 +492,7 @@ a img {
 
 /* Generic, mostly color-related, classes.
 ------------------------------------------------------- */
-
-.titlebg, .titlebg2, tr.titlebg th, tr.titlebg td, tr.titlebg2 td {
-	color: #444;
-	font-size: /*1.1em*/1em;
-	font-weight: bold;
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
-}
-.catbg, .catbg2, tr.catbg td, tr.catbg2 td, tr.catbg th, tr.catbg2 th {
+.catbg, tr.catbg td, tr.catbg th {
 	color: #fff;
 	font-size: 1.1em;
 	font-weight: bold;
@@ -512,13 +501,10 @@ a img {
 }
 
 /* adjust the table versions of headers */
-tr.titlebg th, tr.titlebg2 th, td.titlebg, td.titlebg2, tr.catbg th, tr.catbg2 th, td.catbg, td.catbg2 {
+tr.catbg th, td.catbg {
 	padding: 0 6px;
 }
-tr.titlebg th a:link, tr.titlebg th a:visited, tr.titlebg2 td a:link, tr.titlebg2 td a:visited {
-	color: #444;
-}
-tr.catbg th a:link, tr.catbg th a:visited, tr.catbg2 td a:link, tr.catbg2 td a:visited {
+tr.catbg th a:link, tr.catbg th a:visited {
 	color: #fff;
 }
 .catbg select {
@@ -846,7 +832,7 @@ dl.settings dt a img {
 
 /* Styles for rounded headers.
 ------------------------------------------------------- */
-h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
+h3.catbg, h4.catbg {
 	overflow: hidden;
 	font-size: 1.1em;
 	font-family: "Tahoma", sans-serif;
@@ -864,27 +850,9 @@ h3.catbg, h3.catbg2, h3.titlebg, h4.titlebg, h4.catbg {
 h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
 	color: #fff;
 }
-h3.catbg2 a, h3.catbg2 {
-	color: #feb;
-}
 h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
 	color: #ffc178;
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
-	text-decoration: none;
-}
-h3.catbg2 a:hover {
-	color: #fff;
-	text-decoration: none;
-}
-h3.titlebg, h4.titlebg {
-	color: #fff;
-}
-h3.titlebg a, h4.titlebg a {
-	color: #fff;
-	text-decoration: underline;
-}
-h3.titlebg a:hover, h4.titlebg a:hover {
-	color: #fff;
 	text-decoration: none;
 }
 h3.catbg .icon {
@@ -895,19 +863,8 @@ h4.catbg a.toggle img {
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
 }
-h4.catbg, h4.catbg2, h3.catbg, h3.catbg2, .table_list tbody.header td.catbg {
+h4.catbg, h3.catbg, .table_list tbody.header td.catbg {
 	background: none;
-}
-h4.titlebg, h3.titlebg {
-	background: #557EA0;
-	border-bottom: 1px solid #777;
-	border-radius: 6px 6px 0 0;
-	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
-}
-h4.titlebg .icon {
-	float: left;
-	margin: 0 8px 0 0;
 }
 
 /* Box-sizing for these should be useful. */
@@ -945,15 +902,6 @@ table.table_list a.collapse {
 	padding: 4px 4px 0 8px;
 }
 
-/* Basic icons in cat and title bars. */
-#upshrinkHeaderIC h4.titlebg a img{
-	margin: 0;
-	padding: 2px 6px 0 0;
-}
-
-.table_grid th.last_th input {
-	margin: 0 7px;
-}
 .table_grid th.lefttext {
 	padding: 0 8px;
 }
@@ -1985,9 +1933,6 @@ p.whoisviewing {
 	float: right;
 	margin: 4px;
 }
-.titlebg td.qaction_cell {
-	font-size: 0.909em;
-}
 select.qaction {
 	padding: 0;
 }
@@ -2925,13 +2870,6 @@ dl.register_form dd {
 }
 
 /* common for all admin sections */
-h3.titlebg img {
-	vertical-align: middle;
-	margin: 0 5px 0 0;
-}
-tr.titlebg td {
-	padding-left: 8px;
-}
 #admin_content {
 	clear: left;
 	padding-top: 6px;
@@ -3157,7 +3095,6 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 	text-align: left;
 	padding: 7px 10px 7px 10px;
 	border: 1px solid #c5c5c5;
-	border-radius: 7px;
 	margin: 6px 0;
 }
 
@@ -3590,7 +3527,7 @@ dl.stats dd span {
 #stats th.first_th {
 	padding-left: 8px;
 }
-#stats tr.windowbg2 th.lefttext, #stats tr.titlebg th.lefttext {
+#stats tr.windowbg2 th.lefttext {
 	border-left: 1px solid #fff;
 	text-align: left;
 }
@@ -4153,11 +4090,6 @@ span.hidelink {
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
-}
-.generic_list_wrapper .titlebg {
-	background: none;
-	border-bottom: 1px solid #aaa;
-	font-size: /*1.1em*/1em;
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
