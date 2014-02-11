@@ -179,6 +179,9 @@ function ShowClosedReports()
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
 		}
 	});', true);
+
+	createToken('mod-report-ignore', 'get');
+	createToken('mod-report-closed', 'get');
 }
 
 function ReportDetails()
