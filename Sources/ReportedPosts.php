@@ -432,7 +432,7 @@ function HandleComment()
  */
 function EditComment()
 {
-	global $smcFunc, $context, $txt, $scripturl;
+	global $smcFunc, $context, $txt, $scripturl, $user_info;
 
 	$comment = array();
 
@@ -461,6 +461,10 @@ function EditComment()
 	if (isset($_REQUEST['save']) && isset($_POST['edit_comment']) && !empty($_POST['mod_comment']))
 	{
 		validateToken('mod-reportC-edit');
+
+		// Make sure there is some data to edit on the DB.
+		if (empty($context['comment']))
+			fatal_lang_error('report_action_message_edit_issue');
 
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
