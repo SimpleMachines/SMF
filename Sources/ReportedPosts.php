@@ -466,6 +466,14 @@ function EditComment()
 		if (empty($context['comment']))
 			fatal_lang_error('report_action_message_edit_issue');
 
+		// Still there, good, now lets see if you can actually edit it...
+		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
+
+		// So, you aren't neither an admin or the comment owner huh? that's too bad.
+		if (!allowedTo('admin_forum') || !$comment_owner)
+			fatal_lang_error('report_action_message_edit_cannot');
+
+		// All good!
 		$edited_comment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
 
 		editModComment($context['comment_id'], $edited_comment);
