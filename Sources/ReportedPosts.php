@@ -389,7 +389,7 @@ function HandleComment()
 	// Deleting a comment?
 	if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 	{
-		// checkSession('get');
+		checkSession('get');
 		validateToken('mod-reportC-delete', 'get');
 
 		if (empty($_REQUEST['mid']))
