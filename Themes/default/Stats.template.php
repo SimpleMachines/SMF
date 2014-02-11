@@ -314,7 +314,7 @@ function template_main()
 		echo '
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" id="stats">
 			<thead>
-				<tr class="titlebg" valign="middle" align="center">
+				<tr class="catbg" valign="middle" align="center">
 					<th class="first_th lefttext">', $txt['yearly_summary'], '</th>
 					<th>', $txt['stats_new_topics'], '</th>
 					<th>', $txt['stats_new_posts'], '</th>

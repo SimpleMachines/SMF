@@ -911,18 +911,15 @@ h4.titlebg .icon {
 }
 
 /* Box-sizing for these should be useful. */
-div.cat_bar, div.title_bar,div.title_barIC {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	margin-bottom: 1px;
-	border-radius: 5px;
-}
 div.cat_bar {
 	background: #557ea0;
 	border-bottom: 1px solid #777;
 	padding: 0;
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	margin-bottom: 1px;
 }
 /* Message index board descriptions*/
 .description_header {
@@ -930,19 +927,6 @@ div.cat_bar {
 }
 .cat_bar h3 {
 	padding: 8px 12px 6px 12px;
-}
-div.title_bar {
-	background: #557ea0;
-	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2)
-}
-
-/* Info center title bars are a bit different. */ /* @todo */
-/*div.title_barIC {
-	background: #dde3e9 url(../images/theme/bars.png) IMAGE NO LONGER EXISTS;
-}*/
-div.title_barIC h4.titlebg {
-	font-size: 1.1em;
 }
 
 /* Upshrinks in cat and title bars. */
@@ -3504,9 +3488,6 @@ dl {
 #statistics  div {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
-#statistics .cat_bar {
-	margin: 4px 0 0 0;
-}
 #statistics div.windowbg2 {
 	background: none;
 }
@@ -3732,7 +3713,7 @@ dl.addrules dt.floatleft {
 }
 #main_grid .cat_bar {
 	border-radius: 5px 5px 0 0;
-	margin: 0 1px;
+	margin: 0 0 0 1px;
 }
 #month_grid table th:first-child {
 	background: #e7eaef;
@@ -4173,11 +4154,6 @@ span.hidelink {
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 }
-.generic_list_wrapper .title_bar{
-	background: none;
-	border-bottom: 1px solid #fff;
-	border-radius: 0;
-}
 .generic_list_wrapper .titlebg {
 	background: none;
 	border-bottom: 1px solid #aaa;
@@ -4214,7 +4190,7 @@ span.hidelink {
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
-.add_buddy .roundframe, .add_buddy .title_bar {
+.add_buddy .roundframe {
 	background: none;
 	border: none;
 	max-width: 100%;
@@ -4285,22 +4261,6 @@ tr.catbg th:last-child {
 .table_grid tr.catbg th a {
 	color: #555;
 	text-shadow: none;
-}
-#activitytime .cat_bar, #popularposts .cat_bar, #popularactivity .cat_bar {
-	background: none;
-	border-top: 1px solid #999;
-	border-bottom: 1px solid #fff;
-	border-radius: 0;
-}
-#activitytime .catbg, #popularposts .catbg, #popularactivity .catbg {
-	border-bottom: 1px solid #ccc;
-	border-top: 1px solid #ccc;
-	box-shadow: 0 1px 0 #fff inset, 0 -1px 0 #999 inset;
-	padding: 6px 6px 5px 6px;
-	font-size: 1em;
-	color: #444;
-	text-shadow: none;
-	background:none;
 }
 #postmodify .roundframe div{
 	padding-right: 0;

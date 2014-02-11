@@ -156,8 +156,8 @@ function template_search_members()
 					</div>
 				</div>
 			</div>
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['member_part_of_these_membergroups'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['member_part_of_these_membergroups'], '</h3>
 			</div>
 			<div class="flow_hidden">
 				<table width="49%" class="table_grid floatleft">

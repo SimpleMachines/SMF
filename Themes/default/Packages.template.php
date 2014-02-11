@@ -479,8 +479,8 @@ function template_list()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['list_file'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['files_archive'], ' ', $context['filename'], ':</h3>
 		</div>
 		<div class="windowbg">
 			<div class="content">

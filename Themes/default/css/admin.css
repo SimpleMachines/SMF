@@ -151,7 +151,7 @@ div.quick_tasks {
 }
 #admin_newsletters div.cat_bar:first-child,
 #generate_reports_type div.cat_bar:first-child, #groupForm div.cat_bar:first-child,
-#admin_form_wrapper div.title_bar, #mailqueue_stats div.cat_bar:first-child,
+#mailqueue_stats div.cat_bar:first-child,
 #new_group div.cat_bar:first-child, #view_group div.cat_bar, #view_group div.cat_bar:first-child {
 	background: none;
 	border: none;
@@ -167,17 +167,7 @@ div.quick_tasks {
 	margin: 0;
 	border-bottom: 1px solid #bbb;
 }
-#admin_form_wrapper div.title_bar {
-	border-radius: 2px 2px 0 0;
-	margin: 0;
-	border-bottom: 0;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-.action_admin .generic_list_wrapper .title_bar {
+.action_admin .generic_list_wrapper {
 	background: none;
 	border-bottom: 1px solid #fff;
 }
@@ -188,12 +178,6 @@ div.quick_tasks {
 	color: #fff;
 	border-bottom: none;
 	padding: 8px 6px 5px 6px;
-}
-#view_group .title_bar {
-	background: none;
-	border-bottom: none;
-	border-top: 1px solid #bbb;
-	margin: -12px 0;
 }
 #view_group .titlebg {
 	border-top: 1px solid #fff;

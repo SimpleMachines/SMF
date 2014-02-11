@@ -647,8 +647,8 @@ function template_show_notice()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['show_notice'], '</h3>
 		</div>
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['show_notice_subject'], ': ', $context['notice_subject'], '</h3>
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['show_notice_subject'], ': ', $context['notice_subject'], '</h3>
 		</div>
 		<div class="windowbg">
 			<div class="content">

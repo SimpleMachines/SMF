@@ -70,8 +70,8 @@ function template_download_language()
 	// Now, all the images and the likes, hidden via javascript 'cause there are so fecking many.
 	echo '
 			<br>
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					', $txt['languages_download_theme_files'], '
 				</h3>
 			</div>
