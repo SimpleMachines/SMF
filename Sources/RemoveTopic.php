@@ -43,7 +43,7 @@ function RemoveTopic2()
 	removeDeleteConcurrence();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT t.id_member_started, ms.subject, t.approved
+		SELECT t.id_member_started, ms.subject, t.approved, t.locked
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 		WHERE t.id_topic = {int:current_topic}
@@ -52,7 +52,7 @@ function RemoveTopic2()
 			'current_topic' => $topic,
 		)
 	);
-	list ($starter, $subject, $approved) = $smcFunc['db_fetch_row']($request);
+	list ($starter, $subject, $approved, $locked) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if ($starter == $user_info['id'] && !allowedTo('remove_any'))
@@ -63,6 +63,13 @@ function RemoveTopic2()
 	// Can they see the topic?
 	if ($modSettings['postmod_active'] && !$approved && $starter != $user_info['id'])
 		isAllowedTo('approve_posts');
+
+	// Ok, we got that far, but is it locked?
+	if ($locked)
+	{
+		if (!($locked == 1 && $starter == $user_info['id'] || allowedTo('lock_any')))
+			fatal_lang_error('cannot_remove_locked', 'user');
+	}
 
 	// Notify people that this topic has been removed.
 	sendNotifications($topic, 'remove');

@@ -1097,6 +1097,12 @@ function Display()
 		$context['can_move'] &= count($boards_allowed) > 1;
 	}
 
+	// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
+	if ($topicinfo['locked'])
+	{
+		$context['can_delete'] &= (($topicinfo['locked'] == 1 && $context['user']['started']) || allowedTo('lock_any'));
+	}
+
 	// Cleanup all the permissions with extra stuff...
 	$context['can_mark_notify'] = !$context['user']['is_guest'];
 	$context['calendar_post'] &= !empty($modSettings['cal_enabled']);
@@ -1267,6 +1273,12 @@ function prepareDisplayContext($reset = false)
 
 	// Are you allowed to remove at least a single reply?
 	$context['can_remove_post'] |= allowedTo('delete_own') && (empty($modSettings['edit_disable_time']) || $message['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == $user_info['id'];
+
+	// If the topic is locked, you might not be able to delete the post...
+	if ($context['is_locked'])
+	{
+		$context['can_remove_post'] &= ($context['user']['started'] && $context['is_locked'] == 1) || allowedTo('lock_any');
+	}
 
 	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
 	if (!loadMemberContext($message['id_member'], true))
