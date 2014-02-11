@@ -17,11 +17,11 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Updates a report with the given parameters.
+ * Updates a report with the given parameters. Logs each action via logAction()
  *
  * @param string $action The action to perform. Accepts "closed" and "ignore".
  * @param integer $value The new value to update.
- * @params integer|array $report_id The affected report.
+ * @params integer|array $report_id The affected report(s).
  */
 function updateReport($action, $value, $report_id)
 {
@@ -90,6 +90,13 @@ function updateReport($action, $value, $report_id)
 	recountOpenReports();
 }
 
+/**
+ * Counts how many reports are in total. Used for creating pagination.
+ *
+ * @param int $closed 1 for counting closed reports, 0 for open ones.
+ * @return integer How many reports.
+
+ */
 function countReports($closed = 0)
 {
 	global $smcFunc, $user_info;
@@ -112,6 +119,12 @@ function countReports($closed = 0)
 	return $total_reports;
 }
 
+/**
+ * Get all possible reports the current user can see.
+ *
+ * @param int $closed 1 for closed reports, 0 for open ones.
+ * @return array the reports data with the report ID as key.
+ */
 function getReports($closed = 0)
 {
 	global $smcFunc, $context, $user_info, $scripturl;
@@ -231,7 +244,9 @@ function getReports($closed = 0)
 }
 
 /**
- * How many open reports do we have?
+ * Recount all open reports. Sets a SESSION var with the updated info.
+ *
+ * @return int the update open report count.
  */
 function recountOpenReports()
 {
@@ -260,6 +275,12 @@ function recountOpenReports()
 	return $open_reports;
 }
 
+/**
+ * Gets additional information for a specific report.
+ *
+ * @param int $report_id The report ID to get the info from.
+ * @return array|bool the report data. Boolean false if no report_id was provided.
+ */
 function getReportDetails($report_id)
 {
 	global $smcFunc, $user_info;
@@ -293,6 +314,12 @@ function getReportDetails($report_id)
 	return $row;
 }
 
+/**
+ * Gets both report comments as well as any moderator comment.
+ *
+ * @param int $report_id The report ID to get the info from.
+ * @return array|bool an associative array with 2 keys comments and mod_comments. Boolean false if no report_id was provided.
+ */
 function getReportComments($report_id)
 {
 	global $smcFunc, $scripturl;
@@ -368,6 +395,13 @@ function getReportComments($report_id)
 	return $report;
 }
 
+/**
+ * Gets specific details about a moderator comment. It also adds a permission for editing/deleting the comment,
+ * by default only admins and the author of the comment can edit/delete it.
+ *
+ * @param int $comment_id The moderator comment ID to get the info from.
+ * @return array|bool an array with the fetched data. Boolean false if no report_id was provided.
+ */
 function getCommentModDetails($comment_id)
 {
 	global $smcFunc, $user_info;
@@ -398,6 +432,13 @@ function getCommentModDetails($comment_id)
 	return $comment;
 }
 
+/**
+ * Inserts a new moderator comment to the DB.
+ *
+ * @param int $report_id The report ID is used to fire a notification about the event.
+ * @param array $data a formatted array of data to be inserted. Should be already properly sanitized.
+ * @return bool  Boolean false if no data was provided.
+ */
 function saveModComment($report_id, $data)
 {
 	global $smcFunc, $user_info;
@@ -439,6 +480,13 @@ function saveModComment($report_id, $data)
 		);
 }
 
+/**
+ * Saves the new information whenever a moderator comment is edited.
+ *
+ * @param int $comment_id The edited moderator comment ID.
+ * @param array $data The new data to de inserted. Should be already properly sanitized.
+ * @return bool  Boolean false if no data or no comment ID was provided.
+ */
 function editModComment($comment_id, $edited_comment)
 {
 	global $smcFunc;
@@ -457,6 +505,12 @@ function editModComment($comment_id, $edited_comment)
 	);
 }
 
+/**
+ * Deletes a moderator comment from the DB.
+ *
+ * @param int $comment_id The moderator comment ID used to identify which report will be deleted.
+ * @return bool  Boolean false if no data was provided.
+ */
 function deleteModComment($comment_id)
 {
 	global $smcFunc;
