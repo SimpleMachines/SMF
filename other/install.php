@@ -391,7 +391,7 @@ function load_lang_file()
 function load_database()
 {
 	global $db_prefix, $db_connection, $db_character_set, $sourcedir, $language;
-	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist;
+	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist, $db_port;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -412,8 +412,28 @@ function load_database()
 		if (version_compare(PHP_VERSION, '5', '<'))
 			require_once($sourcedir . '/Subs-Compat.php');
 
+		$db_options = array('persist' => $db_persist);
+		$port = '';
+
+		// Figure out the port...
+		if (!empty($_POST['db_port']))
+		{
+			if ($db_type == 'mysql' || $db_type == 'mysqli')
+			{
+				$port = ((int) $_POST['db_port'] == ini_get($db_type . 'default_port')) ? '' : (int) $_POST['db_port'];
+			}
+			elseif ($db_type == 'postgresql')
+			{
+				// PostgreSQL doesn't have a default port setting in php.ini, so just check against the default
+				$port = ((int) $_POST['db_port'] == 5432) ? '' : (int) $_POST['db_port'];
+			}
+		}
+
+		if (!empty($port))
+			$db_options['port'] = $port;
+
 		if (!$db_connection)
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('persist' => $db_persist));
+			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options);
 	}
 }
 
@@ -758,8 +778,9 @@ function DatabaseSettings()
 				}
 				if (isset($db['default_password']))
 					$incontext['db']['pass'] = ini_get($db['default_password']);
-				if (isset($db['default_port']))
-					$db_port = ini_get($db['default_port']);
+
+				// For simplicity and less confusion, leave the port blank by default
+				$incontext['db']['port'] = '';
 
 				$incontext['db']['type'] = $key;
 				$foundOne = true;
@@ -774,14 +795,13 @@ function DatabaseSettings()
 		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
+		
+		if (!empty($_POST['db_port']))
+			$incontext['db']['port'] = $_POST['db_port'];
 	}
 	else
 	{
 		$incontext['db']['prefix'] = 'smf_';
-
-		// Should we use a non standard port?
-		if (!empty($db_port))
-			$incontext['db']['server'] .= ':' . $db_port;
 	}
 
 	// Are we submitting?
@@ -826,6 +846,16 @@ function DatabaseSettings()
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
 		);
+
+		// Only set the port if we're not using the default
+		if (!empty($_POST['db_port']))
+		{
+			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
+			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
+				$vars['db_port'] == (int) $_POST['db_port'];
+			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
+				$vars['db_port'] == (int) $_POST['db_port'];
+		}
 
 		// God I hope it saved!
 		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
@@ -2397,6 +2427,12 @@ function template_database_settings()
 					<input type="text" name="db_server" id="db_server_input" value="', $incontext['db']['server'], '" size="30" class="input_text" /><br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_server_info'], '</div>
 				</td>
+			</tr><tr id="db_port_contain">
+				<td width="20%" valign="top" class="textbox"><label for="db_port_input">', $txt['db_settings_port'], ':</label></td>
+				<td>
+					<input type="text" name="db_port" id="db_port_input" value="', $incontext['db']['port'], '"><br>
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_port_info'], '</div>
+				</td>
 			</tr><tr id="db_user_contain">
 				<td valign="top" class="textbox"><label for="db_user_input">', $txt['db_settings_username'], ':</label></td>
 				<td>
@@ -2456,6 +2492,7 @@ function template_database_settings()
 			document.getElementById(\'db_name_contain\').style.display = showAll ? \'\' : \'none\';
 			document.getElementById(\'db_filename_contain\').style.display = !showAll ? \'\' : \'none\';
 			document.getElementById(\'db_sqlite_warning\').style.display = !showAll ? \'\' : \'none\';
+			document.getElementById(\'db_port_contain\').style.display = showAll ? \'\' : \'none\';
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
 				document.getElementById(\'db_name_info_warning\').style.display = \'none\';
 			else
