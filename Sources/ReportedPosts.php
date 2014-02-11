@@ -72,14 +72,6 @@ function ReportedPosts()
 	else
 		$context['sub_action'] = 'show';
 
-	// Lets see, just how many tokens do we need?
-	createToken('mod-report-closed');
-	createToken('mod-report-close-all');
-	createToken('mod-report-ignore');
-	createToken('mod-reportC-edit');
-	createToken('mod-reportC-delete');
-	createToken('mod-reportC-add');
-
 	// Hi Ho Silver Away!
 	$sub_actions[$context['sub_action']]();
 }
@@ -147,6 +139,10 @@ function ShowReports()
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
 		}
 	});', true);
+
+	createToken('mod-report-close-all');
+	createToken('mod-report-ignore', 'get');
+	createToken('mod-report-closed', 'get');
 }
 
 function ShowClosedReports()
@@ -174,6 +170,9 @@ function ShowClosedReports()
 
 	// Show a confirmation if the user wants to disregard a report.
 	addInlineJavascript('
+	$(\'.delete_message\').on(\'click\', function(){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
+	});
 	$(\'.report_ignore\').on(\'click\', function(){
 		// Need to make sure to only show this when ignoring.
 		if ($(this).data(\'ignore\') == \'1\'){
@@ -357,6 +356,9 @@ function ReportDetails()
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
 		}
 	});', true);
+
+	createToken('mod-reportC-add');
+	createToken('mod-reportC-delete', 'get');
 }
 
 function HandleComment()
@@ -387,7 +389,7 @@ function HandleComment()
 	// Deleting a comment?
 	if (isset($_REQUEST['delete']) && isset($_REQUEST['mid']))
 	{
-		checkSession();
+		// checkSession('get');
 		validateToken('mod-reportC-delete', 'get');
 
 		if (empty($_REQUEST['mid']))
@@ -445,6 +447,8 @@ function EditComment()
 
 		redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
 	}
+
+	createToken('mod-reportC-edit');
 }
 
 function HandleReport()
@@ -460,13 +464,13 @@ function HandleReport()
 	// What are we gonna do?
 	$action = isset($_GET['ignore']) ? 'ignore' : 'closed';
 
+	validateToken('mod-report-'. $action, 'get');
+
 	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
 	$value = (int) $_GET[$action];
 
 	// Figuring out.
 	$message = $action == 'ignore' ? ($value ? 'ignore' : 'unignore') : ($value ? 'close' : 'open');
-
-	validateToken('mod-report-'. $action);
 
 	// Integers only please.
 	$report_id = (int) $_REQUEST['rid'];
