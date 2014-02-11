@@ -289,8 +289,8 @@ function template_by_board()
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-			<div class="sub_places">
-				<h3 class="subg">', $category['name'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $category['name'], '</h3>
 			</div>';
 
 		if (!empty($category['boards']))
