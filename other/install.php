@@ -778,10 +778,9 @@ function DatabaseSettings()
 				}
 				if (isset($db['default_password']))
 					$incontext['db']['pass'] = ini_get($db['default_password']);
-				if (isset($db['default_port']))
-					$incontext['db']['port'] = ini_get($db['default_port']);
-				elseif ($key == 'postgresql')
-					$incontext['db']['port'] = 5432;
+
+				// For simplicity and less confusion, leave the port blank by default
+				$incontext['db']['port'] = '';
 
 				$incontext['db']['type'] = $key;
 				$foundOne = true;
@@ -2431,7 +2430,8 @@ function template_database_settings()
 			</tr><tr id="db_port_contain">
 				<td width="20%" valign="top" class="textbox"><label for="db_port_input">', $txt['db_settings_port'], ':</label></td>
 				<td>
-					<input type="text" name="db_port" id="db_port_input" value="', $incontext['db']['port'], '</div>
+					<input type="text" name="db_port" id="db_port_input" value="', $incontext['db']['port'], '"><br>
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_port_info'], '</div>
 				</td>
 			</tr><tr id="db_user_contain">
 				<td valign="top" class="textbox"><label for="db_user_input">', $txt['db_settings_username'], ':</label></td>
