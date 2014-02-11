@@ -362,6 +362,10 @@ function ReportDetails()
 
 	createToken('mod-reportC-add');
 	createToken('mod-reportC-delete', 'get');
+
+	// We can "un-disregard" and close a report from here so add their respective tokens.
+	createToken('mod-report-ignore', 'get');
+	createToken('mod-report-closed', 'get');
 }
 
 function HandleComment()
