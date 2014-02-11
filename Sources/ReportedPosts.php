@@ -381,7 +381,9 @@ function ReportDetails()
  */
 function HandleComment()
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
+
+	$comment = array();
 
 	// The report ID is a must.
 	if (empty($_REQUEST['rid']))
@@ -415,6 +417,21 @@ function HandleComment()
 
 		$comment_id = (int) $_REQUEST['mid'];
 
+		// We need to verify some data, so lets load the comment details once more!
+		$comment = getCommentModDetails($comment_id);
+
+		// Perhaps somebody else already deleted this fine gem...
+		if (empty($comment))
+			fatal_lang_error('report_action_message_delete_issue');
+
+		// Can you actually do this?
+		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
+
+		// Nope! sorry.
+		if (!allowedTo('admin_forum') || !$comment_owner)
+			fatal_lang_error('report_action_message_delete_cannot');
+
+		// All good!
 		deleteModComment($comment_id);
 
 		// Tell them the message was deleted.
