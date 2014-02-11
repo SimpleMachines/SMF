@@ -377,7 +377,7 @@ $helptxt['securityDisable'] = 'This <em>disables</em> the additional password ch
 $helptxt['securityDisable_why'] = 'This is your current password. (the same one you use to login.)<br><br>Having to type this helps ensure that you want to do whatever administration you are doing, and that it is <strong>you</strong> doing it.';
 $helptxt['securityDisable_moderate'] = 'This <em>disables</em> the additional password check for the moderation section. This is not recommended!';
 $helptxt['securityDisable_moderate_why'] = 'This is your current password. (the same one you use to login.)<br><br>Having to type this helps ensure that you want to do whatever moderation you are doing, and that it is <strong>you</strong> doing it.';
-$helptxt['emailmembers'] = 'In this message you can use a few &quot;variables&quot;.  These are:<br>
+$helptxt['email_members'] = 'In this message you can use a few &quot;variables&quot;.  These are:<br>
 	{$board_url} - The URL to your forum.<br>
 	{$current_time} - The current time.<br>
 	{$member.email} - The current member\'s email.<br>
