@@ -14,6 +14,11 @@ function template_email_members()
 {
 	global $context, $settings, $txt, $scripturl;
 
+	// Are we done sending the newsletter?
+	if (!empty($context['newsletter_sent']))
+		echo '
+	<div class="infobox">', $txt['admin_news_newsletter_'. $context['newsletter_sent']] ,'</div>';
+
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">

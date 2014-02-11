@@ -311,6 +311,9 @@ function SelectMailingMembers()
 {
 	global $txt, $context, $modSettings, $smcFunc;
 
+	// Is there any confirm message?
+	$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
+
 	$context['page_title'] = $txt['admin_newsletters'];
 
 	$context['sub_template'] = 'email_members';
@@ -682,7 +685,7 @@ function ComposeMailing()
  * Called by ?action=admin;area=news;sa=mailingsend
  * Requires the send_mail permission.
  * Redirects to itself when more batches need to be sent.
- * Redirects to ?action=admin after everything has been sent.
+ * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
  *
  * @param bool $clean_only = false; if set, it will only clean the variables, put them in context, then return.
  * @uses the ManageNews template and email_members_send sub template.
@@ -937,7 +940,11 @@ function SendMailing($clean_only = false)
 
 		// If we've not got a query then we must be done!
 		if ($sendQuery == '()')
-			redirectexit('action=admin');
+		{
+			// Set a confirmation message.
+			$_SESSION['newsletter_sent'] = 'queue_done';
+			redirectexit('action=admin;area=news;sa=mailingmembers');
+		}
 
 		// Anything to exclude?
 		if (!empty($context['recipients']['exclude_groups']) && in_array(0, $context['recipients']['exclude_groups']))
@@ -1019,7 +1026,8 @@ function SendMailing($clean_only = false)
 	{
 		// Log this into the admin log.
 		logAction('newsletter', array(), 'admin');
-		redirectexit('action=admin');
+		$_SESSION['newsletter_sent'] = 'queue_done';
+		redirectexit('action=admin;area=news;sa=mailingmembers');
 	}
 
 	// Working out progress is a black art of sorts.
