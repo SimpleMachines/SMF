@@ -603,7 +603,7 @@ div#admin_menu {
 .topic_table td.lastpost {
 	background: none;
 }
-#info_center .cat_bar, .table_grid tr.catbg th, #searchform .roundframe .title_bar {
+#info_center .cat_bar, .table_grid tr.catbg th {
 	text-align: right;
 }
 .message_index_title {
