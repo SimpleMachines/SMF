@@ -3948,6 +3948,7 @@ span.hidelink {
 	width: 100%;
 	height: 100%;
 	background: rgba(40,64,80,0.5);
+	z-index: 3;
 }
 .popup_window
 {
