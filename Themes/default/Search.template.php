@@ -124,7 +124,7 @@ function template_main()
 		<fieldset class="flow_hidden">
 			<div class="roundframe">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>

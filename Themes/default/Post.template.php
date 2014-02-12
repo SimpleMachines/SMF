@@ -379,8 +379,8 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($settings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader" class="title_bar exp1">
-						<h4 class="infobg">
+					<div id="postAdditionalOptionsHeader" class="title_bar title_top">
+						<h4 class="titlebg">
 							<span id="postMoreExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
 						</h4>
 					</div>
@@ -505,8 +505,8 @@ function template_main()
 	if (!empty($modSettings['drafts_post_enabled']) && !empty($context['drafts']) && !empty($options['drafts_show_saved_enabled']))
 	{
 		echo '
-					<div id="postDraftOptionsHeader" class="title_bar exp1">
-						<h4 class="infobg">
+					<div id="postDraftOptionsHeader" class="title_bar title_top">
+						<h4 class="titlebg">
 							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
 						</h4>
 					</div>

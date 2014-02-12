@@ -19,9 +19,9 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="roundframe exp1">
+		<div class="roundframe title_top">
 			<div class="title_bar">
-				<h4 class="infobg">
+				<h4 class="titlebg">
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
@@ -79,10 +79,10 @@ function template_main()
 				</dl>
 			</div>
 		</div>
-		<div class="roundframe exp1">
+		<div class="roundframe title_top">
 			<div id="top_posters">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon posters"></span>', $txt['top_posters'], '
 					</h4>
 				</div>
@@ -119,7 +119,7 @@ function template_main()
 			</div>
 			<div id="top_boards">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon boards"></span>', $txt['top_boards'], '
 					</h4>
 				</div>
@@ -155,10 +155,10 @@ function template_main()
 					</div>
 			</div>
 		</div>
-		<div class="roundframe exp1">
+		<div class="roundframe title_top">
 			<div id="top_topics_replies">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
 					</h4>
 				</div>
@@ -194,7 +194,7 @@ function template_main()
 
 			<div id="top_topics_views">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
 					</h4>
 				</div>
@@ -228,10 +228,10 @@ function template_main()
 				</div>
 			</div>
 		</div>
-		<div class="roundframe exp1">
+		<div class="roundframe title_top">
 			<div id="top_topics_starter">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon starters"></span>', $txt['top_starters'], '
 					</h4>
 				</div>
@@ -265,7 +265,7 @@ function template_main()
 			</div>
 			<div id="most_online">
 				<div class="title_bar">
-					<h4 class="infobg">
+					<h4 class="titlebg">
 						<span class="stats_icon history"></span>', $txt['most_time_online'], '
 					</h4>
 				</div>
@@ -307,7 +307,7 @@ function template_main()
 				<span class="stats_icon history"></span>', $txt['forum_history'], '
 			</h3>
 		</div>
-		<div class="roundframe exp1">';
+		<div class="roundframe title_top">';
 
 	if (!empty($context['yearly']))
 	{

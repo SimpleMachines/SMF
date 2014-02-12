@@ -19,7 +19,7 @@ function template_main()
 	echo '
 	<div id="manage_boards">
 		<div class="title_bar">
-			<h3 class="infobg">', $txt['boardsEdit'], '</h3>
+			<h3 class="titlebg">', $txt['boardsEdit'], '</h3>
 		</div>';
 
 	if (!empty($context['move_board']))

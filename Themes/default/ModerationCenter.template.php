@@ -486,7 +486,7 @@ function template_viewmodreport()
 				</h3>
 			</div>
 			<div class="title_bar">
-				<h3 class="infobg">
+				<h3 class="titlebg">
 					<span class="floatleft">
 						', sprintf($txt['mc_modreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '
 					</span>

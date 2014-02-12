@@ -49,7 +49,7 @@ function template_email_members()
 			<br>
 
 			<div id="advanced_panel_header" class="title_bar">
-				<h3 class="infobg">
+				<h3 class="titlebg">
 					<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
 					<a href="#" id="advanced_panel_link">', $txt['advanced'], '</a>
 				</h3>

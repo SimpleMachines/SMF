@@ -233,7 +233,7 @@ function template_info_center()
 	echo '
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
-			<h3 class="infobg">
+			<h3 class="titlebg">
 				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>

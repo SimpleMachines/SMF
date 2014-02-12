@@ -1166,7 +1166,7 @@ function template_statPanel()
 	echo '
 		<div id="activitytime" class="flow_hidden">
 			<div class="title_bar">
-				<h3 class="infobg">
+				<h3 class="titlebg">
 					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>
@@ -1213,7 +1213,7 @@ function template_statPanel()
 		<div class="flow_hidden">
 			<div id="popularposts">
 				<div class="title_bar">
-					<h3 class="infobg">
+					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>
@@ -1252,7 +1252,7 @@ function template_statPanel()
 	echo '
 			<div id="popularactivity">
 				<div class="title_bar">
-					<h3 class="infobg">
+					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>
