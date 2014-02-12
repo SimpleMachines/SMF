@@ -18,7 +18,7 @@ function template_main()
 	// Table header.
 	echo '
 	<div id="manage_boards">
-		<div class="info_bar">
+		<div class="title_bar">
 			<h3 class="infobg">', $txt['boardsEdit'], '</h3>
 		</div>';
 

@@ -168,7 +168,7 @@ function template_credits()
 
 					<div id="admincenter">
 						<div id="support_credits">
-							<div class="sub_places">
+							<div class="sub_bar">
 								<h3 class="subg">
 									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.png" id="credits_logo" alt="">
 								</h3>
@@ -202,7 +202,7 @@ function template_credits()
 
 	// Point the admin to common support resources.
 	echo '
-							<div id="support_resources" class="sub_places">
+							<div id="support_resources" class="sub_bar">
 								<h3 class="subg">
 									', $txt['support_resources'], '
 								</h3>
@@ -216,7 +216,7 @@ function template_credits()
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="sub_places">
+							<div id="credits_sections" class="sub_bar">
 								<h3 class="subg">
 									', $txt['admin_credits'], '
 								</h3>

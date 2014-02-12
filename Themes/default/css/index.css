@@ -4257,8 +4257,8 @@ div#manage_boards dl dd textarea[name=desc] {
 	width: 100%;
 }
 
-/* Introduce Information Bar */
-.info_bar {
+/* Introduce New Title Bar */
+.title_bar {
 	border-right: 1px solid #ddd;
 	border-left: 1px solid #ddd;
 	border-top: 2px solid #ff9400;
@@ -4269,13 +4269,13 @@ div#manage_boards dl dd textarea[name=desc] {
 	text-align: left;
 	margin: 0 -1px;
 }
-.sub_places {
+.sub_bar {
 	border-bottom: 1px solid #ccc;
 	text-shadow: none;
 	background: none;
 	box-shadow: 0 -1px 0 #999 inset;
 }
-h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
+h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	font-family: "Tahoma", sans-serif;
@@ -4284,7 +4284,7 @@ h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
 	padding: 6px 12px 5px 12px;	
 	text-shadow: none;
 }
-.infobg a, .subg a {
+.titlebg a, .subbg a {
 	background: none;
 	color: #555;
 	text-decoration: none;
@@ -4294,10 +4294,10 @@ h3.infobg, h4.infobg, .infobg, h3.subg, h4.subg, .subg {
 }
 
 /* This place is about Info Center on BoardIndex */
-#info_center .sub_places {
+#info_center .sub_bar {
 	border-top: 1px solid #ccc;
 }
-#info_center .sub_places:first-child {
+#info_center .sub_bar:first-child {
 	border-top: none;
 }
 

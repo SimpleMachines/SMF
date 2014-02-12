@@ -131,7 +131,7 @@ function template_main()
 	{
 		echo '
 			<div class="linked_events">
-				<div class="info_bar">
+				<div class="title_bar">
 					<h3 class="infobg headerpadding">', $txt['calendar_linked_events'], '</h3>
 				</div>
 				<div class="description">

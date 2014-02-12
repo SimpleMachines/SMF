@@ -278,7 +278,7 @@ function template_by_board()
 				', $txt['permissions_boards_desc'], '
 			</div>
 
-			<div class="info_bar exp1">
+			<div class="title_bar exp1">
 				<h3 id="board_permissions" class="infobg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
 					<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>';

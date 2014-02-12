@@ -485,7 +485,7 @@ function template_viewmodreport()
 					', sprintf($txt['mc_viewmodreport'], $context['report']['message_link'], $context['report']['author']['link']), '
 				</h3>
 			</div>
-			<div class="info_bar">
+			<div class="title_bar">
 				<h3 class="infobg">
 					<span class="floatleft">
 						', sprintf($txt['mc_modreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '

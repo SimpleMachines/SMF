@@ -1165,7 +1165,7 @@ function template_statPanel()
 	// This next section draws a graph showing what times of day they post the most.
 	echo '
 		<div id="activitytime" class="flow_hidden">
-			<div class="info_bar">
+			<div class="title_bar">
 				<h3 class="infobg">
 					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
@@ -1212,7 +1212,7 @@ function template_statPanel()
 	echo '
 		<div class="flow_hidden">
 			<div id="popularposts">
-				<div class="info_bar">
+				<div class="title_bar">
 					<h3 class="infobg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
@@ -1251,7 +1251,7 @@ function template_statPanel()
 			</div>';
 	echo '
 			<div id="popularactivity">
-				<div class="info_bar">
+				<div class="title_bar">
 					<h3 class="infobg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>

@@ -179,7 +179,7 @@ function template_maintenance()
 			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
 			', $context['description'], '<br class="clear">
 		</p>
-		<div class="info_bar">
+		<div class="title_bar">
 			<h4 class="infobg">', $txt['admin_login'], '</h4>
 		</div>
 		<div class="roundframe">
@@ -255,7 +255,7 @@ function template_retry_activate()
 	// Just ask them for their code so they can try it again...
 	echo '
 		<form action="', $scripturl, '?action=activate;u=', $context['member_id'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="info_bar">
+			<div class="title_bar">
 				<h3 class="infobg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">';
@@ -284,7 +284,7 @@ function template_resend()
 	// Just ask them for their code so they can try it again...
 	echo '
 		<form action="', $scripturl, '?action=activate;sa=resend" method="post" accept-charset="', $context['character_set'], '">
-			<div class="info_bar">
+			<div class="title_bar">
 				<h3 class="infobg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
