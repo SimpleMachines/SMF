@@ -70,7 +70,7 @@ function Login()
 		unset($_SESSION['login_url']);
 
 	// Need some js goodies.
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Create a one time token.
 	createToken('login');

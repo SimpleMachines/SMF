@@ -1853,7 +1853,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');
 	loadJavascriptFile('theme.js', array(), 'theme_scripts');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)

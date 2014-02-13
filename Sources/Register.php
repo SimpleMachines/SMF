@@ -708,7 +708,7 @@ function Activate()
 		'description' => $txt['activate_success']
 	);
 
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 }
 
 /**

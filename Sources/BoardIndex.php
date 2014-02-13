@@ -131,7 +131,7 @@ function BoardIndex()
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_mark_read_button');
 
-	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => true), 'smf_scripts');
+	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => false), 'smf_fader');
 }
 
 /**

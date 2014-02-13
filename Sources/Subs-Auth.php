@@ -159,7 +159,7 @@ function KickGuest()
 	createToken('login');
 
 	// Need some js goodies.
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
@@ -181,7 +181,7 @@ function InMaintenance()
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
@@ -207,7 +207,7 @@ function adminLogin($type = 'admin')
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Validate what type of session check this is.
 	$types = array();
