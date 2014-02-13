@@ -49,12 +49,13 @@ function CalendarMain()
 	if (isset($_GET['sa']) && isset($subActions[$_GET['sa']]) && !WIRELESS)
 		return $subActions[$_GET['sa']]();
 
-	// This is gonna be needed...
-	loadTemplate('Calendar');
-
 	// You can't do anything if the calendar is off.
 	if (empty($modSettings['cal_enabled']))
 		fatal_lang_error('calendar_off', false);
+
+	// This is gonna be needed...
+	loadTemplate('Calendar');
+	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'));
 
 	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 	if (isset($_GET['event']))
@@ -160,7 +161,7 @@ function CalendarMain()
 
 	// Basic template stuff.
 	$context['allow_calendar_event'] = allowedTo('calendar_post');
-	
+
 	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 	if ($context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 	{
