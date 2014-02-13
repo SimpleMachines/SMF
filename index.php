@@ -71,6 +71,10 @@ cleanRequest();
 if (empty($modSettings['rand_seed']) || mt_rand(1, 250) == 69)
 	smf_seed_generator();
 
+// Browser cache variable
+if(empty($modSettings['browser_cache']))
+	reset_browser_cache();
+
 // Before we get carried away, are we doing a scheduled task? If so save CPU cycles by jumping out!
 if (isset($_GET['scheduled']))
 {
