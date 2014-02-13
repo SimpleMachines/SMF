@@ -1028,7 +1028,7 @@ function WelcomeLogin()
 	if(!is_writable($custom_av_dir))
 		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
 	elseif ($need_settings_update)
-		updateSettings(array('custom_av_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
 
 	require_once($sourcedir . '/Security.php');
 
