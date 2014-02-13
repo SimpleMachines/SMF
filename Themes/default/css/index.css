@@ -3503,6 +3503,38 @@ dl.stats dd span {
 	background: #fff;
 	white-space: pre;
 }
+/* Special styling for the top two blocks. */
+.stats_left {
+	float: left;
+	margin-top: 8px;
+	padding: 6px 15px;
+	border-right: 1px solid #bbb;
+}
+.stats_right{
+	float: right;
+	padding: 6px 15px;
+	margin-top: 8px;
+}
+.stats_left dl.stats, .stats_right dl.stats {
+	margin: -8px 0 -12px 0;
+}
+.stats_left dt a {
+	color: #232f46;
+}
+.stats_left dt {
+	width: 35%;
+}
+.stats_left dd {
+	width: 65%;
+}
+.top_row dl.stats dd {
+	background: none;
+	border: none;
+}
+.half {
+	width: 50%;
+}
+/* Forum history table. */
 #stats {
 	margin: 4px 0;
 }
@@ -4287,36 +4319,4 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
-}
-
-/* This place is about stats page */
-.stats_left {
-	float: left;
-	margin-top: 8px;
-	padding: 6px 15px;
-	border-right: 1px solid #bbb;
-}
-.stats_right{
-	float: right;
-	padding: 6px 15px;
-	margin-top: 8px;
-}
-.stats_left dl.stats, .stats_right dl.stats {
-	margin: -8px 0 -12px 0;
-}
-.stats_left dt a {
-	color: #232f46;
-}
-.stats_left dt {
-	width: 35%;
-}
-.stats_left dd {
-	width: 65%;
-}
-.top_row dl.stats dd {
-	background: none;
-	border: none;
-}
-.half {
-	width: 50%;
 }
