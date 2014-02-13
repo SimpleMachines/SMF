@@ -3324,7 +3324,7 @@ function template_css()
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
 	}
 
 	if (!empty($context['css_header']))
@@ -3692,7 +3692,7 @@ function setupMenuContext()
 	if (!isset($context['allow_calendar_event']))
 	{
 		$context['allow_calendar_event'] = $context['allow_calendar'] && allowedTo('calendar_post');
-		
+
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 		if ($context['allow_calendar'] && $context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 		{
@@ -3965,6 +3965,23 @@ function smf_seed_generator()
 
 	// Change the seed.
 	updateSettings(array('rand_seed' => mt_rand()));
+}
+
+/**
+ * Force browsers to grab a new copy of css / js files by changing ?bit
+ */
+function reset_browser_cache($set = '')
+{
+	global $modSettings;
+
+	if(empty($modSettings['browser_cache']) || empty($set) || preg_match('~^[a-z0-9]{1,4}$~i', $set) === false)
+		$modSettings['browser_cache'] = substr(sha1(microtime()), 0, 4);
+
+	else
+		$modSettings['browser_cache'] = $set;
+
+	// Save it
+	updateSettings(array('browser_cache' => $modSettings['browser_cache']));
 }
 
 /**
