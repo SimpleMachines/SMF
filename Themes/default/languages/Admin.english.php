@@ -607,7 +607,7 @@ $txt['could_not_language_backup'] = 'A backup could not be made before removing 
 $txt['advanced'] = 'Advanced';
 $txt['simple'] = 'Simple';
 
-$txt['admin_news_newsletter_queue_done'] = 'The newsletter has been added to the main queue successfully.';
+$txt['admin_news_newsletter_queue_done'] = 'The newsletter has been added to the mail queue successfully.';
 $txt['admin_news_select_recipients'] = 'Please select who should receive a copy of the newsletter';
 $txt['admin_news_select_group'] = 'Membergroups';
 $txt['admin_news_select_group_desc'] = 'Select the groups to receive this newsletter.';
