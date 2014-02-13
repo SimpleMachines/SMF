@@ -247,6 +247,7 @@ function PackageGBrowse()
 
 	// Might take some time.
 	@set_time_limit(600);
+	@ini_set('memory_limit', '32M');
 
 	// Read packages.xml and parse into xmlArray. (the true tells it to trim things ;).)
 	require_once($sourcedir . '/Class-Package.php');
@@ -471,10 +472,6 @@ function PackageGBrowse()
 
 			if ($package['count'] > 1)
 				$context['list_type'] = 'ol';
-				
-			// memory may be needed within the loop where many files exist within the directory
-			if (round(memory_get_peak_usage()/1048576) > ((int)ini_get('memory_limit') - 16))
-				@ini_set('memory_limit', '512M');
 		}
 
 		$packageSection++;
