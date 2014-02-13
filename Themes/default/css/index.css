@@ -3422,24 +3422,8 @@ dl {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-#statistics {
-	padding: 6px 0;
-}
 #statistics  div {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-#statistics div.windowbg2 {
-	background: none;
-}
-#top_posters, #top_topics_replies, #top_topics_starter {
-	float: left;
-	width: 50%;
-	padding: 0 3px 0 0;
-}
-#top_boards, #top_topics_views, #most_online {
-	float: right;
-	width: 50%;
-	padding: 0 0 0 3px;
 }
 .stats_icon {
 	width: 16px;
