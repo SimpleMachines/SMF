@@ -561,6 +561,9 @@ function AdminHome()
 		'http://www.simplemachines.org/redirect/smf_support',
 		'http://www.simplemachines.org/redirect/customize_support'
 	);
+
+	if ($context['admin_area'] == 'admin')
+		loadJavascriptFile('admin.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');
 }
 
 /**
