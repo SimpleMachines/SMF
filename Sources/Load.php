@@ -2078,6 +2078,9 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	// Add it to the array for use in the template
 	if (!empty($filename))
 		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+
+	if (!empty($context['right_to_left']) && !empty($params['rtl']))
+		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
 }
 
 /**
