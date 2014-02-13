@@ -247,7 +247,6 @@ function PackageGBrowse()
 
 	// Might take some time.
 	@set_time_limit(600);
-	@ini_set('memory_limit', '32M');
 
 	// Read packages.xml and parse into xmlArray. (the true tells it to trim things ;).)
 	require_once($sourcedir . '/Class-Package.php');
