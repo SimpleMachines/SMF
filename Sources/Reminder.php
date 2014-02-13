@@ -270,6 +270,8 @@ function setPassword2()
 		'never_expire' => false,
 		'description' => $txt['reminder_password_set']
 	);
+
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
 	createToken('login');
 }
 

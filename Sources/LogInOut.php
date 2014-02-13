@@ -41,7 +41,7 @@ function Login()
 	else
 	{
 		loadLanguage('Login');
-		loadTemplate('Login');
+
 		$context['sub_template'] = 'login';
 
 		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
@@ -68,6 +68,9 @@ function Login()
 		$_SESSION['login_url'] = $_SESSION['old_url'];
 	else
 		unset($_SESSION['login_url']);
+
+	// Need some js goodies.
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
 
 	// Create a one time token.
 	createToken('login');
@@ -168,10 +171,8 @@ function Login2()
 	if (WIRELESS)
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
 	else
-	{
-		loadTemplate('Login');
 		$context['sub_template'] = 'login';
-	}
+
 
 	// Set up the default/fallback stuff.
 	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';

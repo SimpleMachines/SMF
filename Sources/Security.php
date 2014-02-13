@@ -155,6 +155,7 @@ function is_not_guest($message = '')
 	else
 	{
 		loadTemplate('Login');
+		loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
 		$context['sub_template'] = 'kick_guest';
 		$context['robot_no_index'] = true;
 	}

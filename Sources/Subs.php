@@ -3975,7 +3975,7 @@ function reset_browser_cache($set = '')
 	global $modSettings;
 
 	if(empty($modSettings['browser_cache']) || empty($set) || preg_match('~^[a-z0-9]{1,4}$~i', $set) === false)
-		$modSettings['browser_cache'] = substr(sha1(microtime()), 0, 4);
+		$modSettings['browser_cache'] = '?alph21';
 
 	else
 		$modSettings['browser_cache'] = $set;

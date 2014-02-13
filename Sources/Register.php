@@ -707,6 +707,8 @@ function Activate()
 		'never_expire' => false,
 		'description' => $txt['activate_success']
 	);
+
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_scripts');
 }
 
 /**
