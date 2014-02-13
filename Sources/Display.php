@@ -1140,7 +1140,7 @@ function Display()
 		$context['wireless_moderate'] = isset($_GET['moderate']) ? ';moderate' : '';
 	}
 
-	// You can't link an existing topoic to the calendar unless you can modify the first post...
+	// You can't link an existing topic to the calendar unless you can modify the first post...
 	$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && $context['user']['started']);
 
 	// Load up the "double post" sequencing magic.
@@ -1211,6 +1211,10 @@ function Display()
 	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));
 	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
 	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
+
+	// Load the drafts js file
+	if ($context['drafts_autosave'])
+		loadJavascriptFile('drafts.js', array('default_theme' => true, 'defer' => false), 'smf_drafts');
 }
 
 /**
@@ -1354,7 +1358,7 @@ function prepareDisplayContext($reset = false)
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
 		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
-	
+
 	// Did they give a reason for editing?
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);

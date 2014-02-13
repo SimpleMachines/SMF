@@ -339,7 +339,6 @@ function template_main()
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
-			<script src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
