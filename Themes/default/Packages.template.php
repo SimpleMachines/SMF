@@ -664,7 +664,6 @@ function template_browse()
 			]
 		});
 	// ]]></script>
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 			var oAddVersionSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddVersionSuggest\',
