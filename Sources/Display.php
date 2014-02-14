@@ -1215,6 +1215,10 @@ function Display()
 	// Load the drafts js file
 	if ($context['drafts_autosave'])
 		loadJavascriptFile('drafts.js', array('default_theme' => true, 'defer' => false), 'smf_drafts');
+
+	// Spellcheck
+	if ($context['show_spellchecking'])
+		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
 }
 
 /**
