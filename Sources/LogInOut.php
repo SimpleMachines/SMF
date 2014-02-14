@@ -41,6 +41,7 @@ function Login()
 	else
 	{
 		loadLanguage('Login');
+		loadTemplate('Login');
 
 		$context['sub_template'] = 'login';
 
@@ -171,7 +172,10 @@ function Login2()
 	if (WIRELESS)
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
 	else
+	{
+		loadTemplate('Login');
 		$context['sub_template'] = 'login';
+	}
 
 
 	// Set up the default/fallback stuff.
