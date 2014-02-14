@@ -1219,6 +1219,9 @@ function Display()
 	// Spellcheck
 	if ($context['show_spellchecking'])
 		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
+
+	// topic.js
+	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 }
 
 /**

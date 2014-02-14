@@ -356,7 +356,6 @@ function template_main()
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 				<script><!-- // --><![CDATA[';
 
 	if (!empty($context['some_likes']))
