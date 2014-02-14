@@ -1641,7 +1641,7 @@ function BanEditTrigger()
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
 
 	if (empty($ban_id))
 	{
