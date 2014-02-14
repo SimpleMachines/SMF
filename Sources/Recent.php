@@ -81,6 +81,8 @@ function RecentPosts()
 	$context['page_title'] = $txt['recent_posts'];
 	$context['sub_template'] = 'recent';
 
+	$context['is_redirect'] = false;
+
 	if (isset($_REQUEST['start']) && $_REQUEST['start'] > 95)
 		$_REQUEST['start'] = 95;
 
@@ -114,13 +116,19 @@ function RecentPosts()
 			);
 		}
 
+		$recycling = empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0;
+
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_cat IN ({array_int:category_list})
-				AND {query_see_board}',
+				AND b.redirect = {string:empty}' . $recycle ? '
+				AND b.id_board != {int:recycle_board}' : '' . '
+				AND {query_wanna_see_board}',
 			array(
 				'category_list' => $_REQUEST['c'],
+				'empty' => '',
+				'recycle_board' => $modSettings['recycle_board'],
 			)
 		);
 		$total_cat_posts = 0;
@@ -158,11 +166,13 @@ function RecentPosts()
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:board_list})
+				AND b.redirect = {string:empty}
 				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],
 				'limit' => count($_REQUEST['boards']),
+				'empty' => '',
 			)
 		);
 		$total_posts = 0;
@@ -193,7 +203,7 @@ function RecentPosts()
 	elseif (!empty($board))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT num_posts
+			SELECT num_posts, redirect
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
@@ -201,8 +211,15 @@ function RecentPosts()
 				'current_board' => $board,
 			)
 		);
-		list ($total_posts) = $smcFunc['db_fetch_row']($request);
+		list ($total_posts, $redirect) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
+
+		// If this is a redirection board, don't bother counting topics here...
+		if ($redirect != '')
+		{
+			$total_posts = 0;
+			$context['is_redirect'] = true;
+		}
 
 		$query_this_board = 'b.id_board = {int:board}';
 		$query_parameters['board'] = $board;
@@ -225,8 +242,24 @@ function RecentPosts()
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// @todo This isn't accurate because we ignore the recycle bin.
-		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], min(100, $modSettings['totalMessages']), 10, false);
+		// "Borrow" some data from above...
+		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
+		$query_these_boards_params = $query_parameters;
+		unset($query_these_boards_params['max_id_msg']);
+		
+		$get_num_posts = $smcFunc['db_query']('', '
+			SELECT IFNULL(SUM(num_posts), 0)
+			FROM {db_prefix}boards
+			WHERE ' . $query_these_boards . '
+				AND b.redirect = {string:empty}',
+			array_merge($query_these_boards_params, array('empty' => ''))
+		);
+
+		$num_posts = min(100, $smcFunc['db_fetch_row']($get_num_posts));
+
+		$smcFunc['db_free_result']($get_num_posts);
+
+		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], $num_posts, 10, false);
 	}
 
 	$context['linktree'][] = array(
@@ -234,8 +267,12 @@ function RecentPosts()
 		'name' => $context['page_title']
 	);
 
+	// If you selected a redirection board, don't try getting posts for it...
+	if ($context['is_redirect'])
+		$messages = 0;
+
 	$key = 'recent-' . $user_info['id'] . '-' . md5(serialize(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null)
+	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
