@@ -22,7 +22,7 @@ function template_popup()
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body id="likes_popup">
 		<div class="windowbg">
