@@ -51,7 +51,6 @@ function template_registration_form()
 	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
-		<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 		<script><!-- // --><![CDATA[
 			function verifyAgree()
 			{
@@ -462,7 +461,7 @@ function template_coppa_form()
 // Show a window containing the spoken verification code.
 function template_verification_sound()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -470,7 +469,7 @@ function template_verification_sound()
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style type="text/css">';
 
 	// Just show the help text and a "close window" link.
@@ -506,7 +505,6 @@ function template_admin_register()
 	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	echo '
-	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 	<div id="admincenter">
 		<div id="admin_form_wrapper">
 			<form id="postForm" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">
