@@ -15,6 +15,11 @@ function template_login()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
+	// AJAX request?
+	if ($context['from_ajax'])
+		echo '
+		<script src="', $settings['default_theme_url'], '/scripts/sha1.js', $modSettings['browser_cache'] ,'"></script>';
+
 	echo '
 		<div class="tborder login">
 			<div class="cat_bar">
