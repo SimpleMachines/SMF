@@ -916,7 +916,7 @@ function template_main()
 // The template for the spellchecker.
 function template_spellcheck()
 {
-	global $context, $settings, $txt;
+	global $context, $settings, $txt, $modSettings;
 
 	// The style information that makes the spellchecker look... like the forum hopefully!
 	echo '<!DOCTYPE html>
@@ -924,7 +924,7 @@ function template_spellcheck()
 	<head>
 		<title>', $txt['spell_check'], '</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style type="text/css">
 			body, td
 			{
@@ -957,8 +957,8 @@ function template_spellcheck()
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
 		// ]]></script>
-		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'] ,'"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 		<script><!-- // --><![CDATA[
 			', $context['spell_js'], '
 		// ]]></script>
@@ -990,14 +990,14 @@ function template_spellcheck()
 
 function template_quotefast()
 {
-	global $context, $settings, $txt;
+	global $context, $settings, $txt, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body>
 		', $txt['retrieving_quote'], '
