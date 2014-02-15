@@ -144,14 +144,14 @@ function template_main()
 // Header of the print page!
 function template_print_above()
 {
-	global $context, $settings, $txt;
+	global $context, $settings $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css">
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>';
 }
