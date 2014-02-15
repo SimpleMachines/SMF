@@ -1028,7 +1028,11 @@ function WelcomeLogin()
 	if(!is_writable($custom_av_dir))
 		return throw_error(sprintf('The directory: %1$s has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.', $custom_av_dir));
 	elseif ($need_settings_update)
-		updateSettings(array('custom_av_dir' => $custom_av_dir));
+	{
+		if (!function_exists('cache_put_data'))
+			require_once($sourcedir . '/Load.php');
+		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+	}
 
 	require_once($sourcedir . '/Security.php');
 
@@ -1388,9 +1392,9 @@ function UpgradeOptions()
 	if (strpos($db_server, ':') !== false && ($db_type == 'mysql' || $db_type == 'mysqli'))
 	{
 		list($db_server, $db_port) = explode(':', $db_server);
-		
+
 		$changes['db_server'] = '\'' . $db_server . '\'';
-	
+
 		// Only set this if we're not using the default port
 		if ($db_port != ini_get('mysql' . ($db_type == 'mysqli' || !empty($_POST['convertMysql']) ? 'i' : '') . '.default_port'))
 			$changes['db_port'] = (int) $db_port;
