@@ -1359,6 +1359,8 @@ function editBuddyIgnoreLists($memID)
 		),
 	);
 
+	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['list_area']][0];
 	$subActions[$context['list_area']][0]($memID);
@@ -1880,6 +1882,7 @@ function authentication($memID, $saving = false)
 	$context['member']['openid_uri'] = $cur_profile['openid_uri'];
 	$context['auth_method'] = empty($cur_profile['openid_uri']) ? 'password' : 'openid';
 	$context['sub_template'] = 'authentication_method';
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 /**
@@ -2796,6 +2799,10 @@ function profileLoadSignatureData()
 		$context['member']['signature_preview'] = parse_bbc($signature, true, 'sig' . $memberContext[$context['id_member']]);
 		$context['member']['signature'] = $_POST['signature'];
 	}
+
+	// Load the spell checker?
+	if ($context['show_spellchecking'])
+		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
 
 	return true;
 }
