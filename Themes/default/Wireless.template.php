@@ -889,7 +889,7 @@ function template_imode_below()
 // XHTMLMP (XHTML Mobile Profile) templates used for WAP 2.0 start here
 function template_wap2_above()
 {
-	global $context, $settings, $user_info;
+	global $context, $settings, $user_info, $modSettings;
 
 	echo '<?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
@@ -903,7 +903,7 @@ function template_wap2_above()
 		<link rel="canonical" href="', $context['canonical_url'], '" />';
 
 	echo '
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/wireless.css" type="text/css" />
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/wireless.css" type="text/css', $modSettings['browser_cache'] ,'" />
 	</head>
 	<body>';
 }
