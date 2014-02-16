@@ -134,7 +134,7 @@ function template_main()
 				<div class="title_bar">
 					<h3 class="titlebg headerpadding">', $txt['calendar_linked_events'], '</h3>
 				</div>
-				<div class="windowbg">
+				<div class="description">
 					<div class="content">
 						<ul class="reset">';
 

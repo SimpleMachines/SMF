@@ -287,6 +287,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
+		'cron_find_task' => array(
+			'~ORDER BY null~' => 'ORDER BY null::int'
+		),
 		'delete_subscription' => array(
 			'~LIMIT 1~' => '',
 		),

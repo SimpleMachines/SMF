@@ -1029,7 +1029,7 @@ function template_showPermissions()
 			echo '
 					<table class="table_grid" cellspacing="0">
 						<thead>
-							<tr class="titlebg">
+							<tr class="catbg">
 								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 							</tr>
@@ -1093,7 +1093,7 @@ function template_showPermissions()
 			echo '
 				<table class="table_grid" cellspacing="0">
 					<thead>
-						<tr class="titlebg">
+						<tr class="catbg">
 							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 						</tr>
@@ -1165,8 +1165,8 @@ function template_statPanel()
 	// This next section draws a graph showing what times of day they post the most.
 	echo '
 		<div id="activitytime" class="flow_hidden">
-			<div class="cat_bar">
-				<h3 class="catbg">
+			<div class="title_bar">
+				<h3 class="titlebg">
 					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>
@@ -1212,8 +1212,8 @@ function template_statPanel()
 	echo '
 		<div class="flow_hidden">
 			<div id="popularposts">
-				<div class="cat_bar">
-					<h3 class="catbg">
+				<div class="title_bar">
+					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>
@@ -1251,8 +1251,8 @@ function template_statPanel()
 			</div>';
 	echo '
 			<div id="popularactivity">
-				<div class="cat_bar">
-					<h3 class="catbg">
+				<div class="title_bar">
+					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>
@@ -1757,8 +1757,8 @@ function template_alert_configuration()
 		</div>
 		<p class="description">', $txt['alert_prefs_desc'], '</p>
 		<form action="', $scripturl, '?action=profile;area=notification;sa=alerts" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					', $txt['notification_general'], '
 				</h3>
 			</div>
@@ -1823,16 +1823,16 @@ function template_alert_configuration()
 					</dl>
 				</div>
 			</div>
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>
 			<table class="table_grid" style="width: 100%">
-				<tr class="titlebg">
+				<tr>
 					<td></td>
-					<td>', $txt['receive_alert'], '</td>
-					<td>', $txt['receive_mail'], '</td>
+					<td align="center">', $txt['receive_alert'], '</td>
+					<td align="center">', $txt['receive_mail'], '</td>
 				</tr>';
 	$use_bg2 = true;
 
@@ -2670,6 +2670,7 @@ function template_deleteAccount()
 		if ($context['can_delete_posts'])
 			echo '
 					<div>
+						<label for="deleteVotes"><input type="checkbox" name="deleteVotes" id="deleteVotes" value="1" class="input_check"> ', $txt['deleteAccount_votes'], ':</label><br>
 						<label for="deletePosts"><input type="checkbox" name="deletePosts" id="deletePosts" value="1" class="input_check"> ', $txt['deleteAccount_posts'], ':</label>
 						<select name="remove_type">
 							<option value="posts">', $txt['deleteAccount_all_posts'], '</option>

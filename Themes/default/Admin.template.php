@@ -168,8 +168,8 @@ function template_credits()
 
 					<div id="admincenter">
 						<div id="support_credits">
-							<div class="cat_bar">
-								<h3 class="catbg">
+							<div class="sub_bar">
+								<h3 class="subg">
 									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.png" id="credits_logo" alt="">
 								</h3>
 							</div>
@@ -202,8 +202,8 @@ function template_credits()
 
 	// Point the admin to common support resources.
 	echo '
-							<div id="support_resources" class="cat_bar">
-								<h3 class="catbg">
+							<div id="support_resources" class="sub_bar">
+								<h3 class="subg">
 									', $txt['support_resources'], '
 								</h3>
 							</div>
@@ -216,8 +216,8 @@ function template_credits()
 
 	// The most important part - the credits :P.
 	echo '
-							<div id="credits_sections" class="cat_bar">
-								<h3 class="catbg">
+							<div id="credits_sections" class="sub_bar">
+								<h3 class="subg">
 									', $txt['admin_credits'], '
 								</h3>
 							</div>
@@ -734,8 +734,8 @@ function template_show_settings()
 			if ($config_var['type'] == 'title')
 			{
 				echo '
-							<div class="title_bar">
-								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'titlebg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
+							<div class="cat_bar">
+								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
 									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" class="icon" alt="' . $txt['help'] . '"></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
@@ -1455,8 +1455,7 @@ function template_php_info()
 							<h3 class="catbg">',
 								$txt['phpinfo_settings'], '
 							</h3>
-						</div>
-						<br>';
+						</div>';
 
 	// for each php info area
 	foreach ($context['pinfo'] as $area => $php_area)
@@ -1485,7 +1484,7 @@ function template_php_info()
 				{
 					// heading row for the settings section of this categorys settings
 					echo '
-								<tr class="titlebg">
+								<tr class="catbg">
 									<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>

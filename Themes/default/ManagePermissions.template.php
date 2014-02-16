@@ -28,13 +28,13 @@ function template_permission_index()
 
 		if (!empty($context['profile']))
 			echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['permissions_for_profile'], ': &quot;', $context['profile']['name'], '&quot;</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['permissions_for_profile'], ': &quot;', $context['profile']['name'], '&quot;</h3>
 			</div>';
 		else
 			echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['permissions_title'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['permissions_title'], '</h3>
 			</div>';
 
 		echo '
@@ -278,7 +278,7 @@ function template_by_board()
 				', $txt['permissions_boards_desc'], '
 			</div>
 
-			<div class="title_bar">
+			<div class="title_bar title_top">
 				<h3 id="board_permissions" class="titlebg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
 					<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>';
@@ -289,8 +289,8 @@ function template_by_board()
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-			<div class="title_bar">
-				<h3 class="titlebg">', $category['name'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $category['name'], '</h3>
 			</div>';
 
 		if (!empty($category['boards']))
@@ -856,7 +856,7 @@ function template_postmod_permissions()
 		
 		echo '
 									</tr>
-									<tr class="titlebg">
+									<tr>
 										<th width="30%">
 											', $txt['permissions_post_moderation_group'], '
 										</th>

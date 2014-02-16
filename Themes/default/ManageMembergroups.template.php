@@ -560,8 +560,8 @@ function template_group_members()
 			</div>
 
 			<br>
-			<div class="title_bar">
-				<h4 class="titlebg">', $txt['membergroups_members_group_members'], '</h4>
+			<div class="cat_bar">
+				<h4 class="catbg">', $txt['membergroups_members_group_members'], '</h4>
 			</div>
 			<br>
 			<div class="pagesection">', $context['page_index'], '</div>
@@ -654,8 +654,8 @@ function template_group_members()
 	if (!empty($context['group']['assignable']))
 	{
 		echo '
-			<div class="cat_bar cat_bar_odd">
-				<h3 class="catbg catbg_odd">', $txt['membergroups_members_add_title'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
 			</div>
 			<div class="windowbg">
 				<div class="content">

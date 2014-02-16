@@ -101,8 +101,9 @@ function MessageMain()
 		);
 
 		// First get the inbox counts
+		// The CASE WHEN here is because is_read is set to 3 when you reply to a message
 		$result = $smcFunc['db_query']('', '
-			SELECT COUNT(*) AS total, SUM(is_read) AS num_read
+			SELECT COUNT(*) AS total, SUM(is_read & 1) AS num_read
 			FROM {db_prefix}pm_recipients
 			WHERE id_member = {int:current_member}
 				AND in_inbox = {int:in_inbox}
@@ -124,12 +125,12 @@ function MessageMain()
 
 		// Now load info about all the other labels
 		$result = $smcFunc['db_query']('', '
-			SELECT l.id_label, l.name, IFNULL(SUM(pr.is_read), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
+			SELECT l.id_label, l.name, IFNULL(SUM(pr.is_read & 1), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
 			FROM {db_prefix}pm_labels AS l
 				LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 				LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
 			WHERE l.id_member = {int:current_member}
-			GROUP BY l.id_label',
+			GROUP BY l.id_label, l.name',
 			array(
 				'current_member' => $user_info['id'],
 			)
@@ -500,7 +501,7 @@ function MessageFolder()
 	elseif ($context['folder'] != 'sent')
 	{
 		$labelJoin = '
-			INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
+			INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pmr.id_pm)';
 
 		$labelQuery2 = '
 			AND pl.id_label = ' . $context['current_label_id'];
@@ -2655,6 +2656,30 @@ function MessageActionsApply()
 	{
 		$updateErrors = 0;
 
+		// Are we dealing with conversation view? If so, get all the messages in each conversation
+		if ($context['display_mode'] == 2)
+		{
+			$get_pms = $smcFunc['db_query']('', '
+				SELECT pm.id_pm_head, pm.id_pm
+				FROM {db_prefix}personal_messages AS pm
+					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
+				WHERE pm.id_pm_head IN ({array_int:head_pms})
+					AND pm.id_pm NOT IN ({array_int:head_pms})
+					AND pmr.id_recipient = {int:current_member}',
+				array(
+					'head_pms' => array_keys($to_label),
+					'current_member' => $user_info['id'],
+				)
+			);
+
+			while ($other_pms = $smcFunc['db_query']($get_pms))
+			{
+				$to_label[$other_pms['id_pm']] = $to_label[$other_pms['id_pm_head']];
+			}
+
+			$smcFunc['db_free_result']($get_pms);
+		}
+
 		// Get information about each message...
 		$request = $smcFunc['db_query']('', '
 			SELECT id_pm, in_inbox
@@ -2693,6 +2718,30 @@ function MessageActionsApply()
 
 				$smcFunc['db_free_result']($request2);
 			}
+			elseif ($type == 'rem')
+			{
+				// If we're removing from the inbox, see if we have at least one other label.
+				// This query is faster than the one above
+				$request2 = $smcFunc['db_query']('', '
+					SELECT COUNT(l.id_label)
+					FROM {db_prefix}pm_labels AS l
+						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+					WHERE l.id_member = {int:current_member}
+						AND pml.id_pm = {int:current_pm}',
+					array(
+						'current_member' => $user_info['id'],
+						'current_pm' => $row['id_pm'],
+					)
+				);
+
+				// How many labels do you have?
+				list ($num_labels) = $smcFunc['db_fetch_assoc']($request2);
+
+				if ($num_labels > 0);
+					$context['can_remove_inbox'] = true;
+
+				$smcFunc['db_free_result']($request2);
+			}
 
 			// Use this to determine what to do later on...
 			$original_labels = $labels;
@@ -2707,9 +2756,9 @@ function MessageActionsApply()
 					$labels[$to_label[$row['id_pm']]] = $to_label[$row['id_pm']];
 			}
 
-			// Removing all labels, so make sure it's in the inbox
+			// Removing all labels or just removing the inbox label
 			if ($type == 'rem' && empty($labels))
-				$in_inbox = 1;
+				$in_inbox = (empty($context['can_remove_inbox']) ? 1 : 0);
 			// Adding new labels, but removing inbox and applying new ones
 			elseif ($type == 'add' && !empty($options['pm_remove_inbox_label']) && !empty($labels))
 				$in_inbox = 0;

@@ -22,8 +22,8 @@ function template_pm_above()
 	// Show the capacity bar, if available.
 	if (!empty($context['limit_bar']))
 		echo '
-		<div class="title_bar">
-			<h3 class="titlebg">
+		<div class="cat_bar">
+			<h3 class="catbg">
 				<span class="floatleft">', $txt['pm_capacity'], ':</span>
 				<span class="floatleft capacity_bar">
 					<span class="', $context['limit_bar']['percent'] > 85 ? 'full' : ($context['limit_bar']['percent'] > 40 ? 'filled' : 'empty'), '" style="width: ', $context['limit_bar']['percent'] / 10, 'em;"></span>
@@ -768,8 +768,8 @@ function template_search()
 		echo '
 		<fieldset class="labels">
 			<div class="roundframe">
-				<div class="title_bar">
-					<h4 class="titlebg">
+				<div class="cat_bar">
+					<h4 class="catbg">
 						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
 					</h4>
 				</div>
@@ -858,8 +858,8 @@ function template_search_results()
 		if (!empty($context['search_params']['show_complete']))
 		{
 			echo '
-			<div class="title_bar">
-				<h3 class="titlebg">
+			<div class="cat_bar">
+				<h3 class="catbg">
 					<span class="floatright">', $txt['search_on'], ': ', $message['time'], '</span>
 					<span class="floatleft">', $message['counter'], '&nbsp;&nbsp;<a href="', $message['href'], '">', $message['subject'], '</a></span>
 				</h3>
@@ -1110,8 +1110,8 @@ function template_send()
 	{
 		echo '
 			<br>
-			<div id="postDraftOptionsHeader" class="title_bar">
-				<h4 class="titlebg">
+			<div id="postDraftOptionsHeader" class="cat_bar">
+				<h4 class="catbg">
 					<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
 				</h4>
 			</div>

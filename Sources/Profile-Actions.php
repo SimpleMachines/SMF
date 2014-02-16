@@ -590,6 +590,50 @@ function deleteAccount2($memID)
 	{
 		isAllowedTo('profile_remove_any');
 
+		// Before we go any further, handle possible poll vote deletion as well
+		if (!empty($_POST['deleteVotes']) && allowedTo('moderate_forum'))
+		{
+			// First we find any polls that this user has voted in...
+			$get_voted_polls = $smcFunc['db_query']('', '
+				SELECT DISTINCT id_poll
+				FROM {db_prefix}log_polls
+				WHERE id_member = {int:selected_member}',
+				array(
+					'selected_member' => $memID,
+				)
+			);
+
+			$polls_to_update = array();
+			
+			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
+			{
+				$polls_to_update[] = $row['id_poll'];
+			}
+
+			$smcFunc['db_free_result']($get_voted_polls);
+
+			// Now we delete the votes and update the polls
+			if (!empty($polls_to_update))
+			{
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_polls
+					WHERE id_member = {int:selected_member}',
+					array(
+						'selected_member' => $memID,
+					)
+				);
+
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}polls
+					SET votes = votes - 1
+					WHERE id_poll IN {array_int:polls_to_update}',
+					array(
+						'polls_to_update' => $polls_to_update
+					)
+				);
+			}
+		}
+
 		// Now, have you been naughty and need your posts deleting?
 		// @todo Should this check board permissions?
 		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))

@@ -263,7 +263,7 @@ function template_merge()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['merge'], '</h3>
 			</div>
-			<div class="information">
+			<div class="description">
 				', $txt['merge_desc'], '
 			</div>
 			<div class="windowbg">
@@ -363,8 +363,8 @@ function template_merge_extra_options()
 	echo '
 	<div id="merge_topics">
 		<form action="', $scripturl, '?action=mergetopics;sa=execute;" method="post" accept-charset="', $context['character_set'], '">
-			<div class="title_bar">
-				<h3 class="titlebg">', $txt['merge_topic_list'], '</h3>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['merge_topic_list'], '</h3>
 			</div>
 			<table class="bordercolor table_grid">
 				<thead>
