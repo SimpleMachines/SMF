@@ -3968,23 +3968,6 @@ function smf_seed_generator()
 }
 
 /**
- * Force browsers to grab a new copy of css / js files by changing ?bit
- */
-function reset_browser_cache($set = '')
-{
-	global $modSettings;
-
-	if(empty($modSettings['browser_cache']) || empty($set) || preg_match('~^[a-z0-9]{1,4}$~i', $set) === false)
-		$modSettings['browser_cache'] = '?alph21';
-
-	else
-		$modSettings['browser_cache'] = $set;
-
-	// Save it
-	updateSettings(array('browser_cache' => $modSettings['browser_cache']));
-}
-
-/**
  * Process functions of an integration hook.
  * calls all functions of the given hook.
  * supports static class method calls.
