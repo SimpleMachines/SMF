@@ -1212,17 +1212,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
 		);
 
-	// First do a quick run through to make sure there is something to be shown.
-	$memberContext[$user]['has_messenger'] = false;
-	foreach (array('icq', 'skype', 'aim', 'yim') as $messenger)
-	{
-		if (!isset($context['disabled_fields'][$messenger]) && !empty($memberContext[$user][$messenger]['link']))
-		{
-			$memberContext[$user]['has_messenger'] = true;
-			break;
-		}
-	}
-
 	// Are we also loading the members custom fields into context?
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
 	{
