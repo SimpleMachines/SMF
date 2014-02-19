@@ -611,16 +611,16 @@ function template_event_post()
 	}
 
 	// If this is a new event let the user specify which board they want the linked post to be put into.
-	if ($context['event']['new'] && !empty($context['event']['categories']))
+	if (!empty($context['event']['categories']))
 	{
 		echo '
 							<li>
 								', $txt['calendar_link_event'], '
-								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board" checked onclick="toggleLinked(this.form);">
+								<input type="checkbox" style="vertical-align: middle;" class="input_check" name="link_to_board"', ($context['event']['new'] ? ' checked' : ''), ' onclick="toggleLinked(this.form);">
 							</li>
 							<li>
 								', $txt['calendar_post_in'], '
-								<select id="board" name="board" onchange="this.form.submit();">';
+								<select id="board" name="board" onchange="this.form.submit();"', ($context['event']['new'] ? '' : ' disabled'), '>';
 		foreach ($context['event']['categories'] as $category)
 		{
 			echo '
