@@ -24,6 +24,10 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		require_once($sourcedir . '/Subs-Members.php');
 		$members = membersAllowedTo('calendar_view');
 
+		// Don't alert the event creator
+		if (!empty($this->_details['sender_id']))
+			$members = array_diff($members, array($this->_details['sender_id']));
+
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($members, 'event_new', true);
@@ -69,7 +73,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $this->_details['event_id'],
 					'content_action' => empty($this->_details['sender_id']) ? 'new_guest' : 'new',
 					'is_read' => 0,
-					'extra' => '',
+					'extra' => serialize(array($this->_details['event_id'], $this->_details['event_title'])),
 				);
 			}
 
