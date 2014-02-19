@@ -444,6 +444,7 @@ $txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
+$txt['avatar_directory_wrong'] = 'The Avatars directory is not a valid directory, this will cause several issues within your forum, please specify a valid path.';
 $txt['avatar_url'] = 'Avatars URL';
 $txt['avatar_max_width_external'] = 'Maximum width of external avatar';
 $txt['avatar_max_height_external'] = 'Maximum height of external avatar';
@@ -467,6 +468,7 @@ $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
 $txt['option_attachment_dir'] = 'Attachment directory';
 $txt['option_specified_dir'] = 'Specific directory...';
+$txt['custom_avatar_dir_wrong'] = 'The Upload directory is not a valid directory, this will cause mayor issues within your forum, please set a valid directory path.';
 $txt['custom_avatar_dir'] = 'Upload directory';
 $txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different than the server-stored directory.';
 $txt['custom_avatar_url'] = 'Upload URL';
