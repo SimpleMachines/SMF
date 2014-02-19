@@ -392,14 +392,6 @@ CREATE TABLE {$db_prefix}background_tasks (
 ---#
 
 /******************************************************************************/
----- Replacing MSN with Skype
-/******************************************************************************/
----# Modifying the "msn" column...
-ALTER TABLE {$db_prefix}members
-RENAME msn TO skype;
----#
-
-/******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...

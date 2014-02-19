@@ -355,14 +355,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 ---#
 
 /******************************************************************************/
----- Replacing MSN with Skype
-/******************************************************************************/
----# Modifying the "msn" column...
-ALTER TABLE {$db_prefix}members
-CHANGE msn skype varchar(255) NOT NULL DEFAULT '';
----#
-
-/******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
