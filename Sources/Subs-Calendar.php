@@ -804,7 +804,7 @@ function getEventPoster($event_id)
  */
 function insertEvent(&$eventOptions)
 {
-	global $smcFunc;
+	global $smcFunc, $context;
 
 	// Add special chars to the title.
 	$eventOptions['title'] = $smcFunc['htmlspecialchars']($eventOptions['title'], ENT_QUOTES);

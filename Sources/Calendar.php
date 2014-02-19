@@ -243,7 +243,7 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
 
 		// New - and directing?
-		if ($_REQUEST['eventid'] == -1 && (isset($_POST['link_to_board']) || empty($modSettings['cal_allow_unlinked'])))
+		if (isset($_POST['link_to_board']) || empty($modSettings['cal_allow_unlinked']))
 		{
 			$_REQUEST['calendar'] = 1;
 			require_once($sourcedir . '/Post.php');
@@ -327,26 +327,6 @@ function CalendarPost()
 			'span' => 1,
 		);
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
-
-		// Get list of boards that can be posted in.
-		$boards = boardsAllowedTo('post_new');
-		if (empty($boards))
-		{
-			// You can post new events but can't link them to anything...
-			$context['event']['categories'] = array();
-		}
-		else
-		{
-			// Load the list of boards and categories in the context.
-			require_once($sourcedir . '/Subs-MessageIndex.php');
-			$boardListOptions = array(
-				'included_boards' => in_array(0, $boards) ? null : $boards,
-				'not_redirection' => true,
-				'use_permissions' => true,
-				'selected_board' => $modSettings['cal_defaultboard'],
-			);
-			$context['event']['categories'] = getBoardList($boardListOptions);
-		}
 	}
 	else
 	{
@@ -368,6 +348,26 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_any');
 		elseif (!allowedTo('calendar_edit_any'))
 			isAllowedTo('calendar_edit_own');
+	}
+
+	// Get list of boards that can be posted in.
+	$boards = boardsAllowedTo('post_new');
+	if (empty($boards))
+	{
+		// You can post new events but can't link them to anything...
+		$context['event']['categories'] = array();
+	}
+	else
+	{
+		// Load the list of boards and categories in the context.
+		require_once($sourcedir . '/Subs-MessageIndex.php');
+		$boardListOptions = array(
+			'included_boards' => in_array(0, $boards) ? null : $boards,
+			'not_redirection' => true,
+			'use_permissions' => true,
+			'selected_board' => $modSettings['cal_defaultboard'],
+		);
+		$context['event']['categories'] = getBoardList($boardListOptions);
 	}
 
 	// Template, sub template, etc.
