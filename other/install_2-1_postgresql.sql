@@ -1623,15 +1623,10 @@ CREATE TABLE {$db_prefix}members (
   openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL,
   personal_text varchar(255) NOT NULL,
-  gender smallint NOT NULL default '0',
   birthdate date NOT NULL default '0001-01-01',
   website_title varchar(255) NOT NULL,
   website_url varchar(255) NOT NULL,
   location varchar(255) NOT NULL,
-  icq varchar(255) NOT NULL,
-  aim varchar(255) NOT NULL default '',
-  yim varchar(32) NOT NULL default '',
-  skype varchar(255) NOT NULL default '',
   hide_email smallint NOT NULL default '0',
   show_online smallint NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
@@ -2565,7 +2560,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_late
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_modify', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_user_images', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_blurb', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_gender', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_newsfader', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'number_recent_posts', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_profile_buttons', '1');
