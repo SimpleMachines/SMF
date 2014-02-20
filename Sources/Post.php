@@ -1903,9 +1903,6 @@ function Post2()
 		// ... or just update it?
 		else
 		{
-			$span = !empty($modSettings['cal_allowspan']) && !empty($_REQUEST['span']) ? min((int) $modSettings['cal_maxspan'], (int) $_REQUEST['span'] - 1) : 0;
-			$start_time = mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']);
-
 			// Set up our options
 			$eventOptions = array(
 				'board' => $board,
