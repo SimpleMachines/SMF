@@ -444,7 +444,7 @@ $txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
-$txt['avatar_directory_wrong'] = 'The Avatars directory is not a valid directory, this will cause several issues within your forum, please specify a valid path.';
+$txt['avatar_directory_wrong'] = 'The Avatars directory is not valid. This will cause several issues with your forum.';
 $txt['avatar_url'] = 'Avatars URL';
 $txt['avatar_max_width_external'] = 'Maximum width of external avatar';
 $txt['avatar_max_height_external'] = 'Maximum height of external avatar';
