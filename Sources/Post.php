@@ -1906,36 +1906,18 @@ function Post2()
 			$span = !empty($modSettings['cal_allowspan']) && !empty($_REQUEST['span']) ? min((int) $modSettings['cal_maxspan'], (int) $_REQUEST['span'] - 1) : 0;
 			$start_time = mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']);
 
-			$board_query = '';
-			$board_params = array();
-
-			// Linking a previously non-linked event to a new post? 
-			if (empty($_REQUEST['evtopic']))
-			{
-				$board_query = ',
-					id_board = {int:board},
-					id_topic = {int:topic}';
-
-				$board_params = array('board' => $board, 'topic' => $topic);
-			}
-
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}calendar
-				SET end_date = {date:end_date},
-					start_date = {date:start_date},
-					title = {string:title}' . $board_query . '
-				WHERE id_event = {int:id_event}',
-				array_merge(array(
-					'end_date' => strftime('%Y-%m-%d', $start_time + $span * 86400),
-					'start_date' => strftime('%Y-%m-%d', $start_time),
-					'id_event' => $_REQUEST['eventid'],
-					'title' => $smcFunc['htmlspecialchars']($_REQUEST['evtitle'], ENT_QUOTES),
-				), $board_params)
+			// Set up our options
+			$eventOptions = array(
+				'board' => $board,
+				'topic' => $topic,
+				'title' => $_POST['evtitle'],
+				'member' => $user_info['id'],
+				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
+				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 			);
+
+			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
-		updateSettings(array(
-			'calendar_updated' => time(),
-		));
 	}
 
 	// Marking read should be done even for editing messages....
