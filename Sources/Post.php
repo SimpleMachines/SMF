@@ -1917,6 +1917,7 @@ function Post2()
 			);
 
 			modifyEvent($_REQUEST['eventid'], $eventOptions);
+		}
 	}
 
 	// Marking read should be done even for editing messages....
