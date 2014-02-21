@@ -48,7 +48,7 @@ function activateAccount($memID)
 		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
-		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 13, 14)))
+		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 5, 13, 14, 15)))
 			updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > 1 ? $modSettings['unapprovedMembers'] - 1 : 0)));
 
 		// Make sure we update the stats too.

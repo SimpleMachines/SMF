@@ -89,23 +89,46 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
-			// Are we using registration approval?
-			if ((!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($modSettings['approveAccountDeletion']))
+			if (!empty($modSettings['registration_method']))
 			{
-				// Update the amount of members awaiting approval - ignoring COPPA accounts, as you can't approve them until you get permission.
-				$result = $smcFunc['db_query']('', '
-					SELECT COUNT(*)
-					FROM {db_prefix}members
-					WHERE is_activated IN ({array_int:activation_status})',
-					array(
-						'activation_status' => array(3, 4),
-					)
-				);
-				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				// Are we using registration approval?
+				if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+				{
+					// Update the amount of members awaiting approval
+					$result = $smcFunc['db_query']('', '
+						SELECT COUNT(*)
+						FROM {db_prefix}members
+						WHERE is_activated IN ({array_int:activation_status})',
+						array(
+							'activation_status' => array(3, 4),
+						)
+					);
+					list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+					$smcFunc['db_free_result']($result);
+				}
+
+				// What about unapproved COPPA registrations?
+				if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+				{
+					$result = $smcFunc['db_query']('', '
+						SELECT COUNT(*)
+						FROM {db_prefix}members
+						WHERE is_activated = {int:coppa_approval}',
+						array(
+							'coppa_approval' => 5,
+						)
+					);
+					list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
+					$smcFunc['db_free_result']($result);
+
+					// Add this to the number of unapproved members
+					if (!empty($changes['unapprovedMembers']))
+						$changes['unapprovedMembers'] += $coppa_approvals;
+					else
+						$changes['unapprovedMembers'] = $coppa_approvals;
+				}
 			}
 		}
-
 		updateSettings($changes);
 		break;
 
@@ -2869,7 +2892,7 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
+			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && ($modSettings['registration_method'] == 2 || (!empty($modSettings['coppaType']) && $modSettings['coppaType'] == 2))) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
 
 		$context['user']['avatar'] = array();
 

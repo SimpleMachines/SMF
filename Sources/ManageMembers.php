@@ -1257,7 +1257,7 @@ function AdminApprove()
 	}
 
 	// Although updateStats *may* catch this, best to do it manually just in case (Doesn't always sort out unapprovedMembers).
-	if (in_array($current_filter, array(3, 4)))
+	if (in_array($current_filter, array(3, 4, 5)))
 		updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > $member_count ? $modSettings['unapprovedMembers'] - $member_count : 0)));
 
 	// Update the member's stats. (but, we know the member didn't change their name.)
