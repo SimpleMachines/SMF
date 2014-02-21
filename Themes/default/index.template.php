@@ -276,8 +276,32 @@ function template_body_above()
 
 	echo '
 					<hr class="clear">
+					
+					<script src="http://localhost/kittenground/Themes/default/scripts/jquery.bxslider.js"></script>
+					<link href="http://localhost/kittenground/Themes/default/css/jquery.bxslider.css" rel="stylesheet" />
+					
+					<div class="cat_bar">
+						<h3 class="catbg">', $txt['news'] ,'</h3>
+					</div>
+					<ul class="bxslider">';
+					
+					$news_system = $context['news_lines'];
+					foreach ($news_system as $news_new)
+						{
+						echo '
+						<li class="bbc_bold">',$news_new,'</li>';
+						}
+					echo '
+					</ul>
 				</div>';
-
+	
+	echo '
+			<script type="text/javascript">
+				$(document).ready(function(){
+					$(".bxslider").bxSlider();
+				});
+			</script>';
+				
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	template_menu();
 
