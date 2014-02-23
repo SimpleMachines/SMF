@@ -2038,7 +2038,6 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_stats_index', '1'),
 	(1, 'additional_options_collapsable', '1'),
 	(1, 'use_image_buttons', '1'),
-	(1, 'enable_news', '1'),
 	(1, 'forum_width', '90%'),
 	(1, 'drafts_autosave_enabled', '1'),
 	(1, 'drafts_show_saved_enabled', '1');

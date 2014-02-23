@@ -2571,7 +2571,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_prof
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_show_saved_enabled', '1');
