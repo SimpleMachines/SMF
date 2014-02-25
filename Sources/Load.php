@@ -2078,6 +2078,9 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	// Add it to the array for use in the template
 	if (!empty($filename))
 		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+
+	if (!empty($context['right_to_left']) && !empty($params['rtl']))
+		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
 }
 
 /**
@@ -2714,7 +2717,7 @@ function loadDatabase()
 
 	$db_options = array();
 
-	// Add in the port if needed	
+	// Add in the port if needed
 	if (!empty($db_port))
 		$db_options['port'] = $db_port;
 
@@ -2722,7 +2725,7 @@ function loadDatabase()
 	if (SMF == 'SSI' && !empty($ssi_db_user) && !empty($ssi_db_passwd))
 	{
 		$options = array_merge($db_options, array('persist' => $db_persist, 'non_fatal' => true, 'dont_select_db' => true));
-		
+
 		$db_connection = smf_db_initiate($db_server, $db_name, $ssi_db_user, $ssi_db_passwd, $db_prefix, $options);
 	}
 
