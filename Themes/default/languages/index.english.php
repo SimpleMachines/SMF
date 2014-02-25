@@ -277,7 +277,6 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['topic_sent'] = 'Your email has been sent successfully.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -368,13 +367,6 @@ $txt['info_center_title'] = '%1$s - Info Center';
 $txt['send_topic'] = 'Send this topic';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
-
-$txt['sendtopic_sender_name'] = 'Your name';
-$txt['sendtopic_sender_email'] = 'Your email address';
-$txt['sendtopic_receiver_name'] = 'Recipient\'s name';
-$txt['sendtopic_receiver_email'] = 'Recipient\'s email address';
-
-$txt['allow_user_email'] = 'Allow users to email me';
 
 $txt['check_all'] = 'Check all';
 
@@ -777,7 +769,6 @@ $txt['calendar_menu'] = 'View Calendar';
 // @todo Send email strings - should move?
 $txt['send_email'] = 'Send Email';
 $txt['send_email_disclosed'] = 'Note this will be visible to the recipient.';
-$txt['send_email_subject'] = 'Email Subject';
 
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';

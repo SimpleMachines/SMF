@@ -164,11 +164,10 @@ function template_summary()
 				</div>
 				', $context['member']['avatar']['image'], '
 				<ul class="reset">';
-	// @TODO fix the <ul> when no fields are visible
-	// What about if we allow email only via the forum??
-	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
+	// Email is only visible if it's your profile or you have the moderate_forum permission
+	if ($context['member']['show_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
+					<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
@@ -237,19 +236,11 @@ function template_summary()
 					<dt>', $txt['profile_posts'], ': </dt>
 					<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
 
-	if ($context['can_send_email'])
+	if ($context['member']['show_email'])
 	{
-		// Only show the email address fully if it's not hidden - and we reveal the email.
-		if ($context['member']['show_email'] == 'yes')
-			echo '
-						<dt>', $txt['email'], ': </dt>
-						<dd><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></dd>';
-
-		// ... Or if the one looking at the profile is an admin they can see it anyway.
-		elseif ($context['member']['show_email'] == 'yes_permission_override')
-			echo '
-						<dt>', $txt['email'], ': </dt>
-						<dd><em><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></em></dd>';
+		echo '
+					<dt>', $txt['email'], ': </dt>
+					<dd><a href="mailto:', $context['email']['member'], '">', $context['member']['email'], '</a></dd>';
 	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))
@@ -626,7 +617,7 @@ function template_editBuddies()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
-	if ($context['can_send_email'])
+	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
 
@@ -657,9 +648,9 @@ function template_editBuddies()
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $buddy['link'], '</td>
 				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
-		if ($context['can_send_email'])
+		if ($buddy['show_email'])
 			echo '
-				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>'), '</td>';
+				<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
 
 		// If these are off, don't show them
 		foreach ($buddy_fields as $key => $column)
@@ -745,7 +736,7 @@ function template_editIgnoreList()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
-	if ($context['can_send_email'])
+	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
 	echo '
@@ -771,9 +762,9 @@ function template_editIgnoreList()
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $member['link'], '</td>
 				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '"></a></td>';
-		if ($context['can_send_email'])
+		if ($member['show_email'])
 			echo '
-				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>'), '</td>';
+				<td align="center"><a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a></td>';
 		echo '
 				<td align="center">', $member['icq']['link'], '</td>
 				<td align="center">', $member['aim']['link'], '</td>
