@@ -725,6 +725,7 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type varchar(8) NOT NULL default 'text',
   field_length smallint NOT NULL default '255',
   field_options text NOT NULL,
+  field_order tinyint(3) NOT NULL default '0',
   mask varchar(255) NOT NULL,
   show_reg smallint NOT NULL default '0',
   show_display smallint NOT NULL default '0',
