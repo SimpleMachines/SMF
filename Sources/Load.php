@@ -1851,7 +1851,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
-
+	
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
 	loadJavascriptFile('theme.js', array(), 'theme_scripts');

@@ -1356,7 +1356,7 @@ img.sort, .sort {
 ------------------------------------------------------- */
 /* Do all these here to save repetition. */
 #header, #header .frame, #top_section, #upper_wrap, #upper_section, #upper_section .user,
-#upper_section .news, .navigate_section, #content_section, #main_content_section,
+.navigate_section, #content_section, #main_content_section,
 #lower_section, #lower_section .frame, #footer_section, #footer_section div.frame {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
@@ -1486,7 +1486,7 @@ img#smflogo {
 	padding-left: 10px;
 }
 /*
-/* The user info, news, etc.*/
+/* The user info, etc.*/
 #upper_section {
 	padding: 2px 2px 0 2px;
 	margin: 0;
@@ -1527,18 +1527,6 @@ ul li.greeting {
 	overflow: hidden;
 	font-size: 0.9em;
 	margin-left: -2px;
-}
-/* News section. */
-#inner_wrap .news {
-	max-width: 50%;
-	float: right;
-	overflow: auto;
-	padding: 0 0 6px 0;
-	font-size: 0.9em;
-}
-#inner_wrap .news h2, #inner_wrap .news p {
-	display: inline;
-	padding: 0 0 0 4px;
 }
 
 /* The navigation list (i.e. linktree) */
@@ -1807,19 +1795,6 @@ ul li.greeting {
 .mark_read .buttonlist ul {
 	margin: 0 0 0 0;
 	padding: 0 0 0 0;
-}
-/* the newsfader */
-#newsfader {
-	margin: 0 0 8px 0;
-}
-#smfFadeScroller {
-	text-align: center;
-	padding: 12px 25px;
-	overflow: auto;
-	color: #444444; /* shouldn't be shorthand style due to a JS bug in IE! */
-}
-ul#smfFadeScroller li {
-	font-weight: bold;
 }
 
 /* Styles for the info center on the board index.
@@ -4129,4 +4104,165 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 .half {
 	width: 50%;
+}
+
+/**
+ * BxSlider v4.0 - Fully loaded, responsive content slider
+ * http://bxslider.com
+ *
+ * Written by: Steven Wanderski, 2012
+ * http://stevenwanderski.com
+ * (while drinking Belgian ales and listening to jazz)
+ *
+ * CEO and founder of bxCreative, LTD
+ * http://bxcreative.com
+ */
+
+
+/** RESET AND LAYOUT
+===================================*/
+
+.bx-wrapper {
+	position: relative;
+	margin: 0 auto 30px;
+	padding: 0;
+	*zoom: 1;
+}
+
+.bx-wrapper img {
+	max-width: 100%;
+	display: block;
+}
+
+/** THEME
+===================================*/
+
+.bx-wrapper .bx-viewport {
+	box-shadow: 0 0 5px #ccc;
+	border: 1px solid #C5C5C5;
+	background: #F5F5F5;
+	border-radius: 0 0 7px 7px;
+	border-top: none;
+	margin-top: -1px;
+	padding: 7px 0 7px 7px;
+}
+
+.bx-wrapper .bx-pager,
+.bx-wrapper .bx-controls-auto {
+	position: absolute;
+	bottom: -30px;
+}
+
+/* LOADER */
+
+.bx-wrapper .bx-loading {
+	min-height: 50px;
+	background: url(../images/bx_loader.gif) center center no-repeat #F5F5F5;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2000;
+}
+
+/* PAGER */
+
+.bx-wrapper .bx-pager {
+	text-align: center;
+	font-size: .85em;
+	font-family: Arial;
+	font-weight: bold;
+	color: #666;
+	padding-top: 20px;
+}
+
+.bx-wrapper .bx-pager .bx-pager-item,
+.bx-wrapper .bx-controls-auto .bx-controls-auto-item {
+	display: inline-block;
+	*zoom: 1;
+	*display: inline;
+}
+
+.bx-wrapper .bx-pager.bx-default-pager a {
+	background: #666;
+	text-indent: -9999px;
+	display: block;
+	width: 10px;
+	height: 10px;
+	margin: 0 5px;
+	outline: 0;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.bx-wrapper .bx-pager.bx-default-pager a:hover,
+.bx-wrapper .bx-pager.bx-default-pager a.active {
+	background: #000;
+}
+
+/* AUTO CONTROLS (START / STOP) */
+
+.bx-wrapper .bx-controls-auto {
+	text-align: center;
+}
+
+.bx-wrapper .bx-controls-auto .bx-start {
+	display: block;
+	text-indent: -9999px;
+	width: 10px;
+	height: 11px;
+	outline: 0;
+	background: url(../images/controls.png) -86px -11px no-repeat;
+	margin: 0 3px;
+}
+
+.bx-wrapper .bx-controls-auto .bx-start:hover,
+.bx-wrapper .bx-controls-auto .bx-start.active {
+	background-position: -86px 0;
+}
+
+.bx-wrapper .bx-controls-auto .bx-stop {
+	display: block;
+	text-indent: -9999px;
+	width: 9px;
+	height: 11px;
+	outline: 0;
+	background: url(../images/controls.png) -86px -44px no-repeat;
+	margin: 0 3px;
+}
+
+.bx-wrapper .bx-controls-auto .bx-stop:hover,
+.bx-wrapper .bx-controls-auto .bx-stop.active {
+	background-position: -86px -33px;
+}
+
+/* PAGER WITH AUTO-CONTROLS HYBRID LAYOUT */
+
+.bx-wrapper .bx-controls.bx-has-controls-auto.bx-has-pager .bx-pager {
+	text-align: left;
+	width: 80%;
+}
+
+.bx-wrapper .bx-controls.bx-has-controls-auto.bx-has-pager .bx-controls-auto {
+	right: 0;
+	width: 35px;
+}
+
+/* IMAGE CAPTIONS */
+
+.bx-wrapper .bx-caption {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background: #666\9;
+	background: rgba(80, 80, 80, 0.75);
+}
+
+.bx-wrapper .bx-caption span {
+	color: #fff;
+	font-family: Arial;
+	display: block;
+	font-size: .85em;
+	padding: 10px;
 }

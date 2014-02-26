@@ -35,6 +35,9 @@ function BoardIndex()
 	{
 		loadTemplate('BoardIndex');
 		$context['template_layers'][] = 'boardindex_outer';
+
+		// News has a new JS
+		loadJavascriptFile('jquery.bxslider.js', array('default_theme' => true));
 	}
 
 	// Set a canonical URL for this page.

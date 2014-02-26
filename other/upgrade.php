@@ -2125,15 +2125,12 @@ function convertSettingsToTheme()
 		'show_user_images' => @$GLOBALS['showuserpic'],
 		'show_blurb' => @$GLOBALS['showusertext'],
 		'show_gender' => @$GLOBALS['showgenderimage'],
-		'show_newsfader' => @$GLOBALS['shownewsfader'],
 		'display_recent_bar' => @$GLOBALS['Show_RecentBar'],
 		'show_member_bar' => @$GLOBALS['Show_MemberBar'],
 		'linktree_link' => @$GLOBALS['curposlinks'],
 		'show_profile_buttons' => @$GLOBALS['profilebutton'],
 		'show_mark_read' => @$GLOBALS['showmarkread'],
-		'newsfader_time' => @$GLOBALS['fadertime'],
 		'use_image_buttons' => empty($GLOBALS['MenuType']) ? 1 : 0,
-		'enable_news' => @$GLOBALS['enable_news'],
 		'return_to_post' => @$modSettings['returnToPost'],
 	);
 

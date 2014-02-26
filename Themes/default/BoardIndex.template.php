@@ -12,69 +12,31 @@
 
 function template_boardindex_outer_above()
 {
-	template_newsfader();
+	template_news();
 }
 
-function template_newsfader()
+function template_news()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
-
-	// Show the news fader?  (assuming there are things to show...)
-	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
-	{
-		echo '
-			<div id="newsfader">
-				<div class="cat_bar">
-					<h3 class="catbg">
-						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>
-						', $txt['news'], '
-					</h3>
-				</div>
-				<div class="roundframe rfix" id="smfFadeScrollerCont">
-					<ul class="reset" id="smfFadeScroller">
-						<li>
-							', implode('</li><li>', $context['news_lines']), '
-						</li>
-					</ul>
-				</div>
-			</div>
-			<script src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
-			<script><!-- // --><![CDATA[
-				// Create a news fader object.
-				var oNewsFader = new smc_NewsFader({
-					sFaderControlId: \'smfFadeScroller\',
-					sItemTemplate: ', JavaScriptEscape('%1$s'), ',
-					iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
-				});
-
-				// Create the news fader toggle.
-				var smfNewsFadeToggle = new smc_Toggle({
-					bToggleEnabled: true,
-					bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
-					aSwappableContainers: [
-						\'smfFadeScrollerCont\'
-					],
-					aSwapImages: [
-						{
-							sId: \'newsupshrink\',
-							altExpanded: ', JavaScriptEscape($txt['hide']), ',
-							altCollapsed: ', JavaScriptEscape($txt['show']), '
-						}
-					],
-					oThemeOptions: {
-						bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-						sOptionName: \'collapse_news_fader\',
-						sSessionVar: smf_session_var,
-						sSessionId: smf_session_id
-					},
-					oCookieOptions: {
-						bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
-						sCookieName: \'newsupshrink\'
-					}
-				});
-			// ]]></script>
-		';
-	}
+	global $txt, $context;
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['news'],'</h3>
+		</div>
+		<ul class="bxslider">';
+		
+		foreach ($context['news_system'] as $news_new)
+		{
+			echo '
+				<li class="bbc_bold">',$news_new,'</li>';
+		}
+		
+	echo '
+		</ul>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$(".bxslider").bxSlider();
+			});
+		</script>';
 }
 
 function template_main()

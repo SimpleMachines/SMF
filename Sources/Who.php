@@ -725,6 +725,7 @@ function Credits($in_admin = false)
 			'<a href="http://users.tpg.com.au/j_birch/plugins/superfish/">Superfish</a> | &copy; Joel Birch | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://bxslider.com">bxSlider</a> | &copy; Steven Wanderski | Licensed under <a href="http://www.wtfpl.net/">WTFPL</a>',
 		),
 		'fonts' => array(
 			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> |&copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
