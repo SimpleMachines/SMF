@@ -633,6 +633,22 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 /******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
+---# Adding new field_order column...
+---{
+$smcFunc['db_alter_table']('{db_prefix}custom_fields', array(
+	'add' => array(
+		'field_order' => array(
+			'name' => 'field_order',
+			'null' => false,
+			'default' => '0',
+			'type' => 'int',
+			'auto' => false,
+		),
+	)
+));
+---}
+---#
+
 ---# Insert fields
 INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
