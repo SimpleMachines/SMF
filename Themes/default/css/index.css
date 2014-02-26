@@ -2716,16 +2716,16 @@ dl.send_mail dd {
 	width: 64%;
 }
 
-/* Styles for the report topic section.
+/* Styles for the report topic/user section.
 ---------------------------------------------------- */
 
-#report_topic dl {
+#report_form dl {
 	margin-bottom: 0;
 }
-#report_topic dl.settings dt {
+#report_form dl.settings dt {
 	width: 20%;
 }
-#report_topic dl.settings dd {
+#report_form dl.settings dd {
 	width: 79%;
 }
 #report_comment {
