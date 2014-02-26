@@ -625,11 +625,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'pm_ignore_list' => '',
 		'website_title' => '',
 		'website_url' => '',
-		'location' => '',
-		'icq' => '',
-		'aim' => '',
-		'yim' => '',
-		'skype' => '',
 		'time_format' => '',
 		'signature' => '',
 		'avatar' => '',
@@ -684,10 +679,6 @@ function registerMember(&$regOptions, $return_errors = false)
 			$regOptions['register_vars']['id_group'] = 0;
 	}
 
-	// ICQ cannot be zero.
-	if (isset($regOptions['extra_register_vars']['icq']) && empty($regOptions['extra_register_vars']['icq']))
-		$regOptions['extra_register_vars']['icq'] = '';
-
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
 		foreach ($regOptions['extra_register_vars'] as $var => $value)
@@ -702,7 +693,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Right, now let's prepare for insertion.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'hide_email', 'show_online', 'pm_email_notify', 'karma_good', 'karma_bad',
+		'new_pm', 'pm_prefs', 'hide_email', 'show_online', 'pm_email_notify', 'karma_good', 'karma_bad',
 		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
@@ -1320,7 +1311,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.icq, mem.aim, mem.yim, mem.skype, mem.member_ip, mem.member_ip2, mem.last_login,
+			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.member_ip, mem.member_ip2, mem.last_login,
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)

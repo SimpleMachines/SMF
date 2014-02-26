@@ -120,7 +120,7 @@ function template_alerts_popup()
 				</div>
 				<br class="clear">
 			</div>';
-		}	
+		}
 	}
 
 	echo '
@@ -185,10 +185,6 @@ function template_summary()
 	}
 
 	echo '
-				', !isset($context['disabled_fields']['icq']) && !empty($context['member']['icq']['link']) ? '<li>' . $context['member']['icq']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['skype']) && !empty($context['member']['skype']['link']) ? '<li>' . $context['member']['skype']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['aim']) && !empty($context['member']['aim']['link']) ? '<li>' . $context['member']['aim']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['yim']) && !empty($context['member']['yim']['link']) ? '<li>' . $context['member']['yim']['link'] . '</li>' : '', '
 			</ul>
 			<span id="userstatus">', $context['can_send_pm'] ? '<a href="' . $context['member']['online']['href'] . '" title="' . $context['member']['online']['text'] . '" rel="nofollow">' : '', $settings['use_image_buttons'] ? '<img src="' . $context['member']['online']['image_href'] . '" alt="' . $context['member']['online']['text'] . '" class="centericon">' : $context['member']['online']['label'], $context['can_send_pm'] ? '</a>' : '', $settings['use_image_buttons'] ? '<span class="smalltext"> ' . $context['member']['online']['label'] . '</span>' : '';
 
@@ -273,19 +269,9 @@ function template_summary()
 					<dt>', $modSettings['karmaLabel'], ' </dt>
 					<dd>+', $context['member']['karma']['good'], '/-', $context['member']['karma']['bad'], '</dd>';
 
-	if (!isset($context['disabled_fields']['gender']) && !empty($context['member']['gender']['name']))
-		echo '
-					<dt>', $txt['gender'], ': </dt>
-					<dd>', $context['member']['gender']['name'], '</dd>';
-
 	echo '
 					<dt>', $txt['age'], ':</dt>
 					<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
-
-	if (!isset($context['disabled_fields']['location']) && !empty($context['member']['location']))
-		echo '
-					<dt>', $txt['location'], ':</dt>
-					<dd>', $context['member']['location'], '</dd>';
 
 	echo '
 				</dl>';
@@ -606,7 +592,6 @@ function template_editBuddies()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
-	$buddy_fields = array('icq', 'aim', 'yim', 'skype');
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -626,17 +611,10 @@ function template_editBuddies()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
+
 	if ($context['can_send_email'])
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
-
-	// don't show them if they are disabled
-	foreach ($buddy_fields as $key => $column)
-	{
-		if (!isset($disabled_fields[$column]))
-			echo '
-				<th scope="col">', $txt[$column], '</th>';
-	}
 
 	echo '
 				<th class="last_th" scope="col"></th>
@@ -745,15 +723,12 @@ function template_editIgnoreList()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
+
 	if ($context['can_send_email'])
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
+
 	echo '
-				<th scope="col">', $txt['icq'], '</th>
-				<th scope="col">', $txt['aim'], '</th>
-				<th scope="col">', $txt['yim'], '</th>
-				<th scope="col">', $txt['skype'], '</th>
-				<th class="last_th" scope="col"></th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
@@ -775,10 +750,6 @@ function template_editIgnoreList()
 			echo '
 				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>'), '</td>';
 		echo '
-				<td align="center">', $member['icq']['link'], '</td>
-				<td align="center">', $member['aim']['link'], '</td>
-				<td align="center">', $member['yim']['link'], '</td>
-				<td align="center">', $member['skype']['link'], '</td>
 				<td align="center"><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
 
@@ -1393,7 +1364,7 @@ function template_edit_options()
 				else
 					$type = $field['type'];
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
-					
+
 
 				echo '
 							<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' class="input_', $field['type'] == 'password' ? 'password' : 'text', '"', $step, '>';

@@ -325,16 +325,6 @@ function Register2($verifiedOpenID = false)
 	{
 		$reg_fields = explode(',', $modSettings['registration_fields']);
 
-		// Easy string fields first.
-		foreach (array('skype', 'aim', 'yim', 'location') as $field)
-			if (in_array($field, $reg_fields))
-				$possible_strings[] = $field;
-
-		// Then the easy numeric fields.
-		foreach (array('icq', 'gender') as $field)
-			if (in_array($field, $reg_fields))
-				$possible_ints[] = $field;
-
 		// Website is a little different
 		if (in_array('website', $reg_fields))
 			$possible_strings += array('website_url', 'website_title');

@@ -946,9 +946,9 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	// Used by default
 	$select_columns = '
 			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
-			mem.signature, mem.personal_text, mem.location, mem.gender, mem.avatar, mem.id_member, mem.member_name,
+			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.hide_email, mem.date_registered, mem.website_title, mem.website_url,
-			mem.birthdate, mem.member_ip, mem.member_ip2, mem.icq, mem.aim, mem.yim, mem.skype, mem.posts, mem.last_login,
+			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login,
 			mem.karma_good, mem.id_post_group, mem.karma_bad, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group,
@@ -1121,10 +1121,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// Censor everything.
 	censorText($profile['signature']);
 	censorText($profile['personal_text']);
-	censorText($profile['location']);
 
 	// Set things up to be used before hand.
-	$gendertxt = $profile['gender'] == 2 ? $txt['female'] : ($profile['gender'] == 1 ? $txt['male'] : '');
 	$profile['signature'] = str_replace(array("\n", "\r"), array('<br>', ''), $profile['signature']);
 	$profile['signature'] = parse_bbc($profile['signature'], true, 'sig' . $profile['id_member']);
 
@@ -1158,41 +1156,12 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'buddies' => $buddy_list,
 			'title' => !empty($modSettings['titlesEnable']) ? $profile['usertitle'] : '',
 			'blurb' => $profile['personal_text'],
-			'gender' => array(
-				'name' => $gendertxt,
-				'image' => !empty($profile['gender']) ? '<span class="generic_icons ' . ($profile['gender'] == 1 ? 'gender_male' : 'gender_female') . '" title="' . $gendertxt . '"></span>' : ''
-			),
 			'website' => array(
 				'title' => $profile['website_title'],
 				'url' => $profile['website_url'],
 			),
 			'birth_date' => empty($profile['birthdate']) || $profile['birthdate'] === '0001-01-01' ? '0000-00-00' : (substr($profile['birthdate'], 0, 4) === '0004' ? '0000' . substr($profile['birthdate'], 4) : $profile['birthdate']),
 			'signature' => $profile['signature'],
-			'location' => $profile['location'],
-			'icq' => $profile['icq'] != '' && !$user_info['is_guest'] ? array(
-				'name' => $profile['icq'],
-				'href' => 'http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'],
-				'link' => '<a class="icq new_win" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" target="_blank" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '"><img src="' . $settings['images_url'] . '/icq.png" alt="' . $txt['icq'] . ' - ' . $profile['icq'] . '"></a>',
-				'link_text' => '<a class="icq extern" href="http://www.icq.com/whitepages/about_me.php?uin=' . $profile['icq'] . '" title="' . $txt['icq_title'] . ' - ' . $profile['icq'] . '">' . $profile['icq'] . '</a>',
-			) : array('name' => '', 'add' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'aim' => $profile['aim'] != '' && !$user_info['is_guest'] ? array(
-				'name' => $profile['aim'],
-				'href' => 'aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'],
-				'link' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '"><img src="' . $settings['images_url'] . '/aim.png" alt="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '"></a>',
-				'link_text' => '<a class="aim" href="aim:goim?screenname=' . urlencode(strtr($profile['aim'], array(' ' => '%20'))) . '&amp;message=' . $txt['aim_default_message'] . '" title="' . $txt['aim_title'] . ' - ' . $profile['aim'] . '">' . $profile['aim'] . '</a>'
-			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'yim' => $profile['yim'] != '' && !$user_info['is_guest'] ? array(
-				'name' => $profile['yim'],
-				'href' => 'http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']),
-				'link' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"><img src="' . $settings['images_url'] . '/yahoo.png" alt="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '"></a>',
-				'link_text' => '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target=' . urlencode($profile['yim']) . '" title="' . $txt['yim_title'] . ' - ' . $profile['yim'] . '">' . $profile['yim'] . '</a>'
-			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => ''),
-			'skype' => !empty($profile['skype']) && !$user_info['is_guest'] ? array(
-				'name' => $profile['skype'],
-				'href' => 'skype:' . $profile['skype'] . '?chat',
-				'link' => '<a class="skype new_win" href="skype:' . $profile['skype'] . '?chat" title="' . $txt['skype'] . ' - ' . $profile['skype'] . '"><img src="' . $settings['images_url'] . '/skype.png" alt="' . $txt['skype'] . ' - ' . $profile['skype'] . '"></a>',
-				'link_text' => '<a class="skype new_win" href="skype:' . $profile['skype'] . '?chat" title="' . $txt['skype'] . ' - ' . $profile['skype'] . '">' . $profile['skype'] . '</a>',
-			) : array('name' => '', 'href' => '', 'link' => '', 'link_text' => '',),
 			'real_posts' => $profile['posts'],
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
 			'avatar' => array(
@@ -1235,17 +1204,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
 		);
-
-	// First do a quick run through to make sure there is something to be shown.
-	$memberContext[$user]['has_messenger'] = false;
-	foreach (array('icq', 'skype', 'aim', 'yim') as $messenger)
-	{
-		if (!isset($context['disabled_fields'][$messenger]) && !empty($memberContext[$user][$messenger]['link']))
-		{
-			$memberContext[$user]['has_messenger'] = true;
-			break;
-		}
-	}
 
 	// Are we also loading the members custom fields into context?
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
