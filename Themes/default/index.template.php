@@ -268,7 +268,7 @@ function template_body_above()
 					</div>
 					<hr class="clear">
 				</div>';
-					
+
 	// Show the menu here, according to the menu sub template, followed by the navigation tree.
 	template_menu();
 
