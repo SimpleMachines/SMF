@@ -392,14 +392,6 @@ CREATE TABLE {$db_prefix}background_tasks (
 ---#
 
 /******************************************************************************/
----- Replacing MSN with Skype
-/******************************************************************************/
----# Modifying the "msn" column...
-ALTER TABLE {$db_prefix}members
-RENAME msn TO skype;
----#
-
-/******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
@@ -636,6 +628,70 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 	}
 }
 ---}
+---#
+
+/******************************************************************************/
+--- Messenger fields
+/******************************************************************************/
+---# Insert fields
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/whitepages/about_me.php?uin={INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="http://status.icq.com/online.gif?img=5&icq={INPUT}" alt="ICQ - {INPUT}" width="18" height="18"></a>', 1),
+('cust_skype', 'Skype', 'Your Skype name', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="skype new_win" href="skype:{INPUT}?chat" title="Live - {INPUT}"><img src="{IMAGES_URL}/skype.png" alt="Live - {INPUT}"></a>', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
+('cust_gender', 'Gender', 'Your gender.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
+---#
+
+---# Converting member values...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.2')
+{
+	$request = upgrade_query("
+		SELECT id_member, aim, icq, msn, yim, location, gender
+		FROM {$db_prefix}members");
+	$inserts = array();
+	while ($row = mysql_fetch_assoc($request))
+	{
+		if (!empty($row[aim]))
+			$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
+
+		if (!empty($row[icq]))
+			$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
+
+		if (!empty($row[msn]))
+			$inserts[] = "($row[id_member], -1, 'cust_skype', $row[msn])";
+
+		if (!empty($row[yim]))
+			$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
+
+		if (!empty($row[location]))
+			$inserts[] = "($row[id_member], -1, 'cust_loca', $row[location])";
+
+		if (!empty($row[gender]))
+			$inserts[] = "($row[id_member], -1, 'cust_gender', $row[gender])";
+	}
+	mysql_free_result($request);
+
+	if (!empty($inserts))
+		upgrade_query("
+			INSERT INTO {$db_prefix}themes
+				(id_member, id_theme, variable, value)
+			VALUES
+				" . implode(',', $inserts));
+}
+---}
+---#
+
+---# Dropping old fields
+ALTER TABLE `{$db_prefix}members`
+  DROP `icq`,
+  DROP `aim`,
+  DROP `yim`,
+  DROP `msn`;
+  DROP `location`;
+  DROP `gender`;
 ---#
 
 /******************************************************************************/

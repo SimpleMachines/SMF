@@ -73,21 +73,6 @@ function loadProfileFields($force_reload = false)
 	*/
 
 	$profile_fields = array(
-		'aim' => array(
-			'type' => 'text',
-			'label' => $txt['aim'],
-			'subtext' => $txt['your_aim'],
-			'size' => 24,
-			'value' => strtr(empty($cur_profile['aim']) ? '' : $cur_profile['aim'], '+', ' '),
-			'permission' => 'profile_extra',
-			'input_validate' => create_function('&$value', '
-				$value = strtr($value, \' \', \'+\');
-				if (strlen($value) > 32)
-					return \'aim_too_long\';
-
-				return true;
-			'),
-		),
 		'avatar_choice' => array(
 			'type' => 'callback',
 			'callback_func' => 'avatar_select',
@@ -211,13 +196,6 @@ function loadProfileFields($force_reload = false)
 				return $isValid;
 			'),
 		),
-		'gender' => array(
-			'type' => 'select',
-			'cast_type' => 'int',
-			'options' => 'return array(0 => \'\', 1 => $txt[\'male\'], 2 => $txt[\'female\']);',
-			'label' => $txt['gender'],
-			'permission' => 'profile_extra',
-		),
 		'hide_email' => array(
 			'type' => 'check',
 			'value' => empty($cur_profile['hide_email']) ? true : false,
@@ -226,21 +204,6 @@ function loadProfileFields($force_reload = false)
 			'input_validate' => create_function('&$value', '
 				$value = $value == 0 ? 1 : 0;
 
-				return true;
-			'),
-		),
-		'icq' => array(
-			'type' => 'text',
-			'label' => $txt['icq'],
-			'subtext' => $txt['your_icq'],
-			'size' => 24,
-			'permission' => 'profile_extra',
-			// Need to make sure ICQ doesn't equal 0.
-			'input_validate' => create_function('&$value', '
-				if (empty($value))
-					$value = \'\';
-				else
-					$value = (int) $value;
 				return true;
 			'),
 		),
@@ -338,13 +301,6 @@ function loadProfileFields($force_reload = false)
 				}
 			'),
 		),
-		'location' => array(
-			'type' => 'text',
-			'label' => $txt['location'],
-			'log_change' => true,
-			'size' => 50,
-			'permission' => 'profile_other',
-		),
 		// The username is not always editable - so adjust it as such.
 		'member_name' => array(
 			'type' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
@@ -377,13 +333,6 @@ function loadProfileFields($force_reload = false)
 				}
 				return false;
 			'),
-		),
-		'skype' => array(
-			'type' => 'text',
-			'label' => $txt['skype'],
-			'subtext' => $txt['skype_username'],
-			'size' => 24,
-			'permission' => 'profile_extra',
 		),
 		'passwrd1' => array(
 			'type' => 'password',
@@ -678,14 +627,6 @@ function loadProfileFields($force_reload = false)
 				return true;
 			'),
 			'link_with' => 'website',
-		),
-		'yim' => array(
-			'type' => 'text',
-			'label' => $txt['yim'],
-			'subtext' => $txt['your_yim'],
-			'size' => 24,
-			'input_attr' => array('maxlength="32"'),
-			'permission' => 'profile_extra',
 		),
 	);
 
@@ -1680,9 +1621,7 @@ function forumProfile($memID)
 	setupProfileContext(
 		array(
 			'avatar_choice', 'hr', 'personal_text', 'hr',
-			'bday1', 'location', 'gender', 'hr',
-			'icq', 'aim', 'yim', 'skype', 'hr',
-			'usertitle', 'signature', 'hr',
+			'bday1', 'usertitle', 'signature', 'hr',
 			'karma_good', 'hr',
 			'website_title', 'website_url',
 		)

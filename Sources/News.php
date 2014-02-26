@@ -924,19 +924,8 @@ function getXmlProfile($xml_format)
 			$data['signature'] = cdata_parse($profile['signature']);
 		if ($profile['blurb'] != '')
 			$data['blurb'] = cdata_parse($profile['blurb']);
-		if ($profile['location'] != '')
-			$data['location'] = cdata_parse($profile['location']);
 		if ($profile['title'] != '')
 			$data['title'] = cdata_parse($profile['title']);
-
-		if (!empty($profile['icq']['name']) && !$user_info['is_guest'])
-			$data['icq'] = $profile['icq']['name'];
-		if ($profile['aim']['name'] != '' && !$user_info['is_guest'])
-			$data['aim'] = $profile['aim']['name'];
-		if ($profile['yim']['name'] != '' && !$user_info['is_guest'])
-			$data['yim'] = $profile['yim']['name'];
-		if (!empty($profile['skype']['name']) && !$user_info['is_guest'])
-			$data['skype'] = $profile['skype']['name'];
 
 		if ($profile['website']['title'] != '')
 			$data['website'] = array(
