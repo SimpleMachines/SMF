@@ -423,8 +423,10 @@ function reportUser($id_member, $reason)
 			array('$sourcedir/tasks/UserReport-Notify.php', 'UserReport_Notify_Background', serialize(array(
 				'report_id' => $id_report,
 				'user_id' => $user['id_member'],
+				'user_name' => $user_name,
 				'sender_id' => $context['user']['id'],
 				'sender_name' => $context['user']['name'],
+				'comment' => $reason,
 				'time' => time(),
 			)), 0),
 			array('id_task')
