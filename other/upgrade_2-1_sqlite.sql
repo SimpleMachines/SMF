@@ -695,16 +695,6 @@ ALTER TABLE `{$db_prefix}members`
   DROP `gender`;
 ---#
 
----# Dropping old fields
-ALTER TABLE `{$db_prefix}members`
-  DROP `icq`,
-  DROP `aim`,
-  DROP `yim`,
-  DROP `msn`;
-  DROP `location`,
-  DROP `gender`,
----#
-
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
