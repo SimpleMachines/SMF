@@ -833,11 +833,11 @@ function createBoard($boardOptions)
 	);
 	$board_columns = array(
 		'id_cat' => 'int', 'name' => 'string-255', 'description' => 'string', 'board_order' => 'int',
-		'member_groups' => 'string', 'redirect' => 'string',
+		'member_groups' => 'string', 'redirect' => 'string', 'is_blog' => 'int', 'blog_alias' => 'string', 'passwd' => 'string',
 	);
 	$board_parameters = array(
 		$boardOptions['target_category'], $boardOptions['board_name'] , '', 0,
-		'-1,0', '',
+		'-1,0', '', 0, '', '',
 	);
 
 	call_integration_hook('integrate_create_board', array(&$boardOptions, &$board_columns, &$board_parameters));
