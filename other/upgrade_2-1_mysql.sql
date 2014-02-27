@@ -564,19 +564,8 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 --- Messenger fields
 /******************************************************************************/
 ---# Adding new field_order column...
----{
-$smcFunc['db_alter_table']('{db_prefix}custom_fields', array(
-	'add' => array(
-		'field_order' => array(
-			'name' => 'field_order',
-			'null' => false,
-			'default' => '0',
-			'type' => 'int',
-			'auto' => false,
-		),
-	)
-));
----}
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN field_order smallint NOT NULL default '0';
 ---#
 
 ---# Insert fields
@@ -592,7 +581,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ---# Converting member values...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.2')
+if (@$modSettings['smfVersion'] < '2.1')
 {
 	$request = upgrade_query("
 		SELECT id_member, aim, icq, msn, yim, location, gender
@@ -618,7 +607,7 @@ if (@$modSettings['smfVersion'] < '2.2')
 		if (!empty($row[gender]))
 			$inserts[] = "($row[id_member], -1, 'cust_gender', $row[gender])";
 	}
-	mysql_free_result($request);
+	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
 		upgrade_query("
@@ -635,9 +624,9 @@ ALTER TABLE `{$db_prefix}members`
   DROP `icq`,
   DROP `aim`,
   DROP `yim`,
-  DROP `msn`;
+  DROP `msn`,
   DROP `location`,
-  DROP `gender`,
+  DROP `gender`;
 ---#
 
 /******************************************************************************/
