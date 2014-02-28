@@ -498,6 +498,17 @@ function banPermissions()
 	}
 	else
 		$context['open_mod_reports'] = 0;
+
+	if (isset($_SESSION['rmc']) && $_SESSION['rmc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rmc']['id'] == $user_info['id'])
+		$contexct['open_member_reports'] = $_SESSION['rmc']['reports'];
+	elseif (allowedTo('moderate_forum'))
+	{
+		require_once($sourcedir . '/ModerationCenter.php');
+		recountOpenMemberReports();
+	}
+	else
+		$context['open_member_reports'] = 0;
+
 }
 
 /**

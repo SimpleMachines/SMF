@@ -3972,7 +3972,10 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 	}
 
-	if (allowedTo('moderate_forum') && $context['open_member_reports'] > 0)
+	/**
+	 * @todo For some reason, $context['open_member_reports'] isn't getting set
+	 */
+	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';

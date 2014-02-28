@@ -36,7 +36,7 @@ function ReportToModerator()
 	// If we don't have the ID of something to report, we'll die with a no_access error below
 	if (isset($_REQUEST['msg']))
 		isAllowedTo('report_msg');
-	elseif (isset($_REQEUST['u']))
+	elseif (isset($_REQUEST['u']))
 		isAllowedTo('report_user');
 
 	// If they're posting, it should be processed by ReportToModerator2.

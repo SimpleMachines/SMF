@@ -328,7 +328,7 @@ function ModifyProfile($post_errors = array())
 				),
 				'report' => array(
 					'label' => $txt['report_profile'],
-					'custom_url' => $scripturl . '?action=reporttm;u=' . $context['user']['id'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
 					'icon' => 'warning.png',
 					'permission' => array(
 						'own' => array(),

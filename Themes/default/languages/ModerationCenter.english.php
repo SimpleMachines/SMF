@@ -88,6 +88,8 @@ $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator com
 $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 
 $txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
+$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member.  The last report was %2$s.';
+$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this member.';
 
 $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
@@ -152,6 +154,6 @@ $txt['mc_add_note'] = 'Add';
 
 // Do not use numeric entries in the below string.
 $txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this user\'s profile?\\n\\nThis will turn off further reports for everyone.';
-$txt['mc_reported_members'] = 'Reported Member Profiles';
-
+$txt['mc_reported_members_title'] = 'Reported Members';
+$txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
 ?>

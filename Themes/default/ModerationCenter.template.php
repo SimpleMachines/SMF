@@ -576,7 +576,7 @@ function template_viewmemberreport()
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf($txt['mc_modreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '
+						', sprintf($txt['mc_memberreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '
 					</span>
 					<span class="floatright">';
 
@@ -593,7 +593,7 @@ function template_viewmemberreport()
 			</div>
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', $txt['mc_modreport_whoreported_title'], '</h3>
+				<h3 class="catbg">', $txt['mc_memberreport_whoreported_title'], '</h3>
 			</div>';
 
 	foreach ($context['report']['comments'] as $comment)
@@ -928,6 +928,96 @@ function template_reported_members_block()
 			}
 		});
 	// ]]></script>';
+}
+
+function template_reported_members()
+{
+	global $context, $txt, $scripturl;
+
+	// Let them know the action was a success.
+	if (!empty($context['report_post_action']) && !empty($txt['report_action_'. $context['report_post_action']]))
+	{
+		echo '
+			<div class="infobox">
+				', $txt['report_action_'. $context['report_post_action']], '
+			</div>';
+	}
+
+	echo '
+	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
+			</h3>
+		</div>
+		<div class="pagesection">
+			<div class="pagelinks">', $context['page_index'], '</div>
+		</div>';
+
+	// Make the buttons.
+	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
+	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'class="centericon"');
+	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
+	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
+	$ban_button = create_button('close.png', 'mc_reportedp_ban', 'mc_reportedp_ban', 'class="centericon"');
+
+	foreach ($context['reports'] as $report)
+	{
+		echo '
+		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
+			<div class="content">
+				<h5>
+					<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
+				</h5>
+				<div class="smalltext">
+					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+
+		// Prepare the comments...
+		$comments = array();
+		foreach ($report['comments'] as $comment)
+			$comments[$comment['member']['id']] = $comment['member']['link'];
+
+		echo '
+					', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				</div>
+				<hr>
+				', $report['body'], '
+				<br>
+				<ul class="quickbuttons">
+					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+					<li><a href="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';close=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a></li>';
+
+		// Ban this user button.
+		if (!$report['closed'] && !empty($context['report_manage_bans']) && !empty($report['user']['id']))
+			echo '
+					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+
+		echo '
+					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
+				</ul>
+			</div>
+		</div>';
+	}
+
+	// Were none found?
+	if (empty($context['reports']))
+		echo '
+		<div class="windowbg2">
+			<div class="content">
+				<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
+			</div>
+		</div>';
+
+	echo '
+		<div class="pagesection">
+			<div class="pagelinks floatleft">', $context['page_index'], '</div>
+			<div class="floatright">
+				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
+			</div>
+		</div>
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+	</form>';
 }
 
 ?>

@@ -53,7 +53,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($members, 'user_report_reply', true);
+		$prefs = getNotifyPrefs($members, 'member_report_reply', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(

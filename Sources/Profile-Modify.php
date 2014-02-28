@@ -1961,8 +1961,8 @@ function alert_configuration($memID)
 		'moderation' => array(
 			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
 			'msg_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
-			'profile_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
-			'profile_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
+			'member_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
+			'member_report_reply' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),
 		),
 		'members' => array(
 			'member_register' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_forum', 'is_board' => false)),

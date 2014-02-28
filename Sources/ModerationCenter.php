@@ -169,9 +169,9 @@ function ModerationMain($dont_call = false)
 					),
 				),
 				'memberreports' => array(
-					'label' => $txt['mc_reported_users_title'],
+					'label' => $txt['mc_reported_members_title'],
 					'enabled' => $context['can_moderate_users'],
-					'function' => 'ViewMemberReports',
+					'function' => 'ReportedMembers',
 					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
@@ -575,12 +575,12 @@ function ModBlockGroupRequests()
 /**
  * Show a list of the most recent reported posts.
  */
-function ModBlockReportedUsers()
+function ModBlockReportedMembers()
 {
 	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
+	$cache_key = md5(serialize((int) allowedTo('moderate_forum')));
 	$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
@@ -907,20 +907,20 @@ function ReportedPosts()
 /**
  * Browse all the reported users...
  */
-function ReportedUsers()
+function ReportedMembers()
 {
 	global $txt, $context, $scripturl, $user_info, $smcFunc;
 
 	loadTemplate('ModerationCenter');
 
 	// Set an empty var for the server response.
-	$context['report_user_action'] = '';
+	$context['report_member_action'] = '';
 
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_reported_users'],
+		'title' => $txt['mc_reported_members'],
 		'help' => '',
-		'description' => $txt['mc_reported_users_desc'],
+		'description' => $txt['mc_reported_members_desc'],
 	);
 
 	isAllowedTo('moderate_forum');
@@ -973,14 +973,14 @@ function ReportedUsers()
 		$extra['member'] = (string)$extra['member'];
 
 		// Tell the user about it.
-		$context['report_post_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
+		$context['report_member_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
 
 		// Log this action
-		logAction($context['report_user_action'] . '_user_report', $extra);
+		logAction($context['report_member_action'] . '_user_report', $extra);
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
-		recountOpenUserReports();
+		recountOpenMemberReports();
 	}
 	elseif (isset($_POST['close']) && isset($_POST['close_selected']))
 	{
@@ -1029,11 +1029,11 @@ function ReportedUsers()
 
 			// Time to update.
 			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenReports();
+			recountOpenMemberReports();
 		}
 
 		// Go on and tell the result.
-		$context['report_post_action'] = 'close_all';
+		$context['report_member_action'] = 'close_all';
 	}
 
 	// How many entries are we viewing?
@@ -1071,11 +1071,9 @@ function ReportedUsers()
 	);
 	$context['reports'] = array();
 	$report_ids = array();
-	$report_boards_ids = array();
 	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
 	{
 		$report_ids[] = $row['id_report'];
-		$report_boards_ids[] = $row['id_board'];
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
@@ -1125,6 +1123,8 @@ function ReportedUsers()
 		}
 		$smcFunc['db_free_result']($request);
 	}
+
+	$context['report_manage_bans'] = allowedTo('manage_bans');
 }
 
 /**

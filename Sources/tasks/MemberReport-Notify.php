@@ -28,7 +28,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($members, 'msg_report', true);
+		$prefs = getNotifyPrefs($members, 'member_report', true);
 
 		// So now we find out who wants what.
 		$alert_bits = array(
