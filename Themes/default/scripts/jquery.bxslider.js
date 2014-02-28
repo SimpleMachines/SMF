@@ -16,7 +16,6 @@
 
 		// GENERAL
 		mode: 'horizontal',
-		slideSelector: '',
 		infiniteLoop: true,
 		speed: 100,
 		slideMargin: 5,
@@ -32,7 +31,6 @@
 
 		// PAGER
 		pager: true,
-		pagerType: 'full',
 		pagerSelector: null,
 		buildPager: null,
 
@@ -680,8 +678,6 @@
 			}else{
 				slider.active.index = slideIndex;
 			}
-			// onSlideBefore, onSlideNext, onSlidePrev callbacks
-			slider.settings.onSlideBefore(slider.children.eq(slider.active.index), slider.oldIndex, slider.active.index);
 			// check if last slide
 			slider.active.last = slider.active.index >= getPagerQty() - 1;
 			// update the pager with active class
@@ -704,7 +700,7 @@
 						position = slider.children.eq(lastShowingIndex).position();
 					}
 					// horizontal carousel, going previous while on first slide (infiniteLoop mode)
-				}else if(slider.carousel && slider.active.last && direction == 'prev'){
+				}else if(slider.carousel && slider.active.last){
 					// get the last child position
 					var eq = slider.settings.moveSlides == 1 ? slider.settings.maxSlides - getMoveBy() : ((getPagerQty() - 1) * getMoveBy()) - (slider.children.length - slider.settings.maxSlides);
 					var lastChild = el.children('.bx-clone').eq(eq);
