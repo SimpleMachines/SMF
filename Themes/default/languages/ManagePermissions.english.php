@@ -183,6 +183,9 @@ $txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete
 $txt['permissionname_profile_remove_own'] = 'Own account';
 $txt['permissionname_profile_remove_any'] = 'Any account';
 
+$txt['permissionname_report_user'] = 'Report users\' profiles';
+$txt['permissionhelp_report_user'] = 'This permission will allow members to report other users\' profiles to the admins to alert them of spam or other inappropriate content in the profile.';
+
 $txt['permissiongroup_general_board'] = 'General';
 $txt['permissionname_moderate_board'] = 'Moderate board';
 $txt['permissionhelp_moderate_board'] = 'The moderate board permission adds a few small permissions that make a moderator a real moderator. Permissions include replying to locked topics, changing the poll expire time and viewing poll results.';

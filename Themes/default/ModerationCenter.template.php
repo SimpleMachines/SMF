@@ -561,6 +561,89 @@ function template_viewmodreport()
 	</div>';
 }
 
+function template_viewmemberreport()
+{
+	global $context, $scripturl, $txt;
+
+	echo '
+	<div id="modcenter">
+		<form action="', $scripturl, '?action=moderate;area=memberreports;report=', $context['report']['id'], '" method="post" accept-charset="', $context['character_set'], '">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', sprintf($txt['mc_viewmemberreport'], $context['report']['user']['link']), '
+				</h3>
+			</div>
+			<div class="title_bar">
+				<h3 class="titlebg">
+					<span class="floatleft">
+						', sprintf($txt['mc_modreport_summary'], $context['report']['num_reports'], $context['report']['last_updated']), '
+					</span>
+					<span class="floatright">';
+
+		// Make the buttons.
+		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
+		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
+		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
+
+		echo '
+						<a href="', $scripturl, '?action=moderate;area=memberreports;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$context['report']['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
+						<a href="', $scripturl, '?action=moderate;area=memberreports;close=', (int) !$context['report']['closed'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $close_button, '</a>
+					</span>
+				</h3>
+			</div>
+			<br>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['mc_modreport_whoreported_title'], '</h3>
+			</div>';
+
+	foreach ($context['report']['comments'] as $comment)
+		echo '
+			<div class="windowbg">
+				<div class="content">
+					<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
+					<p>', $comment['message'], '</p>
+				</div>
+			</div>';
+
+	echo '
+			<br>
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['mc_modreport_mod_comments'], '</h3>
+			</div>';
+			
+		if (empty($context['report']['mod_comments']))
+		echo '
+				<div class="description">
+					<p class="centertext">', $txt['mc_modreport_no_mod_comment'], '</p>
+				</div>';
+	
+		echo '
+			<div class="windowbg2">
+				<div class="content">';
+
+	foreach ($context['report']['mod_comments'] as $comment)
+		echo
+					'<p>', $comment['member']['link'], ': ', $comment['message'], ' <em class="smalltext">(', $comment['time'], ')</em></p>';
+
+		echo '
+					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<div>
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+					</div>
+				</div>
+			</div>
+			<br>';
+
+	$alt = false;
+
+	template_show_list('moderation_actions_list');
+
+	echo '
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		</form>
+	</div>';
+}
+
 // Callback function for showing a watched users post in the table.
 function template_user_watch_post_callback($post)
 {
@@ -777,6 +860,73 @@ function template_warn_template()
 			});
 			return false;
 		}
+	// ]]></script>';
+}
+
+// A block to show the current top reported member profiles.
+function template_reported_members_block()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span id="reported_members_toggle" class="', !empty($context['admin_prefs']['mcru']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=memberreports" id="reported_members_link">', $txt['mc_recent_member_reports'], '</a>
+			</h3>
+		</div>
+		<div class="windowbg" id="reported_users_panel">
+			<div class="content modbox">
+				<ul class="reset">';
+
+		foreach ($context['reported_members'] as $report)
+			echo '
+					<li class="smalltext">
+						<a href="', $report['report_href'], '">', $report['user_name'], '</a>
+					</li>';
+
+		// Don't have any reported members right now?
+		if (empty($context['reported_members']))
+			echo '
+					<li>
+						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
+					</li>';
+
+		echo '
+				</ul>
+			</div>
+		</div>
+		
+	<script><!-- // --><![CDATA[
+		var oReportedPostsPanelToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrm']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'reported_posts_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'reported_members_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'reported_members_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_recent_member_reports']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_member_reports']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcrm\'
+			}
+		});
 	// ]]></script>';
 }
 

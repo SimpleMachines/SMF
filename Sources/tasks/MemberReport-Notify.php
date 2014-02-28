@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This task handles notifying users when another user's profile gets reported.
+ * This task handles notifying users when another member's profile gets reported.
  *
  * Simple Machines Forum (SMF)
  *
@@ -13,7 +13,7 @@
  * @version 2.1 Alpha 1
  */
 
-class UserReport_Notify_Background extends SMF_BackgroundTask
+class MemberReport_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
 	{
@@ -119,7 +119,7 @@ class UserReport_Notify_Background extends SMF_BackgroundTask
 					'COMMENT' => $this->_details['comment'],
 				);
 
-				$emaildata = loadEmailTemplate('report_user_profile', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('report_member_profile', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)

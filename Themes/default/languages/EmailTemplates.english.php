@@ -466,8 +466,8 @@ Moderation center: {REPORTLINK}
 		COMMENT: The comment left by the reporter.
  	@description: When a user's profile is reported
 */
-$txt['report_user_profile_subject'] = 'Reported profile: {MEMBERNAME}';
-$txt['report_user_profile_body'] = 'The profile of "{MEMBERNAME}" has been reported by {REPORTERNAME}.
+$txt['report_member_profile_subject'] = 'Reported profile: {MEMBERNAME}';
+$txt['report_member_profile_body'] = 'The profile of "{MEMBERNAME}" has been reported by {REPORTERNAME}.
 
 The profile: {PROFILELINK}
 Moderation center: {REPORTLINK}
@@ -484,8 +484,8 @@ The reporter has made the following comment:
 		PROFILELINK: The link to the profile that was reported
  	@description: When someone replies to a report about a profile, this can be sent to others who replied
 */
-$txt['reply_to_user_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
-$txt['reply_to_user_report_body'] = 'Previously, the profile of {MEMBERNAME} was reported.
+$txt['reply_to_member_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
+$txt['reply_to_member_report_body'] = 'Previously, the profile of {MEMBERNAME} was reported.
 
 Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
 

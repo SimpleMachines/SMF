@@ -3812,8 +3812,13 @@ function setupMenuContext()
 						'title' => $txt['mc_reported_posts'],
 						'href' => $scripturl . '?action=moderate;area=reports',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
-						'is_last' => true,
 					),
+					'reported_members' => array(
+						'title' => $txt['mc_reported_members'],
+						'href' => $scripturl . '?action=moderate;area=memberreports',
+						'show' => allowedTo('moderate_forum'),
+						'is_last' => true,
+					)
 				),
 			),
 			'calendar' => array(
@@ -3959,10 +3964,18 @@ function setupMenuContext()
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
 
+	$total_mod_reports = 0;
+
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
 	{
-		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+	}
+
+	if (allowedTo('moderate_forum') && $context['open_member_reports'] > 0)
+	{
+		$total_mod_reports += $context['open_member_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
 	if (!empty($context['unapproved_members']))
@@ -3970,6 +3983,13 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 	}
+
+	// Do we have any open reports?
+	if ($total_mod_reports > 0)
+	{
+		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
+	}
+	
 }
 
 /**

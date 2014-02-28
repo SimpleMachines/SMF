@@ -14,7 +14,7 @@
  * @version 2.1 Alpha 1
  */
 
-class UserReportReply_Notify_Background extends SMF_BackgroundTask
+class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
 	{

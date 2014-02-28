@@ -311,12 +311,13 @@ function ViewModlog()
  * @param $query_string
  * @param $query_params
  * @param $log_type
+ * @param $ignore_boards
  */
-function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1)
+function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
 	global $smcFunc, $user_info;
 
-	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : ($user_info['mod_cache']['bq'] == '0=1' ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -351,12 +352,13 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  * @param $query_string
  * @param $query_params
  * @param $log_type
+ * @param $ignore_boards 
  */
-function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1)
+function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
 	global $scripturl, $txt, $smcFunc, $user_info;
 
-	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : ($user_info['mod_cache']['bq'] == '0=1' ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
 	// Can they see the IP address?
 	$seeIP = allowedTo('moderate_forum');
