@@ -1227,6 +1227,7 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL default '0001-01-01',
   website_title varchar(255) NOT NULL default '',
   website_url varchar(255) NOT NULL default '',
+  location varchar(255) NOT NULL default '',
   hide_email tinyint(4) NOT NULL default '0',
   show_online tinyint(4) NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
