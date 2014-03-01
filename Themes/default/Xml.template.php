@@ -12,9 +12,10 @@
 
 function template_sendbody()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<message view="', $context['view'], '">', cleanXml($context['message']), '</message>
 </smf>';
@@ -22,9 +23,10 @@ function template_sendbody()
 
 function template_quotefast()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<quote>', cleanXml($context['quote']['xml']), '</quote>
 </smf>';
@@ -32,9 +34,10 @@ function template_quotefast()
 
 function template_modifyfast()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<subject><![CDATA[', cleanXml($context['message']['subject']), ']]></subject>
 	<message id="msg_', $context['message']['id'], '"><![CDATA[', cleanXml($context['message']['body']), ']]></message>
@@ -44,9 +47,10 @@ function template_modifyfast()
 
 function template_modifydone()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<message id="msg_', $context['message']['id'], '">';
 	if (empty($context['message']['errors']))
@@ -70,9 +74,10 @@ function template_modifydone()
 
 function template_modifytopicdone()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<message id="msg_', $context['message']['id'], '">';
 	if (empty($context['message']['errors']))
@@ -97,9 +102,10 @@ function template_modifytopicdone()
 
 function template_post()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<preview>
 		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
@@ -142,10 +148,11 @@ function template_post()
 
 function template_pm()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<preview>
 		<subject><![CDATA[', $txt['preview'], ' - ', !empty($context['preview_subject']) ? $context['preview_subject'] : $txt['no_subject'], ']]></subject>
@@ -171,10 +178,11 @@ function template_pm()
 
 function template_warning()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<preview>
 		<subject><![CDATA[', $context['preview_subject'], ']]></subject>
@@ -195,9 +203,10 @@ function template_warning()
 
 function template_stats()
 {
-	global $context, $txt, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>';
 	foreach ($context['yearly'] as $year)
 		foreach ($year['months'] as $month)
@@ -216,9 +225,10 @@ function template_stats()
 
 function template_split()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<pageIndex section="not_selected" startFrom="', $context['not_selected']['start'], '"><![CDATA[', $context['not_selected']['page_index'], ']]></pageIndex>
 	<pageIndex section="selected" startFrom="', $context['selected']['start'], '"><![CDATA[', $context['selected']['page_index'], ']]></pageIndex>';
@@ -256,8 +266,9 @@ if (!function_exists('template_button_strip'))
 
 function template_results()
 {
-	global $context, $txt;
+	global $context, $settings, $txt;
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>';
 
 	if (empty($context['topics']))
@@ -318,9 +329,10 @@ function template_results()
 
 function template_jump_to()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>';
 	foreach ($context['jump_to'] as $category)
 	{
@@ -336,9 +348,10 @@ function template_jump_to()
 
 function template_message_icons()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>';
 	foreach ($context['icons'] as $icon)
 		echo '
@@ -349,9 +362,10 @@ function template_message_icons()
 
 function template_check_username()
 {
-	global $context;
+	global $context, $settings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>
 <smf>
 	<username valid="', $context['valid_username'] ? 1 : 0, '">', cleanXml($context['checked_username']), '</username>
 </smf>';
@@ -360,9 +374,10 @@ function template_check_username()
 // This prints XML in it's most generic form.
 function template_generic_xml()
 {
-	global $context;
+	global $context, $settings;
 
-	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>';
+	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
+<?xml-stylesheet href="' . $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?fin20"?>';
 
 	// Show the data.
 	template_generic_xml_recursive($context['xml_data'], 'smf', '', -1);
