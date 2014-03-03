@@ -690,122 +690,6 @@ function template_servers()
 	echo '
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
-			<h3 class="catbg">', $txt['download_new_package'], '</h3>
-		</div>';
-
-	if ($context['package_download_broken'])
-	{
-		echo '
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['package_ftp_necessary'], '</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<p>
-					', $txt['package_ftp_why_download'], '
-				</p>
-				<form action="', $scripturl, '?action=admin;area=packages;get" method="post" accept-charset="', $context['character_set'], '">
-					<dl class="settings">
-						<dt>
-							<label for="ftp_server">', $txt['package_ftp_server'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $context['package_ftp']['server'], '" class="input_text">
-							<label for="ftp_port">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '" class="input_text">
-						</dd>
-						<dt>
-							<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" size="50" name="ftp_username" id="ftp_username" value="', $context['package_ftp']['username'], '" style="width: 99%;" class="input_text">
-						</dd>
-						<dt>
-							<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
-						</dt>
-						<dd>
-							<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password">
-						</dd>
-						<dt>
-							<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
-						</dt>
-						<dd>
-							<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '" style="width: 99%;" class="input_text">
-						</dd>
-					</dl>
-					<div class="righttext">
-						<input type="submit" value="', $txt['package_proceed'], '" class="button_submit">
-					</div>
-				</form>
-			</div>
-		</div>';
-	}
-
-	echo '
-		<div class="windowbg2">
-			<div class="content">
-				<fieldset>
-					<legend>' . $txt['package_servers'] . '</legend>
-					<ul class="package_servers">';
-	foreach ($context['servers'] as $server)
-		echo '
-						<li class="flow_auto">
-							<span class="floatleft">' . $server['name'] . '</span>
-							<span class="package_server floatright"><a href="' . $scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';', $context['session_var'], '=', $context['session_id'], '">[ ' . $txt['delete'] . ' ]</a></span>
-							<span class="package_server floatright"><a href="' . $scripturl . '?action=admin;area=packages;get;sa=browse;server=' . $server['id'] . '">[ ' . $txt['package_browse'] . ' ]</a></span>
-						</li>';
-	echo '
-					</ul>
-				</fieldset>
-				<fieldset>
-					<legend>' . $txt['add_server'] . '</legend>
-					<form action="' . $scripturl . '?action=admin;area=packages;get;sa=add" method="post" accept-charset="', $context['character_set'], '">
-						<dl class="settings">
-							<dt>
-								<strong>' . $txt['server_name'] . ':</strong>
-							</dt>
-							<dd>
-								<input type="text" name="servername" size="44" value="SMF" class="input_text">
-							</dd>
-							<dt>
-								<strong>' . $txt['serverurl'] . ':</strong>
-							</dt>
-							<dd>
-								<input type="text" name="serverurl" size="44" value="http://" class="input_text">
-							</dd>
-						</dl>
-						<div class="righttext">
-							<input type="submit" value="' . $txt['add_server'] . '" class="button_submit">
-							<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-						</div>
-					</form>
-				</fieldset>
-				<fieldset>
-					<legend>', $txt['package_download_by_url'], '</legend>
-					<form action="', $scripturl, '?action=admin;area=packages;get;sa=download;byurl;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
-						<dl class="settings">
-							<dt>
-								<strong>' . $txt['serverurl'] . ':</strong>
-							</dt>
-							<dd>
-								<input type="text" name="package" size="44" value="http://" class="input_text">
-							</dd>
-							<dt>
-								<strong>', $txt['package_download_filename'], ':</strong>
-							</dt>
-							<dd>
-								<input type="text" name="filename" size="44" class="input_text"><br>
-								<span class="smalltext">', $txt['package_download_filename_info'], '</span>
-							</dd>
-						</dl>
-						<div class="righttext">
-							<input type="submit" value="', $txt['download'], '" class="button_submit">
-						</div>
-					</form>
-				</fieldset>
-			</div>
-		</div>
-		<br>
-		<div class="cat_bar">
 			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
 		</div>
 		<div class="windowbg">
@@ -823,6 +707,124 @@ function template_servers()
 					<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit">
 					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 				</form>
+			</div>
+		</div>
+		<br>
+		<div class="cat_bar">
+			<h3 class="catbg"><a class="download_new_package">', $txt['download_new_package'], '</a></h3>
+		</div>
+		<div class="new_package_content">';
+
+	if ($context['package_download_broken'])
+	{
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['package_ftp_necessary'], '</h3>
+			</div>
+			<div class="windowbg">
+				<div class="content">
+					<p>
+						', $txt['package_ftp_why_download'], '
+					</p>
+					<form action="', $scripturl, '?action=admin;area=packages;get" method="post" accept-charset="', $context['character_set'], '">
+						<dl class="settings">
+							<dt>
+								<label for="ftp_server">', $txt['package_ftp_server'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $context['package_ftp']['server'], '" class="input_text">
+								<label for="ftp_port">', $txt['package_ftp_port'], ':&nbsp;</label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $context['package_ftp']['port'], '" class="input_text">
+							</dd>
+							<dt>
+								<label for="ftp_username">', $txt['package_ftp_username'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" size="50" name="ftp_username" id="ftp_username" value="', $context['package_ftp']['username'], '" style="width: 99%;" class="input_text">
+							</dd>
+							<dt>
+								<label for="ftp_password">', $txt['package_ftp_password'], ':</label>
+							</dt>
+							<dd>
+								<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password">
+							</dd>
+							<dt>
+								<label for="ftp_path">', $txt['package_ftp_path'], ':</label>
+							</dt>
+							<dd>
+								<input type="text" size="50" name="ftp_path" id="ftp_path" value="', $context['package_ftp']['path'], '" style="width: 99%;" class="input_text">
+							</dd>
+						</dl>
+						<div class="righttext">
+							<input type="submit" value="', $txt['package_proceed'], '" class="button_submit">
+						</div>
+					</form>
+				</div>
+			</div>';
+	}
+
+	echo '
+			<div class="windowbg2">
+				<div class="content">
+					<fieldset>
+						<legend>' . $txt['package_servers'] . '</legend>
+						<ul class="package_servers">';
+	foreach ($context['servers'] as $server)
+		echo '
+							<li class="flow_auto">
+								<span class="floatleft">' . $server['name'] . '</span>
+								<span class="package_server floatright"><a href="' . $scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';', $context['session_var'], '=', $context['session_id'], '">[ ' . $txt['delete'] . ' ]</a></span>
+								<span class="package_server floatright"><a href="' . $scripturl . '?action=admin;area=packages;get;sa=browse;server=' . $server['id'] . '">[ ' . $txt['package_browse'] . ' ]</a></span>
+							</li>';
+	echo '
+						</ul>
+					</fieldset>
+					<fieldset>
+						<legend>' . $txt['add_server'] . '</legend>
+						<form action="' . $scripturl . '?action=admin;area=packages;get;sa=add" method="post" accept-charset="', $context['character_set'], '">
+							<dl class="settings">
+								<dt>
+									<strong>' . $txt['server_name'] . ':</strong>
+								</dt>
+								<dd>
+									<input type="text" name="servername" size="44" value="SMF" class="input_text">
+								</dd>
+								<dt>
+									<strong>' . $txt['serverurl'] . ':</strong>
+								</dt>
+								<dd>
+									<input type="text" name="serverurl" size="44" value="http://" class="input_text">
+								</dd>
+							</dl>
+							<div class="righttext">
+								<input type="submit" value="' . $txt['add_server'] . '" class="button_submit">
+								<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+							</div>
+						</form>
+					</fieldset>
+					<fieldset>
+						<legend>', $txt['package_download_by_url'], '</legend>
+						<form action="', $scripturl, '?action=admin;area=packages;get;sa=download;byurl;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+							<dl class="settings">
+								<dt>
+									<strong>' . $txt['serverurl'] . ':</strong>
+								</dt>
+								<dd>
+									<input type="text" name="package" size="44" value="http://" class="input_text">
+								</dd>
+								<dt>
+									<strong>', $txt['package_download_filename'], ':</strong>
+								</dt>
+								<dd>
+									<input type="text" name="filename" size="44" class="input_text"><br>
+									<span class="smalltext">', $txt['package_download_filename_info'], '</span>
+								</dd>
+							</dl>
+							<div class="righttext">
+								<input type="submit" value="', $txt['download'], '" class="button_submit">
+							</div>
+						</form>
+					</fieldset>
+				</div>
 			</div>
 		</div>
 	</div>';
