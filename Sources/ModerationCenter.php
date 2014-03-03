@@ -1564,7 +1564,6 @@ function MemberReport()
 				array('$sourcedir/tasks/MemberReportReply-Notify.php', 'MemberReportReply_Notify_Background', serialize(array(
 					'report_id' => $_REQUEST['report'],
 					'comment_id' => $last_comment,
-					'msg_id' => $row['id_msg'],
 					'sender_name' => $user_info['name'],
 					'time' => time(),
 				)), 0),

@@ -981,8 +981,6 @@ function template_reported_members()
 					', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
 				</div>
 				<hr>
-				', $report['body'], '
-				<br>
 				<ul class="quickbuttons">
 					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
 					<li><a href="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" ', !$report['ignore'] ? 'onclick="return confirm(\'' . $txt['mc_reportedp_ignore_confirm'] . '\');"' : '', '>', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
