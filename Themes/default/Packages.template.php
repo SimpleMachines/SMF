@@ -690,6 +690,27 @@ function template_servers()
 	echo '
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
+			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" style="margin-bottom: 0;">
+					<dl class="settings">
+						<dt>
+							<strong>' . $txt['package_upload_select'] . ':</strong>
+						</dt>
+						<dd>
+							<input type="file" name="package" size="38" class="input_file">
+						</dd>
+					</dl>
+					<hr class="hrcolor">
+					<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit">
+					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+				</form>
+			</div>
+		</div>
+		<br>
+		<div class="cat_bar">
 			<h3 class="catbg">', $txt['download_new_package'], '</h3>
 		</div>';
 
@@ -802,27 +823,6 @@ function template_servers()
 						</div>
 					</form>
 				</fieldset>
-			</div>
-		</div>
-		<br>
-		<div class="cat_bar">
-			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
-				<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" style="margin-bottom: 0;">
-					<dl class="settings">
-						<dt>
-							<strong>' . $txt['package_upload_select'] . ':</strong>
-						</dt>
-						<dd>
-							<input type="file" name="package" size="38" class="input_file">
-						</dd>
-					</dl>
-					<hr class="hrcolor">
-					<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit">
-					<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
-				</form>
 			</div>
 		</div>
 	</div>';
