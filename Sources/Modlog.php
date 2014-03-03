@@ -619,7 +619,13 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 				$entries[$k]['extra'][$type] = sprintf($txt['modlog_id'], $entry['extra'][$type]);
 
 		if (isset($entry['extra']['report']))
-			$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+		{
+			// Member profile reports go in a different area
+			if (stristr($entry['action'], 'user_report'))
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=memberreports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+			else
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+		}
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];

@@ -3978,7 +3978,7 @@ function setupMenuContext()
 	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
 	{
 		$total_mod_reports += $context['open_member_reports'];
-		$context['menu_buttons']['moderate']['sub_buttons']['members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
+		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
 	if (!empty($context['unapproved_members']))

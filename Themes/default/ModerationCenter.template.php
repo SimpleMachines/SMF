@@ -636,7 +636,7 @@ function template_viewmemberreport()
 
 	$alt = false;
 
-	template_show_list('moderation_actions_list');
+	template_show_list('memreport_actions_list');
 
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -1014,6 +1014,13 @@ function template_reported_members()
 				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
 			</div>
 		</div>
+		<br>';
+		
+	$alt = false;
+
+	template_show_list('memreport_actions_list');
+
+	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
 }

@@ -271,7 +271,7 @@ function ModerationHome()
 		if (!$context['can_moderate_boards'])
 			$valid_blocks['w'] = 'WatchedUsers';
 
-		$valid_blocks['ru'] = 'ReportedUsers';
+		$valid_blocks['rm'] = 'ReportedMembers';
 	}
 
 	call_integration_hook('integrate_mod_centre_blocks', array(&$valid_blocks));
@@ -580,12 +580,12 @@ function ModBlockReportedMembers()
 	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cache_key = md5(serialize((int) allowedTo('moderate_forum')));
+	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
 	$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
 
-	if (($reported_posts = cache_get_data('reported_users_' . $cache_key, 90)) === null)
+	if (($reported_posts = cache_get_data('reported_users_' . $cachekey, 90)) === null)
 	{
 		// By George, that means we in a position to get the reports, jolly good.
 		$request = $smcFunc['db_query']('', '
@@ -1654,23 +1654,25 @@ function MemberReport()
 	require_once($sourcedir . '/Subs-List.php');
 	loadLanguage('Modlog');
 
-	// Serilaize the member id so we can find the member later
-	$member = serialize(array('member' => (string)$context['report']['user']['id']));
+	// Find their ID in the serialized action string...
+	$user_id_length = strlen((string)$context['report']['user']['id']);
+	$member = 's:6:"member";s:' . $user_id_length . ':"' . $context['report']['user']['id'] . '";}';
 
 	// This is all the information from the moderation log.
+	// Note that we use "raw" here to prevent SMF from escaping things we don't want escaped
 	$listOptions = array(
-		'id' => 'user_moderation_actions_list',
+		'id' => 'memreport_actions_list',
 		'title' => $txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
 		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=reports;report=' . $context['report']['id'],
+		'base_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',
 			'params' => array(
-				'lm.extra LIKE {string:member}
-					AND lm.action LIKE {string:report}',
-				array('member' => '%' . $member . '%', 'report' => '%_user_report'),
+				'lm.extra LIKE {raw:member}
+					AND lm.action LIKE {raw:report}',
+				array('member' => '\'%' . $member . '\'', 'report' => '\'%_user_report\''),
 				1,
 				true,
 			),

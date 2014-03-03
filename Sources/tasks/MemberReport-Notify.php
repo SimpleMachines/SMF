@@ -40,7 +40,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 		foreach ($prefs as $member => $pref_option)
 		{
 			foreach ($alert_bits as $type => $bitvalue)
-				if ($pref_option['msg_report'] & $bitvalue)
+				if ($pref_option['member_report'] & $bitvalue)
 					$notifies[$type][] = $member;
 		}
 
@@ -62,7 +62,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => '?action=moderate;area=userreports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=memberreports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['membername'],
 						)
 					),
