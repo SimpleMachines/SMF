@@ -317,6 +317,8 @@ function fetch_alerts($memID, $all = false)
 			$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
 		if ($alert['content_type'] == 'msg')
 			$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+		if ($alert['content_type'] == 'profile')
+			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
 
 		if (!empty($memberContext[$alert['sender_id']]))
 			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];

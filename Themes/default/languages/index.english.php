@@ -277,7 +277,6 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['topic_sent'] = 'Your email has been sent successfully.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -357,13 +356,6 @@ $txt['info_center_title'] = '%1$s - Info Center';
 $txt['send_topic'] = 'Send this topic';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
-
-$txt['sendtopic_sender_name'] = 'Your name';
-$txt['sendtopic_sender_email'] = 'Your email address';
-$txt['sendtopic_receiver_name'] = 'Recipient\'s name';
-$txt['sendtopic_receiver_email'] = 'Recipient\'s email address';
-
-$txt['allow_user_email'] = 'Allow users to email me';
 
 $txt['check_all'] = 'Check all';
 
@@ -469,6 +461,7 @@ $txt['cache_writable'] = 'The cache directory is not writable - this will advers
 $txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.';
+$txt['report_profile_func'] = 'Use this function to inform the administrators of abusive profile content, such as spam or inappropriate images.';
 
 $txt['online'] = 'Online';
 $txt['member_is_online'] = '%1$s is online';
@@ -609,6 +602,7 @@ $txt['you_likes_1'] = 'You and <a href="%1$s">1 other person</a> like this.';
 $txt['you_likes_n'] = 'You and <a href="%1$s">%2$s other people</a> like this.';
 
 $txt['report_to_mod'] = 'Report to moderator';
+$txt['report_profile'] = 'Report profile of %1$s';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
 $txt['unread_topics_visit_none'] = 'No unread topics found since your last visit.  <a href="' . $scripturl . '?action=unread;all">Click here to try all unread topics</a>.';
@@ -760,13 +754,13 @@ $txt['edit_permissions'] = 'Permissions';
 $txt['mc_unapproved_attachments'] = 'Unapproved Attachments';
 $txt['mc_unapproved_poststopics'] = 'Unapproved Posts and Topics';
 $txt['mc_reported_posts'] = 'Reported Posts';
+$txt['mc_reported_members'] = 'Reported Members';
 $txt['modlog_view'] = 'Moderation Log';
 $txt['calendar_menu'] = 'View Calendar';
 
 // @todo Send email strings - should move?
 $txt['send_email'] = 'Send Email';
 $txt['send_email_disclosed'] = 'Note this will be visible to the recipient.';
-$txt['send_email_subject'] = 'Email Subject';
 
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';
