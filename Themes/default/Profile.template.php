@@ -1352,7 +1352,7 @@ function template_edit_options()
 				else
 					$type = $field['type'];
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
-					
+
 
 				echo '
 							<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' class="input_', $field['type'] == 'password' ? 'password' : 'text', '"', $step, '>';
