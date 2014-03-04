@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function ReportToModerator()
 {
-	global $txt, $topic, $context, $smcFunc;
+	global $txt, $topic, $context, $smcFunc, $scripturl;
 
 	$context['robot_no_index'] = true;
 
@@ -108,7 +108,7 @@ function ReportToModerator()
 
 	$context['comment_body'] = !isset($_POST['comment']) ? '' : trim($_POST['comment']);
 
-	$context['page_title'] = $context['report_type'] == 'msg' ? $txt['report_to_mod'] : strtr($txt['report_profile'], array($display_name));
+	$context['page_title'] = $context['report_type'] == 'msg' ? $txt['report_to_mod'] : sprintf($txt['report_profile'], $display_name);
 	$context['notice'] = $context['report_type'] == 'msg' ? $txt['report_to_mod_func'] : $txt['report_profile_func'];
 
 	// Show the inputs for the comment, etc.
