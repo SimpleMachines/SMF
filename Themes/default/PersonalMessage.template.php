@@ -284,11 +284,6 @@ function template_folder()
 					<a href="', $scripturl, '?action=modifykarma;sa=applaud;uid=', $message['member']['id'], ';f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pm=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaApplaudLabel'], '</a> <a href="', $scripturl, '?action=modifykarma;sa=smite;uid=', $message['member']['id'], ';f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pm=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaSmiteLabel'], '</a>
 				</li>';
 
-				// Show the member's gender icon?
-				if (!empty($settings['show_gender']) && $message['member']['gender']['image'] != '' && !isset($context['disabled_fields']['gender']))
-					echo '
-				<li class="gender">', $txt['gender'], ': ', $message['member']['gender']['image'], '</li>';
-
 				// Show their personal text?
 				if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
 					echo '
@@ -317,18 +312,6 @@ function template_folder()
 					</ol>
 				</li>';
 				}
-
-				// This shows the popular messaging icons.
-				if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
-					echo '
-				<li class="im_icons">
-					<ol>
-						', !isset($context['disabled_fields']['icq']) && !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
-						', !isset($context['disabled_fields']['skype']) && !empty($message['member']['skype']['link']) ? '<li>' . $message['member']['skype']['link'] . '</li>' : '', '
-						', !isset($context['disabled_fields']['aim']) && !empty($message['member']['aim']['link']) ? '<li>' . $message['member']['aim']['link'] . '</li>' : '', '
-						', !isset($context['disabled_fields']['yim']) && !empty($message['member']['yim']['link']) ? '<li>' . $message['member']['yim']['link'] . '</li>' : '', '
-					</ol>
-				</li>';
 
 				if ($message['can_report'])
 					echo '
@@ -367,9 +350,9 @@ function template_folder()
 						<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 					// Don't show the email address if they want it hidden.
-					if (in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
+					if ($message['member']['show_email'])
 						echo '
-						<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $message['member']['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+						<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 					// Since we know this person isn't a guest, you *can* message them.
 					if ($context['can_send_pm'])

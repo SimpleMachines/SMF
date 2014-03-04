@@ -1,0 +1,24 @@
+/* Styles for the calendar section.
+------------------------------------------------- */
+#main_grid .cat_bar {
+	margin: 0 0 0 2px;
+}
+#month_grid {
+	float: right;
+	margin: 0 0 0 1%;
+}
+#main_grid table.weeklist td.windowbg {
+
+	border-left: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+}
+#main_grid img.calendar_icon {
+	float: right;
+	margin: 0 0 0 4px;
+}
+#main_grid table.weeklist td.weekdays {
+	text-align: left;
+	vertical-align: middle;
+	border-right: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+}

@@ -177,7 +177,7 @@ function template_main()
 
 	echo '
 							</select>
-							<img src="', $context['icon_url'], '" name="icons" hspace="15" alt="">
+							<img src="', $context['icon_url'], '" id="icons" alt="">
 						</dd>
 					</dl>';
 
@@ -443,7 +443,7 @@ function template_main()
 							</dt>
 							<dd class="smalltext">
 								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">'), '
-								<input type="file" size="60" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+								<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
 
 			// Show more boxes if they aren't approaching that limit.
 			if ($context['num_allowed_attachments'] > 1)
@@ -459,7 +459,7 @@ function template_main()
 										if (allowed_attachments <= 0)
 											return alert("', $txt['more_attachments_error'], '");
 
-										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" size="60" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
 
 										return true;
 									}

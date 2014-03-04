@@ -133,7 +133,7 @@ $txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referer: %1$s
 $txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
 $txt['email_as_html'] = 'Send in HTML format.  (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br /&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=emailmembers" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -283,7 +283,6 @@ $txt['activated'] = 'Activated';
 $txt['not_activated'] = 'Not activated';
 $txt['primary'] = 'Primary';
 $txt['additional'] = 'Additional';
-$txt['messenger_address'] = 'Messenger Address';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
@@ -444,6 +443,7 @@ $txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
+$txt['avatar_directory_wrong'] = 'The Avatars directory is not valid. This will cause several issues with your forum.';
 $txt['avatar_url'] = 'Avatars URL';
 $txt['avatar_max_width_external'] = 'Maximum width of external avatar';
 $txt['avatar_max_height_external'] = 'Maximum height of external avatar';
@@ -467,6 +467,7 @@ $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
 $txt['option_attachment_dir'] = 'Attachment directory';
 $txt['option_specified_dir'] = 'Specific directory...';
+$txt['custom_avatar_dir_wrong'] = 'The Attachments directory is not valid. This will prevent attachments from working properly.';
 $txt['custom_avatar_dir'] = 'Upload directory';
 $txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different than the server-stored directory.';
 $txt['custom_avatar_url'] = 'Upload URL';
@@ -607,6 +608,7 @@ $txt['could_not_language_backup'] = 'A backup could not be made before removing 
 $txt['advanced'] = 'Advanced';
 $txt['simple'] = 'Simple';
 
+$txt['admin_news_newsletter_queue_done'] = 'The newsletter has been added to the mail queue successfully.';
 $txt['admin_news_select_recipients'] = 'Please select who should receive a copy of the newsletter';
 $txt['admin_news_select_group'] = 'Membergroups';
 $txt['admin_news_select_group_desc'] = 'Select the groups to receive this newsletter.';

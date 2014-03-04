@@ -163,7 +163,7 @@ function ModifyBasicSettings($return_config = false)
 		'',
 			// Number formatting, timezones.
 			array('text', 'time_format'),
-			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours']),
+			array('float', 'time_offset', 'subtext' => $txt['setting_time_offset_note'], 6, 'postinput' => $txt['hours'], 'step' => 0.25, 'min' => -23.5, 'max' => 23.5),
 			'default_timezone' => array('select', 'default_timezone', array()),
 		'',
 			// Who's online?
@@ -1127,7 +1127,7 @@ function ShowCustomProfiles()
 	$context['sub_template'] = 'show_custom_profile';
 
 	// What about standard fields they can tweak?
-	$standard_fields = array('icq', 'aim', 'yim', 'skype', 'location', 'gender', 'website', 'personal_text', 'posts', 'warning_status');
+	$standard_fields = array('website', 'personal_text', 'posts', 'warning_status');
 	// What fields can't you put on the registration page?
 	$context['fields_no_registration'] = array('posts', 'warning_status');
 
@@ -1196,7 +1196,7 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => create_function('$rowData', '
 						$isChecked = $rowData[\'disabled\'] ? \'\' : \' checked\';
-						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\'onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
+						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\' onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
 						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>\', $rowData[\'id\'], $isChecked, $onClickHandler);
 					'),
 					'style' => 'width: 20%;',
@@ -1369,7 +1369,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 
 	if ($standardFields)
 	{
-		$standard_fields = array('icq', 'aim', 'yim', 'skype', 'location', 'gender', 'website', 'personal_text', 'posts', 'warning_status');
+		$standard_fields = array('website', 'personal_text', 'posts', 'warning_status');
 		$fields_no_registration = array('posts', 'warning_status');
 		$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 		$registration_fields = isset($modSettings['registration_fields']) ? explode(',', $modSettings['registration_fields']) : array();

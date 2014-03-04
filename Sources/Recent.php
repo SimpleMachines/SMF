@@ -81,6 +81,8 @@ function RecentPosts()
 	$context['page_title'] = $txt['recent_posts'];
 	$context['sub_template'] = 'recent';
 
+	$context['is_redirect'] = false;
+
 	if (isset($_REQUEST['start']) && $_REQUEST['start'] > 95)
 		$_REQUEST['start'] = 95;
 
@@ -114,13 +116,19 @@ function RecentPosts()
 			);
 		}
 
+		$recycling = empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0;
+
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_cat IN ({array_int:category_list})
-				AND {query_see_board}',
+				AND b.redirect = {string:empty}' . $recycle ? '
+				AND b.id_board != {int:recycle_board}' : '' . '
+				AND {query_wanna_see_board}',
 			array(
 				'category_list' => $_REQUEST['c'],
+				'empty' => '',
+				'recycle_board' => $modSettings['recycle_board'],
 			)
 		);
 		$total_cat_posts = 0;
@@ -158,11 +166,13 @@ function RecentPosts()
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:board_list})
+				AND b.redirect = {string:empty}
 				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],
 				'limit' => count($_REQUEST['boards']),
+				'empty' => '',
 			)
 		);
 		$total_posts = 0;
@@ -193,7 +203,7 @@ function RecentPosts()
 	elseif (!empty($board))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT num_posts
+			SELECT num_posts, redirect
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
@@ -201,8 +211,15 @@ function RecentPosts()
 				'current_board' => $board,
 			)
 		);
-		list ($total_posts) = $smcFunc['db_fetch_row']($request);
+		list ($total_posts, $redirect) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
+
+		// If this is a redirection board, don't bother counting topics here...
+		if ($redirect != '')
+		{
+			$total_posts = 0;
+			$context['is_redirect'] = true;
+		}
 
 		$query_this_board = 'b.id_board = {int:board}';
 		$query_parameters['board'] = $board;
@@ -225,8 +242,24 @@ function RecentPosts()
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// @todo This isn't accurate because we ignore the recycle bin.
-		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], min(100, $modSettings['totalMessages']), 10, false);
+		// "Borrow" some data from above...
+		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
+		$query_these_boards_params = $query_parameters;
+		unset($query_these_boards_params['max_id_msg']);
+		
+		$get_num_posts = $smcFunc['db_query']('', '
+			SELECT IFNULL(SUM(num_posts), 0)
+			FROM {db_prefix}boards
+			WHERE ' . $query_these_boards . '
+				AND b.redirect = {string:empty}',
+			array_merge($query_these_boards_params, array('empty' => ''))
+		);
+
+		$num_posts = min(100, $smcFunc['db_fetch_row']($get_num_posts));
+
+		$smcFunc['db_free_result']($get_num_posts);
+
+		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], $num_posts, 10, false);
 	}
 
 	$context['linktree'][] = array(
@@ -234,8 +267,12 @@ function RecentPosts()
 		'name' => $context['page_title']
 	);
 
+	// If you selected a redirection board, don't try getting posts for it...
+	if ($context['is_redirect'])
+		$messages = 0;
+
 	$key = 'recent-' . $user_info['id'] . '-' . md5(serialize(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null)
+	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
@@ -334,9 +371,10 @@ function RecentPosts()
 			),
 			'topic' => $row['id_topic'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
+			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . $row['shorten_subject'] . '</a>',
 			'start' => $row['num_replies'],
 			'subject' => $row['subject'],
+			'shorten_subject' => shorten_subject($row['subject'], 30),
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => forum_time(true, $row['poster_time']),
 			'first_poster' => array(
@@ -978,6 +1016,7 @@ function UnreadTopics()
 				SELECT t.id_topic, t.id_board, t.id_last_msg, IFNULL(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+					LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '

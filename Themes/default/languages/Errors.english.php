@@ -314,7 +314,7 @@ $txt['error_invalid_search_string'] = 'Did you forget to put something to search
 $txt['error_invalid_search_string_blacklist'] = 'Your search query contained too trivial words. Please try again with a different query.';
 $txt['error_search_string_small_words'] = 'Each word must be at least two characters long.';
 $txt['error_query_not_specific_enough'] = 'Your search query didn\'t return any matches.';
-$txt['error_no_messages_in_time_frame'] = 'No messages found in selected time frame.';
+$txt['error_no_messages_in_time_frame'] = 'No posts found in selected time frame.';
 $txt['error_no_labels_selected'] = 'No labels were selected.';
 $txt['error_no_search_daemon'] = 'Unable to access the search daemon';
 
@@ -340,7 +340,6 @@ $txt['profile_error_password_chars'] = 'Your password must contain a mix of uppe
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
-$txt['profile_error_aim_too_long'] = 'The AIM nickname is too long.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
 

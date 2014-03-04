@@ -120,7 +120,7 @@ function template_alerts_popup()
 				</div>
 				<br class="clear">
 			</div>';
-		}	
+		}
 	}
 
 	echo '
@@ -164,11 +164,10 @@ function template_summary()
 				</div>
 				', $context['member']['avatar']['image'], '
 				<ul class="reset">';
-	// @TODO fix the <ul> when no fields are visible
-	// What about if we allow email only via the forum??
-	if ($context['member']['show_email'] === 'yes' || $context['member']['show_email'] === 'no_through_forum' || $context['member']['show_email'] === 'yes_permission_override' && $context['can_send_email'])
+	// Email is only visible if it's your profile or you have the moderate_forum permission
+	if ($context['member']['show_email'])
 		echo '
-					<li><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '" title="', $context['member']['show_email'] == 'yes' || $context['member']['show_email'] == 'yes_permission_override' ? $context['member']['email'] : '', '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
+					<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
@@ -185,10 +184,6 @@ function template_summary()
 	}
 
 	echo '
-				', !isset($context['disabled_fields']['icq']) && !empty($context['member']['icq']['link']) ? '<li>' . $context['member']['icq']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['skype']) && !empty($context['member']['skype']['link']) ? '<li>' . $context['member']['skype']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['aim']) && !empty($context['member']['aim']['link']) ? '<li>' . $context['member']['aim']['link'] . '</li>' : '', '
-				', !isset($context['disabled_fields']['yim']) && !empty($context['member']['yim']['link']) ? '<li>' . $context['member']['yim']['link'] . '</li>' : '', '
 			</ul>
 			<span id="userstatus">', $context['can_send_pm'] ? '<a href="' . $context['member']['online']['href'] . '" title="' . $context['member']['online']['text'] . '" rel="nofollow">' : '', $settings['use_image_buttons'] ? '<img src="' . $context['member']['online']['image_href'] . '" alt="' . $context['member']['online']['text'] . '" class="centericon">' : $context['member']['online']['label'], $context['can_send_pm'] ? '</a>' : '', $settings['use_image_buttons'] ? '<span class="smalltext"> ' . $context['member']['online']['label'] . '</span>' : '';
 
@@ -237,19 +232,11 @@ function template_summary()
 					<dt>', $txt['profile_posts'], ': </dt>
 					<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
 
-	if ($context['can_send_email'])
+	if ($context['member']['show_email'])
 	{
-		// Only show the email address fully if it's not hidden - and we reveal the email.
-		if ($context['member']['show_email'] == 'yes')
-			echo '
-						<dt>', $txt['email'], ': </dt>
-						<dd><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></dd>';
-
-		// ... Or if the one looking at the profile is an admin they can see it anyway.
-		elseif ($context['member']['show_email'] == 'yes_permission_override')
-			echo '
-						<dt>', $txt['email'], ': </dt>
-						<dd><em><a href="', $scripturl, '?action=emailuser;sa=email;uid=', $context['member']['id'], '">', $context['member']['email'], '</a></em></dd>';
+		echo '
+					<dt>', $txt['email'], ': </dt>
+					<dd><a href="mailto:', $context['member']['email'], '">', $context['member']['email'], '</a></dd>';
 	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))
@@ -273,19 +260,9 @@ function template_summary()
 					<dt>', $modSettings['karmaLabel'], ' </dt>
 					<dd>+', $context['member']['karma']['good'], '/-', $context['member']['karma']['bad'], '</dd>';
 
-	if (!isset($context['disabled_fields']['gender']) && !empty($context['member']['gender']['name']))
-		echo '
-					<dt>', $txt['gender'], ': </dt>
-					<dd>', $context['member']['gender']['name'], '</dd>';
-
 	echo '
 					<dt>', $txt['age'], ':</dt>
 					<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
-
-	if (!isset($context['disabled_fields']['location']) && !empty($context['member']['location']))
-		echo '
-					<dt>', $txt['location'], ':</dt>
-					<dd>', $context['member']['location'], '</dd>';
 
 	echo '
 				</dl>';
@@ -606,7 +583,6 @@ function template_editBuddies()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
-	$buddy_fields = array('icq', 'aim', 'yim', 'skype');
 
 	if (!empty($context['saved_successful']))
 		echo '
@@ -626,17 +602,10 @@ function template_editBuddies()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
-	if ($context['can_send_email'])
+
+	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
-
-	// don't show them if they are disabled
-	foreach ($buddy_fields as $key => $column)
-	{
-		if (!isset($disabled_fields[$column]))
-			echo '
-				<th scope="col">', $txt[$column], '</th>';
-	}
 
 	echo '
 				<th class="last_th" scope="col"></th>
@@ -657,9 +626,9 @@ function template_editBuddies()
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $buddy['link'], '</td>
 				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
-		if ($context['can_send_email'])
+		if ($buddy['show_email'])
 			echo '
-				<td align="center">', ($buddy['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $buddy['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a>'), '</td>';
+				<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
 
 		// If these are off, don't show them
 		foreach ($buddy_fields as $key => $column)
@@ -745,15 +714,12 @@ function template_editIgnoreList()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
-	if ($context['can_send_email'])
+
+	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
+
 	echo '
-				<th scope="col">', $txt['icq'], '</th>
-				<th scope="col">', $txt['aim'], '</th>
-				<th scope="col">', $txt['yim'], '</th>
-				<th scope="col">', $txt['skype'], '</th>
-				<th class="last_th" scope="col"></th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
@@ -771,14 +737,10 @@ function template_editIgnoreList()
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $member['link'], '</td>
 				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '"></a></td>';
-		if ($context['can_send_email'])
+		if ($member['show_email'])
 			echo '
-				<td align="center">', ($member['show_email'] == 'no' ? '' : '<a href="' . $scripturl . '?action=emailuser;sa=email;uid=' . $member['id'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a>'), '</td>';
+				<td align="center"><a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a></td>';
 		echo '
-				<td align="center">', $member['icq']['link'], '</td>
-				<td align="center">', $member['aim']['link'], '</td>
-				<td align="center">', $member['yim']['link'], '</td>
-				<td align="center">', $member['skype']['link'], '</td>
 				<td align="center"><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
 
@@ -1393,7 +1355,7 @@ function template_edit_options()
 				else
 					$type = $field['type'];
 				$step = $field['type'] == 'float' ? ' step="0.1"' : '';
-					
+
 
 				echo '
 							<input type="', $type, '" name="', $key, '" id="', $key, '" size="', empty($field['size']) ? 30 : $field['size'], '" value="', $field['value'], '" ', $field['input_attr'], ' class="input_', $field['type'] == 'password' ? 'password' : 'text', '"', $step, '>';

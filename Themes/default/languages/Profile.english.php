@@ -43,9 +43,6 @@ $txt['dob_year'] = 'Year (YYYY)';
 $txt['password_strength'] = 'For best security, you should use eight or more characters with a combination of letters, numbers, and symbols.';
 $txt['include_website_url'] = 'This must be included if you specify a URL below.';
 $txt['complete_url'] = 'This must be a complete URL.';
-$txt['your_icq'] = 'This is your ICQ number.';
-$txt['your_aim'] = 'This is your AOL Instant Messenger nickname.';
-$txt['your_yim'] = 'This is your Yahoo! Instant Messenger nickname.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
 $txt['no_signature_set'] = 'No signature set.';
 $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
@@ -144,13 +141,16 @@ $txt['alert_pm_new'] = 'When I receive a new personal message';
 $txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
 $txt['alert_group_moderation'] = 'Moderation';
 $txt['alert_msg_report'] = 'When a message is reported';
-$txt['alert_msg_report_reply'] = 'When a report I\'ve replied to gets replied to';
+$txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets replied to';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
+$txt['alert_member_report'] = 'When another member\'s profile is reported';
+$txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
+
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';
@@ -523,4 +523,6 @@ $txt['outcome_pending'] = 'Open';
 $txt['outcome_approved'] = 'Approved by %1$s on %2$s';
 $txt['outcome_refused'] = 'Refused by %1$s on %2$s';
 $txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
+
+$txt['report_profile'] = 'Report This Member';
 ?>

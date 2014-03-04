@@ -137,6 +137,7 @@ function EditSmileySettings($return_config = false)
 			array('check', 'smiley_sets_enable'),
 			array('check', 'smiley_enable', 'subtext' => $txt['smileys_enable_note']),
 			array('text', 'smileys_url', 40),
+			array('warning', !is_dir($context['smileys_dir']) ? 'setting_smileys_dir_wrong' : ''),
 			array('text', 'smileys_dir', 'invalid' => !$context['smileys_dir_found'], 40),
 		'',
 			// Message icons.

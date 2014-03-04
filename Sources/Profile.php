@@ -326,6 +326,15 @@ function ModifyProfile($post_errors = array())
 						'any' => array('pm_send'),
 					),
 				),
+				'report' => array(
+					'label' => $txt['report_profile'],
+					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
+					'icon' => 'warning.png',
+					'permission' => array(
+						'own' => array(),
+						'any' => array('moderate_forum', 'report_user'),
+					),
+				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
 					'enabled' => $modSettings['warning_settings'][0] == 1,

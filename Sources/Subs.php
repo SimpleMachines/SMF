@@ -89,23 +89,46 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 			list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
-			// Are we using registration approval?
-			if ((!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($modSettings['approveAccountDeletion']))
+			if (!empty($modSettings['registration_method']))
 			{
-				// Update the amount of members awaiting approval - ignoring COPPA accounts, as you can't approve them until you get permission.
-				$result = $smcFunc['db_query']('', '
-					SELECT COUNT(*)
-					FROM {db_prefix}members
-					WHERE is_activated IN ({array_int:activation_status})',
-					array(
-						'activation_status' => array(3, 4),
-					)
-				);
-				list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-				$smcFunc['db_free_result']($result);
+				// Are we using registration approval?
+				if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+				{
+					// Update the amount of members awaiting approval
+					$result = $smcFunc['db_query']('', '
+						SELECT COUNT(*)
+						FROM {db_prefix}members
+						WHERE is_activated IN ({array_int:activation_status})',
+						array(
+							'activation_status' => array(3, 4),
+						)
+					);
+					list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+					$smcFunc['db_free_result']($result);
+				}
+
+				// What about unapproved COPPA registrations?
+				if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+				{
+					$result = $smcFunc['db_query']('', '
+						SELECT COUNT(*)
+						FROM {db_prefix}members
+						WHERE is_activated = {int:coppa_approval}',
+						array(
+							'coppa_approval' => 5,
+						)
+					);
+					list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
+					$smcFunc['db_free_result']($result);
+
+					// Add this to the number of unapproved members
+					if (!empty($changes['unapprovedMembers']))
+						$changes['unapprovedMembers'] += $coppa_approvals;
+					else
+						$changes['unapprovedMembers'] = $coppa_approvals;
+				}
 			}
 		}
-
 		updateSettings($changes);
 		break;
 
@@ -2869,7 +2892,7 @@ function setupThemeContext($forceload = false)
 		$_SESSION['unread_messages'] = $user_info['unread_messages'];
 
 		if (allowedTo('moderate_forum'))
-			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 2) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
+			$context['unapproved_members'] = (!empty($modSettings['registration_method']) && ($modSettings['registration_method'] == 2 || (!empty($modSettings['coppaType']) && $modSettings['coppaType'] == 2))) || !empty($modSettings['approveAccountDeletion']) ? $modSettings['unapprovedMembers'] : 0;
 
 		$context['user']['avatar'] = array();
 
@@ -3789,8 +3812,13 @@ function setupMenuContext()
 						'title' => $txt['mc_reported_posts'],
 						'href' => $scripturl . '?action=moderate;area=reports',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
-						'is_last' => true,
 					),
+					'reported_members' => array(
+						'title' => $txt['mc_reported_members'],
+						'href' => $scripturl . '?action=moderate;area=memberreports',
+						'show' => allowedTo('moderate_forum'),
+						'is_last' => true,
+					)
 				),
 			),
 			'calendar' => array(
@@ -3936,10 +3964,21 @@ function setupMenuContext()
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
 
+	$total_mod_reports = 0;
+
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
 	{
-		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+	}
+
+	/**
+	 * @todo For some reason, $context['open_member_reports'] isn't getting set
+	 */
+	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	{
+		$total_mod_reports += $context['open_member_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
 	if (!empty($context['unapproved_members']))
@@ -3947,6 +3986,13 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 	}
+
+	// Do we have any open reports?
+	if ($total_mod_reports > 0)
+	{
+		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
+	}
+	
 }
 
 /**

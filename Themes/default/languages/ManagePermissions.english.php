@@ -43,8 +43,8 @@ $txt['permissionname_profile_forum'] = 'Allow Forum Profile edits';
 $txt['permissionhelp_profile_forum'] = 'This option will allow a member to edit their Forum Profile';
 $txt['permissionname_profile_forum_own'] = 'Own profile';
 $txt['permissionname_profile_forum_any'] = 'Any profile';
-$txt['permissionname_profile_other'] = 'Edit website and location';
-$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website, and location fields in their profile';
+$txt['permissionname_profile_other'] = 'Edit website';
+$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website fields in their profile';
 $txt['permissionname_profile_other_own'] = 'Own profile';
 $txt['permissionname_profile_other_any'] = 'Any profile';
 $txt['permissionname_profile_blurb'] = 'Edit personal text';
@@ -182,6 +182,9 @@ $txt['permissionname_profile_remove'] = 'Delete account';
 $txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete his account, when set to \'Own Account\'.';
 $txt['permissionname_profile_remove_own'] = 'Own account';
 $txt['permissionname_profile_remove_any'] = 'Any account';
+
+$txt['permissionname_report_user'] = 'Report users\' profiles';
+$txt['permissionhelp_report_user'] = 'This permission will allow members to report other users\' profiles to the admins to alert them of spam or other inappropriate content in the profile.';
 
 $txt['permissiongroup_general_board'] = 'General';
 $txt['permissionname_moderate_board'] = 'Moderate board';

@@ -378,9 +378,6 @@ function Display()
 	// Did we report a post to a moderator just now?
 	$context['report_sent'] = isset($_GET['reportsent']);
 
-	// Did we send this topic to a friend?
-	$context['topic_sent'] = isset($_GET['topicsent']);
-
 	// Let's get nosey, who is viewing this topic?
 	if (!empty($settings['display_who_viewing']))
 	{
@@ -543,7 +540,7 @@ function Display()
 	$context['mark_unread_time'] = !empty($virtual_msg) ? $virtual_msg : $topicinfo['new_from'];
 
 	// Set a canonical URL for this page.
-	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.' . $context['start'];
+	$context['canonical_url'] = $scripturl . '?topic=' . $topic . '.' . ($can_show_all ? '0;all' : $context['start']);
 
 	// For quick reply we need a response prefix in the default forum language.
 	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix', 600)))
@@ -1097,6 +1094,12 @@ function Display()
 		$context['can_move'] &= count($boards_allowed) > 1;
 	}
 
+	// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
+	if ($topicinfo['locked'])
+	{
+		$context['can_delete'] &= (($topicinfo['locked'] == 1 && $context['user']['started']) || allowedTo('lock_any'));
+	}
+
 	// Cleanup all the permissions with extra stuff...
 	$context['can_mark_notify'] = !$context['user']['is_guest'];
 	$context['calendar_post'] &= !empty($modSettings['cal_enabled']);
@@ -1268,6 +1271,12 @@ function prepareDisplayContext($reset = false)
 	// Are you allowed to remove at least a single reply?
 	$context['can_remove_post'] |= allowedTo('delete_own') && (empty($modSettings['edit_disable_time']) || $message['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()) && $message['id_member'] == $user_info['id'];
 
+	// If the topic is locked, you might not be able to delete the post...
+	if ($context['is_locked'])
+	{
+		$context['can_remove_post'] &= ($context['user']['started'] && $context['is_locked'] == 1) || allowedTo('lock_any');
+	}
+
 	// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
 	if (!loadMemberContext($message['id_member'], true))
 	{
@@ -1277,7 +1286,7 @@ function prepareDisplayContext($reset = false)
 		$memberContext[$message['id_member']]['group'] = $txt['guest_title'];
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
-		$memberContext[$message['id_member']]['show_email'] = showEmailAddress(true, 0);
+		$memberContext[$message['id_member']]['show_email'] = allowedTo('admin_forum');
 		$memberContext[$message['id_member']]['is_guest'] = true;
 	}
 	else
@@ -1342,7 +1351,7 @@ function prepareDisplayContext($reset = false)
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
 		$output['modified']['last_edit_text'] = sprintf($txt['last_edit_by'], $output['modified']['time'], $output['modified']['name']);
-	
+
 	// Did they give a reason for editing?
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);

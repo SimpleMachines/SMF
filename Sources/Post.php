@@ -309,6 +309,7 @@ function Post($post_errors = array())
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
+		$context['event']['topic'] = !empty($topic) ? $topic : 0;
 	}
 
 	// See if any new replies have come along.
@@ -1902,26 +1903,18 @@ function Post2()
 		// ... or just update it?
 		else
 		{
-			$span = !empty($modSettings['cal_allowspan']) && !empty($_REQUEST['span']) ? min((int) $modSettings['cal_maxspan'], (int) $_REQUEST['span'] - 1) : 0;
-			$start_time = mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']);
-
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}calendar
-				SET end_date = {date:end_date},
-					start_date = {date:start_date},
-					title = {string:title}
-				WHERE id_event = {int:id_event}',
-				array(
-					'end_date' => strftime('%Y-%m-%d', $start_time + $span * 86400),
-					'start_date' => strftime('%Y-%m-%d', $start_time),
-					'id_event' => $_REQUEST['eventid'],
-					'title' => $smcFunc['htmlspecialchars']($_REQUEST['evtitle'], ENT_QUOTES),
-				)
+			// Set up our options
+			$eventOptions = array(
+				'board' => $board,
+				'topic' => $topic,
+				'title' => $_POST['evtitle'],
+				'member' => $user_info['id'],
+				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
+				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 			);
+
+			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
-		updateSettings(array(
-			'calendar_updated' => time(),
-		));
 	}
 
 	// Marking read should be done even for editing messages....
