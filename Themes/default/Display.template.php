@@ -501,7 +501,7 @@ function template_single_post($message, $force_alternate = null)
 	echo '
 						<div class="poster">
 									<h4>';
-									
+
 	// Show online and offline buttons?
 	if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
 		echo '
@@ -512,10 +512,10 @@ function template_single_post($message, $force_alternate = null)
 	echo '
 								', $message['member']['link'], '
 									</h4>';
-									
+
 	echo '
 								<ul>';
-								
+
 
 	// Show the user's avatar.
 	if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -569,11 +569,6 @@ function template_single_post($message, $force_alternate = null)
 									<a href="', $scripturl, '?action=modifykarma;sa=smite;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaSmiteLabel'], '</a>
 								</li>';
 
-		// Show the member's gender icon?
-		if (!empty($settings['show_gender']) && $message['member']['gender']['image'] != '' && !isset($context['disabled_fields']['gender']))
-			echo '
-								<li class="gender">', $txt['gender'], ': ', $message['member']['gender']['image'], '</li>';
-
 		// Show their personal text?
 		if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
 			echo '
@@ -604,18 +599,6 @@ function template_single_post($message, $force_alternate = null)
 								</li>';
 		}
 
-		// This shows the popular messaging icons.
-		if ($message['member']['has_messenger'] && $message['member']['can_view_profile'])
-			echo '
-								<li class="im_icons">
-									<ol>
-										', !empty($message['member']['icq']['link']) ? '<li>' . $message['member']['icq']['link'] . '</li>' : '', '
-										', !empty($message['member']['skype']['link']) ? '<li>' . $message['member']['skype']['link'] . '</li>' : '', '
-										', !empty($message['member']['aim']['link']) ? '<li>' . $message['member']['aim']['link'] . '</li>' : '', '
-										', !empty($message['member']['yim']['link']) ? '<li>' . $message['member']['yim']['link'] . '</li>' : '', '
-									</ol>
-								</li>';
-
 		// Show the website and email address buttons.
 		if ($message['member']['show_profile_buttons'])
 		{
@@ -627,7 +610,7 @@ function template_single_post($message, $force_alternate = null)
 			if ($message['member']['website']['url'] != '' && !isset($context['disabled_fields']['website']))
 				echo '
 										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
-										
+
 			// Since we know this person isn't a guest, you *can* message them.
 			if ($context['can_send_pm'])
 				echo '
@@ -704,7 +687,7 @@ function template_single_post($message, $force_alternate = null)
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
-	
+
 	if ($settings['show_modify'] && !empty($message['modified']['name']))
 		echo $message['modified']['last_edit_text'];
 	echo '</span>';
