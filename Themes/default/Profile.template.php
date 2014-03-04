@@ -602,6 +602,7 @@ function template_editBuddies()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
+
 	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
@@ -713,6 +714,7 @@ function template_editIgnoreList()
 			<tr class="catbg">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
+
 	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
