@@ -235,11 +235,6 @@ function ViewMemberlist()
 				'type' => 'date',
 				'range' => true
 			),
-			'gender' => array(
-				'db_fields' => array('gender'),
-				'type' => 'checkbox',
-				'values' => array('0', '1', '2'),
-			),
 			'activated' => array(
 				'db_fields' => array('CASE WHEN is_activated IN (1, 11) THEN 1 ELSE 0 END'),
 				'type' => 'checkbox',
@@ -257,16 +252,8 @@ function ViewMemberlist()
 				'db_fields' => array('website_title', 'website_url'),
 				'type' => 'string'
 			),
-			'location' => array(
-				'db_fields' => array('location'),
-				'type' => 'string'
-			),
 			'ip' => array(
 				'db_fields' => array('member_ip'),
-				'type' => 'string'
-			),
-			'messenger' => array(
-				'db_fields' => array('icq', 'aim', 'yim', 'skype'),
 				'type' => 'string'
 			)
 		);

@@ -331,17 +331,6 @@ $txt['days_word'] = 'days';
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
 
-$txt['aim'] = 'AIM';
-// In this string, please use +'s for spaces.
-$txt['aim_default_message'] = 'Hi.+Are+you+there?';
-$txt['aim_title'] = 'AOL Instant Messenger';
-$txt['icq'] = 'ICQ';
-$txt['icq_title'] = 'ICQ Messenger';
-$txt['yim'] = 'YIM';
-$txt['yim_title'] = 'Yahoo Instant Messenger';
-
-$txt['skype'] = 'Skype';
-
 $txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
 $txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
@@ -443,7 +432,7 @@ $txt['split_after_and_this_post'] = 'Split topic after and including this post.'
 $txt['select_split_posts'] = 'Select posts to split.';
 $txt['new_topic'] = 'New Topic';
 $txt['split_successful'] = 'Topic successfully split into two topics.';
-$txt['origin_topic'] = 'Origin Topic';
+$txt['origin_topic'] = 'Original Topic';
 $txt['please_select_split'] = 'Please select which posts you wish to split.';
 $txt['merge_successful'] = 'Topics successfully merged.';
 $txt['new_merged_topic'] = 'Newly Merged Topic';

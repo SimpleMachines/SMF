@@ -170,6 +170,12 @@ function PackageServers()
 			$ftp->close();
 		}
 	}
+
+	addInlineJavascript('
+	$(\'.new_package_content\').hide();
+	$(\'.download_new_package\').on(\'click\', function() {
+		$(\'.new_package_content\').css(\'display\') == \'none\' ? $(\'.new_package_content\').show(\'slow\') : $(\'.new_package_content\').hide(\'slow\'); 
+	});', true);
 }
 
 /**

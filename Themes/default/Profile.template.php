@@ -718,6 +718,7 @@ function template_editIgnoreList()
 	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
+
 	echo '
 			</tr>';
 
