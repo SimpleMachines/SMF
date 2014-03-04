@@ -240,7 +240,7 @@ function template_summary()
 	{
 		echo '
 					<dt>', $txt['email'], ': </dt>
-					<dd><a href="mailto:', $context['email']['member'], '">', $context['member']['email'], '</a></dd>';
+					<dd><a href="mailto:', $context['member']['email'], '">', $context['member']['email'], '</a></dd>';
 	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))

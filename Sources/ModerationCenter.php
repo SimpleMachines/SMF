@@ -730,9 +730,9 @@ function ReportedPosts()
 				SELECT id_report, id_board, id_topic, id_msg
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:report_list})
-					AND ' . $user_inf['mod_cache']['bq'],
+					AND ' . $user_info['mod_cache']['bq'],
 				array(
-					'id_report' => $_GET['rid'],
+					'report_list' => $toClose,
 				)
 			);
 
@@ -999,16 +999,16 @@ function ReportedMembers()
 				FROM {db_prefix}log_reported
 				WHERE id_report IN ({array_int:report_list})',
 				array(
-					'id_report' => $_GET['rid'],
+					'report_list' => $toClose,
 				)
 			);
 
 			while ($reports = $smcFunc['db_fetch_assoc']($request))
 			{
 				$report_data = array(
-					'report' => $row['id_report'],
-					'member' => (string)$row['id_member'],
-					'membername' => $row['membername'],
+					'report' => $reports['id_report'],
+					'membername' => $reports['membername'],
+					'member' => (string)$reports['id_member'],
 				);
 
 				// Log that this report was closed

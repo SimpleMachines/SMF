@@ -944,7 +944,7 @@ function template_reported_members()
 	}
 
 	echo '
-	<form id="reported_posts" action="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
+	<form id="reported_members" action="', $scripturl, '?action=moderate;area=memberreports', $context['view_closed'] ? ';sa=closed' : '', ';start=', $context['start'], '" method="post" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $context['view_closed'] ? $txt['mc_reportedp_closed'] : $txt['mc_reportedp_active'], '
@@ -1014,13 +1014,6 @@ function template_reported_members()
 				', !$context['view_closed'] ? '<input type="submit" name="close_selected" value="' . $txt['mc_reportedp_close_selected'] . '" class="button_submit">' : '', '
 			</div>
 		</div>
-		<br>';
-		
-	$alt = false;
-
-	template_show_list('memreport_actions_list');
-
-	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>';
 }
