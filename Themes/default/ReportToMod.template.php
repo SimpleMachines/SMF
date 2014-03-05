@@ -16,10 +16,10 @@
 
 	The report sub template gets shown from:
 		'?action=reporttm;topic=##.##;msg=##'
-		'?action=reporttm;u=#'		
+		'?action=reporttm;u=#'
 	It should submit to:
 		'?action=reporttm;topic=' . $context['current_topic'] . '.' . $context['start']
-		'?action=reporttm;u=#'		
+		'?action=reporttm;u=#'
 	It only needs to send the following fields:
 		comment: an additional comment to give the moderator.
 		sc: the session id, or $context['session_id'].
@@ -28,6 +28,23 @@
 function template_main()
 {
 	global $context, $txt, $scripturl;
+
+	// Want to see your master piece?
+	echo '
+	<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span>', $txt['preview'], '</span>
+			</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<div class="post" id="preview_body">
+					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
+				</div>
+			</div>
+		</div>
+	</div><br>';
 
 	echo '
 	<div id="report_form">
@@ -75,6 +92,7 @@ function template_main()
 	echo '
 						</dl>
 						<div class="flow_auto">
+							<input type="submit" name="preview" value="', $txt['preview'] , '" class="button_submit">
 							<input type="submit" name="save" value="', $txt['rtm10'], '" style="margin-left: 1ex;" class="button_submit">
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 						</div>

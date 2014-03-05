@@ -3966,7 +3966,7 @@ function setupMenuContext()
 
 	$total_mod_reports = 0;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
 	{
 		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
