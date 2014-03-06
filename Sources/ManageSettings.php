@@ -625,7 +625,7 @@ function ModifyAntispamSettings($return_config = false)
 						if ($lang_id != $context['question_answers'][$q_id]['lngfile'] || $question != $context['question_answers'][$q_id]['question'] || $answers != $context['question_answers'][$q_id]['answers'])
 							$changes['replace'][$q_id] = array('lngfile' => $lang_id, 'question' => $question, 'answers' => $answers);
 					}
-	
+
 					if (!isset($qs_per_lang[$lang_id]))
 						$qs_per_lang[$lang_id] = 0;
 					$qs_per_lang[$lang_id]++;
@@ -1440,6 +1440,28 @@ function EditCustomProfiles()
 
 	// Load the profile language for section names.
 	loadLanguage('Profile');
+
+	// Need the rest of the fields to determinate the order. Quick and dirty query here...
+	if (($context['all_fields'] = cache_get_data('admin_all_cust_fields',120)) == null)
+	{
+		$result = $smcFunc['db_query']('', '
+				SELECT
+					id_field, col_name, field_name, field_order
+				FROM {db_prefix}custom_fields',
+				array(
+					'current_field' => $context['fid'],
+				)
+			);
+
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+				$context['all_fields'][$row['id_field']] = array(
+					'order' => $row['field_order'],
+					'name' => $row['field_name']
+				);
+
+			$smcFunc['db_free_result']($result);
+			cache_put_data('admin_all_cust_fields', $context['all_fields'], 120);
+	}
 
 	if ($context['fid'])
 	{
