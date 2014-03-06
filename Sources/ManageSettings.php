@@ -1466,9 +1466,7 @@ function EditCustomProfiles()
 					id_field, col_name, field_name, field_order
 				FROM {db_prefix}custom_fields
 				ORDER BY field_order ASC',
-				array(
-					'current_field' => $context['fid'],
-				)
+				array()
 			);
 
 			while ($row = $smcFunc['db_fetch_assoc']($result))
