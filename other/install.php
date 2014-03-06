@@ -1471,7 +1471,7 @@ function AdminAccount()
 					1, 0, time(), 0,
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
-					'', '', '',
+					'', '',
 					'', '', '',
 					'', '', '',
 				),
