@@ -572,8 +572,8 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/whitepages/about_me.php?uin={INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="http://status.icq.com/online.gif?img=5&icq={INPUT}" alt="ICQ - {INPUT}" width="18" height="18"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="skype new_win" href="skype:{INPUT}?chat" title="Live - {INPUT}"><img src="{IMAGES_URL}/skype.png" alt="Live - {INPUT}"></a>', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1),
 ('cust_gender', 'Gender', 'Your gender.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
 ---#
 
@@ -623,8 +623,8 @@ ALTER TABLE `{$db_prefix}members`
   DROP `icq`,
   DROP `aim`,
   DROP `yim`,
-  DROP `msn`;
-  DROP `location`;
+  DROP `msn`,
+  DROP `location`,
   DROP `gender`;
 ---#
 
