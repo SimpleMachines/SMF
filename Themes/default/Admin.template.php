@@ -1087,12 +1087,25 @@ function template_edit_profile_field()
 												<strong><label for="order">', $txt['custom_edit_order'], ':</label></strong>
 											</dt>
 											<dd>
-												<select id="order" name="field_placement">
-													', empty($context['field']['order']) ? '<option value="">(' .$txt['custom_edit_order_unchanged'] . ')</option>' : '', '
+												<select id="order" name="field_order_placement">
+													', (empty($context['field']['order']) ? '<option value="">(' .$txt['custom_edit_order_unchanged'] . ')</option>' : ''), '
 														<option value="after">' . $txt['custom_edit_order_after'] . '...</option>
 														<option value="before">' . $txt['custom_edit_order_before'] . '...</option>
-								</select>
-											</dd>
+												</select>';
+
+	echo '
+												<select id="field_order" name="field_order"', (empty($context['field']['order']) ? ' disabled' : ''), '>
+													', (empty($context['field']['order']) ? '<option value="">(' . $txt['custom_edit_order_unchanged'] . ')</option>' : '');
+
+	foreach ($context['all_fields'] as $order)
+		echo '
+													<option', $order['id'] == $context['fid'] ? ' selected' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
+
+	echo '
+												</select>
+											</dd>';
+
+	echo '
 
 											<dt>
 												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>

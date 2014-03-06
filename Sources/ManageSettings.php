@@ -1455,6 +1455,7 @@ function EditCustomProfiles()
 
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 				$context['all_fields'][$row['id_field']] = array(
+					'id' => $row['id_field'],
 					'order' => $row['field_order'],
 					'name' => $row['field_name']
 				);
