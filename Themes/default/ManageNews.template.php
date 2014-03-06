@@ -148,7 +148,6 @@ function template_email_members()
 			]
 		});
 	// ]]></script>
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oMemberSuggest\',

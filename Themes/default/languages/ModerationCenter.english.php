@@ -5,7 +5,8 @@ $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
 $txt['mc_logs'] = 'Logs';
 $txt['mc_posts'] = 'Posts';
-$txt['mc_groups'] = 'Members and groups';
+$txt['mc_groups'] = 'Groups';
+$txt['mc_members'] = 'Members';
 
 $txt['mc_view_groups'] = 'View Membergroups';
 
@@ -17,6 +18,7 @@ $txt['mc_watched_topics'] = 'Watched Topics';
 $txt['mc_scratch_board'] = 'Moderator Scratch Board';
 $txt['mc_latest_news'] = 'Simple Machines Latest News';
 $txt['mc_recent_reports'] = 'Recent Topic Reports';
+$txt['mc_recent_user_reports'] = 'Recent Profile Reports';
 $txt['mc_warnings'] = 'Warnings';
 $txt['mc_notes'] = 'Moderator Notes';
 
@@ -37,17 +39,20 @@ $txt['mc_reportedp_by'] = 'by';
 $txt['mc_reportedp_reported_by'] = 'Reported By';
 $txt['mc_reportedp_last_reported'] = 'Last Reported';
 $txt['mc_reportedp_none_found'] = 'No Reports Found';
-
+$txt['mc_reportedp_comment_none_found'] = 'No Moderator Comment Found';
+$txt['mc_reportedp_comment_edit'] = 'Edit';
+$txt['mc_reportedp_comment_delete'] = 'Delete';
 $txt['mc_reportedp_details'] = 'Details';
 $txt['mc_reportedp_close'] = 'Close';
 $txt['mc_reportedp_open'] = 'Open';
 $txt['mc_reportedp_ignore'] = 'Disregard';
 $txt['mc_reportedp_unignore'] = 'Undo Disregard';
 $txt['mc_reportedp_delete'] = 'Delete message';
+$txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
 $txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
-$txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message?\\n\\nThis will turn off further reports for all moderators of the forum.';
+$txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message? This will turn off further reports for all moderators of the forum.';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
 
 $txt['mc_groupr_group'] = 'Membergroups';
@@ -84,6 +89,11 @@ $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
 $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
+$txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
+
+$txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
+$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member.  The last report was %2$s.';
+$txt['mc_memberreport_whoreported_title'] = 'Members who have reported this member.';
 
 $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
@@ -119,10 +129,17 @@ $txt['mc_warning_template_add'] = 'Add Template';
 $txt['mc_warning_template_modify'] = 'Edit Template';
 $txt['mc_warning_template_delete'] = 'Delete Selected';
 $txt['mc_warning_template_delete_confirm'] = 'Are you sure you want to delete the selected templates?';
+$txt['report_action_message_saved'] = 'You successfully created a new comment.';
+$txt['report_action_message_edited'] = 'You successfully edited the comment.';
 $txt['report_action_message_deleted'] = 'The message was successfully deleted.';
+$txt['report_action_message_edit_issue'] = 'The message you\'re trying to edit isn\'t available any more. Please check if it wasn\'t deleted already.';
+$txt['report_action_message_edit_cannot'] = 'I\'m sorry, you aren\'t allowed to edit this comment.';
+$txt['report_action_message_delete_cannot'] = 'I\'m sorry, you aren\'t allowed to delete this comment.';
+$txt['report_action_message_delete_issue'] = 'The message you\'re trying to delete isn\'t available any more. Please check if it wasn\'t deleted already.';
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
+$txt['report_action_close_all'] = 'You successfully closed all reports.';
 $txt['report_action_open'] = 'The report was successfully open.';
 $txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 
@@ -146,4 +163,8 @@ $txt['mc_logoff'] = 'End Moderator Session';
 $txt['mc_click_add_note'] = 'Add a new note';
 $txt['mc_add_note'] = 'Add';
 
+// Do not use numeric entries in the below string.
+$txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this user\'s profile?\\n\\nThis will turn off further reports for everyone.';
+$txt['mc_reported_members_title'] = 'Reported Members';
+$txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
 ?>

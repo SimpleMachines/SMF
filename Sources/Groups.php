@@ -434,6 +434,9 @@ function MembergroupMembers()
 	$context['sub_template'] = 'group_members';
 	$context['page_title'] = $txt['membergroups_members_title'] . ': ' . $context['group']['name'];
 	createToken('mod-mgm');
+
+	if ($context['group']['assignable'])
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 }
 
 /**
@@ -804,7 +807,7 @@ function list_getGroupRequestCount($where, $where_parameters)
  * @param int $start The result to start with
  * @param int $items_per_page The number of items per page
  * @param string $sort An SQL sort expression (column/direction)
- * @param string $where Data for the WHERE clause 
+ * @param string $where Data for the WHERE clause
  * @param string $where_parameters Parameter values to be inerted into the WHERE clause
  * @return array An array of group requests
  * Each group request has:

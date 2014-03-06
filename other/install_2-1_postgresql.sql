@@ -1642,7 +1642,6 @@ CREATE TABLE {$db_prefix}members (
   birthdate date NOT NULL default '0001-01-01',
   website_title varchar(255) NOT NULL,
   website_url varchar(255) NOT NULL,
-  location varchar(255) NOT NULL,
   hide_email smallint NOT NULL default '0',
   show_online smallint NOT NULL default '1',
   time_format varchar(80) NOT NULL default '',
@@ -2406,6 +2405,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enab
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
 # --------------------------------------------------------

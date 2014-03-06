@@ -1753,6 +1753,8 @@ function MessagePost()
 	if (!WIRELESS)
 	{
 		loadTemplate('PersonalMessage');
+		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 		$context['sub_template'] = 'send';
 	}
 

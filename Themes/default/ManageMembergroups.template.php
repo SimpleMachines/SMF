@@ -333,7 +333,6 @@ function template_edit_group()
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
 	</div>
-		<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script><!-- // --><![CDATA[
 			var oModeratorSuggest = new smc_AutoSuggest({
 				sSelf: \'oModeratorSuggest\',
@@ -681,7 +680,6 @@ function template_group_members()
 
 	if (!empty($context['group']['assignable']))
 		echo '
-		<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 		<script><!-- // --><![CDATA[
 			var oAddMemberSuggest = new smc_AutoSuggest({
 				sSelf: \'oAddMemberSuggest\',

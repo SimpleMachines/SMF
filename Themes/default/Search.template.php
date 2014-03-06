@@ -207,7 +207,6 @@ function template_main()
 
 	echo '
 	</form>
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',

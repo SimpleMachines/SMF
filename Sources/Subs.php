@@ -3347,7 +3347,7 @@ function template_css()
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
 	}
 
 	if (!empty($context['css_header']))
@@ -3715,7 +3715,7 @@ function setupMenuContext()
 	if (!isset($context['allow_calendar_event']))
 	{
 		$context['allow_calendar_event'] = $context['allow_calendar'] && allowedTo('calendar_post');
-		
+
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 		if ($context['allow_calendar'] && $context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 		{
@@ -3812,8 +3812,13 @@ function setupMenuContext()
 						'title' => $txt['mc_reported_posts'],
 						'href' => $scripturl . '?action=moderate;area=reports',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
-						'is_last' => true,
 					),
+					'reported_members' => array(
+						'title' => $txt['mc_reported_members'],
+						'href' => $scripturl . '?action=moderate;area=memberreports',
+						'show' => allowedTo('moderate_forum'),
+						'is_last' => true,
+					)
 				),
 			),
 			'calendar' => array(
@@ -3959,10 +3964,21 @@ function setupMenuContext()
 	if (isset($context['menu_buttons'][$current_action]))
 		$context['menu_buttons'][$current_action]['active_button'] = true;
 
-	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && $context['open_mod_reports'] > 0)
+	$total_mod_reports = 0;
+
+	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
 	{
-		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
+	}
+
+	/**
+	 * @todo For some reason, $context['open_member_reports'] isn't getting set
+	 */
+	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	{
+		$total_mod_reports += $context['open_member_reports'];
+		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
 	}
 
 	if (!empty($context['unapproved_members']))
@@ -3970,6 +3986,13 @@ function setupMenuContext()
 		$context['menu_buttons']['admin']['sub_buttons']['memberapprove']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['unapproved_members'] . '</span>';
 	}
+
+	// Do we have any open reports?
+	if ($total_mod_reports > 0)
+	{
+		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
+	}
+	
 }
 
 /**

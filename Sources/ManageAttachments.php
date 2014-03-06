@@ -284,6 +284,7 @@ function ManageAvatarSettings($return_config = false)
 		array('title', 'avatar_server_stored'),
 			array('warning', empty($testImg) ? 'avatar_img_enc_warning' : ''),
 			array('permissions', 'profile_server_avatar', 0, $txt['avatar_server_stored_groups']),
+			array('warning', !$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''),
 			array('text', 'avatar_directory', 40, 'invalid' => !$context['valid_avatar_dir']),
 			array('text', 'avatar_url', 40),
 		// External avatars?
@@ -311,6 +312,7 @@ function ManageAvatarSettings($return_config = false)
 			array('warning', 'avatar_paranoid_warning'),
 			array('check', 'avatar_paranoid'),
 		'',
+			array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
 			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
 			array('text', 'custom_avatar_url', 40),
 	);

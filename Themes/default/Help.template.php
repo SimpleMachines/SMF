@@ -12,7 +12,7 @@
 
 function template_popup()
 {
-	global $context, $settings, $txt;
+	global $context, $settings, $txt, $modSettings;
 
 	// Since this is a popup of its own we need to start the html, etc.
 	echo '<!DOCTYPE html>
@@ -21,8 +21,8 @@ function template_popup()
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
@@ -44,8 +44,8 @@ function template_find_members()
 		<title>', $txt['find_members'], '</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 		<script><!-- // --><![CDATA[
 			var membersAdded = [];
 			function addMember(name)

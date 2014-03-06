@@ -342,7 +342,6 @@ function template_maintain_members()
 		</div>
 	</div>
 
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAttributeMemberSuggest\',

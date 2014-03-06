@@ -86,6 +86,9 @@ function Packages()
 		),
 	);
 
+	if ($context['sub_action'] == 'browse')
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+
 	// Call the function we're handing control to.
 	$subActions[$context['sub_action']]();
 }
@@ -1927,7 +1930,7 @@ function ViewOperations()
 					'install_id' => $install_id,
 				)
 			);
-			
+
 			if ($smcFunc['db_num_rows']($request) == 1)
 			{
 				list ($old_themes) = $smcFunc['db_fetch_row']($request);

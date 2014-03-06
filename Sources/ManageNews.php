@@ -424,6 +424,8 @@ function SelectMailingMembers()
 	$smcFunc['db_free_result']($request);
 
 	$context['can_send_pm'] = allowedTo('pm_send');
+
+	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 }
 
 /**

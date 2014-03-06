@@ -89,6 +89,10 @@ function Register($reg_errors = array())
 	$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
 	$context['page_title'] = $current_step == 1 ? $txt['registration_agreement'] : $txt['registration_form'];
 
+	// Kinda need this.
+	if ($context['sub_template'] == 'registration_form')
+		loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
+
 	// Add the register chain to the link tree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=register',
@@ -697,6 +701,8 @@ function Activate()
 		'never_expire' => false,
 		'description' => $txt['activate_success']
 	);
+
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 }
 
 /**

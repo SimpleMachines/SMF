@@ -22,14 +22,6 @@ function template_main()
 				', $txt['report_sent'], '
 			</div>';
 	}
-	// Topic was sent successfully
-	elseif ($context['topic_sent'])
-	{
-		echo '
-			<div class="infobox">
-				', $txt['topic_sent'], '
-			</div>';
-	}
 
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
@@ -339,7 +331,6 @@ function template_main()
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
-			<script src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
@@ -354,11 +345,9 @@ function template_main()
 
 	if ($context['show_spellchecking'])
 		echo '
-			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>
-				<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
+			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 				<script><!-- // --><![CDATA[';
 
 	if (!empty($context['some_likes']))
@@ -639,11 +628,10 @@ function template_single_post($message, $force_alternate = null)
 		}
 
 	}
-
 	// Otherwise, show the guest's email.
-	elseif (!empty($message['member']['email']) && in_array($message['member']['show_email'], array('yes', 'yes_permission_override', 'no_through_forum')) && $context['can_send_email'])
+	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
-								<li class="email"><a href="', $scripturl, '?action=emailuser;sa=email;msg=', $message['id'], '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
+								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))

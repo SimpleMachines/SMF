@@ -39,7 +39,7 @@ function template_editsets()
 
 	if (empty($modSettings['disable_smf_js']))
 		echo '
-	<script src="', $scripturl, '?action=viewsmfile;filename=latest-smileys.js"></script>';
+	<script src="', $scripturl, '?action=viewsmfile;filename=latest-smileys.js', $modSettings['browser_cache'] ,'"></script>';
 
 	echo '
 	<script><!-- // --><![CDATA[

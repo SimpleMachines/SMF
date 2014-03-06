@@ -156,10 +156,12 @@ function AdminRegister()
 	}
 	else
 		$context['member_groups'] = array();
+
 	// Basic stuff.
 	$context['sub_template'] = 'admin_register';
 	$context['page_title'] = $txt['registration_center'];
 	createToken('admin-regc');
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 /**

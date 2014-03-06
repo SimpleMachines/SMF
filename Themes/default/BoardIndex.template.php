@@ -38,7 +38,6 @@ function template_newsfader()
 					</ul>
 				</div>
 			</div>
-			<script src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
 			<script><!-- // --><![CDATA[
 				// Create a news fader object.
 				var oNewsFader = new smc_NewsFader({

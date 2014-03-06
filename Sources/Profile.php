@@ -326,6 +326,15 @@ function ModifyProfile($post_errors = array())
 						'any' => array('pm_send'),
 					),
 				),
+				'report' => array(
+					'label' => $txt['report_profile'],
+					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
+					'icon' => 'warning.png',
+					'permission' => array(
+						'own' => array(),
+						'any' => array('moderate_forum', 'report_user'),
+					),
+				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
 					'enabled' => $modSettings['warning_settings'][0] == 1,
@@ -554,6 +563,9 @@ function ModifyProfile($post_errors = array())
 	// If we're in wireless then we have a cut down template...
 	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_profile';
+
+	if (!WIRELESS)
+		loadJavascriptFile('profile.js', array('default_theme' => true, 'defer' => false), 'smf_profile');
 
 	// These will get populated soon!
 	$post_errors = array();

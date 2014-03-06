@@ -1140,7 +1140,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		'href' => $scripturl . '?action=profile;u=' . $profile['id_member'],
 		'link' => '<a href="' . $scripturl . '?action=profile;u=' . $profile['id_member'] . '" title="' . $txt['profile_of'] . ' ' . $profile['real_name'] . '">' . $profile['real_name'] . '</a>',
 		'email' => $profile['email_address'],
-		'show_email' => showEmailAddress(!empty($profile['hide_email']), $profile['id_member']),
+		'show_email' => !$user_info['is_guest'] && ($user_info['id'] == $profile['id_member'] || allowedTo('moderate_forum')),
 		'registered' => empty($profile['date_registered']) ? $txt['not_applicable'] : timeformat($profile['date_registered']),
 		'registered_timestamp' => empty($profile['date_registered']) ? 0 : forum_time(true, $profile['date_registered']),
 	);
@@ -1811,7 +1811,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true), 'smf_scripts');
+	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');
 	loadJavascriptFile('theme.js', array(), 'theme_scripts');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
@@ -1940,7 +1940,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 			loadLanguage('Errors');
 			echo '
 <div class="alert errorbox">
-	<a href="', $scripturl . '?action=admin;area=theme;sa=list;th=1;' . $context['session_var'] . '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
+	<a href="', $scripturl . '?action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'], '" class="alert">', $txt['theme_dir_wrong'], '</a>
 </div>';
 		}
 
@@ -2007,9 +2007,9 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  */
 function loadCSSFile($filename, $params = array(), $id = '')
 {
-	global $settings, $context;
+	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
@@ -2056,13 +2056,13 @@ function loadCSSFile($filename, $params = array(), $id = '')
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *
- * @param string $id An ID to stik on the end of the filename
+ * @param string $id An ID to stick on the end of the filename
  */
 function loadJavascriptFile($filename, $params = array(), $id = '')
 {
-	global $settings, $context;
+	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? '?alph21' : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 

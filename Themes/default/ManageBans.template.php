@@ -299,8 +299,6 @@ function template_ban_edit_trigger()
 			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
 		</form>
 	</div>
-
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',

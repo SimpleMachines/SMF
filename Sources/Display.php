@@ -378,9 +378,6 @@ function Display()
 	// Did we report a post to a moderator just now?
 	$context['report_sent'] = isset($_GET['reportsent']);
 
-	// Did we send this topic to a friend?
-	$context['topic_sent'] = isset($_GET['topicsent']);
-
 	// Let's get nosey, who is viewing this topic?
 	if (!empty($settings['display_who_viewing']))
 	{
@@ -1140,7 +1137,7 @@ function Display()
 		$context['wireless_moderate'] = isset($_GET['moderate']) ? ';moderate' : '';
 	}
 
-	// You can't link an existing topoic to the calendar unless you can modify the first post...
+	// You can't link an existing topic to the calendar unless you can modify the first post...
 	$context['calendar_post'] &= allowedTo('modify_any') || (allowedTo('modify_own') && $context['user']['started']);
 
 	// Load up the "double post" sequencing magic.
@@ -1211,6 +1208,17 @@ function Display()
 	call_integration_hook('integrate_display_buttons', array(&$context['normal_buttons']));
 	// Note: integrate_mod_buttons is no more necessary and deprecated, but is kept for backward compatibility with 2.0
 	call_integration_hook('integrate_mod_buttons', array(&$context['mod_buttons']));
+
+	// Load the drafts js file
+	if ($context['drafts_autosave'])
+		loadJavascriptFile('drafts.js', array('default_theme' => true, 'defer' => false), 'smf_drafts');
+
+	// Spellcheck
+	if ($context['show_spellchecking'])
+		loadJavascriptFile('spellcheck.js', array('default_theme' => true, 'defer' => false), 'smf_spellcheck');
+
+	// topic.js
+	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 }
 
 /**
@@ -1289,7 +1297,7 @@ function prepareDisplayContext($reset = false)
 		$memberContext[$message['id_member']]['group'] = $txt['guest_title'];
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
-		$memberContext[$message['id_member']]['show_email'] = showEmailAddress(true, 0);
+		$memberContext[$message['id_member']]['show_email'] = allowedTo('admin_forum');
 		$memberContext[$message['id_member']]['is_guest'] = true;
 	}
 	else

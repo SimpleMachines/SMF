@@ -1113,6 +1113,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_upload_avatar',
 		'profile_remote_avatar',
 		'profile_remove_own',
+		'report_user',
 	));
 	$groupLevels['board']['standard'] = array_merge($groupLevels['board']['restrict'], array(
 		'poll_vote',
@@ -2205,6 +2206,7 @@ function loadIllegalGuestPermissions()
 		'profile_upload_avatar',
 		'remove',
 		'report_any',
+		'report_user',
 		'send_email_to_members',
 		'send_mail',
 		'split_any',

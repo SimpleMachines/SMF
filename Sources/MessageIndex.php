@@ -559,7 +559,7 @@ function MessageIndex()
 		{
 			// We'll use this in a minute
 			$boards_allowed = boardsAllowedTo('post_new');
-			
+
 			// How many boards can you do this on besides this one?
 			$context['can_move_any'] = count($boards_allowed) > 1;
 		}
@@ -685,6 +685,9 @@ function MessageIndex()
 	// Allow adding new buttons easily.
 	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
+
+	// Javascript for inline editing.
+	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 }
 
 /**
@@ -826,7 +829,7 @@ function QuickModeration()
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{		
+		{
 			if (!empty($board))
 			{
 				if ($row['id_board'] != $board || ($modSettings['postmod_active'] && !$row['approved'] && !allowedTo('approve_posts')))

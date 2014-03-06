@@ -65,6 +65,11 @@ $txt['reported_by'] = 'has been reported by';
 $txt['board_moderate'] = 'on a board you moderate';
 $txt['report_comment'] = 'The reporter has made the following comment';
 
+// Use numeric entities in the below three strings.
+$txt['report_profile'] = 'Report profile of \'%1$s\'';
+$txt['reported_profile'] = 'Reported user';
+$txt['report_following_user'] = 'The profile of "%1$s" at %2$s';
+
 $txt['attach_restrict_attachmentPostLimit'] = 'maximum total size %1$d KB';
 $txt['attach_restrict_attachmentPostLimit_MB'] = 'maximum total size %1$d MB';
 $txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size %1$d KB';
