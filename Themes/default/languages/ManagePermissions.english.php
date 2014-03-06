@@ -182,6 +182,10 @@ $txt['permissionname_profile_remove'] = 'Delete account';
 $txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete his account, when set to \'Own Account\'.';
 $txt['permissionname_profile_remove_own'] = 'Own account';
 $txt['permissionname_profile_remove_any'] = 'Any account';
+$txt['permissionname_view_warning'] = 'View warning status';
+$txt['permissionname_view_warning_own'] = 'Own account';
+$txt['permissionname_view_warning_any'] = 'Any account';
+$txt['permissionhelp_view_warning'] = 'Allows users to view their own warning status and history (\'Own account\') or that of any user (\'Any account\')';
 
 $txt['permissionname_report_user'] = 'Report users\' profiles';
 $txt['permissionhelp_report_user'] = 'This permission will allow members to report other users\' profiles to the admins to alert them of spam or other inappropriate content in the profile.';

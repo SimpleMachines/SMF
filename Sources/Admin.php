@@ -322,6 +322,7 @@ function AdminMain()
 					'function' => 'ModifyWarningSettings',
 					'icon' => 'warning.png',
 					'inactive' => $modSettings['warning_settings'][0] == 0,
+					'permission' => array('admin_forum'),
 				),
 				'ban' => array(
 					'label' => $txt['ban_title'],

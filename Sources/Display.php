@@ -1080,6 +1080,7 @@ function Display()
 		'can_remove_poll' => 'poll_remove',
 		'can_reply' => 'post_reply',
 		'can_reply_unapproved' => 'post_unapproved_replies',
+		'can_view_warning' => 'profile_warning',
 	);
 	foreach ($anyown_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm . '_any') || ($context['user']['started'] && allowedTo($perm . '_own'));
@@ -1291,9 +1292,12 @@ function prepareDisplayContext($reset = false)
 	}
 	else
 	{
+		// Define this here to make things a bit more readable
+		$can_view_warning = $context['user']['can_mod'] || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
+		
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
-		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && ($context['user']['can_mod'] || (!$user_info['is_guest'] && !empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $message['id_member'] == $user_info['id'])));
+		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];

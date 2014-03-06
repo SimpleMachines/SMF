@@ -1457,6 +1457,7 @@ function loadAllPermissions()
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
+			'view_warning' => array(true, 'profile_account'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),
@@ -1516,7 +1517,10 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'calendar_edit';
 	}
 	if ($modSettings['warning_settings'][0] == 0)
+	{
 		$hiddenPermissions[] = 'issue_warning';
+		$hiddenPermissions[] = 'view_warning';
+	}
 	if (empty($modSettings['karmaMode']))
 		$hiddenPermissions[] = 'karma_edit';
 
@@ -2204,6 +2208,7 @@ function loadIllegalGuestPermissions()
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
+		'profile_warning',
 		'remove',
 		'report_any',
 		'report_user',
