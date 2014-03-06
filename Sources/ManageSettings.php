@@ -1237,7 +1237,7 @@ function ShowCustomProfiles()
 		'id' => 'custom_profile_fields',
 		'title' => $txt['custom_profile_title'],
 		'base_href' => $scripturl . '?action=admin;area=featuresettings;sa=profile',
-		'default_sort_col' => 'field_name',
+		'default_sort_col' => 'field_order',
 		'no_items_label' => $txt['custom_profile_none'],
 		'items_per_page' => 25,
 		'get_items' => array(
@@ -1250,6 +1250,23 @@ function ShowCustomProfiles()
 			'function' => 'list_getProfileFieldSize',
 		),
 		'columns' => array(
+			'field_order' => array(
+				'header' => array(
+					'value' => $txt['custom_profile_fieldorder'],
+				),
+				'data' => array(
+					'function' => create_function('$rowData', '
+						global $scripturl;
+
+						return $rowData[\'field_order\'];
+					'),
+					'style' => 'width: 12%;',
+				),
+				'sort' => array(
+					'default' => 'field_order',
+					'reverse' => 'field_order DESC',
+				),
+			),
 			'field_name' => array(
 				'header' => array(
 					'value' => $txt['custom_profile_fieldname'],
@@ -1387,7 +1404,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 	{
 		// Load all the fields.
 		$request = $smcFunc['db_query']('', '
-			SELECT id_field, col_name, field_name, field_desc, field_type, active, placement
+			SELECT id_field, col_name, field_name, field_desc, field_type, field_order, active, placement
 			FROM {db_prefix}custom_fields
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items_per_page}',
@@ -1447,7 +1464,8 @@ function EditCustomProfiles()
 		$result = $smcFunc['db_query']('', '
 				SELECT
 					id_field, col_name, field_name, field_order
-				FROM {db_prefix}custom_fields',
+				FROM {db_prefix}custom_fields
+				ORDER BY field_order ASC',
 				array(
 					'current_field' => $context['fid'],
 				)

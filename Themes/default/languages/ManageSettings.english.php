@@ -212,6 +212,7 @@ $txt['custom_profile_desc'] = 'From this page you can create your own custom pro
 $txt['custom_profile_active'] = 'Active';
 $txt['custom_profile_fieldname'] = 'Field Name';
 $txt['custom_profile_fieldtype'] = 'Field Type';
+$txt['custom_profile_fieldorder'] = 'Field Order';
 $txt['custom_profile_make_new'] = 'New Field';
 $txt['custom_profile_none'] = 'You have not created any custom profile fields yet!';
 $txt['custom_profile_icon'] = 'Icon';
