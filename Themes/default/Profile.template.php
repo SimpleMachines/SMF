@@ -15,9 +15,6 @@ function template_profile_above()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
-	echo '
-	<script src="', $settings['default_theme_url'], '/scripts/profile.js"></script>';
-
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
 	if (isBrowser('is_chrome') && !$context['user']['is_owner'])
 		echo '
@@ -676,7 +673,6 @@ function template_editBuddies()
 			</div>
 		</div>
 	</form>
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
 			sSelf: \'oAddBuddySuggest\',
@@ -778,7 +774,6 @@ function template_editIgnoreList()
 			</div>
 		</div>
 	</form>
-	<script src="', $settings['default_theme_url'], '/scripts/suggest.js?alp21"></script>
 	<script><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddIgnoreSuggest\',
@@ -2840,11 +2835,6 @@ function template_profile_signature_modify()
 		echo '
 								<span class="smalltext">', $context['signature_warning'], '</span>';
 
-	// Load the spell checker?
-	if ($context['show_spellchecking'])
-		echo '
-								<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
-
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
 								<script><!-- // --><![CDATA[
@@ -3079,7 +3069,6 @@ function template_authentication_method()
 
 	// The main header!
 	echo '
-		<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
 				<h3 class="catbg">

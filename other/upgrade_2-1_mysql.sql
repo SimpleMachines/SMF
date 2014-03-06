@@ -61,6 +61,10 @@ if (!isset($modSettings['allow_no_censored']))
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
 ---#
 
+---# Adding new "browser_cache" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/

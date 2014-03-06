@@ -45,7 +45,10 @@ function PlushSearch1()
 	loadLanguage('Search');
 	// Don't load this in XML mode.
 	if (!isset($_REQUEST['xml']))
+	{
 		loadTemplate('Search');
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	}
 
 	// Check the user's permissions.
 	isAllowedTo('search_posts');

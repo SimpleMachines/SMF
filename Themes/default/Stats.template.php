@@ -396,7 +396,6 @@ function template_main()
 		</table>
 		</div>
 	</div>
-	<script src="', $settings['default_theme_url'], '/scripts/stats.js"></script>
 	<script><!-- // --><![CDATA[
 		var oStatsCenter = new smf_StatsCenter({
 			sTableId: \'stats\',

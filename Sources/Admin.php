@@ -29,7 +29,7 @@ function AdminMain()
 	// Load the language and templates....
 	loadLanguage('Admin');
 	loadTemplate('Admin', 'admin');
-	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'smf_admin');
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
@@ -561,6 +561,9 @@ function AdminHome()
 		'http://www.simplemachines.org/redirect/smf_support',
 		'http://www.simplemachines.org/redirect/customize_support'
 	);
+
+	if ($context['admin_area'] == 'admin')
+		loadJavascriptFile('admin.js', array('default_theme' => true, 'defer' => false), 'smf_admin');
 }
 
 /**

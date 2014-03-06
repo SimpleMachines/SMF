@@ -3347,7 +3347,7 @@ function template_css()
 		// Try to keep only what's useful.
 		$repl = array($boardurl . '/Themes/' => '', $boardurl . '/' => '');
 		foreach ($context['css_files'] as $file)
-			$context['debug']['sheets'][] = strtr($file['filename'], $repl); 
+			$context['debug']['sheets'][] = strtr($file['filename'], $repl);
 	}
 
 	if (!empty($context['css_header']))
@@ -3715,7 +3715,7 @@ function setupMenuContext()
 	if (!isset($context['allow_calendar_event']))
 	{
 		$context['allow_calendar_event'] = $context['allow_calendar'] && allowedTo('calendar_post');
-		
+
 		// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
 		if ($context['allow_calendar'] && $context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
 		{

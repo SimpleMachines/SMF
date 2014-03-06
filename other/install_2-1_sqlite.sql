@@ -2024,6 +2024,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enab
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
 COMMIT;

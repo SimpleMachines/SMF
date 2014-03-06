@@ -87,7 +87,6 @@ function template_set_password()
 	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
-	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', $context['character_set'], '">
 		<div class="tborder login">
@@ -133,10 +132,9 @@ function template_set_password()
 
 function template_ask()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
-	<script src="', $settings['default_theme_url'], '/scripts/register.js"></script>
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="tborder login">

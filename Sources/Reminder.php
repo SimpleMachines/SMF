@@ -188,6 +188,8 @@ function setPassword()
 		'memID' => (int) $_REQUEST['u']
 	);
 
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
+
 	// Tokens!
 	createToken('remind-sp');
 }
@@ -270,6 +272,8 @@ function setPassword2()
 		'never_expire' => false,
 		'description' => $txt['reminder_password_set']
 	);
+
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 	createToken('login');
 }
 
@@ -316,6 +320,7 @@ function SecretAnswerInput()
 
 	$context['sub_template'] = 'ask';
 	createToken('remind-sai');
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 function SecretAnswer2()

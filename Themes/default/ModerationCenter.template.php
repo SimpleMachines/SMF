@@ -564,7 +564,7 @@ function template_moderation_settings()
 // Show a notice sent to a user.
 function template_show_notice()
 {
-	global $txt, $settings, $context;
+	global $txt, $settings, $context, $modSettings;
 
 	// We do all the HTML for this one!
 	echo '<!DOCTYPE html>
@@ -572,7 +572,7 @@ function template_show_notice()
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>
 		<div class="cat_bar">

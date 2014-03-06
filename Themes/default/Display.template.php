@@ -331,7 +331,6 @@ function template_main()
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 		echo '
-			<script src="', $settings['default_theme_url'], '/scripts/drafts.js?alp21"></script>
 			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
@@ -346,11 +345,9 @@ function template_main()
 
 	if ($context['show_spellchecking'])
 		echo '
-			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>
-				<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js"></script>';
+			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script src="', $settings['default_theme_url'], '/scripts/topic.js"></script>
 				<script><!-- // --><![CDATA[';
 
 	if (!empty($context['some_likes']))

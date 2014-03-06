@@ -564,6 +564,9 @@ function ModifyProfile($post_errors = array())
 	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_profile';
 
+	if (!WIRELESS)
+		loadJavascriptFile('profile.js', array('default_theme' => true, 'defer' => false), 'smf_profile');
+
 	// These will get populated soon!
 	$post_errors = array();
 	$profile_vars = array();
