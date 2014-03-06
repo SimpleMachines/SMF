@@ -791,7 +791,7 @@ function template_show_settings()
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
-				
+
 				// Various HTML5 input types that are basically enhanced textboxes
 				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
 
@@ -1081,6 +1081,17 @@ function template_edit_profile_field()
 											</dt>
 											<dd>
 												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check">
+											</dd>
+
+											<dt>
+												<strong><label for="order">', $txt['custom_edit_order'], ':</label></strong>
+											</dt>
+											<dd>
+												<select id="order" name="field_placement">
+													', empty($context['field']['order']) ? '<option value="">(' .$txt['custom_edit_order_unchanged'] . ')</option>' : '', '
+														<option value="after">' . $txt['custom_edit_order_after'] . '...</option>
+														<option value="before">' . $txt['custom_edit_order_before'] . '...</option>
+								</select>
 											</dd>
 
 											<dt>
