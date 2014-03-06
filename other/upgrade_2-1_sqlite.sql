@@ -644,6 +644,28 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_gender', 'Gender', 'Your gender.', 'text', 50, '', 6, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
 ---#
 
+---# Add an order value to each exiting cust profile field.
+---{
+	$old_cust_fields = upgrade_query("
+		SELECT id_field
+		FROM {$db_prefix}custom_fields");
+
+		// We start counting from 7 because we already have the first 6 fields.
+		$fields_count = 7;
+
+		while ($row = mysql_fetch_assoc($old_cust_fields))
+		{
+			$fields_count++;
+
+			upgrade_query("
+				UPDATE {$db_prefix}custom_fields
+				SET field_order = $fields_count,
+				WHERE id_attach = $row[id_field]");
+		}
+		$smcFunc['db_free_result']($old_cust_fields);
+---}
+---#
+
 ---# Converting member values...
 ---{
 // We cannot do this twice
