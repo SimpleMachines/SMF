@@ -1467,7 +1467,7 @@ function EditCustomProfiles()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				id_field, col_name, field_name, field_desc, field_type, field_length, field_options,
+				id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
 				show_reg, show_display, show_profile, private, active, default_value, can_search,
 				bbc, mask, enclose, placement
 			FROM {db_prefix}custom_fields
@@ -1495,6 +1495,7 @@ function EditCustomProfiles()
 				'reg' => $row['show_reg'],
 				'display' => $row['show_display'],
 				'type' => $row['field_type'],
+				'order' => $row['field_order'],
 				'max_length' => $row['field_length'],
 				'rows' => $rows,
 				'cols' => $cols,
@@ -1524,6 +1525,7 @@ function EditCustomProfiles()
 			'reg' => false,
 			'display' => false,
 			'type' => 'text',
+			'order' => 0,
 			'max_length' => 255,
 			'rows' => 4,
 			'cols' => 30,
