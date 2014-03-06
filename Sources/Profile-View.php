@@ -33,9 +33,9 @@ function summary($memID)
 		'can_send_email' => allowedTo('send_email_to_members'),
 		'can_have_buddy' => allowedTo('profile_identity_own') && !empty($modSettings['enable_buddylist']),
 		'can_issue_warning' => allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1,
+		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || ($context['user']['is_owner'] && allowedTo('view_warning_own')) && $modSettings['warning_settings'][0] === 1)
 	);
 	$context['member'] = &$memberContext[$memID];
-	$context['can_view_warning'] = (allowedTo('issue_warning') && !$context['user']['is_owner']) || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $context['user']['is_owner']));
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?action=profile;u=' . $memID;
@@ -2729,7 +2729,7 @@ function viewWarning($memID)
 	global $modSettings, $context, $sourcedir, $txt, $scripturl;
 
 	// Firstly, can we actually even be here?
-	if (!allowedTo('issue_warning') && (empty($modSettings['warning_show']) || ($modSettings['warning_show'] == 1 && !$context['user']['is_owner'])))
+	if (!($context['user']['is_owner'] && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
 		fatal_lang_error('no_access', false);
 
 	// Make sure things which are disabled stay disabled.

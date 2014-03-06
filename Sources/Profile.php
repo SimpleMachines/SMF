@@ -185,13 +185,13 @@ function ModifyProfile($post_errors = array())
 				),
 				'viewwarning' => array(
 					'label' => $txt['profile_view_warnings'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'] && (!empty($modSettings['warning_show']) && ($context['user']['is_owner'] || $modSettings['warning_show'] == 2)),
+					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'icon' => 'warning.png',
 					'permission' => array(
-						'own' => 'is_not_guest', // @todo this needs to be a view-own warning
-						'any' => 'issue_warning',
+						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
+						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
 					),
 				),
 			),
