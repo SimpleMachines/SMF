@@ -1088,18 +1088,32 @@ function template_edit_profile_field()
 											</dt>
 											<dd>
 												<select id="order" name="field_order_placement">
-													', (empty($context['field']['order']) ? '<option value="">(' .$txt['custom_edit_order_unchanged'] . ')</option>' : ''), '
-														<option value="after">' . $txt['custom_edit_order_after'] . '...</option>
-														<option value="before">' . $txt['custom_edit_order_before'] . '...</option>
+													<option value="">(' .$txt['custom_edit_order_unchanged'] . ')</option>
+													<option value="after">' . $txt['custom_edit_order_after'] . '...</option>
+													<option value="before">' . $txt['custom_edit_order_before'] . '...</option>
 												</select>';
 
 	echo '
 												<select id="field_order" name="field_order"', (empty($context['field']['order']) ? ' disabled' : ''), '>
 													', (empty($context['field']['order']) ? '<option value="">(' . $txt['custom_edit_order_unchanged'] . ')</option>' : '');
 
-	foreach ($context['all_fields'] as $order)
+	if (!empty($context['all_fields']))
+	{
+		foreach ($context['all_fields'] as $order)
+		{
+			if ($order['id'] == $context['fid'])
+				echo '
+													<option selected value="">(' . $txt['custom_edit_order_unchanged'] . ')</option>';
+
+		else
+			echo '
+													<option value="', $order['id'], '">', $order['name'], '</option>';
+		}
+	}
+
+	else
 		echo '
-													<option', $order['id'] == $context['fid'] ? ' selected' : '', ' value="', $order['id'], '">', $order['name'], '</option>';
+													<option selected value="">(' . $txt['custom_edit_order_unchanged'] . ')</option>';
 
 	echo '
 												</select>

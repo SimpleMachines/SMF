@@ -1576,6 +1576,36 @@ function EditCustomProfiles()
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
 
+		// Gotta put your stuff in order!
+		if (!empty($_POST['field_order_placement']) && !empty($_POST['field_order']))
+		{
+			// Figuring out what to do and where...
+			if (!empty($context['all_fields']))
+				$order_after = $context['all_fields'][$_POST['field_order']]['order'] - ($_POST['field_order_placement'] == 'before' ? 1 : 0);
+
+			// There isn't any fields so just assign number 1 to this.
+			else
+				$order_after = 1;
+
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}custom_fields
+				SET field_order = field_order + {int:new_order}
+				WHERE field_order > {int:insert_after}
+					'. (!empty($context['fid']) ? 'AND id_field != {int:selected_field}' : ''),
+				array(
+					'insert_after' => $order_after,
+					'selected_field' => !empty($context['fid']) ? $context['fid'] : 0,
+					'new_order' => 1 + list_getProfileFieldSize(),
+				)
+			);
+
+			$new_order = $order_after + 1;
+		}
+
+		// No changes.
+		else
+			$new_order = 1 + list_getProfileFieldSize();
+
 		// Checkboxes...
 		$show_reg = isset($_POST['reg']) ? (int) $_POST['reg'] : 0;
 		$show_display = isset($_POST['display']) ? 1 : 0;
@@ -1656,7 +1686,7 @@ function EditCustomProfiles()
 					$colname = $initial_colname . $i;
 			}
 
-			// Still not a unique colum name? Leave it up to the user, then.
+			// Still not a unique column name? Leave it up to the user, then.
 			if (!$unique)
 				fatal_lang_error('custom_option_not_unique');
 		}
@@ -1732,7 +1762,8 @@ function EditCustomProfiles()
 					show_display = {int:show_display}, show_profile = {string:show_profile},
 					private = {int:private}, active = {int:active}, default_value = {string:default_value},
 					can_search = {int:can_search}, bbc = {int:bbc}, mask = {string:mask},
-					enclose = {string:enclose}, placement = {int:placement}
+					enclose = {string:enclose}, placement = {int:placement},
+					field_order = {int:field_order}
 				WHERE id_field = {int:current_field}',
 				array(
 					'field_length' => $field_length,
@@ -1747,6 +1778,7 @@ function EditCustomProfiles()
 					'field_desc' => $_POST['field_desc'],
 					'field_type' => $_POST['field_type'],
 					'field_options' => $field_options,
+					'field_order' => $new_order,
 					'show_profile' => $show_profile,
 					'default_value' => $default,
 					'mask' => $mask,
@@ -1775,14 +1807,14 @@ function EditCustomProfiles()
 				'{db_prefix}custom_fields',
 				array(
 					'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
-					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string',
+					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string', 'field_order' => 'int',
 					'show_reg' => 'int', 'show_display' => 'int', 'show_profile' => 'string',
 					'private' => 'int', 'active' => 'int', 'default_value' => 'string', 'can_search' => 'int',
 					'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
 				),
 				array(
 					$colname, $_POST['field_name'], $_POST['field_desc'],
-					$_POST['field_type'], $field_length, $field_options,
+					$_POST['field_type'], $field_length, $field_options, $new_order,
 					$show_reg, $show_display, $show_profile,
 					$private, $active, $default, $can_search,
 					$bbc, $mask, $enclose, $placement,
