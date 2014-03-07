@@ -1822,15 +1822,6 @@ function EditCustomProfiles()
 				array('id_field')
 			);
 		}
-
-		// As there's currently no option to priorize certain fields over others, let's order them alphabetically.
-		$smcFunc['db_query']('alter_table_boards', '
-			ALTER TABLE {db_prefix}custom_fields
-			ORDER BY field_name',
-			array(
-				'db_error_skip' => true,
-			)
-		);
 	}
 	// Deleting?
 	elseif (isset($_POST['delete']) && $context['field']['colname'])
