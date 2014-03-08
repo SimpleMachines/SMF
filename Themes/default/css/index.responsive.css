@@ -1,0 +1,242 @@
+/* I have a Lumia with 480px screen... so ^^ */
+@media (max-width: 480px) {
+	/* Do NOT display*/
+	/* @todo categorize lines based on general - boardindex - messageindex - display - others */
+	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
+	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
+	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive {
+		display: none !important;
+	}
+
+	/* This is general */
+	.action_home {
+		width: 100% !important;
+	}
+	#wrapper, .frame {
+		min-width: 305px !important;
+	}
+	.popup_window {
+		width: 310px !important;
+		min-height: 285px !important;
+	}
+	.button_submit {
+		font-size: 0.67em !important;
+		max-width: 275px !important;
+	}
+	h1.forumtitle a, h1.forumtitle, a img {
+		padding: 5px 0 0 4px !important;
+		max-width: 300px;
+	}
+	
+	/* Register Page */
+	dl.register_form {
+		float: none !important;
+		max-width: 350px !important;
+	}
+	dl.register_form dt, dl.register_form dd {
+		float: none !important;
+		min-width: 250px !important;
+	}
+	
+	/* BoardIndex */
+	td.info {
+		border: 1px solid #DDD;
+		padding: 5px !important;
+	}
+	.mark_read {
+		float: left !important;
+	}
+	
+	/* MessageIndex */
+	td.subject {
+		border-left: 1px solid #CCC;
+		border-right: 1px solid #CCC;
+		padding: 5px !important;
+	}
+	
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+	
+	/* Post Section */
+	#post_header dd {
+		width: 50% !important;
+	}
+	#post_header dt {
+		width: 35% !important;
+	}
+	.sceditor-group, th.smalltext.last_th,
+	th.icq, th.aim, th.yim, th.skype, th.id_group, th.registered,
+	td.centertext.icq, td.centertext.aim, td.centertext.yim, td.centertext.skype,
+	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts {
+		display: none !important;
+	}	
+
+	.dropmenu li {
+		float: none !important;
+		width: 275px !important;
+	}
+	
+	/* Profile */
+	#basicinfo, #detailedinfo {
+		float: none !important;
+		width: 95% !important;
+	}
+	
+	/* Stats Center */
+	th.recentposter, th.recentboard, th.recenttime,
+	td.recentposter, td.recentboard, td.recenttime {
+		display: none;
+	}
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+	
+	/* Search */
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: 100%;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+	
+	/* Stats */
+	#top_posters, #top_topics_replies, #top_topics_starter,
+	#top_boards, #top_topics_views, #most_online,
+	#popularposts, #popularactivity,
+	.stats_left, .stats_right {
+		float: none !important;
+		width: 100%;
+	}
+	.stats_left {
+		border-right: none;
+	}
+}
+
+@media (min-width: 481px) and (max-width: 720px) {
+	#wrapper, .frame {
+		min-width: 85% !important;
+	}
+	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
+	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
+	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive {
+		display: none !important;
+	}
+
+	/* BoardIndex */
+	td.info {
+		border: 1px solid #DDD;
+		padding: 5px !important;
+	}
+	.mark_read {
+		float: left !important;
+	}
+
+	/* MessageIndex */
+	td.subject {
+		border-left: 1px solid #CCC;
+		border-right: 1px solid #CCC;
+		padding: 5px !important;
+	}
+
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+
+	/* Profile */
+	#basicinfo, #detailedinfo {
+		float: none !important;
+		width: 95% !important;
+	}
+
+	/* Stats Center */
+	th.recentposter, th.recentboard, th.recenttime,
+	td.recentposter, td.recentboard, td.recenttime {
+		display: none;
+	}
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+
+	/* Search */
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: 100%;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+
+	/* Stats */
+	#top_posters, #top_topics_replies, #top_topics_starter,
+	#top_boards, #top_topics_views, #most_online,
+	#popularposts, #popularactivity,
+	.stats_left, .stats_right {
+		float: none !important;
+		width: 100%;
+	}
+	.stats_left {
+		border-right: none;
+	}
+}
+
+/* Still not enough data or people to test this... */
+@media (min-width: 721px) and (max-width: 1080) {
+}

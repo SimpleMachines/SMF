@@ -511,7 +511,7 @@ function template_single_post($message, $force_alternate = null)
 									</h4>';
 
 	echo '
-								<ul>';
+								<ul class="responsive">';
 
 
 	// Show the user's avatar.
