@@ -3843,23 +3843,6 @@ dl.addrules dt.floatleft {
 	z-index: 1;
 }
 
-/* Experimental additions. @todo */
-/*-------------------------*/
-
-/* Drop the stats cell from the board index on narrow screens. */
-/* Much more user-friendly IMHO. */
-
-@media screen and (max-width: 1220px) {
-	.table_list td.stats {
-		display: none;
-	}
-	.table_list td.lastpost p {
-		border-left: 1px solid #ccc;
-		padding: 1px 5px 2px 10px;
-		margin-top: 1px;
-	}
-}
-
 /* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */

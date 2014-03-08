@@ -1,20 +1,48 @@
-/* I have a Lumia with 480px screen... so ^^ */
-@media (max-width: 480px) {
-	/* Do NOT display*/
-	/* @todo categorize lines based on general - boardindex - messageindex - display - others */
-	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
-	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
-	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive {
-		display: none !important;
-	}
-
-	/* This is general */
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+	/* General */
 	.action_home {
 		width: 100% !important;
 	}
 	#wrapper, .frame {
-		min-width: 305px !important;
+		min-width: 85% !important;
 	}
+
+	/* Hide me */
+	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
+	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
+	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive,
+	.sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
+	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts {
+		display: none !important;
+	}
+
+	/* BoardIndex */
+	.table_list td.stats {
+		display: none;
+	}
+	.table_list td.lastpost p {
+		border-left: 1px solid #ccc;
+		padding: 1px 5px 2px 10px;
+		margin-top: 1px;
+	}
+
+	/* Stats */
+	#top_posters, #top_topics_replies, #top_topics_starter,
+	#top_boards, #top_topics_views, #most_online,
+	#popularposts, #popularactivity,
+	.stats_left, .stats_right {
+		float: none !important;
+		width: 100%;
+	}
+	.stats_left {
+		border-right: none;
+	}
+}
+
+/* I have a Lumia with 480px screen... so ^^ */
+@media (max-width: 480px) {
+	/* This is general */
 	.popup_window {
 		width: 310px !important;
 		min-height: 285px !important;
@@ -82,12 +110,6 @@
 	#post_header dt {
 		width: 35% !important;
 	}
-	.sceditor-group, th.smalltext.last_th,
-	th.icq, th.aim, th.yim, th.skype, th.id_group, th.registered,
-	td.centertext.icq, td.centertext.aim, td.centertext.yim, td.centertext.skype,
-	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts {
-		display: none !important;
-	}	
 
 	.dropmenu li {
 		float: none !important;
@@ -128,30 +150,9 @@
 	INPUT#searchfor.input_text, INPUT#userspec.input_text {
 		width: 75%;
 	}
-	
-	/* Stats */
-	#top_posters, #top_topics_replies, #top_topics_starter,
-	#top_boards, #top_topics_views, #most_online,
-	#popularposts, #popularactivity,
-	.stats_left, .stats_right {
-		float: none !important;
-		width: 100%;
-	}
-	.stats_left {
-		border-right: none;
-	}
 }
 
 @media (min-width: 481px) and (max-width: 720px) {
-	#wrapper, .frame {
-		min-width: 85% !important;
-	}
-	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
-	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
-	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive {
-		display: none !important;
-	}
-
 	/* BoardIndex */
 	td.info {
 		border: 1px solid #DDD;
@@ -222,18 +223,6 @@
 	}
 	INPUT#searchfor.input_text, INPUT#userspec.input_text {
 		width: 75%;
-	}
-
-	/* Stats */
-	#top_posters, #top_topics_replies, #top_topics_starter,
-	#top_boards, #top_topics_views, #most_online,
-	#popularposts, #popularactivity,
-	.stats_left, .stats_right {
-		float: none !important;
-		width: 100%;
-	}
-	.stats_left {
-		border-right: none;
 	}
 }
 
