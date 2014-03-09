@@ -749,9 +749,9 @@ function template_inline_permissions()
 
 	echo '
 											</fieldset>
-				
+
 											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;">[ ', $txt['avatar_select_permission'], ' ]</a>
-									
+
 											<script><!-- // --><![CDATA[
 												document.getElementById("', $context['current_permission'], '").style.display = "none";
 												document.getElementById("', $context['current_permission'], '_groups_link").style.display = "";
@@ -790,7 +790,7 @@ function template_postmod_permissions()
 			echo '
 							<div class="information">', $txt['permissions_post_moderation_deny_note'], '</div>';
 
-		echo '		
+		echo '
 							<div class="padding">
 								<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
 									<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br>
@@ -826,13 +826,13 @@ function template_postmod_permissions()
 										<th class="centercol" colspan="3">
 											', $txt['permissions_post_moderation_replies_any'], '
 										</th>';
-						
+
 		if ($modSettings['attachmentEnable'] == 1)
 			echo '
 										<th class="last_th centercol" colspan="3">
 											', $txt['permissions_post_moderation_attachments'], '
 										</th>';
-		
+
 		echo '
 									</tr>
 									<tr>
@@ -875,7 +875,7 @@ function template_postmod_permissions()
 										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="allow"', $group['new_topic'] == 'allow' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="moderate"', $group['new_topic'] == 'moderate' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg2"><input type="radio" name="new_topic[', $group['id'], ']" value="disallow"', $group['new_topic'] == 'disallow' ? ' checked' : '', ' class="input_radio"></td>';
-			
+
 				// Guests can't have "own" permissions
 				if ($group['id'] == '-1')
 				{
@@ -889,12 +889,12 @@ function template_postmod_permissions()
 										<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="moderate"', $group['replies_own'] == 'moderate' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg"><input type="radio" name="replies_own[', $group['id'], ']" value="disallow"', $group['replies_own'] == 'disallow' ? ' checked' : '', ' class="input_radio"></td>';
 				}
-			
+
 				echo '
 										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="allow"', $group['replies_any'] == 'allow' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="moderate"', $group['replies_any'] == 'moderate' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg2"><input type="radio" name="replies_any[', $group['id'], ']" value="disallow"', $group['replies_any'] == 'disallow' ? ' checked' : '', ' class="input_radio"></td>';
-	
+
 				if ($modSettings['attachmentEnable'] == 1)
 				{
 					echo '
@@ -902,7 +902,7 @@ function template_postmod_permissions()
 										<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="moderate"', $group['attachment'] == 'moderate' ? ' checked' : '', ' class="input_radio"></td>
 										<td align="center" class="windowbg"><input type="radio" name="attachment[', $group['id'], ']" value="disallow"', $group['attachment'] == 'disallow' ? ' checked' : '', ' class="input_radio"></td>';
 				}
-		
+
 				echo '
 									</tr>';
 		}
