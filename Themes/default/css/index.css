@@ -2885,7 +2885,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
+tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
