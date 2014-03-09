@@ -698,6 +698,7 @@ function ModifyMembergroup()
 
 	loadAllPermissions();
 	loadPermissionProfiles();
+	$context['hidden_perms'] = array();
 
 	if ($context['group']['id'] > 0)
 	{
@@ -800,11 +801,38 @@ function ModifyMembergroup()
 
 					if ($perm['has_own_any'])
 					{
-						$curPerm['any']['select'] = in_array($perm['id'] . '_any', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $permissions[$permissionType]['denied']) ? 'denied' : 'off');
-						$curPerm['own']['select'] = in_array($perm['id'] . '_own', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $permissions[$permissionType]['denied']) ? 'denied' : 'off');
+						$curPerm['any']['select'] = in_array($perm['id'] . '_any', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $permissions[$permissionType]['denied']) ? 'deny' : 'off');
+						$curPerm['own']['select'] = in_array($perm['id'] . '_own', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $permissions[$permissionType]['denied']) ? 'deny' : 'off');
 					}
 					else
-						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'denied' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
+						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'deny' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
+
+						// If it's hidden keep the last value.
+						if ($perm['hidden'] || $permissionArray['hidden'])
+						{
+							if ($perm['has_own_any'])
+							{
+								// Guests can't have own permissions.
+								//if ($context['group']['id'] != -1)
+									$context['hidden_perms'][] = array(
+										$permissionType,
+										$perm['own']['id'],
+										$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
+									);
+
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['any']['id'],
+									$curPerm['any']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['any']['select'],
+								);
+							}
+							else
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['id'],
+									$curPerm['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['select'],
+								);
+						}
 				}
 			}
 		}
