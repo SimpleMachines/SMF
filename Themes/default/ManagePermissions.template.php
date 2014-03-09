@@ -540,6 +540,10 @@ function template_modify_group()
 				<input type="submit" value="', $txt['permissions_commit'], '" class="button_submit">
 			</div>';
 
+	foreach ($context['hidden_perms'] as $hidden_perm)
+		echo '
+			<input type="hidden" name="perm[', $hidden_perm[0], '][', $hidden_perm[1], ']" value="', $hidden_perm[2], '">';
+
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mp_token_var'], '" value="', $context['admin-mp_token'], '">
