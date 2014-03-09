@@ -807,19 +807,16 @@ function ModifyMembergroup()
 					else
 						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'deny' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
 
-						// If it's hidden keep the last value.
+						// Keep the last value if it's hidden.
 						if ($perm['hidden'] || $permissionArray['hidden'])
 						{
 							if ($perm['has_own_any'])
 							{
-								// Guests can't have own permissions.
-								//if ($context['group']['id'] != -1)
-									$context['hidden_perms'][] = array(
-										$permissionType,
-										$perm['own']['id'],
-										$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
-									);
-
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['own']['id'],
+									$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
+								);
 								$context['hidden_perms'][] = array(
 									$permissionType,
 									$perm['any']['id'],
