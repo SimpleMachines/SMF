@@ -586,129 +586,104 @@ function template_modify_group_display($type)
 				{
 					echo '
 							<tr class="catbg">
-								<th colspan="2" width="100%" align="left"><strong class="smalltext">', $permissionGroup['name'], '</strong></th>';
-					if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
+								<th width="10"></th>
+								<th', $context['group']['id'] == -1 ? ' colspan="2"' : '', ' class="smalltext">', $permissionGroup['name'], '</th>';
+
+					if ($context['group']['id'] != -1)
 						echo '
-								<th colspan="3" width="10"></th>';
-					else
+								<th align="center">', $txt['permissions_option_own'], '</th>
+								<th align="center">', $txt['permissions_option_any'], '</th>';
+
 						echo '
-								<th align="center"><div>', $txt['permissions_option_on'], '</div></th>
-								<th align="center"><div>', $txt['permissions_option_off'], '</div></th>
-								<th align="center"><div>', $txt['permissions_option_deny'], '</div></th>';
-					echo '
 							</tr>';
 				}
 			}
 
-			$alternate = false;
 			foreach ($permissionGroup['permissions'] as $permission)
 			{
-				// If it's hidden keep the last value.
-				if ($permission['hidden'] || $permissionGroup['hidden'])
+				if (!$permission['hidden'] && !$permissionGroup['hidden'])
 				{
 					echo '
-							<tr style="display: none;">
-								<td>';
+							<tr>
+								<td width="10">
+									', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '"></a>' : '', '
+								</td>
+								<td class="lefttext full_width">', $permission['name'], '</td><td>';
 
 					if ($permission['has_own_any'])
 					{
-						// Guests can't have own permissions.
+						// Guests can't do their own thing.
 						if ($context['group']['id'] != -1)
+						{
+							if (empty($modSettings['permission_enable_deny']))
+								echo '
+									<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" id="', $permission['own']['id'], '_on" class="input_check" ', $disable_field, '/>';
+							else
+							{
+								echo '
+									<select name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']" ', $disable_field, '>';
+
+								foreach (array('on', 'off', 'deny') as $c)
+									echo '
+										<option ', $permission['own']['select'] == $c ? ' selected' : '', ' value="', $c, '">', $txt['permissions_option_' . $c], '</option>';
 							echo '
-									<input type="hidden" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']" value="', $permission['own']['select'] == 'denied' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $permission['own']['select'], '">';
+									</select>';
+							}
 
 						echo '
-									<input type="hidden" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']" value="', $permission['any']['select'] == 'denied' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $permission['any']['select'], '">';
+								</td>
+								<td>';
+						}
+
+						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
+							echo '
+									<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'on' ? ' checked="checked"' : '', ' value="on" class="input_check" ', $disable_field, '/>';
+						else
+						{
+							echo '
+									<select name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']" ', $disable_field, '>';
+
+							foreach (array('on', 'off', 'deny') as $c)
+								echo '
+										<option ', $permission['any']['select'] == $c ? ' selected' : '', ' value="', $c, '">', $txt['permissions_option_' . $c], '</option>';
+							echo '
+									</select>';
+						}
 					}
 					else
-						echo '
-									<input type="hidden" name="perm[', $permission_type['id'], '][', $permission['id'], ']" value="', $permission['select'] == 'denied' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $permission['select'], '">';
+					{
+						if ($context['group']['id'] != -1)
+							echo '
+								</td>
+								<td>';
+
+						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
+							echo '
+									<input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'on' ? ' checked="checked"' : '', ' value="on" class="input_check" ', $disable_field, '/>';
+						else
+						{
+							echo '
+									<select name="perm[', $permission_type['id'], '][', $permission['id'], ']" ', $disable_field, '>';
+
+							foreach (array('on', 'off', 'deny') as $c)
+								echo '
+										<option ', $permission['select'] == $c ? ' selected' : '', ' value="', $c, '">', $txt['permissions_option_' . $c], '</option>';
+							echo '
+									</select>';
+						}
+					}
 					echo '
 								</td>
 							</tr>';
 				}
-				else
-				{
-					echo '
-							<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-								<td width="10">
-									', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '"></a>' : '', '
-								</td>';
-
-					if ($permission['has_own_any'])
-					{
-						echo '
-								<td colspan="4" width="100%" align="left">', $permission['name'], '</td>
-							</tr><tr class="', $alternate ? 'windowbg' : 'windowbg2', '">';
-
-						// Guests can't do their own thing.
-						if ($context['group']['id'] != -1)
-						{
-							echo '
-								<td></td>
-								<td width="100%" class="smalltext" align="right">', $permission['own']['name'], ':</td>';
-
-							if (empty($modSettings['permission_enable_deny']))
-								echo '
-								<td colspan="3"><input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'on' ? ' checked' : '', ' value="on" id="', $permission['own']['id'], '_on" class="input_check" ', $disable_field, '/></td>';
-							else
-								echo '
-								<td width="10"><input type="radio" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'on' ? ' checked' : '', ' value="on" id="', $permission['own']['id'], '_on" class="input_radio" ', $disable_field, '/></td>
-								<td width="10"><input type="radio" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'off' ? ' checked' : '', ' value="off" class="input_radio" ', $disable_field, '/></td>
-								<td width="10"><input type="radio" name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']"', $permission['own']['select'] == 'denied' ? ' checked' : '', ' value="deny" class="input_radio" ', $disable_field, '/></td>';
-
-							echo '
-							</tr><tr class="', $alternate ? 'windowbg' : 'windowbg2', '">';
-						}
-
-						echo '
-								<td></td>
-								<td width="100%" class="smalltext" align="right">', $permission['any']['name'], ':</td>';
-
-						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
-							echo '
-								<td colspan="3"><input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'on' ? ' checked' : '', ' value="on" class="input_check" ', $disable_field, '/></td>';
-						else
-							echo '
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'on' ? ' checked' : '', ' value="on" onclick="document.forms.permissionForm.', $permission['own']['id'], '_on.checked = true;" class="input_radio" ', $disable_field, '/></td>
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select'] == 'off' ? ' checked' : '', ' value="off" class="input_radio" ', $disable_field, '/></td>
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']"', $permission['any']['select']== 'denied' ? ' checked' : '', ' value="deny" id="', $permission['any']['id'], '_deny" onclick="window.smf_usedDeny = true;" class="input_radio" ', $disable_field, '/></td>';
-
-						echo '
-							</tr>';
-					}
-					else
-					{
-						echo '
-								<td width="100%" align="left">', $permission['name'], '</td>';
-
-						if (empty($modSettings['permission_enable_deny']) || $context['group']['id'] == -1)
-							echo '
-								<td><input type="checkbox" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'on' ? ' checked' : '', ' value="on" class="input_check" ', $disable_field, '/></td>';
-						else
-							echo '
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'on' ? ' checked' : '', ' value="on" class="input_radio" ', $disable_field, '/></td>
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'off' ? ' checked' : '', ' value="off" class="input_radio" ', $disable_field, '/></td>
-								<td><input type="radio" name="perm[', $permission_type['id'], '][', $permission['id'], ']"', $permission['select'] == 'denied' ? ' checked' : '', ' value="deny" onclick="window.smf_usedDeny = true;" class="input_radio" ', $disable_field, '/></td>';
-
-						echo '
-							</tr>';
-					}
-				}
-				$alternate = !$alternate;
 			}
-
-			if (!$permissionGroup['hidden'] && $has_display_content)
-				echo '
-							<tr class="windowbg2">
-								<td colspan="5" width="100%"><!--separator--></td>
-							</tr>';
 		}
-	echo '
+		echo '
 						</table>';
 	}
+
 	echo '
-				<br class="clear">
+					<br class="clear">
 				</div>
 			</div>';
 }
