@@ -224,8 +224,6 @@ function ReportDetails()
 		'mod_comments' => array(),
 		'time_started' => timeformat($report['time_started']),
 		'last_updated' => timeformat($report['time_updated']),
-		'subject' => $report['subject'],
-		'body' => parse_bbc($report['body']),
 		'num_reports' => $report['num_reports'],
 		'closed' => $report['closed'],
 		'ignore' => $report['ignore_all']
@@ -257,6 +255,8 @@ function ReportDetails()
 				'link' => $report['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $report['id_author'] . '">' . $report['author_name'] . '</a>' : $report['author_name'],
 				'href' => $scripturl . '?action=profile;u=' . $report['id_author'],
 			),
+			'subject' => $report['subject'],
+			'body' => parse_bbc($report['body']),
 		);
 	}
 
@@ -558,7 +558,7 @@ function EditComment()
  */
 function HandleReport()
 {
-	global $scripturl;
+	global $scripturl, $context;
 
 	checkSession('get');
 

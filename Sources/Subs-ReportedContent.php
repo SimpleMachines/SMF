@@ -89,9 +89,9 @@ function updateReport($action, $value, $report_id)
 	else
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member, membername
+			SELECT id_report, id_member, membername
 			FROM {db_prefix}log_reported
-			WHERE id_report = IN ({array_int:id_report})',
+			WHERE id_report IN ({array_int:id_report})',
 			array(
 				'id_report' => $report_id,
 			)
