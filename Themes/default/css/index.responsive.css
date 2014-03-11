@@ -15,7 +15,7 @@
 		min-width: 85%;
 	}
 	.dropmenu li {
-		width: 275px !important;
+		width: 90% !important;
 	}
 	.resp_menu {
 		float: left;
@@ -24,6 +24,9 @@
 	#top_info > li {
 		margin-left: -10px;
 		float: none !important;
+	}
+	.desk {
+		margin-bottom: 3px;
 	}
 
 	/* Menu very exp */
@@ -247,4 +250,10 @@
 
 /* Still not enough data or people to test this... */
 @media (min-width: 721px) and (max-width: 1080) {
+}
+@media (min-width: 1081px) {
+/* I need to hide them from you desktop people... */
+.desk, .resp_menu {
+	display: none;
+}
 }
