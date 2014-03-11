@@ -35,12 +35,22 @@ function updateReport($action, $value, $report_id)
 	if ($action == 'ignore')
 		$action = 'ignore_all';
 
+	// We don't need the board query for reported members
+	if ($context['report_type'] == 'members')
+	{
+		$board_query = '';
+	}
+	else
+	{
+		$board_query = ' AND ' . $user_info['mod_cache']['bq'];
+	}
+
 	// Update the report...
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_reported
 		SET  {raw:action} = {string:value}
 		'. (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') .'
-			AND ' . $user_info['mod_cache']['bq'],
+			' . $board_query,
 		array(
 			'action' => $action,
 			'value' => $value,
@@ -50,35 +60,61 @@ function updateReport($action, $value, $report_id)
 
 	// From now on, lets work with arrays, makes life easier.
 	$report_id = (array) $report_id;
-
-	// Get the board, topic and message for this report
-	$request = $smcFunc['db_query']('', '
-		SELECT id_board, id_topic, id_msg, id_report
-		FROM {db_prefix}log_reported
-		WHERE id_report IN ({array_int:id_report})',
-		array(
-			'id_report' => $report_id,
-		)
-	);
-
+	
 	// Set up the data for the log...
 	$extra = array();
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$extra[$row['id_report']] = array(
-			'report' => $row['id_report'],
-			'board' => $row['id_board'],
-			'message' => $row['id_msg'],
-			'topic' => $row['id_topic'],
+	if ($context['report_type'] == 'posts')
+	{
+		// Get the board, topic and message for this report
+		$request = $smcFunc['db_query']('', '
+			SELECT id_board, id_topic, id_msg, id_report
+			FROM {db_prefix}log_reported
+			WHERE id_report IN ({array_int:id_report})',
+			array(
+				'id_report' => $report_id,
+			)
+		);
+	
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$extra[$row['id_report']] = array(
+				'report' => $row['id_report'],
+				'board' => $row['id_board'],
+				'message' => $row['id_msg'],
+				'topic' => $row['id_topic'],
+			);
+	
+		$smcFunc['db_free_result']($request);
+	}
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, membername
+			FROM {db_prefix}log_reported
+			WHERE id_report = IN ({array_int:id_report})',
+			array(
+				'id_report' => $report_id,
+			)
 		);
 
-	$smcFunc['db_free_result']($request);
+		while($row = $smcFunc['db_fetch_assoc']($request))
+			$extra[$row['id_report']] = array(
+				'report' => $row['id_report'],
+				'member' => $row['id_member'],
+				'membername' => $row['membername'],
+			);
+
+		$smcFunc['db_free_result']($request);
+	}
 
 	// Back to "ignore".
 	if ($action == 'ignore_all')
 		$action = 'ignore';
 
 	$log_report = $action == 'ignore' ? (!empty($value) ? 'ignore' : 'unignore') : (!empty($value) ? 'close' : 'open');
+
+	if ($context['report_type'] == 'members')
+		$log_report .= '_user';
 
 	// Log this action.
 	if (!empty($extra))
@@ -87,7 +123,7 @@ function updateReport($action, $value, $report_id)
 
 	// Time to update.
 	updateSettings(array('last_mod_report_action' => time()));
-	recountOpenReports();
+	recountOpenReports($context['report_type']);
 }
 
 /**
@@ -99,16 +135,35 @@ function updateReport($action, $value, $report_id)
  */
 function countReports($closed = 0)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc, $user_info, $context;
 
 	$total_reports = 0;
+
+	// Skip entries with id_board = 0 if we're viewing member reports
+	if ($context['report_type'] == 'members')
+	{
+		$and = 'lr.id_board = 0';
+	}
+	else
+	{
+		if ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1')
+		{
+			$bq = $user_info['mod_cache']['bq'];
+		}
+		else
+		{
+			$bq = 'lr.' . $user_info['mod_cache']['bq'];
+		}
+
+		$and = $bq . ' AND lr.id_board != 0';
+	}
 
 	// How many entries are we viewing?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_reported AS lr
 		WHERE lr.closed = {int:view_closed}
-			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']),
+			AND ' . $and,
 		array(
 			'view_closed' => (int) $closed,
 		)
@@ -133,52 +188,94 @@ function getReports($closed = 0)
 	$reports = array();
 
 	// By George, that means we in a position to get the reports, golly good.
-	$request = $smcFunc['db_query']('', '
-		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
-			lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-			IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
-		FROM {db_prefix}log_reported AS lr
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
-		WHERE lr.closed = {int:view_closed}
-			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
-		ORDER BY lr.time_updated DESC
-		LIMIT ' . $context['start'] . ', 10',
-		array(
-			'view_closed' => (int) $closed,
-		)
-	);
+	if ($context['report_type'] == 'members')
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT lr.id_report, lr.id_member,
+				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+				IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
+			FROM {db_prefix}log_reported AS lr
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
+			WHERE lr.closed = {int:view_closed}
+				AND lr.id_board = 0
+			ORDER BY lr.time_updated DESC
+			LIMIT ' . $context['start'] . ', 10',
+			array(
+				'view_closed' => (int) $closed,
+			)
+		);
+	}
+	else
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
+				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+				IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
+			FROM {db_prefix}log_reported AS lr
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
+			WHERE lr.closed = {int:view_closed}
+				AND lr.id_board != 0
+				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+			ORDER BY lr.time_updated DESC
+			LIMIT ' . $context['start'] . ', 10',
+			array(
+				'view_closed' => (int) $closed,
+			)
+		);	
+	}
 
 	$report_ids = array();
 	$report_boards_ids = array();
-	for ($i = 0; $row = $smcFunc['db_fetch_assoc']($request); $i++)
+	$i = 0;
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$report_ids[] = $row['id_report'];
-		$report_boards_ids[] = $row['id_board'];
 		$reports[$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'topic' => array(
-				'id' => $row['id_topic'],
-				'id_msg' => $row['id_msg'],
-				'id_board' => $row['id_board'],
-				'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			),
-			'report_href' => $scripturl . '?action=moderate;area=reports;sa=details;rid=' . $row['id_report'],
-			'author' => array(
-				'id' => $row['id_author'],
-				'name' => $row['author_name'],
-				'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
-			),
+			'report_href' => $scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $row['id_report'],
 			'comments' => array(),
 			'time_started' => timeformat($row['time_started']),
 			'last_updated' => timeformat($row['time_updated']),
-			'subject' => $row['subject'],
-			'body' => parse_bbc($row['body']),
 			'num_reports' => $row['num_reports'],
 			'closed' => $row['closed'],
 			'ignore' => $row['ignore_all']
 		);
+
+		if ($context['report_type'] == 'members')
+		{
+			$extraDetails = array(
+				'user' => array(
+					'id' => $row['id_user'],
+					'name' => $row['user_name'],
+					'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
+					'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
+				),
+			);
+		}
+		else
+		{
+			$report_boards_ids[] = $row['id_board'];
+			$extraDetails = array(
+				'topic' => array(
+					'id' => $row['id_topic'],
+					'id_msg' => $row['id_msg'],
+					'id_board' => $row['id_board'],
+					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
+				),
+				'author' => array(
+					'id' => $row['id_author'],
+					'name' => $row['author_name'],
+					'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
+					'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
+				),
+				'subject' => $row['subject'],
+				'body' => parse_bbc($row['body']),
+			);
+		}
+
+		$reports[$row['id_report']] = array_merge($reports[$row['id_report']], $extraDetails);
+		$i++;
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -246,21 +343,29 @@ function getReports($closed = 0)
 /**
  * Recount all open reports. Sets a SESSION var with the updated info.
  *
+ * @param string the type of reports to count
  * @return int the update open report count.
  */
-function recountOpenReports()
+function recountOpenReports($type)
 {
-	global $user_info, $smcFunc;
+	global $user_info, $smcFunc, $context;
+
+	if ($type == 'members')
+		$bq = '';
+	else
+		$bq = '	AND ' . $user_info['mod_cache']['bq'];					
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
 		FROM {db_prefix}log_reported
-		WHERE ' . $user_info['mod_cache']['bq'] . '
-			AND closed = {int:not_closed}
-			AND ignore_all = {int:not_ignored}',
+		WHERE closed = {int:not_closed}
+			AND ignore_all = {int:not_ignored}
+			AND id_board' . ($type == 'members' ? '' : '!') . '= {int:not_a_reported_post}'
+		 	. $bq,
 		array(
 			'not_closed' => 0,
 			'not_ignored' => 0,
+			'not_a_reported_post' => 0,
 		)
 	);
 	list ($open_reports) = $smcFunc['db_fetch_row']($request);
@@ -283,25 +388,45 @@ function recountOpenReports()
  */
 function getReportDetails($report_id)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc, $user_info, $context;
 
 	if (empty($report_id))
 		return false;
 
-	// Get the report details, need this so we can limit access to a particular board.
-	$request = $smcFunc['db_query']('', '
-		SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
-			lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-			IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
-		FROM {db_prefix}log_reported AS lr
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
-		WHERE lr.id_report = {int:id_report}
-			AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
-		LIMIT 1',
-		array(
-			'id_report' => $report_id,
-		)
-	);
+	// We don't need all this info if we're only getting user info
+	if ($context['report_type'] == 'members')
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT lr.id_report, lr.id_member,
+					lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+					IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
+			FROM {db_prefix}log_reported AS lr
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
+			WHERE lr.id_report = {int:id_report}
+				AND lr.id_board = 0
+			LIMIT 1',
+			array(
+				'id_report' => $report_id,
+			)
+		);		
+	}
+	else
+	{
+		// Get the report details, need this so we can limit access to a particular board.
+		$request = $smcFunc['db_query']('', '
+			SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject, lr.body,
+				lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
+				IFNULL(mem.real_name, lr.membername) AS author_name, IFNULL(mem.id_member, 0) AS id_author
+			FROM {db_prefix}log_reported AS lr
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
+			WHERE lr.id_report = {int:id_report}
+				AND ' . ($user_info['mod_cache']['bq'] == '1=1' || $user_info['mod_cache']['bq'] == '0=1' ? $user_info['mod_cache']['bq'] : 'lr.' . $user_info['mod_cache']['bq']) . '
+			LIMIT 1',
+			array(
+				'id_report' => $report_id,
+			)
+		);
+	}
 
 	// So did we find anything?
 	if (!$smcFunc['db_num_rows']($request))
@@ -461,21 +586,40 @@ function saveModComment($report_id, $data)
 
 	$report = getReportDetails($report_id);
 
+	if ($context['report_type'] == 'members')
+	{
+		$prefix = 'Member';
+		$data = array(
+		 	'report_id' => $id_report,
+			'user_id' => $user['id_member'],
+			'user_name' => $user_name,
+			'sender_id' => $context['user']['id'],
+			'sender_name' => $context['user']['name'],
+			'comment' => $reason,
+			'time' => time(),
+		);
+	}
+	else
+	{
+		$prefix = 'Msg';
+		$data = array(
+			'report_id' => $report_id,
+			'comment_id' => $last_comment,
+			'msg_id' => $report['id_msg'],
+			'topic_id' => $report['id_topic'],
+			'board_id' => $report['id_board'],
+			'sender_id' => $user_info['id'],
+			'sender_name' => $user_info['name'],
+			'time' => time(),
+		);
+	}
+
 	// And get ready to notify people.
 	if (!empty($report))
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/MsgReportReply-Notify.php', 'MsgReportReply_Notify_Background', serialize(array(
-				'report_id' => $report_id,
-				'comment_id' => $last_comment,
-				'msg_id' => $report['id_msg'],
-				'topic_id' => $report['id_topic'],
-				'board_id' => $report['id_board'],
-				'sender_id' => $user_info['id'],
-				'sender_name' => $user_info['name'],
-				'time' => time(),
-			)), 0),
+			array('$sourcedir/tasks/' . $prefix . 'ReportReply-Notify.php', $prefix . 'ReportReply_Notify_Background', serialize($data), 0),
 			array('id_task')
 		);
 }

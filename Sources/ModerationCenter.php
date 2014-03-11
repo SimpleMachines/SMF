@@ -122,11 +122,11 @@ function ModerationMain($dont_call = false)
 					'icon' => 'post_moderation_attach.png',
 					'custom_url' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
-				'reports' => array(
+				'reportedposts' => array(
 					'label' => $txt['mc_reported_posts'],
 					'enabled' => $context['can_moderate_boards'],
-					'file' => 'ReportedPosts.php',
-					'function' => 'ReportedPosts',
+					'file' => 'ReportedContent.php',
+					'function' => 'ReportedContent',
 					'icon' => 'reports.png',
 					'subsections' => array(
 						'show' => array($txt['mc_reportedp_active']),
@@ -168,10 +168,11 @@ function ModerationMain($dont_call = false)
 						'post' => array($txt['mc_watched_users_post']),
 					),
 				),
-				'memberreports' => array(
+				'reportedmembers' => array(
 					'label' => $txt['mc_reported_members_title'],
 					'enabled' => $context['can_moderate_users'],
-					'function' => 'ReportedMembers',
+					'file' => 'ReportedContent.php',
+					'function' => 'ReportedContent',
 					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
@@ -525,7 +526,7 @@ function ModBlockReportedPosts()
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
@@ -639,7 +640,7 @@ function ModBlockReportedMembers()
 		$context['reported_users'][] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
@@ -730,7 +731,7 @@ function ReportedMembers()
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
-		recountOpenMemberReports();
+		recountOpenReports('members');
 	}
 	elseif (isset($_POST['close']) && isset($_POST['close_selected']))
 	{
@@ -779,7 +780,7 @@ function ReportedMembers()
 
 			// Time to update.
 			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenMemberReports();
+			recountOpenReports('members');
 		}
 
 		// Go on and tell the result.
@@ -801,7 +802,7 @@ function ReportedMembers()
 	$smcFunc['db_free_result']($request);
 
 	// So, that means we can page index, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=memberreports' . ($context['view_closed'] ? ';sa=closed' : ''), $_GET['start'], $context['total_reports'], 10);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reportedmembers' . ($context['view_closed'] ? ';sa=closed' : ''), $_GET['start'], $context['total_reports'], 10);
 	$context['start'] = $_GET['start'];
 
 	// By George, that means we in a position to get the reports, golly good.
@@ -827,7 +828,7 @@ function ReportedMembers()
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
@@ -1010,13 +1011,13 @@ function MemberReport()
 			);
 
 			// Redirect to prevent double submittion.
-			redirectexit($scripturl . '?action=moderate;area=memberreports;report=' . $_REQUEST['report']);
+			redirectexit($scripturl . '?action=moderate;area=reportedmembers;report=' . $_REQUEST['report']);
 		}
 	}
 
 	$context['report'] = array(
 		'id' => $row['id_report'],
-		'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
+		'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 		'user' => array(
 			'id' => $row['id_user'],
 			'name' => $row['user_name'],
@@ -1104,7 +1105,7 @@ function MemberReport()
 		'title' => $txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
 		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $context['report']['id'],
+		'base_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',

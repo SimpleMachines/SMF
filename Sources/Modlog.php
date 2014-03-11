@@ -622,9 +622,9 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		{
 			// Member profile reports go in a different area
 			if (stristr($entry['action'], 'user_report'))
-				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=memberreports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedmembers;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
 			else
-				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedposts;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
 		}
 
 		if (empty($entries[$k]['action_text']))

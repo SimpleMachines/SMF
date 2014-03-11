@@ -62,7 +62,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => '?action=moderate;area=memberreports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedmembers;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['membername'],
 						)
 					),
@@ -115,7 +115,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 					'MEMBERNAME' => $member_name,
 					'REPORTERNAME' => $this->_details['sender_name'],
 					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['user_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
+					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $this->_details['report_id'],
 					'COMMENT' => $this->_details['comment'],
 				);
 

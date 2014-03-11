@@ -124,7 +124,7 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => '?action=moderate;area=reports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedposts;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)
 					),
 				);
@@ -191,7 +191,7 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'POSTERNAME' => $poster_name,
 					'COMMENTERNAME' => $this->_details['sender_name'],
 					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
+					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;report=' . $this->_details['report_id'],
 				);
 
 				$emaildata = loadEmailTemplate('reply_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
