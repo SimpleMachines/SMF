@@ -122,11 +122,11 @@ function ModerationMain($dont_call = false)
 					'icon' => 'post_moderation_attach.png',
 					'custom_url' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
-				'reports' => array(
+				'reportedposts' => array(
 					'label' => $txt['mc_reported_posts'],
 					'enabled' => $context['can_moderate_boards'],
-					'file' => 'ReportedPosts.php',
-					'function' => 'ReportedPosts',
+					'file' => 'ReportedContent.php',
+					'function' => 'ReportedContent',
 					'icon' => 'reports.png',
 					'subsections' => array(
 						'show' => array($txt['mc_reportedp_active']),
@@ -168,10 +168,11 @@ function ModerationMain($dont_call = false)
 						'post' => array($txt['mc_watched_users_post']),
 					),
 				),
-				'memberreports' => array(
+				'reportedmembers' => array(
 					'label' => $txt['mc_reported_members_title'],
 					'enabled' => $context['can_moderate_users'],
-					'function' => 'ReportedMembers',
+					'file' => 'ReportedContent.php',
+					'function' => 'ReportedContent',
 					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
@@ -525,7 +526,7 @@ function ModBlockReportedPosts()
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'report_href' => $scripturl . '?action=moderate;area=reports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
@@ -639,7 +640,7 @@ function ModBlockReportedMembers()
 		$context['reported_users'][] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
@@ -730,7 +731,7 @@ function ReportedMembers()
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
-		recountOpenMemberReports();
+		recountOpenReports('members');
 	}
 	elseif (isset($_POST['close']) && isset($_POST['close_selected']))
 	{
@@ -779,7 +780,7 @@ function ReportedMembers()
 
 			// Time to update.
 			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenMemberReports();
+			recountOpenReports('members');
 		}
 
 		// Go on and tell the result.
@@ -801,7 +802,7 @@ function ReportedMembers()
 	$smcFunc['db_free_result']($request);
 
 	// So, that means we can page index, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=memberreports' . ($context['view_closed'] ? ';sa=closed' : ''), $_GET['start'], $context['total_reports'], 10);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reportedmembers' . ($context['view_closed'] ? ';sa=closed' : ''), $_GET['start'], $context['total_reports'], 10);
 	$context['start'] = $_GET['start'];
 
 	// By George, that means we in a position to get the reports, golly good.
@@ -827,7 +828,7 @@ function ReportedMembers()
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
-			'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
+			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
@@ -904,309 +905,6 @@ function ModerateGroups()
 
 	// Call the relevant function.
 	$subactions[$context['sub_action']]();
-}
-
-/**
- * How many open reports do we have?
- */
-function recountOpenMemberReports()
-{
-	global $user_info, $context, $smcFunc;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}log_reported
-		WHERE closed = {int:not_closed}
-			AND ignore_all = {int:not_ignored}
-			AND id_board = {int:not_a_reported_post}',
-		array(
-			'not_closed' => 0,
-			'not_ignored' => 0,
-			'not_a_reported_post' => 0,
-		)
-	);
-	list ($open_reports) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	$_SESSION['rmc'] = array(
-		'id' => $user_info['id'],
-		'time' => time(),
-		'reports' => $open_reports,
-	);
-
-	$context['open_member_reports'] = $open_reports;
-}
-
-function MemberReport()
-{
-	global $user_info, $context, $sourcedir, $scripturl, $txt, $smcFunc;
-
-	// Have to at least give us something
-	if (empty($_REQUEST['report']))
-		fatal_lang_error('mc_no_modreport_specified');
-
-	// Integers only please
-	$_REQUEST['report'] = (int) $_REQUEST['report'];
-
-	// Get the report details, need this so we can limit access to a particular board
-	$request = $smcFunc['db_query']('', '
-		SELECT lr.id_report, lr.id_member,
-			lr.time_started, lr.time_updated, lr.num_reports, lr.closed, lr.ignore_all,
-			IFNULL(mem.real_name, lr.membername) AS user_name, IFNULL(mem.id_member, 0) AS id_user
-		FROM {db_prefix}log_reported AS lr
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lr.id_member)
-		WHERE lr.id_report = {int:id_report}
-			AND lr.id_board = {int:not_a_reported_post}
-		LIMIT 1',
-		array(
-			'id_report' => $_REQUEST['report'],
-			'not_a_reported_post' => 0,
-		)
-	);
-
-	// So did we find anything?
-	if (!$smcFunc['db_num_rows']($request))
-		fatal_lang_error('mc_no_modreport_found');
-
-	// Woohoo we found a report and they can see it!  Bad news is we have more work to do
-	$row = $smcFunc['db_fetch_assoc']($request);
-	$smcFunc['db_free_result']($request);
-
-	// If they are adding a comment then... add a comment.
-	if (isset($_POST['add_comment']) && !empty($_POST['mod_comment']))
-	{
-		checkSession();
-
-		$newComment = trim($smcFunc['htmlspecialchars']($_POST['mod_comment']));
-
-		// In it goes.
-		if (!empty($newComment))
-		{
-			$smcFunc['db_insert']('',
-				'{db_prefix}log_comments',
-				array(
-					'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-					'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
-				),
-				array(
-					$user_info['id'], $user_info['name'], 'reportc', '',
-					$_REQUEST['report'], $newComment, time(),
-				),
-				array('id_comment')
-			);
-			$last_comment = $smcFunc['db_insert_id']('{db_prefix}log_comments', 'id_comment');
-
-			// And get ready to notify people.
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/MemberReportReply-Notify.php', 'MemberReportReply_Notify_Background', serialize(array(
-					'report_id' => $_REQUEST['report'],
-					'comment_id' => $last_comment,
-					'sender_name' => $user_info['name'],
-					'time' => time(),
-				)), 0),
-				array('id_task')
-			);
-
-			// Redirect to prevent double submittion.
-			redirectexit($scripturl . '?action=moderate;area=memberreports;report=' . $_REQUEST['report']);
-		}
-	}
-
-	$context['report'] = array(
-		'id' => $row['id_report'],
-		'report_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $row['id_report'],
-		'user' => array(
-			'id' => $row['id_user'],
-			'name' => $row['user_name'],
-			'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
-			'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
-		),
-		'comments' => array(),
-		'mod_comments' => array(),
-		'time_started' => timeformat($row['time_started']),
-		'last_updated' => timeformat($row['time_updated']),
-		'num_reports' => $row['num_reports'],
-		'closed' => $row['closed'],
-		'ignore' => $row['ignore_all']
-	);
-
-	// So what bad things do the reporters have to say about it?
-	$request = $smcFunc['db_query']('', '
-		SELECT lrc.id_comment, lrc.id_report, lrc.time_sent, lrc.comment, lrc.member_ip,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lrc.membername) AS reporter
-		FROM {db_prefix}log_reported_comments AS lrc
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lrc.id_member)
-		WHERE lrc.id_report = {int:id_report}',
-		array(
-			'id_report' => $context['report']['id'],
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$context['report']['comments'][] = array(
-			'id' => $row['id_comment'],
-			'message' => strtr($row['comment'], array("\n" => '<br>')),
-			'time' => timeformat($row['time_sent']),
-			'member' => array(
-				'id' => $row['id_member'],
-				'name' => empty($row['reporter']) ? $txt['guest'] : $row['reporter'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? $txt['guest'] : $row['reporter']),
-				'href' => $row['id_member'] ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
-				'ip' => !empty($row['member_ip']) && allowedTo('moderate_forum') ? '<a href="' . $scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
-			),
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// Hang about old chap, any comments from moderators on this one?
-	$request = $smcFunc['db_query']('', '
-		SELECT lc.id_comment, lc.id_notice, lc.log_time, lc.body,
-			IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS moderator
-		FROM {db_prefix}log_comments AS lc
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
-		WHERE lc.id_notice = {int:id_report}
-			AND lc.comment_type = {literal:reportc}',
-		array(
-			'id_report' => $context['report']['id'],
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		$context['report']['mod_comments'][] = array(
-			'id' => $row['id_comment'],
-			'message' => parse_bbc($row['body']),
-			'time' => timeformat($row['log_time']),
-			'member' => array(
-				'id' => $row['id_member'],
-				'name' => $row['moderator'],
-				'link' => $row['id_member'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['moderator'] . '</a>' : $row['moderator'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-			),
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	// What have the other moderators done to this message?
-	require_once($sourcedir . '/Modlog.php');
-	require_once($sourcedir . '/Subs-List.php');
-	loadLanguage('Modlog');
-
-	// Find their ID in the serialized action string...
-	$user_id_length = strlen((string)$context['report']['user']['id']);
-	$member = 's:6:"member";s:' . $user_id_length . ':"' . $context['report']['user']['id'] . '";}';
-
-	// This is all the information from the moderation log.
-	// Note that we use "raw" here to prevent SMF from escaping things we don't want escaped
-	$listOptions = array(
-		'id' => 'memreport_actions_list',
-		'title' => $txt['mc_modreport_modactions'],
-		'items_per_page' => 15,
-		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=memberreports;report=' . $context['report']['id'],
-		'default_sort_col' => 'time',
-		'get_items' => array(
-			'function' => 'list_getModLogEntries',
-			'params' => array(
-				'lm.extra LIKE {raw:member}
-					AND lm.action LIKE {raw:report}',
-				array('member' => '\'%' . $member . '\'', 'report' => '\'%_user_report\''),
-				1,
-				true,
-			),
-		),
-		'get_count' => array(
-			'function' => 'list_getModLogEntryCount',
-			'params' => array(
-				'lm.extra LIKE {string:member}
-				AND lm.action LIKE {string:report}',
-				array('member' => '%' . $member . '%', 'report' => '%_user_report'),
-				1,
-				true,
-			),
-		),
-		// This assumes we are viewing by user.
-		'columns' => array(
-			'action' => array(
-				'header' => array(
-					'value' => $txt['modlog_action'],
-				),
-				'data' => array(
-					'db' => 'action_text',
-					'class' => 'smalltext',
-				),
-				'sort' => array(
-					'default' => 'lm.action',
-					'reverse' => 'lm.action DESC',
-				),
-			),
-			'time' => array(
-				'header' => array(
-					'value' => $txt['modlog_date'],
-				),
-				'data' => array(
-					'db' => 'time',
-					'class' => 'smalltext',
-				),
-				'sort' => array(
-					'default' => 'lm.log_time',
-					'reverse' => 'lm.log_time DESC',
-				),
-			),
-			'moderator' => array(
-				'header' => array(
-					'value' => $txt['modlog_member'],
-				),
-				'data' => array(
-					'db' => 'moderator_link',
-					'class' => 'smalltext',
-				),
-				'sort' => array(
-					'default' => 'mem.real_name',
-					'reverse' => 'mem.real_name DESC',
-				),
-			),
-			'position' => array(
-				'header' => array(
-					'value' => $txt['modlog_position'],
-				),
-				'data' => array(
-					'db' => 'position',
-					'class' => 'smalltext',
-				),
-				'sort' => array(
-					'default' => 'mg.group_name',
-					'reverse' => 'mg.group_name DESC',
-				),
-			),
-			'ip' => array(
-				'header' => array(
-					'value' => $txt['modlog_ip'],
-				),
-				'data' => array(
-					'db' => 'ip',
-					'class' => 'smalltext',
-				),
-				'sort' => array(
-					'default' => 'lm.ip',
-					'reverse' => 'lm.ip DESC',
-				),
-			),
-		),
-	);
-
-	// Create the watched user list.
-	createList($listOptions);
-
-	// Make sure to get the correct tab selected.
-	if ($context['report']['closed'])
-		$context[$context['moderation_menu_name']]['current_subsection'] = 'closed';
-
-	// Finally we are done :P
-	loadTemplate('ModerationCenter');
-	$context['page_title'] = sprintf($txt['mc_viewmemberreport'], $context['report']['user']['name']);
-	$context['sub_template'] = 'viewmemberreport';
 }
 
 /**

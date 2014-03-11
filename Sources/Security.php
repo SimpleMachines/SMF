@@ -494,8 +494,8 @@ function banPermissions()
 		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
-		require_once($sourcedir . '/Subs-ReportedPosts.php');
-		recountOpenReports();
+		require_once($sourcedir . '/Subs-ReportedContent.php');
+		recountOpenReports('posts');
 	}
 	else
 		$context['open_mod_reports'] = 0;
@@ -504,8 +504,8 @@ function banPermissions()
 		$contexct['open_member_reports'] = $_SESSION['rmc']['reports'];
 	elseif (allowedTo('moderate_forum'))
 	{
-		require_once($sourcedir . '/ModerationCenter.php');
-		recountOpenMemberReports();
+		require_once($sourcedir . '/Subs-ReportedContent.php');
+		recountOpenReports('members');
 	}
 	else
 		$context['open_member_reports'] = 0;
