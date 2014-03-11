@@ -7,6 +7,30 @@
 	#wrapper, .frame {
 		min-width: 85% !important;
 	}
+	.toggle_m, #upshrinkHeaderIC {
+		display: none;
+	}
+	#menu_nav li a {
+		float: left !important;
+		min-width: 85%;
+	}
+	.dropmenu li {
+		width: 275px !important;
+	}
+	.resp_menu {
+		float: left;
+		margin-left: 5px;
+	}
+	#top_info > li {
+		margin-left: -10px;
+		float: none !important;
+	}
+
+	/* Menu very exp */
+	.dropmenu li ul {
+		left: 0 !important;
+		position: static !important;
+	}
 
 	/* Hide me */
 	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
@@ -109,11 +133,6 @@
 	}
 	#post_header dt {
 		width: 35% !important;
-	}
-
-	.dropmenu li {
-		float: none !important;
-		width: 275px !important;
 	}
 	
 	/* Profile */
