@@ -101,7 +101,6 @@ function updateReport($action, $value, $report_id)
 			$extra[$row['id_report']] = array(
 				'report' => $row['id_report'],
 				'member' => $row['id_member'],
-				'membername' => $row['membername'],
 			);
 
 		$smcFunc['db_free_result']($request);
