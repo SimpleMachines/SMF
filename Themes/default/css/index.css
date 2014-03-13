@@ -326,6 +326,12 @@ h3.largetext {
 .main_section, .lower_padding {
 	padding-bottom: 6px;
 }
+.half_content {
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	width: 49%;
+	display: inline-block;
+	padding: 0 3px;
+}
 
 /* Some BBC related styles.
 ------------------------------------------------------- */
@@ -3416,24 +3422,8 @@ dl {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-#statistics {
-	padding: 6px 0;
-}
 #statistics  div {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-#statistics div.windowbg2 {
-	background: none;
-}
-#top_posters, #top_topics_replies, #top_topics_starter {
-	float: left;
-	width: 50%;
-	padding: 0 3px 0 0;
-}
-#top_boards, #top_topics_views, #most_online {
-	float: right;
-	width: 50%;
-	padding: 0 0 0 3px;
 }
 .stats_icon {
 	width: 16px;
@@ -3513,6 +3503,38 @@ dl.stats dd span {
 	background: #fff;
 	white-space: pre;
 }
+/* Special styling for the top two blocks. */
+.stats_left {
+	float: left;
+	margin-top: 8px;
+	padding: 6px 15px;
+	border-right: 1px solid #bbb;
+}
+.stats_right{
+	float: right;
+	padding: 6px 15px;
+	margin-top: 8px;
+}
+.stats_left dl.stats, .stats_right dl.stats {
+	margin: -8px 0 -12px 0;
+}
+.stats_left dt a {
+	color: #232f46;
+}
+.stats_left dt {
+	width: 35%;
+}
+.stats_left dd {
+	width: 65%;
+}
+.top_row dl.stats dd {
+	background: none;
+	border: none;
+}
+.half {
+	width: 50%;
+}
+/* Forum history table. */
 #stats {
 	margin: 4px 0;
 }
@@ -4077,16 +4099,16 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;	
+	font-weight: bold;
 	overflow: hidden;
-	padding: 6px 12px 5px 12px;	
+	padding: 6px 12px 5px 12px;
 	text-shadow: none;
 }
 .titlebg a, .subbg a {
 	background: none;
 	color: #555;
 	text-decoration: none;
-}	
+}
 .title_top {
 	margin-top: 10px;
 }
@@ -4097,36 +4119,4 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
-}
-
-/* This place is about stats page */
-.stats_left {
-	float: left;
-	margin-top: 8px;
-	padding: 6px 15px;
-	border-right: 1px solid #bbb;
-}
-.stats_right{
-	float: right;
-	padding: 6px 15px;
-	margin-top: 8px;
-}
-.stats_left dl.stats, .stats_right dl.stats {
-	margin: -8px 0 -12px 0;
-}
-.stats_left dt a {
-	color: #232f46;
-}
-.stats_left dt {
-	width: 35%;
-}
-.stats_left dd {
-	width: 65%;
-}
-.top_row dl.stats dd {
-	background: none;
-	border: none;
-}
-.half {
-	width: 50%;
 }
