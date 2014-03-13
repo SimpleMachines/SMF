@@ -28,7 +28,7 @@ function template_moderation_center()
 		$block_function = 'template_' . $block;
 
 		echo '
-		<div class="modblock_', $alternate ? 'left' : 'right', '">', function_exists($block_function) ? $block_function() : '', '</div>';
+		<div class="half_content">', function_exists($block_function) ? $block_function() : '', '</div>';
 
 		if (!$alternate)
 			echo '

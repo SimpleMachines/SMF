@@ -927,21 +927,7 @@ dl.themes_list dd {
 	display: block;
 	width: 100%;
 }
-.modblock_left {
-	width: 49%;
-	float: left;
-	clear: right;
-	margin: 0 0 1em 0;
-}
-.modblock_right {
-	width: 49%;
-	float: right;
-	margin: 0 0 1em 0;
-}
-.modblock_left #smfAnnouncements {
-	height: 15em;
-	overflow: auto;
-}
+
 /* Moderation Notes */
 ul.moderation_notes {
 	margin: 0;

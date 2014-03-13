@@ -328,9 +328,13 @@ h3.largetext {
 }
 .half_content {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	width: 49%;
+	width: 50%;
+	float: left;
 	display: inline-block;
 	padding: 0 3px;
+}
+#statistics .windowbg2 {
+	background: none;
 }
 
 /* Some BBC related styles.
@@ -3194,22 +3198,6 @@ dl {
 	overflow: auto;
 }
 
-/* Profile statistics */
-#generalstats div.content dt {
-	width: 50%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-	font-weight: bold;
-	clear: both;
-}
-#generalstats div.content dd {
-	width: 50%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-}
-
 /* Activity by time */
 #activitytime {
 	margin: 6px 0;
@@ -3254,17 +3242,7 @@ dl {
 	left: -1000em;
 }
 
-/* Most popular boards by posts and activity */
-#popularposts {
-	width: 49.5%;
-	float: left;
-}
-#popularactivity {
-	width: 49.5%;
-	float: right;
-}
-
-#popularposts div.content dt, #popularactivity div.content dt {
+#profileview div.content dt {
 	width: 65%;
 	float: left;
 	margin: 0 0 3px 0;
@@ -3272,7 +3250,7 @@ dl {
 	font-weight: bold;
 	clear: both;
 }
-#popularposts div.content dd, #popularactivity div.content dd {
+#profileview div.content dd {
 	width: 35%;
 	float: left;
 	margin: 0 0 3px 0;

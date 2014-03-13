@@ -1168,7 +1168,7 @@ function template_statPanel()
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
 	echo '
 		<div class="flow_hidden">
-			<div id="popularposts">
+			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
@@ -1207,7 +1207,7 @@ function template_statPanel()
 				</div>
 			</div>';
 	echo '
-			<div id="popularactivity">
+			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
