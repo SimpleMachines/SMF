@@ -1264,10 +1264,10 @@ function ShowCustomProfiles()
 						$return = \'<p class="centertext bold_text">\'. $rowData[\'field_order\'] .\'<br />\';
 
 						if ($rowData[\'field_order\'] > 1)
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=up"><span class="toggle_up" title="\'. $txt[\'move_cust_fields\'] .\' \'. $txt[\'move_cust_fields_up\'] .\'"></span></a>\';
+							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=up"><span class="toggle_up" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_up\'] .\'"></span></a>\';
 
 						if ($rowData[\'field_order\'] < $context[\'custFieldsMaxOrder\'])
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=down"><span class="toggle_down" title="\'. $txt[\'move_cust_fields\'] .\' \'. $txt[\'move_cust_fields_down\'] .\'"></span></a>\';
+							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=down"><span class="toggle_down" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_down\'] .\'"></span></a>\';
 
 						$return .= \'</p>\';
 

@@ -717,9 +717,4 @@ $txt['board_perms_ignore'] = 'Ignore';
 $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
 
-// Mainly (or only) used for ordering custom profile fields
-$txt['move_cust_fields'] = 'Move ';
-$txt['move_cust_fields_up'] = 'Up';
-$txt['move_cust_fields_down'] = 'Down';
-
 ?>
