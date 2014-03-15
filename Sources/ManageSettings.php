@@ -1474,6 +1474,9 @@ function EditCustomProfiles()
 	// Theres really only a few places we can go...
 	$move_to = array('up', 'down');
 
+	// We need this for both moving and saving so put it right here.
+	$order_count = custFieldsMaxOrder();
+
 	if ($context['fid'])
 	{
 		$request = $smcFunc['db_query']('', '
@@ -1556,8 +1559,6 @@ function EditCustomProfiles()
 	// Are we moving it?
 	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
 	{
-		$order_count = custFieldsMaxOrder();
-
 		// Down is the new up.
 		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
 
@@ -1799,18 +1800,21 @@ function EditCustomProfiles()
 		}
 		else
 		{
+			// Gotta figure it out the order.
+			$new_order = $order_count > 1 ? ($order_count + 1) : 1;
+
 			$smcFunc['db_insert']('',
 				'{db_prefix}custom_fields',
 				array(
 					'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
-					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string',
+					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string', 'field_order' => 'int',
 					'show_reg' => 'int', 'show_display' => 'int', 'show_profile' => 'string',
 					'private' => 'int', 'active' => 'int', 'default_value' => 'string', 'can_search' => 'int',
 					'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
 				),
 				array(
 					$colname, $_POST['field_name'], $_POST['field_desc'],
-					$_POST['field_type'], $field_length, $field_options,
+					$_POST['field_type'], $field_length, $field_options, $new_order,
 					$show_reg, $show_display, $show_profile,
 					$private, $active, $default, $can_search,
 					$bbc, $mask, $enclose, $placement,
