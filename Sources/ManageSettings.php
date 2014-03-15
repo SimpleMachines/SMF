@@ -1166,6 +1166,9 @@ function ShowCustomProfiles()
 
 	createToken('admin-scp');
 
+	// Need to know the max order for custom fields
+	$context['custFieldsMaxOrder'] = custFieldsMaxOrder();
+
 	require_once($sourcedir . '/Subs-List.php');
 
 	$listOptions = array(
@@ -1256,9 +1259,19 @@ function ShowCustomProfiles()
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						global $scripturl;
+						global $scripturl, $context, $txt;
 
-						return $rowData[\'field_order\'];
+						$return = \'<p class="centertext bold_text">\'. $rowData[\'field_order\'] .\'<br />\';
+
+						if ($rowData[\'field_order\'] > 1)
+							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=up"><span class="toggle_up" title="\'. $txt[\'move_cust_fields\'] .\' \'. $txt[\'move_cust_fields_up\'] .\'"></span></a>\';
+
+						if ($rowData[\'field_order\'] < $context[\'custFieldsMaxOrder\'])
+							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=down"><span class="toggle_down" title="\'. $txt[\'move_cust_fields\'] .\' \'. $txt[\'move_cust_fields_down\'] .\'"></span></a>\';
+
+						$return .= \'</p>\';
+
+						return $return;
 					'),
 					'style' => 'width: 12%;',
 				),
@@ -1458,27 +1471,8 @@ function EditCustomProfiles()
 	// Load the profile language for section names.
 	loadLanguage('Profile');
 
-	// Need the rest of the fields to determinate the order. Quick and dirty query here...
-	if (($context['all_fields'] = cache_get_data('admin_all_cust_fields',120)) == null)
-	{
-		$result = $smcFunc['db_query']('', '
-				SELECT
-					id_field, col_name, field_name, field_order
-				FROM {db_prefix}custom_fields
-				ORDER BY field_order ASC',
-				array()
-			);
-
-			while ($row = $smcFunc['db_fetch_assoc']($result))
-				$context['all_fields'][$row['id_field']] = array(
-					'id' => $row['id_field'],
-					'order' => $row['field_order'],
-					'name' => $row['field_name']
-				);
-
-			$smcFunc['db_free_result']($result);
-			cache_put_data('admin_all_cust_fields', $context['all_fields'], 120);
-	}
+	// Theres really only a few places we can go...
+	$move_to = array('up', 'down');
 
 	if ($context['fid'])
 	{
@@ -1559,6 +1553,40 @@ function EditCustomProfiles()
 			'placement' => 0,
 		);
 
+	// Are we moving it?
+	if (isset($_GET['move']) && in_array($smcFunc['htmlspecialchars']($_GET['move']), $move_to))
+	{
+		$order_count = custFieldsMaxOrder();
+
+		// Down is the new up.
+		$new_order = ($_GET['move'] == 'up' ? ($context['field']['order'] - 1) : ($context['field']['order'] + 1));
+
+		// Is this a valid position?
+		if ($new_order <= 0 || $new_order > $order_count)
+			redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo implement an error handler
+
+		// All good, proceed.
+		$smcFunc['db_query']('','
+			UPDATE {db_prefix}custom_fields
+			SET field_order = {int:old_order}
+			WHERE field_order = {int:new_order}',
+			array(
+				'new_order' => $new_order,
+				'old_order' => $context['field']['order'],
+			)
+		);
+		$smcFunc['db_query']('','
+			UPDATE {db_prefix}custom_fields
+			SET field_order = {int:new_order}
+			WHERE id_field = {int:id_field}',
+			array(
+				'new_order' => $new_order,
+				'id_field' => $context['fid'],
+			)
+		);
+		redirectexit('action=admin;area=featuresettings;sa=profile'); // @todo perhaps a nice confirmation message, dunno.
+	}
+
 	// Are we saving?
 	if (isset($_POST['save']))
 	{
@@ -1575,36 +1603,6 @@ function EditCustomProfiles()
 
 		$_POST['field_name'] = $smcFunc['htmlspecialchars']($_POST['field_name']);
 		$_POST['field_desc'] = $smcFunc['htmlspecialchars']($_POST['field_desc']);
-
-		// Gotta put your stuff in order!
-		if (!empty($_POST['field_order_placement']) && !empty($_POST['field_order']))
-		{
-			// Figuring out what to do and where...
-			if (!empty($context['all_fields']))
-				$order_after = $context['all_fields'][$_POST['field_order']]['order'] - ($_POST['field_order_placement'] == 'before' ? 1 : 0);
-
-			// There isn't any fields so just assign number 1 to this.
-			else
-				$order_after = 1;
-
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}custom_fields
-				SET field_order = field_order + {int:new_order}
-				WHERE field_order > {int:insert_after}
-					'. (!empty($context['fid']) ? 'AND id_field != {int:selected_field}' : ''),
-				array(
-					'insert_after' => $order_after,
-					'selected_field' => !empty($context['fid']) ? $context['fid'] : 0,
-					'new_order' => 1 + list_getProfileFieldSize(),
-				)
-			);
-
-			$new_order = $order_after + 1;
-		}
-
-		// No changes.
-		else
-			$new_order = 1 + list_getProfileFieldSize();
 
 		// Checkboxes...
 		$show_reg = isset($_POST['reg']) ? (int) $_POST['reg'] : 0;
@@ -1762,8 +1760,7 @@ function EditCustomProfiles()
 					show_display = {int:show_display}, show_profile = {string:show_profile},
 					private = {int:private}, active = {int:active}, default_value = {string:default_value},
 					can_search = {int:can_search}, bbc = {int:bbc}, mask = {string:mask},
-					enclose = {string:enclose}, placement = {int:placement},
-					field_order = {int:field_order}
+					enclose = {string:enclose}, placement = {int:placement}
 				WHERE id_field = {int:current_field}',
 				array(
 					'field_length' => $field_length,
@@ -1778,7 +1775,6 @@ function EditCustomProfiles()
 					'field_desc' => $_POST['field_desc'],
 					'field_type' => $_POST['field_type'],
 					'field_options' => $field_options,
-					'field_order' => $new_order,
 					'show_profile' => $show_profile,
 					'default_value' => $default,
 					'mask' => $mask,
@@ -1807,14 +1803,14 @@ function EditCustomProfiles()
 				'{db_prefix}custom_fields',
 				array(
 					'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
-					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string', 'field_order' => 'int',
+					'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string',
 					'show_reg' => 'int', 'show_display' => 'int', 'show_profile' => 'string',
 					'private' => 'int', 'active' => 'int', 'default_value' => 'string', 'can_search' => 'int',
 					'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
 				),
 				array(
 					$colname, $_POST['field_name'], $_POST['field_desc'],
-					$_POST['field_type'], $field_length, $field_options, $new_order,
+					$_POST['field_type'], $field_length, $field_options,
 					$show_reg, $show_display, $show_profile,
 					$private, $active, $default, $can_search,
 					$bbc, $mask, $enclose, $placement,
@@ -1889,6 +1885,23 @@ function EditCustomProfiles()
 	}
 
 	createToken('admin-ecp');
+}
+
+function custFieldsMaxOrder()
+{
+	global $smcFunc;
+
+	// Gotta know the order limit
+	$result = $smcFunc['db_query']('', '
+			SELECT MAX(field_order)
+			FROM {db_prefix}custom_fields',
+			array()
+		);
+
+	list ($order_count) = $smcFunc['db_fetch_row']($result);
+	$smcFunc['db_free_result']($result);
+
+	return (int) $order_count;
 }
 
 /**
