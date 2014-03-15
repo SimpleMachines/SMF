@@ -1202,7 +1202,7 @@ function UnreadTopics()
 
 		$topic_ids[] = $row['id_topic'];
 
-		if ($modSettings['preview_characters'] ==! 0)
+		if (!empty($modSettings['preview_characters']))
 		{
 			// Limit them to 128 characters - do this FIRST because it's a lot of wasted censoring otherwise.
 			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
