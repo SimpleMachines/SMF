@@ -145,7 +145,7 @@ function template_main()
 
 	// Show the page index... "Pages: [1]".
 	echo '
-			<div class="pagesection">
+			<div class="pagesection top">
 				', template_button_strip($context['normal_buttons'], 'right'), '
 				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
 				<div class="pagelinks floatleft">

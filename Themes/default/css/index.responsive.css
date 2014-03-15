@@ -29,21 +29,6 @@
 		margin-bottom: 3px;
 	}
 
-	/* Menu very exp */
-	.dropmenu li ul {
-		left: 0 !important;
-		position: static !important;
-	}
-
-	/* Hide me */
-	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
-	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
-	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive,
-	.sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
-	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts {
-		display: none !important;
-	}
-
 	/* BoardIndex */
 	.table_list td.stats {
 		display: none;
@@ -52,6 +37,10 @@
 		border-left: 1px solid #ccc;
 		padding: 1px 5px 2px 10px;
 		margin-top: 1px;
+	}
+	td.info {
+		border: 1px solid #DDD;
+		padding: 5px !important;
 	}
 
 	/* Stats */
@@ -64,6 +53,24 @@
 	}
 	.stats_left {
 		border-right: none;
+	}
+
+	/* Hide me */
+	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
+	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
+	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive,
+	.sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
+	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
+	#main_content_section .navigate_section, a.topbottom, .pagesection.top {
+		display: none !important;
+	}
+	.unread_links {
+		width: 95%;
+		float: left !important;
+	}
+	.unread_links a {
+		padding: 5px 0 5px 0 !important;
+		margin-right: 3px;
 	}
 }
 
@@ -92,16 +99,7 @@
 		float: none !important;
 		min-width: 250px !important;
 	}
-	
-	/* BoardIndex */
-	td.info {
-		border: 1px solid #DDD;
-		padding: 5px !important;
-	}
-	.mark_read {
-		float: left !important;
-	}
-	
+
 	/* MessageIndex */
 	td.subject {
 		border-left: 1px solid #CCC;
@@ -175,15 +173,6 @@
 }
 
 @media (min-width: 481px) and (max-width: 720px) {
-	/* BoardIndex */
-	td.info {
-		border: 1px solid #DDD;
-		padding: 5px !important;
-	}
-	.mark_read {
-		float: left !important;
-	}
-
 	/* MessageIndex */
 	td.subject {
 		border-left: 1px solid #CCC;
