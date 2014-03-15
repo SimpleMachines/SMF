@@ -1843,6 +1843,16 @@ function EditCustomProfiles()
 				'current_field' => $context['fid'],
 			)
 		);
+
+		// Re-arrange the order.
+		$smcFunc['db_query']('','
+			UPDATE {db_prefix}custom_fields
+			SET field_order = field_order - 1
+			WHERE field_order > {int:current_order}',
+			array(
+				'min_pos' => $context['field']['order'],
+			)
+		);
 	}
 
 	// Rebuild display cache etc.
