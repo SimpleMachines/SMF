@@ -857,10 +857,11 @@ function loadCustomFields($memID, $area = 'summary')
 	// Load all the relevant fields - and data.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			col_name, field_name, field_desc, field_type, show_reg, field_length, field_options,
+			col_name, field_name, field_desc, field_type, field_order, show_reg, field_length, field_options,
 			default_value, bbc, enclose, placement
 		FROM {db_prefix}custom_fields
-		WHERE ' . $where,
+		WHERE ' . $where .'
+		ORDER BY field_order',
 		array(
 			'area' => $area,
 		)
@@ -946,6 +947,7 @@ function loadCustomFields($memID, $area = 'summary')
 			'name' => $row['field_name'],
 			'desc' => $row['field_desc'],
 			'type' => $row['field_type'],
+			'order' => $row['field_order'],
 			'input_html' => $input_html,
 			'output_html' => $output_html,
 			'placement' => $row['placement'],
