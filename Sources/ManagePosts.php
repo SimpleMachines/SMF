@@ -219,6 +219,7 @@ function ModifyPostSettings($return_config = false)
 		'',
 			// First & Last message preview lengths
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));

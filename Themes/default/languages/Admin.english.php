@@ -563,6 +563,8 @@ $txt['edit_disable_time_zero'] = '0 to disable';
 $txt['preview_characters'] = 'Maximum length of last/first post preview';
 $txt['preview_characters_units'] = 'characters';
 $txt['preview_characters_zero'] = '0 to disable';
+$txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
+$txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
 
 $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
