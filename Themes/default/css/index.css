@@ -847,10 +847,10 @@ h3.catbg, h4.catbg {
 	font-weight: normal;
 	margin: -8px 0 4px 12px;
 }
-h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg {
 	color: #fff;
 }
-h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
+h3.catbg a:hover, h4.catbg a:hover {
 	color: #ffc178;
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
@@ -863,7 +863,7 @@ h4.catbg a.toggle img {
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
 }
-h4.catbg, h3.catbg, .table_list tbody.header td.catbg {
+h4.catbg, h3.catbg {
 	background: none;
 }
 
@@ -894,12 +894,6 @@ div.cat_bar {
 #quickReplyExpand {
 	float: right;
 	margin: 2px 2px 0 2px;
-}
-table.table_list a.unreadlink, table.table_list a.collapse {
-	float: right;
-}
-table.table_list a.collapse {
-	padding: 4px 4px 0 8px;
 }
 
 .table_grid th.lefttext {
@@ -1678,99 +1672,6 @@ ul li.greeting {
 	background-position: -64px -64px;
 }
 
-/* Styles for the board index and child boards tables.
-------------------------------------------------------- */
-.table_list {
-	width: 100%;
-	border-spacing: 0;
-}
-.table_list .header td {
-	padding: 0;
-}
-.table_list .content td {
-	padding: 7px;
-}
-.table_list .header .cat_bar {
-	margin: 0;
-}
-.table_list .icon, .table_list .info, .table_list .stats, .table_list.lastpost {
-	border-top: 2px solid #fff;
-	height: 4.5em;
-}
-.table_list td.icon {
-	margin: 0 0 0 1px;
-	padding: 8px 0 0 0;
-	width: 5%;
-	min-width: 60px;
-	/*Top aligned is much nicer for the icon. */
-	vertical-align: top;
-	border-left: 1px solid #ddd;
-	text-align: center;
-}
-.table_list td.info {
-	padding: 0 7px 0 0;
-}
-/* The board title! */
-.table_list .info .subject {
-	font-weight: 600;
-	font-size: 1.1em;
-	color: #a85400;
-}
-.table_list .info p {
-	margin: 0;
-	padding: 0;
-	font-size: 1em;
-}
-.table_list .info p.moderators {
-	font-size: 0.9em;
-}
-.table_list .stats {
-	font-size: 0.9em;
-	line-height: 1.55em;
-	width: 12%;
-}
-.table_list .stats p {
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
-	min-height: 3em;
-	margin: 3px 0 0 0;
-	padding: 0px 7px 0 7px;
-	text-align: center;
-}
-.table_list .lastpost {
-	font-size: 0.9em;
-	line-height: 1.55em;
-	width: 24%;
-	min-width: 27em;
-	border-right: 1px solid #ddd;
-}
-.table_list .lastpost p {
-	margin: 3px 0 0 0;
-	padding: 0 0 0 0;
-}
-.table_list td.children {
-	color: #555;
-	font-size: 0.9em;
-	padding: 0 0 0 0;
-	border-top: 1px solid #ddd;
-	border-right: 1px solid #ddd;
-	background: #fff;
-}
-.table_list .children p {
-	padding: 4px 0 0 0;
-}
-
-/* Hiding unwanted border repeats. */
-.table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
-.table_list .content tr:first-child .stats, .table_list .content tr:first-child .lastpost {
-	border-top: none;
-}
-.table_list .divider tr td {
-	border: none;
-	border-top: 1px solid #ddd;
-	height: 18px;
-}
-
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
@@ -1875,10 +1776,6 @@ ul#smfFadeScroller li {
 
 /* Styles for the message (topic) index.
 ---------------------------------------------------- */
-div.table_frame .table_list {
-	border-collapse: collapse;
-	margin: 2px 0;
-}
 #messageindex {
 	clear: both;
 }
@@ -1888,12 +1785,6 @@ div.table_frame .table_list {
 }
 #childboards h3 {
 	padding-bottom: 0;
-}
-#childboards .table_list thead {
-	display: none;
-}
-#childboards .table_list {
-	margin-bottom: 12px;
 }
 #description_board {
 	margin: 10px 0 0 0;
@@ -3818,23 +3709,6 @@ dl.addrules dt.floatleft {
 	background-image: linear-gradient(to bottom, #98b8f4, blue);
 	border-radius: 3px;
 	z-index: 1;
-}
-
-/* Experimental additions. @todo */
-/*-------------------------*/
-
-/* Drop the stats cell from the board index on narrow screens. */
-/* Much more user-friendly IMHO. */
-
-@media screen and (max-width: 1220px) {
-	.table_list td.stats {
-		display: none;
-	}
-	.table_list td.lastpost p {
-		border-left: 1px solid #ccc;
-		padding: 1px 5px 2px 10px;
-		margin-top: 1px;
-	}
 }
 
 /* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
