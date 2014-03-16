@@ -1854,7 +1854,7 @@ function EditCustomProfiles()
 			SET field_order = field_order - 1
 			WHERE field_order > {int:current_order}',
 			array(
-				'min_pos' => $context['field']['order'],
+				'current_order' => $context['field']['order'],
 			)
 		);
 	}
