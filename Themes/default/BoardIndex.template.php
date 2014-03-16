@@ -81,8 +81,7 @@ function template_main()
 	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
-	<div id="boardindex_table" class="boardindex_table">
-		<table class="table_list">';
+	<div id="boardindex_table" class="boardindex_table">';
 
 	/* Each category in categories is made up of:
 	id, href, link, name, is_collapsed (is it collapsed?), can_collapse (is it okay if it is?),
@@ -95,32 +94,25 @@ function template_main()
 			continue;
 
 		echo '
-			<tbody class="header" id="category_', $category['id'], '">
-				<tr>
-					<td colspan="4">
-						<div class="cat_bar">
-							<h3 class="catbg">';
+		<div id="exp1">
+			<div class="cat_bar" id="category_', $category['id'], '">
+				<h3 class="catbg">';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
+					<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
 
 		echo '
-								', $category['link'], '
-							</h3>', !empty($category['description']) ? '
-							<div class="desc">' . $category['description'] . '</div>' : '', '
-						</div>
-					</td>
-				</tr>
-			</tbody>';
+					', $category['link'], '
+				</h3>', !empty($category['description']) ? '
+				<div class="desc">' . $category['description'] . '</div>' : '', '
+			</div>';
 
 		// Assuming the category hasn't been collapsed...
 		if (!$category['is_collapsed'])
 		{
 
-		echo '
-			<tbody class="content" id="category_', $category['id'], '_boards">';
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
 			children (see below.), link_children (easier to use.), children_new (are they new?),
@@ -128,13 +120,13 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<tr id="board_', $board['id'], '" class="windowbg2">
-					<td class="windowbg icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+				<div id="board_', $board['id'], '" class="cool_cat">
+					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
-					</td>
-					<td class="info">
+					</div>
+					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 				// Has it outstanding posts for approval?
@@ -153,20 +145,19 @@ function template_main()
 
 				// Show some basic information about the number of posts, etc.
 					echo '
-					</td>
-					<td class="windowbg stats">
+					</div>
+					<div class="stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
-					</td>
-					<td class="lastpost">';
+					</div>
+					<div class="lastpost">';
 
 				if (!empty($board['last_post']['id']))
 					echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
 				echo '
-					</td>
-				</tr>';
+					</div>';
 				// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 				if (!empty($board['children']))
 				{
@@ -189,25 +180,22 @@ function template_main()
 					}
 
 				echo '
-					<tr id="board_', $board['id'], '_children" class="windowbg2">
-						<td colspan="3" class="windowbg children">
+					<div id="board_', $board['id'], '_children" class="windowbg2c">
+						<div class="windowbg children">
 							<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
-						</td>
-					</tr>';
+						</div>
+					</div>';
 				}
+				echo '
+				</div>';
 			}
+
 		echo '
-			</tbody>';
+			</tbody>
+		</div>';
 		}
-		echo '
-			<tbody class="divider">
-				<tr>
-					<td colspan="4"></td>
-				</tr>
-			</tbody>';
 	}
 	echo '
-		</table>
 	</div>';
 
 	// Show the mark all as read button?

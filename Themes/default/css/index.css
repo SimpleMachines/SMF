@@ -1759,30 +1759,7 @@ ul li.greeting {
 .table_list .children p {
 	padding: 4px 0 0 0;
 }
-.table_list .icon, .table_list .info, .table_list .stats, .table_list .lastpost {
-	border-top: double #ddd;
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
-}
-/* The board index and its icons. */
-.table_list .icon span {
-	background: url(../images/boardicons.png) no-repeat 0 0;
-	display: inline-block;
-	width: 45px;
-	height: 45px;
-}
-.table_list .icon span.board_on {
-	background-position: 0 0;
-}
-.table_list .icon span.board_on2 {
-	background-position: -45px 0;
-}
-.table_list .icon span.board_off {
-	background-position: 0 -45px;
-}
-.table_list .icon span.board_redirect {
-	background-position: -45px -45px;
-}
+
 /* Hiding unwanted border repeats. */
 .table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
 .table_list .content tr:first-child .stats, .table_list .content tr:first-child .lastpost {
@@ -4129,4 +4106,88 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 .half {
 	width: 50%;
+}
+
+/* Some experimental testing for new div-only based home page */
+h3 .collapse {
+	float: right;
+}
+.cat_bar .desc {
+	color: #FFF;
+}
+div.icon span {
+	background: url(../images/boardicons.png) no-repeat 0 0;
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+}
+div.icon span.board_on {
+	background-position: 0 0;
+}
+div.icon span.board_on2 {
+	background-position: -45px 0;
+}
+div.icon span.board_off {
+	background-position: 0 -45px;
+}
+div.icon span.board_redirect {
+	background-position: -45px -45px;
+}
+div.icon {
+	float: left;
+	width: 5%;
+	text-align: center;
+	padding: 8px 8px 0 0;
+	border-left: 1px solid #DDD;
+}
+div.info {
+	float: left;
+	width: 55%;
+	padding-top: 7px;
+}
+div.info .subject {
+	font-weight: 600;
+	font-size: 1.1em;
+	color: #A85400;
+}
+div.stats {
+	width: 12%;
+	float: left;
+	padding: 7px;
+}
+div.stats p {
+	border-left: 1px solid #DDD;
+	border-right: 1px solid #DDD;
+	text-align: center;
+	min-height: 3em;
+	margin: 3px 0 0;
+}
+div.lastpost {
+	width: 24%;
+	float: left;
+	padding-top: 7px;
+	border-right: 1px solid #DDD;
+}
+div.icon, div.info, div.stats, div.lastpost {
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
+	height: 4.5em;
+	vertical-align: top;
+	margin-top: -1px;
+}
+#exp1 {
+	margin-bottom: 20px;
+	width: 100%;
+}
+.cool_cat {
+	-moz-box-sizing: border-box;
+	overflow: hidden;
+	border-bottom: 1px solid #DDD;
+	margin-bottom: 5px;
+}
+.windowbg2c {
+	width: 100%;
+	float: left;
+	margin-top: -7px;
+	border-top: 1px solid #DDD;
 }
