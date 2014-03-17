@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Handles reported posts and moderation comments.
+ * Handles reported members and posts, as well as moderation comments.
  *
  * Simple Machines Forum (SMF)
  *
@@ -24,33 +24,37 @@ if (!defined('SMF'))
  * @uses ModerationCenter language file.
  *
  */
-function ReportedPosts()
+function ReportedContent()
 {
 	global $txt, $context, $scripturl, $user_info, $smcFunc;
 	global $sourcedir;
 
+	// First order of business - what are these reports about?
+	// area=reported{type}
+	$context['report_type'] = substr($_GET['area'], 8);
+
 	loadLanguage('ModerationCenter');
-	loadTemplate('ReportedPosts');
+	loadTemplate('ReportedContent');
 
 	// We need this little rough gem.
-	require_once($sourcedir . '/Subs-ReportedPosts.php');
+	require_once($sourcedir . '/Subs-ReportedContent.php');
 
 	// Do we need to show a confirmation message?
 	$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : array();
 	unset($_SESSION['rc_confirmation']);
 
 	// Set up the comforting bits...
-	$context['page_title'] = $txt['mc_reported_posts'];
+	$context['page_title'] = $txt['mc_reported_' . $context['report_type']];
 
 	// Put the open and closed options into tabs, because we can...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_reported_posts'],
+		'title' => $txt['mc_reported_' . $context['report_type']],
 		'help' => '',
-		'description' => $txt['mc_reported_posts_desc'],
+		'description' => $txt['mc_reported_' . $context['report_type'] . '_desc'],
 	);
 
 	// This comes under the umbrella of moderating posts.
-	if ($user_info['mod_cache']['bq'] == '0=1')
+	if ($context['report_type'] == 'members' || $user_info['mod_cache']['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
 
 	$sub_actions = array(
@@ -63,7 +67,7 @@ function ReportedPosts()
 	);
 
 	// Go ahead and add your own sub-actions.
-	call_integration_hook('integrate_reported_posts', array(&$sub_actions));
+	call_integration_hook('integrate_reported_' . $context['report_type'], array(&$sub_actions));
 
 	// By default we call the open sub-action.
 	if (isset($_REQUEST['sa']) && isset($sub_actions[$_REQUEST['sa']]))
@@ -89,7 +93,7 @@ function ShowReports()
 	$context['view_closed'] = 0;
 
 	// Call the right template.
-	$context['sub_template'] = 'reported_posts';
+	$context['sub_template'] = 'reported_' . $context['report_type'];
 	$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
 
 	// Before anything, we need to know just how many reports do we have.
@@ -99,7 +103,7 @@ function ShowReports()
 	$context['reports_how_many'] = 10;
 
 	// So, that means we can have pagination, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=show', $context['start'], $context['total_reports'], $context['reports_how_many']);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=show', $context['start'], $context['total_reports'], $context['reports_how_many']);
 
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
@@ -122,7 +126,7 @@ function ShowReports()
 		$_SESSION['rc_confirmation'] = 'close_all';
 
 		// Force a page refresh.
-		redirectexit($scripturl . '?action=moderate;area=reports');
+		redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 	}
 
 	// Show a confirmation if the user wants to disregard a report.
@@ -155,7 +159,7 @@ function ShowClosedReports()
 	$context['view_closed'] = 1;
 
 	// Call the right template.
-	$context['sub_template'] = 'reported_posts';
+	$context['sub_template'] = 'reported_' . $context['report_type'];
 	$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
 
 	// Before anything, we need to know just how many reports do we have.
@@ -165,7 +169,7 @@ function ShowClosedReports()
 	$context['reports_how_many'] = 10;
 
 	// So, that means we can have pagination, yes?
-	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reports;sa=closed', $context['start'], $context['total_reports'], $context['reports_how_many']);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=closed', $context['start'], $context['total_reports'], $context['reports_how_many']);
 
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
@@ -212,31 +216,51 @@ function ReportDetails()
 	if(!$report)
 		fatal_lang_error('mc_no_modreport_found');
 
-	// Build the report data.
+	// Build the report data - basic details first, then extra stuff based on the type
 	$context['report'] = array(
 		'id' => $report['id_report'],
-		'topic_id' => $report['id_topic'],
-		'board_id' => $report['id_board'],
-		'message_id' => $report['id_msg'],
-		'message_href' => $scripturl . '?msg=' . $report['id_msg'],
-		'message_link' => '<a href="' . $scripturl . '?msg=' . $report['id_msg'] . '">' . $report['subject'] . '</a>',
-		'report_href' => $scripturl . '?action=moderate;area=reports;rid=' . $report['id_report'],
-		'author' => array(
-			'id' => $report['id_author'],
-			'name' => $report['author_name'],
-			'link' => $report['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $report['id_author'] . '">' . $report['author_name'] . '</a>' : $report['author_name'],
-			'href' => $scripturl . '?action=profile;u=' . $report['id_author'],
-		),
+		'report_href' => $scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';rid=' . $report['id_report'],
 		'comments' => array(),
 		'mod_comments' => array(),
 		'time_started' => timeformat($report['time_started']),
 		'last_updated' => timeformat($report['time_updated']),
-		'subject' => $report['subject'],
-		'body' => parse_bbc($report['body']),
 		'num_reports' => $report['num_reports'],
 		'closed' => $report['closed'],
 		'ignore' => $report['ignore_all']
 	);
+
+	// Different reports have different "extra" data attached to them
+	if ($context['report_type'] == 'members')
+	{
+		$extraDetails = array(
+			'user' => array(
+				'id' => $report['id_user'],
+				'name' => $report['user_name'],
+				'link' => $report['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $report['id_user'] . '">' . $report['user_name'] . '</a>' : $report['user_name'],
+				'href' => $scripturl . '?action=profile;u=' . $report['id_user'],
+			),
+		);
+	}
+	else
+	{
+		$extraDetails = array(
+			'topic_id' => $report['id_topic'],
+			'board_id' => $report['id_board'],
+			'message_id' => $report['id_msg'],
+			'message_href' => $scripturl . '?msg=' . $report['id_msg'],
+			'message_link' => '<a href="' . $scripturl . '?msg=' . $report['id_msg'] . '">' . $report['subject'] . '</a>',
+			'author' => array(
+				'id' => $report['id_author'],
+				'name' => $report['author_name'],
+				'link' => $report['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $report['id_author'] . '">' . $report['author_name'] . '</a>' : $report['author_name'],
+				'href' => $scripturl . '?action=profile;u=' . $report['id_author'],
+			),
+			'subject' => $report['subject'],
+			'body' => parse_bbc($report['body']),
+		);
+	}
+
+	$context['report'] = array_merge($context['report'], $extraDetails);
 
 	$reportComments = getReportComments($report_id);
 
@@ -248,29 +272,46 @@ function ReportDetails()
 	require_once($sourcedir . '/Subs-List.php');
 	loadLanguage('Modlog');
 
+	// Parameters are slightly different depending on what we're doing here...
+	if ($context['report_type'] == 'members')
+	{
+		// Find their ID in the serialized action string...
+		$user_id_length = strlen((string)$context['report']['user']['id']);
+		$member = 's:6:"member";s:' . $user_id_length . ':"' . $context['report']['user']['id'] . '";}';
+
+		$params = array(
+			'lm.extra LIKE {raw:member}
+				AND lm.action LIKE {raw:report}',
+			array('member' => '\'%' . $member . '\'', 'report' => '\'%_user_report\''),
+			1,
+			true,
+		);
+	}
+	else
+	{
+		$params = array(
+			'lm.id_topic = {int:id_topic} 
+				AND lm.id_board != {int:not_a_reported_post}',
+			array('id_topic' => $context['report']['topic_id'], 'not_a_reported_post' => 0),
+			1,
+		);
+	}
+
 	// This is all the information from the moderation log.
 	$listOptions = array(
 		'id' => 'moderation_actions_list',
 		'title' => $txt['mc_modreport_modactions'],
 		'items_per_page' => 15,
 		'no_items_label' => $txt['modlog_no_entries_found'],
-		'base_href' => $scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report']['id'],
+		'base_href' => $scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $context['report']['id'],
 		'default_sort_col' => 'time',
 		'get_items' => array(
 			'function' => 'list_getModLogEntries',
-			'params' => array(
-				'lm.id_topic = {int:id_topic}',
-				array('id_topic' => $context['report']['topic_id']),
-				1,
-			),
+			'params' => $params,
 		),
 		'get_count' => array(
 			'function' => 'list_getModLogEntryCount',
-			'params' => array(
-				'lm.id_topic = {int:id_topic}',
-				array('id_topic' => $context['report']['topic_id']),
-				1,
-			),
+			'params' => $params,
 		),
 		// This assumes we are viewing by user.
 		'columns' => array(
@@ -355,8 +396,16 @@ function ReportDetails()
 });', true);
 
 	// Finally we are done :P
-	$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
-	$context['sub_template'] = 'viewmodreport';
+	if ($context['report_type'] == 'members')
+	{
+		$context['page_title'] = sprintf($txt['mc_viewmemberreport'], $context['report']['user']['name']);
+		$context['sub_template'] = 'viewmemberreport';
+	}
+	else
+	{
+		$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
+		$context['sub_template'] = 'viewmodreport';
+	}
 
 	// We can ignore a report from this page too so show the confirmation on here as well.
 	addInlineJavascript('
@@ -439,7 +488,7 @@ function HandleComment()
 	}
 
 	//Redirect to prevent double submission.
-	redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $report_id);
+	redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $report_id);
 }
 
 /**
@@ -497,7 +546,7 @@ function EditComment()
 
 		$_SESSION['rc_confirmation'] = 'message_edited';
 
-		redirectexit($scripturl . '?action=moderate;area=reports;sa=details;rid=' . $context['report_id']);
+		redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $context['report_id']);
 	}
 
 	createToken('mod-reportC-edit');
@@ -509,7 +558,7 @@ function EditComment()
  */
 function HandleReport()
 {
-	global $scripturl;
+	global $scripturl, $context;
 
 	checkSession('get');
 
@@ -538,6 +587,6 @@ function HandleReport()
 	$_SESSION['rc_confirmation'] = $message;
 
 	// Done!
-	redirectexit($scripturl . '?action=moderate;area=reports');
+	redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 }
 ?>

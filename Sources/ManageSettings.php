@@ -352,7 +352,7 @@ function ModifyWarningSettings($return_config = false)
 				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
 				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
 				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
-				array('select', 'warning_show', 'subtext' => $txt['setting_warning_show_note'], array($txt['setting_warning_show_mods'], $txt['setting_warning_show_user'], $txt['setting_warning_show_all'])),
+				array('permissions', 'view_warning'),
 		);
 
 	call_integration_hook('integrate_warning_settings', array(&$config_vars));

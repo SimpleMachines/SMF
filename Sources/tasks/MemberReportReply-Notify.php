@@ -89,7 +89,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => '?action=moderate;area=memberreports;report=' . $this->_details['report_id'], // We don't put $scripturl in these!
+							'report_link' => '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 							'user_name' => $this->_details['user_name'],
 						)
 					),

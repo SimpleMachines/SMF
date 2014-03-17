@@ -97,10 +97,9 @@ $is_done = false;
 while (!$is_done)
 {
 	nextSubStep($substep);
-	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash, mime_type
+		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -113,6 +112,8 @@ while (!$is_done)
 	{
 		// The current folder.
 		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
+
+		$fileHash = '';
 
 		// Old School?
 		if (empty($row['file_hash']))
@@ -134,12 +135,13 @@ while (!$is_done)
 			// Create a nice hash.
 			$fileHash = sha1(md5($row['filename'] . time()) . mt_rand());
 
-			// The old file, we need to know if the filename was encrypted or not.
-			if (file_exists($currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename'])))
-				$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
-
-			else if (file_exists($currentFolder . '/' . $row['filename']));
+			// Iterate through the possible attachment names until we find the one that exists
+			$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
+			if (!file_exists($oldFile))
+			{
 				$oldFile = $currentFolder . '/' . $row['filename'];
+				if (!file_exists($oldFile)) $oldFile = false;
+			}
 
 			// Build the new file.
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $fileHash .'.dat';
@@ -152,17 +154,26 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
+		if (!$oldFile)
+		{
+			// Existing attachment could not be found. Just skip it...
+			continue;
+		}
+
 		// Check if the av is an attachment
 		if ($row['id_member'] != 0)
+		{
 			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
 				upgrade_query("
 					UPDATE {$db_prefix}attachments
 					SET file_hash = '', attachment_type = 1
 					WHERE id_attach = $row[id_attach]");
-
+		}
 		// Just a regular attachment.
 		else
+		{
 			rename($oldFile, $newFile);
+		}
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
@@ -1082,11 +1093,18 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 
 		$smcFunc['db_free_result']($get_labels);
+
+		foreach ($label_info AS $id_member => $labels)
+		{
+			foreach ($labels as $label => $index)
+			{
+				$inserts[] = array($id_member, $label);
+			}
+		}
 
 		if (!empty($inserts))
 		{
@@ -1119,8 +1137,8 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
-			$old_index = $label_info[$row['id_member']][$row['label_name']];
-			$label_info_2[$row['id_member']][$old_index] = $row['id_label'];
+			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 		}
 
 		$smcFunc['db_free_result']($get_new_label_ids);

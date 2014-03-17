@@ -3810,12 +3810,12 @@ function setupMenuContext()
 					),
 					'reports' => array(
 						'title' => $txt['mc_reported_posts'],
-						'href' => $scripturl . '?action=moderate;area=reports',
+						'href' => $scripturl . '?action=moderate;area=reportedposts',
 						'show' => !empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1',
 					),
 					'reported_members' => array(
 						'title' => $txt['mc_reported_members'],
-						'href' => $scripturl . '?action=moderate;area=memberreports',
+						'href' => $scripturl . '?action=moderate;area=reportedmembers',
 						'show' => allowedTo('moderate_forum'),
 						'is_last' => true,
 					)

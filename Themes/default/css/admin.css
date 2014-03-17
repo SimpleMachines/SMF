@@ -435,7 +435,7 @@ div.quick_tasks {
 #support_resources, #credits_sections {
 	margin: 16px 0 -24px 0;
 	border: none;
-	border-top: 1px solid #bbb;	
+	border-top: 1px solid #bbb;
 }
 #credits_logo {
 	position: absolute;
@@ -781,21 +781,6 @@ dl.settings dt.small_caption {
 dl.settings dd.small_caption {
 	width: 79%;
 }
-/* Styles for the manage permissions section.
-------------------------------------------------- */
-#permissionForm .table_grid {
-	width: 100%;
-}
-#permissionForm .table_grid img.icon {
-	vertical-align: top;
-	width: 16px;
-}
-dl.admin_permissions dt {
-	width: 35%;
-}
-dl.admin_permissions dd {
-	width: 64%;
-}
 
 /* Styles for the manage search section.
 ------------------------------------------------- */
@@ -864,6 +849,16 @@ ul.pending_payments li {
 table.table_grid.perm_grid {
 	margin: 0.2em;
 	width: 49%;
+}
+.perm_grid img {
+	vertical-align: middle;
+	width: 16px;
+}
+dl.admin_permissions dt {
+	width: 35%;
+}
+dl.admin_permissions dd {
+	width: 64%;
 }
 .permission_groups {
 	padding: 0;
