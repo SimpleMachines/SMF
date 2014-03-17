@@ -94,7 +94,7 @@ function template_main()
 			continue;
 
 		echo '
-		<div id="exp1">
+		<div class="exp1">
 			<div class="cat_bar" id="category_', $category['id'], '">
 				<h3 class="catbg">';
 
@@ -121,6 +121,7 @@ function template_main()
 			{
 				echo '
 				<div id="board_', $board['id'], '" class="cool_cat">
+					<div class="up_contain">
 					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
@@ -157,7 +158,8 @@ function template_main()
 					echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
 				echo '
-					</div>';
+					</div>
+				</div>';
 				// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 				if (!empty($board['children']))
 				{
@@ -181,13 +183,13 @@ function template_main()
 
 				echo '
 					<div id="board_', $board['id'], '_children" class="windowbg2c">
-						<div class="windowbg children">
+						<div class="children">
 							<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
 						</div>
 					</div>';
 				}
 				echo '
-				</div>';
+			</div>';
 			}
 
 		echo '

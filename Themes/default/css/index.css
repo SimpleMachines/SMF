@@ -3985,6 +3985,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 /* Some experimental testing for new div-only based home page */
 h3 .collapse {
 	float: right;
+	margin: 4px 4px 0 0;
 }
 .cat_bar .desc {
 	color: #FFF;
@@ -4011,13 +4012,12 @@ div.icon {
 	float: left;
 	width: 5%;
 	text-align: center;
-	padding: 8px 8px 0 0;
-	border-left: 1px solid #DDD;
+	padding: 8px 0 0 0;
 }
 div.info {
 	float: left;
-	width: 55%;
-	padding-top: 7px;
+	width: 56%;
+	padding: 12px 7px 0 0;
 }
 div.info .subject {
 	font-weight: 600;
@@ -4028,6 +4028,7 @@ div.stats {
 	width: 12%;
 	float: left;
 	padding: 7px;
+	font-size: 0.9em;
 }
 div.stats p {
 	border-left: 1px solid #DDD;
@@ -4040,28 +4041,32 @@ div.lastpost {
 	width: 24%;
 	float: left;
 	padding-top: 7px;
-	border-right: 1px solid #DDD;
+	font-size: 0.9em;
+}
+div.lastpost p {
+	margin: 3px 0 0 0;
 }
 div.icon, div.info, div.stats, div.lastpost {
+	height: 4.5em;
+}
+.exp1 {
+	margin-bottom: 20px;
+}
+.up_contain {
+	overflow: hidden;
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
-	height: 4.5em;
-	vertical-align: top;
-	margin-top: -1px;
-}
-#exp1 {
-	margin-bottom: 20px;
-	width: 100%;
 }
 .cool_cat {
 	-moz-box-sizing: border-box;
 	overflow: hidden;
-	border-bottom: 1px solid #DDD;
-	margin-bottom: 5px;
+	border: 1px solid #DDD;
+	margin-bottom: 3px;
+	margin-top: -1px;
 }
 .windowbg2c {
 	width: 100%;
 	float: left;
-	margin-top: -7px;
 	border-top: 1px solid #DDD;
+	padding: 5px;
 }
