@@ -1004,31 +1004,6 @@ function template_show_custom_profile()
 
 	// Custom fields.
 	template_show_list('custom_profile_fields');
-
-	// Ordering.
-	if (!empty($context['all_fields']))
-	{
-		echo '<br><ul id="order_fields">';
-
-		foreach ($context['all_fields'] as $field)
-			echo '<li>', $field['name'] ,'</li>';
-
-		echo '</ul>';
-	}
-
-	echo '
-					<script><!-- // --><![CDATA[
-						$(\'#order_fields li\').animaDrag({
-							after: function() {
-							
-								var _drop = $(this),
-									_after = _drop.closest(\'li\');
-
-								_drop.insertAfter(this);
-							}
-						});
-
-					// ]]></script><br>';
 }
 
 // Edit a profile field?
