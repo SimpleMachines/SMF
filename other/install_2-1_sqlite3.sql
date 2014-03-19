@@ -750,12 +750,12 @@ CREATE UNIQUE INDEX {$db_prefix}custom_fields_col_name ON {$db_prefix}custom_fie
 #
 
 INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/whitepages/about_me.php?uin={INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="http://status.icq.com/online.gif?img=5&icq={INPUT}" alt="ICQ - {INPUT}" width="18" height="18"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 50, '', 3, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="skype new_win" href="skype:{INPUT}?chat" title="Live - {INPUT}"><img src="{IMAGES_URL}/skype.png" alt="Live - {INPUT}"></a>', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1),
-('cust_gender', 'Gender', 'Your gender.', 'text', 50, '', 6, 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Male,Female', 6, 'nohtml', 1, 1, 'forumprofile', 0, 1, 0, 0, 'Male', '<span class=" generic_icons gender_{INPUT}" alt="{INPUT}" title="{INPUT}">', 1);
 
 # --------------------------------------------------------
 
