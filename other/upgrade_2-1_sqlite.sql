@@ -649,6 +649,11 @@ ALTER TABLE {$db_prefix}custom_fields
 ADD COLUMN field_order smallint NOT NULL default '0';
 ---#
 
+---# Adding new show_mlist column...
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN show_mlist smallint NOT NULL default '0';
+---#
+
 ---# Insert fields
 INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
