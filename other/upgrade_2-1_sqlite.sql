@@ -666,23 +666,32 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 ---# Add an order value to each existing cust profile field.
 ---{
-	$old_cust_fields = upgrade_query("
+	$ocf = $smcFunc['db_query']('', '
 		SELECT id_field
-		FROM {$db_prefix}custom_fields");
+		FROM {db_prefix}custom_fields');
 
 		// We start counting from 6 because we already have the first 6 fields.
 		$fields_count = 6;
 
-		while ($row = mysql_fetch_assoc($old_cust_fields))
+		while ($row = $smcFunc['db_fetch_assoc']($ocf))
 		{
 			$fields_count++;
 
-			upgrade_query("
-				UPDATE {$db_prefix}custom_fields
-				SET field_order = $fields_count,
-				WHERE id_attach = $row[id_field]");
+			if (!empty($row['id_field']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}custom_fields
+					SET field_order = {int:field_count}, show_mlist = {int:show_mlist}
+					WHERE id_field = {int:id_field}
+						AND field_order = {int:show_mlist}',
+					array(
+						'field_count' => $fields_count,
+						'show_list' => 0,
+						'id_field' => $row['id_field'],
+						'six' => 6,
+					)
+				);
 		}
-		$smcFunc['db_free_result']($old_cust_fields);
+		$smcFunc['db_free_result']($ocf);
 ---}
 ---#
 
