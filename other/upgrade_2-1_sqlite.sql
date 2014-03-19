@@ -100,7 +100,7 @@ while (!$is_done)
 	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash, mime_type
+		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -1156,15 +1156,22 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 
 		$smcFunc['db_free_result']($get_labels);
 
+		foreach ($label_info AS $id_member => $labels)
+		{
+			foreach ($labels as $label => $index)
+			{
+				$inserts[] = array($id_member, $label);
+			}
+		}
+
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'int'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 
 			// Clear this out for our next query below
 			$inserts = array();
@@ -1174,10 +1181,10 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minus_one}, labels)',
+			WHERE FIND_IN_SET({int:minusone}, labels)',
 			array(
 				'in_inbox' => 1,
-				'minus_one' => -1,
+				'minusone' => -1,
 			)
 		);
 
@@ -1193,8 +1200,8 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
-			$old_index = $label_info[$row['id_member']][$row['label_name']];
-			$label_info_2[$row['id_member']][$old_index] = $row['id_label'];
+			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 		}
 
 		$smcFunc['db_free_result']($get_new_label_ids);
@@ -1231,7 +1238,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		// Insert the new data
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm', 'id_label'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 		}
 
 		// Final step of this ridiculously massive process
@@ -1239,7 +1246,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			SELECT id_member, id_rule, actions
 			FROM {db_prefix}pm_rules',
 			array(
-			),
+			)
 		);
 
 		// Go through the rules, unserialize the actions, then figure out if there's anything we can use
@@ -1278,9 +1285,10 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
 		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
-}
+---}
+---#
 
-******************************************************************************/
+/******************************************************************************/
 --- Adding support for edit reasons
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages

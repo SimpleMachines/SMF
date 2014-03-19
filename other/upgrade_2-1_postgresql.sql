@@ -1152,7 +1152,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 ---# Moving label info to new tables and updating rules...
 ---{
 	// First see if we still have a message_labels column
-	$results = $smcFunc['db_list_columns']('{db_prefix}members', false);
+	$results = $smcFunc['db_list_columns']('{db_prefix}members');
 	if (in_array('message_labels', $results))
 	{
 		// They've still got it, so pull the label info
@@ -1177,11 +1177,18 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 
 		$smcFunc['db_free_result']($get_labels);
+
+		foreach ($label_info AS $id_member => $labels)
+		{
+			foreach ($labels as $label => $index)
+			{
+				$inserts[] = array($id_member, $label);
+			}
+		}
 
 		if (!empty($inserts))
 		{
@@ -1195,10 +1202,10 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minus_one}, labels) != 0',
+			WHERE FIND_IN_SET({int:minusone}, labels)',
 			array(
 				'in_inbox' => 1,
-				'minus_one' => -1,
+				'minusone' => -1,
 			)
 		);
 
@@ -1214,8 +1221,8 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
-			$old_index = $label_info[$row['id_member']][$row['label_name']];
-			$label_info_2[$row['id_member']][$old_index] = $row['id_label'];
+			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 		}
 
 		$smcFunc['db_free_result']($get_new_label_ids);
