@@ -1269,12 +1269,13 @@ function loadMemberCustomFields($users, $params)
 	$return = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT c.id_field, c.col_name, c.field_name, c.field_desc, c.field_type, c.field_length, c.field_options, c.mask, show_reg,
+		SELECT c.id_field, c.col_name, c.field_name, c.field_desc, c.field_type, c.field_order, c.field_length, c.field_options, c.mask, show_reg,
 		c.show_display, c.show_profile, c.private, c.active, c.bbc, c.can_search, c.default_value, c.enclose, c.placement, t.variable, t.value, t.id_member
 		FROM {db_prefix}themes AS t
 			LEFT JOIN {db_prefix}custom_fields AS c ON (c.col_name = t.variable)
 		WHERE id_member IN ({array_int:loaded_ids})
-			AND variable IN ({array_string:params})',
+			AND variable IN ({array_string:params})
+		ORDER BY field_order',
 		array(
 			'loaded_ids' => $users,
 			'params' => $params,
