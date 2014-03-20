@@ -94,7 +94,7 @@ function template_main()
 			continue;
 
 		echo '
-		<div class="exp1">
+		<div class="main_container">
 			<div class="cat_bar" id="category_', $category['id'], '">
 				<h3 class="catbg">';
 
