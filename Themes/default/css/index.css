@@ -4056,10 +4056,7 @@ div.icon, div.info, div.stats, div.lastpost {
 	overflow: hidden;
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
-}
-.cool_cat {
-	-moz-box-sizing: border-box;
-	overflow: hidden;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;

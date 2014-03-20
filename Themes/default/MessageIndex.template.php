@@ -18,28 +18,20 @@ function template_main()
 	{
 		echo '
 	<div id="board_', $context['current_board'], '_childboards" class="boardindex_table">
-		<table class="table_list">
-			<tbody class="header">
-				<tr>
-					<td colspan="4">
-						<div class="cat_bar">
-							<h3 class="catbg">', $txt['sub_boards'], '</h3>
-						</div>
-					</td>
-				</tr>
-			</tbody>
-			<tbody id="board_', $context['current_board'], '_children" class="content">';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['sub_boards'], '</h3>
+		</div>';
 
 		foreach ($context['boards'] as $board)
 		{
 			echo '
-				<tr id="board_', $board['id'], '" class="windowbg2">
-					<td class="windowbg icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+				<div id="board_', $board['id'], '" class="up_contain">
+					<div class="icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
-					</td>
-					<td class="info">
+					</div>
+					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 			// Has it outstanding posts for approval?
@@ -57,20 +49,19 @@ function template_main()
 
 			// Show some basic information about the number of posts, etc.
 			echo '
-					</td>
-					<td class="windowbg stats">
+					</div>
+					<div class="stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
-					</td>
-					<td class="lastpost">';
+					</div>
+					<div class="lastpost">';
 
 			if (!empty($board['last_post']['id']))
 				echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
 			echo '
-					</td>
-				</tr>';
+					</div>';
 
 			// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 			if (!empty($board['children']))
@@ -94,21 +85,17 @@ function template_main()
 				}
 
 			echo '
-				<tr id="board_', $board['id'], '_children" class="windowbg2">
-					<td colspan="3" class="windowbg children">
+				<div id="board_', $board['id'], '_children" class="windowbg2c">
+					<div colspan="3" class="children">
 						<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
-					</td>
-				</tr>';
+					</div>
+				</div>';
 			}
+
+			echo '
+				</div>';
 		}
 		echo '
-			</tbody>
-			<tbody class="divider">
-				<tr>
-					<td colspan="4"></td>
-				</tr>
-			</tbody>
-		</table>
 	</div>';
 	}
 

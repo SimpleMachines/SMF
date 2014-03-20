@@ -120,8 +120,7 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<div id="board_', $board['id'], '" class="cool_cat">
-					<div class="up_contain">
+				<div id="board_', $board['id'], '" class="up_contain">
 					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
@@ -158,8 +157,7 @@ function template_main()
 					echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
 				echo '
-					</div>
-				</div>';
+					</div>';
 				// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 				if (!empty($board['children']))
 				{
@@ -188,12 +186,12 @@ function template_main()
 						</div>
 					</div>';
 				}
+
 				echo '
-			</div>';
+					</div>';
 			}
 
 		echo '
-			</tbody>
 		</div>';
 		}
 	}
