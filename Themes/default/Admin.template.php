@@ -1086,7 +1086,7 @@ function template_edit_profile_field()
 												<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
 											</dt>
 											<dd>
-												<input type="checkbox" name="mlist" id="mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
+												<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
 											</dd>
 											<dt>
 												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>

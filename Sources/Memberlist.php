@@ -108,6 +108,11 @@ function Memberlist()
 		)
 	);
 
+	$context['custom_profile_fields'] = getCustFieldsMList();
+
+	if (!empty($context['custom_profile_fields']['columns']))
+		$context['columns'] += $context['custom_profile_fields']['columns'];
+
 	$context['colspan'] = 0;
 	$context['disabled_fields'] = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
 	foreach ($context['columns'] as $key => $column)
@@ -327,6 +332,7 @@ function MLAll()
 		FROM {db_prefix}members AS mem' . ($_REQUEST['sort'] === 'is_online' ? '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' : '') . '
+			' . (!empty($context['custom_profile_fields']['join']) ? $context['custom_profile_fields']['join'] : '') . '
 		WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
 			AND ' . $where) . '
 		ORDER BY {raw:sort}
@@ -466,12 +472,12 @@ function MLSearch()
 		// Any custom fields to search for - these being tricky?
 		foreach ($_POST['fields'] as $field)
 		{
-			$curField = substr($field, 5);
-			if (substr($field, 0, 5) == 'cust_' && isset($context['custom_search_fields'][$curField]))
+			$row['col_name'] = substr($field, 5);
+			if (substr($field, 0, 5) == 'cust_' && isset($context['custom_search_fields'][$row['col_name']]))
 			{
-				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $curField . ' ON (t' . $curField . '.variable = {string:t' . $curField . '} AND t' . $curField . '.id_theme = 1 AND t' . $curField . '.id_member = mem.id_member)';
-				$query_parameters['t' . $curField] = $curField;
-				$fields += array($customCount++ => 'IFNULL(t' . $curField . '.value, {string:blank_string})');
+				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {string:t' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
+				$query_parameters['t' . $row['col_name']] = $row['col_name'];
+				$fields += array($customCount++ => 'IFNULL(t' . $row['col_name'] . '.value, {string:blank_string})');
 			}
 		}
 
@@ -583,7 +589,76 @@ function printMemberListRows($request)
 		$context['members'][$member] = $memberContext[$member];
 		$context['members'][$member]['post_percent'] = round(($context['members'][$member]['real_posts'] * 100) / $most_posts);
 		$context['members'][$member]['registered_date'] = strftime('%Y-%m-%d', $context['members'][$member]['registered_timestamp']);
+
+		if (!empty($context['custom_profile_fields']['columns']))
+		{
+			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
+			{
+				// Give him a blank and pass to next.
+				if (!isset($context['members'][$member]['options'][$key]))
+				{
+					$context['members'][$member]['options'][$key] = '';
+					continue;
+				}
+
+				// Some cosmetics...
+				if ($column['bbc'])
+					$context['members'][$member]['options'][$key] = strip_tags(parse_bbc($context['members'][$member]['options'][$key]));
+
+				elseif ($column['type'] == 'check')
+					$context['members'][$member]['options'][$key] = $context['members'][$member]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+			}
+		}
 	}
+}
+
+function getCustFieldsMList()
+{
+	global $smcFunc;
+
+	$cpf = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_desc, field_type, bbc
+		FROM {db_prefix}custom_fields
+		WHERE active = {int:active}
+			AND show_mlist = {int:show}
+			AND private < {int:private_level}',
+		array(
+			'active' => 1,
+			'show' => 1,
+			'private_level' => 2,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+
+		// Collect the column info and some extra.
+		$cpf['columns'][$row['col_name']] = array(
+			'label' => $row['field_name'],
+			'type' => $row['field_type'],
+			'bbc' => !empty($row['bbc']),
+		);
+
+		// Get the right sort method depending on the cust field type.
+		if ($row['field_type'] != 'check')
+			$cpf['columns'][$row['col_name']]['sort'] = array(
+				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, IFNULL(t' . $row['col_name'] . '.value, 1=1) DESC, t' . $row['col_name'] . '.value DESC',
+				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, IFNULL(t' . $row['col_name'] . '.value, 1=1) ASC, t' . $row['col_name'] . '.value ASC'
+			);
+
+		else
+			$cpf['columns'][$row['col_name']]['sort'] = array(
+				'down' => 't' . $row['col_name'] . '.value DESC',
+				'up' => 't' . $row['col_name'] . '.value ASC'
+			);
+
+		$cpf['join'] = 'LEFT JOIN {db_prefix}themes AS t' .  $row['col_name'] . ' ON (t' .  $row['col_name'] . '.variable = {literal:' .  $row['col_name'] . '} AND t' .  $row['col_name'] . '.id_theme = 1 AND t' .  $row['col_name'] . '.id_member = mem.id_member)';
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $cpf;
 }
 
 ?>
