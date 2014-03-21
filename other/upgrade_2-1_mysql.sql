@@ -634,38 +634,40 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 // We cannot do this twice
 if (@$modSettings['smfVersion'] < '2.1')
 {
-	$request = upgrade_query("
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member, aim, icq, msn, yim, location, gender
-		FROM {$db_prefix}members");
+		FROM {db_prefix}members');
+
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!empty($row[aim]))
-			$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
+		if (!empty($row['aim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
 
-		if (!empty($row[icq]))
-			$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
+		if (!empty($row['icq']))
+			$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
 
-		if (!empty($row[msn]))
-			$inserts[] = "($row[id_member], -1, 'cust_skype', $row[msn])";
+		if (!empty($row['msn']))
+			$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
 
-		if (!empty($row[yim]))
-			$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
+		if (!empty($row['yim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
 
-		if (!empty($row[location]))
-			$inserts[] = "($row[id_member], -1, 'cust_loca', $row[location])";
+		if (!empty($row['location']))
+			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
 
-		if (!empty($row[gender]))
-			$inserts[] = "($row[id_member], -1, 'cust_gender', $row[gender])";
+		if (!empty($row['gender']))
+			$inserts[] = array($row['id_member'], -1, 'cust_gender', $row['gender']);
 	}
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
-		upgrade_query("
-			INSERT INTO {$db_prefix}themes
-				(id_member, id_theme, variable, value)
-			VALUES
-				" . implode(',', $inserts));
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$inserts,
+			array('id_theme', 'id_member', 'variable')
+		);
 }
 ---}
 ---#
