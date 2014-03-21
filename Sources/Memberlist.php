@@ -559,6 +559,7 @@ function MLSearch()
 function printMemberListRows($request)
 {
 	global $context, $memberContext, $smcFunc, $txt;
+	global $scripturl, $settings;
 
 	// Get the most posts.
 	$result = $smcFunc['db_query']('', '
@@ -595,18 +596,27 @@ function printMemberListRows($request)
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 			{
-				// Don't show anything if tere isn't anything to show.
+				// Don't show anything if there isn't anything to show.
 				if (!isset($context['members'][$member]['options'][$key]))
 				{
 					$context['members'][$member]['options'][$key] = '';
 					continue;
 				}
 
-				if ($column['bbc'])
+				if ($column['bbc'] && !empty($context['members'][$member]['options'][$key]))
 					$context['members'][$member]['options'][$key] = strip_tags(parse_bbc($context['members'][$member]['options'][$key]));
 
 				elseif ($column['type'] == 'check')
 					$context['members'][$member]['options'][$key] = $context['members'][$member]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+
+				// Enclosing the user input within some other text?
+				if (!empty($column['enclose']))
+					$context['members'][$member]['options'][$key] = strtr($column['enclose'], array(
+						'{SCRIPTURL}' => $scripturl,
+						'{IMAGES_URL}' => $settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{INPUT}' => $context['members'][$member]['options'][$key],
+					));
 			}
 		}
 	}
@@ -624,7 +634,7 @@ function getCustFieldsMList()
 	$cpf = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_desc, field_type, bbc
+		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
 		FROM {db_prefix}custom_fields
 		WHERE active = {int:active}
 			AND show_mlist = {int:show}
@@ -643,6 +653,7 @@ function getCustFieldsMList()
 			'label' => $row['field_name'],
 			'type' => $row['field_type'],
 			'bbc' => !empty($row['bbc']),
+			'enclose' => $row['enclose'],
 		);
 
 		// Get the right sort method depending on the cust field type.
