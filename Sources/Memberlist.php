@@ -298,6 +298,7 @@ function MLAll()
 		'regular_id_group' => 0,
 		'is_activated' => 1,
 		'sort' => $context['columns'][$_REQUEST['sort']]['sort'][$context['sort_direction']],
+		'blank_string' => '',
 	);
 
 	// Using cache allows to narrow down the list to be retrieved.
@@ -332,7 +333,7 @@ function MLAll()
 		FROM {db_prefix}members AS mem' . ($_REQUEST['sort'] === 'is_online' ? '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' : '') . '
-			' . (!empty($context['custom_profile_fields']['join']) ? $context['custom_profile_fields']['join'] : '') . '
+			' . (!empty($context['custom_profile_fields']['join']) ? implode(' ', $context['custom_profile_fields']['join']) : '') . '
 		WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
 			AND ' . $where) . '
 		ORDER BY {raw:sort}
@@ -557,7 +558,7 @@ function MLSearch()
  */
 function printMemberListRows($request)
 {
-	global $context, $memberContext, $smcFunc;
+	global $context, $memberContext, $smcFunc, $txt;
 
 	// Get the most posts.
 	$result = $smcFunc['db_query']('', '
@@ -594,14 +595,13 @@ function printMemberListRows($request)
 		{
 			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
 			{
-				// Give him a blank and pass to next.
+				// Don't show anything if tere isn't anything to show.
 				if (!isset($context['members'][$member]['options'][$key]))
 				{
 					$context['members'][$member]['options'][$key] = '';
 					continue;
 				}
 
-				// Some cosmetics...
 				if ($column['bbc'])
 					$context['members'][$member]['options'][$key] = strip_tags(parse_bbc($context['members'][$member]['options'][$key]));
 
@@ -612,6 +612,11 @@ function printMemberListRows($request)
 	}
 }
 
+/**
+ * Sets the label, sort and join info for every custom field column.
+ *
+ * @return array
+ */
 function getCustFieldsMList()
 {
 	global $smcFunc;
@@ -633,8 +638,7 @@ function getCustFieldsMList()
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-
-		// Collect the column info and some extra.
+		// Get all the data we're gonna need.
 		$cpf['columns'][$row['col_name']] = array(
 			'label' => $row['field_name'],
 			'type' => $row['field_type'],
@@ -644,8 +648,8 @@ function getCustFieldsMList()
 		// Get the right sort method depending on the cust field type.
 		if ($row['field_type'] != 'check')
 			$cpf['columns'][$row['col_name']]['sort'] = array(
-				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, IFNULL(t' . $row['col_name'] . '.value, 1=1) DESC, t' . $row['col_name'] . '.value DESC',
-				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, IFNULL(t' . $row['col_name'] . '.value, 1=1) ASC, t' . $row['col_name'] . '.value ASC'
+				'down' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 ASC, IFNULL(t' . $row['col_name'] . '.value, "") DESC',
+				'up' => 'LENGTH(t' . $row['col_name'] . '.value) > 0 DESC, IFNULL(t' . $row['col_name'] . '.value, "") ASC'
 			);
 
 		else
@@ -654,11 +658,10 @@ function getCustFieldsMList()
 				'up' => 't' . $row['col_name'] . '.value ASC'
 			);
 
-		$cpf['join'] = 'LEFT JOIN {db_prefix}themes AS t' .  $row['col_name'] . ' ON (t' .  $row['col_name'] . '.variable = {literal:' .  $row['col_name'] . '} AND t' .  $row['col_name'] . '.id_theme = 1 AND t' .  $row['col_name'] . '.id_member = mem.id_member)';
+		$cpf['join'][$row['col_name']] = 'LEFT JOIN {db_prefix}themes AS t' .  $row['col_name'] . ' ON (t' .  $row['col_name'] . '.variable = {literal:' .  $row['col_name'] . '} AND t' .  $row['col_name'] . '.id_theme = 1 AND t' .  $row['col_name'] . '.id_member = mem.id_member)';
 	}
 	$smcFunc['db_free_result']($request);
 
 	return $cpf;
 }
-
 ?>
