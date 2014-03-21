@@ -70,7 +70,8 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = m.id_member)' : '') . '
 		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
 			AND b.child_level >= {int:child_level}') : '
-			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)),
+			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)) . '
+			ORDER BY ' . ($boardIndexOptions['include_categories'] ? 'c.cat_order, ' : '') . 'b.board_order',
 		array(
 			'current_member' => $user_info['id'],
 			'child_level' => $boardIndexOptions['base_level'],
