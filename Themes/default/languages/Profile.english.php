@@ -331,9 +331,9 @@ $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
 $txt['use_editor_quick_reply'] = 'Use full editor in Quick Reply';
 $txt['display_quick_mod'] = 'Show quick-moderation as ';
-$txt['display_quick_mod_none'] = 'don\'t show.';
-$txt['display_quick_mod_check'] = 'checkboxes.';
-$txt['display_quick_mod_image'] = 'icons.';
+$txt['display_quick_mod_none'] = 'don\'t show';
+$txt['display_quick_mod_check'] = 'checkboxes';
+$txt['display_quick_mod_image'] = 'icons';
 
 $txt['whois_title'] = 'Look up IP on a regional whois-server';
 $txt['whois_afrinic'] = 'AfriNIC (Africa)';
