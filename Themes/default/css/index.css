@@ -4061,9 +4061,12 @@ div.icon, div.info, div.stats, div.lastpost {
 	margin-bottom: 3px;
 	margin-top: -1px;
 }
-.windowbg2c {
+.children {
 	width: 100%;
 	float: left;
 	border-top: 1px solid #DDD;
 	padding: 5px;
+}
+.children p {
+	font-size: 0.9em;
 }
