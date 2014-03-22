@@ -197,7 +197,7 @@ function ModifyProfile($post_errors = array())
 			),
 		),
 		'edit_profile' => array(
-			'title' => $txt['profileEdit'],
+			'title' => $txt['forumprofile'],
 			'areas' => array(
 				'account' => array(
 					'label' => $txt['account'],
@@ -763,7 +763,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
-			'title' => $txt['profileEdit'],
+			'title' => $txt['forumprofile'],
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -772,7 +772,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'theme',
-			'title' => $txt['popup_preferences'],
+			'title' => $txt['theme'],
 		),
 		array(
 			'menu' => 'edit_profile',
