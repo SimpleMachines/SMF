@@ -81,9 +81,10 @@ function ModifyProfile($post_errors = array())
 				string $label:		Text string that will be used to show the area in the menu.
 				string $file:		Optional text string that may contain a file name that's needed for inclusion in order to display the area properly.
 				string $custom_url:	Optional href for area.
-				string $function:	Function to execute for this section.
+				string $function:	Function to execute for this section. Can be a call to an static method: class::method
+				string $class		If your function is a method, set the class field with your class's name and SMF will create a new instance for it.
 				bool $enabled:		Should area be shown?
-				string $sc:		Session check validation to do on save - note without this save will get unset - if set.
+				string $sc:			Session check validation to do on save - note without this save will get unset - if set.
 				bool $hidden:		Does this not actually appear on the menu?
 				bool $password:		Whether to require the user's password in order to save the data in the area.
 				array $subsections:	Array of subsections, in order of appearance.
@@ -527,8 +528,9 @@ function ModifyProfile($post_errors = array())
 	if (isset($profile_include_data['file']))
 		require_once($sourcedir . '/' . $profile_include_data['file']);
 
-	// Make sure that the area function does exist!
-	if (!isset($profile_include_data['function']) || !function_exists($profile_include_data['function']))
+	// Make sure that the area function/method does exist!
+	$exists = (isset($profile_include_data['class']) ? 'class' : 'function') .'_exists';
+	if (!isset($profile_include_data['function']) || !$exists(isset($profile_include_data['class']) ? $profile_include_data['class'] : $profile_include_data['function']))
 	{
 		destroyMenu();
 		fatal_lang_error('no_access', false);
@@ -721,8 +723,22 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-	// Call the appropriate subaction function.
-	$profile_include_data['function']($memID);
+	// Is this a "real" method?
+	if (isset($profile_include_data['class']))
+	{
+		// Is there an instance already? nope? then create it!
+		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
+			$context['instances'][$profile_include_data['class']] = new $profile_include_data['class'];
+
+		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
+	}
+
+	else
+		$call = $profile_include_data['function'];
+
+	// Is it valid?
+	if (is_callable($call))
+		call_user_func_array($call, array($memID));
 
 	// Set the page title if it's not already set...
 	if (!isset($context['page_title']))
