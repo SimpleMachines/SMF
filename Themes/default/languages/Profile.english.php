@@ -45,6 +45,7 @@ $txt['include_website_url'] = 'This must be included if you specify a URL below.
 $txt['complete_url'] = 'This must be a complete URL.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
 $txt['no_signature_set'] = 'No signature set.';
+$txt['no_signature_preview'] = 'No signature to preview.';
 $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
