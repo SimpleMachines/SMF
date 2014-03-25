@@ -12,10 +12,10 @@
 	}
 	#menu_nav li a {
 		float: left !important;
-		min-width: 85%;
+		min-width: 50%;
 	}
 	.dropmenu li {
-		width: 90% !important;
+		width: 50% !important;
 	}
 	.resp_menu {
 		float: left;
@@ -27,6 +27,9 @@
 	}
 	.desk {
 		margin-bottom: 3px;
+	}
+	.login {
+		width: 100%;
 	}
 
 	/* BoardIndex */
@@ -41,6 +44,13 @@
 	td.info {
 		border: 1px solid #DDD;
 		padding: 5px !important;
+	}
+	td.children {
+		border-left: 1px solid #DDD;
+		border-top: none !important;
+	}
+	.children p {
+		margin-left: 5px;
 	}
 
 	/* Stats */
