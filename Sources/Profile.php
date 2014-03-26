@@ -738,7 +738,7 @@ function ModifyProfile($post_errors = array())
 
 	// Is it valid?
 	if (is_callable($call))
-		call_user_func_array($call, array($memID));
+		call_user_func($call, $memID);
 
 	// Set the page title if it's not already set...
 	if (!isset($context['page_title']))
