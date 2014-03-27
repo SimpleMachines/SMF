@@ -724,7 +724,7 @@ function ModifyProfile($post_errors = array())
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
 	// Is this a "real" method?
-	if (isset($profile_include_data['class']))
+	if (isset($profile_include_data['class']) && !empty($profile_include_data['class']) && is_string($profile_include_data['class']))
 	{
 		// Is there an instance already? nope? then create it!
 		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
@@ -733,6 +733,7 @@ function ModifyProfile($post_errors = array())
 		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
 	}
 
+	// A static one or more likely, a plain good old function.
 	else
 		$call = $profile_include_data['function'];
 

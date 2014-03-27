@@ -484,7 +484,23 @@ function AdminMain()
 	if (isset($admin_include_data['file']))
 		require_once($sourcedir . '/' . $admin_include_data['file']);
 
-	$admin_include_data['function']();
+	// Do we defined a class for this function?
+	if (isset($admin_include_data['class']) && !empty($admin_include_data['class']) && is_string($admin_include_data['class']))
+	{
+		// Is there an instance already? nope? then create it!
+		if (empty($context['instances'][$admin_include_data['class']]) || !($context['instances'][$admin_include_data['class']] instanceof $admin_include_data['class']))
+			$context['instances'][$admin_include_data['class']] = new $admin_include_data['class'];
+
+		$call = array($context['instances'][$admin_include_data['class']], $admin_include_data['function']);
+	}
+
+	// A static one or more likely, a plain good old function.
+	else
+		$call = $admin_include_data['function'];
+
+	// Is it valid?
+	if (is_callable($call))
+		call_user_func($call);
 }
 
 /**
