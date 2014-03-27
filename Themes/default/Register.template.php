@@ -558,6 +558,17 @@ function template_admin_register()
 						</dd>';
 	}
 
+	// If there is any field marked as required, show it here!
+	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
+		foreach ($context['custom_fields'] as $field)
+			if ($field['show_reg'] > 1)
+				echo '
+						<dt>
+							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<span class="smalltext">', $field['desc'], '</span>
+						</dt>
+						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
+
 	echo '
 						<dt>
 							<strong><label for="emailPassword_check">', $txt['admin_register_email_detail'], ':</label></strong>
