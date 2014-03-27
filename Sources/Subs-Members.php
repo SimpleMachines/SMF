@@ -551,7 +551,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	$smcFunc['db_free_result']($request);
 
-	// Perhaps someone else wants to check this user
+	// Perhaps someone else wants to check this user.
 	call_integration_hook('integrate_register_check', array(&$regOptions, &$reg_errors));
 
 	// If we found any errors we need to do something about it right away!

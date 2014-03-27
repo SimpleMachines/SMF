@@ -90,6 +90,26 @@ function AdminRegister()
 {
 	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
 
+	// Are there any custom profile fields required during registration?
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_type, field_length, mask, show_reg
+		FROM {db_prefix}custom_fields
+		WHERE active = {int:is_active}
+			AND show_reg = {int:show_reg}
+		ORDER BY field_order',
+		array(
+			'is_active' => 1,
+			'show_reg' => 1,
+		)
+	);
+
+	$context['custom_fields'] = array();
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$context['custom_fields'][$row['col_name']] = $row;
+
+	$smcFunc['db_free_result']($request);
+
 	if (!empty($_POST['regSubmit']))
 	{
 		checkSession();
