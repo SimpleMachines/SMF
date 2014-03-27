@@ -196,7 +196,7 @@ function Register($reg_errors = array())
 		$context['username'] = $smcFunc['htmlspecialchars'](!empty($_POST['user']) ? $_POST['user'] : $_SESSION['openid']['nickname']);
 		$context['email'] = $smcFunc['htmlspecialchars'](!empty($_POST['email']) ? $_POST['email'] : $_SESSION['openid']['email']);
 	}
-	// See whether we have some prefiled values.
+	// See whether we have some pre-filled values.
 	else
 	{
 		$context += array(
@@ -206,12 +206,10 @@ function Register($reg_errors = array())
 		);
 	}
 
-	// @todo Why isn't this a simple set operation?
 	// Were there any errors?
 	$context['registration_errors'] = array();
 	if (!empty($reg_errors))
-		foreach ($reg_errors as $error)
-			$context['registration_errors'][] = $error;
+		$context['registration_errors'] = $reg_errors;
 
 	createToken('register');
 }
