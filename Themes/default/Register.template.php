@@ -183,11 +183,7 @@ function template_registration_form()
 							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
-						<dd>', preg_replace_callback('~<(input|select|textarea) ~', create_function('$matches', '
-							global $context;
-							return \'<\' . $matches[1] . \' tabindex="\' . $context[\'tabindex\']++ . \'"\';
-						')
-					, $field['input_html']), '</dd>';
+						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
 
 		echo '
 					</dl>';
