@@ -136,7 +136,7 @@ function Memberlist()
 	);
 
 	$context['can_send_pm'] = allowedTo('pm_send');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 
 	// Build the memberlist button array.
 	$context['memberlist_buttons'] = array(
@@ -525,11 +525,19 @@ function MLSearch()
 			'group' => $txt['mlist_search_group'],
 		);
 
+		// Sorry, but you can't search by email unless you can view emails
+		if (!allowedTo('moderate_forum'))
+		{
+			unset($context['search_fields']['email']);
+			$context['search_defaults'] = array('name');
+		}
+		else
+		{
+			$context['search_defaults'] = array('name', 'email');
+		}
+
 		foreach ($context['custom_search_fields'] as $field)
 			$context['search_fields']['cust_' . $field['colname']] = sprintf($txt['mlist_search_by'], $field['name']);
-
-		// What do we search for by default?
-		$context['search_defaults'] = array('name', 'email');
 
 		$context['sub_template'] = 'search';
 		$context['old_search'] = isset($_GET['search']) ? $_GET['search'] : (isset($_POST['search']) ? $smcFunc['htmlspecialchars']($_POST['search']) : '');

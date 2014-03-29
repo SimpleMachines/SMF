@@ -990,7 +990,7 @@ function MessageFolder()
 		$messages_request = false;
 
 	$context['can_send_pm'] = allowedTo('pm_send');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 	if (!WIRELESS)
 		$context['sub_template'] = 'folder';
 	$context['page_title'] = $txt['pm_inbox'];
