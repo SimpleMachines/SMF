@@ -457,8 +457,7 @@ function MLSearch()
 		// Search for an email address?
 		if (in_array('email', $_POST['fields']))
 		{
-			$fields += array(2 => allowedTo('moderate_forum') ? 'email_address' : '(hide_email = 0 AND email_address');
-			$condition = allowedTo('moderate_forum') ? '' : ')';
+			$fields += array(2 => allowedTo('moderate_forum') ? 'email_address' : '');
 		}
 		else
 			$condition = '';

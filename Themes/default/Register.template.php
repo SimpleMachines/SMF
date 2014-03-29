@@ -108,10 +108,6 @@ function template_registration_form()
 						<dd>
 							<input type="text" name="email" id="smf_autov_reserve1" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '" class="input_text">
 						</dd>
-						<dt><strong><label for="allow_email">', $txt['allow_user_email'], ':</label></strong></dt>
-						<dd>
-							<input type="checkbox" name="allow_email" id="allow_email" tabindex="', $context['tabindex']++, '" class="input_check">
-						</dd>
 					</dl>';
 
 	// If OpenID is enabled, give the user a choice between password and OpenID.

@@ -1096,7 +1096,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == $context['forum_name'] ? '' : $txt['guest_title'];
 		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
 		$memberContext[$message['id_member_from']]['email'] = '';
-		$memberContext[$message['id_member_from']]['show_email'] = showEmailAddress(true, 0);
+		$memberContext[$message['id_member_from']]['show_email'] = false;
 		$memberContext[$message['id_member_from']]['is_guest'] = true;
 	}
 	else
@@ -1698,7 +1698,6 @@ function MessageSearch2()
 				$memberContext[$row['id_member_from']]['group'] = $txt['guest_title'];
 				$memberContext[$row['id_member_from']]['link'] = $row['from_name'];
 				$memberContext[$row['id_member_from']]['email'] = '';
-				$memberContext[$row['id_member_from']]['show_email'] = showEmailAddress(true, 0);
 				$memberContext[$row['id_member_from']]['is_guest'] = true;
 			}
 
