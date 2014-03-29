@@ -1389,3 +1389,22 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	}
 ---}
 ---#
+
+/******************************************************************************/
+--- Cleaning up old email settings
+/******************************************************************************/
+---# Removing the "send_email_to_members" permission
+---{
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE permission = {literal:send_email_to_members}',
+		array()
+	);
+---}
+---#
+
+---# Dropping the "hide_email" column from the members table
+---{
+	$smcFunc['db_alter_table']('{db_prefix}members', array('remove' => array('hide_email')));
+}
+---#
