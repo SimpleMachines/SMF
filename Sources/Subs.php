@@ -4018,8 +4018,8 @@ function smf_seed_generator()
  * calls all functions of the given hook.
  * supports static class method calls.
  *
- * @param string $hook
- * @param array $parameters = array()
+ * @param string $hook The hook name
+ * @param array $parameters An array of parameters this hook implements
  * @return array the results of the functions
  */
 function call_integration_hook($hook, $parameters = array())
@@ -4043,77 +4043,49 @@ function call_integration_hook($hook, $parameters = array())
 	foreach ($functions as $function)
 	{
 		$function = trim($function);
+		$call = '';
 
-		// Found a call to a method.
-		if (strpos($function, '::') !== false)
+		// Do we found a file to load?
+		if (strpos($function, '|') !== false)
 		{
-			$call = explode('::', $function);
+			list($file, $func) = explode('|', $function);
 
-			// Get the file and the class::method.
-			if (strpos($call[1], ':') !== false)
+			// Match the wildcards to their regular vars.
+			if (empty($settings['theme_dir']))
+				$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+
+			else
+				$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+
+			// Load the file if it can be loaded.
+			if (file_exists($absPath))
+				require_once($absPath);
+
+			// No? try a fallback to $sourcedir
+			else
 			{
-				list($func, $file) = explode(':', $call[1]);
+				$absPath = $sourcedir .'/'. $file;
 
-				// Need to temp delete the #
-				if (strpos($file, '#') !== false)
-					$file = str_replace('#', '', $file);
-
-				// Match the wildcards to their regular vars.
-				if (empty($settings['theme_dir']))
-					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
-				else
-					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-
-				// Load the file if it can be loaded.
 				if (file_exists($absPath))
 					require_once($absPath);
 
-				// No? tell the admin about it.
+				// Sorry, can't do much for you at this point.
 				else
 				{
 					loadLanguage('Errors');
 					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
 				}
-
-				// Check if a new object will be created.
-				if (strpos($call[1], '#') !== false)
-				{
-					// Don't need to create a new instance for every method.
-					if (empty($context['instances'][$call[0]]) || !($context['instances'][$call[0]] instanceof $call[0]))
-					{
-						$context['instances'][$call[0]] = new $call[0];
-
-						// Add another one to the list.
-						if ($db_show_debug === true)
-							$context['debug']['instances'][$call[0]] = $hook;
-					}
-
-					$call = array($context['instances'][$call[0]], $func);
-				}
-
-				// Right then, this is a call to a static method.
-				else
-					$call = array($call[0], $func);
 			}
+
+			$call = call_hook_helper($func);
 		}
+
+		// Figuring out what to do.
 		else
-		{
-			$call = $function;
-			if (strpos($function, ':') !== false)
-			{
-				list($func, $file) = explode(':', $function);
-				if (empty($settings['theme_dir']))
-					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
-				else
-					$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-				if (file_exists($absPath))
-					require_once($absPath);
-				$call = $func;
-			}
-		}
+			$call = call_hook_helper($function);
 
 		// Is it valid?
-		if (is_callable($call))
+		if (!empty($call) && is_callable($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
