@@ -4201,6 +4201,56 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 }
 
 /**
+ * Receives a string and tries to figure it out if its a method or a function.
+ * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
+ * Prepare and returns callable depending on the type of method/function found.
+ *
+ * @param string $string The string containing a function name
+ * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
+ */
+function call_hook_helper($string)
+{
+	global $context, $db_show_debug;
+
+	// Really?
+	if (empty($string))
+		return false;
+
+	// Found a method.
+	if (strpos($string, '::') !== false)
+	{
+		list($class, $method) = explode('::', $string);
+
+		// Check if a new object will be created.
+		if (strpos($method, '#') !== false)
+		{
+			// Need to remove the # thing.
+			$method = str_replace('#', '', $method);
+
+			// Don't need to create a new instance for every method.
+			if (empty($context['instances'][$class]) || !($context['instances'][$class] instanceof $class))
+			{
+				$context['instances'][$class] = new $class;
+
+				// Add another one to the list.
+				if ($db_show_debug === true)
+					$context['debug']['instances'][$class] = $class;
+			}
+
+			return array($context['instances'][$class], $method);
+		}
+
+		// Right then. This is a call to a static method.
+		else
+			return array($class, $method);
+	}
+
+	// Nope! just a plain regular function
+	else
+		return $string;
+}
+
+/**
  * Microsoft uses their own character set Code Page 1252 (CP1252), which is a
  * superset of ISO 8859-1, defining several characters between DEC 128 and 159
  * that are not normally displayable.  This converts the popular ones that
