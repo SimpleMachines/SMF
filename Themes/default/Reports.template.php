@@ -144,7 +144,7 @@ function template_main()
 // Header of the print page!
 function template_print_above()
 {
-	global $context, $settings $modSettings;
+	global $context, $settings, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
