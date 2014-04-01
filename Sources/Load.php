@@ -947,7 +947,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 	$select_columns = '
 			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
-			mem.real_name, mem.email_address, mem.hide_email, mem.date_registered, mem.website_title, mem.website_url,
+			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login,
 			mem.karma_good, mem.id_post_group, mem.karma_bad, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
@@ -974,7 +974,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			break;
 		case 'minimal':
 			$select_columns = '
-			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.hide_email, mem.date_registered,
+			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.date_registered,
 			mem.posts, mem.last_login, mem.member_ip, mem.member_ip2, mem.lngfile, mem.id_group';
 			$select_tables = '';
 			break;

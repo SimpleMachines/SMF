@@ -108,8 +108,6 @@ $txt['permissionname_pm_read'] = 'Read personal messages';
 $txt['permissionhelp_pm_read'] = 'This permission allows users to access the Personal Messages section and read their Personal Messages. Without this permission a user is unable to send Personal Messages.';
 $txt['permissionname_pm_send'] = 'Send personal messages';
 $txt['permissionhelp_pm_send'] = 'Send personal messages to other registered members. Requires the \'Read personal messages\' permission.';
-$txt['permissionname_send_email_to_members'] = 'Send emails';
-$txt['permissionhelp_send_email_to_members'] = 'Send emails to other registered members.';
 
 $txt['permissiongroup_calendar'] = 'Calendar';
 $txt['permissionname_calendar_view'] = 'View the calendar';
