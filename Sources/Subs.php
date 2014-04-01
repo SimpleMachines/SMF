@@ -4203,7 +4203,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 /**
  * Receives a string and tries to figure it out if its a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
- * Prepare and returns callable depending on the type of method/function found.
+ * Prepare and returns a callable depending on the type of method/function found.
  *
  * @param string $string The string containing a function name
  * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
@@ -4245,7 +4245,7 @@ function call_hook_helper($string)
 			return array($class, $method);
 	}
 
-	// Nope! just a plain regular function
+	// Nope! just a plain regular function.
 	else
 		return $string;
 }
