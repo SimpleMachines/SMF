@@ -495,7 +495,12 @@ function AdminMain()
 
 			// Add another one to the list.
 			if ($db_show_debug === true)
+			{
+				if (!isset($context['debug']['instances']))
+					$context['debug']['instances'] = array();
+
 				$context['debug']['instances'][$admin_include_data['class']] = $admin_include_data['class'];
+			}
 		}
 
 		$call = array($context['instances'][$admin_include_data['class']], $admin_include_data['function']);

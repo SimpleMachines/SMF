@@ -27,6 +27,7 @@ function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
 	global $modSettings, $memberContext, $profile_vars, $post_errors, $user_settings;
+	global $db_show_debug;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -728,7 +729,18 @@ function ModifyProfile($post_errors = array())
 	{
 		// Is there an instance already? nope? then create it!
 		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
+		{
 			$context['instances'][$profile_include_data['class']] = new $profile_include_data['class'];
+
+			// Add another one to the list.
+			if ($db_show_debug === true)
+			{
+				if (!isset($context['debug']['instances']))
+					$context['debug']['instances'] = array();
+
+				$context['debug']['instances'][$profile_include_data['class']] = $profile_include_data['class'];
+			}
+		}
 
 		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
 	}

@@ -3992,7 +3992,7 @@ function setupMenuContext()
 	{
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
-	
+
 }
 
 /**
@@ -4234,7 +4234,12 @@ function call_hook_helper($string)
 
 				// Add another one to the list.
 				if ($db_show_debug === true)
+				{
+					if (!isset($context['debug']['instances']))
+						$context['debug']['instances'] = array();
+
 					$context['debug']['instances'][$class] = $class;
+				}
 			}
 
 			return array($context['instances'][$class], $method);
