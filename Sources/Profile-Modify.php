@@ -196,17 +196,6 @@ function loadProfileFields($force_reload = false)
 				return $isValid;
 			'),
 		),
-		'hide_email' => array(
-			'type' => 'check',
-			'value' => empty($cur_profile['hide_email']) ? true : false,
-			'label' => $txt['allow_user_email'],
-			'permission' => 'profile_identity',
-			'input_validate' => create_function('&$value', '
-				$value = $value == 0 ? 1 : 0;
-
-				return true;
-			'),
-		),
 		// Selecting group membership is a complicated one so we treat it separate!
 		'id_group' => array(
 			'type' => 'callback',
@@ -1280,7 +1269,7 @@ function editBuddyIgnoreLists($memID)
 
 	// Can we email the user direct?
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 
 	$subActions = array(
 		'buddies' => array('editBuddies', $txt['editBuddies']),
@@ -1596,7 +1585,7 @@ function account($memID)
 		array(
 			'member_name', 'real_name', 'date_registered', 'posts', 'lngfile', 'hr',
 			'id_group', 'hr',
-			'email_address', 'hide_email', 'show_online', 'hr',
+			'email_address', 'show_online', 'hr',
 			'passwrd1', 'passwrd2', 'hr',
 			'secret_question', 'secret_answer',
 		)

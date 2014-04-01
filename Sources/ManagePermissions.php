@@ -1126,7 +1126,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'karma_edit',
 		'pm_read',
 		'pm_send',
-		'send_email_to_members',
 		'profile_view',
 		'profile_extra_own',
 		'profile_signature_own',
@@ -1452,7 +1451,6 @@ function loadAllPermissions()
 			'pm_send' => array(false, 'pm'),
 			'pm_draft' => array(false, 'pm'),
 			'pm_autosave_draft' => array(false, 'pm'),
-			'send_email_to_members' => array(false, 'pm'),
 			'calendar_view' => array(false, 'calendar'),
 			'calendar_post' => array(false, 'calendar'),
 			'calendar_edit' => array(true, 'calendar'),
@@ -2237,7 +2235,6 @@ function loadIllegalGuestPermissions()
 		'remove',
 		'report_any',
 		'report_user',
-		'send_email_to_members',
 		'send_mail',
 		'split_any',
 	);

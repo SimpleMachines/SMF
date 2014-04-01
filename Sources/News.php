@@ -575,7 +575,7 @@ function getXmlNews($xml_format)
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 				m.icon, t.id_topic, t.id_board, t.num_replies,
 				b.name AS bname,
-				mem.hide_email, IFNULL(mem.id_member, 0) AS id_member,
+				IFNULL(mem.id_member, 0) AS id_member,
 				IFNULL(mem.email_address, m.poster_email) AS poster_email,
 				IFNULL(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
@@ -627,7 +627,7 @@ function getXmlNews($xml_format)
 				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'description' => cdata_parse($row['body']),
-				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['posterEmail'] . ' ('.$row['posterName'].')' : null,
+				'author' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' ('.$row['poster_name'].')' : null,
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'category' => '<![CDATA[' . $row['bname'] . ']]>',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
@@ -647,7 +647,7 @@ function getXmlNews($xml_format)
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
-					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
+					'email' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
 					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
@@ -743,7 +743,7 @@ function getXmlRecent($xml_format)
 			m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 			b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 			IFNULL(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
-			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name, mem.hide_email,
+			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name,
 			IFNULL(mem.email_address, m.poster_email) AS poster_email, m.modified_time
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -779,7 +779,7 @@ function getXmlRecent($xml_format)
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'description' => cdata_parse($row['body']),
-				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
+				'author' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
 				'category' => cdata_parse($row['bname']),
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
@@ -799,7 +799,7 @@ function getXmlRecent($xml_format)
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
-					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
+					'email' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
 					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : ''
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
@@ -888,7 +888,7 @@ function getXmlProfile($xml_format)
 			'summary' => cdata_parse(isset($profile['group']) ? $profile['group'] : $profile['post_group']),
 			'author' => array(
 				'name' => $profile['real_name'],
-				'email' => in_array(showEmailAddress(!empty($profile['hide_email']), $profile['id']), array('yes', 'yes_permission_override')) ? $profile['email'] : null,
+				'email' => $profile['show_email'] ? $profile['email'] : null,
 				'uri' => !empty($profile['website']) ? $profile['website']['url'] : ''
 			),
 			'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['date_registered']),
@@ -942,7 +942,7 @@ function getXmlProfile($xml_format)
 				'bad' => $profile['karma']['bad']
 			);
 
-		if (in_array($profile['show_email'], array('yes', 'yes_permission_override')))
+		if ($profile['show_email'])
 			$data['email'] = $profile['email'];
 
 		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')

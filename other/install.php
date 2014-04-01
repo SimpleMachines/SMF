@@ -1459,7 +1459,7 @@ function AdminAccount()
 				$db_prefix . 'members',
 				array(
 					'member_name' => 'string-25', 'real_name' => 'string-25', 'passwd' => 'string', 'email_address' => 'string',
-					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int', 'hide_email' => 'int',
+					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int',
 					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'website_title' => 'string', 'website_url' => 'string',
