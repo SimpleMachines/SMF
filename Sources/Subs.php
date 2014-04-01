@@ -4088,10 +4088,10 @@ function call_integration_hook($hook, $parameters = array())
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
-		elseif (!empty($func) && !empty($absPath))
+		elseif (!empty($function) && !empty($absPath))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
+			log_error(sprintf($txt['hook_fail_call_to'], $function, $absPath), 'general');
 		}
 	}
 
