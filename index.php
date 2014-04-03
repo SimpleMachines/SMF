@@ -172,7 +172,8 @@ obExit(null, null, true);
  */
 function smf_main()
 {
-	global $modSettings, $settings, $user_info, $board, $topic, $board_info, $maintenance, $sourcedir;
+	global $modSettings, $settings, $user_info, $board, $topic;
+	global $board_info, $maintenance, $sourcedir, $db_show_debug, $context;
 
 	// Special case: session keep-alive, output a transparent pixel.
 	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -384,7 +385,46 @@ function smf_main()
 
 	// Otherwise, it was set - so let's go to that action.
 	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
-	return $actionArray[$_REQUEST['action']][1];
+
+	// Found a method?
+	if (strpos($actionArray[$_REQUEST['action']][1], '::') !== false)
+	{
+		// Handle it better.
+		$string = $actionArray[$_REQUEST['action']][1];
+
+		list($class, $method) = explode('::', $string);
+
+		// Check if a new object will be created.
+		if (strpos($method, '#') !== false)
+		{
+			// Need to remove the # thing.
+			$method = str_replace('#', '', $method);
+
+			// Don't need to create a new instance for every method.
+			if (empty($context['instances'][$class]) || !($context['instances'][$class] instanceof $class))
+			{
+				$context['instances'][$class] = new $class;
+
+				// Add another one to the list.
+				if ($db_show_debug === true)
+				{
+					if (!isset($context['debug']['instances']))
+						$context['debug']['instances'] = array();
+
+					$context['debug']['instances'][$class] = $class;
+				}
+			}
+
+			return array($context['instances'][$class], $method);
+		}
+
+		// Right then. This is a call to a static method.
+		else
+			return array($class, $method);
+	}
+
+	else
+		return $actionArray[$_REQUEST['action']][1];
 }
 
 ?>

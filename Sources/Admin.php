@@ -24,7 +24,8 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir;
+	global $txt, $context, $scripturl, $modSettings, $settings;
+	global $sourcedir, $options, $boarddir, $db_show_debug;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
@@ -489,7 +490,18 @@ function AdminMain()
 	{
 		// Is there an instance already? nope? then create it!
 		if (empty($context['instances'][$admin_include_data['class']]) || !($context['instances'][$admin_include_data['class']] instanceof $admin_include_data['class']))
+		{
 			$context['instances'][$admin_include_data['class']] = new $admin_include_data['class'];
+
+			// Add another one to the list.
+			if ($db_show_debug === true)
+			{
+				if (!isset($context['debug']['instances']))
+					$context['debug']['instances'] = array();
+
+				$context['debug']['instances'][$admin_include_data['class']] = $admin_include_data['class'];
+			}
+		}
 
 		$call = array($context['instances'][$admin_include_data['class']], $admin_include_data['function']);
 	}
