@@ -249,7 +249,7 @@ function RecentPosts()
 		
 		$get_num_posts = $smcFunc['db_query']('', '
 			SELECT IFNULL(SUM(num_posts), 0)
-			FROM {db_prefix}boards
+			FROM {db_prefix}boards AS b
 			WHERE ' . $query_these_boards . '
 				AND b.redirect = {string:empty}',
 			array_merge($query_these_boards_params, array('empty' => ''))
@@ -371,7 +371,7 @@ function RecentPosts()
 			),
 			'topic' => $row['id_topic'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . $row['shorten_subject'] . '</a>',
+			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . shorten_subject($row['subject'], 30) . '</a>',
 			'start' => $row['num_replies'],
 			'subject' => $row['subject'],
 			'shorten_subject' => shorten_subject($row['subject'], 30),
