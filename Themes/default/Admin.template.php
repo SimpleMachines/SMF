@@ -791,7 +791,7 @@ function template_show_settings()
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
-				
+
 				// Various HTML5 input types that are basically enhanced textboxes
 				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
 
@@ -1082,7 +1082,12 @@ function template_edit_profile_field()
 											<dd>
 												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check">
 											</dd>
-
+											<dt>
+												<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
+											</dt>
+											<dd>
+												<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
+											</dd>
 											<dt>
 												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
 											</dt>

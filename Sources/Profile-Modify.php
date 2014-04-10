@@ -196,17 +196,6 @@ function loadProfileFields($force_reload = false)
 				return $isValid;
 			'),
 		),
-		'hide_email' => array(
-			'type' => 'check',
-			'value' => empty($cur_profile['hide_email']) ? true : false,
-			'label' => $txt['allow_user_email'],
-			'permission' => 'profile_identity',
-			'input_validate' => create_function('&$value', '
-				$value = $value == 0 ? 1 : 0;
-
-				return true;
-			'),
-		),
 		// Selecting group membership is a complicated one so we treat it separate!
 		'id_group' => array(
 			'type' => 'callback',
@@ -1280,7 +1269,7 @@ function editBuddyIgnoreLists($memID)
 
 	// Can we email the user direct?
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 
 	$subActions = array(
 		'buddies' => array('editBuddies', $txt['editBuddies']),
@@ -1596,7 +1585,7 @@ function account($memID)
 		array(
 			'member_name', 'real_name', 'date_registered', 'posts', 'lngfile', 'hr',
 			'id_group', 'hr',
-			'email_address', 'hide_email', 'show_online', 'hr',
+			'email_address', 'show_online', 'hr',
 			'passwrd1', 'passwrd2', 'hr',
 			'secret_question', 'secret_answer',
 		)
@@ -2717,7 +2706,7 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);

@@ -228,7 +228,7 @@ function MembergroupMembers()
 		'url' => $scripturl . '?action=groups;sa=members;group=' . $context['group']['id'],
 		'name' => $context['group']['name'],
 	);
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 
 	// Load all the group moderators, for fun.
 	$request = $smcFunc['db_query']('', '
@@ -350,7 +350,7 @@ function MembergroupMembers()
 	// Sort out the sorting!
 	$sort_methods = array(
 		'name' => 'real_name',
-		'email' => allowedTo('moderate_forum') ? 'email_address' : 'hide_email ' . (isset($_REQUEST['desc']) ? 'DESC' : 'ASC') . ', email_address',
+		'email' => 'email_address',
 		'active' => 'last_login',
 		'registered' => 'date_registered',
 		'posts' => 'posts',
@@ -398,7 +398,7 @@ function MembergroupMembers()
 	// Load up all members of this group.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, email_address, member_ip, date_registered, last_login,
-			hide_email, posts, is_activated, real_name
+			posts, is_activated, real_name
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		ORDER BY ' . $querySort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
@@ -420,7 +420,6 @@ function MembergroupMembers()
 			'id' => $row['id_member'],
 			'name' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'email' => $row['email_address'],
-			'show_email' => showEmailAddress(!empty($row['hide_email']), $row['id_member']),
 			'ip' => '<a href="' . $scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>',
 			'registered' => timeformat($row['date_registered']),
 			'last_online' => $last_online,

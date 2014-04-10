@@ -99,10 +99,9 @@ $is_done = false;
 while (!$is_done)
 {
 	nextSubStep($substep);
-	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash, mime_type
+		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -115,6 +114,8 @@ while (!$is_done)
 	{
 		// The current folder.
 		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
+
+		$fileHash = '';
 
 		// Old School?
 		if (empty($row['file_hash']))
@@ -136,12 +137,13 @@ while (!$is_done)
 			// Create a nice hash.
 			$fileHash = sha1(md5($row['filename'] . time()) . mt_rand());
 
-			// The old file, we need to know if the filename was encrypted or not.
-			if (file_exists($currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename'])))
-				$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
-
-			else if (file_exists($currentFolder . '/' . $row['filename']));
+			// Iterate through the possible attachment names until we find the one that exists
+			$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
+			if (!file_exists($oldFile))
+			{
 				$oldFile = $currentFolder . '/' . $row['filename'];
+				if (!file_exists($oldFile)) $oldFile = false;
+			}
 
 			// Build the new file.
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $fileHash .'.dat';
@@ -154,17 +156,26 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
+		if (!$oldFile)
+		{
+			// Existing attachment could not be found. Just skip it...
+			continue;
+		}
+
 		// Check if the av is an attachment
 		if ($row['id_member'] != 0)
+		{
 			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
 				upgrade_query("
 					UPDATE {$db_prefix}attachments
 					SET file_hash = '', attachment_type = 1
 					WHERE id_attach = $row[id_attach]");
-
+		}
 		// Just a regular attachment.
 		else
+		{
 			rename($oldFile, $newFile);
+		}
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
@@ -637,57 +648,99 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 /******************************************************************************/
 --- Messenger fields
 /******************************************************************************/
+---# Adding new field_order column...
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN field_order smallint NOT NULL default '0';
+---#
+
+---# Adding new show_mlist column...
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN show_mlist smallint NOT NULL default '0';
+---#
+
 ---# Insert fields
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `mask`, `show_reg`, `show_display`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/fields/aim.gif" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 'regex~[1-9][0-9]{4,9}~i', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/whitepages/about_me.php?uin={INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="http://status.icq.com/online.gif?img=5&icq={INPUT}" alt="ICQ - {INPUT}" width="18" height="18"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="skype new_win" href="skype:{INPUT}?chat" title="Live - {INPUT}"><img src="{IMAGES_URL}/skype.png" alt="Live - {INPUT}"></a>', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="http://opi.yahoo.com/online?m=g&t=0&u={INPUT}" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1),
-('cust_gender', 'Gender', 'Your gender.', 'text', 50, '', 'email', 0, 1, 'forumprofile', 0, 1, 0, 0, '', '', 1);
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="http://www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="http://edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Male', '<span class=" generic_icons gender_{INPUT}" alt="{INPUT}" title="{INPUT}">', 1);
+---#
+
+---# Add an order value to each existing cust profile field.
+---{
+	$ocf = $smcFunc['db_query']('', '
+		SELECT id_field
+		FROM {db_prefix}custom_fields');
+
+		// We start counting from 6 because we already have the first 6 fields.
+		$fields_count = 6;
+
+		while ($row = $smcFunc['db_fetch_assoc']($ocf))
+		{
+			$fields_count++;
+
+			if (!empty($row['id_field']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}custom_fields
+					SET field_order = {int:field_count}, show_mlist = {int:show_mlist}
+					WHERE id_field = {int:id_field}
+						AND field_order = {int:show_mlist}',
+					array(
+						'field_count' => $fields_count,
+						'show_list' => 0,
+						'id_field' => $row['id_field'],
+						'six' => 6,
+					)
+				);
+		}
+		$smcFunc['db_free_result']($ocf);
+---}
 ---#
 
 ---# Converting member values...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.2')
+if (@$modSettings['smfVersion'] < '2.1')
 {
-	$request = upgrade_query("
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member, aim, icq, msn, yim, location, gender
-		FROM {$db_prefix}members");
+		FROM {db_prefix}members');
+
 	$inserts = array();
-	while ($row = mysql_fetch_assoc($request))
+	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		if (!empty($row[aim]))
-			$inserts[] = "($row[id_member], -1, 'cust_aolins', $row[aim])";
+		if (!empty($row['aim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
 
-		if (!empty($row[icq]))
-			$inserts[] = "($row[id_member], -1, 'cust_icq', $row[icq])";
+		if (!empty($row['icq']))
+			$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
 
-		if (!empty($row[msn]))
-			$inserts[] = "($row[id_member], -1, 'cust_skype', $row[msn])";
+		if (!empty($row['msn']))
+			$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
 
-		if (!empty($row[yim]))
-			$inserts[] = "($row[id_member], -1, 'cust_yahoo', $row[yim])";
+		if (!empty($row['yim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
 
-		if (!empty($row[location]))
-			$inserts[] = "($row[id_member], -1, 'cust_loca', $row[location])";
+		if (!empty($row['location']))
+			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
 
-		if (!empty($row[gender]))
-			$inserts[] = "($row[id_member], -1, 'cust_gender', $row[gender])";
+		if (!empty($row['gender']))
+			$inserts[] = array($row['id_member'], -1, 'cust_gender', $row['gender']);
 	}
-	mysql_free_result($request);
+	$smcFunc['db_free_result']($request);
 
 	if (!empty($inserts))
-		upgrade_query("
-			INSERT INTO {$db_prefix}themes
-				(id_member, id_theme, variable, value)
-			VALUES
-				" . implode(',', $inserts));
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$inserts,
+			array('id_theme', 'id_member', 'variable')
+		);
 }
 ---}
 ---#
-
 ---# Dropping old fields
 ALTER TABLE `{$db_prefix}members`
   DROP `icq`,
@@ -1125,7 +1178,7 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 ---# Moving label info to new tables and updating rules...
 ---{
 	// First see if we still have a message_labels column
-	$results = $smcFunc['db_list_columns']('{db_prefix}members', false);
+	$results = $smcFunc['db_list_columns']('{db_prefix}members');
 	if (in_array('message_labels', $results))
 	{
 		// They've still got it, so pull the label info
@@ -1150,11 +1203,18 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 
 		$smcFunc['db_free_result']($get_labels);
+
+		foreach ($label_info AS $id_member => $labels)
+		{
+			foreach ($labels as $label => $index)
+			{
+				$inserts[] = array($id_member, $label);
+			}
+		}
 
 		if (!empty($inserts))
 		{
@@ -1168,10 +1228,10 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
 			SET in_inbox = {int:in_inbox}
-			WHERE FIND_IN_SET({int:minus_one}, labels) != 0',
+			WHERE FIND_IN_SET({int:minusone}, labels)',
 			array(
 				'in_inbox' => 1,
-				'minus_one' => -1,
+				'minusone' => -1,
 			)
 		);
 
@@ -1187,8 +1247,8 @@ ADD COLUMN in_inbox smallint NOT NULL default '1';
 		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
-			$old_index = $label_info[$row['id_member']][$row['label_name']];
-			$label_info_2[$row['id_member']][$old_index] = $row['id_label'];
+			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 		}
 
 		$smcFunc['db_free_result']($get_new_label_ids);
@@ -1348,4 +1408,23 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 		);
 	}
 ---}
+---#
+
+/******************************************************************************/
+--- Cleaning up old email settings
+/******************************************************************************/
+---# Removing the "send_email_to_members" permission
+---{
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE permission = {literal:send_email_to_members}',
+		array()
+	);
+---}
+---#
+
+---# Dropping the "hide_email" column from the members table
+---{
+	$smcFunc['db_alter_table']('{db_prefix}members', array('remove' => array('hide_email')));
+}
 ---#

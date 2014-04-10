@@ -196,7 +196,7 @@ function Register($reg_errors = array())
 		$context['username'] = $smcFunc['htmlspecialchars'](!empty($_POST['user']) ? $_POST['user'] : $_SESSION['openid']['nickname']);
 		$context['email'] = $smcFunc['htmlspecialchars'](!empty($_POST['email']) ? $_POST['email'] : $_SESSION['openid']['email']);
 	}
-	// See whether we have some prefiled values.
+	// See whether we have some pre-filled values.
 	else
 	{
 		$context += array(
@@ -206,12 +206,10 @@ function Register($reg_errors = array())
 		);
 	}
 
-	// @todo Why isn't this a simple set operation?
 	// Were there any errors?
 	$context['registration_errors'] = array();
 	if (!empty($reg_errors))
-		foreach ($reg_errors as $error)
-			$context['registration_errors'][] = $error;
+		$context['registration_errors'] = $reg_errors;
 
 	createToken('register');
 }
@@ -321,7 +319,7 @@ function Register2($verifiedOpenID = false)
 	);
 	$possible_bools = array(
 		'notify_announcements', 'notify_regularity', 'notify_send_body',
-		'hide_email', 'show_online',
+		'show_online',
 	);
 
 	// We may want to add certain things to these if selected in the admin panel.
@@ -354,9 +352,6 @@ function Register2($verifiedOpenID = false)
 	// Or birthdate parts...
 	elseif (!empty($_POST['bday1']) && !empty($_POST['bday2']))
 		$_POST['birthdate'] = sprintf('%04d-%02d-%02d', empty($_POST['bday3']) ? 0 : (int) $_POST['bday3'], (int) $_POST['bday1'], (int) $_POST['bday2']);
-
-	// By default assume email is hidden, only show it if we tell it to.
-	$_POST['hide_email'] = !empty($_POST['allow_email']) ? 0 : 1;
 
 	// Validate the passed language file.
 	if (isset($_POST['lngfile']) && !empty($modSettings['userLanguage']))
@@ -418,7 +413,8 @@ function Register2($verifiedOpenID = false)
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_type, field_length, mask, show_reg
 		FROM {db_prefix}custom_fields
-		WHERE active = {int:is_active}',
+		WHERE active = {int:is_active}
+		ORDER BY field_order',
 		array(
 			'is_active' => 1,
 		)

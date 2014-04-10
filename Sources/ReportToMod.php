@@ -225,7 +225,7 @@ function ReportToModerator2()
 
 function reportPost($msg, $reason)
 {
-	global $context, $smcFunc, $user_info;
+	global $context, $smcFunc, $user_info, $topic;
 
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['msg'] = (int) $msg;

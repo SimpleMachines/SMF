@@ -108,10 +108,6 @@ function template_registration_form()
 						<dd>
 							<input type="text" name="email" id="smf_autov_reserve1" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '" class="input_text">
 						</dd>
-						<dt><strong><label for="allow_email">', $txt['allow_user_email'], ':</label></strong></dt>
-						<dd>
-							<input type="checkbox" name="allow_email" id="allow_email" tabindex="', $context['tabindex']++, '" class="input_check">
-						</dd>
 					</dl>';
 
 	// If OpenID is enabled, give the user a choice between password and OpenID.
@@ -183,11 +179,7 @@ function template_registration_form()
 							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
-						<dd>', preg_replace_callback('~<(input|select|textarea) ~', create_function('$matches', '
-							global $context;
-							return \'<\' . $matches[1] . \' tabindex="\' . $context[\'tabindex\']++ . \'"\';
-						')
-					, $field['input_html']), '</dd>';
+						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
 
 		echo '
 					</dl>';
@@ -561,6 +553,17 @@ function template_admin_register()
 							</select>
 						</dd>';
 	}
+
+	// If there is any field marked as required, show it here!
+	if (!empty($context['custom_fields_required']) && !empty($context['custom_fields']))
+		foreach ($context['custom_fields'] as $field)
+			if ($field['show_reg'] > 1)
+				echo '
+						<dt>
+							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<span class="smalltext">', $field['desc'], '</span>
+						</dt>
+						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
 
 	echo '
 						<dt>

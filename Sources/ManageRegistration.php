@@ -90,6 +90,10 @@ function AdminRegister()
 {
 	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
 
+	// Are there any custom profile fields required during registration?
+	require_once($sourcedir . '/Profile.php');
+	loadCustomFields(0, 'register');
+
 	if (!empty($_POST['regSubmit']))
 	{
 		checkSession();
@@ -117,6 +121,13 @@ function AdminRegister()
 		$memberID = registerMember($regOptions);
 		if (!empty($memberID))
 		{
+			// We'll do custom fields after as then we get to use the helper function!
+			if (!empty($_POST['customfield']))
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				makeCustomFieldChanges($memberID, 'register');
+			}
+
 			$context['new_member'] = array(
 				'id' => $memberID,
 				'name' => $_POST['user'],

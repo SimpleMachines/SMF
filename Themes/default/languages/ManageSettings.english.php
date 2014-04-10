@@ -212,6 +212,7 @@ $txt['custom_profile_desc'] = 'From this page you can create your own custom pro
 $txt['custom_profile_active'] = 'Active';
 $txt['custom_profile_fieldname'] = 'Field Name';
 $txt['custom_profile_fieldtype'] = 'Field Type';
+$txt['custom_profile_fieldorder'] = 'Field Order';
 $txt['custom_profile_make_new'] = 'New Field';
 $txt['custom_profile_none'] = 'You have not created any custom profile fields yet!';
 $txt['custom_profile_icon'] = 'Icon';
@@ -237,6 +238,7 @@ $txt['custom_edit_registration_disable'] = 'No';
 $txt['custom_edit_registration_allow'] = 'Yes';
 $txt['custom_edit_registration_require'] = 'Yes, and require entry';
 $txt['custom_edit_display'] = 'Show on Topic View';
+$txt['custom_edit_mlist'] = 'Show on memberlist';
 $txt['custom_edit_picktype'] = 'Field Type';
 
 $txt['custom_edit_max_length'] = 'Maximum Length';
@@ -268,6 +270,9 @@ $txt['custom_edit_mask_regex'] = 'Regex (Advanced)';
 $txt['custom_edit_enclose'] = 'Show Enclosed Within Text (Optional)';
 $txt['custom_edit_enclose_desc'] = 'We <strong>strongly</strong> recommend to use an input mask to validate the input supplied by the user.';
 
+$txt['custom_edit_order_move'] = 'Move ';
+$txt['custom_edit_order_up'] = 'Up';
+$txt['custom_edit_order_down'] = 'Down';
 $txt['custom_edit_placement'] = 'Choose Placement';
 $txt['custom_edit_placement_standard'] = 'Standard (with title)';
 $txt['custom_edit_placement_withicons'] = 'With Icons';

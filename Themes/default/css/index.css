@@ -2885,7 +2885,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
+tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2972,10 +2972,10 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 .generic_icons.user_off {
 	background-position: 0 -16px;
 }
-.generic_icons.gender_female {
+.generic_icons.gender_Female {
 	background-position: -16px 0;
 }
-.generic_icons.gender_male {
+.generic_icons.gender_Male {
 	background-position: -16px -16px;
 }
 .generic_icons.last_post {
