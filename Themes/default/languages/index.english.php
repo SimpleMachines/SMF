@@ -162,6 +162,7 @@ $txt['remove_message'] = 'Remove this post';
 
 $txt['topic_alert_none'] = 'No messages...';
 $txt['pm_alert_none'] = 'No messages...';
+$txt['no_messages'] = 'No messages';
 
 $txt['online_users'] = 'Users Online';
 $txt['jump_to'] = 'Jump to';
