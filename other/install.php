@@ -1468,7 +1468,7 @@ function AdminAccount()
 				),
 				array(
 					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
-					1, 0, time(), 0,
+					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
 					'', '',
