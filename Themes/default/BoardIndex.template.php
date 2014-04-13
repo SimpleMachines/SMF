@@ -104,7 +104,7 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
+								<span id="category_', $category['id'], '_upshrink" class="toggle_up floatright" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>';
 
 		echo '
 								', $category['link'], '
@@ -113,14 +113,9 @@ function template_main()
 						</div>
 					</td>
 				</tr>
-			</tbody>';
-
-		// Assuming the category hasn't been collapsed...
-		if (!$category['is_collapsed'])
-		{
-
-		echo '
+			</tbody>
 			<tbody class="content" id="category_', $category['id'], '_boards">';
+
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
 			children (see below.), link_children (easier to use.), children_new (are they new?),
@@ -196,10 +191,9 @@ function template_main()
 					</tr>';
 				}
 			}
+
 		echo '
-			</tbody>';
-		}
-		echo '
+			</tbody>
 			<tbody class="divider">
 				<tr>
 					<td colspan="4"></td>
