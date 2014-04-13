@@ -972,7 +972,7 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
 		if (typeof(oContainer) == 'object' && oContainer != null)
 		{
-			if (!!this.opt.bNoAnimate)
+			if (!!this.opt.bNoAnimate || bInit)
 			{
 				$(oContainer).toggle(!bCollapse);
 			}
