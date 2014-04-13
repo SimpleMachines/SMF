@@ -1240,7 +1240,7 @@ img.sort, .sort {
 	font-size: 1em;
 }
 /* Levels 2 and 3 hover effects. */
-.dropmenu li li:hover, .adm_section .dropmenu li li:hover {
+.dropmenu li li:hover {
 	border: none;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
@@ -1265,7 +1265,7 @@ img.sort, .sort {
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
 	left: -14px;
 }
-.dropmenu li li.subsections a:after, .adm_section .dropmenu li.subsections a:after{
+.dropmenu li li.subsections > a:after {
 	position: absolute;
 	top: 0.4em;
 	right: 2px;
