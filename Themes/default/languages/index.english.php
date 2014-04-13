@@ -8,7 +8,7 @@ global $forum_copyright, $webmaster_email, $scripturl, $context, $boardurl;
 //   - http://www.php.net/function.pspell-new
 //   - http://www.php.net/function.setlocale
 // Again, SPELLING SHOULD BE '' 99% OF THE TIME!!  Please read this!
-$txt['lang_locale'] = 'en_US';
+$txt['lang_locale'] = '';
 $txt['lang_dictionary'] = 'en';
 $txt['lang_spelling'] = 'american';
 

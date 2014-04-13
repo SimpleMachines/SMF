@@ -877,3 +877,9 @@ ul.moderation_notes li {
 	float: left !important;
 	padding-left: 0;
 }
+.children p {
+	margin-right: 18px;
+}
+h3 .collapse {
+	float: left;
+}
