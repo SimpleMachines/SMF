@@ -859,7 +859,10 @@ function template_single_post($message, $force_alternate = null)
 											<li><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '" class="modify_button">', $txt['modify'], '</a></li>';
 
 		// How about... even... remove it entirely?!
-		if ($message['can_remove'])
+		if ($message['can_remove'] && ($context['topic_first_message'] == $message['id']))
+			echo '
+											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['are_sure_remove_topic'], '?\');" class="remove_button">', $txt['remove_topic'],'</a></li>';
+		else
 			echo '
 											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['remove_message'], '?\');" class="remove_button">', $txt['remove'], '</a></li>';
 
