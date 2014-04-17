@@ -216,10 +216,6 @@ function ModifyPostSettings($return_config = false)
 			// Automagic image resizing.
 			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
 			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
-		'',
-			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
-			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -367,7 +363,10 @@ function ModifyTopicSettings($return_config = false)
 			array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),
 			array('check', 'disableCustomPerPage'),
 			array('check', 'enablePreviousNext'),
-
+		'',
+			// First & Last message preview lengths
+			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 
 	call_integration_hook('integrate_modify_topic_settings', array(&$config_vars));
