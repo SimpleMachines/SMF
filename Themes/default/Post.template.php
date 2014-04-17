@@ -377,7 +377,7 @@ function template_main()
 					</div>';
 
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
-	if (!empty($settings['additional_options_collapsable']))
+	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
 					<div id="postAdditionalOptionsHeader" class="title_bar title_top">
 						<h4 class="titlebg">
@@ -754,7 +754,7 @@ function template_main()
 			}';
 
 	// Code for showing and hiding additional options.
-	if (!empty($settings['additional_options_collapsable']))
+	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
 			var oSwapAdditionalOptions = new smc_Toggle({
 				bToggleEnabled: true,

@@ -966,7 +966,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable');
 ---#
 
 /******************************************************************************/

@@ -219,6 +219,10 @@ function ModifyPostSettings($return_config = false)
 		'',
 			// First & Last message preview lengths
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+		'',
+			// BBC Enable/Disable & Collapse thing on posts
+			array('check', 'admin_bbc'),
+			array('check', 'additional_options_collapsable'),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));

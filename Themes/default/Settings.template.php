@@ -237,15 +237,6 @@ function template_settings()
 		),
 	'',
 		array(
-			'id' => 'show_bbc',
-			'label' => $txt['admin_bbc'],
-		),
-		array(
-			'id' => 'additional_options_collapsable',
-			'label' => $txt['additional_options_collapsable'],
-		),
-	'',
-		array(
 			'id' => 'message_index_preview',
 			'label' => $txt['message_index_preview'],
 		),
