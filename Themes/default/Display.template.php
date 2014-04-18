@@ -496,7 +496,33 @@ function template_single_post($message, $force_alternate = null)
 
 	// Show information about the poster of this message.
 	echo '
-						<div class="poster">
+						<div class="poster">';
+
+	// Are there any custom fields above the member name?
+	if (!empty($message['member']['custom_fields']))
+	{
+		$shown = false;
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 5 || empty($custom['value']))
+				continue;
+			if (empty($shown))
+			{
+				$shown = true;
+				echo '
+							<div class="custom_fields_above_member">
+								<ul class="reset nolist">';
+			}
+			echo '
+									<li class="', $custom['col_name'] ,'">', $custom['value'], '</li>';
+		}
+		if ($shown)
+			echo '
+								</ul>
+							</div>';
+	}
+
+	echo '
 									<h4>';
 
 	// Show online and offline buttons?

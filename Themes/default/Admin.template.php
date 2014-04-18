@@ -1096,9 +1096,9 @@ function template_edit_profile_field()
 													<option value="0"', $context['field']['placement'] == '0' ? ' selected' : '', '>', $txt['custom_edit_placement_standard'], '</option>
 													<option value="1"', $context['field']['placement'] == '1' ? ' selected' : '', '>', $txt['custom_edit_placement_withicons'], '</option>
 													<option value="2"', $context['field']['placement'] == '2' ? ' selected' : '', '>', $txt['custom_edit_placement_abovesignature'], '</option>
-													<option value="2"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
-													<option value="2"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
-													<option value="2"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_abovesignature'], '</option>
+													<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
+													<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
+													<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_abovesignature'], '</option>
 												</select>
 											</dd>
 											<dt>
