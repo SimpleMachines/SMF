@@ -32,7 +32,7 @@ function ModerationMain($dont_call = false)
 	$context['can_moderate_boards'] = $user_info['mod_cache']['bq'] != '0=1';
 	$context['can_moderate_groups'] = $user_info['mod_cache']['gq'] != '0=1';
 	$context['can_moderate_approvals'] = $modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']);
-	$context['can_moderate_users'] = allowedTo('moderate_forum');	
+	$context['can_moderate_users'] = allowedTo('moderate_forum');
 
 	// Everyone using this area must be allowed here!
 	if (!$context['can_moderate_boards'] && !$context['can_moderate_groups'] && !$context['can_moderate_approvals'] && !$context['can_moderate_users'])
@@ -176,7 +176,7 @@ function ModerationMain($dont_call = false)
 					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
-						'closed' => array($txt['mc_reportedp_closed']),	
+						'closed' => array($txt['mc_reportedp_closed']),
 					),
 				),
 			),
@@ -1364,6 +1364,8 @@ function ViewWarnings()
 		'templateedit' => array('ModifyWarningTemplate', 'issue_warning'),
 		'templates' => array('ViewWarningTemplates', 'issue_warning'),
 	);
+
+	call_integration_hook('integrate_warning_log_actions', array(&$subActions));
 
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && (empty($subActions[$_REQUEST['sa']][1]) || allowedTo($subActions[$_REQUEST['sa']]))? $_REQUEST['sa'] : 'log';
 
