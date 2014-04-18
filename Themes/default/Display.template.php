@@ -626,7 +626,7 @@ function template_single_post($message, $force_alternate = null)
 									<ol>';
 						}
 				echo '
-										<li>', $custom['value'], '</li>';
+										<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
 			}
 
 			if ($shown)
@@ -663,7 +663,7 @@ function template_single_post($message, $force_alternate = null)
 			foreach ($message['member']['custom_fields'] as $custom)
 				if (empty($custom['placement']) || empty($custom['value']))
 					echo '
-								<li class="custom">', $custom['title'], ': ', $custom['value'], '</li>';
+								<li class="custom ', $custom['colname'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
 		}
 
 	}
@@ -963,7 +963,7 @@ function template_single_post($message, $force_alternate = null)
 								<ul class="reset nolist">';
 			}
 			echo '
-									<li>', $custom['value'], '</li>';
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
 		}
 		if ($shown)
 			echo '
