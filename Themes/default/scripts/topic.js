@@ -741,7 +741,8 @@ function ignore_toggles(msgids, text)
 				'msg_' + msgid + '_footer',
 				'msg_' + msgid + '_quick_mod',
 				'modify_button_' + msgid,
-				'msg_' + msgid + '_signature'
+				'msg_' + msgid + '_signature',
+				'msg_' + msgid + '_likes'
 
 			],
 			aSwapLinks: [

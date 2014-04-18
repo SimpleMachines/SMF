@@ -698,7 +698,7 @@ function template_single_post($message, $force_alternate = null)
 		echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '">', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
-	// Are there any custom fields to show at the botton of the poster info?
+	// Are there any custom fields to show at the bottom of the poster info?
 	if (!empty($message['member']['custom_fields']))
 	{
 		foreach ($message['member']['custom_fields'] as $custom)
@@ -861,7 +861,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button"><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))
