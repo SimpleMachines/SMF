@@ -345,6 +345,9 @@ $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
 $txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
 $txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
 
+// Registration form.
+$txt['registration_form'] = 'Registration Form';
+
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
