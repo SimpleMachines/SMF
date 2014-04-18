@@ -1151,9 +1151,12 @@ function makeNotificationChanges($memID)
  * @param string $area
  * @param bool $sanitize = true
  */
-function makeCustomFieldChanges($memID, $area, $sanitize = true)
+function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors = false)
 {
-	global $context, $smcFunc, $user_profile, $user_info, $modSettings, $sourcedir;
+	global $context, $smcFunc, $user_profile, $user_info, $modSettings;
+	global $sourcedir;
+
+	$errors = array();
 
 	if ($sanitize && isset($_POST['customfield']))
 		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
@@ -1204,15 +1207,27 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				// @todo We never error on this - just ignore it at the moment...
+				// Check it against its regex
 				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
-					$value = '';
+				{
+					if ($returnErrors)
+						$errors[] = 'mail_fail';
+
+					else
+						$value = '';
+				}
 				elseif ($row['mask'] == 'number')
 				{
 					$value = (int) $value;
 				}
 				elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0)
-					$value = '';
+				{
+					if ($returnErrors)
+						$errors[] = 'regex_fail';
+
+					else
+						$value = '';
+				}
 			}
 		}
 
@@ -1235,10 +1250,14 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 	}
 	$smcFunc['db_free_result']($request);
 
-	call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, $memID, $area, $sanitize));
+	$hook_errors = array();
+	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
+
+	if (!empty($hook_errors) && is_array($hook_errors))
+		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']))
+	if (!empty($changes) && empty($context['password_auth_failed']) && !empty($errors))
 	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',
@@ -1252,6 +1271,9 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 			logActions($log_changes);
 		}
 	}
+
+	if ($returnErrors)
+		return $errors;
 }
 
 /**
