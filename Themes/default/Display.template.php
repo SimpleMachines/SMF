@@ -698,6 +698,20 @@ function template_single_post($message, $force_alternate = null)
 		echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '">', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
+	// Are there any custom fields to show at the botton of the poster info?
+	if (!empty($message['member']['custom_fields']))
+	{
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 6 || empty($custom['value']))
+				continue;
+
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+	}
+
+	// Poster info ends.
 	echo '
 							</ul>';
 	echo '

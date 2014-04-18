@@ -1099,6 +1099,7 @@ function template_edit_profile_field()
 													<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
 													<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
 													<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_above_name'], '</option>
+													<option value="6"', $context['field']['placement'] == '6' ? ' selected' : '', '>', $txt['custom_profile_placement_bottom'], '</option>
 												</select>
 											</dd>
 											<dt>
