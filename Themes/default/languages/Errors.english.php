@@ -347,7 +347,7 @@ $txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
-
+$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
