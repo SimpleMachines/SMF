@@ -1216,7 +1216,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
 				{
 					if ($returnErrors)
-						$errors[] = 'mail_fail';
+						$errors[] = 'custom_field_mail_fail';
 
 					else
 						$value = '';
@@ -1228,7 +1228,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0)
 				{
 					if ($returnErrors)
-						$errors[] = 'regex_fail';
+						$errors[] = 'custom_field_regex_fail';
 
 					else
 						$value = '';
