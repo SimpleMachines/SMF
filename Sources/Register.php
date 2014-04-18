@@ -258,8 +258,7 @@ function Register2($verifiedOpenID = false)
 		// Are they under age, and under age users are banned?
 		if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 		{
-			// @todo This should be put in Errors, imho.
-			loadLanguage('Login');
+			loadLanguage('Errors');
 			fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
 		}
 
@@ -269,8 +268,7 @@ function Register2($verifiedOpenID = false)
 		// Failing that, check the time on it.
 		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
 		{
-			// @todo This too should be put in Errors, imho.
-			loadLanguage('Login');
+			loadLanguage('Errors');
 			$reg_errors[] = $txt['error_too_quickly'];
 		}
 
@@ -443,7 +441,6 @@ function Register2($verifiedOpenID = false)
 			// Any masks to apply?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				// @todo We never error on this - just ignore it at the moment...
 				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
 					$custom_field_errors[] = array('custom_field_invalid_email', array($row['field_name']));
 				elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value))
@@ -542,7 +539,9 @@ function Register2($verifiedOpenID = false)
 }
 
 /**
- * @todo needs description
+ * Activate an users account.
+ *
+ * Checks for mail changes, resends password if needed.
  */
 function Activate()
 {
@@ -601,7 +600,6 @@ function Activate()
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
 
-		// @todo Separate the sprintf?
 		if (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['new_email']) == 0)
 			fatal_error(sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($_POST['new_email'])), false);
 
@@ -618,7 +616,7 @@ function Activate()
 				'email_address' => $_POST['new_email'],
 			)
 		);
-		// @todo Separate the sprintf?
+
 		if ($smcFunc['db_num_rows']($request) != 0)
 			fatal_lang_error('email_in_use', false, array($smcFunc['htmlspecialchars']($_POST['new_email'])));
 		$smcFunc['db_free_result']($request);

@@ -281,6 +281,10 @@ $txt['custom_profile_placement'] = 'Placement';
 $txt['custom_profile_placement_standard'] = 'Standard';
 $txt['custom_profile_placement_withicons'] = 'With Icons';
 $txt['custom_profile_placement_abovesignature'] = 'Above Signature';
+$txt['custom_profile_placement_belowsignature'] = 'Below Signature';
+$txt['custom_profile_placement_below_avatar'] = 'Below Avatar';
+$txt['custom_profile_placement_above_name'] = 'Above Username';
+$txt['custom_profile_placement_bottom'] = 'Bottom poster info';
 
 // Use numeric entities in the string below!
 $txt['custom_edit_delete_sure'] = 'Are you sure you wish to delete this field - all related user data will be lost!';

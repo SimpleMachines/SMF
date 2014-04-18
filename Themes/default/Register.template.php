@@ -320,7 +320,7 @@ function template_registration_form()
 	}
 
 	echo '
-			<div id="confirm_buttons flow_auto">';
+			<div id="confirm_buttons" class="flow_auto">';
 
 	// Age restriction in effect?
 	if (!$context['require_agreement'] && $context['show_coppa'])

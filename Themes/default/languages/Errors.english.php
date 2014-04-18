@@ -342,6 +342,12 @@ $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
+$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
+$txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
+
+// Registration form.
+$txt['registration_form'] = 'Registration Form';
+$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
 
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
