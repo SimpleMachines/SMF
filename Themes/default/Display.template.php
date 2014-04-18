@@ -514,7 +514,7 @@ function template_single_post($message, $force_alternate = null)
 								<ul class="reset nolist">';
 			}
 			echo '
-									<li class="', $custom['col_name'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
 		}
 		if ($shown)
 			echo '
@@ -546,6 +546,20 @@ function template_single_post($message, $force_alternate = null)
 								<li class="avatar">
 									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
+
+	// Are there any custom fields below the avatar?
+	if (!empty($message['member']['custom_fields']))
+	{
+		$shown = false;
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 4 || empty($custom['value']))
+				continue;
+
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+	}
 
 	// Show the post group icons, but not for guests.
 	if (!$message['member']['is_guest'])
