@@ -783,7 +783,7 @@ function saveProfileFields()
 		if (isset($field['input_validate']))
 		{
 			$is_valid = $field['input_validate']($_POST[$key]);
-			// An error occured - set it as such!
+			// An error occurred - set it as such!
 			if ($is_valid !== true)
 			{
 				// Is this an actual error?
@@ -877,7 +877,12 @@ function saveProfileFields()
 	{
 		makeThemeChanges($context['id_member'], isset($_POST['id_theme']) ? (int) $_POST['id_theme'] : $old_profile['id_theme']);
 		if (!empty($_REQUEST['sa']))
-			makeCustomFieldChanges($context['id_member'], $_REQUEST['sa'], false);
+		{
+			$custom_fields_errors = makeCustomFieldChanges($context['id_member'], $_REQUEST['sa'], true, true);
+
+			if (!empty($custom_fields_errors))
+				$post_errors = array_merge($post_errors, $custom_fields_errors);
+		}
 	}
 
 	// Free memory!
