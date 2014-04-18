@@ -550,7 +550,6 @@ function template_single_post($message, $force_alternate = null)
 	// Are there any custom fields below the avatar?
 	if (!empty($message['member']['custom_fields']))
 	{
-		$shown = false;
 		foreach ($message['member']['custom_fields'] as $custom)
 		{
 			if ($custom['placement'] != 4 || empty($custom['value']))
@@ -976,6 +975,31 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
 		echo '
 							<div class="signature" id="msg_', $message['id'], '_signature"', $ignoring ? ' style="display:none;"' : '', '>', $message['member']['signature'], '</div>';
+
+
+	// Are there any custom profile fields for below the signature?
+	if (!empty($message['member']['custom_fields']))
+	{
+		$shown = false;
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 3 || empty($custom['value']))
+				continue;
+			if (empty($shown))
+			{
+				$shown = true;
+				echo '
+							<div class="custom_fields_below_signature">
+								<ul class="reset nolist">';
+			}
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+		if ($shown)
+			echo '
+								</ul>
+							</div>';
+	}
 
 	echo '
 						</div>
