@@ -3982,7 +3982,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	width: 50%;
 }
 
-/* Some experimental testing for new div-only based home page */
+/* Div-based styling (testing requires for now) */
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
