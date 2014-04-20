@@ -1393,6 +1393,56 @@ function ViewWarningLog()
 	// Setup context as always.
 	$context['page_title'] = $txt['mc_warning_log_title'];
 
+	loadLanguage('Modlog');
+
+	// If we're coming from a search, get the variables.
+	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
+	{
+		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
+		$search_params = @unserialize($search_params);
+	}
+
+	// This array houses all the valid search types.
+	$searchTypes = array(
+		'member' => array('sql' => 'member_name_col', 'label' => $txt['profile_warning_previous_issued']),
+		'recipient' => array('sql' => 'recipient_name', 'label' => $txt['mc_warnings_recipient']),
+	);
+
+	// Do the column stuff!
+	$sort_types = array(
+		'member' => 'member_name_col',
+		'recipient' => 'recipient_name',
+	);
+
+	// Setup the direction stuff...
+	$context['order'] = isset($_REQUEST['sort']) && isset($sort_types[$_REQUEST['sort']]) ? $_REQUEST['sort'] : 'member';
+
+	if (!isset($search_params['string']) || (!empty($_REQUEST['search']) && $search_params['string'] != $_REQUEST['search']))
+		$search_params_string = empty($_REQUEST['search']) ? '' : $_REQUEST['search'];
+	else
+		$search_params_string = $search_params['string'];
+
+	if (isset($_REQUEST['search_type']) || empty($search_params['type']) || !isset($searchTypes[$search_params['type']]))
+		$search_params_type = isset($_REQUEST['search_type']) && isset($searchTypes[$_REQUEST['search_type']]) ? $_REQUEST['search_type'] : (isset($searchTypes[$context['order']]) ? $context['order'] : 'member');
+	else
+		$search_params_type = $search_params['type'];
+
+	$search_params_column = $searchTypes[$search_params_type]['sql'];
+	$search_params = array(
+		'string' => $search_params_string,
+		'type' => $search_params_type,
+	);
+
+	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort='.  $context['order'];
+
+	// Setup the search context.
+	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(serialize($search_params));
+	$context['search'] = array(
+		'string' => $search_params['string'],
+		'type' => $search_params['type'],
+		'label' => $searchTypes[$search_params_type]['label'],
+	);
+
 	require_once($sourcedir . '/Subs-List.php');
 
 	// This is all the information required for a watched user listing.
@@ -1477,14 +1527,23 @@ function ViewWarningLog()
 			),
 		),
 		'form' => array(
-			'href' => $scripturl,
+			'href' => $scripturl . $context['url_start'],
 			'include_sort' => true,
 			'include_start' => true,
 			'hidden_fields' => array(
 				$context['session_var'] => $context['session_id'],
 				'params' => false
 			),
-			'token' => 'mod-ml',
+		),
+		'additional_rows' => array(
+			array(
+				'position' => 'below_table_data',
+				'value' => '
+					' . $txt['modlog_search'] .':
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">',
+				'class' => 'floatright',
+			),
 		),
 	);
 
