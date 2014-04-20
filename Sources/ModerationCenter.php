@@ -1476,6 +1476,16 @@ function ViewWarningLog()
 				),
 			),
 		),
+		'form' => array(
+			'href' => $scripturl,
+			'include_sort' => true,
+			'include_start' => true,
+			'hidden_fields' => array(
+				$context['session_var'] => $context['session_id'],
+				'params' => false
+			),
+			'token' => 'mod-ml',
+		),
 	);
 
 	// Create the watched user list.
