@@ -107,6 +107,7 @@ function AdminMain()
 					'icon' => 'features.png',
 					'subsections' => array(
 						'basic' => array($txt['mods_cat_features']),
+						'bbc' => array($txt['manageposts_bbc_settings']),
 						'layout' => array($txt['mods_cat_layout']),
 						'karma' => array($txt['karma']),
 						'sig' => array($txt['signature_settings_short']),
@@ -188,7 +189,6 @@ function AdminMain()
 					'icon' => 'posts.png',
 					'subsections' => array(
 						'posts' => array($txt['manageposts_settings']),
-						'bbc' => array($txt['manageposts_bbc_settings']),
 						'censor' => array($txt['admin_censored_words']),
 						'topics' => array($txt['manageposts_topic_settings']),
 						'drafts' => array($txt['manage_drafts']),
@@ -708,6 +708,7 @@ function AdminSearchInternal()
 	// This is a special array of functions that contain setting data - we query all these to simply pull all setting bits!
 	$settings_search = array(
 		array('ModifyBasicSettings', 'area=featuresettings;sa=basic'),
+		array('ModifyBBCSettings', 'area=featuresettings;sa=bbc'),
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
 		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
@@ -723,7 +724,6 @@ function AdminSearchInternal()
 		array('ModifyNewsSettings', 'area=news;sa=settings'),
 		array('GeneralPermissionSettings', 'area=permissions;sa=settings'),
 		array('ModifyPostSettings', 'area=postsettings;sa=posts'),
-		array('ModifyBBCSettings', 'area=postsettings;sa=bbc'),
 		array('ModifyTopicSettings', 'area=postsettings;sa=topics'),
 		array('ModifyDraftSettings', 'area=postsettings;sa=drafts'),
 		array('EditSearchSettings', 'area=managesearch;sa=settings'),
