@@ -2190,7 +2190,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'name', '{
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'theme_url', '{$boardurl}/Themes/default');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'images_url', '{$boardurl}/Themes/default/images');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'theme_dir', '{$boarddir}/Themes/default');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_bbc', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_latest_member', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_modify', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_user_images', '1');
@@ -2200,7 +2199,6 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'number_re
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_profile_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');

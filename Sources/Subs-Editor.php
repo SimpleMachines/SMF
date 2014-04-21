@@ -1920,7 +1920,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($settings['show_bbc']);
+	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($modSettings['admin_bbc']);
 
 	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
