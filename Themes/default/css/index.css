@@ -1289,17 +1289,13 @@ img.sort, .sort {
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
 
-.buttonlist ul {
+.buttonlist {
 	z-index: 100;
-	padding: 5px;
-	margin: 0 0 5px 0;
+	padding: 5px 0 5px 0;
+	margin: 5px 0 5px 0;
 }
-.buttonlist ul li {
-	margin: 0 0 0 6px;
-	padding: 0;
+.buttonlist a {
 	float: left;
-}
-.buttonlist ul li a {
 	display: block;
 	text-transform: uppercase;
 	cursor: pointer;
@@ -1308,19 +1304,21 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 0 1px;
-	margin: 0;
+	padding: 0 8px;
+	margin: 0 0 0 5px;
 	overflow: visible;
 	color: #444;
 	font-size: 0.8em;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
+	height: 2.2em;
+	line-height: 2.2em;
 }
 /* Keep a consistent size when wrapped in pagesection. */
-.pagesection .buttonlist ul li a {
+.pagesection .buttonlist a {
 	font-size: 0.889em;
 }
-.buttonlist ul li a:hover {
+.buttonlist a:hover {
 	color: #af6700;
 	text-decoration: none;
 	border: 1px solid #ccc;
@@ -1330,14 +1328,8 @@ img.sort, .sort {
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
-.buttonlist ul li a span {
-	display: block;
-	height: 2.2em;
-	line-height: 2.2em;
-	padding: 0 8px;
-}
 /* the active one */
-.buttonlist ul li a.active {
+.buttonlist a.active {
 	background: #557ea0;
 	color: #fff;
 	font-weight: bold;
@@ -1345,10 +1337,10 @@ img.sort, .sort {
 	border: 1px solid #558080;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
-.buttonlist ul li a.active:hover {
+.buttonlist a.active:hover {
 	color: #ffc187;
 }
-.align_top ul li a, .align_bottom ul li a {
+.align_top a, .align_bottom a {
 	margin: 0 12px 0 0;
 }
 
@@ -1804,9 +1796,9 @@ ul li.greeting {
 	padding: 0;
 	float: right;
 }
-.mark_read .buttonlist ul {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+.mark_read .buttonlist {
+	margin: 0;
+	padding: 0;
 }
 /* the newsfader */
 #newsfader {
