@@ -1796,9 +1796,9 @@ ul li.greeting {
 	padding: 0;
 	float: right;
 }
-.mark_read .buttonlist ul {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+.mark_read .buttonlist {
+	margin: 0;
+	padding: 0;
 }
 /* the newsfader */
 #newsfader {
