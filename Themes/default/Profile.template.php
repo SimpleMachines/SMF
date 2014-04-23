@@ -148,7 +148,7 @@ function template_alerts_all_read()
 // This template displays users details without any option to edit them.
 function template_summary()
 {
-	global $context, $settings, $scripturl, $modSettings, $txt;
+	global $context, $settings, $scripturl, $modSettings, $txt, $smcFunc;
 
 	// Display the basic information about the user
 	echo '
@@ -249,12 +249,12 @@ function template_summary()
 	// If karma enabled show the members karma.
 	if ($modSettings['karmaMode'] == '1')
 		echo '
-					<dt>', $modSettings['karmaLabel'], ' </dt>
+					<dt>', $smcFunc['htmlspecialchars']($modSettings['karmaLabel']), ' </dt>
 					<dd>', ($context['member']['karma']['good'] - $context['member']['karma']['bad']), '</dd>';
 
 	elseif ($modSettings['karmaMode'] == '2')
 		echo '
-					<dt>', $modSettings['karmaLabel'], ' </dt>
+					<dt>', $smcFunc['htmlspecialchars']($modSettings['karmaLabel']), ' </dt>
 					<dd>+', $context['member']['karma']['good'], '/-', $context['member']['karma']['bad'], '</dd>';
 
 	echo '
@@ -2978,14 +2978,14 @@ function template_max_size($type)
 // Callback for modifying karam.
 function template_profile_karma_modify()
 {
-	global $context, $modSettings, $txt;
+	global $context, $modSettings, $txt, $smcFunc;
 
 		echo '
 							<dt>
-								<strong>', $modSettings['karmaLabel'], '</strong>
+								<strong>', $smcFunc['htmlspecialchars']($modSettings['karmaLabel']), '</strong>
 							</dt>
 							<dd>
-								', $modSettings['karmaApplaudLabel'], ' <input type="text" name="karma_good" size="4" value="', $context['member']['karma']['good'], '" onchange="setInnerHTML(document.getElementById(\'karmaTotal\'), this.value - this.form.karma_bad.value);" style="margin-right: 2ex;" class="input_text"> ', $modSettings['karmaSmiteLabel'], ' <input type="text" name="karma_bad" size="4" value="', $context['member']['karma']['bad'], '" onchange="this.form.karma_good.onchange();" class="input_text"><br>
+								', $smcFunc['htmlspecialchars']($modSettings['karmaApplaudLabel']), ' <input type="text" name="karma_good" size="4" value="', $context['member']['karma']['good'], '" onchange="setInnerHTML(document.getElementById(\'karmaTotal\'), this.value - this.form.karma_bad.value);" style="margin-right: 2ex;" class="input_text"> ', $smcFunc['htmlspecialchars']($modSettings['karmaSmiteLabel']), ' <input type="text" name="karma_bad" size="4" value="', $context['member']['karma']['bad'], '" onchange="this.form.karma_good.onchange();" class="input_text"><br>
 								(', $txt['total'], ': <span id="karmaTotal">', ($context['member']['karma']['good'] - $context['member']['karma']['bad']), '</span>)
 							</dd>';
 }

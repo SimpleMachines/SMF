@@ -471,7 +471,7 @@ function template_main()
 
 function template_single_post($message, $force_alternate = null)
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings, $smcFunc;
 	static $alternate = false;
 	if ($force_alternate !== null)
 		$alternate = $force_alternate;
@@ -553,17 +553,17 @@ function template_single_post($message, $force_alternate = null)
 		// Is karma display enabled?  Total or +/-?
 		if ($modSettings['karmaMode'] == '1')
 			echo '
-								<li class="karma">', $modSettings['karmaLabel'], ' ', $message['member']['karma']['good'] - $message['member']['karma']['bad'], '</li>';
+								<li class="karma">', $smcFunc['htmlspecialchars']($modSettings['karmaLabel']), ' ', $message['member']['karma']['good'] - $message['member']['karma']['bad'], '</li>';
 		elseif ($modSettings['karmaMode'] == '2')
 			echo '
-								<li class="karma">', $modSettings['karmaLabel'], ' +', $message['member']['karma']['good'], '/-', $message['member']['karma']['bad'], '</li>';
+								<li class="karma">', $smcFunc['htmlspecialchars']($modSettings['karmaLabel']), ' +', $message['member']['karma']['good'], '/-', $message['member']['karma']['bad'], '</li>';
 
 		// Is this user allowed to modify this member's karma?
 		if ($message['member']['karma']['allow'])
 			echo '
 								<li class="karma_allow">
-									<a href="', $scripturl, '?action=modifykarma;sa=applaud;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.' . $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaApplaudLabel'], '</a>
-									<a href="', $scripturl, '?action=modifykarma;sa=smite;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaSmiteLabel'], '</a>
+									<a href="', $scripturl, '?action=modifykarma;sa=applaud;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.' . $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $smcFunc['htmlspecialchars']($modSettings['karmaApplaudLabel']), '</a>
+									<a href="', $scripturl, '?action=modifykarma;sa=smite;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $smcFunc['htmlspecialchars']($modSettings['karmaSmiteLabel']), '</a>
 								</li>';
 
 		// Show their personal text?
