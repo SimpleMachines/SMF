@@ -1774,11 +1774,6 @@ ul#smfFadeScroller li {
 	display: inline-block;
 }
 
-/* Styles for the message (topic) index.
----------------------------------------------------- */
-#messageindex {
-	clear: both;
-}
 /* the page navigation area */
 .childboards {
 	margin-bottom: 2px;
@@ -1835,21 +1830,6 @@ select.qaction {
 }
 #message_index_jump_to .button_submit {
 	padding: 4px 6px 2px 6px;
-}
-#messageindex th.post_icon {
-	width: 4%;
-}
-#messageindex th.stats {
-	width: 14%;
-}
-#messageindex th.last_post {
-	width: 22%;
-}
-#messageindex th.moderation {
-	width: 24px;
-}
-#messageindex td.moderation {
-	text-align: center;
 }
 
 /* Styles for the display template (topic view).
@@ -4101,7 +4081,7 @@ div.icon, div.info, div.stats, div.lastpost {
 	overflow: hidden;
 	height: 3.5em;
 }
-#messageindex .description {
+#messageindex .information {
 	border-radius: 0;
 	margin: 0;
 }

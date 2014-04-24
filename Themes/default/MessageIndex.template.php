@@ -189,7 +189,7 @@ function template_main()
 		if (!empty($context['unapproved_posts_message']))
 		{
 			echo '
-				<div class="description">
+				<div class="information">
 					<span class="alert">!</span> ', $context['unapproved_posts_message'], '
 				</div>';
 		}
