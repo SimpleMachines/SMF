@@ -355,6 +355,7 @@ function is_not_banned($forceCheck = false)
 
 		// A goodbye present.
 		require_once($sourcedir . '/Subs-Auth.php');
+		require_once($sourcedir . '/LogInOut.php');
 		$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 		smf_setcookie($cookiename . '_', implode(',', $_SESSION['ban']['cannot_access']['ids']), time() + 3153600, $cookie_url[1], $cookie_url[0], false, false);
 
@@ -363,7 +364,8 @@ function is_not_banned($forceCheck = false)
 		$_GET['board'] = '';
 		$_GET['topic'] = '';
 		writeLog(true);
-
+		Logout(true, false);
+		
 		// You banned, sucka!
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
 
