@@ -1330,7 +1330,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl;
+	global $txt, $scripturl, $settings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1417,6 +1417,31 @@ function editBuddies($memID)
 	// Get all the users "buddies"...
 	$buddies = array();
 
+	// Gotta load the custom profile fields names.
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		FROM {db_prefix}custom_fields
+		WHERE active = {int:active}
+			AND private < {int:private_level}',
+		array(
+			'active' => 1,
+			'private_level' => 2,
+		)
+	);
+
+	$context['custom_pf'] = array();
+	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		if (!isset($disabled_fields[$row['col_name']]))
+			$context['custom_pf'][$row['col_name']] = array(
+				'label' => $row['field_name'],
+				'type' => $row['field_type'],
+				'bbc' => !empty($row['bbc']),
+				'enclose' => $row['enclose'],
+			);
+
+	$smcFunc['db_free_result']($request);
+
 	if (!empty($buddiesArray))
 	{
 		$result = $smcFunc['db_query']('', '
@@ -1446,6 +1471,35 @@ function editBuddies($memID)
 	{
 		loadMemberContext($buddy);
 		$context['buddies'][$buddy] = $memberContext[$buddy];
+
+		// Make sure to load the appropriate fields for each user
+		if (!empty($context['custom_pf']))
+		{
+			foreach ($context['custom_pf'] as $key => $column)
+			{
+				// Don't show anything if there isn't anything to show.
+				if (!isset($context['buddies'][$buddy]['options'][$key]))
+				{
+					$context['buddies'][$buddy]['options'][$key] = '';
+					continue;
+				}
+
+				if ($column['bbc'] && !empty($context['buddies'][$buddy]['options'][$key]))
+					$context['buddies'][$buddy]['options'][$key] = strip_tags(parse_bbc($context['buddies'][$buddy]['options'][$key]));
+
+				elseif ($column['type'] == 'check')
+					$context['buddies'][$buddy]['options'][$key] = $context['buddies'][$buddy]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+
+				// Enclosing the user input within some other text?
+				if (!empty($column['enclose']) && !empty($context['buddies'][$buddy]['options'][$key]))
+					$context['buddies'][$buddy]['options'][$key] = strtr($column['enclose'], array(
+						'{SCRIPTURL}' => $scripturl,
+						'{IMAGES_URL}' => $settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{INPUT}' => $context['buddies'][$buddy]['options'][$key],
+					));
+			}
+		}
 	}
 
 	if (isset($_SESSION['prf-save']))

@@ -579,8 +579,6 @@ function template_editBuddies()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
-	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
-
 	if (!empty($context['saved_successful']))
 		echo '
 					<div class="infobox">', $context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $context['member']['name']), '</div>';
@@ -597,15 +595,19 @@ function template_editBuddies()
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
 
+	if (!empty($context['custom_pf']))
+		foreach ($context['custom_pf'] as $column)
+				echo '<th scope="col">', $column['label'], '</th>';
+
 	echo '
-				<th class="last_th" scope="col"></th>
+				<th class="last_th" scope="col">', $txt['remove'], '</th>
 			</tr>';
 
 	// If they don't have any buddies don't list them!
@@ -615,31 +617,33 @@ function template_editBuddies()
 				<td colspan="8" align="center"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
-	// Now loop through each buddy showing info on each.
-	$alternate = false;
-	foreach ($context['buddies'] as $buddy)
+		// Now loop through each buddy showing info on each.
+	else
 	{
-		echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-				<td>', $buddy['link'], '</td>
-				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
-		if ($buddy['show_email'])
-			echo '
-				<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
-
-		// If these are off, don't show them
-		foreach ($buddy_fields as $key => $column)
+		$alternate = false;
+		foreach ($context['buddies'] as $buddy)
 		{
-			if (!isset($disabled_fields[$column]))
+			echo '
+				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+					<td>', $buddy['link'], '</td>
+					<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
+
+			if ($buddy['show_email'] || allowedTo('moderate_forum'))
 				echo '
-					<td align="center">', $buddy[$column]['link'], '</td>';
+					<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
+
+			// Show the custom profile fields for this user.
+			if (!empty($context['custom_pf']))
+				foreach ($context['custom_pf'] as $key => $column)
+					echo '
+						<td class="lefttext">', $buddy['options'][$key], '</td>';
+
+			echo '
+					<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
+				</tr>';
+
+			$alternate = !$alternate;
 		}
-
-		echo '
-				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
-			</tr>';
-
-		$alternate = !$alternate;
 	}
 
 	echo '
