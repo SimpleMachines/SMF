@@ -150,56 +150,48 @@ function template_main()
 			</p>';
 		}
 	echo '
-		<table class="table_grid">
-			<thead>
-				<tr class="catbg">';
+		<div class="title_bar" id="topic_header">';
 
 		// Are there actually any topics to show?
 		if (!empty($context['topics']))
 		{
 			echo '
-					<th scope="col" class="post_icon first_th">&nbsp;</th>
-					<th scope="col" class="subject lefttext">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</th>
-					<th scope="col" class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</th>';
+					<div class="icon">&nbsp;</div>
+					<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
+					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>';
 			// Show a "select all" box for quick moderation?
 			if (empty($context['can_quick_mod']))
 				echo '
-					<th scope="col" class="last_post lefttext last_th">', $context['topics_headers']['last_post'], '</th>';
+					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
 			else
 				echo '
-					<th scope="col" class="last_post lefttext">', $context['topics_headers']['last_post'], '</th>';
+					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
 
 			// Show a "select all" box for quick moderation?
 			if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-					<th scope="col" class="moderation last_th"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check"></th>';
+					<div class="moderation"><input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check"></div>';
 
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<th class="last_th" style="width: 4%">&nbsp;</th>';
+					<div>&nbsp;</div>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
 			echo '
-					<th scope="col" class="first_th" style="width: 8%">&nbsp;</th>
-					<th colspan="3"><strong>', $txt['topic_alert_none'], '</strong></th>
-					<th scope="col" class="last_th" style="width: 8%">&nbsp;</th>';
+					<h3 class="titlebg">', $txt['topic_alert_none'], '</h3>';
 
 		echo '
-				</tr>
-			</thead>
-			<tbody>';
+		</div>';
 
 		// If this person can approve items and we have some awaiting approval tell them.
 		if (!empty($context['unapproved_posts_message']))
 		{
 			echo '
-				<tr class="windowbg2">
-					<td colspan="', !empty($context['can_quick_mod']) ? '5' : '4', '">
-						<span class="alert">!</span> ', $context['unapproved_posts_message'], '
-					</td>
-				</tr>';
+				<div class="description">
+					<span class="alert">!</span> ', $context['unapproved_posts_message'], '
+				</div>';
 		}
 
 		foreach ($context['topics'] as $topic)
@@ -220,16 +212,13 @@ function template_main()
 			// Some columns require a different shade of the color class.
 			$alternate_class = $color_class . '2';
 
-			// @todo - [WIP] Markup can be cleaned up later. CSS can go in the CSS files later.
 			echo '
-				<tr>
-					<td class="', $color_class, ' icon2">
-						<div>
-							<img src="', $topic['first_post']['icon_url'], '" alt="">
-							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
-						</div>
-					</td>
-					<td class="', $alternate_class, ' subject">
+			<div class="topic_container ', $color_class, '">
+				<div class="icon">
+					<img src="', $topic['first_post']['icon_url'], '" alt="">
+					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
+				</div>
+					<div class="info">
 						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
 			// Now we handle the icons
@@ -265,17 +254,17 @@ function template_main()
 							</p>
 							<br class="clear">
 						</div>
-					</td>
-					<td class="', $color_class, ' stats">', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</td>
-					<td class="', $alternate_class, ' lastpost">
-						', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '
-					</td>';
+					</div>
+					<div class="stats"><p>', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</p></div>
+					<div class="lastpost">
+						<p>', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '</p>
+					</div>';
 
 			// Show the quick moderation options?
 			if (!empty($context['can_quick_mod']))
 			{
 				echo '
-					<td class="', $color_class, ' moderation">';
+					<div class="moderation">';
 				if ($options['display_quick_mod'] == 1)
 					echo '
 						<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">';
@@ -298,27 +287,26 @@ function template_main()
 						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
 				}
 				echo '
-					</td>';
+					</div>';
 			}
 			echo '
-				</tr>';
+				</div>';
 		}
 
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{
 			echo '
-				<tr>
-					<td colspan="5" class="righttext" id="quick_actions">
-						<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
-							<option value="">--------</option>';
+				<div class="righttext" id="quick_actions">
+					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+						<option value="">--------</option>';
 
 			foreach ($context['qmod_actions'] as $qmod_action)
 				if ($context['can_' . $qmod_action])
 					echo '
-							<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
+						<option value="' . $qmod_action . '">' . $txt['quick_mod_'  . $qmod_action] . '</option>';
 
 			echo '
-						</select>';
+					</select>';
 
 			// Show a list of boards they can move the topic to.
 			if ($context['can_move'])
@@ -326,14 +314,11 @@ function template_main()
 			<span id="quick_mod_jump_to">&nbsp;</span>';
 
 			echo '
-						<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit qaction">
-					</td>
-				</tr>';
+					<input type="submit" value="', $txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', $txt['quickmod_confirm'], '\');" class="button_submit qaction">
+				</div>';
 		}
 
 		echo '
-			</tbody>
-		</table>
 	</div>';
 
 		// Finish off the form - again.

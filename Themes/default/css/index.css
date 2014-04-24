@@ -1801,9 +1801,9 @@ p.whoisviewing {
 select.qaction {
 	padding: 0;
 }
-td#quick_actions {
-	border-right: 1px solid #ccc;
+#quick_actions {
 	padding-right: 4px;
+	margin-top: 5px;
 }
 .qaction_cell .button_submit {
 	margin: 2px 4px 0 4px;
@@ -3982,7 +3982,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	width: 50%;
 }
 
-/* Div-based styling (testing requires for now) */
+/* This place covers board places (boardindex-messageindex) */
 h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
@@ -4061,6 +4061,8 @@ div.icon, div.info, div.stats, div.lastpost {
 	margin-bottom: 3px;
 	margin-top: -1px;
 }
+
+/* Child boards */
 .children {
 	width: 100%;
 	float: left;
@@ -4069,4 +4071,44 @@ div.icon, div.info, div.stats, div.lastpost {
 }
 .children p {
 	font-size: 0.9em;
+}
+
+/* MessageIndex > Topic list */
+.topic_container {
+	height: 4em;
+	border: 1px solid #CCC;
+	border-top: none;
+}
+#topic_header {
+	height: 2em;
+}
+#topic_header .icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
+	height: 1.5em !important;
+	font-weight: bold;
+	font-size: 1em;
+	margin-top: 3px;
+}
+#topic_header input {
+	margin-top: 5px !important;
+}
+.moderation {
+	float: right;
+	width: 2%;
+}
+#messageindex .icon, #messageindex .info, #messageindex .windowbg2, #messageindex .windowbg, #messageindex .stats, #messageindex .lastpost {
+	border-radius: 0;
+	padding: 0;
+	overflow: hidden;
+	height: 3.5em;
+}
+#messageindex .description {
+	border-radius: 0;
+	margin: 0;
+}
+.icon img, .moderation input {
+	margin-top: 15px;
+}
+.info .icons, #messageindex .stats p, .lastpost p {
+	margin-top: 5px;
+	border: none;
 }
