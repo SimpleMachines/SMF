@@ -386,45 +386,8 @@ function smf_main()
 	// Otherwise, it was set - so let's go to that action.
 	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 
-	// Found a method?
-	if (strpos($actionArray[$_REQUEST['action']][1], '::') !== false)
-	{
-		// Handle it better.
-		$string = $actionArray[$_REQUEST['action']][1];
-
-		list($class, $method) = explode('::', $string);
-
-		// Check if a new object will be created.
-		if (strpos($method, '#') !== false)
-		{
-			// Need to remove the # thing.
-			$method = str_replace('#', '', $method);
-
-			// Don't need to create a new instance for every method.
-			if (empty($context['instances'][$class]) || !($context['instances'][$class] instanceof $class))
-			{
-				$context['instances'][$class] = new $class;
-
-				// Add another one to the list.
-				if ($db_show_debug === true)
-				{
-					if (!isset($context['debug']['instances']))
-						$context['debug']['instances'] = array();
-
-					$context['debug']['instances'][$class] = $class;
-				}
-			}
-
-			return array($context['instances'][$class], $method);
-		}
-
-		// Right then. This is a call to a static method.
-		else
-			return array($class, $method);
-	}
-
-	else
-		return $actionArray[$_REQUEST['action']][1];
+	// Do the right thing.
+	return call_hook_helper($actionArray[$_REQUEST['action']][1]);
 }
 
 ?>

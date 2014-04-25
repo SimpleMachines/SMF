@@ -2688,7 +2688,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 			foreach ($buffers as $function)
 			{
 				$function = trim($function);
-				$call = strpos($function, '::') !== false ? explode('::', $function) : $function;
+				$call = call_hook_helper($function);
 
 				// Is it valid?
 				if (is_callable($call))

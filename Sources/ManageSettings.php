@@ -276,7 +276,7 @@ function ModifyLayoutSettings($return_config = false)
  */
 function ModifyKarmaSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
 	if (empty($modSettings['karmaMode']))
 		$config_vars = array(
@@ -307,6 +307,12 @@ function ModifyKarmaSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		checkSession();
+
+		$removeTags = array('karmaLabel', 'karmaApplaudLabel', 'karmaSmiteLabel');
+
+		foreach ($removeTags as $tag)
+			if (isset($_POST[$tag]))
+				$_POST[$tag] = $smcFunc['htmlspecialchars'](strip_tags($_POST[$tag]));
 
 		call_integration_hook('integrate_save_karma_settings');
 
