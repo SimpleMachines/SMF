@@ -231,20 +231,23 @@ function Display()
 		$context['total_visible_posts'] = $context['num_replies'] + $topicinfo['unapproved_posts'] + ($topicinfo['approved'] ? 1 : 0);
 
 	// When was the last time this topic was replied to?  Should we warn them about it?
-	$request = $smcFunc['db_query']('', '
-		SELECT poster_time
-		FROM {db_prefix}messages
-		WHERE id_msg = {int:id_last_msg}
-		LIMIT 1',
-		array(
-			'id_last_msg' => $topicinfo['id_last_msg'],
-		)
-	);
+	if (!empty($modSettings['oldTopicDays']) && empty($topicinfo['locked']) && empty($topicinfo['is_sticky']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT poster_time
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_last_msg}
+			LIMIT 1',
+			array(
+				'id_last_msg' => $topicinfo['id_last_msg'],
+			)
+		);
 
-	list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
+		list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
 
-	$context['oldTopicError'] = !empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($topicinfo['is_sticky']);
+		$context['oldTopicError'] = $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time();
+	}
 
 	// The start isn't a number; it's information about what to do, where to go.
 	if (!is_numeric($_REQUEST['start']))
