@@ -336,7 +336,7 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;actions[', $topic['id'], ']=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></a>';
+						<a href="', $scripturl, '?action=quickmod;actions[', $topic['id'], ']=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
