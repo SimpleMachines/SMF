@@ -230,8 +230,10 @@ function Display()
 	else
 		$context['total_visible_posts'] = $context['num_replies'] + $topicinfo['unapproved_posts'] + ($topicinfo['approved'] ? 1 : 0);
 
+	$context['can_reply'] = empty($topicinfo['locked']) || allowedTo('moderate_board');
+	$context['can_reply_unapproved'] = $modSettings['postmod_active'] && $context['can_reply'];
 	// When was the last time this topic was replied to?  Should we warn them about it?
-	if (!empty($modSettings['oldTopicDays']) && empty($topicinfo['locked']) && empty($topicinfo['is_sticky']))
+	if (!empty($modSettings['oldTopicDays']) && ($context['can_reply'] || $context['can_reply_unapproved']) && empty($topicinfo['is_sticky']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT poster_time
