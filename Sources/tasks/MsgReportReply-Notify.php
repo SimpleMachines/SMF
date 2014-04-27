@@ -185,7 +185,6 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 			// Third, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
 			{
-				echo 'Emailing (' . $this_lang . ') to ' . print_r($recipients, true);
 				$replacements = array(
 					'TOPICSUBJECT' => $subject,
 					'POSTERNAME' => $poster_name,
