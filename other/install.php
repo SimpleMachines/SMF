@@ -277,7 +277,6 @@ function initialize_inputs()
 			$ftp->chdir($_SESSION['installer_temp_ftp']['path']);
 
 			$ftp->unlink('install.php');
-			$ftp->unlink('webinstall.php');
 
 			foreach ($databases as $key => $dummy)
 			{
@@ -292,7 +291,6 @@ function initialize_inputs()
 		else
 		{
 			@unlink(__FILE__);
-			@unlink(dirname(__FILE__) . '/webinstall.php');
 
 			foreach ($databases as $key => $dummy)
 			{
