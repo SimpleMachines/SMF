@@ -365,6 +365,7 @@ function ModifyTopicSettings($return_config = false)
 			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
 			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
 			array('check', 'disable_print_topic'),
+			array('check', 'social_share'),
 		'',
 			// All, next/prev...
 			array('int', 'enableAllMessages', 'postinput' => $txt['manageposts_posts'], 'subtext' => $txt['enableAllMessages_zero']),

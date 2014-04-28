@@ -502,6 +502,18 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		</div>';
 }
 
+// I have something to share with you...
+function social_share()
+{
+	global $boardurl, $context, $modSettings, $settings, $txt;
+
+	if (!empty($modSettings['social_share']))
+	echo '
+	<a href="//www.facebook.com/sharer.php?s=100&amp;p[url]=', $context['canonical_url'],'"><img src="'. $settings['images_url'].'/social/facebook.png" alt="Facebook" title="',$txt['share_facebook'],'" /></a>
+	<a href="//plus.google.com/share?url=', $context['canonical_url'],'"><img src="'. $boardurl.'/Themes/default/images/social/google.png" alt="Google" title="',$txt['share_google'],'" /></a>
+	<a href="//twitter.com/intent/tweet?text=', $context['subject'], '&amp;url=',$context['canonical_url'],'"><img src="'. $boardurl.'/Themes/default/images/social/twitter.png" alt="Twitter" title="',$txt['share_twitter'],'" /></a>';
+}
+
 function template_maint_warning_above()
 {
 	global $txt, $context, $scripturl;

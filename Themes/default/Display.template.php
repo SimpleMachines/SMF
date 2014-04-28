@@ -214,6 +214,14 @@ function template_main()
 	echo '
 			<div class="plainbox" id="display_jump_to">&nbsp;</div>';
 
+	// We have social share thing here
+	echo '
+		<div id="social">';
+
+		social_share();
+	echo '
+		</div>';
+
 	if ($context['can_reply'])
 	{
 		echo '

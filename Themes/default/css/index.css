@@ -4130,3 +4130,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .half {
 	width: 50%;
 }
+#social {
+	clear: both;
+	margin: 5px 0 5px 0;
+}
