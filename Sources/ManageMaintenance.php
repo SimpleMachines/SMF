@@ -1064,7 +1064,7 @@ function ConvertEntities()
  * It is accessed from ?action=admin;area=maintain;sa=database;activity=optimize.
  * It also updates the optimize scheduled task such that the tables are not automatically optimized again too soon.
 
- * @uses the rawdata sub template (built in.)
+ * @uses the optimize sub template
  */
 function OptimizeTables()
 {
