@@ -3049,16 +3049,6 @@ function memoryReturnBytes($val)
 }
 
 /**
- * This is the only template included in the sources.
- */
-function template_rawdata()
-{
-	global $context;
-
-	echo $context['raw_data'];
-}
-
-/**
  * The header template
  */
 function template_header()
