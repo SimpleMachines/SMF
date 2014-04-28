@@ -1424,11 +1424,6 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 ---# Dropping the "hide_email" column from the members table
----{
-	$smcFunc['db_query']('', '
-		ALTER TABLE {db_prefix}members
-		DROP hide_email',
-		array()
-	);
----}
+ALTER TABLE {db_prefix}members
+DROP hide_email;
 ---#
