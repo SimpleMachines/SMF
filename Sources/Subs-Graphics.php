@@ -603,7 +603,7 @@ if (!function_exists('imagecreatefrombmp'))
 		$info = unpack('Vsize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vncolor/Vcolorimportant', fread($fp, 40));
 
 		if ($header['type'] != 0x4D42)
-			false;
+			return false;
 
 		if ($gd2)
 			$dst_img = imagecreatetruecolor($info['width'], $info['height']);
