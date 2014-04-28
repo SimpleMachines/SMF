@@ -1330,6 +1330,6 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 ---# Dropping the "hide_email" column from the members table
-ALTER TABLE {db_prefix}members
+ALTER TABLE {$db_prefix}members
 DROP hide_email;
 ---#
