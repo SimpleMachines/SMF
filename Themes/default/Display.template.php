@@ -861,7 +861,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))

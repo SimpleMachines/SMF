@@ -756,6 +756,7 @@ function ignore_toggles(msgids, text)
 	}
 }
 
+// Likes count for messages.
 function add_like_popup()
 {
 	$(".like_count a").click(function(e) {
@@ -764,3 +765,14 @@ function add_like_popup()
 		return reqOverlayDiv($(this).prop("href"), title);
 	});
 }
+
+// Message likes.
+$(function() {
+	jQuery(document).on('click', '.msg_like', function(event){
+		event.preventDefault();
+		ajax_indicator(true);
+
+
+		return false;
+	});
+});
