@@ -220,19 +220,19 @@ function template_folder()
 		<div class="poster">
 					<h4>
 						<a id="msg', $message['id'], '"></a>';
-						
+
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
 			echo '
 				<img src="', $message['member']['online']['image_href'], '" alt="', $message['member']['online']['text'], '">';
-	
+
 		// Show a link to the member's profile (but only if the sender isn't a guest).
 				echo '
 					', $message['member']['link'], '';
 
 		echo '
 					</h4>';
-					
+
 		echo '
 								<ul>';
 
@@ -1344,6 +1344,17 @@ function template_prune()
 			</div>
 		</div>
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+	</form>
+	<form action="', $scripturl, '?action=pm;sa=removeall" method="post" accept-charset="', $context['character_set'], '">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['pm_purge'], '</h3>
+		</div>
+		<div class="windowbg">
+			<div class="content">
+				<p>', $txt['pm_purge_desc'], '</p>
+				<input type="submit" value="', $txt['delete_all_button'], '" class="button_submit">
+			</div>
+		</div>
 	</form>';
 }
 
