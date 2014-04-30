@@ -1664,6 +1664,7 @@ $(document).ready(function() {
 	{
 		var catid = el.id.replace('category_', '');
 		new smc_Toggle({
+			bNoAnimate: true, // Tables are finicky and you should avoid using effects on a table directly. You don't have the same control over tables as you do other elements. Which is why you can't change the height of the table during animation.
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed').length < 1,
 			aSwappableContainers: [
