@@ -24,6 +24,7 @@ class Likes
 	protected $_content = 0;
 	protected $_response = array();
 	protected $_view = false;
+	protected $_numLikes = 0;
 
 	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
@@ -246,11 +247,11 @@ function issueLike()
 			'like_type' => $this->_type,
 		)
 	);
-	list ($num_likes) = $smcFunc['db_fetch_row']($request);
+	list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Sometimes there might be other things that need updating after we do this like.
-	call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $num_likes));
+	call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes));
 
 	// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 	// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
@@ -265,9 +266,9 @@ function issueLike()
  * attached to this message now.
  * @param string $this->_type The type of content being liked - should always be 'msg'
  * @param int $this->_content The ID of the post being liked
- * @param int $num_likes The number of likes this message has received
+ * @param int $this->_numLikes The number of likes this message has received
  */
-function msg_issue_like($this->_type, $this->_content, $num_likes)
+function msg_issue_like($this->_type, $this->_content, $this->_numLikes)
 {
 	global $smcFunc;
 
@@ -280,7 +281,7 @@ function msg_issue_like($this->_type, $this->_content, $num_likes)
 		WHERE id_msg = {int:id_msg}',
 		array(
 			'id_msg' => $this->_content,
-			'num_likes' => $num_likes,
+			'num_likes' => $this->_numLikes,
 		)
 	);
 
