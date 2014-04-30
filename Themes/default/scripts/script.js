@@ -1665,7 +1665,7 @@ $(document).ready(function() {
 		var catid = el.id.replace('category_', '');
 		new smc_Toggle({
 			bToggleEnabled: true,
-			bCurrentlyCollapsed: $('#category_' + catid + '_boards').children().length < 1,
+			bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed').length < 1,
 			aSwappableContainers: [
 				'category_' + catid + '_boards'
 			],
