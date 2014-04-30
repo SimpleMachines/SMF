@@ -704,16 +704,6 @@ VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
-# Table structure for table `collapsed_categories`
-#
-
-CREATE TABLE {$db_prefix}collapsed_categories (
-  id_cat smallint NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  PRIMARY KEY (id_cat, id_member)
-);
-
-#
 # Table structure for table `custom_fields`
 #
 
