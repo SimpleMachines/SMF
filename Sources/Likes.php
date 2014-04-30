@@ -16,104 +16,133 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+
+class Likes
+{
+	protected $_js = false;
+	protected $_error = false;
+	protected $_type = '';
+	protected $_content = 0;
+	protected $_response = array();
+	protected $_view = false;
+	protected $_canLike = false;
+
+	public function __construct()
+	{
+		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
+		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
+		$this->_view = isset($this->_view) ? $this->_view : false;
+		$this->_js = isset($_GET['js']) ? true : false;
+	}
+
 /**
  * The main handler. Verifies permissions (whether the user can see the content in question)
  * before either liking/unliking or spitting out the list of likers.
  * Accessed from index.php?action=likes
  */
-function Likes()
-{
-	global $context, $smcFunc;
-
-	// Zerothly, they did indicate some kind of content to like, right?
-	$like_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
-	preg_match('~^([a-z0-9\-\_]{1,6})~i', $like_type, $matches);
-	$like_type = isset($matches[1]) ? $matches[1] : '';
-	$like_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
-
-	if ($like_type == '' || $like_content <= 0)
-		fatal_lang_error(isset($_GET['view']) ? 'cannot_view_likes' : 'cannot_like_content', false);
-
-	// First we need to verify if the user can see the type of content or not. This is set up to be extensible,
-	// so we'll check for the one type we do know about, and if it's not that, we'll defer to any hooks.
-	if ($like_type == 'msg')
+	protected function init()
 	{
-		// So we're doing something off a like. We need to verify that it exists, and that the current user can see it.
-		// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
-		// we need this later for other things.
-		$request = $smcFunc['db_query']('', '
-			SELECT m.id_topic
-			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
-			WHERE {query_see_board}
-				AND m.id_msg = {int:msg}',
-			array(
-				'msg' => $like_content,
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) == 1)
-			list ($id_topic) = $smcFunc['db_fetch_row']($request);
+		global $context, $smcFunc;
 
-		$smcFunc['db_free_result']($request);
-		if (empty($id_topic))
-			fatal_lang_error(isset($_GET['view']) ? 'cannot_view_likes' : 'cannot_like_content', false);
+		$this->check();
 
-		// So we know what topic it's in and more importantly we know the user can see it.
-		// If we're not viewing, we need some info set up.
-		if (!isset($_GET['view']))
+		if ($this->_error)
+			return $this->setResponse();
+
+		// So at this point, whatever type of like the user supplied and the item of content in question,
+		// we know it exists, now we need to figure out what we're doing with that.
+		if ($this->_view)
+			$this->viewLikes();
+
+		else
 		{
-			$context['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $context['user']['id'];
-			$context['redirect_from_like'] = 'topic=' . $id_topic . '.msg' . $like_content . '#msg' . $like_content;
-			add_integration_function('integrate_issue_like', 'msg_issue_like', '', false);
+			// Only registered users may actually like content.
+			is_not_guest();
+			checkSession('get');
+			$this->issueLike();
 		}
-	}
-	else
-	{
-		// Modders: This will give you whatever the user offers up in terms of liking, e.g. $like_type=msg, $like_content=1
-		// When you hook this, check $like_type first. If it is not something your mod worries about, return false.
-		// Otherwise, determine (however you need to) that the user can see the relevant liked content (and it exists).
-		// If the user cannot see it, return false. If the user can see it and can like it, you MUST return your $like_type back.
-		// See also issueLike() for further notes.
-		$can_like = call_integration_hook('integrate_valid_likes', array($like_type, $like_content));
 
-		$found = false;
-		if (!empty($can_like))
+		$this->setResponse();
+	}
+
+	protected function check()
+	{
+		global $smcFunc, $context;
+
+		// Zerothly, they did indicate some kind of content to like, right?
+		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->_type, $matches);
+		$this->_type = isset($matches[1]) ? $matches[1] : '';
+
+		if ($this->_type == '' || $this->_content <= 0)
+			return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+
+		// First we need to verify if the user can see the type of content or not. This is set up to be extensible,
+		// so we'll check for the one type we do know about, and if it's not that, we'll defer to any hooks.
+		if ($this->_type == 'msg')
 		{
-			$can_like = (array) $can_like;
-			foreach ($can_like as $result)
+			// So we're doing something off a like. We need to verify that it exists, and that the current user can see it.
+			// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
+			// we need this later for other things.
+			$request = $smcFunc['db_query']('', '
+				SELECT m.id_topic
+				FROM {db_prefix}messages AS m
+					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
+				WHERE {query_see_board}
+					AND m.id_msg = {int:msg}',
+				array(
+					'msg' => $this->_content,
+				)
+			);
+			if ($smcFunc['db_num_rows']($request) == 1)
+				list ($id_topic) = $smcFunc['db_fetch_row']($request);
+
+			$smcFunc['db_free_result']($request);
+			if (empty($id_topic))
+				return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+
+			// So we know what topic it's in and more importantly we know the user can see it.
+			// If we're not viewing, we need some info set up.
+			if (!isset($this->_view))
 			{
-				if ($result !== false)
-				{
-					$like_type = $result;
-					$found = true;
-					break;
-				}
+				$context['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $context['user']['id'];
+				$context['redirect_from_like'] = 'topic=' . $id_topic . '.msg' . $this->_content . '#msg' . $this->_content;
+				add_integration_function('integrate_issue_like', 'msg_issue_like', '', false);
 			}
 		}
+		else
+		{
+			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
+			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
+			// Otherwise, determine (however you need to) that the user can see the relevant liked content (and it exists).
+			// If the user cannot see it, return false. If the user can see it and can like it, you MUST return your $this->_type back.
+			// See also issueLike() for further notes.
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content));
 
-		if (!$found)
-			fatal_lang_error(isset($_GET['view']) ? 'cannot_view_likes' : 'cannot_like_content', false);
+			$found = false;
+			if (!empty($can_like))
+			{
+				$can_like = (array) $can_like;
+				foreach ($can_like as $result)
+				{
+					if ($result !== false)
+					{
+						$this->_type = $result;
+						$found = true;
+						break;
+					}
+				}
+			}
+
+			if (!$found)
+				return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+		}
 	}
-
-	// So at this point, whatever type of like the user supplied and the item of content in question,
-	// we know it exists, now we need to figure out what we're doing with that.
-
-	if (isset($_GET['view']))
-		viewLikes($like_type, $like_content);
-	else
-	{
-		// Only registered users may actually like content.
-		is_not_guest();
-		checkSession('get');
-		issueLike($like_type, $like_content);
-	}
-}
 
 /**
- * @param string $like_type The type of content being liked
- * @param integer $like_content The ID of the content being liked
+ * @param string $this->_type The type of content being liked
+ * @param integer $this->_content The ID of the content being liked
  */
-function issueLike($like_type, $like_content)
+function issueLike($this->_type, $this->_content)
 {
 	global $context, $smcFunc;
 
@@ -125,8 +154,8 @@ function issueLike($like_type, $like_content)
 			AND content_type = {string:like_type}
 			AND id_member = {int:id_member}',
 		array(
-			'like_content' => $like_content,
-			'like_type' => $like_type,
+			'like_content' => $this->_content,
+			'like_type' => $this->_type,
 			'id_member' => $context['user']['id'],
 		)
 	);
@@ -141,8 +170,8 @@ function issueLike($like_type, $like_content)
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
 			array(
-				'like_content' => $like_content,
-				'like_type' => $like_type,
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
 				'id_member' => $context['user']['id'],
 			)
 		);
@@ -153,7 +182,7 @@ function issueLike($like_type, $like_content)
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($like_content, $like_type, $context['user']['id'], time()),
+			array($this->_content, $this->_type, $context['user']['id'], time()),
 			array('content_id', 'content_type', 'id_member')
 		);
 
@@ -162,8 +191,8 @@ function issueLike($like_type, $like_content)
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-				'content_id' => $like_content,
-				'content_type' => $like_type,
+				'content_id' => $this->_content,
+				'content_type' => $this->_type,
 				'sender_id' => $context['user']['id'],
 				'sender_name' => $context['user']['name'],
 				'time' => time(),
@@ -179,15 +208,15 @@ function issueLike($like_type, $like_content)
 		WHERE content_id = {int:like_content}
 			AND content_type = {string:like_type}',
 		array(
-			'like_content' => $like_content,
-			'like_type' => $like_type,
+			'like_content' => $this->_content,
+			'like_type' => $this->_type,
 		)
 	);
 	list ($num_likes) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	// Sometimes there might be other things that need updating after we do this like.
-	call_integration_hook('integrate_issue_like', array($like_type, $like_content, $num_likes));
+	call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $num_likes));
 
 	// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 	// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
@@ -205,15 +234,15 @@ function issueLike($like_type, $like_content)
  * Callback attached to integrate_issue_like.
  * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
  * attached to this message now.
- * @param string $like_type The type of content being liked - should always be 'msg'
- * @param int $like_content The ID of the post being liked
+ * @param string $this->_type The type of content being liked - should always be 'msg'
+ * @param int $this->_content The ID of the post being liked
  * @param int $num_likes The number of likes this message has received
  */
-function msg_issue_like($like_type, $like_content, $num_likes)
+function msg_issue_like($this->_type, $this->_content, $num_likes)
 {
 	global $smcFunc;
 
-	if ($like_type !== 'msg')
+	if ($this->_type !== 'msg')
 		return;
 
 	$smcFunc['db_query']('', '
@@ -221,7 +250,7 @@ function msg_issue_like($like_type, $like_content, $num_likes)
 		SET likes = {int:num_likes}
 		WHERE id_msg = {int:id_msg}',
 		array(
-			'id_msg' => $like_content,
+			'id_msg' => $this->_content,
 			'num_likes' => $num_likes,
 		)
 	);
@@ -235,10 +264,10 @@ function msg_issue_like($like_type, $like_content, $num_likes)
  * This is for viewing the people who liked a thing.
  * Accessed from index.php?action=likes;view and should generally load in a popup.
  * We use a template for this in case themers want to style it.
- * @param string $like_type The type of content being liked
- * @param integer $like_content The ID of the content being liked
+ * @param string $this->_type The type of content being liked
+ * @param integer $this->_content The ID of the content being liked
  */
-function viewLikes($like_type, $like_content)
+function viewLikes($this->_type, $this->_content)
 {
 	global $smcFunc, $txt, $context, $memberContext;
 
@@ -251,8 +280,8 @@ function viewLikes($like_type, $like_content)
 			AND content_type = {string:like_type}
 		ORDER BY like_time DESC',
 		array(
-			'like_content' => $like_content,
-			'like_type' => $like_type,
+			'like_content' => $this->_content,
+			'like_type' => $this->_type,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -349,5 +378,5 @@ function BookOfUnknown()
 
 	obExit(false);
 }
-
+}
 ?>
