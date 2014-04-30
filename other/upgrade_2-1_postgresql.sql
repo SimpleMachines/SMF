@@ -59,6 +59,35 @@ if (!isset($modSettings['allow_no_censored']))
 ---}
 ---#
 
+---# Converting collapsed categories...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.1')
+{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, id_cat
+		FROM {db_prefix}collapsed_categories');
+
+	$inserts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$inserts[] = array($row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']);
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$inserts,
+			array('id_theme', 'id_member', 'variable')
+		);
+}
+---}
+---#
+
+---# Dropping "collapsed_categories"
+DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
+---#
+
 ---# Adding new "topic_move_any" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
 ---#
