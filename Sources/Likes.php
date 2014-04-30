@@ -28,16 +28,18 @@ class Likes
 	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
 	 * 'can_see' boolean|string whether or not the current user can see the like.
-	 * 'can_like' boolean|string whether or not the current user can actually like your content. 
+	 * 'can_like' boolean|string whether or not the current user can actually like your content.
 	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
 	 * 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
+	 * 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
+		'flush_cache' => '',
 	);
 
 	public function __construct()
@@ -115,19 +117,20 @@ class Likes
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
-			if (!isset($this->_view))
+			if (!$this->_view)
 			{
-				$context['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $context['user']['id'];
-				$context['redirect_from_like'] = 'topic=' . $id_topic . '.msg' . $this->_content . '#msg' . $this->_content;
-				add_integration_function('integrate_issue_like', 'msg_issue_like', '', false);
+				$this->_validLikes['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $context['user']['id'];
+				$this->_validLikes['redirect'] = 'topic=' . $id_topic . '.msg' . $this->_content . '#msg' . $this->_content;
+				$this->_validLikes['can_see'] = true;
+				$this->msgIssueLike();
 			}
 		}
 		else
 		{
 			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
 			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
-			// Otherwise, determine (however you need to) that the user can see the relevant liked content (and it exists).
-			// If the user cannot see it, return false. If the user can see it and can like it, you MUST return your $this->_type back.
+			// Otherwise, fill an array according to the doc at $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
+			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
 			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content));
 
@@ -139,7 +142,21 @@ class Likes
 				{
 					if ($result !== false)
 					{
-						$this->_type = $result;
+						// Does the user can see this?
+						if (isset($result['can_see']) && is_string($result['can_see']))
+							return $this->_error = $result['can_see'];
+
+						// Does the user can like this?
+						if (isset($result['can_like']) && is_string($result['can_like']))
+							return $this->_error = $result['can_like'];
+
+						// Match the type with what we already have.
+						if (!isset($result['type']) || $result['type'] != $this->_type)
+							return $this->_error = 'not_valid_like_type';
+
+						// Fill out the rest.
+						$this->_type = $result['type'];
+						$this->_validLikes = $result;
 						$found = true;
 						break;
 					}
@@ -238,8 +255,8 @@ function issueLike()
 	// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 	// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
 	// in integrate_valid_likes where it absolutely has to exist.
-	if (!empty($context['flush_cache']))
-		cache_put_data($context['flush_cache'], null);
+	if (!empty($this->_validLikes['flush_cache']))
+		cache_put_data($this->_validLikes['flush_cache'], null);
 
 	if (!empty($context['redirect_from_like']))
 		redirectexit($context['redirect_from_like']);
