@@ -24,16 +24,21 @@ class Likes
 	protected $_content = 0;
 	protected $_response = array();
 	protected $_view = false;
-	protected $_canLike = false;
-	protected $_redirect = '';
 
 	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
-	 * 'can_see' boolean|string whether or not the current user can see the like. return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file.
-	 * 'can_like' boolean|string whether or not the current user can actually like your content. Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file.
-	 * 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any the code will redirect the user to the main page.
+	 * 'can_see' boolean|string whether or not the current user can see the like.
+	 * 'can_like' boolean|string whether or not the current user can actually like your content. 
+	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
+	 * 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
+	 * 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 */
-	protected $_validLikes = array();
+	protected $_validLikes = array(
+		'can_see' => false,
+		'can_like' => false,
+		'redirect' => '',
+		'type' => '',
+	);
 
 	public function __construct()
 	{
