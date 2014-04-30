@@ -168,27 +168,29 @@ function template_unread()
 
 			// Now we handle the icons
 			echo '
-							<div class="icons">';
+									<div class="icons">';
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock floatright"></span>';
+										<span class="generic_icons lock floatright"></span>';
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky floatright"></span>';
+										<span class="generic_icons sticky floatright"></span>';
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll floatright"></span>';
+										<span class="generic_icons poll floatright"></span>';
 			echo '
-							</div>';
+									</div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			echo '
-									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
-									', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
-									<p>
+									<div class="recent_title">
+										<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
+										', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
+									</div>
+									<p class="floatleft">
 										', $topic['first_post']['started_by'], '
-										<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 									</p>
+									<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
 								</div>
 							</td>
 							<td class="', $color_class, ' stats">
@@ -326,27 +328,29 @@ function template_replies()
 
 			// Now we handle the icons
 			echo '
-							<div class="icons">';
+									<div class="icons">';
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock floatright"></span>';
+										<span class="generic_icons lock floatright"></span>';
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky floatright"></span>';
+										<span class="generic_icons sticky floatright"></span>';
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll floatright"></span>';
+										<span class="generic_icons poll floatright"></span>';
 			echo '
-							</div>';
+									</div>';
 
 			// [WIP] MEthinks the orange icons look better if they aren't all over the page.
 			echo '
-									<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
-									', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
-									<p>
+									<div class="recent_title">
+										<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '"><span class="new_posts">' . $txt['new'] . '</span></a>
+										', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty($settings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
+									</div>
+									<p class="floatleft">
 										', $topic['first_post']['started_by'], '
-										<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
 									</p>
+									<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
 								</div>
 							</td>
 							<td class="', $color_class, ' stats">
