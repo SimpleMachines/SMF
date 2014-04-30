@@ -16,7 +16,6 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-
 class Likes
 {
 	protected $_js = false;
@@ -26,6 +25,15 @@ class Likes
 	protected $_response = array();
 	protected $_view = false;
 	protected $_canLike = false;
+	protected $_redirect = '';
+
+	/**
+	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
+	 * 'can_see' boolean|string whether or not the current user can see the like. return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file.
+	 * 'can_like' boolean|string whether or not the current user can actually like your content. Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file.
+	 * 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any the code will redirect the user to the main page.
+	 */
+	protected $_validLikes = array();
 
 	public function __construct()
 	{
@@ -142,9 +150,13 @@ class Likes
  * @param string $this->_type The type of content being liked
  * @param integer $this->_content The ID of the content being liked
  */
-function issueLike($this->_type, $this->_content)
+function issueLike()
 {
 	global $context, $smcFunc;
+
+	// Safety first!
+	if (empty($this->_type) || empty($this->_content))
+		return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
 
 	// Do we already like this?
 	$request = $smcFunc['db_query']('', '
