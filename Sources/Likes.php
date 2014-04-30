@@ -18,12 +18,35 @@ if (!defined('SMF'))
 
 class Likes
 {
+	/**
+	 *@var boolean Know if a request comes from an ajax call or not, depends on $_GET['js'] been set.
+	 */
 	protected $_js = false;
+
+	/**
+	 *@var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
+	 */
 	protected $_error = false;
+
+	/**
+	 *@var string The unique type to like, needs to be unique and it needs to be no longer than 6 characters, only numbers and letters are allowed.
+	 */
 	protected $_type = '';
+
+	/**
+	 *@var integer a valid ID to identify your like content.
+	 */
 	protected $_content = 0;
 	protected $_response = array();
+
+	/**
+	 *@var boolean Boolean value to know if the request is for handling likes or returning a list of users who liked your content.
+	 */
 	protected $_view = false;
+
+	/**
+	 *@var integer The number of times your content has been liked.
+	 */
 	protected $_numLikes = 0;
 
 	/**
