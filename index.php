@@ -284,7 +284,6 @@ function smf_main()
 		'buddy' => array('Subs-Members.php', 'BuddyListToggle'),
 		'calendar' => array('Calendar.php', 'CalendarMain'),
 		'clock' => array('Calendar.php', 'clock'),
-		'collapse' => array('BoardIndex.php', 'CollapseCategory'),
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
