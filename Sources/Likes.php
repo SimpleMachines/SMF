@@ -257,11 +257,6 @@ function issueLike()
 	// in integrate_valid_likes where it absolutely has to exist.
 	if (!empty($this->_validLikes['flush_cache']))
 		cache_put_data($this->_validLikes['flush_cache'], null);
-
-	if (!empty($context['redirect_from_like']))
-		redirectexit($context['redirect_from_like']);
-	else
-		redirectexit(); // Because we have to go *somewhere*.
 }
 
 /**
