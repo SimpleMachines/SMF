@@ -303,13 +303,6 @@ function deleteMembers($users, $check_not_admin = false)
 			'users' => $users,
 		)
 	);
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}collapsed_categories
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
 
 	// Make their votes appear as guest votes - at least it keeps the totals right.
 	// @todo Consider adding back in cookie protection.
