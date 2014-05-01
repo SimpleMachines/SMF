@@ -2666,7 +2666,7 @@ function MessageActionsApply()
 					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				WHERE pm.id_pm_head IN ({array_int:head_pms})
 					AND pm.id_pm NOT IN ({array_int:head_pms})
-					AND pmr.id_recipient = {int:current_member}',
+					AND pmr.id_member = {int:current_member}',
 				array(
 					'head_pms' => array_keys($to_label),
 					'current_member' => $user_info['id'],
