@@ -83,10 +83,12 @@ class Likes
 	{
 		global $context, $smcFunc;
 
+		// Make sure the user can see and like your content-
 		$this->check();
 
+		// There was a problem, end execution and set a proper response.
 		if ($this->_error)
-			return $this->setResponse();
+			return $this->response();
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
@@ -113,7 +115,7 @@ class Likes
 		$this->_type = isset($matches[1]) ? $matches[1] : '';
 
 		if ($this->_type == '' || $this->_content <= 0)
-			return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+			return $this->_error = 'cannot_';
 
 		// First we need to verify if the user can see the type of content or not. This is set up to be extensible,
 		// so we'll check for the one type we do know about, and if it's not that, we'll defer to any hooks.
@@ -137,7 +139,7 @@ class Likes
 
 			$smcFunc['db_free_result']($request);
 			if (empty($id_topic))
-				return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+				return $this->_error = 'cannot_';
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
@@ -149,6 +151,7 @@ class Likes
 				$this->msgIssueLike();
 			}
 		}
+
 		else
 		{
 			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
@@ -188,7 +191,7 @@ class Likes
 			}
 
 			if (!$found)
-				return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+				return $this->_error = 'cannot_';
 		}
 	}
 
@@ -202,7 +205,7 @@ class Likes
 
 		// Safety first!
 		if (empty($this->_type) || empty($this->_content))
-			return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+			return $this->_error = 'cannot_';
 
 		// Do we already like this?
 		$request = $smcFunc['db_query']('', '
