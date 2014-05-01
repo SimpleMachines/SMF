@@ -27,7 +27,6 @@ function ReportToModerator()
 {
 	global $txt, $topic, $context, $smcFunc, $scripturl, $sourcedir;
 
-
 	$context['robot_no_index'] = true;
 	$context['comment_body'] = '';
 
@@ -458,7 +457,7 @@ function reportUser($id_member, $reason)
 	updateSettings(array('last_mod_report_action' => time()));
 
 	// Back to the post we reported!
-	redirectexit('reportsent;action=profile;u=' . $id_member);	
+	redirectexit('reportsent;action=profile;u=' . $id_member);
 }
 
 ?>
