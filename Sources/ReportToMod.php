@@ -37,7 +37,7 @@ function ReportToModerator()
 	// You can't use this if it's off or you are not allowed to do it.
 	// If we don't have the ID of something to report, we'll die with a no_access error below
 	if (isset($_REQUEST['msg']))
-		isAllowedTo('report_msg');
+		isAllowedTo('report_any');
 	elseif (isset($_REQUEST['u']))
 		isAllowedTo('report_user');
 
