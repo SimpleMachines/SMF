@@ -74,11 +74,11 @@ class Likes
 		$this->_js = isset($_GET['js']) ? true : false;
 	}
 
-/**
- * The main handler. Verifies permissions (whether the user can see the content in question)
- * before either liking/unliking or spitting out the list of likers.
- * Accessed from index.php?action=likes
- */
+	/**
+	 * The main handler. Verifies permissions (whether the user can see the content in question)
+	 * before either liking/unliking or spitting out the list of likers.
+	 * Accessed from index.php?action=likes
+	 */
 	protected function init()
 	{
 		global $context, $smcFunc;
@@ -192,38 +192,22 @@ class Likes
 		}
 	}
 
-/**
- * @param string $this->_type The type of content being liked
- * @param integer $this->_content The ID of the content being liked
- */
-function issueLike()
-{
-	global $context, $smcFunc;
-
-	// Safety first!
-	if (empty($this->_type) || empty($this->_content))
-		return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
-
-	// Do we already like this?
-	$request = $smcFunc['db_query']('', '
-		SELECT content_id, content_type, id_member
-		FROM {db_prefix}user_likes
-		WHERE content_id = {int:like_content}
-			AND content_type = {string:like_type}
-			AND id_member = {int:id_member}',
-		array(
-			'like_content' => $this->_content,
-			'like_type' => $this->_type,
-			'id_member' => $context['user']['id'],
-		)
-	);
-	$already_liked = $smcFunc['db_num_rows']($request) != 0;
-	$smcFunc['db_free_result']($request);
-
-	if ($already_liked)
+	/**
+	 * @param string $this->_type The type of content being liked
+	 * @param integer $this->_content The ID of the content being liked
+	 */
+	function issueLike()
 	{
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}user_likes
+		global $context, $smcFunc;
+
+		// Safety first!
+		if (empty($this->_type) || empty($this->_content))
+			return $this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+
+		// Do we already like this?
+		$request = $smcFunc['db_query']('', '
+			SELECT content_id, content_type, id_member
+			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
@@ -233,145 +217,157 @@ function issueLike()
 				'id_member' => $context['user']['id'],
 			)
 		);
-	}
-	else
-	{
-		// Insert the like.
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}user_likes',
-			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($this->_content, $this->_type, $context['user']['id'], time()),
-			array('content_id', 'content_type', 'id_member')
-		);
+		$already_liked = $smcFunc['db_num_rows']($request) != 0;
+		$smcFunc['db_free_result']($request);
 
-		// Add a background task to process sending alerts.
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}background_tasks',
-			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-				'content_id' => $this->_content,
-				'content_type' => $this->_type,
-				'sender_id' => $context['user']['id'],
-				'sender_name' => $context['user']['name'],
-				'time' => time(),
-			)), 0),
-			array('id_task')
-		);
-	}
-
-	// Now, how many people like this content now? We *could* just +1 / -1 the relevant container but that has proven to become unstable.
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(id_member)
-		FROM {db_prefix}user_likes
-		WHERE content_id = {int:like_content}
-			AND content_type = {string:like_type}',
-		array(
-			'like_content' => $this->_content,
-			'like_type' => $this->_type,
-		)
-	);
-	list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	// Sometimes there might be other things that need updating after we do this like.
-	call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes));
-
-	// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
-	// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
-	// in integrate_valid_likes where it absolutely has to exist.
-	if (!empty($this->_validLikes['flush_cache']))
-		cache_put_data($this->_validLikes['flush_cache'], null);
-}
-
-/**
- * Callback attached to integrate_issue_like.
- * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
- * attached to this message now.
- * @param string $this->_type The type of content being liked - should always be 'msg'
- * @param int $this->_content The ID of the post being liked
- * @param int $this->_numLikes The number of likes this message has received
- */
-function msg_issue_like($this->_type, $this->_content, $this->_numLikes)
-{
-	global $smcFunc;
-
-	if ($this->_type !== 'msg')
-		return;
-
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}messages
-		SET likes = {int:num_likes}
-		WHERE id_msg = {int:id_msg}',
-		array(
-			'id_msg' => $this->_content,
-			'num_likes' => $this->_numLikes,
-		)
-	);
-
-	// Note that we could just as easily have cleared the cache here, or set up the redirection address
-	// but if your liked content doesn't need to do anything other than have the record in smf_user_likes,
-	// there's no point in creating another function unnecessarily.
-}
-
-/**
- * This is for viewing the people who liked a thing.
- * Accessed from index.php?action=likes;view and should generally load in a popup.
- * We use a template for this in case themers want to style it.
- * @param string $this->_type The type of content being liked
- * @param integer $this->_content The ID of the content being liked
- */
-function viewLikes($this->_type, $this->_content)
-{
-	global $smcFunc, $txt, $context, $memberContext;
-
-	// Firstly, load what we need. We already know we can see this, so that's something.
-	$context['likers'] = array();
-	$request = $smcFunc['db_query']('', '
-		SELECT id_member, like_time
-		FROM {db_prefix}user_likes
-		WHERE content_id = {int:like_content}
-			AND content_type = {string:like_type}
-		ORDER BY like_time DESC',
-		array(
-			'like_content' => $this->_content,
-			'like_type' => $this->_type,
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$context['likers'][$row['id_member']] = array('timestamp' => $row['like_time']);
-
-	// Now to get member data, including avatars and so on.
-	$members = array_keys($context['likers']);
-	$loaded = loadMemberData($members);
-	if (count($loaded) != count($members))
-	{
-		$members = array_diff($members, $loaded);
-		foreach ($members as $not_loaded)
-			unset ($context['likers'][$not_loaded]);
-	}
-
-	foreach ($context['likers'] as $liker => $dummy)
-	{
-		$loaded = loadMemberContext($liker);
-		if (!$loaded)
+		if ($already_liked)
 		{
-			unset ($context['likers'][$liker]);
-			continue;
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}user_likes
+				WHERE content_id = {int:like_content}
+					AND content_type = {string:like_type}
+					AND id_member = {int:id_member}',
+				array(
+					'like_content' => $this->_content,
+					'like_type' => $this->_type,
+					'id_member' => $context['user']['id'],
+				)
+			);
+		}
+		else
+		{
+			// Insert the like.
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}user_likes',
+				array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
+				array($this->_content, $this->_type, $context['user']['id'], time()),
+				array('content_id', 'content_type', 'id_member')
+			);
+
+			// Add a background task to process sending alerts.
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+					'content_id' => $this->_content,
+					'content_type' => $this->_type,
+					'sender_id' => $context['user']['id'],
+					'sender_name' => $context['user']['name'],
+					'time' => time(),
+				)), 0),
+				array('id_task')
+			);
 		}
 
-		$context['likers'][$liker]['profile'] = &$memberContext[$liker];
-		$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
+		// Now, how many people like this content now? We *could* just +1 / -1 the relevant container but that has proven to become unstable.
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(id_member)
+			FROM {db_prefix}user_likes
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}',
+			array(
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+			)
+		);
+		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Sometimes there might be other things that need updating after we do this like.
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes));
+
+		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
+		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
+		// in integrate_valid_likes where it absolutely has to exist.
+		if (!empty($this->_validLikes['flush_cache']))
+			cache_put_data($this->_validLikes['flush_cache'], null);
 	}
 
-	$count = count($context['likers']);
-	$title_base = isset($txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
-	$context['page_title'] = strip_tags(sprintf($txt[$title_base], '', comma_format($count)));
+	/**
+	 * Callback attached to integrate_issue_like.
+	 * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
+	 * attached to this message now.
+	 */
+	function msgIssueLike()
+	{
+		global $smcFunc;
 
-	// Lastly, setting up for display
-	loadTemplate('Likes');
-	loadLanguage('Help'); // for the close window button
-	$context['template_layers'] = array();
-	$context['sub_template'] = 'popup';
+		if ($this->_type !== 'msg')
+			return;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}messages
+			SET likes = {int:num_likes}
+			WHERE id_msg = {int:id_msg}',
+			array(
+				'id_msg' => $this->_content,
+				'num_likes' => $this->_numLikes,
+			)
+		);
+
+		// Note that we could just as easily have cleared the cache here, or set up the redirection address
+		// but if your liked content doesn't need to do anything other than have the record in smf_user_likes,
+		// there's no point in creating another function unnecessarily.
+	}
+
+	/**
+	 * This is for viewing the people who liked a thing.
+	 * Accessed from index.php?action=likes;view and should generally load in a popup.
+	 * We use a template for this in case themers want to style it.
+	 */
+	function viewLikes()
+	{
+		global $smcFunc, $txt, $context, $memberContext;
+
+		// Firstly, load what we need. We already know we can see this, so that's something.
+		$context['likers'] = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, like_time
+			FROM {db_prefix}user_likes
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
+			ORDER BY like_time DESC',
+			array(
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$context['likers'][$row['id_member']] = array('timestamp' => $row['like_time']);
+
+		// Now to get member data, including avatars and so on.
+		$members = array_keys($context['likers']);
+		$loaded = loadMemberData($members);
+		if (count($loaded) != count($members))
+		{
+			$members = array_diff($members, $loaded);
+			foreach ($members as $not_loaded)
+				unset ($context['likers'][$not_loaded]);
+		}
+
+		foreach ($context['likers'] as $liker => $dummy)
+		{
+			$loaded = loadMemberContext($liker);
+			if (!$loaded)
+			{
+				unset ($context['likers'][$liker]);
+				continue;
+			}
+
+			$context['likers'][$liker]['profile'] = &$memberContext[$liker];
+			$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? timeformat($dummy['timestamp']) : '';
+		}
+
+		$count = count($context['likers']);
+		$title_base = isset($txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
+		$context['page_title'] = strip_tags(sprintf($txt[$title_base], '', comma_format($count)));
+
+		// Lastly, setting up for display
+		loadTemplate('Likes');
+		loadLanguage('Help'); // for the close window button
+		$context['template_layers'] = array();
+		$context['sub_template'] = 'popup';
+	}
 }
 
 /**
@@ -430,6 +426,5 @@ function BookOfUnknown()
 </html>';
 
 	obExit(false);
-}
 }
 ?>
