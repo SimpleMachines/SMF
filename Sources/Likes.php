@@ -66,12 +66,17 @@ class Likes
 		'flush_cache' => '',
 	);
 
+	/**
+	 * @var string The actual data to be returned when coming from an ajax call.
+	 */
+	protected $_data = '';
+
 	public function __construct()
 	{
 		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
-		$this->_view = isset($this->_view) ? $this->_view : false;
 		$this->_js = isset($_GET['js']) ? true : false;
+		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
 	}
 
 	/**
@@ -79,31 +84,41 @@ class Likes
 	 * before either liking/unliking or spitting out the list of likers.
 	 * Accessed from index.php?action=likes
 	 */
-	protected function init()
+	protected function call()
 	{
 		global $context, $smcFunc;
 
 		// Make sure the user can see and like your content-
 		$this->check();
 
-		// There was a problem, end execution and set a proper response.
-		if ($this->_error)
-			return $this->response();
+		$subActions = array(
+			'like',
+			'view',
+			'delete',
+			'add',
+		);
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
-		if ($this->_view)
-			$this->viewLikes();
-
-		else
+		if (isset($subActions[$this->_sa]))
 		{
-			// Only registered users may actually like content.
-			is_not_guest();
+			// To avoid ambiguity, turn the property to a normal var.
+			$call = $this->_sa;
+
+			// Guest can only view likes.
+			if ($call != 'view')
+				is_not_guest();
+
 			checkSession('get');
-			$this->issueLike();
+
+			// Call the appropriate method.
+			$this->$call();
+
+			// Send the response back to the browser.
+			$this->response();
 		}
 
-		$this->setResponse();
+		// else An error message.
 	}
 
 	protected function check()
@@ -370,6 +385,47 @@ class Likes
 		loadLanguage('Help'); // for the close window button
 		$context['template_layers'] = array();
 		$context['sub_template'] = 'popup';
+	}
+
+	protected function response()
+	{
+		global $context;
+
+		// Set everything up for display.
+		loadTemplate('Likes');
+		$context['template_layers'] = array();
+
+		// If there are any errors, process them first.
+		if ($this->_error)
+		{
+			// If this is a generic error, set it up good.
+			if ($this->_error == 'cannot_';)
+				$this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+
+			// Is this request coming from an ajax call?
+			if ($this->_js)
+			{
+				$context['sub_template'] = 'error';
+				$context['error'] = $this->_error;
+			}
+
+			// Nope?  then just do a redirect to whatever url was provided. add the error string only if they provided a valid url.
+			else
+				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
+		}
+
+		// No errors.. then perhaps we are viewing a list of likes.
+		else if ($this->_view)
+		{
+		}
+
+		// A like operation.
+		else
+		{
+			// Not an ajax request so send the user back to the previous location or the main page.
+			if (!$this->_js)
+				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
+		}
 	}
 }
 
