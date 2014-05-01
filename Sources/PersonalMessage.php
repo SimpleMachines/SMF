@@ -3857,7 +3857,11 @@ function ManageRules()
 					)
 				);
 				if ($smcFunc['db_num_rows']($request) == 0)
+				{
+					loadLanguage('Errors');
+					fatal_lang_error('invalid_username', false);
 					continue;
+				}
 				list ($memID) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
