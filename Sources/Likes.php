@@ -51,25 +51,30 @@ class Likes
 
 	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
-	 * 'can_see' boolean|string whether or not the current user can see the like.
-	 * 'can_like' boolean|string whether or not the current user can actually like your content.
+	 * => 'can_see' boolean|string whether or not the current user can see the like.
+	 * => 'can_like' boolean|string whether or not the current user can actually like your content.
 	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
-	 * 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
-	 * 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
-	 * 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
+	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
+	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
+	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
-		'flush_cache' => '',
+		'flush_cache' => '',$smcFunc
 	);
 
 	/**
-	 * @var string The actual data to be returned when coming from an ajax call.
+	 * @var array The current user.
 	 */
-	protected $_data = '';
+	protected $_user;
+
+	/**
+	 * @var boolean to know if response(); will be executed as normal. If this is set to false it indicates the method already solved its own way to send back a response.
+	 */
+	protected $_setResponse = true;
 
 	public function __construct()
 	{
@@ -88,19 +93,21 @@ class Likes
 	{
 		global $context, $smcFunc;
 
-		// Make sure the user can see and like your content-
+		$this->_user = $context['user'];
+
+		// Make sure the user can see and like your content.
 		$this->check();
 
 		$subActions = array(
 			'like',
 			'view',
 			'delete',
-			'add',
+			'insert',
 		);
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
-		if (isset($subActions[$this->_sa]))
+		if (isset($subActions[$this->_sa]) && empty($this->_error))
 		{
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
@@ -160,7 +167,7 @@ class Likes
 			// If we're not viewing, we need some info set up.
 			if (!$this->_view)
 			{
-				$this->_validLikes['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $context['user']['id'];
+				$this->_validLikes['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $this->_user['id'];
 				$this->_validLikes['redirect'] = 'topic=' . $id_topic . '.msg' . $this->_content . '#msg' . $this->_content;
 				$this->_validLikes['can_see'] = true;
 				$this->msgIssueLike();
@@ -210,11 +217,69 @@ class Likes
 		}
 	}
 
-	/**
-	 * @param string $this->_type The type of content being liked
-	 * @param integer $this->_content The ID of the content being liked
-	 */
-	function issueLike()
+	protected function delete()
+	{
+		global $smcFunc;
+
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}user_likes
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
+				AND id_member = {int:id_member}',
+			array(
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+				'id_member' => $this->_user['id'],
+			)
+		);
+	}
+
+	protected function insert()
+	{
+		global $smcFunc;
+
+		// Insert the like.
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}user_likes',
+			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
+			array($this->_content, $this->_type, $this->_user['id'], time()),
+			array('content_id', 'content_type', 'id_member')
+		);
+
+		// Add a background task to process sending alerts.
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+				'content_id' => $this->_content,
+				'content_type' => $this->_type,
+				'sender_id' => $this->_user['id'],
+				'sender_name' => $this->_user['name'],
+				'time' => time(),
+			)), 0),
+			array('id_task')
+		);
+	}
+
+	protected function _count()
+	{
+		global $smcFunc;
+
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(id_member)
+			FROM {db_prefix}user_likes
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}',
+			array(
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+			)
+		);
+		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+	}
+
+	protected function like()
 	{
 		global $context, $smcFunc;
 
@@ -232,64 +297,20 @@ class Likes
 			array(
 				'like_content' => $this->_content,
 				'like_type' => $this->_type,
-				'id_member' => $context['user']['id'],
+				'id_member' => $this->_user['id'],
 			)
 		);
 		$already_liked = $smcFunc['db_num_rows']($request) != 0;
 		$smcFunc['db_free_result']($request);
 
 		if ($already_liked)
-		{
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}user_likes
-				WHERE content_id = {int:like_content}
-					AND content_type = {string:like_type}
-					AND id_member = {int:id_member}',
-				array(
-					'like_content' => $this->_content,
-					'like_type' => $this->_type,
-					'id_member' => $context['user']['id'],
-				)
-			);
-		}
-		else
-		{
-			// Insert the like.
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}user_likes',
-				array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-				array($this->_content, $this->_type, $context['user']['id'], time()),
-				array('content_id', 'content_type', 'id_member')
-			);
+			$this->delete();
 
-			// Add a background task to process sending alerts.
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-					'content_id' => $this->_content,
-					'content_type' => $this->_type,
-					'sender_id' => $context['user']['id'],
-					'sender_name' => $context['user']['name'],
-					'time' => time(),
-				)), 0),
-				array('id_task')
-			);
-		}
+		else
+			$this->insert();
 
 		// Now, how many people like this content now? We *could* just +1 / -1 the relevant container but that has proven to become unstable.
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(id_member)
-			FROM {db_prefix}user_likes
-			WHERE content_id = {int:like_content}
-				AND content_type = {string:like_type}',
-			array(
-				'like_content' => $this->_content,
-				'like_type' => $this->_type,
-			)
-		);
-		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
+		$this->_count();
 
 		// Sometimes there might be other things that need updating after we do this like.
 		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes));
@@ -333,7 +354,7 @@ class Likes
 	 * Accessed from index.php?action=likes;view and should generally load in a popup.
 	 * We use a template for this in case themers want to style it.
 	 */
-	function viewLikes()
+	function view()
 	{
 		global $smcFunc, $txt, $context, $memberContext;
 
@@ -385,11 +406,18 @@ class Likes
 		loadLanguage('Help'); // for the close window button
 		$context['template_layers'] = array();
 		$context['sub_template'] = 'popup';
+
+		// We already took care of our response so there is no need to bother with respond();
+		$this->_setResponse = false;
 	}
 
 	protected function response()
 	{
 		global $context;
+
+		// Don't do anything if someone else has already take care of the response.
+		if (!$this->_setResponse)
+			return;
 
 		// Set everything up for display.
 		loadTemplate('Likes');
@@ -412,11 +440,6 @@ class Likes
 			// Nope?  then just do a redirect to whatever url was provided. add the error string only if they provided a valid url.
 			else
 				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
-		}
-
-		// No errors.. then perhaps we are viewing a list of likes.
-		else if ($this->_view)
-		{
 		}
 
 		// A like operation.
