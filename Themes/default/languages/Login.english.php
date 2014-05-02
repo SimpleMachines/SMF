@@ -12,8 +12,7 @@ $txt['agree_coppa_above'] = 'I am at least %1$d years old.';
 $txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
 // Registration form.
-
-$txt['error_too_quickly'] = 'You went through registration a bit too quickly, faster than should normally be possible. Please give it a moment and try again.';
+$txt['registration_form'] = 'Registration Form';
 $txt['need_username'] = 'You need to fill in a username.';
 $txt['no_password'] = 'You didn\'t enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
