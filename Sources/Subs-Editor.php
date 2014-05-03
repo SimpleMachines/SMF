@@ -1377,7 +1377,7 @@ function getMessageIcons($board_id)
 			array('value' => 'xx', 'name' => $txt['standard']),
 			array('value' => 'thumbup', 'name' => $txt['thumbs_up']),
 			array('value' => 'thumbdown', 'name' => $txt['thumbs_down']),
-			array('value' => 'exclamation', 'name' => $txt['excamation_point']),
+			array('value' => 'exclamation', 'name' => $txt['exclamation_point']),
 			array('value' => 'question', 'name' => $txt['question_mark']),
 			array('value' => 'lamp', 'name' => $txt['lamp']),
 			array('value' => 'smiley', 'name' => $txt['icon_smiley']),
