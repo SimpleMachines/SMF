@@ -1400,7 +1400,7 @@ function getMessageIcons($board_id)
 	{
 		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
 		{
-			$request = $smcFunc['db_query']('select_message_icons', '
+			$request = $smcFunc['db_query']('', '
 				SELECT title, filename
 				FROM {db_prefix}message_icons
 				WHERE id_board IN (0, {int:board_id})
