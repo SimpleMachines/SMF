@@ -52,14 +52,14 @@ function template_popup()
 
 function template_like()
 {
-	global $context;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<ul class="floatleft">';
 	if (!empty($context['data']['can_like']))
 	{
 		echo '
-									<li class="like_button" id="msg_', $context['data']['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $context['data']['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $context['data']['you'] ? 'unlike' : 'like', '"></span>', $context['data']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+		<li class="like_button" id="msg_', $context['data']['id_msg'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $context['data']['id_msg'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($context['data']['count']))
@@ -67,7 +67,7 @@ function template_like()
 		$context['some_likes'] = true;
 		$count = $context['data']['count'];
 		$base = 'likes_';
-		if ($context['data']['you'])
+		if ($context['data']['already_liked'])
 		{
 			$base = 'you_' . $base;
 			$count--;
@@ -75,11 +75,11 @@ function template_like()
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $context['data']['id'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $context['data']['id_msg'], comma_format($count)), '</li>';
 	}
 
 	echo '
-								</ul>';
+	</ul>';
 }
 
 function template_generic()

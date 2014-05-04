@@ -72,6 +72,11 @@ class Likes
 	protected $_user;
 
 	/**
+	 * @var integer The topic ID, used for liking messages.
+	 */
+	protected $_idTopic = 0;
+
+	/**
 	 * @var boolean to know if response(); will be executed as normal. If this is set to false it indicates the method already solved its own way to send back a response.
 	 */
 	protected $_setResponse = true;
@@ -158,19 +163,20 @@ class Likes
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) == 1)
-				list ($id_topic) = $smcFunc['db_fetch_row']($request);
+				list ($this->_idTopic) = $smcFunc['db_fetch_row']($request);
 
 			$smcFunc['db_free_result']($request);
-			if (empty($id_topic))
+			if (empty($this->_idTopic))
 				return $this->_error = 'cannot_';
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
 			if (!$this->_view)
 			{
-				$this->_validLikes['flush_cache'] = 'likes_topic_' . $id_topic . '_' . $this->_user['id'];
-				$this->_validLikes['redirect'] = 'topic=' . $id_topic . '.msg' . $this->_content . '#msg' . $this->_content;
+				$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
+				$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
 				$this->_validLikes['can_see'] = true;
+				$this->_validLikes['can_like'] = true;
 				$this->msgIssueLike();
 			}
 		}
@@ -340,6 +346,16 @@ class Likes
 		// in integrate_valid_likes where it absolutely has to exist.
 		if (!empty($this->_validLikes['flush_cache']))
 			cache_put_data($this->_validLikes['flush_cache'], null);
+
+		// All done, start building the data to pass as response.
+		$this->_data = array(
+			'id_topic' => $this->_idTopic,
+			'id_msg' => $this->_content,
+			'count' => $this->_numLikes,
+			'can_like' => $this->_validLikes['can_like'],
+			'can_see' => $this->_validLikes['can_see'],
+			'already_liked' => $already_liked,
+		);
 	}
 
 	/**
