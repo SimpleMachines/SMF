@@ -2905,9 +2905,9 @@ function user_info_callback($matches)
 
 /**
  * spell_init()
- * 
+ *
  * Sets up a dictionary resource handle. Tries enchant first then falls through to pspell.
- * 
+ *
  * @return resource|bool An enchant or pspell dictionary resource handle or false if the dictionary couldn't be loaded
  */
 function spell_init()
@@ -2927,7 +2927,7 @@ function spell_init()
 
 		// Try locale first, then general...
 		if (!empty($lang_locale) && enchant_broker_dict_exists($context['enchant_broker'], $lang_locale))
-		{			
+		{
 			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $lang_locale);
 		}
 		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
@@ -2982,9 +2982,9 @@ function spell_init()
 
 /**
  * spell_check()
- * 
+ *
  * Determines whether or not the specified word is spelled correctly
- * 
+ *
  * @param resource $dict An enchant or pspell dictionary resource set up by {@link spell_init()}
  * @param string $word A word to check the spelling of
  * @return bool Whether or not the specified word is spelled properly
@@ -3012,9 +3012,9 @@ function spell_check($dict, $word)
 
 /**
  * spell_suggest()
- * 
+ *
  * Returns an array of suggested replacements for the specified word
- * 
+ *
  * @param resource $dict An enchant or pspell dictioary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
@@ -3031,7 +3031,7 @@ function spell_suggest($dict, $word)
 			// Convert the word to UTF-8 before getting suggestions
 			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
 			$suggestions = enchant_dict_suggest($dict, $word);
-			
+
 			// Go through the suggestions and convert them back to the proper character set
 			foreach($suggestions as $index => $suggestion)
 			{
