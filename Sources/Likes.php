@@ -238,11 +238,17 @@ class Likes
 	{
 		global $smcFunc;
 
+		// Any last minute changes? Temporary turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
+		$type = $this->_type;
+		$content = $this->_content;
+		$user = $this->_user['id'];
+		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user));
+
 		// Insert the like.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($this->_content, $this->_type, $this->_user['id'], time()),
+			array($content, $type, $this->_user['id'], time()),
 			array('content_id', 'content_type', 'id_member')
 		);
 
@@ -316,7 +322,7 @@ class Likes
 		$this->_count();
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes));
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, $already_liked));
 
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
