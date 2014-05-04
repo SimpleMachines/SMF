@@ -277,6 +277,9 @@ class Likes
 		);
 		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
+
+		// If you want to call this directly, fill out _data property too.
+		$this->_data = $this->_numLikes;
 	}
 
 	protected function like()
@@ -413,7 +416,7 @@ class Likes
 
 	protected function response()
 	{
-		global $context;
+		global $context, $txt;
 
 		// Don't do anything if someone else has already take care of the response.
 		if (!$this->_setResponse)
@@ -434,7 +437,7 @@ class Likes
 			if ($this->_js)
 			{
 				$context['sub_template'] = 'error';
-				$context['error'] = $this->_error;
+				$context['error'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
 			// Nope?  then just do a redirect to whatever url was provided. add the error string only if they provided a valid url.
@@ -448,6 +451,12 @@ class Likes
 			// Not an ajax request so send the user back to the previous location or the main page.
 			if (!$this->_js)
 				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
+
+			// No? then call the relevant sub-template and pass any info available.
+			$context['sub_template'] = $this->_type;
+
+			// If no data was provided, fallback to a generic "success" string.
+			$context['data'] = $this->_data;
 		}
 	}
 }
