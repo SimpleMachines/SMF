@@ -1963,7 +1963,7 @@ function Post2()
 		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	if (isset($_POST['sticky']))
-		logAction('sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
+		logAction(empty($_POST['sticky']) ? 'unsticky' : 'sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	// Notify any members who have notification turned on for this topic - only do this if it's going to be approved(!)
 	if ($becomesApproved)
