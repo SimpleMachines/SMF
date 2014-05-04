@@ -795,7 +795,7 @@ function DatabaseSettings()
 		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
-		
+
 		if (!empty($_POST['db_port']))
 			$incontext['db']['port'] = $_POST['db_port'];
 	}
