@@ -50,4 +50,11 @@ function template_popup()
 </html>';
 }
 
+function template_generic()
+{
+	global $context;
+
+	echo $context['data'];
+}
+
 ?>

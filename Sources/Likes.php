@@ -453,8 +453,8 @@ class Likes
 			// Is this request coming from an ajax call?
 			if ($this->_js)
 			{
-				$context['sub_template'] = 'error';
-				$context['error'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
+				$context['sub_template'] = 'generic';
+				$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
 			// Nope?  then just do a redirect to whatever url was provided. add the error string only if they provided a valid url.
@@ -469,11 +469,19 @@ class Likes
 			if (!$this->_js)
 				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
 
-			// No? then call the relevant sub-template and pass any info available.
-			$context['sub_template'] = $this->_type;
+			// These fine gentlemen all share the same template.
+			$generic = array('delete', 'insert', '_count');
+			if (in_array($this->_type, $generic))
+			{
+				$context['sub_template'] = 'generic';
+				$context['data'] = isset($txt['like_'. $this->_data]) ? $txt['like_'. $this->_data] : $this->_data;
+			}
 
-			// If no data was provided, fallback to a generic "success" string.
-			$context['data'] = $this->_data;
+			else
+			{
+				$context['sub_template'] = $this->_type;
+				$context['data'] = $this->_data;
+			}
 		}
 	}
 }
