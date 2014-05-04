@@ -244,14 +244,6 @@ function initialize_inputs()
 		exit;
 	}
 
-	// Are we calling the backup css file?
-	if (isset($_GET['infile_css']))
-	{
-		header('Content-Type: text/css');
-		template_css();
-		exit;
-	}
-
 	// Anybody home?
 	if (!isset($_GET['xml']))
 	{
