@@ -1966,17 +1966,6 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		trackStats(array('posts' => '+'));
 	}
 
-	// Creating is modifying...in a way.
-	// @todo Why not set id_msg_modified on the insert?
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}messages
-		SET id_msg_modified = {int:id_msg}
-		WHERE id_msg = {int:id_msg}',
-		array(
-			'id_msg' => $msgOptions['id'],
-		)
-	);
-
 	// Increase the number of posts and topics on the board.
 	if ($msgOptions['approved'])
 		$smcFunc['db_query']('', '
