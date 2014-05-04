@@ -241,7 +241,7 @@ class Likes
 		);
 
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
-		if ($this->_type == __FUNCTION__)
+		if ($this->_sa == __FUNCTION__)
 			$this->_data = __FUNCTION__;
 	}
 
@@ -279,7 +279,7 @@ class Likes
 		);
 
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
-		if ($this->_type == __FUNCTION__)
+		if ($this->_sa == __FUNCTION__)
 			$this->_data = __FUNCTION__;
 	}
 
@@ -301,7 +301,7 @@ class Likes
 		$smcFunc['db_free_result']($request);
 
 		// If you want to call this directly, fill out _data property too.
-		if ($this->_type == __FUNCTION__)
+		if ($this->_sa == __FUNCTION__)
 			$this->_data = $this->_numLikes;
 	}
 
