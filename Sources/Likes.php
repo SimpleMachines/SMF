@@ -103,6 +103,7 @@ class Likes
 			'view',
 			'delete',
 			'insert',
+			'_count',
 		);
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
@@ -178,7 +179,7 @@ class Likes
 		{
 			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
 			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
-			// Otherwise, fill an array according to the doc at $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
+			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
 			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content));
@@ -232,6 +233,10 @@ class Likes
 				'id_member' => $this->_user['id'],
 			)
 		);
+
+		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
+		if ($this->_type == __FUNCTION__)
+			$this->_data = __FUNCTION__;
 	}
 
 	protected function insert()
@@ -241,14 +246,15 @@ class Likes
 		// Any last minute changes? Temporary turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
 		$type = $this->_type;
 		$content = $this->_content;
-		$user = $this->_user['id'];
-		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user));
+		$user = $this->_user;
+		$time = time();
+		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
 
 		// Insert the like.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($content, $type, $this->_user['id'], time()),
+			array($content, $type, $user, $time),
 			array('content_id', 'content_type', 'id_member')
 		);
 
@@ -257,14 +263,18 @@ class Likes
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-				'content_id' => $this->_content,
-				'content_type' => $this->_type,
-				'sender_id' => $this->_user['id'],
-				'sender_name' => $this->_user['name'],
-				'time' => time(),
+				'content_id' => $content,
+				'content_type' => $type,
+				'sender_id' => $user,
+				'sender_name' => $user['name'],
+				'time' => $time,
 			)), 0),
 			array('id_task')
 		);
+
+		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
+		if ($this->_type == __FUNCTION__)
+			$this->_data = __FUNCTION__;
 	}
 
 	protected function _count()
@@ -285,7 +295,8 @@ class Likes
 		$smcFunc['db_free_result']($request);
 
 		// If you want to call this directly, fill out _data property too.
-		$this->_data = $this->_numLikes;
+		if ($this->_type == __FUNCTION__)
+			$this->_data = $this->_numLikes;
 	}
 
 	protected function like()
