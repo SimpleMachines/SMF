@@ -2324,8 +2324,12 @@ ul.quickbuttons li.inline_mod_check {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.quickbuttons li:first-child {
+.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
+	padding-bottom: 0;
+}
+.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
+	border-radius: 1px 4px 4px 1px;
 	padding-bottom: 0;
 }
 .quickbuttons li:hover {
@@ -2344,7 +2348,7 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 }
 .quickbuttons li.quick_edit img {
-	padding: 4px 7em 4px 4px;
+	padding: 2px;
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -2364,7 +2368,6 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
-	border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
