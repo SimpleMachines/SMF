@@ -297,7 +297,7 @@ function smf_main()
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
-		'likes' => array('Likes.php', 'Likes'),
+		'likes' => array('Likes.php', 'Likes::call#'),
 		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),

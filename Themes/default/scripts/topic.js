@@ -762,16 +762,31 @@ function add_like_popup()
 	$(".like_count a").click(function(e) {
 		e.preventDefault();
 		var title = $(this).parent().text();
-		return reqOverlayDiv($(this).prop("href"), title);
+		return reqOverlayDiv($(this).prop("href") + ';js=1', title);
 	});
 }
 
 // Message likes.
 $(function() {
-	jQuery(document).on('click', '.msg_like', function(event){
+	$(document).on('click', '.msg_like', function(event){
+		var obj = $(this);
 		event.preventDefault();
 		ajax_indicator(true);
-
+		$.ajax({
+			type: 'GET',
+			url: obj.attr('href') + ';js=1;',
+			cache: false,
+			dataType: 'html',
+			success: function(html)
+			{
+				ajax_indicator(false);
+				obj.closest('ul').replaceWith(html);
+			},
+			error: function (html)
+			{
+				ajax_indicator(false);
+			}
+		});
 
 		return false;
 	});

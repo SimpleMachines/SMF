@@ -37,12 +37,6 @@ class Likes
 	 *@var integer a valid ID to identify your like content.
 	 */
 	protected $_content = 0;
-	protected $_response = array();
-
-	/**
-	 *@var boolean Boolean value to know if the request is for handling likes or returning a list of users who liked your content.
-	 */
-	protected $_view = false;
 
 	/**
 	 *@var integer The number of times your content has been liked.
@@ -63,7 +57,7 @@ class Likes
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
-		'flush_cache' => '',$smcFunc
+		'flush_cache' => '',
 	);
 
 	/**
@@ -94,7 +88,7 @@ class Likes
 	 * before either liking/unliking or spitting out the list of likers.
 	 * Accessed from index.php?action=likes
 	 */
-	protected function call()
+	public function call()
 	{
 		global $context, $smcFunc;
 
@@ -113,8 +107,12 @@ class Likes
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
-		if (isset($subActions[$this->_sa]) && empty($this->_error))
+		if (in_array($this->_sa, $subActions) && empty($this->_error))
 		{
+			// Set everything up for display.
+			loadTemplate('Likes');
+			$context['template_layers'] = array();
+
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
 
@@ -171,14 +169,10 @@ class Likes
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
-			if (!$this->_view)
-			{
-				$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
-				$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
-				$this->_validLikes['can_see'] = true;
-				$this->_validLikes['can_like'] = true;
-				$this->msgIssueLike();
-			}
+			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
+			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
+			$this->_validLikes['can_see'] = true;
+			$this->_validLikes['can_like'] = true;
 		}
 
 		else
@@ -260,7 +254,7 @@ class Likes
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
-			array($content, $type, $user, $time),
+			array($content, $type, $user['id'], $time),
 			array('content_id', 'content_type', 'id_member')
 		);
 
@@ -281,6 +275,10 @@ class Likes
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
 			$this->_data = __FUNCTION__;
+
+		// Update the likes count for messages.
+		if ($this->_type == 'msg')
+			$this->msgIssueLike();
 	}
 
 	protected function _count()
@@ -326,7 +324,7 @@ class Likes
 				'id_member' => $this->_user['id'],
 			)
 		);
-		$already_liked = $smcFunc['db_num_rows']($request) != 0;
+		$already_liked = (bool) $smcFunc['db_num_rows']($request) != 0;
 		$smcFunc['db_free_result']($request);
 
 		if ($already_liked)
@@ -354,7 +352,7 @@ class Likes
 			'count' => $this->_numLikes,
 			'can_like' => $this->_validLikes['can_like'],
 			'can_see' => $this->_validLikes['can_see'],
-			'already_liked' => $already_liked,
+			'already_liked' => empty($already_liked),
 		);
 	}
 
@@ -455,16 +453,12 @@ class Likes
 		if (!$this->_setResponse)
 			return;
 
-		// Set everything up for display.
-		loadTemplate('Likes');
-		$context['template_layers'] = array();
-
 		// If there are any errors, process them first.
 		if ($this->_error)
 		{
 			// If this is a generic error, set it up good.
-			if ($this->_error == 'cannot_';)
-				$this->_error = $this->_view ? 'cannot_view_likes' : 'cannot_like_content';
+			if ($this->_error == 'cannot_')
+				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 
 			// Is this request coming from an ajax call?
 			if ($this->_js)
@@ -487,7 +481,7 @@ class Likes
 
 			// These fine gentlemen all share the same template.
 			$generic = array('delete', 'insert', '_count');
-			if (in_array($this->_type, $generic))
+			if (in_array($this->_sa, $generic))
 			{
 				$context['sub_template'] = 'generic';
 				$context['data'] = isset($txt['like_'. $this->_data]) ? $txt['like_'. $this->_data] : $this->_data;
@@ -495,7 +489,7 @@ class Likes
 
 			else
 			{
-				$context['sub_template'] = $this->_type;
+				$context['sub_template'] = $this->_sa;
 				$context['data'] = $this->_data;
 			}
 		}

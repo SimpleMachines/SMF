@@ -56,6 +56,7 @@ function template_like()
 
 	echo '
 	<ul class="floatleft">';
+
 	if (!empty($context['data']['can_like']))
 	{
 		echo '
@@ -75,7 +76,7 @@ function template_like()
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $context['data']['id_msg'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $context['data']['id_msg'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '
