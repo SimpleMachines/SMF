@@ -275,10 +275,6 @@ class Likes
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
 			$this->_data = __FUNCTION__;
-
-		// Update the likes count for messages.
-		if ($this->_type == 'msg')
-			$this->msgIssueLike();
 	}
 
 	protected function _count()
@@ -335,6 +331,10 @@ class Likes
 
 		// Now, how many people like this content now? We *could* just +1 / -1 the relevant container but that has proven to become unstable.
 		$this->_count();
+
+		// Update the likes count for messages.
+		if ($this->_type == 'msg')
+			$this->msgIssueLike();
 
 		// Sometimes there might be other things that need updating after we do this like.
 		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, $already_liked));
