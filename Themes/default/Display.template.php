@@ -350,10 +350,6 @@ function template_main()
 	echo '
 				<script><!-- // --><![CDATA[';
 
-	if (!empty($context['some_likes']))
-		echo '
-					add_like_popup();';
-
 	echo '
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,

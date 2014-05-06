@@ -757,14 +757,14 @@ function ignore_toggles(msgids, text)
 }
 
 // Likes count for messages.
-function add_like_popup()
-{
-	$(".like_count a").click(function(e) {
+$(function() {
+	$(document).on('click', '.like_count a', function(e){
 		e.preventDefault();
-		var title = $(this).parent().text();
-		return reqOverlayDiv($(this).prop("href") + ';js=1', title);
+		var title = $(this).parent().text(),
+			url = $(this).attr('href') + ';js=1';
+		return reqOverlayDiv(url, title);
 	});
-}
+});
 
 // Message likes.
 $(function() {
