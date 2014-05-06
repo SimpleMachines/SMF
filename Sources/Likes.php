@@ -51,6 +51,7 @@ class Likes
 	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
+	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_hook_helper(); so the same format for your function/method can be applied here.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
@@ -58,10 +59,11 @@ class Likes
 		'redirect' => '',
 		'type' => '',
 		'flush_cache' => '',
+		'callback' => false,
 	);
 
 	/**
-	 * @var array The current user.
+	 * @var array The current user info ($user_info).
 	 */
 	protected $_user;
 
@@ -75,6 +77,11 @@ class Likes
 	 */
 	protected $_setResponse = true;
 
+	/**
+	 * Likes::__construct()
+	 *
+	 * Sets the basic data needed for the rest of the process.
+	 */
 	public function __construct()
 	{
 		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
@@ -84,9 +91,12 @@ class Likes
 	}
 
 	/**
-	 * The main handler. Verifies permissions (whether the user can see the content in question)
-	 * before either liking/unliking or spitting out the list of likers.
+	 * Likes::call()
+	 *
+	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different subactions.
 	 * Accessed from index.php?action=likes
+	 * @param
+	 * @return
 	 */
 	public function call()
 	{
@@ -132,6 +142,12 @@ class Likes
 		// else An error message.
 	}
 
+	/**
+	 * Likes::check()
+	 *
+	 * Performs basic checks on the data provided, checks for a valid msg like.
+	 * Calls integrate_valid_likes hook for retrieving all the data needed and apply checks based on the data provided.
+	 */
 	protected function check()
 	{
 		global $smcFunc, $context;
@@ -218,6 +234,11 @@ class Likes
 		}
 	}
 
+	/**
+	 * Likes::delete()
+	 *
+	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id']
+	 */
 	protected function delete()
 	{
 		global $smcFunc;
@@ -239,6 +260,11 @@ class Likes
 			$this->_data = __FUNCTION__;
 	}
 
+	/**
+	 * Likes::insert()
+	 *
+	 * Inserts a new entry on user_likes table. Creates a background task for the inserted entry.
+	 */
 	protected function insert()
 	{
 		global $smcFunc;
@@ -277,6 +303,11 @@ class Likes
 			$this->_data = __FUNCTION__;
 	}
 
+	/**
+	 * Likes::_count()
+	 *
+	 * Sets $_numLikes with the actual number of likes your content has, needs two properties: $_content and $_view. When called directly it will return the number of likes as response.
+	 */
 	protected function _count()
 	{
 		global $smcFunc;
@@ -299,6 +330,11 @@ class Likes
 			$this->_data = $this->_numLikes;
 	}
 
+	/**
+	 * Likes::like()
+	 *
+	 * Performs a like action, either like or unlike. Counts the total of likes and calls a hook after the event.
+	 */
 	protected function like()
 	{
 		global $context, $smcFunc;
@@ -336,6 +372,13 @@ class Likes
 		if ($this->_type == 'msg')
 			$this->msgIssueLike();
 
+		// Any callbacks?
+		elseif (!empty($this->_validLikes['callback']))
+		{
+			$call = call_hook_helper($this->_validLikes['callback']);
+			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, $already_liked));
+		}
+
 		// Sometimes there might be other things that need updating after we do this like.
 		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, $already_liked));
 
@@ -357,7 +400,8 @@ class Likes
 	}
 
 	/**
-	 * Callback attached to integrate_issue_like.
+	 * Likes::msgIssueLike()
+	 *
 	 * Partly it indicates how it's supposed to work and partly it deals with updating the count of likes
 	 * attached to this message now.
 	 */
@@ -384,6 +428,8 @@ class Likes
 	}
 
 	/**
+	 * Likes::view()
+	 *
 	 * This is for viewing the people who liked a thing.
 	 * Accessed from index.php?action=likes;view and should generally load in a popup.
 	 * We use a template for this in case themers want to style it.
@@ -445,6 +491,13 @@ class Likes
 		$this->_setResponse = false;
 	}
 
+	/**
+	 * Likes::response()
+	 *
+	 * Checks if the user cna use JavaScript and acts accordingly 
+	 * Calls the appropriate sub-template for each method
+	 * Handles error messages.
+	 */
 	protected function response()
 	{
 		global $context, $txt;
@@ -467,7 +520,7 @@ class Likes
 				$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
-			// Nope?  then just do a redirect to whatever url was provided. add the error string only if they provided a valid url.
+			// Nope?  then just do a redirect to whatever url was provided.
 			else
 				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
 		}
