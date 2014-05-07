@@ -408,9 +408,9 @@ function template_menu()
 
 	echo '
 				<div id="main_menu">
-					<button class="desk">Toggle</button>
+					<a class="button">Toggle</a>
 					<script>
-						$( "button" ).click(function() {
+						$( "a" ).click(function() {
 							$( ".toggle_m" ).toggle();
 						});</script>
 					<div class="toggle_m">
@@ -422,13 +422,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['title'], '';
-
-		if (!empty($button['sub_buttons']))
-			echo '
-							</a><span class="resp_menu">abc</span>';
-		else
-			echo '
+								', $button['title'], '
 							</a>';
 
 		if (!empty($button['sub_buttons']))
