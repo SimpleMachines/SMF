@@ -791,7 +791,7 @@ function template_show_settings()
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
-				
+
 				// Various HTML5 input types that are basically enhanced textboxes
 				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
 
@@ -1082,7 +1082,12 @@ function template_edit_profile_field()
 											<dd>
 												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check">
 											</dd>
-
+											<dt>
+												<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
+											</dt>
+											<dd>
+												<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
+											</dd>
 											<dt>
 												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
 											</dt>
@@ -1091,6 +1096,10 @@ function template_edit_profile_field()
 													<option value="0"', $context['field']['placement'] == '0' ? ' selected' : '', '>', $txt['custom_edit_placement_standard'], '</option>
 													<option value="1"', $context['field']['placement'] == '1' ? ' selected' : '', '>', $txt['custom_edit_placement_withicons'], '</option>
 													<option value="2"', $context['field']['placement'] == '2' ? ' selected' : '', '>', $txt['custom_edit_placement_abovesignature'], '</option>
+													<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
+													<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
+													<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_above_name'], '</option>
+													<option value="6"', $context['field']['placement'] == '6' ? ' selected' : '', '>', $txt['custom_profile_placement_bottom'], '</option>
 												</select>
 											</dd>
 											<dt>

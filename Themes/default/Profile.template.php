@@ -579,8 +579,6 @@ function template_editBuddies()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
-	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
-
 	if (!empty($context['saved_successful']))
 		echo '
 					<div class="infobox">', $context['user']['is_owner'] ? $txt['profile_updated_own'] : sprintf($txt['profile_updated_else'], $context['member']['name']), '</div>';
@@ -597,15 +595,19 @@ function template_editBuddies()
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
 			<tr class="catbg">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
 		echo '
 				<th scope="col">', $txt['email'], '</th>';
 
+	if (!empty($context['custom_pf']))
+		foreach ($context['custom_pf'] as $column)
+				echo '<th scope="col">', $column['label'], '</th>';
+
 	echo '
-				<th class="last_th" scope="col"></th>
+				<th class="last_th" scope="col">', $txt['remove'], '</th>
 			</tr>';
 
 	// If they don't have any buddies don't list them!
@@ -615,31 +617,33 @@ function template_editBuddies()
 				<td colspan="8" align="center"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
-	// Now loop through each buddy showing info on each.
-	$alternate = false;
-	foreach ($context['buddies'] as $buddy)
+		// Now loop through each buddy showing info on each.
+	else
 	{
-		echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-				<td>', $buddy['link'], '</td>
-				<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
-		if ($buddy['show_email'])
-			echo '
-				<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
-
-		// If these are off, don't show them
-		foreach ($buddy_fields as $key => $column)
+		$alternate = false;
+		foreach ($context['buddies'] as $buddy)
 		{
-			if (!isset($disabled_fields[$column]))
+			echo '
+				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+					<td>', $buddy['link'], '</td>
+					<td align="center"><a href="', $buddy['online']['href'], '"><img src="', $buddy['online']['image_href'], '" alt="', $buddy['online']['text'], '" title="', $buddy['online']['text'], '"></a></td>';
+
+			if ($buddy['show_email'])
 				echo '
-					<td align="center">', $buddy[$column]['link'], '</td>';
+					<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
+
+			// Show the custom profile fields for this user.
+			if (!empty($context['custom_pf']))
+				foreach ($context['custom_pf'] as $key => $column)
+					echo '
+						<td class="lefttext">', $buddy['options'][$key], '</td>';
+
+			echo '
+					<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
+				</tr>';
+
+			$alternate = !$alternate;
 		}
-
-		echo '
-				<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
-			</tr>';
-
-		$alternate = !$alternate;
 	}
 
 	echo '
@@ -716,6 +720,7 @@ function template_editIgnoreList()
 				<th scope="col">', $txt['email'], '</th>';
 
 	echo '
+				<th class="last_th" scope="col">', $txt['ignore_remove'] ,'</th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
@@ -732,12 +737,13 @@ function template_editIgnoreList()
 		echo '
 			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $member['link'], '</td>
-				<td align="center"><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '"></a></td>';
+				<td><a href="', $member['online']['href'], '"><img src="', $member['online']['image_href'], '" alt="', $member['online']['text'], '" title="', $member['online']['text'], '"></a></td>';
+
 		if ($member['show_email'])
 			echo '
-				<td align="center"><a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a></td>';
+				<td><a href="mailto:' . $member['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $member['name'] . '"></span></a></td>';
 		echo '
-				<td align="center"><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
+				<td><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
 
 		$alternate = !$alternate;
@@ -1670,7 +1676,7 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<input type="hidden" name="default_options[drafts_autosave_enabled]" value="0">
-								<label for="drafts_autosave_enabled"><input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked' : '', ' class="input_check"></label>
+								<input type="checkbox" name="default_options[drafts_autosave_enabled]" id="drafts_autosave_enabled" value="1"', !empty($context['member']['options']['drafts_autosave_enabled']) ? ' checked' : '', ' class="input_check">
 							</dd>';
 	if ((!empty($modSettings['drafts_post_enabled']) || !empty($modSettings['drafts_pm_enabled'])) && !empty($modSettings['drafts_show_saved_enabled']))
 		echo '
@@ -1679,7 +1685,7 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<input type="hidden" name="default_options[drafts_show_saved_enabled]" value="0">
-								<label for="drafts_show_saved_enabled"><input type="checkbox" name="default_options[drafts_show_saved_enabled]" id="drafts_show_saved_enabled" value="1"', !empty($context['member']['options']['drafts_show_saved_enabled']) ? ' checked' : '', ' class="input_check"></label>
+								<input type="checkbox" name="default_options[drafts_show_saved_enabled]" id="drafts_show_saved_enabled" value="1"', !empty($context['member']['options']['drafts_show_saved_enabled']) ? ' checked' : '', ' class="input_check">
 							</dd>';
 
 	echo '
@@ -1688,10 +1694,10 @@ function template_profile_theme_settings()
 							</dt>
 							<dd>
 								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0">
-								<label for="use_editor_quick_reply"><input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked' : '', ' class="input_check"></label>
+								<input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked' : '', ' class="input_check">
 							</dd>
 							<dt>
-								<label for="display_quick_mod">', $txt['display_quick_mod'], '</label>
+								<label for="display_quick_mod">', $txt['display_quick_mod'], ':</label>
 							</dt>
 							<dd>
 								<select name="default_options[display_quick_mod]" id="display_quick_mod">

@@ -486,7 +486,7 @@ function logActions($logs)
 			{
 				require_once($sourcedir . '/ModerationCenter.php');
 				updateSettings(array('last_mod_report_action' => time()));
-				recountOpenReports();
+				recountOpenReports('posts');
 			}
 			$smcFunc['db_free_result']($request);
 		}

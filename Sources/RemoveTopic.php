@@ -144,7 +144,7 @@ function DeleteMessage()
 
 	// We want to redirect back to recent action.
 	if (isset($_REQUEST['modcenter']))
-		redirectexit('action=moderate;area=reports;done');
+		redirectexit('action=moderate;area=reportedposts;done');
 	elseif (isset($_REQUEST['recent']))
 		redirectexit('action=recent');
 	elseif (isset($_REQUEST['profile'], $_REQUEST['start'], $_REQUEST['u']))
@@ -332,7 +332,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			);
 
 			updateSettings(array('last_mod_report_action' => time()));
-			recountOpenReports();
+			recountOpenReports('posts');
 
 			// Topics that were recycled don't need to be deleted, so subtract them.
 			$topics = array_diff($topics, $recycleTopics);
@@ -990,7 +990,7 @@ function removeMessage($message, $decreasePostCount = true)
 	{
 		require_once($sourcedir . '/ModerationCenter.php');
 		updateSettings(array('last_mod_report_action' => time()));
-		recountOpenReports();
+		recountOpenReports('posts');
 	}
 
 	return false;

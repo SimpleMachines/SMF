@@ -336,11 +336,11 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;actions[', $topic['id'], ']=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;actions[', $topic['id'], ']=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons lock" title="', $txt['set_lock'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
@@ -348,7 +348,7 @@ function template_results()
 
 						if ($topic['quick_mod']['sticky'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;actions[', $topic['id'], ']=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons sticky" title="', $txt['set_sticky'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 						if ($topic['quick_mod']['move'])
 							echo '

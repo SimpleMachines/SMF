@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * Calls createSalvageArea() to create a new board, if necesary.
  * Accessed by ?action=admin;area=repairboards.
  *
- * @uses raw_data sub-template.
+ * @uses repair_boards sub-template.
  */
 function RepairBoards()
 {
