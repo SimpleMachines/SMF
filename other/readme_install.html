@@ -125,7 +125,6 @@
 							<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
 							<li>&raquo; <a href="#Create_a_Database_and_a_Database_User">Create a database and a database user</a></li>
 							<li>&raquo; <a href="#Run_the_installer">Run the installer</a></li>
-							<li>&raquo; <a href="#webinstall">Upload files method 2: using webinstall.php</a></li>
 							<li>&raquo; <a href="#finishing">Finishing the installation and cleaning up.</a></li>
 						</ul>
 					</div>
@@ -262,16 +261,6 @@
 						</dl>
 						<h3>Creating an administrator account</h3>
 						<p>The SMF installer will ask for information to create the forum's administrator account. This information includes username, password, and e-mail address, just like a regular account. Once created, this account can be used to visit the Administration Center to manage and configure the forum.</p>
-					</div>
-					<div class="panel">
-						<h2 id="webinstall">Upload files method 2: using webinstall.php</h2>
-						<p>Your server may support webinstall.php. This script will automatically download SMF to your server. This may not work on all servers and also may require providing it with FTP details.</p>
-						<p>The first thing you need to do is upload webinstall.php to the location of where SMF is to exist on your server.</p>
-						<p>After you have finished uploading the file, point your browser to http://www.yourdomain.tld/forum/webinstall.php - where www.yourdomain.tld/forum is the URL to where you uploaded it.  You should then see the webinstall interface.</p>
-						<p>The first page you see may request your FTP information.  If you see this screen, it is because the webinstaller found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the webinstaller can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the webinstaller will not save your FTP password anywhere.</p>
-						<p>On the webinstall interface you have an option to login, this is useful for charter members to easily download early releases. You may have an option to select multiple versions of SMF to download. It is up to you to decide which version of SMF you wish to install. Additionally you may have options of additional languages to download.</p>
-						<p>After specifying these options and agreeing to the agreement, webinstall will attempt to download al SMF files and decompress them in the same folder as webinstall.php. If successful you will be prompted to the SMF upgrade screen. If this fails you will need to follow the process below to upload files.</p>
-						<p>In most cases, you'll want to have &quot;Put the forum into maintenance mode during upgrade.&quot; checked, because it will ensure that nothing is messed with while the upgrader is working.  You may also wish to check &quot;Backup tables in your database...&quot;, which will make a backup of your old information and tables before making any changes in the database.</p>
 					</div>
 					<div class="panel">
 						<h2 id="finishing">Finishing everything up</h2>

@@ -116,7 +116,6 @@
 							<li>&raquo; <a href="#uploadingftp">Upload files method 1: using FTP</a></li>
 							<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
 							<li>&raquo; <a href="#Run_the_upgrading_tool">Run the upgrading tool</a></li>
-							<li>&raquo; <a href="#webinstall">Upload files method 2: using webinstall.php</a></li>
 							<li>&raquo; <a href="#finishing">Finishing the upgrade and cleaning up</a></li>
 						</ul>
 					</div>
@@ -187,7 +186,7 @@
 					</div>
 					<div class="panel">
 						<h2 id="uploadingftp">Upload files method 1: using FTP</h2>
-						<p>If your server doesn't support webinstall.php than you can use an FTP client and an FTP access to upload the files to your server.</p>
+						<p>You can use an FTP client and an FTP access to upload the files to your server.</p>
 						<p>All you need to do is upload all of the files in this package, excluding this file itself, to your server.  You should upload it to the same directory as your previous installation of SMF or YaBB SE. If you are given the option to &quot;resume&quot; uploads, make sure you do not do that - you must upload all of the files.  You may wish to make sure that all of the files were uploaded, such as those in <tt>Themes/default/languages</tt>, because some FTP clients have been known to drop files.</p>
 						<h3>Language files</h3>
 						<p>If you are using additional languages it will be useful to upload also the updated versions of the language files along with the upgrading packages. Doing so all updated text strings will appear correctly after the upgrade, and will allow the upgrade to run in your selected language.</p>
@@ -227,16 +226,6 @@
 							<dt>Output extra debugging information.</dt>
 							<dd>The upgrade tool can give detailed information while performing an upgrade by selecting this option, it will aid the support team to solve any errors if they occur while upgrading.</dd>
 						</dl>
-					</div>
-					<div class="panel">
-						<h2 id="webinstall">Upload files method 2: using webinstall.php</h2>
-						<p>Your server may support webinstall.php. This script will automatically download SMF to your server. This may not work on all servers and also may require providing it with FTP details.</p>
-						<p>The first thing you need to do is upload webinstall.php to the location of where SMF is to exist on your server.</p>
-						<p>After you have finished uploading the file, point your browser to http://www.yourdomain.tld/forum/webinstall.php - where www.yourdomain.tld/forum is the URL to where you uploaded it.  You should then see the webinstall interface.</p>
-						<p>The first page you see may request your FTP information.  If you see this screen, it is because the webinstaller found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the webinstaller can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the webinstaller will not save your FTP password anywhere.</p>
-						<p>On the webinstall interface you have an option to login, this is useful for charter members to easily download early releases. You may have an option to select multiple versions of SMF to download. It is up to you to decide which version of SMF you wish to install. Additionally you may have options of additional languages to download.</p>
-						<p>After specifying these options and agreeing to the agreement, webinstall will attempt to download al SMF files and decompress them in the same folder as webinstall.php. If successful you will be prompted to the SMF upgrade screen. If this fails you will need to follow the process below to upload files.</p>
-						<p>In most cases, you'll want to have &quot;Put the forum into maintenance mode during upgrade.&quot; checked, because it will ensure that nothing is messed with while the upgrader is working.  You may also wish to check &quot;Backup tables in your database...&quot;, which will make a backup of your old information and tables before making any changes in the database.</p>
 					</div>
 					<div class="panel">
 						<h2 id="finishing">Finishing the upgrade and cleaning up</h2>
