@@ -2264,10 +2264,16 @@ ul.quickbuttons li {
 	font-size: 0.9em;
 }
 ul.quickbuttons li a {
-	padding: 0 4px 0 20px;
+	padding: 0 4px 0 5px;
 	display: block;
 	line-height: 1.9em;
 	float: left;
+}
+ul.quickbuttons li a img {
+	padding-bottom: 2px;
+}
+ul.quickbuttons li input {
+	margin-top: 5px;
 }
 ul.quickbuttons li a.quote_button {
 	padding: 0 4px 0 16px;
@@ -2331,6 +2337,7 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons li:last-child, .quickbuttons li:last-child:hover {
 	border-radius: 1px 4px 4px 1px;
 	padding-bottom: 0;
+	line-height: 1.9em;
 }
 .quickbuttons li:hover {
 	border: 1px solid #ccc;
