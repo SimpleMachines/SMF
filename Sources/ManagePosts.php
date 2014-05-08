@@ -216,6 +216,10 @@ function ModifyPostSettings($return_config = false)
 			// Automagic image resizing.
 			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
 			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
+		'',
+			// BBC Enable/Disable & Collapse thing on posts
+			array('check', 'admin_bbc'),
+			array('check', 'additional_options_collapsable'),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));

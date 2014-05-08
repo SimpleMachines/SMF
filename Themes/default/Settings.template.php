@@ -235,15 +235,6 @@ function template_settings()
 			'label' => $txt['hide_post_group'],
 			'description' => $txt['hide_post_group_desc'],
 		),
-	'',
-		array(
-			'id' => 'show_bbc',
-			'label' => $txt['admin_bbc'],
-		),
-		array(
-			'id' => 'additional_options_collapsable',
-			'label' => $txt['additional_options_collapsable'],
-		),
 	);
 }
 
