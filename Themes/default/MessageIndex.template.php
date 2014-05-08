@@ -275,9 +275,8 @@ function template_main()
 									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
-							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '
-								<small id="pages', $topic['first_post']['id'], '">', $topic['pages'], '</small>
-							</p>
+							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
+							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
 							<br class="clear">
 						</div>
 					</td>
