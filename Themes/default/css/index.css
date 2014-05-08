@@ -2861,15 +2861,6 @@ dl.register_form dd {
 	margin-right: 12px;
 }
 
-/* common for all admin sections */
-#admin_content {
-	clear: left;
-	padding-top: 6px;
-}
-/* Custom profile fields like to play with us some times. */
-#admin_content .custom_field {
-	margin-bottom: 15px;
-}
 #admin_login .centertext {
 	padding: 12px;
 }
