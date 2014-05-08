@@ -54,6 +54,7 @@ function ModifyFeatureSettings()
 
 	$subActions = array(
 		'basic' => 'ModifyBasicSettings',
+		'bbc' => 'ModifyBBCSettings',
 		'layout' => 'ModifyLayoutSettings',
 		'karma' => 'ModifyKarmaSettings',
 		'sig' => 'ModifySignatureSettings',
@@ -72,6 +73,9 @@ function ModifyFeatureSettings()
 		'description' => sprintf($txt['modSettings_desc'], $settings['theme_id'], $context['session_id'], $context['session_var']),
 		'tabs' => array(
 			'basic' => array(
+			),
+			'bbc' => array(
+				'description' => $txt['manageposts_bbc_settings_description'],
 			),
 			'layout' => array(
 			),
@@ -215,6 +219,74 @@ function ModifyBasicSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=basic';
 	$context['settings_title'] = $txt['mods_cat_features'];
+
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Set a few Bulletin Board Code settings. It loads a list of Bulletin Board Code tags to allow disabling tags.
+ * Requires the admin_forum permission.
+ * Accessed from ?action=admin;area=featuresettings;sa=bbc.
+ *
+ * @param bool $return_config = false
+ * @uses Admin template, edit_bbc_settings sub-template.
+ */
+function ModifyBBCSettings($return_config = false)
+{
+	global $context, $txt, $modSettings, $helptxt, $scripturl, $sourcedir;
+
+	$config_vars = array(
+			// Main tweaks
+			array('check', 'enableBBC'),
+			array('check', 'enableBBC', 0, 'onchange' => 'toggleBBCDisabled(\'disabledBBC\', !this.checked);'),
+			array('check', 'enablePostHTML'),
+			array('check', 'autoLinkUrls'),
+		'',
+			array('bbc', 'disabledBBC'),
+	);
+
+	$context['settings_post_javascript'] = '
+		toggleBBCDisabled(\'disabledBBC\', ' . (empty($modSettings['enableBBC']) ? 'true' : 'false') . ');';
+
+	call_integration_hook('integrate_modify_bbc_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Setup the template.
+	require_once($sourcedir . '/ManageServer.php');
+	$context['sub_template'] = 'show_settings';
+	$context['page_title'] = $txt['manageposts_bbc_settings_title'];
+
+	// Make sure we check the right tags!
+	$modSettings['bbc_disabled_disabledBBC'] = empty($modSettings['disabledBBC']) ? array() : explode(',', $modSettings['disabledBBC']);
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		// Clean up the tags.
+		$bbcTags = array();
+		foreach (parse_bbc(false) as $tag)
+			$bbcTags[] = $tag['tag'];
+
+		if (!isset($_POST['disabledBBC_enabledTags']))
+			$_POST['disabledBBC_enabledTags'] = array();
+		elseif (!is_array($_POST['disabledBBC_enabledTags']))
+			$_POST['disabledBBC_enabledTags'] = array($_POST['disabledBBC_enabledTags']);
+		// Work out what is actually disabled!
+		$_POST['disabledBBC'] = implode(',', array_diff($bbcTags, $_POST['disabledBBC_enabledTags']));
+
+		call_integration_hook('integrate_save_bbc_settings', array($bbcTags));
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=bbc');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=bbc';
+	$context['settings_title'] = $txt['manageposts_bbc_settings_title'];
 
 	prepareDBSettingContext($config_vars);
 }
