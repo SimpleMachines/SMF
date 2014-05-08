@@ -2273,7 +2273,7 @@ ul.quickbuttons li a img {
 	padding-bottom: 2px;
 }
 ul.quickbuttons li input {
-	margin-top: 5px;
+	margin-top: 4px;
 }
 ul.quickbuttons li a.quote_button {
 	padding: 0 4px 0 16px;
@@ -2313,9 +2313,6 @@ ul.quickbuttons li a.unapprove_button {
 }
 ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
-}
-ul.quickbuttons li.inline_mod_check {
-	padding: 1px 1px 1px 1px;
 }
 .quickbuttons li {
 	border: 1px solid #ccc;
@@ -2362,12 +2359,6 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li.quick_edit {
 	display: none;
-}
-ul.quickbuttons li.inline_mod_check {
-	padding: 3px 0 0 3px;
-	background: none;
-	border: none;
-	box-shadow: none;
 }
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
