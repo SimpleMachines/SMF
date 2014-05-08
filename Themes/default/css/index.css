@@ -1033,7 +1033,7 @@ img.sort, .sort {
 	color: inherit;
 }
 #top_info .top_menu.visible {
-	margin-left: 9999px;
+	display: block;
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
@@ -1172,7 +1172,7 @@ img.sort, .sort {
 	z-index: 90;
 	position: absolute;
 	top: 2.25em;
-	left: -9999px;
+	display: none;
 	width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
