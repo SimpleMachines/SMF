@@ -28,6 +28,7 @@ $txt['delete_message'] = 'Delete Messages';
 // Don't translate "PMBOX" in this string.
 $txt['delete_all'] = 'Delete all messages in your PMBOX';
 $txt['delete_all_confirm'] = 'Are you sure you want to delete all messages?';
+$txt['delete_all_button'] = 'Delete All Messages';
 $txt['recipient'] = 'Recipient';
 
 $txt['delete_selected_confirm'] = 'Are you sure you want to delete all selected personal messages?';
@@ -58,6 +59,10 @@ $txt['pm_prune'] = 'Prune Messages';
 $txt['pm_prune_desc1'] = 'Delete all personal messages older than';
 $txt['pm_prune_desc2'] = 'days.';
 $txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages?';
+
+// Message Pruning.
+$txt['pm_purge'] = 'Purge Messages';
+$txt['pm_prune_desc'] = 'Delete all personal messages';
 
 // Actions Drop Down.
 $txt['pm_actions_title'] = 'Further actions';
