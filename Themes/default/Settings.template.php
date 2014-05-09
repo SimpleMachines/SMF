@@ -235,16 +235,6 @@ function template_settings()
 			'label' => $txt['hide_post_group'],
 			'description' => $txt['hide_post_group_desc'],
 		),
-	'',
-		array(
-			'id' => 'message_index_preview',
-			'label' => $txt['message_index_preview'],
-		),
-		array(
-			'id' => 'message_index_preview_first',
-			'label' => $txt['message_index_preview_first'],
-			'description' => $txt['message_index_preview_first_desc'],
-		),
 	);
 }
 
