@@ -33,43 +33,39 @@
 	}
 
 	/* BoardIndex */
-	.table_list td.stats {
+	div.icon {
+		width: 25% !important;
+	}
+	div.icon span {
+		margin-top: 10px;
+	}
+	div.info {
+		width: 70% !important;
+	}
+	div.stats {
+		width: 20% !important;
+	}
+	div.stats p {
+		border-left: none;
+	}
+	div.lastpost {
+		width: 65% !important;
+	}
+	/* MessageIndex */
+	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
 		display: none;
 	}
-	.table_list td.lastpost p {
-		border-left: 1px solid #ccc;
-		padding: 1px 5px 2px 10px;
-		margin-top: 1px;
-	}
-	td.info {
-		border: 1px solid #DDD;
-		padding: 5px !important;
-	}
-	td.children {
-		border-left: 1px solid #DDD;
-		border-top: none !important;
-	}
-	.children p {
+	#messageindex .info {
 		margin-left: 5px;
 	}
-
-	/* Stats */
-	#top_posters, #top_topics_replies, #top_topics_starter,
-	#top_boards, #top_topics_views, #most_online,
-	#popularposts, #popularactivity,
-	.stats_left, .stats_right {
-		float: none !important;
-		width: 100%;
-	}
-	.stats_left {
-		border-right: none;
+	/* Display (Topics) */
+	.user_info {
+		display: none;
 	}
 
 	/* Hide me */
-	td.icon, td.lastpost, #inner_wrap, #search_form, #smflogo, th.post_icon, th.stats, th.last_post,
-	td.icon2, td.stats, td.lastpost, #message_index_jump_to, .nextlinks, #display_jump_to,
-	li.last, .responsive, #postAttachment2, #siteslogan, ul.responsive, li.responsive,
-	.sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
+	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#postAttachment2, #siteslogan, .sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top {
 		display: none !important;
@@ -108,13 +104,6 @@
 	dl.register_form dt, dl.register_form dd {
 		float: none !important;
 		min-width: 250px !important;
-	}
-
-	/* MessageIndex */
-	td.subject {
-		border-left: 1px solid #CCC;
-		border-right: 1px solid #CCC;
-		padding: 5px !important;
 	}
 	
 	/* Display (Topic View) */
@@ -183,13 +172,6 @@
 }
 
 @media (min-width: 481px) and (max-width: 720px) {
-	/* MessageIndex */
-	td.subject {
-		border-left: 1px solid #CCC;
-		border-right: 1px solid #CCC;
-		padding: 5px !important;
-	}
-
 	/* Display (Topic View) */
 	.poster {
 		float: none !important;
@@ -252,7 +234,7 @@
 }
 @media (min-width: 1081px) {
 /* I need to hide them from you desktop people... */
-.desk, .resp_menu {
-	display: none;
-}
+	#main_menu .button {
+		display: none;
+	}
 }
