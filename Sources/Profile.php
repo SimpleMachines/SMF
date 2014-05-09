@@ -441,7 +441,7 @@ function ModifyProfile($post_errors = array())
 	$profile_include_data = createMenu($profile_areas, $menuOptions);
 
 	// No menu means no access.
-	if (!$profile_include_data && (!$user_info['is_guest'] || validateSession()))
+	if (!$profile_include_data)
 		fatal_lang_error('no_access', false);
 
 	// Make a note of the Unique ID for this menu.
