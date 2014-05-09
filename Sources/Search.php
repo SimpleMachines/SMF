@@ -799,27 +799,17 @@ function PlushSearch2()
 	}
 
 	// *** Spell checking
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 	if ($context['show_spellchecking'])
 	{
-		// Windows fix.
-		ob_start();
-		$old = error_reporting(0);
-
-		pspell_new('en');
-		$pspell_link = pspell_new($txt['lang_dictionary'], $txt['lang_spelling'], '', strtr($txt['lang_character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-		if (!$pspell_link)
-			$pspell_link = pspell_new('en', '', '', '', PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-		error_reporting($old);
-		ob_end_clean();
+		// Don't hardcode spellchecking functions!
+		$link = spell_init();
 
 		$did_you_mean = array('search' => array(), 'display' => array());
 		$found_misspelling = false;
 		foreach ($searchArray as $word)
 		{
-			if (empty($pspell_link))
+			if (empty($link))
 				continue;
 
 			// Don't check phrases.
@@ -836,14 +826,14 @@ function PlushSearch2()
 				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
 				continue;
 			}
-			elseif (pspell_check($pspell_link, $word))
+			elseif (spell_check($link, $word))
 			{
 				$did_you_mean['search'][] = $word;
 				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
 				continue;
 			}
 
-			$suggestions = pspell_suggest($pspell_link, $word);
+			$suggestions = spell_suggest($link, $word);
 			foreach ($suggestions as $i => $s)
 			{
 				// Search is case insensitive.

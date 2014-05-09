@@ -13,7 +13,6 @@ $txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
-$txt['error_too_quickly'] = 'You went through registration a bit too quickly, faster than should normally be possible. Please give it a moment and try again.';
 $txt['need_username'] = 'You need to fill in a username.';
 $txt['no_password'] = 'You didn\'t enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
@@ -39,7 +38,6 @@ $txt['your_username_is'] = 'Your username is: ';
 $txt['login_hash_error'] = 'Password security has recently been upgraded.  Please enter your password again.';
 
 $txt['ban_register_prohibited'] = 'Sorry, you are not allowed to register on this forum.';
-$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
 
 $txt['activate_account'] = 'Account activation';
 $txt['activate_success'] = 'Your account has been successfully activated. You can now proceed to login.';

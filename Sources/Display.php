@@ -230,22 +230,6 @@ function Display()
 	else
 		$context['total_visible_posts'] = $context['num_replies'] + $topicinfo['unapproved_posts'] + ($topicinfo['approved'] ? 1 : 0);
 
-	// When was the last time this topic was replied to?  Should we warn them about it?
-	$request = $smcFunc['db_query']('', '
-		SELECT poster_time
-		FROM {db_prefix}messages
-		WHERE id_msg = {int:id_last_msg}
-		LIMIT 1',
-		array(
-			'id_last_msg' => $topicinfo['id_last_msg'],
-		)
-	);
-
-	list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
-	$smcFunc['db_free_result']($request);
-
-	$context['oldTopicError'] = !empty($modSettings['oldTopicDays']) && $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time() && empty($topicinfo['is_sticky']);
-
 	// The start isn't a number; it's information about what to do, where to go.
 	if (!is_numeric($_REQUEST['start']))
 	{
@@ -350,7 +334,7 @@ function Display()
 	$context['previous_next'] = $modSettings['enablePreviousNext'] ? '<a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=prev#new">' . $txt['previous_next_back'] . '</a> - <a href="' . $scripturl . '?topic=' . $topic . '.0;prev_next=next#new">' . $txt['previous_next_forward'] . '</a>' : '';
 
 	// Check if spellchecking is both enabled and actually working. (for quick reply.)
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 
 	// Do we need to show the visual verification image?
 	$context['require_verification'] = !$user_info['is_mod'] && !$user_info['is_admin'] && !empty($modSettings['posts_require_captcha']) && ($user_info['posts'] < $modSettings['posts_require_captcha'] || ($user_info['is_guest'] && $modSettings['posts_require_captcha'] == -1));
@@ -1061,7 +1045,6 @@ function Display()
 		'can_split' => 'split_any',
 		'calendar_post' => 'calendar_post',
 		'can_send_pm' => 'pm_send',
-		'can_send_email' => 'send_email_to_members',
 		'can_report_moderator' => 'report_any',
 		'can_moderate_forum' => 'moderate_forum',
 		'can_issue_warning' => 'issue_warning',
@@ -1130,6 +1113,25 @@ function Display()
 	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
 	if (!empty($context['drafts_save']))
 		loadLanguage('Drafts');
+
+	// When was the last time this topic was replied to?  Should we warn them about it?
+	if (!empty($modSettings['oldTopicDays']) && ($context['can_reply'] || $context['can_reply_unapproved']) && empty($topicinfo['is_sticky']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT poster_time
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_last_msg}
+			LIMIT 1',
+			array(
+				'id_last_msg' => $topicinfo['id_last_msg'],
+			)
+		);
+
+		list ($lastPostTime) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+
+		$context['oldTopicError'] = $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time();
+	}
 
 	// Wireless shows a "more" if you can do anything special.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
@@ -1298,7 +1300,7 @@ function prepareDisplayContext($reset = false)
 		$memberContext[$message['id_member']]['group'] = $txt['guest_title'];
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
-		$memberContext[$message['id_member']]['show_email'] = allowedTo('admin_forum');
+		$memberContext[$message['id_member']]['show_email'] = allowedTo('moderate_forum');
 		$memberContext[$message['id_member']]['is_guest'] = true;
 	}
 	else
@@ -1312,7 +1314,7 @@ function prepareDisplayContext($reset = false)
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
-	$memberContext[$message['id_member']]['show_profile_buttons'] = $settings['show_profile_buttons'] && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || (in_array($memberContext[$message['id_member']]['show_email'], array('yes', 'yes_permission_override', 'no_through_forum'))) || $context['can_send_pm']);
+	$memberContext[$message['id_member']]['show_profile_buttons'] = $settings['show_profile_buttons'] && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
 
 	// Do the censor thang.
 	censorText($message['body']);

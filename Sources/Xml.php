@@ -179,7 +179,7 @@ function sig_preview()
 		censorText($current_signature);
 		$current_signature = !empty($current_signature) ? parse_bbc($current_signature, true, 'sig' . $user) : $txt['no_signature_set'];
 
-		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : $txt['no_signature_set'];
+		$preview_signature = !empty($_POST['signature']) ? $_POST['signature'] : $txt['no_signature_preview'];
 		$validation = profileValidateSignature($preview_signature);
 
 		if ($validation !== true && $validation !== false)

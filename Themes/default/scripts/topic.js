@@ -587,7 +587,7 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 		else
 		{
 			var oNewDiv = document.createElement('div');
-			var oNewList = document.createElement('ul');
+			var oNewList = document.createElement('a');
 
 			oNewDiv.id = this.opt.sButtonStripDisplay;
 			oNewDiv.className = this.opt.sButtonStripClass ? this.opt.sButtonStripClass : 'buttonlist floatbottom';
@@ -637,19 +637,19 @@ InTopicModeration.prototype.handleClick = function(oCheckbox)
 	if (this.opt.bCanRemove && !this.opt.bUseImageButton)
 	{
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_remove_button_text'), this.opt.sRemoveButtonLabel + ' [' + this.iNumSelected + ']');
-		document.getElementById(this.opt.sSelf + '_remove_button').style.display = this.iNumSelected < 1 ? "none" : "";
+		document.getElementById(this.opt.sSelf + '_remove_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanRestore && !this.opt.bUseImageButton)
 	{
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_restore_button_text'), this.opt.sRestoreButtonLabel + ' [' + this.iNumSelected + ']');
-		document.getElementById(this.opt.sSelf + '_restore_button').style.display = this.iNumSelected < 1 ? "none" : "";
+		document.getElementById(this.opt.sSelf + '_restore_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if (this.opt.bCanSplit && !this.opt.bUseImageButton)
 	{
 		setInnerHTML(document.getElementById(this.opt.sSelf + '_split_button_text'), this.opt.sSplitButtonLabel + ' [' + this.iNumSelected + ']');
-		document.getElementById(this.opt.sSelf + '_split_button').style.display = this.iNumSelected < 1 ? "none" : "";
+		document.getElementById(this.opt.sSelf + '_split_button_text').style.display = this.iNumSelected < 1 ? "none" : "";
 	}
 
 	if(typeof smf_fixButtonClass == 'function')
@@ -741,7 +741,8 @@ function ignore_toggles(msgids, text)
 				'msg_' + msgid + '_footer',
 				'msg_' + msgid + '_quick_mod',
 				'modify_button_' + msgid,
-				'msg_' + msgid + '_signature'
+				'msg_' + msgid + '_signature',
+				'msg_' + msgid + '_likes'
 
 			],
 			aSwapLinks: [

@@ -66,7 +66,7 @@ function ViewModlog()
 
 		$log_type = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 'admin' : 'moderate';
 		logAction('clearlog_' . $log_type, array(), $log_type);
-		
+
 	}
 	elseif (!empty($_POST['remove']) && isset($_POST['delete']) && $context['can_delete'])
 	{
@@ -352,7 +352,7 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  * @param $query_string
  * @param $query_params
  * @param $log_type
- * @param $ignore_boards 
+ * @param $ignore_boards
  */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
@@ -622,9 +622,9 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 		{
 			// Member profile reports go in a different area
 			if (stristr($entry['action'], 'user_report'))
-				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=memberreports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
 			else
-				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
 		}
 
 		if (empty($entries[$k]['action_text']))

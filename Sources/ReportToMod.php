@@ -27,7 +27,6 @@ function ReportToModerator()
 {
 	global $txt, $topic, $context, $smcFunc, $scripturl, $sourcedir;
 
-
 	$context['robot_no_index'] = true;
 	$context['comment_body'] = '';
 
@@ -37,7 +36,7 @@ function ReportToModerator()
 	// You can't use this if it's off or you are not allowed to do it.
 	// If we don't have the ID of something to report, we'll die with a no_access error below
 	if (isset($_REQUEST['msg']))
-		isAllowedTo('report_msg');
+		isAllowedTo('report_any');
 	elseif (isset($_REQUEST['u']))
 		isAllowedTo('report_user');
 
@@ -225,7 +224,7 @@ function ReportToModerator2()
 
 function reportPost($msg, $reason)
 {
-	global $context, $smcFunc, $user_info;
+	global $context, $smcFunc, $user_info, $topic;
 
 	// Get the basic topic information, and make sure they can see it.
 	$_POST['msg'] = (int) $msg;
@@ -458,7 +457,7 @@ function reportUser($id_member, $reason)
 	updateSettings(array('last_mod_report_action' => time()));
 
 	// Back to the post we reported!
-	redirectexit('reportsent;action=profile;u=' . $id_member);	
+	redirectexit('reportsent;action=profile;u=' . $id_member);
 }
 
 ?>

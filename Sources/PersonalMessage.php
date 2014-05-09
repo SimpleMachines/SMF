@@ -91,7 +91,7 @@ function MessageMain()
 	if ($user_settings['new_pm'] || ($context['labels'] = cache_get_data('labelCounts:' . $user_info['id'], 720)) === null)
 	{
 		// Looks like we need to reseek!
-	
+
 		// Inbox "label"
 		$context['labels'][-1] = array(
 			'id' => -1,
@@ -114,13 +114,13 @@ function MessageMain()
 				'not_deleted' => 0,
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			$context['labels'][-1]['messages'] = $row['total'];
 			$context['labels'][-1]['unread_messages'] = $row['total'] - $row['num_read'];
 		}
-		
+
 		$smcFunc['db_free_result']($result);
 
 		// Now load info about all the other labels
@@ -135,7 +135,7 @@ function MessageMain()
 				'current_member' => $user_info['id'],
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			$context['labels'][$row['id_label']] = array(
@@ -145,7 +145,7 @@ function MessageMain()
 				'unread_messages' => $row['total'] - $row['num_read']
 			);
 		}
-		
+
 		$smcFunc['db_free_result']($result);
 
 		// Store it please!
@@ -675,12 +675,12 @@ function MessageFolder()
 		{
 			$labelJoin = '
 					INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
-			
+
 			$labelQuery = '';
 			$labelQuery2 = '
-						AND pl.id_label = ' . $context['current_label_id'];			
+						AND pl.id_label = ' . $context['current_label_id'];
 		}
-		
+
 		// On a non-default sort due to PostgreSQL we have to do a harder sort.
 		if ($smcFunc['db_title'] == 'PostgreSQL' && $_GET['sort'] != 'pm.id_pm')
 		{
@@ -894,7 +894,7 @@ function MessageFolder()
 			{
 				$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2;
 				$context['message_unread'][$row['id_pm']] = $row['is_read'] == 0;
-				
+
 				// Get the labels for this PM
 				$request2 = $smcFunc['db_query']('', '
 					SELECT id_label
@@ -911,9 +911,9 @@ function MessageFolder()
 					if (isset($context['labels'][$l_id]))
 						$context['message_labels'][$row['id_pm']][$l_id] = array('id' => $l_id, 'name' => $context['labels'][$l_id]['name']);
 				}
-				
+
 				$smcFunc['db_free_result']($request2);
-				
+
 				// Is this in the inbox as well?
 				if ($row['in_inbox'] == 1)
 				{
@@ -990,7 +990,7 @@ function MessageFolder()
 		$messages_request = false;
 
 	$context['can_send_pm'] = allowedTo('pm_send');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 	if (!WIRELESS)
 		$context['sub_template'] = 'folder';
 	$context['page_title'] = $txt['pm_inbox'];
@@ -1096,7 +1096,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == $context['forum_name'] ? '' : $txt['guest_title'];
 		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
 		$memberContext[$message['id_member_from']]['email'] = '';
-		$memberContext[$message['id_member_from']]['show_email'] = showEmailAddress(true, 0);
+		$memberContext[$message['id_member_from']]['show_email'] = false;
 		$memberContext[$message['id_member_from']]['is_guest'] = true;
 	}
 	else
@@ -1390,7 +1390,7 @@ function MessageSearch2()
 				// Now we get rid of that...
 				$temp = array_diff($_REQUEST['searchlabel'], array(-1));
 				$_REQUEST['searchlabel'] = $temp;
-			} 
+			}
 
 			// Still have something?
 			if (!empty($_REQUEST['searchlabel']))
@@ -1637,9 +1637,9 @@ function MessageSearch2()
 			if ($row['id_member_to'] == $user_info['id'] && $context['folder'] != 'sent')
 			{
 				$context['message_replied'][$row['id_pm']] = $row['is_read'] & 2;
-				
+
 				$row['labels'] = '';
-				
+
 				// Get the labels for this PM
 				$request2 = $smcFunc['db_query']('', '
 					SELECT id_label
@@ -1660,9 +1660,9 @@ function MessageSearch2()
 					if (!isset($context['first_label'][$row['id_pm']]) && $row['in_inbox'] != 1)
 						$context['first_label'][$row['id_pm']] = $l_id;
 				}
-				
+
 				$smcFunc['db_free_result']($request2);
-				
+
 				// Is this in the inbox as well?
 				if ($row['in_inbox'] == 1)
 				{
@@ -1698,7 +1698,6 @@ function MessageSearch2()
 				$memberContext[$row['id_member_from']]['group'] = $txt['guest_title'];
 				$memberContext[$row['id_member_from']]['link'] = $row['from_name'];
 				$memberContext[$row['id_member_from']]['email'] = '';
-				$memberContext[$row['id_member_from']]['show_email'] = showEmailAddress(true, 0);
 				$memberContext[$row['id_member_from']]['is_guest'] = true;
 			}
 
@@ -2667,7 +2666,7 @@ function MessageActionsApply()
 					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				WHERE pm.id_pm_head IN ({array_int:head_pms})
 					AND pm.id_pm NOT IN ({array_int:head_pms})
-					AND pmr.id_recipient = {int:current_member}',
+					AND pmr.id_member = {int:current_member}',
 				array(
 					'head_pms' => array_keys($to_label),
 					'current_member' => $user_info['id'],
@@ -2714,7 +2713,7 @@ function MessageActionsApply()
 				);
 
 				while ($row2 = $smcFunc['db_fetch_assoc']($request2))
-				{			
+				{
 					$labels[$row2['id_label']] = $row2['id_label'];
 				}
 
@@ -2783,13 +2782,13 @@ function MessageActionsApply()
 					)
 				);
 			}
-			
+
 			// Which labels do we not want now?
 			$labels_to_remove = array_diff($original_labels, $labels);
-			
+
 			// Don't apply it if it's already applied
 			$labels_to_apply = array_diff($labels, $original_labels);
-			
+
 			// Remove labels
 			if (!empty($labels_to_remove))
 			{
@@ -2810,7 +2809,7 @@ function MessageActionsApply()
 				$inserts = array();
 				foreach ($labels_to_apply as $label)
 					$inserts[] = array($row['id_pm'], $label);
-				
+
 				$smcFunc['db_insert']('',
 					'{db_prefix}pm_labeled_messages',
 					array('id_pm' => 'int', 'id_label' => 'int'),
@@ -3026,9 +3025,9 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 				'pm_list' => $personal_messages !== null ? array_unique($personal_messages) : array(),
 			)
 		);
-		
+
 		$labels = array();
-		
+
 		// Get any labels that the owner may have applied to this PM
 		// The join is here to ensure we only get labels applied by the specified member(s)
 		$get_labels = $smcFunc['db_query']('', '
@@ -3041,14 +3040,14 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 				'pm_list' => $personal_messages !== null ? array_unique($personal_messages) : array(),
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($get_labels))
 		{
 			$labels[] = $row['id_label'];
 		}
-		
+
 		$smcFunc['db_free_result']($get_labels);
-		
+
 		if (!empty($labels))
 		{
 			$smcFunc['db_query']('', '
@@ -3142,7 +3141,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 				'current_label' => $label,
 			)
 		);
-		
+
 		while ($row = $smcFunc['db_fetch_assoc']($get_messages))
 		{
 			$personal_messages[] = $row['id_pm'];
@@ -3199,7 +3198,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 				continue;
 
 			$this_labels = array();
-			
+
 			// Get all the labels
 			$result2 = $smcFunc['db_query']('', '
 				SELECT pml.id_label
@@ -3337,10 +3336,10 @@ function ManageLabels()
 			$inserts = array();
 			foreach ($labels_to_add AS $label)
 				$inserts[] = array($user_info['id'], $label);
-			
+
 			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 		}
-		
+
 		// Update existing labels as needed
 		if (!empty($label_upates))
 		{
@@ -3402,7 +3401,7 @@ function ManageLabels()
 			}
 
 			$smcFunc['db_free_result']($get_stranded_pms);
-			
+
 			// Move these back to the inbox if necessary
 			if (!empty($stranded_messages))
 			{
@@ -3430,7 +3429,7 @@ function ManageLabels()
 						continue;
 
 					$rule_changes[] = $rule['id'];
-					
+
 					// Can't apply this label anymore if it doesn't exist
 					unset($context['rules'][$k]['actions'][$k2]);
 				}
@@ -4071,7 +4070,7 @@ function ApplyRules($all_messages = false)
 			foreach ($realLabels as $a_label)
 				$inserts[] = array($pm, $a_label);
 
-			$smcFunc['db_insert']('',
+			$smcFunc['db_insert']('ignore',
 				'{db_prefix}pm_labeled_messages',
 				array('id_pm' => 'int', 'id_label' => 'int'),
 				$inserts,

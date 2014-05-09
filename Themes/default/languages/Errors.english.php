@@ -333,7 +333,7 @@ $txt['profile_error_bad_password'] = 'The password you entered was not correct';
 $txt['profile_error_bad_avatar'] = 'The avatar you have selected is not a valid image';
 $txt['profile_error_bad_avatar_invalid_url'] = 'The url you specified is invalid, please check it.';
 $txt['profile_error_bad_avatar_too_large'] = 'The image you\'re trying to use surpasses the max width/height settings, please use a smaller one.';
-$txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to restored failed to do so.';
+$txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
 $txt['profile_error_password_short'] = 'Your password must be at least ' . (empty($modSettings['password_strength']) ? 4 : 8) . ' characters long.';
 $txt['profile_error_password_restricted_words'] = 'Your password must not contain your username, email address or other commonly used words.';
 $txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
@@ -342,7 +342,12 @@ $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
+$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
+$txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
 
+// Registration form.
+$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
+$txt['error_too_quickly'] = 'You went through registration a bit too quickly, faster than should normally be possible. Please give it a moment and try again.';
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
 $txt['icon_not_found'] = 'The icon image could not be found in the default theme - please ensure the image has been uploaded and try again.';

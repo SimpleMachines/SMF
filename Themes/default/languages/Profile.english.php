@@ -7,7 +7,6 @@ global $scripturl, $context;
 $txt['popup_summary'] = 'My Profile';
 $txt['popup_showposts'] = 'My Posts';
 $txt['popup_ignore'] = 'Ignore People';
-$txt['popup_preferences'] = 'Preferences';
 
 $txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
 $txt['website_title'] = 'Website title';
@@ -45,6 +44,7 @@ $txt['include_website_url'] = 'This must be included if you specify a URL below.
 $txt['complete_url'] = 'This must be a complete URL.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
 $txt['no_signature_set'] = 'No signature set.';
+$txt['no_signature_preview'] = 'No signature to preview.';
 $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
@@ -215,7 +215,6 @@ $txt['trackLogins'] = 'Logins';
 $txt['authentication'] = 'Authentication';
 $txt['change_authentication'] = 'From this section you can change how you login to the forum. You may choose to either use an OpenID account for your authentication, or alternatively switch to use a username and password.';
 
-$txt['profileEdit'] = 'Modify Profile';
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 $txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
@@ -330,10 +329,10 @@ $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
 $txt['use_editor_quick_reply'] = 'Use full editor in Quick Reply';
-$txt['display_quick_mod'] = 'Show quick-moderation as ';
-$txt['display_quick_mod_none'] = 'don\'t show.';
-$txt['display_quick_mod_check'] = 'checkboxes.';
-$txt['display_quick_mod_image'] = 'icons.';
+$txt['display_quick_mod'] = 'Show quick-moderation as';
+$txt['display_quick_mod_none'] = 'don\'t show';
+$txt['display_quick_mod_check'] = 'checkboxes';
+$txt['display_quick_mod_image'] = 'icons';
 
 $txt['whois_title'] = 'Look up IP on a regional whois-server';
 $txt['whois_afrinic'] = 'AfriNIC (Africa)';
