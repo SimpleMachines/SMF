@@ -2860,6 +2860,7 @@ dl.register_form dd {
 #maintenance_mode img.floatleft {
 	margin-right: 12px;
 }
+
 /* common for all admin sections */
 #admin_content {
 	clear: left;
