@@ -134,31 +134,4 @@ function BoardIndex()
 	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => false), 'smf_fader');
 }
 
-/**
- * Collapse or expand a category
- */
-function CollapseCategory()
-{
-	global $user_info, $sourcedir, $context;
-
-	// Just in case, no need, no need.
-	$context['robot_no_index'] = true;
-
-	checkSession('request');
-
-	if (!isset($_GET['sa']))
-		fatal_lang_error('no_access', false);
-
-	// Check if the input values are correct.
-	if (in_array($_REQUEST['sa'], array('expand', 'collapse', 'toggle')) && isset($_REQUEST['c']))
-	{
-		// And collapse/expand/toggle the category.
-		require_once($sourcedir . '/Subs-Categories.php');
-		collapseCategories(array((int) $_REQUEST['c']), $_REQUEST['sa'], array($user_info['id']));
-	}
-
-	// And go back to the board index.
-	BoardIndex();
-}
-
 ?>

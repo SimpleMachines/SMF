@@ -32,7 +32,7 @@ if (!defined('SMF'))
 function getBoardIndex($boardIndexOptions)
 {
 	global $smcFunc, $scripturl, $user_info, $modSettings, $txt;
-	global $settings, $context;
+	global $settings, $options, $context;
 
 	// For performance, track the latest post while going through the boards.
 	if (!empty($boardIndexOptions['set_latest_post']))
@@ -52,7 +52,7 @@ function getBoardIndex($boardIndexOptions)
 			m.subject, m.id_topic, IFNULL(mem.real_name, m.poster_name) AS real_name,
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
-			c.can_collapse, IFNULL(cc.id_member, 0) AS is_collapsed,' : '')) . '
+			c.can_collapse,' : '')) . '
 			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg,
 			IFNULL(mods_grp.id_group, 0) AS id_moderator_group, mods_grp.group_name AS mod_group_name,
 			IFNULL(mods_mem.id_member, 0) AS id_moderator, mods_mem.real_name AS mod_real_name' . (!empty($settings['avatars_on_indexes']) ? ',
@@ -61,8 +61,7 @@ function getBoardIndex($boardIndexOptions)
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . ($user_info['is_guest'] ? '' : '
-			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})' . ($boardIndexOptions['include_categories'] ? '
-			LEFT JOIN {db_prefix}collapsed_categories AS cc ON (cc.id_cat = c.id_cat AND cc.id_member = {int:current_member})' : '')) . '
+			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 			LEFT JOIN {db_prefix}moderator_groups AS mods_g ON (mods_g.id_board = b.id_board)
 			LEFT JOIN {db_prefix}membergroups AS mods_grp ON (mods_grp.id_group = mods_g.id_group)
@@ -100,10 +99,8 @@ function getBoardIndex($boardIndexOptions)
 					'id' => $row_board['id_cat'],
 					'name' => $row_board['cat_name'],
 					'description' => $row_board['cat_desc'],
-					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && $row_board['is_collapsed'] > 0,
+					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
-					'collapse_href' => isset($row_board['can_collapse']) ? $scripturl . '?action=collapse;c=' . $row_board['id_cat'] . ';sa=' . ($row_board['is_collapsed'] > 0 ? 'expand;' : 'collapse;') . $context['session_var'] . '=' . $context['session_id'] . '#c' . $row_board['id_cat'] : '',
-					'collapse_image' => isset($row_board['can_collapse']) ? '<span class="' . ($row_board['is_collapsed'] > 0 ? 'toggle_down' : 'toggle_up') . '"></span>' : '',
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
 					'new' => false
@@ -117,10 +114,6 @@ function getBoardIndex($boardIndexOptions)
 
 			// Avoid showing category unread link where it only has redirection boards.
 			$categories[$row_board['id_cat']]['show_unread'] = !empty($categories[$row_board['id_cat']]['show_unread']) ? 1 : !$row_board['is_redirect'];
-
-			// Collapsed category - don't do any of this.
-			if ($categories[$row_board['id_cat']]['is_collapsed'])
-				continue;
 
 			// Let's save some typing.  Climbing the array might be slower, anyhow.
 			$this_category = &$categories[$row_board['id_cat']]['boards'];
