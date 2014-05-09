@@ -838,13 +838,6 @@ span.search_weight {
 }
 /* Styles for the moderation center.
 ------------------------------------------------- */
-.modblock_left {
-	float: right;
-	clear: left;
-}
-.modblock_right {
-	float: left;
-}
 ul.moderation_notes li {
 	padding: 4px 4px 4px 0;
 }
