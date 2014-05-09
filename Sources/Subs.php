@@ -3049,16 +3049,6 @@ function memoryReturnBytes($val)
 }
 
 /**
- * This is the only template included in the sources.
- */
-function template_rawdata()
-{
-	global $context;
-
-	echo $context['raw_data'];
-}
-
-/**
  * The header template
  */
 function template_header()
@@ -3109,7 +3099,7 @@ function template_header()
 		{
 			$checked_securityFiles = true;
 
-			$securityFiles = array('install.php', 'webinstall.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
+			$securityFiles = array('install.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~');
 
 			// Add your own files.
 			call_integration_hook('integrate_security_files', array(&$securityFiles));
