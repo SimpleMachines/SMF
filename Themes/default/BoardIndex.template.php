@@ -186,18 +186,9 @@ function template_main()
 			}
 
 		echo '
-<<<<<<< HEAD
 		</div>';
-		}
-=======
-			</tbody>
-			<tbody class="divider">
-				<tr>
-					<td colspan="4"></td>
-				</tr>
-			</tbody>';
->>>>>>> 81cf5aad55e27038f4947d56d92fe9bc4394d855
 	}
+
 	echo '
 	</div>';
 
