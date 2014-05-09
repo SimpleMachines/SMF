@@ -2275,14 +2275,12 @@ ul.quickbuttons li a img {
 ul.quickbuttons li input {
 	margin-top: 4px;
 }
-ul.quickbuttons li a.quote_button {
-	padding: 0 4px 0 16px;
-}
 ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
+	padding: 0 4px 0 16px;
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
