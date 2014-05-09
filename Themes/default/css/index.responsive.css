@@ -16,20 +16,20 @@
 	}
 	.dropmenu li {
 		width: 50% !important;
-	}
-	.resp_menu {
 		float: left;
-		margin-left: 5px;
+	}
+	.dropmenu li ul {
+		display: none !important;
 	}
 	#top_info > li {
 		margin-left: -10px;
 		float: none !important;
 	}
-	.desk {
-		margin-bottom: 3px;
-	}
 	.login {
 		width: 100%;
+	}
+	.top_menu {
+		width: 22em !important;
 	}
 
 	/* BoardIndex */

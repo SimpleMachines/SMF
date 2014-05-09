@@ -408,9 +408,9 @@ function template_menu()
 
 	echo '
 				<div id="main_menu">
-					<a class="button">Toggle</a>
+					<a class="button mobile">Toggle</a>
 					<script>
-						$( "a" ).click(function() {
+						$( "a.button.mobile" ).click(function() {
 							$( ".toggle_m" ).toggle();
 						});</script>
 					<div class="toggle_m">
