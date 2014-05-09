@@ -98,6 +98,14 @@ function template_main()
 					</td>';
 		}
 
+		// Show custom fields marked to be shown here
+		if (!empty($context['custom_profile_fields']['columns']))
+		{
+			foreach ($context['custom_profile_fields']['columns'] as $key => $column)
+				echo '
+					<td class="lefttext">', $member['options'][$key], '</td>';
+		}
+
 		echo '
 				</tr>';
 

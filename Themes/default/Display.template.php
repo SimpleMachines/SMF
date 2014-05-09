@@ -228,7 +228,7 @@ function template_main()
 					<div class="roundframe">
 						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
-						$context['oldTopicError'] ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
+						!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
 						', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
 						', !$context['can_reply_approved'] && $context['require_verification'] ? '<br>' : '', '
 						<form action="', $scripturl, '?board=', $context['current_board'], ';action=post2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
@@ -496,7 +496,33 @@ function template_single_post($message, $force_alternate = null)
 
 	// Show information about the poster of this message.
 	echo '
-						<div class="poster">
+						<div class="poster">';
+
+	// Are there any custom fields above the member name?
+	if (!empty($message['member']['custom_fields']))
+	{
+		$shown = false;
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 5 || empty($custom['value']))
+				continue;
+			if (empty($shown))
+			{
+				$shown = true;
+				echo '
+							<div class="custom_fields_above_member">
+								<ul class="reset nolist">';
+			}
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+		if ($shown)
+			echo '
+								</ul>
+							</div>';
+	}
+
+	echo '
 									<h4>';
 
 	// Show online and offline buttons?
@@ -520,6 +546,19 @@ function template_single_post($message, $force_alternate = null)
 								<li class="avatar">
 									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
+
+	// Are there any custom fields below the avatar?
+	if (!empty($message['member']['custom_fields']))
+	{
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 4 || empty($custom['value']))
+				continue;
+
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+	}
 
 	// Show the post group icons, but not for guests.
 	if (!$message['member']['is_guest'])
@@ -587,7 +626,7 @@ function template_single_post($message, $force_alternate = null)
 									<ol>';
 						}
 				echo '
-										<li>', $custom['value'], '</li>';
+										<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
 			}
 
 			if ($shown)
@@ -624,7 +663,7 @@ function template_single_post($message, $force_alternate = null)
 			foreach ($message['member']['custom_fields'] as $custom)
 				if (empty($custom['placement']) || empty($custom['value']))
 					echo '
-								<li class="custom">', $custom['title'], ': ', $custom['value'], '</li>';
+								<li class="custom ', $custom['colname'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
 		}
 
 	}
@@ -659,6 +698,20 @@ function template_single_post($message, $force_alternate = null)
 		echo '
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<img src="', $settings['images_url'], '/warning_', $message['member']['warning_status'], '.png" alt="', $txt['user_warn_' . $message['member']['warning_status']], '">', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
+	// Are there any custom fields to show at the bottom of the poster info?
+	if (!empty($message['member']['custom_fields']))
+	{
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 6 || empty($custom['value']))
+				continue;
+
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+	}
+
+	// Poster info ends.
 	echo '
 							</ul>';
 	echo '
@@ -808,7 +861,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button"><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))
@@ -859,7 +912,10 @@ function template_single_post($message, $force_alternate = null)
 											<li><a href="', $scripturl, '?action=post;msg=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], '" class="modify_button">', $txt['modify'], '</a></li>';
 
 		// How about... even... remove it entirely?!
-		if ($message['can_remove'])
+		if ($context['can_delete'] && ($context['topic_first_message'] == $message['id']))
+			echo '
+											<li><a href="', $scripturl, '?action=removetopic2;topic=', $context['current_topic'], '.', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['are_sure_remove_topic'], '?\');" class="remove_button">', $txt['remove_topic'],'</a></li>';
+		elseif ($message['can_remove'] && ($context['topic_first_message'] != $message['id']))
 			echo '
 											<li><a href="', $scripturl, '?action=deletemsg;topic=', $context['current_topic'], '.', $context['start'], ';msg=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['remove_message'], '?\');" class="remove_button">', $txt['remove'], '</a></li>';
 
@@ -924,7 +980,7 @@ function template_single_post($message, $force_alternate = null)
 								<ul class="reset nolist">';
 			}
 			echo '
-									<li>', $custom['value'], '</li>';
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
 		}
 		if ($shown)
 			echo '
@@ -936,6 +992,31 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
 		echo '
 							<div class="signature" id="msg_', $message['id'], '_signature"', $ignoring ? ' style="display:none;"' : '', '>', $message['member']['signature'], '</div>';
+
+
+	// Are there any custom profile fields for below the signature?
+	if (!empty($message['member']['custom_fields']))
+	{
+		$shown = false;
+		foreach ($message['member']['custom_fields'] as $custom)
+		{
+			if ($custom['placement'] != 3 || empty($custom['value']))
+				continue;
+			if (empty($shown))
+			{
+				$shown = true;
+				echo '
+							<div class="custom_fields_below_signature">
+								<ul class="reset nolist">';
+			}
+			echo '
+									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+		}
+		if ($shown)
+			echo '
+								</ul>
+							</div>';
+	}
 
 	echo '
 						</div>

@@ -24,7 +24,8 @@ if (!defined('SMF'))
  */
 function AdminMain()
 {
-	global $txt, $context, $scripturl, $modSettings, $settings, $sourcedir, $options, $boarddir;
+	global $txt, $context, $scripturl, $modSettings, $settings;
+	global $sourcedir, $options, $boarddir, $db_show_debug;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
@@ -106,6 +107,7 @@ function AdminMain()
 					'icon' => 'features.png',
 					'subsections' => array(
 						'basic' => array($txt['mods_cat_features']),
+						'bbc' => array($txt['manageposts_bbc_settings']),
 						'layout' => array($txt['mods_cat_layout']),
 						'karma' => array($txt['karma']),
 						'sig' => array($txt['signature_settings_short']),
@@ -187,7 +189,6 @@ function AdminMain()
 					'icon' => 'posts.png',
 					'subsections' => array(
 						'posts' => array($txt['manageposts_settings']),
-						'bbc' => array($txt['manageposts_bbc_settings']),
 						'censor' => array($txt['admin_censored_words']),
 						'topics' => array($txt['manageposts_topic_settings']),
 						'drafts' => array($txt['manage_drafts']),
@@ -484,7 +485,34 @@ function AdminMain()
 	if (isset($admin_include_data['file']))
 		require_once($sourcedir . '/' . $admin_include_data['file']);
 
-	$admin_include_data['function']();
+	// Do we defined a class for this function?
+	if (isset($admin_include_data['class']) && !empty($admin_include_data['class']) && is_string($admin_include_data['class']))
+	{
+		// Is there an instance already? nope? then create it!
+		if (empty($context['instances'][$admin_include_data['class']]) || !($context['instances'][$admin_include_data['class']] instanceof $admin_include_data['class']))
+		{
+			$context['instances'][$admin_include_data['class']] = new $admin_include_data['class'];
+
+			// Add another one to the list.
+			if ($db_show_debug === true)
+			{
+				if (!isset($context['debug']['instances']))
+					$context['debug']['instances'] = array();
+
+				$context['debug']['instances'][$admin_include_data['class']] = $admin_include_data['class'];
+			}
+		}
+
+		$call = array($context['instances'][$admin_include_data['class']], $admin_include_data['function']);
+	}
+
+	// A static one or more likely, a plain good old function.
+	else
+		$call = $admin_include_data['function'];
+
+	// Is it valid?
+	if (is_callable($call))
+		call_user_func($call);
 }
 
 /**
@@ -680,6 +708,7 @@ function AdminSearchInternal()
 	// This is a special array of functions that contain setting data - we query all these to simply pull all setting bits!
 	$settings_search = array(
 		array('ModifyBasicSettings', 'area=featuresettings;sa=basic'),
+		array('ModifyBBCSettings', 'area=featuresettings;sa=bbc'),
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
 		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
@@ -695,7 +724,6 @@ function AdminSearchInternal()
 		array('ModifyNewsSettings', 'area=news;sa=settings'),
 		array('GeneralPermissionSettings', 'area=permissions;sa=settings'),
 		array('ModifyPostSettings', 'area=postsettings;sa=posts'),
-		array('ModifyBBCSettings', 'area=postsettings;sa=bbc'),
 		array('ModifyTopicSettings', 'area=postsettings;sa=topics'),
 		array('ModifyDraftSettings', 'area=postsettings;sa=drafts'),
 		array('EditSearchSettings', 'area=managesearch;sa=settings'),

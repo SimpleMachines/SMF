@@ -326,6 +326,16 @@ h3.largetext {
 .main_section, .lower_padding {
 	padding-bottom: 6px;
 }
+.half_content {
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	width: 50%;
+	float: left;
+	display: inline-block;
+	padding: 0 3px;
+}
+#statistics .windowbg2 {
+	background: none;
+}
 
 /* Some BBC related styles.
 ------------------------------------------------------- */
@@ -1027,7 +1037,7 @@ img.sort, .sort {
 	color: inherit;
 }
 #top_info .top_menu.visible {
-	margin-left: 9999px;
+	display: block;
 }
 /* Needed for new PM notifications. */
 .dropmenu li strong {
@@ -1166,7 +1176,7 @@ img.sort, .sort {
 	z-index: 90;
 	position: absolute;
 	top: 2.25em;
-	left: -9999px;
+	display: none;
 	width: 18.2em;
 	padding: 0.5em;
 	font-weight: normal;
@@ -1234,7 +1244,7 @@ img.sort, .sort {
 	font-size: 1em;
 }
 /* Levels 2 and 3 hover effects. */
-.dropmenu li li:hover, .adm_section .dropmenu li li:hover {
+.dropmenu li li:hover {
 	border: none;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
@@ -1259,7 +1269,7 @@ img.sort, .sort {
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
 	left: -14px;
 }
-.dropmenu li li.subsections a:after, .adm_section .dropmenu li.subsections a:after{
+.dropmenu li li.subsections > a:after {
 	position: absolute;
 	top: 0.4em;
 	right: 2px;
@@ -1283,17 +1293,13 @@ img.sort, .sort {
 /* Styles for the standard button lists.
 ------------------------------------------------------- */
 
-.buttonlist ul {
+.buttonlist {
 	z-index: 100;
-	padding: 5px;
-	margin: 0 0 5px 0;
+	padding: 5px 0 5px 0;
+	margin: 5px 0 5px 0;
 }
-.buttonlist ul li {
-	margin: 0 0 0 6px;
-	padding: 0;
+.button {
 	float: left;
-}
-.buttonlist ul li a {
 	display: block;
 	text-transform: uppercase;
 	cursor: pointer;
@@ -1302,19 +1308,21 @@ img.sort, .sort {
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 0 1px;
-	margin: 0;
+	padding: 0 8px;
+	margin: 0 0 0 5px;
 	overflow: visible;
 	color: #444;
 	font-size: 0.8em;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
+	height: 2.2em;
+	line-height: 2.2em;
 }
 /* Keep a consistent size when wrapped in pagesection. */
-.pagesection .buttonlist ul li a {
+.pagesection .button {
 	font-size: 0.889em;
 }
-.buttonlist ul li a:hover {
+.button:hover {
 	color: #af6700;
 	text-decoration: none;
 	border: 1px solid #ccc;
@@ -1324,14 +1332,8 @@ img.sort, .sort {
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #E2E9F3 70%);
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
-.buttonlist ul li a span {
-	display: block;
-	height: 2.2em;
-	line-height: 2.2em;
-	padding: 0 8px;
-}
 /* the active one */
-.buttonlist ul li a.active {
+.button.active {
 	background: #557ea0;
 	color: #fff;
 	font-weight: bold;
@@ -1339,11 +1341,14 @@ img.sort, .sort {
 	border: 1px solid #558080;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
-.buttonlist ul li a.active:hover {
+.button.active:hover {
 	color: #ffc187;
 }
-.align_top ul li a, .align_bottom ul li a {
+.align_top a, .align_bottom a {
 	margin: 0 12px 0 0;
+}
+.button.last {
+	margin-top: 9px;
 }
 
 /* Styles for the general looks of the theme.
@@ -1682,9 +1687,9 @@ ul li.greeting {
 	padding: 0;
 	float: right;
 }
-.mark_read .buttonlist ul {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+.mark_read .buttonlist {
+	margin: 0;
+	padding: 0;
 }
 /* the newsfader */
 #newsfader {
@@ -2733,7 +2738,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
+tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -2820,10 +2825,10 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td {
 .generic_icons.user_off {
 	background-position: 0 -16px;
 }
-.generic_icons.gender_female {
+.generic_icons.gender_Female {
 	background-position: -16px 0;
 }
-.generic_icons.gender_male {
+.generic_icons.gender_Male {
 	background-position: -16px -16px;
 }
 .generic_icons.last_post {
@@ -3036,22 +3041,6 @@ dl {
 	overflow: auto;
 }
 
-/* Profile statistics */
-#generalstats div.content dt {
-	width: 50%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-	font-weight: bold;
-	clear: both;
-}
-#generalstats div.content dd {
-	width: 50%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-}
-
 /* Activity by time */
 #activitytime {
 	margin: 6px 0;
@@ -3096,17 +3085,7 @@ dl {
 	left: -1000em;
 }
 
-/* Most popular boards by posts and activity */
-#popularposts {
-	width: 49.5%;
-	float: left;
-}
-#popularactivity {
-	width: 49.5%;
-	float: right;
-}
-
-#popularposts div.content dt, #popularactivity div.content dt {
+#profileview div.content dt {
 	width: 65%;
 	float: left;
 	margin: 0 0 3px 0;
@@ -3114,7 +3093,7 @@ dl {
 	font-weight: bold;
 	clear: both;
 }
-#popularposts div.content dd, #popularactivity div.content dd {
+#profileview div.content dd {
 	width: 35%;
 	float: left;
 	margin: 0 0 3px 0;
@@ -3264,24 +3243,8 @@ dl {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-#statistics {
-	padding: 6px 0;
-}
 #statistics  div {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-#statistics div.windowbg2 {
-	background: none;
-}
-#top_posters, #top_topics_replies, #top_topics_starter {
-	float: left;
-	width: 50%;
-	padding: 0 3px 0 0;
-}
-#top_boards, #top_topics_views, #most_online {
-	float: right;
-	width: 50%;
-	padding: 0 0 0 3px;
 }
 .stats_icon {
 	width: 16px;
@@ -3361,6 +3324,38 @@ dl.stats dd span {
 	background: #fff;
 	white-space: pre;
 }
+/* Special styling for the top two blocks. */
+.stats_left {
+	float: left;
+	margin-top: 8px;
+	padding: 6px 15px;
+	border-right: 1px solid #bbb;
+}
+.stats_right{
+	float: right;
+	padding: 6px 15px;
+	margin-top: 8px;
+}
+.stats_left dl.stats, .stats_right dl.stats {
+	margin: -8px 0 -12px 0;
+}
+.stats_left dt a {
+	color: #232f46;
+}
+.stats_left dt {
+	width: 35%;
+}
+.stats_left dd {
+	width: 65%;
+}
+.top_row dl.stats dd {
+	background: none;
+	border: none;
+}
+.half {
+	width: 50%;
+}
+/* Forum history table. */
 #stats {
 	margin: 4px 0;
 }
@@ -3908,16 +3903,16 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;
 	color: #555;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;	
+	font-weight: bold;
 	overflow: hidden;
-	padding: 6px 12px 5px 12px;	
+	padding: 6px 12px 5px 12px;
 	text-shadow: none;
 }
 .titlebg a, .subbg a {
 	background: none;
 	color: #555;
 	text-decoration: none;
-}	
+}
 .title_top {
 	margin-top: 10px;
 }
@@ -3928,38 +3923,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
-}
-
-/* This place is about stats page */
-.stats_left {
-	float: left;
-	margin-top: 8px;
-	padding: 6px 15px;
-	border-right: 1px solid #bbb;
-}
-.stats_right{
-	float: right;
-	padding: 6px 15px;
-	margin-top: 8px;
-}
-.stats_left dl.stats, .stats_right dl.stats {
-	margin: -8px 0 -12px 0;
-}
-.stats_left dt a {
-	color: #232f46;
-}
-.stats_left dt {
-	width: 35%;
-}
-.stats_left dd {
-	width: 65%;
-}
-.top_row dl.stats dd {
-	background: none;
-	border: none;
-}
-.half {
-	width: 50%;
 }
 
 /* This place covers board places (boardindex-messageindex) */

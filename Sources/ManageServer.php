@@ -132,7 +132,6 @@ function ModifySettings()
  * General forum settings - forum name, maintenance mode, etc.
  * Practically, this shows an interface for the settings in Settings.php to be changed.
  *
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Contains the actual array of settings to show from Settings.php.
@@ -191,7 +190,6 @@ function ModifyGeneralSettings($return_config = false)
  *
  * - It shows an interface for the settings in Settings.php to be changed.
  * - It contains the actual array of settings to show from Settings.php.
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Accessed from ?action=admin;area=serversettings;sa=database.
@@ -936,9 +934,9 @@ function saveSettings(&$config_vars)
 	{
 		if (!is_array($var) || $var[2] != 'file')
 			continue;
-		
+
 		$config_var = $var[0];
-		
+
 		if (in_array($config_var, $config_passwords))
 		{
 			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])

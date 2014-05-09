@@ -80,7 +80,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="roundframe title_top">
-			<div id="top_posters">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon posters"></span>', $txt['top_posters'], '
@@ -117,7 +117,7 @@ function template_main()
 						</div>
 					</div>
 			</div>
-			<div id="top_boards">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon boards"></span>', $txt['top_boards'], '
@@ -156,7 +156,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="roundframe title_top">
-			<div id="top_topics_replies">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
@@ -192,7 +192,7 @@ function template_main()
 					</div>
 			</div>
 
-			<div id="top_topics_views">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
@@ -229,7 +229,7 @@ function template_main()
 			</div>
 		</div>
 		<div class="roundframe title_top">
-			<div id="top_topics_starter">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon starters"></span>', $txt['top_starters'], '
@@ -263,7 +263,7 @@ function template_main()
 					</div>
 				</div>
 			</div>
-			<div id="most_online">
+			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon history"></span>', $txt['most_time_online'], '

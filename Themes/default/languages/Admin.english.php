@@ -60,6 +60,7 @@ $txt['admin_check_display'] = 'Check display name.';
 $txt['admin_newsletter_send'] = 'You can email anyone from this page. The email addresses of the selected membergroups should appear below, but you may remove or add any email addresses you wish. Be sure that each address is separated in this fashion: \'address1; address2\'.';
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
 $txt['admin_bbc'] = 'Show BBC Buttons on Posting and PM Send Pages';
+$txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(0 to disable)';
 
@@ -563,6 +564,8 @@ $txt['edit_disable_time_zero'] = '0 to disable';
 $txt['preview_characters'] = 'Maximum length of last/first post preview';
 $txt['preview_characters_units'] = 'characters';
 $txt['preview_characters_zero'] = '0 to disable';
+$txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
+$txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
 
 $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';

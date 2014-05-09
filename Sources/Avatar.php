@@ -129,7 +129,7 @@ function showAvatar()
 		$fp = fopen($file['filename'], 'rb');
 		while (!feof($fp))
 		{
-			print fread($fp, 8192);
+			echo fread($fp, 8192);
 			flush();
 		}
 		fclose($fp);
@@ -137,7 +137,7 @@ function showAvatar()
 
 	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
 	elseif (@readfile($file['filename']) === null)
-		print file_get_contents($file['filename']);
+		echo file_get_contents($file['filename']);
 
 	die();
 }

@@ -196,17 +196,6 @@ function loadProfileFields($force_reload = false)
 				return $isValid;
 			'),
 		),
-		'hide_email' => array(
-			'type' => 'check',
-			'value' => empty($cur_profile['hide_email']) ? true : false,
-			'label' => $txt['allow_user_email'],
-			'permission' => 'profile_identity',
-			'input_validate' => create_function('&$value', '
-				$value = $value == 0 ? 1 : 0;
-
-				return true;
-			'),
-		),
 		// Selecting group membership is a complicated one so we treat it separate!
 		'id_group' => array(
 			'type' => 'callback',
@@ -794,7 +783,7 @@ function saveProfileFields()
 		if (isset($field['input_validate']))
 		{
 			$is_valid = $field['input_validate']($_POST[$key]);
-			// An error occured - set it as such!
+			// An error occurred - set it as such!
 			if ($is_valid !== true)
 			{
 				// Is this an actual error?
@@ -888,7 +877,12 @@ function saveProfileFields()
 	{
 		makeThemeChanges($context['id_member'], isset($_POST['id_theme']) ? (int) $_POST['id_theme'] : $old_profile['id_theme']);
 		if (!empty($_REQUEST['sa']))
-			makeCustomFieldChanges($context['id_member'], $_REQUEST['sa'], false);
+		{
+			$custom_fields_errors = makeCustomFieldChanges($context['id_member'], $_REQUEST['sa'], true, true);
+
+			if (!empty($custom_fields_errors))
+				$post_errors = array_merge($post_errors, $custom_fields_errors);
+		}
 	}
 
 	// Free memory!
@@ -1162,9 +1156,12 @@ function makeNotificationChanges($memID)
  * @param string $area
  * @param bool $sanitize = true
  */
-function makeCustomFieldChanges($memID, $area, $sanitize = true)
+function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors = false)
 {
-	global $context, $smcFunc, $user_profile, $user_info, $modSettings, $sourcedir;
+	global $context, $smcFunc, $user_profile, $user_info, $modSettings;
+	global $sourcedir;
+
+	$errors = array();
 
 	if ($sanitize && isset($_POST['customfield']))
 		$_POST['customfield'] = htmlspecialchars__recursive($_POST['customfield']);
@@ -1215,15 +1212,27 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 			// Any masks?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				// @todo We never error on this - just ignore it at the moment...
+				// Check it against its regex
 				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
-					$value = '';
+				{
+					if ($returnErrors)
+						$errors[] = 'custom_field_mail_fail';
+
+					else
+						$value = '';
+				}
 				elseif ($row['mask'] == 'number')
 				{
 					$value = (int) $value;
 				}
 				elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0)
-					$value = '';
+				{
+					if ($returnErrors)
+						$errors[] = 'custom_field_regex_fail';
+
+					else
+						$value = '';
+				}
 			}
 		}
 
@@ -1246,10 +1255,14 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 	}
 	$smcFunc['db_free_result']($request);
 
-	call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, $memID, $area, $sanitize));
+	$hook_errors = array();
+	$hook_errors = call_integration_hook('integrate_save_custom_profile_fields', array(&$changes, &$log_changes, &$errors, $returnErrors, $memID, $area, $sanitize));
+
+	if (!empty($hook_errors) && is_array($hook_errors))
+		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']))
+	if (!empty($changes) && empty($context['password_auth_failed']) && !empty($errors))
 	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',
@@ -1263,6 +1276,9 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true)
 			logActions($log_changes);
 		}
 	}
+
+	if ($returnErrors)
+		return $errors;
 }
 
 /**
@@ -1280,7 +1296,7 @@ function editBuddyIgnoreLists($memID)
 
 	// Can we email the user direct?
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
+	$context['can_send_email'] = allowedTo('moderate_forum');
 
 	$subActions = array(
 		'buddies' => array('editBuddies', $txt['editBuddies']),
@@ -1314,7 +1330,7 @@ function editBuddyIgnoreLists($memID)
  */
 function editBuddies($memID)
 {
-	global $txt, $scripturl;
+	global $txt, $scripturl, $settings;
 	global $context, $user_profile, $memberContext, $smcFunc;
 
 	// For making changes!
@@ -1401,6 +1417,31 @@ function editBuddies($memID)
 	// Get all the users "buddies"...
 	$buddies = array();
 
+	// Gotta load the custom profile fields names.
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_desc, field_type, bbc, enclose
+		FROM {db_prefix}custom_fields
+		WHERE active = {int:active}
+			AND private < {int:private_level}',
+		array(
+			'active' => 1,
+			'private_level' => 2,
+		)
+	);
+
+	$context['custom_pf'] = array();
+	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? array_flip(explode(',', $modSettings['disabled_profile_fields'])) : array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		if (!isset($disabled_fields[$row['col_name']]))
+			$context['custom_pf'][$row['col_name']] = array(
+				'label' => $row['field_name'],
+				'type' => $row['field_type'],
+				'bbc' => !empty($row['bbc']),
+				'enclose' => $row['enclose'],
+			);
+
+	$smcFunc['db_free_result']($request);
+
 	if (!empty($buddiesArray))
 	{
 		$result = $smcFunc['db_query']('', '
@@ -1430,6 +1471,35 @@ function editBuddies($memID)
 	{
 		loadMemberContext($buddy);
 		$context['buddies'][$buddy] = $memberContext[$buddy];
+
+		// Make sure to load the appropriate fields for each user
+		if (!empty($context['custom_pf']))
+		{
+			foreach ($context['custom_pf'] as $key => $column)
+			{
+				// Don't show anything if there isn't anything to show.
+				if (!isset($context['buddies'][$buddy]['options'][$key]))
+				{
+					$context['buddies'][$buddy]['options'][$key] = '';
+					continue;
+				}
+
+				if ($column['bbc'] && !empty($context['buddies'][$buddy]['options'][$key]))
+					$context['buddies'][$buddy]['options'][$key] = strip_tags(parse_bbc($context['buddies'][$buddy]['options'][$key]));
+
+				elseif ($column['type'] == 'check')
+					$context['buddies'][$buddy]['options'][$key] = $context['buddies'][$buddy]['options'][$key] == 0 ? $txt['no'] : $txt['yes'];
+
+				// Enclosing the user input within some other text?
+				if (!empty($column['enclose']) && !empty($context['buddies'][$buddy]['options'][$key]))
+					$context['buddies'][$buddy]['options'][$key] = strtr($column['enclose'], array(
+						'{SCRIPTURL}' => $scripturl,
+						'{IMAGES_URL}' => $settings['images_url'],
+						'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
+						'{INPUT}' => $context['buddies'][$buddy]['options'][$key],
+					));
+			}
+		}
 	}
 
 	if (isset($_SESSION['prf-save']))
@@ -1596,7 +1666,7 @@ function account($memID)
 		array(
 			'member_name', 'real_name', 'date_registered', 'posts', 'lngfile', 'hr',
 			'id_group', 'hr',
-			'email_address', 'hide_email', 'show_online', 'hr',
+			'email_address', 'show_online', 'hr',
 			'passwrd1', 'passwrd2', 'hr',
 			'secret_question', 'secret_answer',
 		)
@@ -2717,7 +2787,7 @@ function profileLoadSignatureData()
 	elseif ($context['signature_limits']['max_image_width'] || $context['signature_limits']['max_image_height'])
 		$context['signature_warning'] = sprintf($txt['profile_error_signature_max_image_' . ($context['signature_limits']['max_image_width'] ? 'width' : 'height')], $context['signature_limits'][$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
 
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 
 	if (empty($context['do_preview']))
 		$context['member']['signature'] = empty($cur_profile['signature']) ? '' : str_replace(array('<br>', '<', '>', '"', '\''), array("\n", '&lt;', '&gt;', '&quot;', '&#039;'), $cur_profile['signature']);
