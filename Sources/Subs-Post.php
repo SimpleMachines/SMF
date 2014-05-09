@@ -34,7 +34,9 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~i', create_function('$m', ' return "[nobbc]" . strtr("$m[1]", array("[" => "&#91;", "]" => "&#93;", ":" => "&#58;", "@" => "&#64;")) . "[/nobbc]";'), $message);
+	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function ($a) {
+		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
+	}, $message);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -1947,13 +1949,9 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'unapproved_posts = unapproved_posts + {int:counter_increment}',
 			);
 		if ($topicOptions['lock_mode'] !== null)
-			$topics_columns += array(
-				'locked = {int:locked}',
-			);
+			$topics_columns[] = 'locked = {int:locked}';
 		if ($topicOptions['sticky_mode'] !== null)
-			$topics_columns += array(
-				'is_sticky = {int:is_sticky}',
-			);
+			$topics_columns[] = 'is_sticky = {int:is_sticky}';
 
 		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
@@ -2909,9 +2907,9 @@ function user_info_callback($matches)
 
 /**
  * spell_init()
- * 
+ *
  * Sets up a dictionary resource handle. Tries enchant first then falls through to pspell.
- * 
+ *
  * @return resource|bool An enchant or pspell dictionary resource handle or false if the dictionary couldn't be loaded
  */
 function spell_init()
@@ -2931,7 +2929,7 @@ function spell_init()
 
 		// Try locale first, then general...
 		if (!empty($lang_locale) && enchant_broker_dict_exists($context['enchant_broker'], $lang_locale))
-		{			
+		{
 			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $lang_locale);
 		}
 		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
@@ -2986,9 +2984,9 @@ function spell_init()
 
 /**
  * spell_check()
- * 
+ *
  * Determines whether or not the specified word is spelled correctly
- * 
+ *
  * @param resource $dict An enchant or pspell dictionary resource set up by {@link spell_init()}
  * @param string $word A word to check the spelling of
  * @return bool Whether or not the specified word is spelled properly
@@ -3016,9 +3014,9 @@ function spell_check($dict, $word)
 
 /**
  * spell_suggest()
- * 
+ *
  * Returns an array of suggested replacements for the specified word
- * 
+ *
  * @param resource $dict An enchant or pspell dictioary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
@@ -3035,7 +3033,7 @@ function spell_suggest($dict, $word)
 			// Convert the word to UTF-8 before getting suggestions
 			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
 			$suggestions = enchant_dict_suggest($dict, $word);
-			
+
 			// Go through the suggestions and convert them back to the proper character set
 			foreach($suggestions as $index => $suggestion)
 			{

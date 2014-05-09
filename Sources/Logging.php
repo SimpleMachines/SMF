@@ -425,6 +425,7 @@ function logActions($logs)
 		'admin' => 3,
 	);
 
+	// Make sure this particular log is enabled first...
 	if (empty($modSettings['modlog_enabled']))
 		unset ($log_types['moderate']);
 	if (empty($modSettings['userlog_enabled']))
@@ -433,10 +434,6 @@ function logActions($logs)
 		unset ($log_types['admin']);
 
 	call_integration_hook('integrate_log_types', array(&$log_types));
-
-	// No point in doing anything, if the log isn't even enabled.
-	if (empty($modSettings['modlog_enabled']))
-		return false;
 
 	foreach ($logs as $log)
 	{
