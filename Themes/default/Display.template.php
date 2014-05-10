@@ -947,7 +947,7 @@ function template_single_post($message, $force_alternate = null)
 		// Show a checkbox for quick moderation?
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
 			echo '
-									<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
+									<li style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
