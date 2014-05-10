@@ -350,10 +350,6 @@ function template_main()
 	echo '
 				<script><!-- // --><![CDATA[';
 
-	if (!empty($context['some_likes']))
-		echo '
-					add_like_popup();';
-
 	echo '
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,
@@ -861,7 +857,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))
@@ -877,7 +873,7 @@ function template_single_post($message, $force_alternate = null)
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $message['id'], comma_format($count)), '</li>';
+									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '

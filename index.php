@@ -252,7 +252,7 @@ function smf_main()
 			$defaultActions = call_integration_hook('integrate_default_action');
 			foreach ($defaultActions as $defaultAction)
 			{
-				$call = strpos($defaultAction, '::') !== false ? explode('::', $defaultAction) : $defaultAction;
+				$call = call_hook_helper($defaultAction);
 				if (!empty($call) && is_callable($call))
 					return $call;
 			}
@@ -296,7 +296,7 @@ function smf_main()
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
-		'likes' => array('Likes.php', 'Likes'),
+		'likes' => array('Likes.php', 'Likes::call#'),
 		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
@@ -372,7 +372,7 @@ function smf_main()
 		$fallbackActions = call_integration_hook('integrate_fallback_action');
 		foreach ($fallbackActions as $fallbackAction)
 		{
-			$call = strpos($defaultAction, '::') !== false ? explode('::', $fallbackAction) : $fallbackAction;
+			$call = call_hook_helper($fallbackAction);
 			if (!empty($call) && is_callable($call))
 				return $call;
 		}
