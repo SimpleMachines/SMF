@@ -7,7 +7,7 @@
 	#wrapper, .frame {
 		min-width: 85% !important;
 	}
-	.toggle_m, #upshrinkHeaderIC {
+	#menu_nav, #upshrinkHeaderIC {
 		display: none;
 	}
 	#menu_nav li a {
@@ -17,9 +17,6 @@
 	.dropmenu li {
 		width: 50% !important;
 		float: left;
-	}
-	.dropmenu li ul {
-		display: none !important;
 	}
 	#top_info > li {
 		margin-left: -10px;
@@ -61,6 +58,19 @@
 	/* Display (Topics) */
 	.user_info {
 		display: none;
+	}
+	#moderationbuttons_strip {
+		display: none;
+	}
+	#moderationbuttons_strip a {
+		float: left;
+		width: 40%;
+	}
+	.button.button_strip_mark_unread {
+		display: none;
+	}
+	.button.mobile {
+		margin: 0 0 5px 0;
 	}
 
 	/* Hide me */
@@ -234,7 +244,7 @@
 }
 @media (min-width: 1081px) {
 /* I need to hide them from you desktop people... */
-	#main_menu .button {
+	.button.mobile {
 		display: none;
 	}
 }

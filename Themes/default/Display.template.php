@@ -208,7 +208,14 @@ function template_main()
 	theme_linktree();
 
 	echo '
-			<div id="moderationbuttons">', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '</div>';
+			<div id="moderationbuttons">
+				<a class="button mobile">Moderation Buttons</a>
+					<script>
+						$( "a.button.mobile" ).click(function() {
+							$( "#moderationbuttons_strip" ).toggle();
+						});</script>
+				', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '
+			</div>';
 
 	// Show the jumpto box, or actually...let Javascript do it.
 	echo '
