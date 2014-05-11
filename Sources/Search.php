@@ -2126,6 +2126,7 @@ function findSearchAPI()
 	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
+	require_once($sourcedir . '/Class-SearchAPI.php');
 
 	// Search has a special database set.
 	db_extend('search');
