@@ -1,11 +1,18 @@
 /* We have shared things... */
 @media screen and (max-width: 720px) {
+
 	/* General */
 	.action_home {
 		width: 100% !important;
 	}
 	#wrapper, .frame {
-		min-width: 85% !important;
+		min-width: 100% !important;
+	}
+	#upper_section, #inner_section, #content_section {
+		border-radius: 0;
+	}
+	.stats, .lastpost {
+		display: none;
 	}
 	#menu_nav, #upshrinkHeaderIC {
 		display: none;
@@ -18,15 +25,14 @@
 		width: 50% !important;
 		float: left;
 	}
-	#top_info > li {
-		margin-left: -10px;
-		float: none !important;
+	.dropmenu li ul {
+		display: none !important;
 	}
 	.login {
 		width: 100%;
 	}
 	.top_menu {
-		width: 22em !important;
+		width: 23em !important;
 	}
 
 	/* BoardIndex */
@@ -39,15 +45,7 @@
 	div.info {
 		width: 70% !important;
 	}
-	div.stats {
-		width: 20% !important;
-	}
-	div.stats p {
-		border-left: none;
-	}
-	div.lastpost {
-		width: 65% !important;
-	}
+
 	/* MessageIndex */
 	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
 		display: none;
@@ -55,6 +53,7 @@
 	#messageindex .info {
 		margin-left: 5px;
 	}
+
 	/* Display (Topics) */
 	.user_info {
 		display: none;
@@ -92,6 +91,7 @@
 
 /* I have a Lumia with 480px screen... so ^^ */
 @media (max-width: 480px) {
+
 	/* This is general */
 	.popup_window {
 		width: 310px !important;
@@ -105,7 +105,7 @@
 		padding: 5px 0 0 4px !important;
 		max-width: 300px;
 	}
-	
+
 	/* Register Page */
 	dl.register_form {
 		float: none !important;
@@ -115,7 +115,7 @@
 		float: none !important;
 		min-width: 250px !important;
 	}
-	
+
 	/* Display (Topic View) */
 	.poster {
 		float: none !important;
@@ -136,7 +136,7 @@
 	.keyinfo h5 .modified {
 		float: none !important;
 	}
-	
+
 	/* Post Section */
 	#post_header dd {
 		width: 50% !important;
@@ -144,13 +144,13 @@
 	#post_header dt {
 		width: 35% !important;
 	}
-	
+
 	/* Profile */
 	#basicinfo, #detailedinfo {
 		float: none !important;
 		width: 95% !important;
 	}
-	
+
 	/* Stats Center */
 	th.recentposter, th.recentboard, th.recenttime,
 	td.recentposter, td.recentboard, td.recenttime {
@@ -163,7 +163,7 @@
 	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
 		padding: 5px !important;
 	}
-	
+
 	/* Search */
 	#advanced_search dt {
 		text-align: left;
@@ -242,6 +242,7 @@
 /* Still not enough data or people to test this... */
 @media (min-width: 721px) and (max-width: 1080) {
 }
+
 @media (min-width: 1081px) {
 /* I need to hide them from you desktop people... */
 	.button.mobile {
