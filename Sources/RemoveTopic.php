@@ -345,6 +345,12 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	if (empty($topics))
 		return;
 
+	// Callback for search APIs to do their thing
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if ($searchAPI->supportsMethod('topicsRemoved'))
+		$searchAPI->topicsRemoved($topics);
+
 	$adjustBoards = array();
 
 	// Find out how many posts we are deleting.
@@ -925,6 +931,12 @@ function removeMessage($message, $decreasePostCount = true)
 	// Only remove posts if they're not recycled.
 	if (!$recycle)
 	{
+		// Callback for search APIs to do their thing
+		require_once($sourcedir . '/Search.php');
+		$searchAPI = findSearchAPI();
+		if ($searchAPI->supportsMethod('postRemoved'))
+			$searchAPI->postRemoved($message);
+
 		// Remove the message!
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}messages

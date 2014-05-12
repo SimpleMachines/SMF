@@ -23,7 +23,7 @@ interface search_api_interface
 	 * @param array $query_params
 	 * @return boolean
 	 */
-	public function supportsMethod($methodName, $query_params);
+	public function supportsMethod($methodName, $query_params = array());
 
 	/**
 	 * Whether this method is valid for implementation or not
@@ -89,6 +89,34 @@ interface search_api_interface
 	 * @return void
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions);
+
+	/**
+	 * Callback when a post is removed
+	 *
+	 * @access public
+	 * @param int $id_msg
+	 * @return void
+	 */
+	public function postRemoved($id_msg);
+
+	/**
+	 * Callback when a topic is removed
+	 *
+	 * @access public
+	 * @param array $topics
+	 * @return void
+	 */
+	public function topicsRemoved(array $topics);
+
+	/**
+	 * Callback when a topic is moved
+	 *
+	 * @access public
+	 * @param array $topics
+	 * @param int $board_to
+	 * @return void
+	 */
+	public function topicsMoved(array $topics, $board_to);
 
 	/**
 	 * Callback for actually performing the search query
@@ -163,6 +191,27 @@ abstract class search_api implements search_api_interface
 	 * {@inheritDoc}
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions)
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function postRemoved($id_msg)
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function topicsRemoved(array $topics)
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function topicsMoved(array $topics, $board_to)
 	{
 	}
 
