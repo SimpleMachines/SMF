@@ -2120,6 +2120,7 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
+ * @return search_api_interface
  */
 function findSearchAPI()
 {
