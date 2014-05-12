@@ -2196,16 +2196,6 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	line-height: 1.9em;
 	position: relative;
-	color: #222;
-}
-.quickbuttons li.quick_edit img {
-	padding: 4px 7em 4px 4px;
-	position: absolute;
-	left: 0;
-	top: 0;
-}
-.quickbuttons li.quick_edit {
-	display: none;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 3px 0 0 3px;
