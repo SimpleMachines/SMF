@@ -379,9 +379,9 @@ function MoveTopic2()
  * Handles the moving of mark_read data
  * Updates the posts count of the affected boards
  *
- * @param type $topics
- * @param type $toBoard
- * @return type
+ * @param array $topics
+ * @param int $toBoard
+ * @return void
  */
 function moveTopics($topics, $toBoard)
 {
