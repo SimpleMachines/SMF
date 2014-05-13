@@ -3956,11 +3956,12 @@ div.icon {
 	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
+	min-width: 60px;
 }
 div.info {
 	float: left;
-	width: 56%;
-	padding: 12px 7px 0 0;
+	width: 50%;
+	margin: 10px 0 5px 0;
 }
 div.info .subject {
 	font-weight: 600;
@@ -3968,7 +3969,7 @@ div.info .subject {
 	color: #A85400;
 }
 div.stats {
-	width: 12%;
+	width: 14%;
 	float: left;
 	padding: 7px;
 	font-size: 0.9em;
@@ -3981,7 +3982,7 @@ div.stats p {
 	margin: 3px 0 0;
 }
 div.lastpost {
-	width: 24%;
+	width: 26%;
 	float: left;
 	padding-top: 7px;
 	font-size: 0.9em;
@@ -3990,7 +3991,7 @@ div.lastpost p {
 	margin: 3px 0 0 0;
 }
 div.icon, div.info, div.stats, div.lastpost {
-	height: 4.5em;
+	min-height: 4.5em;
 }
 .main_container {
 	margin-bottom: 20px;
