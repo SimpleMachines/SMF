@@ -1189,7 +1189,7 @@ function sortBoards(array &$boards)
 				sortBoards($ordered[$board]['boards']);
 
 			if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
-				sortboards($ordered[$board]['children']);
+				sortBoards($ordered[$board]['children']);
 		}
 
 	$boards = $ordered;
