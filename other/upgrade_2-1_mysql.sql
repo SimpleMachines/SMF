@@ -1362,3 +1362,8 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ALTER TABLE {$db_prefix}members
 DROP hide_email;
 ---#
+
+/******************************************************************************/
+--- Adding new BBC setting
+/******************************************************************************/
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
