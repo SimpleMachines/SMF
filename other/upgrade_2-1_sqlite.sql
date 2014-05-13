@@ -1437,3 +1437,8 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_alter_table']('{db_prefix}members', array('remove' => array('hide_email')));
 ---}
 ---#
+
+/******************************************************************************/
+--- Adding new BBC setting
+/******************************************************************************/
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');

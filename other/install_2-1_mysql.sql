@@ -1886,7 +1886,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('topic_move_any', '0'),
 	('browser_cache', '?alph21'),
 	('mail_limit', '5'),
-	('mail_quantity', '5');
+	('mail_quantity', '5'),
+	('admin_bbc', '1');
 # --------------------------------------------------------
 
 #

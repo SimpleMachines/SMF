@@ -2398,6 +2398,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 # --------------------------------------------------------
 
 #
