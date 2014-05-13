@@ -2117,19 +2117,23 @@ ul.quickbuttons li {
 	font-size: 0.9em;
 }
 ul.quickbuttons li a {
-	padding: 0 4px 0 20px;
+	padding: 0 4px 0 5px;
 	display: block;
 	line-height: 1.9em;
 	float: left;
 }
-ul.quickbuttons li a.quote_button {
-	padding: 0 4px 0 16px;
+ul.quickbuttons li a img {
+	padding-bottom: 2px;
+}
+ul.quickbuttons li input {
+	margin-top: 4px;
 }
 ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
+	padding: 0 4px 0 16px;
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
@@ -2180,9 +2184,14 @@ ul.quickbuttons li.inline_mod_check {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.quickbuttons li:first-child {
+.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
 	padding-bottom: 0;
+}
+.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
+	border-radius: 1px 4px 4px 1px;
+	padding-bottom: 0;
+	line-height: 1.9em;
 }
 .quickbuttons li:hover {
 	border: 1px solid #ccc;
@@ -2197,19 +2206,12 @@ ul.quickbuttons li.inline_mod_check {
 	line-height: 1.9em;
 	position: relative;
 }
-ul.quickbuttons li.inline_mod_check {
-	padding: 3px 0 0 3px;
-	background: none;
-	border: none;
-	box-shadow: none;
-}
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
 	color: #222;
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
-	border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;

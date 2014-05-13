@@ -1262,7 +1262,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']) && !empty($errors))
+	if (!empty($changes) && empty($context['password_auth_failed']) && empty($errors))
 	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',

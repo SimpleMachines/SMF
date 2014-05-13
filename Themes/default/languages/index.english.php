@@ -595,6 +595,11 @@ $txt['notification_disable_topic'] = 'Are you sure you wish to disable notificat
 
 $txt['like'] = 'Like';
 $txt['unlike'] = 'Unlike';
+$txt['like_success'] = 'Your content was successfully liked.';
+$txt['like_delete'] = 'Your content was successfully deleted.';
+$txt['like_insert'] = 'Your content was successfully inserted.';
+$txt['like_error'] = 'There was en error with your request.';
+$txt['not_valid_like_type'] = 'The liked type is not a valid type.';
 // Translators, if you need to make more strings to suit your language, e.g. $txt['likes_2'] = 'Two people like this', please do so.
 $txt['likes_1'] = '<a href="%1$s">1 person</a> likes this.';
 $txt['likes_n'] = '<a href="%1$s">%2$s people</a> like this.';
