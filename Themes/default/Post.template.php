@@ -550,7 +550,6 @@ function template_main()
 	echo '
 					</span>
 				</div>
-			</div>
 			<br class="clear">';
 
 	// Assuming this isn't a new topic pass across the last message id.
@@ -830,7 +829,7 @@ function template_main()
 				$ignored_posts[] = $ignoring = $post['id'];
 
 			echo '
-				<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
 				<div class="content" id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
@@ -864,6 +863,7 @@ function template_main()
 
 		echo '
 		</div>
+	</div>
 		<script><!-- // --><![CDATA[
 			var aIgnoreToggles = new Array();';
 

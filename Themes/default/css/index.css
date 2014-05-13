@@ -2165,6 +2165,12 @@ ul.quickbuttons li a.unapprove_button {
 ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
 }
+ul.quickbuttons li a.modifybutton {
+	background: url(../images/icons/modify_inline.png) no-repeat 2px;
+}
+ul.quickbuttons li.inline_mod_check {
+	padding: 1px 1px 1px 1px;
+}
 .quickbuttons li {
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
@@ -2197,19 +2203,8 @@ ul.quickbuttons li a.warn_button {
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	padding: 0 6px 0 22px;
 	line-height: 1.9em;
 	position: relative;
-	color: #222;
-}
-.quickbuttons li.quick_edit img {
-	padding: 2px;
-	position: absolute;
-	left: 0;
-	top: 0;
-}
-.quickbuttons li.quick_edit {
-	display: none;
 }
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
