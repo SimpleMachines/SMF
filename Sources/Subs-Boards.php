@@ -1133,6 +1133,85 @@ function fixChildren($parent, $newLevel, $newParent)
 }
 
 /**
+ * Returns the given board's moderators, with their names and link
+ *
+ * @param array $boards
+ * @return array
+ */
+function getBoardModerators(array $boards)
+{
+	global $smcFunc, $scripturl, $txt;
+
+	if (empty($boards))
+		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT mem.id_member, mem.real_name, mo.id_board
+		FROM {db_prefix}moderators AS mo
+		  INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
+		WHERE mo.id_board IN ({array_int:boards})',
+		array(
+			'boards' => $boards,
+		)
+	);
+	$moderators = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (empty($moderators[$row['id_board']]))
+			$moderators[$row['id_board']] = array();
+
+		$moderators[$row['id_board']][] = array(
+			'id' => $row['id_member'],
+			'name' => $row['real_name'],
+			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $moderators;
+}
+
+/**
+ * Returns board's moderator groups with their names and link
+ *
+ * @param array $boards
+ * @return array
+ */
+function getBoardModeratorGroups(array $boards)
+{
+	global $smcFunc, $scripturl, $txt;
+
+	if (empty($boards))
+		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT mg.id_group, mg.group_name, bg.id_board
+		FROM {db_prefix}moderator_groups AS bg
+		  INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
+		WHERE bg.id_board IN ({array_int:boards})',
+		array(
+			'boards' => $boards,
+		)
+	);
+	$groups = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (empty($groups[$row['id_board']]))
+			$groups[$row['id_board']] = array();
+
+		$groups[$row['id_board']][] = array(
+			'id' => $row['id_group'],
+			'name' => $row['group_name'],
+			'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
+			'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
+		);
+	}
+
+	return $groups;
+}
+
+/**
  * Load a lot of useful information regarding the boards and categories.
  * The information retrieved is stored in globals:
  *  $boards		properties of each board.
