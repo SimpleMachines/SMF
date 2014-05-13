@@ -32,7 +32,9 @@ if (!defined('SMF'))
 function getBoardIndex($boardIndexOptions)
 {
 	global $smcFunc, $scripturl, $user_info, $modSettings, $txt;
-	global $settings, $options, $context;
+	global $settings, $options, $context, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Boards.php');
 
 	// For performance, track the latest post while going through the boards.
 	if (!empty($boardIndexOptions['set_latest_post']))
@@ -53,19 +55,13 @@ function getBoardIndex($boardIndexOptions)
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse,' : '')) . '
-			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg,
-			IFNULL(mods_grp.id_group, 0) AS id_moderator_group, mods_grp.group_name AS mod_group_name,
-			IFNULL(mods_mem.id_member, 0) AS id_moderator, mods_mem.real_name AS mod_real_name' . (!empty($settings['avatars_on_indexes']) ? ',
+			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_indexes']) ? ',
 			IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . ($user_info['is_guest'] ? '' : '
-			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
-			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
-			LEFT JOIN {db_prefix}moderator_groups AS mods_g ON (mods_g.id_board = b.id_board)
-			LEFT JOIN {db_prefix}membergroups AS mods_grp ON (mods_grp.id_group = mods_g.id_group)
-			LEFT JOIN {db_prefix}members AS mods_mem ON (mods_mem.id_member = mods.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . (!empty($settings['avatars_on_indexes']) ? '
 			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = m.id_member)' : '') . '
 		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
 			AND b.child_level >= {int:child_level}') : '
@@ -82,6 +78,7 @@ function getBoardIndex($boardIndexOptions)
 		$categories = array();
 	else
 		$this_category = array();
+	$boards = array();
 
 	// Run through the categories and boards (or only boards)....
 	while ($row_board = $smcFunc['db_fetch_assoc']($result_boards))
@@ -89,6 +86,10 @@ function getBoardIndex($boardIndexOptions)
 		// Perhaps we are ignoring this board?
 		$ignoreThisBoard = in_array($row_board['id_board'], $user_info['ignoreboards']);
 		$row_board['is_read'] = !empty($row_board['is_read']) || $ignoreThisBoard ? '1' : '0';
+
+		// Add parent boards to the $boards list later used to fetch moderators
+		if ($row_board['id_parent'] == $boardIndexOptions['parent_id'])
+			$boards[] = $row_board['id_board'];
 
 		if ($boardIndexOptions['include_categories'])
 		{
@@ -168,32 +169,6 @@ function getBoardIndex($boardIndexOptions)
 				{
 					$this_category[$row_board['id_board']]['board_tooltip'] = $txt['old_posts'];
 				}
-			}
-			if (!empty($row_board['id_moderator']))
-			{
-				$this_category[$row_board['id_board']]['moderators'][$row_board['id_moderator']] = array(
-					'id' => $row_board['id_moderator'],
-					'name' => $row_board['mod_real_name'],
-					'href' => $scripturl . '?action=profile;u=' . $row_board['id_moderator'],
-					'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_board['id_moderator'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_real_name'] . '</a>'
-				);
-				$this_category[$row_board['id_board']]['link_moderators'][] = '<a href="' . $scripturl . '?action=profile;u=' . $row_board['id_moderator'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_real_name'] . '</a>';
-			}
-			if (!empty($row_board['id_moderator_group']))
-			{
-				$this_category[$row_board['id_board']]['moderator_groups'][$row_board['id_moderator_group']] = array(
-					'id' => $row_board['id_moderator_group'],
-					'name' => $row_board['mod_group_name'],
-					'href' => $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'],
-					'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_group_name'] . '</a>'
-				);
-				$this_category[$row_board['id_board']]['link_moderator_groups'][] = '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row_board['id_moderator_group'] . '" title="' . $txt['board_moderator'] . '">' . $row_board['mod_group_name'] . '</a>';
-			}
-
-			// Merge the two lists of moderators
-			if (!empty($this_category[$row_board['id_board']]['link_moderator_groups']))
-			{
-				$this_category[$row_board['id_board']]['link_moderators'] = array_merge($this_category[$row_board['id_board']]['link_moderators'], $this_category[$row_board['id_board']]['link_moderator_groups']);
 			}
 		}
 		// Found a child board.... make sure we've found its parent and the child hasn't been set already.
@@ -340,6 +315,61 @@ function getBoardIndex($boardIndexOptions)
 			);
 	}
 	$smcFunc['db_free_result']($result_boards);
+
+	// Fetch the board's moderators and moderator groups
+	$boards = array_unique($boards);
+	$moderators = getBoardModerators($boards);
+	$groups = getBoardModeratorGroups($boards);
+	if ($boardIndexOptions['include_categories'])
+	{
+		foreach ($categories as $k => $category)
+		{
+			foreach ($category['boards'] as $j => $board)
+			{
+				if (!empty($moderators[$board['id']]))
+				{
+					$categories[$k]['boards'][$j]['moderators'] = $moderators[$board['id']];
+					foreach ($moderators[$board['id']] as $moderator)
+						$categories[$k]['boards'][$j]['link_moderators'][] = $moderator['link'];
+				}
+				if (!empty($groups[$board['id']]))
+				{
+					$categories[$k]['boards'][$j]['moderator_groups'] = $groups[$board['id']];
+					foreach ($groups[$board['id']] as $group)
+					{
+						$categories[$k]['boards'][$j]['link_moderators'][] = $group['link'];
+						$categories[$k]['boards'][$j]['link_moderator_groups'][] = $group['link'];
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		foreach ($this_category as $k => $board)
+		{
+			if (!empty($moderators[$board['id']]))
+			{
+				$this_category[$k]['moderators'] = $moderators[$board['id']];
+				foreach ($moderators[$board['id']] as $moderator)
+					$this_category[$k]['link_moderators'][] = $moderator['link'];
+			}
+			if (!empty($groups[$board['id']]))
+			{
+				$this_category[$k]['moderator_groups'] = $groups[$board['id']];
+				foreach ($groups[$board['id']] as $group)
+				{
+					$this_category[$k]['link_moderators'][] = $group['link'];
+					$this_category[$k]['link_moderator_groups'][] = $group['link'];
+				}
+			}
+		}
+	}
+
+	if ($boardIndexOptions['include_categories'])
+		sortCategories($categories);
+	else
+		sortBoards($this_category);
 
 	// By now we should know the most recent post...if we wanna know it that is.
 	if (!empty($boardIndexOptions['set_latest_post']) && !empty($latest_post['ref']))
