@@ -1079,14 +1079,8 @@ function reorderBoards()
 				);
 	}
 
-	// Sort the records of the boards table on the board_order value.
-	$smcFunc['db_query']('alter_table_boards', '
-		ALTER TABLE {db_prefix}boards
-		ORDER BY board_order',
-		array(
-			'db_error_skip' => true,
-		)
-	);
+	// Empty the board order cache
+	cache_put_data('board_order', null, -3600);
 }
 
 /**
@@ -1130,6 +1124,97 @@ function fixChildren($parent, $newLevel, $newParent)
 	// Recursively fix the children of the children.
 	foreach ($children as $child)
 		fixChildren($child, $newLevel + 1, $child);
+}
+
+/**
+ * Tries to load up the entire board order and category very very quickly
+ * Returns an array with two elements, cat and board
+ * @return array
+ */
+function getTreeOrder()
+{
+	global $smcFunc;
+
+	static $tree_order = array(
+		'cats' => array(),
+		'boards' => array(),
+	);
+
+	if (!empty($tree_order['boards']))
+		return $tree_order;
+
+	if (($cached = cache_get_data('board_order', 86400)) !== null)
+	{
+		$tree_order = $cached;
+		return $cached;
+	}
+
+	// Using a single query will cause us to revert back to
+	$request = $smcFunc['db_query']('', '
+		SELECT b.id_board, b.id_cat
+		FROM {db_prefix}boards AS b
+		ORDER BY b.board_order',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!in_array($row['id_cat'], $tree_order['cats']))
+			$tree_order['cats'][] = $row['id_cat'];
+		$tree_order['boards'][] = $row['id_board'];
+	}
+	$smcFunc['db_free_result']($request);
+
+	cache_put_data('board_order', $tree_order, 86400);
+
+	return $tree_order;
+}
+
+/**
+ * Takes a board array and sorts it
+ *
+ * @param array &$boards
+ * @return void
+ */
+function sortBoards(array &$boards)
+{
+	$tree = getTreeOrder();
+
+	$ordered = array();
+	foreach ($tree['boards'] as $board)
+		if (!empty($boards[$board]))
+		{
+			$ordered[$board] = $boards[$board];
+
+			if (is_array($ordered[$board]) && !empty($ordered[$board]['boards']))
+				sortBoards($ordered[$board]['boards']);
+
+			if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
+				sortboards($ordered[$board]['children']);
+		}
+
+	$boards = $ordered;
+}
+
+/**
+ * Takes a category array and sorts it
+ *
+ * @param array &$categories
+ * @return void
+ */
+function sortCategories(array &$categories)
+{
+	$tree = getTreeOrder();
+
+	$ordered = array();
+	foreach ($tree['cats'] as $cat)
+		if (!empty($categories[$cat]))
+		{
+			$ordered[$cat] = $categories[$cat];
+			if (!empty($ordered[$cat]['boards']))
+				sortBoards($ordered[$cat]['boards']);
+		}
+
+	$categories = $ordered;
 }
 
 /**

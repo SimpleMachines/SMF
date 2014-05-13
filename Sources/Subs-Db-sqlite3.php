@@ -354,12 +354,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'pm_conversation_list' => array(
 			'~ORDER BY id_pm~' => 'ORDER BY MAX(pm.id_pm)',
 		),
-		'boardindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'order_by_board_order' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
 	);
 
 	if (isset($replacements[$identifier]))

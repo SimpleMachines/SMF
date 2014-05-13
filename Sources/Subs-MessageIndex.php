@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function getBoardList($boardListOptions = array())
 {
-	global $smcFunc;
+	global $smcFunc, $sourcedir;
 
 	if (isset($boardListOptions['excluded_boards']) && isset($boardListOptions['included_boards']))
 		trigger_error('getBoardList(): Setting both excluded_boards and included_boards is not allowed.', E_USER_ERROR);
@@ -75,7 +75,7 @@ function getBoardList($boardListOptions = array())
 					'boards' => array(),
 				);
 
-			$return_value[$row['id_cat']]['boards'][] = array(
+			$return_value[$row['id_cat']]['boards'][$row['id_board']] = array(
 				'id' => $row['id_board'],
 				'name' => $row['board_name'],
 				'child_level' => $row['child_level'],
@@ -84,6 +84,9 @@ function getBoardList($boardListOptions = array())
 		}
 	}
 	$smcFunc['db_free_result']($request);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortCategories($return_value);
 
 	return $return_value;
 }

@@ -317,6 +317,9 @@ function ModifyCalendarSettings($return_config = false)
 		$boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
 
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortBoards($boards);
+
 	// Look, all the calendar settings - of which there are many!
 	if (!empty($modSettings['cal_enabled']))
 		$config_vars = array(
