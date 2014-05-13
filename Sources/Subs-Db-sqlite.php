@@ -296,9 +296,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'unread_fetch_topic_count' => array(
 			'~\s*SELECT\sCOUNT\(DISTINCT\st\.id_topic\),\sMIN\(t\.id_last_msg\)(.+)$~is' => 'SELECT COUNT(id_topic), MIN(id_last_msg) FROM (SELECT DISTINCT t.id_topic, t.id_last_msg $1)',
 		),
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
 		),

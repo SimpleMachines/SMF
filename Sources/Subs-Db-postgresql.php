@@ -273,9 +273,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',
