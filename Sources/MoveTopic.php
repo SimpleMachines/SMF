@@ -379,13 +379,13 @@ function MoveTopic2()
  * Handles the moving of mark_read data
  * Updates the posts count of the affected boards
  *
- * @param type $topics
- * @param type $toBoard
- * @return type
+ * @param array $topics
+ * @param int $toBoard
+ * @return void
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc;
+	global $sourcedir, $user_info, $modSettings, $smcFunc, $sourcedir;
 
 	// Empty array?
 	if (empty($topics))
@@ -403,6 +403,12 @@ function moveTopics($topics, $toBoard)
 
 	// Are we moving to the recycle board?
 	$isRecycleDest = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $toBoard;
+
+	// Callback for search APIs to do their thing
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if ($searchAPI->supportsMethod('topicsMoved'))
+		$searchAPI->topicsMoved($topics, $toBoard);
 
 	// Determine the source boards...
 	$request = $smcFunc['db_query']('', '
