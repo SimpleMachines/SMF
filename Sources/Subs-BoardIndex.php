@@ -323,6 +323,7 @@ function getBoardIndex($boardIndexOptions)
 	if ($boardIndexOptions['include_categories'])
 	{
 		foreach ($categories as $k => $category)
+		{
 			foreach ($category['boards'] as $j => $board)
 			{
 				if (!empty($moderators[$board['id']]))
@@ -341,6 +342,7 @@ function getBoardIndex($boardIndexOptions)
 					}
 				}
 			}
+		}
 	}
 	else
 	{

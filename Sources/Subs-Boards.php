@@ -1128,7 +1128,8 @@ function fixChildren($parent, $newLevel, $newParent)
 
 /**
  * Tries to load up the entire board order and category very very quickly
- * Returns an array with two elements, cat and board
+ * Returns an array with two elements, cats and boards
+ * 
  * @return array
  */
 function getTreeOrder()
@@ -1149,7 +1150,6 @@ function getTreeOrder()
 		return $cached;
 	}
 
-	// Using a single query will cause us to revert back to
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board, b.id_cat
 		FROM {db_prefix}boards AS b
