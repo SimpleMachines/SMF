@@ -3080,7 +3080,7 @@ dl {
 }
 
 #profileview div.content dt {
-	width: 65%;
+	width: 35%;
 	float: left;
 	margin: 0 0 3px 0;
 	padding: 0;
@@ -3088,7 +3088,7 @@ dl {
 	clear: both;
 }
 #profileview div.content dd {
-	width: 35%;
+	width: 65%;
 	float: left;
 	margin: 0 0 3px 0;
 	padding: 0;
