@@ -40,9 +40,6 @@
 	}
 
 	/* BoardIndex */
-	div.icon {
-		width: 25% !important;
-	}
 	div.icon span {
 		margin-top: 10px;
 	}
@@ -108,6 +105,10 @@
 	h1.forumtitle a, h1.forumtitle, a img {
 		padding: 5px 0 0 4px !important;
 		max-width: 300px;
+	}
+	/* BoardIndex */
+	div.icon {
+		width: 15% !important;
 	}
 
 	/* Register Page */
@@ -244,10 +245,10 @@
 }
 
 /* Still not enough data or people to test this... */
-@media (min-width: 721px) and (max-width: 1080) {
+@media (min-width: 721px) and (max-width: 1023px) {
 }
 
-@media (min-width: 1081px) {
+@media (min-width: 1024px) {
 /* I need to hide them from you desktop people... */
 	.button.mobile {
 		display: none;
