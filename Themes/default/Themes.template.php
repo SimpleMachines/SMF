@@ -44,7 +44,6 @@ function template_main()
 							<label for="options-theme_allow"> ', $txt['theme_allow'], '</label>
 						</dt>
 						<dd>
-							<input type="hidden" value="0" name="options[theme_allow]">
 							<input type="checkbox" name="options[theme_allow]" id="options-theme_allow" value="1"', !empty($modSettings['theme_allow']) ? ' checked' : '', ' class="input_check">
 						</dd>
 						<dt>
@@ -101,6 +100,7 @@ function template_main()
 					<input type="submit" name="save" value="' . $txt['save'] . '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-tm_token_var'], '" value="', $context['admin-tm_token'], '">
+					<input type="hidden" value="0" name="options[theme_allow]">
 				</div>
 			</div>
 		</form>';

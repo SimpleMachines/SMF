@@ -1079,8 +1079,14 @@ function reorderBoards()
 				);
 	}
 
-	// Empty the board order cache
-	cache_put_data('board_order', null, -3600);
+	// Sort the records of the boards table on the board_order value.
+	$smcFunc['db_query']('alter_table_boards', '
+		ALTER TABLE {db_prefix}boards
+		ORDER BY board_order',
+		array(
+			'db_error_skip' => true,
+		)
+	);
 }
 
 /**
@@ -1124,176 +1130,6 @@ function fixChildren($parent, $newLevel, $newParent)
 	// Recursively fix the children of the children.
 	foreach ($children as $child)
 		fixChildren($child, $newLevel + 1, $child);
-}
-
-/**
- * Tries to load up the entire board order and category very very quickly
- * Returns an array with two elements, cats and boards
- * 
- * @return array
- */
-function getTreeOrder()
-{
-	global $smcFunc;
-
-	static $tree_order = array(
-		'cats' => array(),
-		'boards' => array(),
-	);
-
-	if (!empty($tree_order['boards']))
-		return $tree_order;
-
-	if (($cached = cache_get_data('board_order', 86400)) !== null)
-	{
-		$tree_order = $cached;
-		return $cached;
-	}
-
-	$request = $smcFunc['db_query']('', '
-		SELECT b.id_board, b.id_cat
-		FROM {db_prefix}boards AS b
-		ORDER BY b.board_order',
-		array()
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (!in_array($row['id_cat'], $tree_order['cats']))
-			$tree_order['cats'][] = $row['id_cat'];
-		$tree_order['boards'][] = $row['id_board'];
-	}
-	$smcFunc['db_free_result']($request);
-
-	cache_put_data('board_order', $tree_order, 86400);
-
-	return $tree_order;
-}
-
-/**
- * Takes a board array and sorts it
- *
- * @param array &$boards
- * @return void
- */
-function sortBoards(array &$boards)
-{
-	$tree = getTreeOrder();
-
-	$ordered = array();
-	foreach ($tree['boards'] as $board)
-		if (!empty($boards[$board]))
-		{
-			$ordered[$board] = $boards[$board];
-
-			if (is_array($ordered[$board]) && !empty($ordered[$board]['boards']))
-				sortBoards($ordered[$board]['boards']);
-
-			if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
-				sortBoards($ordered[$board]['children']);
-		}
-
-	$boards = $ordered;
-}
-
-/**
- * Takes a category array and sorts it
- *
- * @param array &$categories
- * @return void
- */
-function sortCategories(array &$categories)
-{
-	$tree = getTreeOrder();
-
-	$ordered = array();
-	foreach ($tree['cats'] as $cat)
-		if (!empty($categories[$cat]))
-		{
-			$ordered[$cat] = $categories[$cat];
-			if (!empty($ordered[$cat]['boards']))
-				sortBoards($ordered[$cat]['boards']);
-		}
-
-	$categories = $ordered;
-}
-
-/**
- * Returns the given board's moderators, with their names and link
- *
- * @param array $boards
- * @return array
- */
-function getBoardModerators(array $boards)
-{
-	global $smcFunc, $scripturl, $txt;
-
-	if (empty($boards))
-		return array();
-
-	$request = $smcFunc['db_query']('', '
-		SELECT mem.id_member, mem.real_name, mo.id_board
-		FROM {db_prefix}moderators AS mo
-		  INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
-		WHERE mo.id_board IN ({array_int:boards})',
-		array(
-			'boards' => $boards,
-		)
-	);
-	$moderators = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (empty($moderators[$row['id_board']]))
-			$moderators[$row['id_board']] = array();
-
-		$moderators[$row['id_board']][] = array(
-			'id' => $row['id_member'],
-			'name' => $row['real_name'],
-			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
-			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
-		);
-	}
-	$smcFunc['db_free_result']($request);
-
-	return $moderators;
-}
-
-/**
- * Returns board's moderator groups with their names and link
- *
- * @param array $boards
- * @return array
- */
-function getBoardModeratorGroups(array $boards)
-{
-	global $smcFunc, $scripturl, $txt;
-
-	if (empty($boards))
-		return array();
-
-	$request = $smcFunc['db_query']('', '
-		SELECT mg.id_group, mg.group_name, bg.id_board
-		FROM {db_prefix}moderator_groups AS bg
-		  INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
-		WHERE bg.id_board IN ({array_int:boards})',
-		array(
-			'boards' => $boards,
-		)
-	);
-	$groups = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (empty($groups[$row['id_board']]))
-			$groups[$row['id_board']] = array();
-
-		$groups[$row['id_board']][] = array(
-			'id' => $row['id_group'],
-			'name' => $row['group_name'],
-			'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
-			'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
-		);
-	}
-
-	return $groups;
 }
 
 /**

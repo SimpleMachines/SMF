@@ -895,6 +895,16 @@ VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
+# Table structure for table `collapsed_categories`
+#
+
+CREATE TABLE {$db_prefix}collapsed_categories (
+  id_cat smallint NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  PRIMARY KEY (id_cat, id_member)
+);
+
+#
 # Sequence for table `custom_fields`
 #
 
@@ -943,7 +953,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 1),
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
@@ -2398,8 +2408,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 # --------------------------------------------------------
 
 #

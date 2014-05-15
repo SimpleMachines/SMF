@@ -525,7 +525,6 @@ $txt['theme_template_error'] = 'Unable to load the \'%1$s\' template.';
 $txt['theme_language_error'] = 'Unable to load the \'%1$s\' language file.';
 
 $txt['sub_boards'] = 'Sub-Boards';
-$txt['restricted_board'] = 'Restricted Board';
 
 $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers.';
@@ -596,11 +595,6 @@ $txt['notification_disable_topic'] = 'Are you sure you wish to disable notificat
 
 $txt['like'] = 'Like';
 $txt['unlike'] = 'Unlike';
-$txt['like_success'] = 'Your content was successfully liked.';
-$txt['like_delete'] = 'Your content was successfully deleted.';
-$txt['like_insert'] = 'Your content was successfully inserted.';
-$txt['like_error'] = 'There was en error with your request.';
-$txt['not_valid_like_type'] = 'The liked type is not a valid type.';
 // Translators, if you need to make more strings to suit your language, e.g. $txt['likes_2'] = 'Two people like this', please do so.
 $txt['likes_1'] = '<a href="%1$s">1 person</a> likes this.';
 $txt['likes_n'] = '<a href="%1$s">%2$s people</a> like this.';
@@ -817,4 +811,10 @@ $txt['debug_browser'] = 'Browser ID: ';
 $txt['debug_hooks'] = 'Hooks called: ';
 $txt['debug_instances'] = 'Instances created: ';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
+
+// Social share
+$txt['enableshare'] = 'Enable Social Share';
+$txt['share_facebook'] = 'Share on Facebook';
+$txt['share_google'] = 'Share on Google+';
+$txt['share_twitter'] = 'Share on Twitter';
 ?>

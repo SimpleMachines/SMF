@@ -857,10 +857,10 @@ h3.catbg, h4.catbg {
 	font-weight: normal;
 	margin: -8px 0 4px 12px;
 }
-h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg {
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg, .table_list tbody.header td, .table_list tbody.header td a {
 	color: #fff;
 }
-h3.catbg a:hover, h4.catbg a:hover {
+h3.catbg a:hover, h4.catbg a:hover, .table_list tbody.header td a:hover {
 	color: #ffc178;
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
@@ -873,7 +873,7 @@ h4.catbg a.toggle img {
 	vertical-align: middle;
 	margin: 0 5px 0 5px;
 }
-h4.catbg, h3.catbg {
+h4.catbg, h3.catbg, .table_list tbody.header td.catbg {
 	background: none;
 }
 
@@ -904,6 +904,12 @@ div.cat_bar {
 #quickReplyExpand {
 	float: right;
 	margin: 2px 2px 0 2px;
+}
+table.table_list a.unreadlink, table.table_list a.collapse {
+	float: right;
+}
+table.table_list a.collapse {
+	padding: 4px 4px 0 8px;
 }
 
 .table_grid th.lefttext {
@@ -1677,6 +1683,122 @@ ul li.greeting {
 	background-position: -64px -64px;
 }
 
+/* Styles for the board index and child boards tables.
+------------------------------------------------------- */
+.table_list {
+	width: 100%;
+	border-spacing: 0;
+}
+.table_list .header td {
+	padding: 0;
+}
+.table_list .content td {
+	padding: 7px;
+}
+.table_list .header .cat_bar {
+	margin: 0;
+}
+.table_list .icon, .table_list .info, .table_list .stats, .table_list.lastpost {
+	border-top: 2px solid #fff;
+	height: 4.5em;
+}
+.table_list td.icon {
+	margin: 0 0 0 1px;
+	padding: 8px 0 0 0;
+	width: 5%;
+	min-width: 60px;
+	/*Top aligned is much nicer for the icon. */
+	vertical-align: top;
+	border-left: 1px solid #ddd;
+	text-align: center;
+}
+.table_list td.info {
+	padding: 0 7px 0 0;
+}
+/* The board title! */
+.table_list .info .subject {
+	font-weight: 600;
+	font-size: 1.1em;
+	color: #a85400;
+}
+.table_list .info p {
+	margin: 0;
+	padding: 0;
+	font-size: 1em;
+}
+.table_list .info p.moderators {
+	font-size: 0.9em;
+}
+.table_list .stats {
+	font-size: 0.9em;
+	line-height: 1.55em;
+	width: 12%;
+}
+.table_list .stats p {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	min-height: 3em;
+	margin: 3px 0 0 0;
+	padding: 0px 7px 0 7px;
+	text-align: center;
+}
+.table_list .lastpost {
+	font-size: 0.9em;
+	line-height: 1.55em;
+	width: 24%;
+	min-width: 27em;
+	border-right: 1px solid #ddd;
+}
+.table_list .lastpost p {
+	margin: 3px 0 0 0;
+	padding: 0 0 0 0;
+}
+.table_list td.children {
+	color: #555;
+	font-size: 0.9em;
+	padding: 0 0 0 0;
+	border-top: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	background: #fff;
+}
+.table_list .children p {
+	padding: 4px 0 0 0;
+}
+.table_list .icon, .table_list .info, .table_list .stats, .table_list .lastpost {
+	border-top: double #ddd;
+	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
+	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
+}
+/* The board index and its icons. */
+.table_list .icon span {
+	background: url(../images/boardicons.png) no-repeat 0 0;
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+}
+.table_list .icon span.board_on {
+	background-position: 0 0;
+}
+.table_list .icon span.board_on2 {
+	background-position: -45px 0;
+}
+.table_list .icon span.board_off {
+	background-position: 0 -45px;
+}
+.table_list .icon span.board_redirect {
+	background-position: -45px -45px;
+}
+/* Hiding unwanted border repeats. */
+.table_list .content tr:first-child .icon, .table_list .content tr:first-child .info,
+.table_list .content tr:first-child .stats, .table_list .content tr:first-child .lastpost {
+	border-top: none;
+}
+.table_list .divider tr td {
+	border: none;
+	border-top: 1px solid #ddd;
+	height: 18px;
+}
+
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
@@ -1779,12 +1901,27 @@ ul#smfFadeScroller li {
 	display: inline-block;
 }
 
+/* Styles for the message (topic) index.
+---------------------------------------------------- */
+div.table_frame .table_list {
+	border-collapse: collapse;
+	margin: 2px 0;
+}
+#messageindex {
+	clear: both;
+}
 /* the page navigation area */
 .childboards {
 	margin-bottom: 2px;
 }
 #childboards h3 {
 	padding-bottom: 0;
+}
+#childboards .table_list thead {
+	display: none;
+}
+#childboards .table_list {
+	margin-bottom: 12px;
 }
 #description_board {
 	margin: 10px 0 0 0;
@@ -1801,9 +1938,9 @@ p.whoisviewing {
 select.qaction {
 	padding: 0;
 }
-#quick_actions {
+td#quick_actions {
+	border-right: 1px solid #ccc;
 	padding-right: 4px;
-	margin-top: 5px;
 }
 .qaction_cell .button_submit {
 	margin: 2px 4px 0 4px;
@@ -1835,6 +1972,21 @@ select.qaction {
 }
 #message_index_jump_to .button_submit {
 	padding: 4px 6px 2px 6px;
+}
+#messageindex th.post_icon {
+	width: 4%;
+}
+#messageindex th.stats {
+	width: 14%;
+}
+#messageindex th.last_post {
+	width: 22%;
+}
+#messageindex th.moderation {
+	width: 24px;
+}
+#messageindex td.moderation {
+	text-align: center;
 }
 
 /* Styles for the display template (topic view).
@@ -2117,23 +2269,19 @@ ul.quickbuttons li {
 	font-size: 0.9em;
 }
 ul.quickbuttons li a {
-	padding: 0 4px 0 5px;
+	padding: 0 4px 0 20px;
 	display: block;
 	line-height: 1.9em;
 	float: left;
 }
-ul.quickbuttons li a img {
-	padding-bottom: 2px;
-}
-ul.quickbuttons li input {
-	margin-top: 4px;
+ul.quickbuttons li a.quote_button {
+	padding: 0 4px 0 16px;
 }
 ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
-	padding: 0 4px 0 16px;
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
@@ -2165,9 +2313,6 @@ ul.quickbuttons li a.unapprove_button {
 ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
 }
-ul.quickbuttons li a.modifybutton {
-	background: url(../images/icons/modify_inline.png) no-repeat 2px;
-}
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
@@ -2184,14 +2329,9 @@ ul.quickbuttons li.inline_mod_check {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
+.quickbuttons li:first-child {
 	border-radius: 4px 1px 1px 4px;
 	padding-bottom: 0;
-}
-.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
-	border-radius: 1px 4px 4px 1px;
-	padding-bottom: 0;
-	line-height: 1.9em;
 }
 .quickbuttons li:hover {
 	border: 1px solid #ccc;
@@ -2203,8 +2343,25 @@ ul.quickbuttons li.inline_mod_check {
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
+	padding: 0 6px 0 22px;
 	line-height: 1.9em;
 	position: relative;
+	color: #222;
+}
+.quickbuttons li.quick_edit img {
+	padding: 4px 7em 4px 4px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+.quickbuttons li.quick_edit {
+	display: none;
+}
+ul.quickbuttons li.inline_mod_check {
+	padding: 3px 0 0 3px;
+	background: none;
+	border: none;
+	box-shadow: none;
 }
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
@@ -2212,6 +2369,7 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
+	border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -3680,6 +3838,23 @@ dl.addrules dt.floatleft {
 	z-index: 1;
 }
 
+/* Experimental additions. @todo */
+/*-------------------------*/
+
+/* Drop the stats cell from the board index on narrow screens. */
+/* Much more user-friendly IMHO. */
+
+@media screen and (max-width: 1220px) {
+	.table_list td.stats {
+		display: none;
+	}
+	.table_list td.lastpost p {
+		border-left: 1px solid #ccc;
+		padding: 1px 5px 2px 10px;
+		margin-top: 1px;
+	}
+}
+
 /* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
 /* Forum posts may require some special treatment for dealing with clearing floated content. */
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
@@ -3919,134 +4094,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	border-top: none;
 }
 
-/* This place covers board places (boardindex-messageindex) */
-h3 .collapse {
-	float: right;
-	margin: 4px 4px 0 0;
-}
-.cat_bar .desc {
-	color: #FFF;
-}
-div.icon span {
-	background: url(../images/boardicons.png) no-repeat 0 0;
-	display: inline-block;
-	width: 45px;
-	height: 45px;
-}
-div.icon span.board_on {
-	background-position: 0 0;
-}
-div.icon span.board_on2 {
-	background-position: -45px 0;
-}
-div.icon span.board_off {
-	background-position: 0 -45px;
-}
-div.icon span.board_redirect {
-	background-position: -45px -45px;
-}
-div.icon {
-	float: left;
-	width: 5%;
-	text-align: center;
-	padding: 8px 0 0 0;
-	min-width: 60px;
-}
-div.info {
-	float: left;
-	width: 50%;
-	margin: 10px 0 5px 0;
-}
-div.info .subject {
-	font-weight: 600;
-	font-size: 1.1em;
-	color: #A85400;
-}
-div.stats {
-	width: 14%;
-	float: left;
-	padding: 7px;
-	font-size: 0.9em;
-}
-div.stats p {
-	border-left: 1px solid #DDD;
-	border-right: 1px solid #DDD;
-	text-align: center;
-	min-height: 3em;
-	margin: 3px 0 0;
-}
-div.lastpost {
-	width: 26%;
-	float: left;
-	padding-top: 7px;
-	font-size: 0.9em;
-}
-div.lastpost p {
-	margin: 3px 0 0 0;
-}
-div.icon, div.info, div.stats, div.lastpost {
-	min-height: 4.5em;
-}
-.main_container {
-	margin-bottom: 20px;
-}
-.up_contain {
-	overflow: hidden;
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: linear-gradient(to top, #FFFFFF 1%, #F1F3F5 96%);
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	border: 1px solid #DDD;
-	margin-bottom: 3px;
-	margin-top: -1px;
-}
-
-/* Child boards */
-.children {
-	width: 100%;
-	float: left;
-	border-top: 1px solid #DDD;
-	padding: 5px;
-}
-.children p {
-	font-size: 0.9em;
-}
-
-/* MessageIndex > Topic list */
-.topic_container {
-	height: 4em;
-	border: 1px solid #CCC;
-	border-top: none;
-}
-#topic_header {
-	height: 2em;
-}
-#topic_header .icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
-	height: 1.5em !important;
-	font-weight: bold;
-	font-size: 1em;
-	margin-top: 3px;
-}
-#topic_header input {
-	margin-top: 5px !important;
-}
-.moderation {
-	float: right;
-	width: 2%;
-}
-#messageindex .icon, #messageindex .info, #messageindex .windowbg2, #messageindex .windowbg, #messageindex .stats, #messageindex .lastpost {
-	border-radius: 0;
-	padding: 0;
-	overflow: hidden;
-	height: 3.5em;
-}
-#messageindex .information {
-	border-radius: 0;
-	margin: 0;
-}
-.icon img, .moderation input {
-	margin-top: 15px;
-}
-.info .icons, #messageindex .stats p, .lastpost p {
-	margin-top: 5px;
-	border: none;
+#social {
+	clear: both;
+	margin: 5px 0 5px 0;
 }

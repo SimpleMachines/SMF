@@ -50,44 +50,4 @@ function template_popup()
 </html>';
 }
 
-function template_like()
-{
-	global $context, $scripturl, $txt;
-
-	echo '
-	<ul class="floatleft">';
-
-	if (!empty($context['data']['can_like']))
-	{
-		echo '
-		<li class="like_button" id="msg_', $context['data']['id_msg'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $context['data']['id_msg'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
-	}
-
-	if (!empty($context['data']['count']))
-	{
-		$context['some_likes'] = true;
-		$count = $context['data']['count'];
-		$base = 'likes_';
-		if ($context['data']['already_liked'])
-		{
-			$base = 'you_' . $base;
-			$count--;
-		}
-		$base .= (isset($txt[$base . $count])) ? $count : 'n';
-
-		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;js=1;like=' . $context['data']['id_msg'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
-	}
-
-	echo '
-	</ul>';
-}
-
-function template_generic()
-{
-	global $context;
-
-	echo $context['data'];
-}
-
 ?>

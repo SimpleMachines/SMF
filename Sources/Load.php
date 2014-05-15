@@ -1377,7 +1377,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board;
+	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language;
 
 	// The theme was specified by parameter.
 	if (!empty($id_theme))
@@ -1799,14 +1799,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js', array(), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-1.11.0.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
+		loadJavascriptFile('jquery-1.7.1.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'jquery');
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js', array(), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', array(), 'jquery');
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
@@ -1855,23 +1855,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 		tempImage.src = ' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '";
 	}
 	window.setTimeout(triggerCron, 1);', true);
-	}
-
-	// Filter out the restricted boards from the linktree
-	if (!$user_info['is_admin'] && !empty($board))
-	{
-		foreach ($context['linktree'] as $k => $element)
-		{
-			if (!empty($element['groups']) &&
-				(count(array_intersect($user_info['groups'], $element['groups'])) == 0 ||
-				(!empty($modSettings['deny_boards_access']) && count(array_intersect($user_info['groups'], $element['deny_groups'])) != 0)))
-			{
-				$context['linktree'][$k]['name'] = $txt['restricted_board'];
-				$context['linktree'][$k]['extra_before'] = '<i>';
-				$context['linktree'][$k]['extra_after'] = '</i>';
-				unset($context['linktree'][$k]['url']);
-			}
-		}
 	}
 
 	// Any files to include at this point?
@@ -2289,9 +2272,8 @@ function getBoardParents($id_parent)
 		{
 			$result = $smcFunc['db_query']('', '
 				SELECT
-					b.id_parent, b.name, {int:board_parent} AS id_board, b.member_groups, b.deny_member_groups,
-					b.child_level, IFNULL(mem.id_member, 0) AS id_moderator, mem.real_name,
-					IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name
+					b.id_parent, b.name, {int:board_parent} AS id_board, IFNULL(mem.id_member, 0) AS id_moderator,
+					mem.real_name, b.child_level, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
@@ -2314,8 +2296,6 @@ function getBoardParents($id_parent)
 						'url' => $scripturl . '?board=' . $row['id_board'] . '.0',
 						'name' => $row['name'],
 						'level' => $row['child_level'],
-						'groups' => explode(',', $row['member_groups']),
-						'deny_groups' => explode(',', $row['deny_member_groups']),
 						'moderators' => array(),
 						'moderator_groups' => array()
 					);

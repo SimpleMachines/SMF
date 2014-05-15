@@ -17,10 +17,34 @@ if (!defined('SMF'))
 /**
  * Standard non full index, non custom index search
  */
-class standard_search extends search_api
+class standard_search
 {
 	/**
-	 * {@inheritDoc}
+	 * This is the last version of SMF that this was tested on, to protect against API changes.
+	 *
+	 * @var type
+	 */
+	public $version_compatible = 'SMF 2.1 ALpha';
+
+	/**
+	 * This won't work with versions of SMF less than this.
+	 *
+	 * @var type
+	 */
+	public $min_smf_version = 'SMF 2.1 Alpha 1';
+
+	/**
+	 * Standard search is supported by default.
+	 * @var type
+	 */
+	public $is_supported = true;
+
+	/**
+	 * Method to check whether the method can be performed by the API.
+	 *
+	 * @param type $methodName
+	 * @param type $query_params
+	 * @return boolean
 	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{

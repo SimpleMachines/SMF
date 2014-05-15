@@ -164,11 +164,11 @@ $helptxt['registrations'] = '<strong>Registration Management</strong><br>
 	</ul>';
 
 $helptxt['modlog'] = '<strong>Moderation Log</strong><br>
-	This section allows members of the moderation team to track all the moderation actions that the forum moderators have performed. Note that 
-	clearing the log will be logged to prevent abuse.';
+	This section allows members of the moderation team to track all the moderation actions that the forum moderators have performed. To ensure that
+	moderators cannot remove references to the actions they have performed, entries may not be deleted until 24 hours after the action was taken.';
 $helptxt['adminlog'] = '<strong>Administration Log</strong><br>
-	This section allows members of the admin team to track some of the administrative actions that have occurred on the forum. Note that 
-	clearing the log will be logged to prevent abuse.';
+	This section allows members of the admin team to track some of the administrative actions that have occurred on the forum. To ensure that
+	admins cannot remove references to the actions they have performed, entries may not be deleted until 24 hours after the action was taken.';
 $helptxt['userlog'] = '<strong>Profile Edits Log</strong><br>
 	This section allows members of the admin team to view changes users make to their profiles, and is available from inside a user\'s profile area.';
 $helptxt['warning_enable'] = '<strong>User Warning System</strong><br>

@@ -214,6 +214,9 @@ function template_main()
 	echo '
 			<div class="plainbox" id="display_jump_to">&nbsp;</div>';
 
+	// We have social share thing here
+	social_share();
+
 	if ($context['can_reply'])
 	{
 		echo '
@@ -349,6 +352,10 @@ function template_main()
 
 	echo '
 				<script><!-- // --><![CDATA[';
+
+	if (!empty($context['some_likes']))
+		echo '
+					add_like_popup();';
 
 	echo '
 					var oQuickReply = new QuickReply({
@@ -857,7 +864,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))
@@ -873,7 +880,7 @@ function template_single_post($message, $force_alternate = null)
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $message['id'], comma_format($count)), '</li>';
 	}
 
 	echo '
@@ -893,7 +900,7 @@ function template_single_post($message, $force_alternate = null)
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="quick_edit"><a alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')">', $txt['quick_edit'], '</a></li>';
+									<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')">', $txt['quick_edit'], '</li>';
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
@@ -947,7 +954,7 @@ function template_single_post($message, $force_alternate = null)
 		// Show a checkbox for quick moderation?
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
 			echo '
-									<li style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
+									<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '

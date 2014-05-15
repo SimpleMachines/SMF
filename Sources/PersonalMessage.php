@@ -1653,7 +1653,7 @@ function MessageSearch2()
 				while($row2 = $smcFunc['db_fetch_assoc']($request2))
 				{
 					$l_id = $row2['id_label'];
-					if (isset($context['labels'][$l_id]))
+					if (isset($context['labels'][$id_label]))
 						$context['message_labels'][$row['id_pm']][$l_id] = array('id' => $l_id, 'name' => $context['labels'][$l_id]['name']);
 
 					// Here we find the first label on a message - for linking to posts in results

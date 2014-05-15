@@ -756,38 +756,11 @@ function ignore_toggles(msgids, text)
 	}
 }
 
-// Likes count for messages.
-$(function() {
-	$(document).on('click', '.like_count a', function(e){
+function add_like_popup()
+{
+	$(".like_count a").click(function(e) {
 		e.preventDefault();
-		var title = $(this).parent().text(),
-			url = $(this).attr('href') + ';js=1';
-		return reqOverlayDiv(url, title);
+		var title = $(this).parent().text();
+		return reqOverlayDiv($(this).prop("href"), title);
 	});
-});
-
-// Message likes.
-$(function() {
-	$(document).on('click', '.msg_like', function(event){
-		var obj = $(this);
-		event.preventDefault();
-		ajax_indicator(true);
-		$.ajax({
-			type: 'GET',
-			url: obj.attr('href') + ';js=1;',
-			cache: false,
-			dataType: 'html',
-			success: function(html)
-			{
-				ajax_indicator(false);
-				obj.closest('ul').replaceWith(html);
-			},
-			error: function (html)
-			{
-				ajax_indicator(false);
-			}
-		});
-
-		return false;
-	});
-});
+}

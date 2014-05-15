@@ -2602,9 +2602,6 @@ function showPermissions($memID)
 	}
 	$smcFunc['db_free_result']($request);
 
-	require_once($sourcedir . '/Subs-Boards.php');
-	sortBoards($context['boards']);
-
 	if (!empty($context['no_access_boards']))
 		$context['no_access_boards'][count($context['no_access_boards']) - 1]['is_last'] = true;
 

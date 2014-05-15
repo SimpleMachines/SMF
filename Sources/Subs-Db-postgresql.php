@@ -273,6 +273,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
+		'alter_table_boards' => array(
+			'~(.+)~' => '',
+		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',
@@ -298,6 +301,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'boardindex_fetch_boards' => array(
 			'~IFNULL\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN IFNULL(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
+			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
@@ -319,6 +323,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'top_topic_starters' => array(
 			'~ORDER BY FIND_IN_SET\(id_member,(.+?)\)~' => 'ORDER BY STRPOS(\',\' || $1 || \',\', \',\' || id_member|| \',\')',
+		),
+		'order_by_board_order' => array(
+			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 		'unread_replies' => array(
 			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',

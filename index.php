@@ -252,7 +252,7 @@ function smf_main()
 			$defaultActions = call_integration_hook('integrate_default_action');
 			foreach ($defaultActions as $defaultAction)
 			{
-				$call = call_hook_helper($defaultAction);
+				$call = strpos($defaultAction, '::') !== false ? explode('::', $defaultAction) : $defaultAction;
 				if (!empty($call) && is_callable($call))
 					return $call;
 			}
@@ -284,6 +284,7 @@ function smf_main()
 		'buddy' => array('Subs-Members.php', 'BuddyListToggle'),
 		'calendar' => array('Calendar.php', 'CalendarMain'),
 		'clock' => array('Calendar.php', 'clock'),
+		'collapse' => array('BoardIndex.php', 'CollapseCategory'),
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
@@ -296,7 +297,7 @@ function smf_main()
 		'helpadmin' => array('Help.php', 'ShowAdminHelp'),
 		'jsmodify' => array('Post.php', 'JavaScriptModify'),
 		'jsoption' => array('Themes.php', 'SetJavaScript'),
-		'likes' => array('Likes.php', 'Likes::call#'),
+		'likes' => array('Likes.php', 'Likes'),
 		'loadeditorlocale' => array('Subs-Editor.php', 'loadLocale'),
 		'lock' => array('Topic.php', 'LockTopic'),
 		'lockvoting' => array('Poll.php', 'LockVoting'),
@@ -372,7 +373,7 @@ function smf_main()
 		$fallbackActions = call_integration_hook('integrate_fallback_action');
 		foreach ($fallbackActions as $fallbackAction)
 		{
-			$call = call_hook_helper($fallbackAction);
+			$call = strpos($defaultAction, '::') !== false ? explode('::', $fallbackAction) : $fallbackAction;
 			if (!empty($call) && is_callable($call))
 				return $call;
 		}

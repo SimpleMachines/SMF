@@ -71,6 +71,10 @@ $nameChanges = array(
 		'catOrder' => 'catOrder cat_order tinyint(4) NOT NULL default \'0\'',
 		'canCollapse' => 'canCollapse can_collapse tinyint(1) NOT NULL default \'1\'',
 	),
+	'collapsed_categories' => array(
+		'ID_MEMBER' => 'ID_MEMBER id_member mediumint(8) unsigned NOT NULL default \'0\'',
+		'ID_CAT' => 'ID_CAT id_cat tinyint(4) unsigned NOT NULL',
+	),
 	'custom_fields' => array(
 		'ID_FIELD' => 'ID_FIELD id_field smallint(5) NOT NULL auto_increment',
 		'colName' => 'colName col_name varchar(12) NOT NULL default \'\'',

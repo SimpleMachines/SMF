@@ -972,7 +972,7 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
 		if (typeof(oContainer) == 'object' && oContainer != null)
 		{
-			if (!!this.opt.bNoAnimate || bInit)
+			if (!!this.opt.bNoAnimate)
 			{
 				$(oContainer).toggle(!bCollapse);
 			}
@@ -1658,32 +1658,3 @@ function updateAuthMethod()
 		document.getElementById("auth_pass_div").style.display = "none";
 	}
 }
-
-$(document).ready(function() {
-	if (smf_member_id > 0)
-		$('div.boardindex_table tbody.header').each(function(index, el)
-		{
-			var catid = el.id.replace('category_', '');
-			new smc_Toggle({
-				bNoAnimate: true, // Tables are finicky and you should avoid using effects on a table directly. You don't have the same control over tables as you do other elements. Which is why you can't change the height of the table during animation.
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
-				aSwappableContainers: [
-					'category_' + catid + '_boards'
-				],
-				aSwapImages: [
-					{
-						sId: 'category_' + catid + '_upshrink',
-						msgExpanded: '',
-						msgCollapsed: ''
-					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: true,
-					sOptionName: 'collapse_category_' + catid,
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id
-				}
-			});
-		});
-});

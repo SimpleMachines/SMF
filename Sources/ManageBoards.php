@@ -826,6 +826,7 @@ function EditBoardSettings($return_config = false)
 	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list - for the recycle bin!
+	$recycle_boards = array('');
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 		FROM {db_prefix}boards AS b
@@ -838,11 +839,6 @@ function EditBoardSettings($return_config = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
-
-	require_once($sourcedir . '/Subs-Boards.php');
-	sortBoards($recycle_boards);
-
-	array_unshift($recycle_boards, '');
 
 	// Here and the board settings...
 	$config_vars = array(

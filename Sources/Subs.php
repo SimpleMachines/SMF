@@ -3283,7 +3283,7 @@ function template_javascript($do_defered = false)
 		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
 	<script><!-- // --><![CDATA[
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
+		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
 	// ]]></script>';
 
 	}
