@@ -4056,6 +4056,6 @@ div.icon, div.info, div.stats, div.lastpost {
 	border: none;
 }
 .infolinks {
-	min-width: 100px;
+	min-width: 95%;
 	float: left;
 }
