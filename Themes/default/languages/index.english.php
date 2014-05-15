@@ -813,7 +813,7 @@ $txt['debug_instances'] = 'Instances created: ';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 
 // Social share
-$txt['social_share'] = 'Social Share';
+$txt['enableshare'] = 'Enable Social Share';
 $txt['share_facebook'] = 'Share on Facebook';
 $txt['share_google'] = 'Share on Google+';
 $txt['share_twitter'] = 'Share on Twitter';
