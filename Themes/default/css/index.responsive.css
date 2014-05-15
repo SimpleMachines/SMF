@@ -1,6 +1,10 @@
 /* We have shared things... */
 @media screen and (max-width: 720px) {
-
+	/* Stuff */
+	.infolinks {
+		margin: 0 7px 0 0;
+		min-width: 50px;
+	}
 	/* General */
 	.action_home {
 		width: 100% !important;
