@@ -1461,3 +1461,17 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ALTER TABLE {$db_prefix}members
 DROP hide_email;
 ---#
+
+/******************************************************************************/
+--- Deleting the "Auto Optimize" task
+/******************************************************************************/
+---# Removing the task and associated data
+DELETE FROM {$db_prefix}scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}log_scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'autoOptMaxOnline';
+---#

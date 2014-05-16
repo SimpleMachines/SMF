@@ -2180,7 +2180,6 @@ CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_ta
 #
 
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (1, 0, 0, 2, 'h', 0, 'approval_notification');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (2, 0, 0, 7, 'd', 0, 'auto_optimize');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (3, 0, 60, 1, 'd', 0, 'daily_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (5, 0, 0, 1, 'd', 0, 'daily_digest');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (6, 0, 0, 1, 'w', 0, 'weekly_digest');
@@ -2326,7 +2325,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('number_format', '123
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableBBC', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_messageLength', '20000');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('signature_settings', '1,300,0,0,0,0,0,0:');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('autoOptMaxOnline', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxMessages', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxTopics', '20');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxMembers', '30');
