@@ -3984,7 +3984,7 @@ div.lastpost {
 div.lastpost p {
 	margin: 3px 0 0 0;
 }
-div.icon, div.info, div.stats, div.lastpost {
+#boardindex_table .icon, #boardindex_table .info, #boardindex_table .stats, #boardindex_table .lastpost {
 	min-height: 4.5em;
 }
 .main_container {
@@ -4012,7 +4012,7 @@ div.icon, div.info, div.stats, div.lastpost {
 }
 
 /* MessageIndex > Topic list */
-.topic_container {
+#topic_container .windowbg, #topic_container .windowbg2 {
 	height: 4em;
 	border: 1px solid #CCC;
 	border-top: none;
@@ -4025,6 +4025,7 @@ div.icon, div.info, div.stats, div.lastpost {
 	font-weight: bold;
 	font-size: 1em;
 	margin-top: 3px;
+	padding: 0;
 }
 #topic_header input {
 	margin-top: 5px !important;
@@ -4033,13 +4034,14 @@ div.icon, div.info, div.stats, div.lastpost {
 	float: right;
 	width: 2%;
 }
-#messageindex .icon, #messageindex .info, #messageindex .windowbg2, #messageindex .windowbg, #messageindex .stats, #messageindex .lastpost {
+#topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	border-radius: 0;
 	padding: 0;
+	margin: 0;
 	overflow: hidden;
 	height: 3.5em;
 }
-#messageindex .information {
+#messageindex .information, #topic_container .info {
 	border-radius: 0;
 	margin: 0;
 }
