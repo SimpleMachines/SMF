@@ -2166,7 +2166,8 @@ ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
 }
 ul.quickbuttons li a.modifybutton {
-	background: url(../images/icons/modify_inline.png) no-repeat 2px;
+	background: url(../images/icons/modify_inline.png) no-repeat 1px;
+	padding: 0 4px 0 22px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
