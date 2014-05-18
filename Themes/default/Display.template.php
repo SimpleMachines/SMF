@@ -397,7 +397,7 @@ function template_main()
 						var oQuickModify = new QuickModify({
 							sScriptUrl: smf_scripturl,
 							sClassName: \'quick_edit\',
-							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
+							bShowModify: ', $modSettings['show_modify'] ? 'true' : 'false', ',
 							iTopicId: ', $context['current_topic'], ',
 							sTemplateBodyEdit: ', JavaScriptEscape('
 								<div id="quick_edit_body_container" style="width: 90%">
@@ -437,7 +437,7 @@ function template_main()
 							sBackReference: "aIconLists[" + aIconLists.length + "]",
 							sIconIdPrefix: "msg_icon_",
 							sScriptUrl: smf_scripturl,
-							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
+							bShowModify: ', $modSettings['show_modify'] ? 'true' : 'false', ',
 							iBoardId: ', $context['current_board'], ',
 							iTopicId: ', $context['current_topic'], ',
 							sSessionId: smf_session_id,
@@ -537,7 +537,7 @@ function template_single_post($message, $force_alternate = null)
 
 
 	// Show the user's avatar.
-	if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
 									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
@@ -576,7 +576,7 @@ function template_single_post($message, $force_alternate = null)
 	{
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-		if ((empty($settings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
 
@@ -602,7 +602,7 @@ function template_single_post($message, $force_alternate = null)
 								</li>';
 
 		// Show their personal text?
-		if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
+		if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
 			echo '
 								<li class="blurb">', $message['member']['blurb'], '</li>';
 
@@ -720,7 +720,7 @@ function template_single_post($message, $force_alternate = null)
 
 	//Some people dont want subject ... The div is still required or quick edit breaks...
 	echo '
-								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
+								<div id="subject_', $message['id'], '" class="subject_title">', (empty($modSettings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
 	echo '
 								<div class="page_number floatright">
@@ -734,7 +734,7 @@ function template_single_post($message, $force_alternate = null)
 	echo '
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
 
-	if ($settings['show_modify'] && !empty($message['modified']['name']))
+	if ($modSettings['show_modify'] && !empty($message['modified']['name']))
 		echo $message['modified']['last_edit_text'];
 	echo '</span>';
 

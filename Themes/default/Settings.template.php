@@ -205,36 +205,6 @@ function template_settings()
 			),
 			'type' => 'number',
 		),
-	'',
-		array(
-			'id' => 'subject_toggle',
-			'label' => $txt['subject_toggle'],
-		),
-		array(
-			'id' => 'show_modify',
-			'label' => $txt['last_modification'],
-		),
-		array(
-			'id' => 'show_profile_buttons',
-			'label' => $txt['show_view_profile_button'],
-		),
-		array(
-			'id' => 'show_user_images',
-			'label' => $txt['user_avatars'],
-		),
-		array(
-			'id' => 'show_blurb',
-			'label' => $txt['user_text'],
-		),
-		array(
-			'id' => 'show_gender',
-			'label' => $txt['gender_images'],
-		),
-		array(
-			'id' => 'hide_post_group',
-			'label' => $txt['hide_post_group'],
-			'description' => $txt['hide_post_group_desc'],
-		),
 	);
 }
 

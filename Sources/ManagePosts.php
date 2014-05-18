@@ -299,6 +299,15 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'disableCustomPerPage'),
 			array('check', 'enablePreviousNext'),
 		'',
+			// Topic related settings (show gender icon/avatars etc...)
+			array('check', 'subject_toggle'),
+			array('check', 'show_modify'),
+			array('check', 'show_profile_buttons'),
+			array('check', 'show_user_images'),
+			array('check', 'show_blurb'),
+			array('check', 'show_gender'),
+			array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
+		'',
 			// First & Last message preview lengths
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
 			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),

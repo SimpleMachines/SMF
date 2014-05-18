@@ -1888,7 +1888,12 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('mail_limit', '5'),
 	('mail_quantity', '5'),
 	('admin_bbc', '1'),
-	('additional_options_collapsable', '1');
+	('additional_options_collapsable', '1'),
+	('show_modify', '1'),
+	('show_user_images', '1'),
+	('show_blurb', '1'),
+	('show_profile_buttons', '1');
+
 # --------------------------------------------------------
 
 #
@@ -2031,12 +2036,8 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'images_url', '{$boardurl}/Themes/default/images'),
 	(1, 'theme_dir', '{$boarddir}/Themes/default'),
 	(1, 'show_latest_member', '1'),
-	(1, 'show_modify', '1'),
-	(1, 'show_user_images', '1'),
-	(1, 'show_blurb', '1'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
-	(1, 'show_profile_buttons', '1'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '5000'),
 	(1, 'use_image_buttons', '1'),
