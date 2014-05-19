@@ -741,6 +741,27 @@ ALTER TABLE `{$db_prefix}members`
   DROP `gender`;
 ---#
 
+---# Create the displayFields setting
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+		FROM {db_prefix}custom_fields',
+		array()
+	);
+
+	$fields = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$fields[] = $row;
+
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('displayFields', serialize($fields)),
+		array('id_theme', 'id_member', 'variable')
+	);
+---#
+
 /******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
