@@ -98,20 +98,29 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?al
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
-
 ---# Enable some settings we ripped from Theme settings
 ---{
-$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
 
-foreach($ripped_settings as $var)
-{
-	$smcFunc['db_query']('', 'INSERT INTO {db_prefix}settings (variable, value) VALUES ({string:setting}, {int:value})'',
-					array(
-						'setting' => $var,
-						'value' => $settings[$var],
-						'db_error_skip' => true,
-					));
-}
+	$request = $smcFunc['db_query']('', '
+		SELECT variable, value
+		FROM {db_prefix}themes
+		WHERE variable IN({array_string:ripped_settings})
+			AND id_member = 0
+			AND id_theme = 1',
+	array(
+		'ripped_settings' => $ripped_settings,
+	));
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array($row['variable'], $row['value']),
+			array('id_theme', 'id_member', 'variable')
+		);
+
+	$smcFunc['db_free_result']($request);
 ---}
 ---#
 
@@ -659,7 +668,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 		while ($row = $smcFunc['db_fetch_assoc']($ocf))
 		{
-			$fields_count++;
+			++$fields_count;
 
 			if (!empty($row['id_field']))
 				$smcFunc['db_query']('', '
