@@ -98,6 +98,21 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?al
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
+---# Enable some settings we ripped from Theme settings
+---{
+$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+
+foreach($ripped_settings as $var)
+{
+	$smcFunc['db_query']('', 'INSERT INTO {db_prefix}settings (variable, value) VALUES ({string:setting}, {int:value})'',
+					array(
+						'setting' => $var,
+						'value' => $settings[$var],
+						'db_error_skip' => true,
+					));
+}
+---}
+---#
 
 /******************************************************************************/
 --- Updating legacy attachments...
@@ -1000,7 +1015,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
 ---#
 
 /******************************************************************************/

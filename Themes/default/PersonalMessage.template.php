@@ -237,7 +237,7 @@ function template_folder()
 								<ul>';
 
 			// Show the user's avatar.
-			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+			if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 				echo '
 				<li class="avatar">
 					<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
@@ -260,7 +260,7 @@ function template_folder()
 			if (!$message['member']['is_guest'])
 			{
 				// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-				if ((empty($settings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+				if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 					echo '
 				<li class="postgroup">', $message['member']['post_group'], '</li>';
 
@@ -285,7 +285,7 @@ function template_folder()
 				</li>';
 
 				// Show their personal text?
-				if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
+				if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
 					echo '
 				<li class="blurb">', $message['member']['blurb'], '</li>';
 
