@@ -5,6 +5,14 @@
 		margin: 0 7px 0 0;
 		min-width: 50px;
 	}
+	input, select {
+		width: 95%;
+		float: left;
+	}
+	input.input_check {
+		width: 5%;
+	}
+
 	/* General */
 	.action_home {
 		width: 100% !important;
@@ -71,6 +79,17 @@
 	}
 	.button.mobile {
 		margin: 0 0 5px 0;
+	}
+
+	/* Profile */
+	#admin_content .content {
+		padding: 0;
+	}
+	#creator dt {
+		width: 33%;
+	}
+	#creator dd {
+		width: 65%;
 	}
 
 	/* Hide me */
