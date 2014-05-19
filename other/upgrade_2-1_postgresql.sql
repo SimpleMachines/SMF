@@ -101,10 +101,19 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
 ---# Enable some settings we ripped from Theme settings
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_modify', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_blurb', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
+---{
+$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+
+foreach($ripped_settings as $var)
+{
+	$smcFunc['db_query']('', 'INSERT INTO {db_prefix}settings (variable, value) VALUES ({string:setting}, {int:value})'',
+					array(
+						'setting' => $var,
+						'value' => $settings[$var],
+						'db_error_skip' => true,
+					));
+}
+---}
 ---#
 
 /******************************************************************************/
