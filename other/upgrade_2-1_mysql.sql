@@ -669,7 +669,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 						AND field_order = {int:show_mlist}',
 					array(
 						'field_count' => $fields_count,
-						'show_list' => 0,
+						'show_mlist' => 0,
 						'id_field' => $row['id_field'],
 						'six' => 6,
 					)
