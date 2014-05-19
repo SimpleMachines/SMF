@@ -212,7 +212,6 @@ function ModifyDatabaseSettings($return_config = false)
 		array('ssi_db_passwd', $txt['ssi_db_passwd'], 'file', 'password'),
 		'',
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'),
-		array('autoOptMaxOnline', $txt['autoOptMaxOnline'], 'subtext' => $txt['zero_for_no_limit'], 'db', 'int'),
 		'',
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
 	);

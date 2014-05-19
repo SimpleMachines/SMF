@@ -1122,10 +1122,6 @@ function OptimizeTables()
 	// Number of tables, etc....
 	$txt['database_numb_tables'] = sprintf($txt['database_numb_tables'], $context['num_tables']);
 	$context['num_tables_optimized'] = count($context['optimized_tables']);
-
-	// Check that we don't auto optimise again too soon!
-	require_once($sourcedir . '/ScheduledTasks.php');
-	CalculateNextTrigger('auto_optimize', true);
 }
 
 /**

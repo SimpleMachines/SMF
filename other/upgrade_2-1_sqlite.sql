@@ -1442,3 +1442,17 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 	$smcFunc['db_alter_table']('{db_prefix}members', array('remove' => array('hide_email')));
 ---}
 ---#
+
+/******************************************************************************/
+--- Deleting the "Auto Optimize" task
+/******************************************************************************/
+---# Removing the task and associated data
+DELETE FROM {$db_prefix}scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}log_scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'autoOptMaxOnline';
+---#

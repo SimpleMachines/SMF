@@ -473,56 +473,6 @@ function scheduled_daily_maintenance()
 }
 
 /**
- * Auto optimize the database?
- */
-function scheduled_auto_optimize()
-{
-	global $modSettings, $smcFunc, $db_prefix, $db_type;
-
-	// By default do it now!
-	$delay = false;
-
-	// As a kind of hack, if the server load is too great delay, but only by a bit!
-	if (!empty($modSettings['load_average']) && !empty($modSettings['loadavg_auto_opt']) && $modSettings['load_average'] >= $modSettings['loadavg_auto_opt'])
-		$delay = true;
-
-	// Otherwise are we restricting the number of people online for this?
-	if (!empty($modSettings['autoOptMaxOnline']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}log_online',
-			array(
-			)
-		);
-		list ($dont_do_it) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-
-		if ($dont_do_it > $modSettings['autoOptMaxOnline'])
-			$delay = true;
-	}
-
-	// If we are gonna delay, do so now!
-	if ($delay)
-		return false;
-
-	db_extend();
-
-	// Get all the tables.
-	$tables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
-
-	// Actually do the optimisation.
-	if ($db_type == 'sqlite')
-		$smcFunc['db_optimize_table']($tables[0]);
-	else
-		foreach ($tables as $table)
-			$smcFunc['db_optimize_table']($table);
-
-	// Return for the log...
-	return true;
-}
-
-/**
  * Send out a daily email of all subscribed topics.
  */
 function scheduled_daily_digest()
