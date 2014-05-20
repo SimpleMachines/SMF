@@ -34,6 +34,11 @@ class Likes
 	protected $_type = '';
 
 	/**
+	 *@var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
+	 */
+	protected $_extra = false;
+
+	/**
 	 *@var integer a valid ID to identify your like content.
 	 */
 	protected $_content = 0;
@@ -88,6 +93,7 @@ class Likes
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
 		$this->_js = isset($_GET['js']) ? true : false;
 		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
+		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
 	}
 
 	/**
@@ -198,7 +204,7 @@ class Likes
 			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js));
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
 
 			$found = false;
 			if (!empty($can_like))
@@ -494,7 +500,7 @@ class Likes
 	/**
 	 * Likes::response()
 	 *
-	 * Checks if the user cna use JavaScript and acts accordingly 
+	 * Checks if the user cna use JavaScript and acts accordingly
 	 * Calls the appropriate sub-template for each method
 	 * Handles error messages.
 	 */
