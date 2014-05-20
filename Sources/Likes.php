@@ -125,10 +125,6 @@ class Likes
 		// we know it exists, now we need to figure out what we're doing with that.
 		if (in_array($this->_sa, $subActions) && empty($this->_error))
 		{
-			// Set everything up for display.
-			loadTemplate('Likes');
-			$context['template_layers'] = array();
-
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
 
@@ -140,12 +136,10 @@ class Likes
 
 			// Call the appropriate method.
 			$this->$call();
-
-			// Send the response back to the browser.
-			$this->response();
 		}
 
 		// else An error message.
+		$this->response();
 	}
 
 	/**
@@ -194,6 +188,8 @@ class Likes
 			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
 			$this->_validLikes['can_see'] = true;
+
+			// @todo implement likes permissions.
 			$this->_validLikes['can_like'] = true;
 		}
 
@@ -511,6 +507,10 @@ class Likes
 		// Don't do anything if someone else has already take care of the response.
 		if (!$this->_setResponse)
 			return;
+
+		// Set everything up for display.
+		loadTemplate('Likes');
+		$context['template_layers'] = array();
 
 		// If there are any errors, process them first.
 		if ($this->_error)
