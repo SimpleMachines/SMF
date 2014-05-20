@@ -198,7 +198,7 @@ class Likes
 			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content));
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js));
 
 			$found = false;
 			if (!empty($can_like))
