@@ -528,7 +528,7 @@ class Likes
 
 			// Nope?  then just do a redirect to whatever url was provided.
 			else
-				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
 		}
 
 		// A like operation.
@@ -536,7 +536,7 @@ class Likes
 		{
 			// Not an ajax request so send the user back to the previous location or the main page.
 			if (!$this->_js)
-				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
 
 			// These fine gentlemen all share the same template.
 			$generic = array('delete', 'insert', '_count');
