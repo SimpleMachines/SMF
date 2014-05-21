@@ -397,12 +397,13 @@ class Likes
 
 		// All done, start building the data to pass as response.
 		$this->_data = array(
-			'id_topic' => $this->_idTopic,
-			'id_msg' => $this->_content,
+			'id_topic' => !empty($this->_idTopic) ? $this->_idTopic : 0,
+			'id_content' => $this->_content,
 			'count' => $this->_numLikes,
 			'can_like' => $this->_validLikes['can_like'],
 			'can_see' => $this->_validLikes['can_see'],
 			'already_liked' => empty($this->_alreadyLiked),
+			'type' => $this->_type,
 		);
 	}
 
