@@ -293,7 +293,7 @@ class Likes
 			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
 				'content_id' => $content,
 				'content_type' => $type,
-				'sender_id' => $user,
+				'sender_id' => $user['id'],
 				'sender_name' => $user['name'],
 				'time' => $time,
 			)), 0),
