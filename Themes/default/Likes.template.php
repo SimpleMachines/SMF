@@ -60,7 +60,7 @@ function template_like()
 	if (!empty($context['data']['can_like']))
 	{
 		echo '
-		<li class="like_button" id="msg_', $context['data']['id_msg'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $context['data']['id_msg'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+		<li class="like_button" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($context['data']['count']))
@@ -76,7 +76,7 @@ function template_like()
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;js=1;like=' . $context['data']['id_msg'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=', $context['data']['type'], ';js=1;like=' . $context['data']['id_content'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '
