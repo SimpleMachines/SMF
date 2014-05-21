@@ -383,11 +383,11 @@ class Likes
 		elseif (!empty($this->_validLikes['callback']))
 		{
 			$call = call_hook_helper($this->_validLikes['callback']);
-			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, $this->_alreadyLiked));
+			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, $this->_alreadyLiked));
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
