@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function RegCenter()
 {
-	global $modSettings, $context, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Old templates might still request this.
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'browse')
@@ -90,6 +90,10 @@ function AdminRegister()
 {
 	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
 
+	// Are there any custom profile fields required during registration?
+	require_once($sourcedir . '/Profile.php');
+	loadCustomFields(0, 'register');
+
 	if (!empty($_POST['regSubmit']))
 	{
 		checkSession();
@@ -117,6 +121,13 @@ function AdminRegister()
 		$memberID = registerMember($regOptions);
 		if (!empty($memberID))
 		{
+			// We'll do custom fields after as then we get to use the helper function!
+			if (!empty($_POST['customfield']))
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				makeCustomFieldChanges($memberID, 'register');
+			}
+
 			$context['new_member'] = array(
 				'id' => $memberID,
 				'name' => $_POST['user'],
@@ -156,10 +167,12 @@ function AdminRegister()
 	}
 	else
 		$context['member_groups'] = array();
+
 	// Basic stuff.
 	$context['sub_template'] = 'admin_register';
 	$context['page_title'] = $txt['registration_center'];
 	createToken('admin-regc');
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 /**
@@ -313,7 +326,7 @@ function ModifyRegistrationSettings($return_config = false)
 			fatal_lang_error('admin_setting_coppa_require_contact');
 
 		// Post needs to take into account line breaks.
-		$_POST['coppaPost'] = str_replace("\n", '<br />', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
+		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
 
 		call_integration_hook('integrate_save_registration_settings');
 

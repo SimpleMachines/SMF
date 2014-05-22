@@ -296,9 +296,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'unread_fetch_topic_count' => array(
 			'~\s*SELECT\sCOUNT\(DISTINCT\st\.id_topic\),\sMIN\(t\.id_last_msg\)(.+)$~is' => 'SELECT COUNT(id_topic), MIN(id_last_msg) FROM (SELECT DISTINCT t.id_topic, t.id_last_msg $1)',
 		),
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
 		),
@@ -313,12 +310,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'pm_conversation_list' => array(
 			'~ORDER BY id_pm~' => 'ORDER BY MAX(pm.id_pm)',
-		),
-		'boardindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'order_by_board_order' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 	);
 
@@ -506,7 +497,7 @@ function smf_db_error($db_string, $connection = null)
 
 	// Get the extra error message.
 	$errStart = strrpos($db_string, '#!#');
-	$query_error .= '<br />' . substr($db_string, $errStart + 3);
+	$query_error .= '<br>' . substr($db_string, $errStart + 3);
 	$db_string = substr($db_string, 0, $errStart);
 
 	// Log the error.
@@ -541,13 +532,13 @@ function smf_db_error($db_string, $connection = null)
 	// Show an error message, if possible.
 	$context['error_title'] = $txt['database_error'];
 	if (allowedTo('admin_forum'))
-		$context['error_message'] = nl2br($query_error) . '<br />' . $txt['file'] . ': ' . $file . '<br />' . $txt['line'] . ': ' . $line;
+		$context['error_message'] = nl2br($query_error) . '<br>' . $txt['file'] . ': ' . $file . '<br>' . $txt['line'] . ': ' . $line;
 	else
 		$context['error_message'] = $txt['try_again'];
 
 	if (allowedTo('admin_forum') && isset($db_show_debug) && $db_show_debug === true)
 	{
-		$context['error_message'] .= '<br /><br />' . nl2br($db_string);
+		$context['error_message'] .= '<br><br>' . nl2br($db_string);
 	}
 
 	// It's already been logged... don't log it again.
@@ -677,7 +668,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		// Found it?
 		if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 		{
-			$log_message .= '<br />Function: ' . $step['function'];
+			$log_message .= '<br>Function: ' . $step['function'];
 			break;
 		}
 

@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings, $user_info;
+	global $sourcedir, $context, $user_profile, $modSettings;
 
 	isAllowedTo('moderate_forum');
 
@@ -48,7 +48,7 @@ function activateAccount($memID)
 		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
-		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 13, 14)))
+		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 5, 13, 14, 15)))
 			updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > 1 ? $modSettings['unapprovedMembers'] - 1 : 0)));
 
 		// Make sure we update the stats too.
@@ -131,7 +131,7 @@ function issueWarning($memID)
 	if (isset($_POST['save']))
 	{
 		// Security is good here.
-		checkSession('post');
+		checkSession();
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
@@ -336,7 +336,7 @@ function issueWarning($memID)
 				),
 				'data' => array(
 					'function' => create_function('$warning', '
-						global $scripturl, $txt, $settings;
+						global $scripturl, $txt;
 
 						$ret = \'
 						<div class="floatleft">
@@ -346,7 +346,7 @@ function issueWarning($memID)
 						if (!empty($warning[\'id_notice\']))
 							$ret .= \'
 						<div class="floatright">
-							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'images_url\'] . \'/filter.png" alt="" /></a>
+							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><span class="generic_icons filter centericon"></span></a>
 						</div>\';
 
 						return $ret;'),
@@ -520,7 +520,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $user_info, $modSettings, $cur_profile, $smcFunc;
+	global $txt, $context, $modSettings, $cur_profile, $smcFunc;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -589,6 +589,50 @@ function deleteAccount2($memID)
 	if ($memID != $user_info['id'])
 	{
 		isAllowedTo('profile_remove_any');
+
+		// Before we go any further, handle possible poll vote deletion as well
+		if (!empty($_POST['deleteVotes']) && allowedTo('moderate_forum'))
+		{
+			// First we find any polls that this user has voted in...
+			$get_voted_polls = $smcFunc['db_query']('', '
+				SELECT DISTINCT id_poll
+				FROM {db_prefix}log_polls
+				WHERE id_member = {int:selected_member}',
+				array(
+					'selected_member' => $memID,
+				)
+			);
+
+			$polls_to_update = array();
+			
+			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
+			{
+				$polls_to_update[] = $row['id_poll'];
+			}
+
+			$smcFunc['db_free_result']($get_voted_polls);
+
+			// Now we delete the votes and update the polls
+			if (!empty($polls_to_update))
+			{
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_polls
+					WHERE id_member = {int:selected_member}',
+					array(
+						'selected_member' => $memID,
+					)
+				);
+
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}polls
+					SET votes = votes - 1
+					WHERE id_poll IN {array_int:polls_to_update}',
+					array(
+						'polls_to_update' => $polls_to_update
+					)
+				);
+			}
+		}
 
 		// Now, have you been naughty and need your posts deleting?
 		// @todo Should this check board permissions?

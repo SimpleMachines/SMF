@@ -33,7 +33,7 @@ function Post($post_errors = array())
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
 	global $user_info, $sc, $board_info, $context, $settings;
-	global $sourcedir, $options, $smcFunc, $language;
+	global $sourcedir, $smcFunc, $language;
 
 	loadLanguage('Post');
 
@@ -309,6 +309,7 @@ function Post($post_errors = array())
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
 
 		$context['event']['board'] = !empty($board) ? $board : $modSettings['cal_defaultboard'];
+		$context['event']['topic'] = !empty($topic) ? $topic : 0;
 	}
 
 	// See if any new replies have come along.
@@ -769,7 +770,7 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br />\', "$m[1]") . \'[/html]\';'), $parts[$i]);
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br>\', "$m[1]") . \'[/html]\';'), $parts[$i]);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -874,7 +875,7 @@ function Post($post_errors = array())
 							$file_list[] =  $attachment['name'];
 
 					$_SESSION['temp_attachments']['post']['files'] = $file_list;
-					$file_list = '<div class="attachments">' . implode('<br />', $file_list) . '</div>';
+					$file_list = '<div class="attachments">' . implode('<br>', $file_list) . '</div>';
 
 					if (!empty($_SESSION['temp_attachments']['post']['msg']))
 					{
@@ -914,10 +915,10 @@ function Post($post_errors = array())
 				// Show any errors which might of occured.
 				if (!empty($attachment['errors']))
 				{
-					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br />' : '';
+					$txt['error_attach_errors'] = empty($txt['error_attach_errors']) ? '<br>' : '';
 					$txt['error_attach_errors'] .= vsprintf($txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
 					foreach ($attachment['errors'] as $error)
-						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br  />';
+						$txt['error_attach_errors'] .= (is_array($error) ? vsprintf($txt[$error[0]], $error[1]) : $txt[$error]) . '<br >';
 					$txt['error_attach_errors'] .= '</div>';
 					$post_errors[] = 'attach_errors';
 
@@ -1062,6 +1063,7 @@ function Post($post_errors = array())
 		'width' => '100%',
 		// We do XML preview here.
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 
@@ -1125,12 +1127,12 @@ function Post($post_errors = array())
 		foreach ($attachmentRestrictionTypes as $type)
 			if (!empty($modSettings[$type]))
 			{
-				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type], comma_format($modSettings[$type], 0));
+				$context['attachment_restrictions'][] = sprintf($txt['attach_restrict_' . $type . ($modSettings[$type] >= 1024 ? '_MB' : '')], comma_format($modSettings[$type], 0));
 				// Show some numbers. If they exist.
 				if ($type == 'attachmentNumPerPostLimit' && $context['attachments']['quantity'] > 0)
 					$context['attachment_restrictions'][] = sprintf($txt['attach_remaining'], $modSettings['attachmentNumPerPostLimit'] - $context['attachments']['quantity']);
 				elseif ($type == 'attachmentPostLimit' && $context['attachments']['total_size'] > 0)
-					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1028), 0)), 0));
+					$context['attachment_restrictions'][] = sprintf($txt['attach_available'], comma_format(round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)), 0));
 			}
 	}
 
@@ -1165,7 +1167,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $options, $smcFunc;
+	global $user_info, $board_info, $smcFunc;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1679,7 +1681,7 @@ function Post2()
 		$attachIDs = array();
 		$attach_errors = array();
 		if (!empty($context['we_are_history']))
-			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br /><br /></dd>';
+			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
 		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
 		{
@@ -1821,7 +1823,7 @@ function Post2()
 		{
 			$msgOptions['modify_time'] = time();
 			$msgOptions['modify_name'] = $user_info['name'];
-			$msgOptions['modify_reason'] = $_POST['modify_reason']; 
+			$msgOptions['modify_reason'] = $_POST['modify_reason'];
 		}
 
 		// This will save some time...
@@ -1901,26 +1903,18 @@ function Post2()
 		// ... or just update it?
 		else
 		{
-			$span = !empty($modSettings['cal_allowspan']) && !empty($_REQUEST['span']) ? min((int) $modSettings['cal_maxspan'], (int) $_REQUEST['span'] - 1) : 0;
-			$start_time = mktime(0, 0, 0, (int) $_REQUEST['month'], (int) $_REQUEST['day'], (int) $_REQUEST['year']);
-
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}calendar
-				SET end_date = {date:end_date},
-					start_date = {date:start_date},
-					title = {string:title}
-				WHERE id_event = {int:id_event}',
-				array(
-					'end_date' => strftime('%Y-%m-%d', $start_time + $span * 86400),
-					'start_date' => strftime('%Y-%m-%d', $start_time),
-					'id_event' => $_REQUEST['eventid'],
-					'title' => $smcFunc['htmlspecialchars']($_REQUEST['evtitle'], ENT_QUOTES),
-				)
+			// Set up our options
+			$eventOptions = array(
+				'board' => $board,
+				'topic' => $topic,
+				'title' => $_POST['evtitle'],
+				'member' => $user_info['id'],
+				'start_date' => sprintf('%04d-%02d-%02d', $_POST['year'], $_POST['month'], $_POST['day']),
+				'span' => isset($_POST['span']) && $_POST['span'] > 0 ? min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1) : 0,
 			);
+
+			modifyEvent($_REQUEST['eventid'], $eventOptions);
 		}
-		updateSettings(array(
-			'calendar_updated' => time(),
-		));
 	}
 
 	// Marking read should be done even for editing messages....
@@ -1969,7 +1963,7 @@ function Post2()
 		logAction(empty($_POST['lock']) ? 'unlock' : 'lock', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	if (isset($_POST['sticky']))
-		logAction('sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
+		logAction(empty($_POST['sticky']) ? 'unsticky' : 'sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
 
 	// Notify any members who have notification turned on for this topic - only do this if it's going to be approved(!)
 	if ($becomesApproved)
@@ -2186,7 +2180,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $txt, $user_info, $sourcedir, $smcFunc;
+	global $language, $scripturl, $txt, $sourcedir, $smcFunc;
 
 	checkSession();
 
@@ -2220,7 +2214,7 @@ function AnnouncementSend()
 	censorText($context['topic_subject']);
 	censorText($message);
 
-	$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($message, false, $id_msg), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+	$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($message, false, $id_msg), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 	// We need this in order to be able send emails.
 	require_once($sourcedir . '/Subs-Post.php');
@@ -2289,7 +2283,7 @@ function AnnouncementSend()
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)
-		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, null, false, 5);
+		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, false, 5);
 
 	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
 
@@ -2339,7 +2333,7 @@ function notifyMembersBoard(&$topicData)
 		censorText($topicData[$key]['body']);
 
 		$topicData[$key]['subject'] = un_htmlspecialchars($topicData[$key]['subject']);
-		$topicData[$key]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$key]['body'], false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		$topicData[$key]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$key]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 	}
 
 	// Just the board numbers.
@@ -2437,7 +2431,7 @@ function notifyMembersBoard(&$topicData)
 			{
 				$emailtype .= $send_body ? '_body' : '';
 				$emaildata = loadEmailTemplate($emailtype, $replacements, $langloaded);
-				sendmail($rowmember['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 3);
+				sendmail($rowmember['email_address'], $emaildata['subject'], $emaildata['body'], null, 'notbrd', false, 3);
 			}
 
 			$sentOnceAlready = 1;

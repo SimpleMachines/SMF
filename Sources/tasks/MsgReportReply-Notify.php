@@ -96,7 +96,6 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 			'email' => 0x02,
 		);
 		$notifies = array();
-		print_r($prefs);
 
 		foreach ($prefs as $member => $pref_option)
 		{
@@ -106,8 +105,6 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					$notifies[$type][] = $member;
 			}
 		}
-
-		print_r($notifies);
 
 		// Firstly, anyone who wants alerts.
 		if (!empty($notifies['alert']))
@@ -127,7 +124,7 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 					'is_read' => 0,
 					'extra' => serialize(
 						array(
-							'report_link' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
+							'report_link' => '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'], // We don't put $scripturl in these!
 						)
 					),
 				);
@@ -188,20 +185,19 @@ class MsgReportReply_Notify_Background extends SMF_BackgroundTask
 			// Third, iterate through each language, load the relevant templates and set up sending.
 			foreach ($emails as $this_lang => $recipients)
 			{
-				echo 'Emailing (' . $this_lang . ') to ' . print_r($recipients, true);
 				$replacements = array(
 					'TOPICSUBJECT' => $subject,
 					'POSTERNAME' => $poster_name,
 					'COMMENTERNAME' => $this->_details['sender_name'],
 					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reports;report=' . $this->_details['report_id'],
+					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;report=' . $this->_details['report_id'],
 				);
 
 				$emaildata = loadEmailTemplate('reply_to_moderator', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, null, false, 3);
+					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'rptrpy' . $this->_details['comment_id'], false, 3);
 			}
 		}
 

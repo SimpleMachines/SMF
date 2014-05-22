@@ -18,7 +18,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $language, $modSettings;		
+ 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;		
 
 		// Do we have any group moderators?
 		$request = $smcFunc['db_query']('', '
@@ -64,7 +64,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 			{
 				$alert_rows = array();
 
-				foreach($data['alert'] as $group_mod)
+				foreach ($data['alert'] as $group_mod)
 				{
 					$alert_rows[] = array(
 						'alert_time' => $this->_details['time'],
@@ -84,6 +84,8 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 					'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
 					$alert_rows, array()
 				);
+
+				updateMemberData($data['alert'], array('alerts' => '+'));
 			}
 
 			if (!empty($data['email']))
@@ -113,7 +115,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 					);
 
 					$emaildata = loadEmailTemplate('request_membership', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+					sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'groupreq' . $this->_details['id_group'], false, 2);
 				}
 			}
 		}

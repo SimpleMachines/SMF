@@ -117,9 +117,9 @@ function ModifySettings()
 		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
 		if ($settings_not_writable)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br />';
+			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
 		elseif ($settings_backup_fail)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br />';
+			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
 
 		$context['settings_not_writable'] = $settings_not_writable;
 	}
@@ -132,7 +132,6 @@ function ModifySettings()
  * General forum settings - forum name, maintenance mode, etc.
  * Practically, this shows an interface for the settings in Settings.php to be changed.
  *
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Contains the actual array of settings to show from Settings.php.
@@ -191,7 +190,6 @@ function ModifyGeneralSettings($return_config = false)
  *
  * - It shows an interface for the settings in Settings.php to be changed.
  * - It contains the actual array of settings to show from Settings.php.
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Accessed from ?action=admin;area=serversettings;sa=database.
@@ -214,7 +212,6 @@ function ModifyDatabaseSettings($return_config = false)
 		array('ssi_db_passwd', $txt['ssi_db_passwd'], 'file', 'password'),
 		'',
 		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'),
-		array('autoOptMaxOnline', $txt['autoOptMaxOnline'], 'subtext' => $txt['zero_for_no_limit'], 'db', 'int'),
 		'',
 		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
 	);
@@ -339,7 +336,7 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc, $modSettings;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 			array('int', 'failed_login_threshold'),
@@ -513,14 +510,14 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Set the default values for each option.
 	$default_values = array(
-		'loadavg_auto_opt' => '1.0',
-		'loadavg_search' => '2.5',
-		'loadavg_allunread' => '2.0',
-		'loadavg_unreadreplies' => '3.5',
-		'loadavg_show_posts' => '2.0',
-		'loadavg_userstats' => '10.0',
-		'loadavg_bbc' => '30.0',
-		'loadavg_forum' => '40.0',
+		'loadavg_auto_opt' => 1.0,
+		'loadavg_search' => 2.5,
+		'loadavg_allunread' => 2.0,
+		'loadavg_unreadreplies' => 3.5,
+		'loadavg_show_posts' => 2.0,
+		'loadavg_userstats' => 10.0,
+		'loadavg_bbc' => 30.0,
+		'loadavg_forum' => 40.0,
 	);
 
 	// Loop through the settings.
@@ -528,7 +525,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	{
 		// Use the default value if the setting isn't set yet.
 		$value = !isset($modSettings[$name]) ? $value : $modSettings[$name];
-		$config_vars[] = array('text', $name, 'value' => $value, 'disabled' => $disabled);
+		$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
 	call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
@@ -547,12 +544,15 @@ function ModifyLoadBalancingSettings($return_config = false)
 		{
 			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable')
 				continue;
-			elseif ($key == 'loadavg_auto_opt' && $value <= 1)
-				$_POST['loadavg_auto_opt'] = '1.0';
+			else
+				$_POST[$key] = (float) $value;
+
+			if ($key == 'loadavg_auto_opt' && $value <= 1)
+				$_POST['loadavg_auto_opt'] = 1.0;
 			elseif ($key == 'loadavg_forum' && $value < 10)
-				$_POST['loadavg_forum'] = '10.0';
+				$_POST['loadavg_forum'] = 10.0;
 			elseif ($value < 2)
-				$_POST[$key] = '2.0';
+				$_POST[$key] = 2.0;
 		}
 
 		call_integration_hook('integrate_save_loadavg_settings');
@@ -881,7 +881,7 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $boarddir, $sc, $cookiename, $modSettings, $user_settings;
+	global $boarddir, $sc, $cookiename, $user_settings;
 	global $sourcedir, $context, $cachedir;
 
 	validateToken('admin-ssc');
@@ -923,35 +923,44 @@ function saveSettings(&$config_vars)
 		'cache_enable',
 	);
 
-	// All the checkboxes.
-	$config_bools = array(
-		'db_persist', 'db_error_send',
-		'maintenance',
-	);
+	// All the checkboxes
+	$config_bools = array('db_persist', 'db_error_send', 'maintenance');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
-	foreach ($config_passwords as $config_var)
+	// Figure out which config vars we're saving here...
+	foreach ($config_vars as $var)
 	{
-		if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
-	}
-	foreach ($config_strs as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		if (!is_array($var) || $var[2] != 'file')
+			continue;
+
+		$config_var = $var[0];
+
+		if (in_array($config_var, $config_passwords))
+		{
+			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
+				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
+		}
+		elseif (in_array($config_var, $config_strs))
+		{
 			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
-	}
-	foreach ($config_ints as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		}
+		elseif (in_array($config_var, $config_ints))
+		{
 			$new_settings[$config_var] = (int) $_POST[$config_var];
-	}
-	foreach ($config_bools as $key)
-	{
-		if (!empty($_POST[$key]))
-			$new_settings[$key] = '1';
+		}
+		elseif (in_array($config_var, $config_bools))
+		{
+			if (!empty($_POST[$config_var]))
+				$new_settings[$config_var] = '1';
+			else
+				$new_settings[$config_var] = '0';
+		}
 		else
-			$new_settings[$key] = '0';
+		{
+			// This shouldn't happen, but it might...
+			fatal_error('Unknown config_var \'' . $config_var . '\'');
+		}
 	}
 
 	// Save the relevant settings in the Settings.php file.
@@ -1039,7 +1048,7 @@ function saveDBSettings(&$config_vars)
 		elseif ($var[0] == 'float')
 			$setArray[$var[1]] = (float) $_POST[$var[1]];
 		// Text!
-		elseif ($var[0] == 'text' || $var[0] == 'large_text')
+		elseif ($var[0] == 'text' || in_array($var[0], array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
 		// Passwords!
 		elseif ($var[0] == 'password')

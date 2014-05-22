@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -13,14 +13,14 @@
 // The only template in the file.
 function template_main()
 {
-	global $context, $settings, $options, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt;
 
 	// Display the table header and linktree.
 	echo '
 	<div class="main_section" id="whos_online">
 		<form action="', $scripturl, '?action=who" method="post" id="whoFilter" accept-charset="', $context['character_set'], '">
-			<div class="title_bar">
-				<h4 class="titlebg margin_lower">', $txt['who_title'], '</h4>
+			<div class="cat_bar">
+				<h4 class="catbg">', $txt['who_title'], '</h4>
 			</div>
 			<div class="topic_table" id="mlist">
 				<div class="pagesection">
@@ -31,11 +31,11 @@ function template_main()
 
 	foreach ($context['show_methods'] as $value => $label)
 		echo '
-							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected' : '', '>', $label, '</option>';
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit" />
+							<input type="submit" name="submit_top" value="', $txt['go'], '" class="button_submit">
 						</noscript>
 					</div>
 				</div>
@@ -59,13 +59,12 @@ function template_main()
 						<tr class="windowbg', $alternate ? '2' : '', '">
 							<td>';
 
-		// Guests don't have information like icq, skype, y!, and aim... and they can't be messaged.
+		// Guests can't be messaged.
 		if (!$member['is_guest'])
 		{
 			echo '
 								<span class="contact_info floatright">
-									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" align="bottom" />' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
-									', isset($context['disabled_fields']['icq']) ? '' : $member['icq']['link'] , ' ', isset($context['disabled_fields']['skype']) ? '' : $member['skype']['link'], ' ', isset($context['disabled_fields']['yim']) ? '' : $member['yim']['link'], ' ', isset($context['disabled_fields']['aim']) ? '' : $member['aim']['link'], '
+									', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<img src="' . $member['online']['image_href'] . '" alt="' . $member['online']['text'] . '" align="bottom">' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 								</span>';
 		}
 
@@ -80,7 +79,7 @@ function template_main()
 
 		echo '
 							</td>
-							<td nowrap="nowrap">', $member['time'], '</td>
+							<td style="white-space: nowrap">', $member['time'], '</td>
 							<td>', $member['action'], '</td>
 						</tr>';
 
@@ -111,11 +110,11 @@ function template_main()
 
 	foreach ($context['show_methods'] as $value => $label)
 		echo '
-							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected="selected"' : '', '>', $label, '</option>';
+							<option value="', $value, '" ', $value == $context['show_by'] ? ' selected' : '', '>', $label, '</option>';
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" value="', $txt['go'], '" class="button_submit" />
+							<input type="submit" value="', $txt['go'], '" class="button_submit">
 						</noscript>
 					</div>
 				</div>

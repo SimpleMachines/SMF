@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function Who()
 {
-	global $context, $scripturl, $user_info, $txt, $modSettings, $memberContext, $smcFunc;
+	global $context, $scripturl, $txt, $modSettings, $memberContext, $smcFunc;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('who_view');
@@ -261,7 +261,7 @@ function Who()
  */
 function determineActions($urls, $preferred_prefix = false)
 {
-	global $txt, $user_info, $modSettings, $smcFunc, $context;
+	global $txt, $user_info, $modSettings, $smcFunc;
 
 	if (!allowedTo('who_view'))
 		return array();
@@ -520,7 +520,7 @@ function determineActions($urls, $preferred_prefix = false)
  */
 function Credits($in_admin = false)
 {
-	global $context, $smcFunc, $modSettings, $forum_copyright, $forum_version, $software_year, $boardurl, $txt, $user_info;
+	global $context, $smcFunc, $forum_copyright, $forum_version, $software_year, $txt, $user_info;
 
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');

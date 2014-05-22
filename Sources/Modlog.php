@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function ViewModlog()
 {
-	global $txt, $modSettings, $context, $scripturl, $sourcedir, $user_info, $smcFunc;
+	global $txt, $context, $scripturl, $sourcedir, $smcFunc;
 
 	// Are we looking at the moderation log or the administration log.
 	$context['log_type'] = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 3 : 1;
@@ -66,7 +66,7 @@ function ViewModlog()
 
 		$log_type = isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'adminlog' ? 'admin' : 'moderate';
 		logAction('clearlog_' . $log_type, array(), $log_type);
-		
+
 	}
 	elseif (!empty($_POST['remove']) && isset($_POST['delete']) && $context['can_delete'])
 	{
@@ -252,12 +252,12 @@ function ViewModlog()
 			),
 			'delete' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" name="all" class="input_check" onclick="invertAll(this, this.form);" />',
+					'value' => '<input type="checkbox" name="all" class="input_check" onclick="invertAll(this, this.form);">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'function' => create_function('$entry', '
-						return \'<input type="checkbox" class="input_check" name="delete[]" value="\' . $entry[\'id\'] . \'"\' . ($entry[\'editable\'] ? \'\' : \' disabled="disabled"\') . \' />\';
+						return \'<input type="checkbox" class="input_check" name="delete[]" value="\' . $entry[\'id\'] . \'"\' . ($entry[\'editable\'] ? \'\' : \' disabled\') . \'>\';
 					'),
 					'class' => 'centercol',
 				),
@@ -278,11 +278,11 @@ function ViewModlog()
 				'position' => 'below_table_data',
 				'value' => '
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
-					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text" />
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none" />
+					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">
 					' . ($context['can_delete'] ? '&nbsp;|
-					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" onclick="return confirm(\'' . $txt['modlog_remove_selected_confirm'] . '\');" class="button_submit" />
-					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" onclick="return confirm(\'' . $txt['modlog_remove_all_confirm'] . '\');" class="button_submit" />' : ''),
+					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" onclick="return confirm(\'' . $txt['modlog_remove_selected_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" onclick="return confirm(\'' . $txt['modlog_remove_all_confirm'] . '\');" class="button_submit">' : ''),
 				'class' => 'floatright',
 			),
 		),
@@ -311,12 +311,13 @@ function ViewModlog()
  * @param $query_string
  * @param $query_params
  * @param $log_type
+ * @param $ignore_boards
  */
-function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1)
+function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
 	global $smcFunc, $user_info;
 
-	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : ($user_info['mod_cache']['bq'] == '0=1' ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -351,12 +352,13 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  * @param $query_string
  * @param $query_params
  * @param $log_type
+ * @param $ignore_boards
  */
-function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1)
+function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
-	global $context, $scripturl, $txt, $smcFunc, $user_info;
+	global $scripturl, $txt, $smcFunc, $user_info;
 
-	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : ($user_info['mod_cache']['bq'] == '0=1' ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
+	$modlog_query = allowedTo('admin_forum') || $user_info['mod_cache']['bq'] == '1=1' ? '1=1' : (($user_info['mod_cache']['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr($user_info['mod_cache']['bq'], array('id_board' => 'b.id_board')) . ' AND ' . strtr($user_info['mod_cache']['bq'], array('id_board' => 't.id_board'))));
 
 	// Can they see the IP address?
 	$seeIP = allowedTo('moderate_forum');
@@ -617,7 +619,13 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 				$entries[$k]['extra'][$type] = sprintf($txt['modlog_id'], $entry['extra'][$type]);
 
 		if (isset($entry['extra']['report']))
-			$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=modlog;area=reports;report=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+		{
+			// Member profile reports go in a different area
+			if (stristr($entry['action'], 'user_report'))
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+			else
+				$entries[$k]['extra']['report'] = '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $entry['extra']['report'] . '">' . $txt['modlog_report'] . '</a>';
+		}
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];

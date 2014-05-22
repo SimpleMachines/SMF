@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function getLastPost()
 {
-	global $user_info, $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $modSettings, $smcFunc;
 
 	// Find it by the board - better to order by board than sort the entire messages table.
 	$request = $smcFunc['db_query']('substring', '
@@ -53,7 +53,7 @@ function getLastPost()
 	censorText($row['subject']);
 	censorText($row['body']);
 
-	$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled']), array('<br />' => '&#10;')));
+	$row['body'] = strip_tags(strtr(parse_bbc($row['body'], $row['smileys_enabled']), array('<br>' => '&#10;')));
 	if ($smcFunc['strlen']($row['body']) > 128)
 		$row['body'] = $smcFunc['substr']($row['body'], 0, 128) . '...';
 
@@ -75,11 +75,13 @@ function getLastPost()
  */
 function RecentPosts()
 {
-	global $txt, $scripturl, $user_info, $context, $modSettings, $sourcedir, $board, $smcFunc;
+	global $txt, $scripturl, $user_info, $context, $modSettings, $board, $smcFunc;
 
 	loadTemplate('Recent');
 	$context['page_title'] = $txt['recent_posts'];
 	$context['sub_template'] = 'recent';
+
+	$context['is_redirect'] = false;
 
 	if (isset($_REQUEST['start']) && $_REQUEST['start'] > 95)
 		$_REQUEST['start'] = 95;
@@ -114,13 +116,19 @@ function RecentPosts()
 			);
 		}
 
+		$recycling = empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0;
+
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_cat IN ({array_int:category_list})
-				AND {query_see_board}',
+				AND b.redirect = {string:empty}' . $recycle ? '
+				AND b.id_board != {int:recycle_board}' : '' . '
+				AND {query_wanna_see_board}',
 			array(
 				'category_list' => $_REQUEST['c'],
+				'empty' => '',
+				'recycle_board' => $modSettings['recycle_board'],
 			)
 		);
 		$total_cat_posts = 0;
@@ -158,11 +166,13 @@ function RecentPosts()
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:board_list})
+				AND b.redirect = {string:empty}
 				AND {query_see_board}
 			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],
 				'limit' => count($_REQUEST['boards']),
+				'empty' => '',
 			)
 		);
 		$total_posts = 0;
@@ -193,7 +203,7 @@ function RecentPosts()
 	elseif (!empty($board))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT num_posts
+			SELECT num_posts, redirect
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
 			LIMIT 1',
@@ -201,8 +211,15 @@ function RecentPosts()
 				'current_board' => $board,
 			)
 		);
-		list ($total_posts) = $smcFunc['db_fetch_row']($request);
+		list ($total_posts, $redirect) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
+
+		// If this is a redirection board, don't bother counting topics here...
+		if ($redirect != '')
+		{
+			$total_posts = 0;
+			$context['is_redirect'] = true;
+		}
 
 		$query_this_board = 'b.id_board = {int:board}';
 		$query_parameters['board'] = $board;
@@ -225,8 +242,24 @@ function RecentPosts()
 		$query_parameters['max_id_msg'] = max(0, $modSettings['maxMsgID'] - 100 - $_REQUEST['start'] * 6);
 		$query_parameters['recycle_board'] = $modSettings['recycle_board'];
 
-		// @todo This isn't accurate because we ignore the recycle bin.
-		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], min(100, $modSettings['totalMessages']), 10, false);
+		// "Borrow" some data from above...
+		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
+		$query_these_boards_params = $query_parameters;
+		unset($query_these_boards_params['max_id_msg']);
+		
+		$get_num_posts = $smcFunc['db_query']('', '
+			SELECT IFNULL(SUM(num_posts), 0)
+			FROM {db_prefix}boards AS b
+			WHERE ' . $query_these_boards . '
+				AND b.redirect = {string:empty}',
+			array_merge($query_these_boards_params, array('empty' => ''))
+		);
+
+		$num_posts = min(100, $smcFunc['db_fetch_row']($get_num_posts));
+
+		$smcFunc['db_free_result']($get_num_posts);
+
+		$context['page_index'] = constructPageIndex($scripturl . '?action=recent', $_REQUEST['start'], $num_posts, 10, false);
 	}
 
 	$context['linktree'][] = array(
@@ -234,8 +267,12 @@ function RecentPosts()
 		'name' => $context['page_title']
 	);
 
+	// If you selected a redirection board, don't try getting posts for it...
+	if ($context['is_redirect'])
+		$messages = 0;
+
 	$key = 'recent-' . $user_info['id'] . '-' . md5(serialize(array_diff_key($query_parameters, array('max_id_msg' => 0)))) . '-' . (int) $_REQUEST['start'];
-	if (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null)
+	if (!$context['is_redirect'] && (empty($modSettings['cache_enable']) || ($messages = cache_get_data($key, 120)) == null))
 	{
 		$done = false;
 		while (!$done)
@@ -334,9 +371,10 @@ function RecentPosts()
 			),
 			'topic' => $row['id_topic'],
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow">' . $row['subject'] . '</a>',
+			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '" rel="nofollow" title="' . $row['subject'] . '">' . shorten_subject($row['subject'], 30) . '</a>',
 			'start' => $row['num_replies'],
 			'subject' => $row['subject'],
+			'shorten_subject' => shorten_subject($row['subject'], 30),
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => forum_time(true, $row['poster_time']),
 			'first_poster' => array(
@@ -433,7 +471,7 @@ function UnreadTopics()
 		die;
 	}
 
-	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $settings['show_mark_read'];
+	$context['showCheckboxes'] = !empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1;
 
 	$context['showing_all_topics'] = isset($_GET['all']);
 	$context['start'] = (int) $_REQUEST['start'];
@@ -978,6 +1016,7 @@ function UnreadTopics()
 				SELECT t.id_topic, t.id_board, t.id_last_msg, IFNULL(lmr.id_msg, 0) AS id_msg' . (!in_array($_REQUEST['sort'], array('t.id_last_msg', 't.id_topic')) ? ', ' . $_REQUEST['sort'] . ' AS sort_key' : '') . '
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
+					LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
@@ -1154,6 +1193,7 @@ function UnreadTopics()
 
 	$context['topics'] = array();
 	$topic_ids = array();
+	$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0;
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
@@ -1162,13 +1202,13 @@ function UnreadTopics()
 
 		$topic_ids[] = $row['id_topic'];
 
-		if (!empty($settings['message_index_preview']))
+		if (!empty($modSettings['preview_characters']))
 		{
 			// Limit them to 128 characters - do this FIRST because it's a lot of wasted censoring otherwise.
-			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br />' => '&#10;')));
+			$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['first_body']) > 128)
 				$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, 128) . '...';
-			$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br />' => '&#10;')));
+			$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
 			if ($smcFunc['strlen']($row['last_body']) > 128)
 				$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, 128) . '...';
 
@@ -1237,6 +1277,13 @@ function UnreadTopics()
 				$context['icon_sources'][$row['last_icon']] = file_exists($settings['theme_dir'] . '/images/post/' . $row['last_icon'] . '.png') ? 'images_url' : 'default_images_url';
 		}
 
+		// Force the recycling icon if appropriate
+		if ($recycle_board == $row['id_board'])
+		{
+			$row['first_icon'] = 'recycled';
+			$row['last_icon'] = 'recycled';
+		}
+
 		// And build the array.
 		$context['topics'][$row['id_topic']] = array(
 			'id' => $row['id_topic'],
@@ -1281,8 +1328,6 @@ function UnreadTopics()
 			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
 			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-			'is_hot' => $row['num_replies'] >= $modSettings['hotTopicPosts'],
-			'is_very_hot' => $row['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 			'is_posted_in' => false,
 			'icon' => $row['first_icon'],
 			'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
@@ -1299,7 +1344,6 @@ function UnreadTopics()
 		);
 
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
-		determineTopicClass($context['topics'][$row['id_topic']]);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1321,10 +1365,7 @@ function UnreadTopics()
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			if (empty($context['topics'][$row['id_topic']]['is_posted_in']))
-			{
 				$context['topics'][$row['id_topic']]['is_posted_in'] = true;
-				$context['topics'][$row['id_topic']]['class'] = 'my_' . $context['topics'][$row['id_topic']]['class'];
-			}
 		}
 		$smcFunc['db_free_result']($result);
 	}
@@ -1332,44 +1373,41 @@ function UnreadTopics()
 	$context['querystring_board_limits'] = sprintf($context['querystring_board_limits'], $_REQUEST['start']);
 	$context['topics_to_mark'] = implode('-', $topic_ids);
 
-	if ($settings['show_mark_read'])
+	// Build the recent button array.
+	if ($is_topics)
 	{
-		// Build the recent button array.
-		if ($is_topics)
-		{
-			$context['recent_buttons'] = array(
-				'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+		$context['recent_buttons'] = array(
+			'markread' => array('text' => !empty($context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=' . (!empty($context['no_board_limits']) ? 'all' : 'board' . $context['querystring_board_limits']) . ';' . $context['session_var'] . '=' . $context['session_id']),
+		);
+
+		if ($context['showCheckboxes'])
+			$context['recent_buttons']['markselectread'] = array(
+				'text' => 'quick_mod_markread',
+				'image' => 'markselectedread.png',
+				'lang' => true,
+				'url' => 'javascript:document.quickModForm.submit();',
 			);
 
-			if ($context['showCheckboxes'])
-				$context['recent_buttons']['markselectread'] = array(
-					'text' => 'quick_mod_markread',
-					'image' => 'markselectedread.png',
-					'lang' => true,
-					'url' => 'javascript:document.quickModForm.submit();',
-				);
-
-			if (!empty($context['topics']) && !$context['showing_all_topics'])
-				$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
-		}
-		elseif (!$is_topics && isset($context['topics_to_mark']))
-		{
-			$context['recent_buttons'] = array(
-				'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-			);
-
-			if ($context['showCheckboxes'])
-				$context['recent_buttons']['markselectread'] = array(
-					'text' => 'quick_mod_markread',
-					'image' => 'markselectedread.png',
-					'lang' => true,
-					'url' => 'javascript:document.quickModForm.submit();',
-				);
-		}
-
-		// Allow mods to add additional buttons here
-		call_integration_hook('integrate_recent_buttons');
+		if (!empty($context['topics']) && !$context['showing_all_topics'])
+			$context['recent_buttons']['readall'] = array('text' => 'unread_topics_all', 'image' => 'markreadall.png', 'lang' => true, 'url' => $scripturl . '?action=unread;all' . $context['querystring_board_limits'], 'active' => true);
 	}
+	elseif (!$is_topics && isset($context['topics_to_mark']))
+	{
+		$context['recent_buttons'] = array(
+			'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=unreadreplies;topics=' . $context['topics_to_mark'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		);
+
+		if ($context['showCheckboxes'])
+			$context['recent_buttons']['markselectread'] = array(
+				'text' => 'quick_mod_markread',
+				'image' => 'markselectedread.png',
+				'lang' => true,
+				'url' => 'javascript:document.quickModForm.submit();',
+			);
+	}
+
+	// Allow mods to add additional buttons here
+	call_integration_hook('integrate_recent_buttons');
 
 	$context['no_topic_listing'] = empty($context['topics']);
 

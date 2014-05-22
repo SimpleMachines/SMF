@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -38,8 +38,7 @@ function template_newsfader()
 					</ul>
 				</div>
 			</div>
-			<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/fader.js"></script>
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				// Create a news fader object.
 				var oNewsFader = new smc_NewsFader({
 					sFaderControlId: \'smfFadeScroller\',
@@ -79,11 +78,10 @@ function template_newsfader()
 
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
-	<div id="boardindex_table" class="boardindex_table">
-		<table class="table_list">';
+	<div id="boardindex_table" class="boardindex_table">';
 
 	/* Each category in categories is made up of:
 	id, href, link, name, is_collapsed (is it collapsed?), can_collapse (is it okay if it is?),
@@ -96,32 +94,22 @@ function template_main()
 			continue;
 
 		echo '
-			<tbody class="header" id="category_', $category['id'], '">
-				<tr>
-					<td colspan="4">
-						<div class="cat_bar">
-							<h3 class="catbg">';
+		<div class="main_container">
+			<div class="cat_bar" id="category_', $category['id'], '">
+				<h3 class="catbg">';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-								<a class="collapse" href="', $category['collapse_href'], '" title="' ,$category['is_collapsed'] ? $txt['show'] : $txt['hide'] ,'">', $category['collapse_image'], '</a>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>';
 
 		echo '
-								', $category['link'], '
-							</h3>', !empty($category['description']) ? '
-							<div class="desc">' . $category['description'] . '</div>' : '', '
-						</div>
-					</td>
-				</tr>
-			</tbody>';
+					', $category['link'], '
+				</h3>', !empty($category['description']) ? '
+				<div class="desc">' . $category['description'] . '</div>' : '', '
+			</div>
+			<div id="category_', $category['id'], '_boards">';
 
-		// Assuming the category hasn't been collapsed...
-		if (!$category['is_collapsed'])
-		{
-
-		echo '
-			<tbody class="content" id="category_', $category['id'], '_boards">';
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
 			children (see below.), link_children (easier to use.), children_new (are they new?),
@@ -129,13 +117,13 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<tr id="board_', $board['id'], '" class="windowbg2">
-					<td class="windowbg icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+				<div id="board_', $board['id'], '" class="up_contain">
+					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
-					</td>
-					<td class="info">
+					</div>
+					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 				// Has it outstanding posts for approval?
@@ -154,20 +142,19 @@ function template_main()
 
 				// Show some basic information about the number of posts, etc.
 					echo '
-					</td>
-					<td class="windowbg stats">
+					</div>
+					<div class="stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
-						', $board['is_redirect'] ? '' : '<br /> '.comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
-					</td>
-					<td class="lastpost">';
+					</div>
+					<div class="lastpost">';
 
 				if (!empty($board['last_post']['id']))
 					echo '
 						<p>', $board['last_post']['last_post_message'], '</p>';
 				echo '
-					</td>
-				</tr>';
+					</div>';
 				// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 				if (!empty($board['children']))
 				{
@@ -190,30 +177,26 @@ function template_main()
 					}
 
 				echo '
-					<tr id="board_', $board['id'], '_children" class="windowbg2">
-						<td colspan="3" class="windowbg children">
-							<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
-						</td>
-					</tr>';
+					<div id="board_', $board['id'], '_children" class="children">
+						<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
+					</div>';
 				}
+
+				echo '
+					</div>';
 			}
+
 		echo '
-			</tbody>';
-		}
-		echo '
-			<tbody class="divider">
-				<tr>
-					<td colspan="4"></td>
-				</tr>
-			</tbody>';
+			</div>
+		</div>';
 	}
+
 	echo '
-		</table>
 	</div>';
 
 	// Show the mark all as read button?
-	if ($context['user']['is_logged'] && $settings['show_mark_read'] && !empty($context['categories']))
-	echo '
+	if ($context['user']['is_logged'] && !empty($context['categories']))
+		echo '
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 }
 
@@ -232,8 +215,8 @@ function template_info_center()
 	// Here's where the "Info Center" starts...
 	echo '
 	<div class="roundframe" id="info_center">
-		<div class="cat_bar">
-			<h3 class="catbg">
+		<div class="title_bar">
+			<h3 class="titlebg">
 				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
@@ -252,7 +235,7 @@ function template_info_center()
 
 	// Info center collapse object.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
@@ -293,16 +276,12 @@ function template_ic_block_recent()
 
 	// This is the "Recent Posts" bar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="" />', $txt['recent_posts'], '</a>
+			<div class="sub_bar">
+				<h4 class="subbg">
+					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
-			<div class="hslice" id="recent_posts_content">
-				<div class="entry-title" style="display: none;">', $context['forum_name_html_safe'], ' - ', $txt['recent_posts'], '</div>
-				<div class="entry-content" style="display: none;">
-					<a rel="feedurl" href="', $scripturl, '?action=.xml;type=webslice">', $txt['subscribe_webslice'], '</a>
-				</div>';
+			<div id="recent_posts_content">';
 
 	// Only show one post.
 	if ($settings['number_recent_posts'] == 1)
@@ -310,7 +289,7 @@ function template_ic_block_recent()
 		// latest_post has link, href, time, subject, short_subject (shortened with...), and topic. (its id.)
 		echo '
 				<p id="infocenter_onepost" class="inline">
-					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br />
+					<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>&nbsp;&quot;', sprintf($txt['is_recent_updated'], '&quot;' . $context['latest_post']['link'], '&quot;'), ' (', $context['latest_post']['time'], ')<br>
 				</p>';
 	}
 	// Show lots of posts.
@@ -349,9 +328,9 @@ function template_ic_block_calendar()
 
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
-					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="" />', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
+			<div class="sub_bar">
+				<h4 class="subbg">
+					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="">', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
 				</h4>
 			</div>';
 
@@ -385,7 +364,7 @@ function template_ic_block_calendar()
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 		foreach ($context['calendar_events'] as $event)
 			echo '
-					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon" /></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br />' : ', ';
+					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon"></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
 		echo '
 				</p>';
 	}
@@ -397,25 +376,25 @@ function template_ic_block_stats()
 
 	// Show statistical style information...
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_bar">
+				<h4 class="subbg">
 					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="stats_icon boards"></span>', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
 			<p class="inline">
-				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br />
-				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  ( ' . $context['latest_post']['time'] . ' )<br />' : ''), '
+				', $context['common_stats']['boardindex_total_posts'], '', !empty($settings['show_latest_member']) ? ' - '. $txt['latest_member'] . ': <strong> ' . $context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', (!empty($context['latest_post']) ? $txt['latest_post'] . ': <strong>&quot;' . $context['latest_post']['link'] . '&quot;</strong>  (' . $context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', $scripturl, '?action=recent">', $txt['recent_view'], '</a>
 			</p>';
 }
 
 function template_ic_block_online()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings, $settings;
 	// "Users online" - in order of activity.
 	echo '
-			<div class="title_barIC">
-				<h4 class="titlebg">
+			<div class="sub_bar">
+				<h4 class="subbg">
 					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="stats_icon people"></span>', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
 				</h4>
 			</div>
@@ -437,7 +416,7 @@ function template_ic_block_online()
 	echo $context['show_who'] ? '</a>' : '', '
 
 				&nbsp;-&nbsp;', $txt['most_online_today'], ': <strong>', comma_format($modSettings['mostOnlineToday']), '</strong>&nbsp;-&nbsp;
-				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br />';
+				', $txt['most_online_ever'], ': ', comma_format($modSettings['mostOnline']), ' (', timeformat($modSettings['mostDate']), ')<br>';
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty($context['users_online']))
@@ -448,7 +427,7 @@ function template_ic_block_online()
 		// Showing membergroups?
 		if (!empty($settings['show_group_key']) && !empty($context['membergroups']))
 			echo '
-				<span class="membergroups">[' . implode(',&nbsp;', $context['membergroups']). ']</span>';
+				<span class="membergroups">' . implode(',&nbsp;', $context['membergroups']). '</span>';
 	}
 
 	echo '

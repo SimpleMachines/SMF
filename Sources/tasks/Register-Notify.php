@@ -120,7 +120,7 @@ class Register_Notify_Background extends SMF_BackgroundTask
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
-					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+					sendmail($email_address, $emaildata['subject'], $emaildata['body'], null, 'newmember' . $this->_details['new_member_id'], false, 0);
 			}
 		}
 

@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function ManageSearch()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -94,7 +94,6 @@ function EditSearchSettings($return_config = false)
 			// Permission...
 			array('permissions', 'search_posts'),
 			// Some simple settings.
-			array('check', 'simpleSearch'),
 			array('check', 'search_dropdown'),
 			array('int', 'search_results_per_page'),
 			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
@@ -499,8 +498,8 @@ function CreateMessageIndex()
 		$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 		$context['step'] = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : 0;
 
-		// admin timeouts are painful when building these long indexes
-		if ($_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
+		// admin timeouts are painful when building these long indexes - but only if we actually have such things enabled
+		if (empty($modSettings['securityDisable']) && $_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
 			$_SESSION['admin_time'] = time();
 	}
 

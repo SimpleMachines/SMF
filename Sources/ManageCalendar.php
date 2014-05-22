@@ -127,8 +127,8 @@ function ModifyHolidays()
 					),
 				),
 				'sort' => array(
-					'default' => 'title',
-					'reverse' => 'title DESC',
+					'default' => 'title ASC, event_date ASC',
+					'reverse' => 'title DESC, event_date ASC',
 				)
 			),
 			'date' => array(
@@ -153,12 +153,12 @@ function ModifyHolidays()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="holiday[%1$d]" class="input_check" />',
+						'format' => '<input type="checkbox" name="holiday[%1$d]" class="input_check">',
 						'params' => array(
 							'id_holiday' => false,
 						),
@@ -174,7 +174,7 @@ function ModifyHolidays()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit" />
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">
 					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">' . $txt['holidays_add'] . '</a>',
 			),
 		),
@@ -317,6 +317,9 @@ function ModifyCalendarSettings($return_config = false)
 		$boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
 
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortBoards($boards);
+
 	// Look, all the calendar settings - of which there are many!
 	if (!empty($modSettings['cal_enabled']))
 		$config_vars = array(
@@ -361,7 +364,6 @@ function ModifyCalendarSettings($return_config = false)
 				array('check', 'cal_prev_next_links'),
 				array('check', 'cal_short_days'),
 				array('check', 'cal_short_months'),
-				array('check', 'cal_week_numbers'),
 		);
 	else
 		$config_vars = array(

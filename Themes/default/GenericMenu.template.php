@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -13,7 +13,7 @@
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
 function template_generic_menu_dropdown_above()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
@@ -64,7 +64,7 @@ function template_generic_menu_dropdown_above()
 					$url = isset($sub['url']) ? $sub['url'] : (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i) . ';sa=' . $sa;
 
 					echo '
-										<li ', !empty($area['subsections']) ? ' class="subsections"' : '', '>
+										<li>
 											<a ', !empty($sub['selected']) ? 'class="chosen" ' : '', ' href="', $url, $menu_context['extra_parameters'], '">', $sub['label'], '</a>
 										</li>';
 				}
@@ -97,8 +97,6 @@ function template_generic_menu_dropdown_above()
 // Part of the admin layer - used with admin_above to close the table started in it.
 function template_generic_menu_dropdown_below()
 {
-	global $context, $options;
-
 	echo '
 				</div>';
 }
@@ -106,7 +104,7 @@ function template_generic_menu_dropdown_below()
 // Some code for showing a tabbed view.
 function template_generic_menu_tabs(&$menu_context)
 {
-	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Handy shortcut.
 	$tab_context = &$menu_context['tab_data'];
@@ -177,10 +175,10 @@ function template_generic_menu_tabs(&$menu_context)
 			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']))
 				echo '<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
 			elseif (!empty($selected_tab['icon']) || !empty($tab_context['icon']))
-				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon" />';
+				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
-				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon" /></a>';
+				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon"></a>';
 
 			echo $tab_context['title'];
 		}

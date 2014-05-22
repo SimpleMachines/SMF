@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -13,7 +13,7 @@
 // Choose which type of report to run?
 function template_report_type()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -31,7 +31,7 @@ function template_report_type()
 	{
 		echo '
 							<dt>
-								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked="checked"' : '', ' class="input_radio" />
+								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
 								<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
 							</dt>';
 		if (isset($type['description']))
@@ -40,8 +40,8 @@ function template_report_type()
 	}
 		echo '
 						</dl>
-						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit" />
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					</div>
 				</div>
 			</div>
@@ -52,7 +52,7 @@ function template_report_type()
 // This is the standard template for showing reports in.
 function template_main()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -72,7 +72,7 @@ function template_main()
 	foreach ($context['tables'] as $table)
 	{
 		echo '
-		<table class="table_grid report_results" width="100%">';
+		<table class="table_grid report_results">';
 
 		if (!empty($table['title']))
 			echo '
@@ -134,7 +134,7 @@ function template_main()
 		echo '
 			</tbody>
 		</table>
-		<br />';
+		<br>';
 	}
 	echo '
 		</div>
@@ -144,21 +144,21 @@ function template_main()
 // Header of the print page!
 function template_print_above()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $modSettings;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css" />
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>';
 }
 
 function template_print()
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
@@ -224,7 +224,7 @@ function template_print()
 		}
 		echo '
 			</table>
-		</div><br />';
+		</div><br>';
 	}
 }
 

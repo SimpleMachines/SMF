@@ -60,9 +60,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 		);
 
 	if (!empty($db_options['persist']))
-		$connection = @pg_pconnect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'');
+		$connection = @pg_pconnect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 	else
-		$connection = @pg_connect( 'host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'');
+		$connection = @pg_connect( 'host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
 	if (!$connection)
@@ -273,9 +273,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',
@@ -286,6 +283,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
+		),
+		'cron_find_task' => array(
+			'~ORDER BY null~' => 'ORDER BY null::int'
 		),
 		'delete_subscription' => array(
 			'~LIMIT 1~' => '',
@@ -298,7 +298,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'boardindex_fetch_boards' => array(
 			'~IFNULL\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN IFNULL(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
-			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
@@ -312,9 +311,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
 		),
-		'select_message_icons' => array(
-			'~(.)$~' => '$1 ORDER BY icon_order',
-		),
 		'set_character_set' => array(
 			'~SET\\s+NAMES\\s([a-zA-Z0-9\\-_]+)~' => 'SET NAMES \'$1\'',
 		),
@@ -323,9 +319,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'top_topic_starters' => array(
 			'~ORDER BY FIND_IN_SET\(id_member,(.+?)\)~' => 'ORDER BY STRPOS(\',\' || $1 || \',\', \',\' || id_member|| \',\')',
-		),
-		'order_by_board_order' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 		'unread_replies' => array(
 			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',
@@ -563,13 +556,13 @@ function smf_db_error($db_string, $connection = null)
 	// Show an error message, if possible.
 	$context['error_title'] = $txt['database_error'];
 	if (allowedTo('admin_forum'))
-		$context['error_message'] = nl2br($query_error) . '<br />' . $txt['file'] . ': ' . $file . '<br />' . $txt['line'] . ': ' . $line;
+		$context['error_message'] = nl2br($query_error) . '<br>' . $txt['file'] . ': ' . $file . '<br>' . $txt['line'] . ': ' . $line;
 	else
 		$context['error_message'] = $txt['try_again'];
 
 	if (allowedTo('admin_forum') && isset($db_show_debug) && $db_show_debug === true)
 	{
-		$context['error_message'] .= '<br /><br />' . nl2br($db_string);
+		$context['error_message'] .= '<br><br>' . nl2br($db_string);
 	}
 
 	// It's already been logged... don't log it again.
@@ -789,7 +782,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		// Found it?
 		if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 		{
-			$log_message .= '<br />Function: ' . $step['function'];
+			$log_message .= '<br>Function: ' . $step['function'];
 			break;
 		}
 

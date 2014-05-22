@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ManageMail()
 {
-	global $context, $txt, $scripturl, $modSettings, $sourcedir;
+	global $context, $txt, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -65,13 +65,13 @@ function ManageMail()
  */
 function BrowseMailQueue()
 {
-	global $scripturl, $context, $modSettings, $txt, $smcFunc;
+	global $scripturl, $context, $txt, $smcFunc;
 	global $sourcedir;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
 	{
-		checkSession('post');
+		checkSession();
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}mail_queue
@@ -181,11 +181,11 @@ function BrowseMailQueue()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 				),
 				'data' => array(
 					'function' => create_function('$rowData', '
-						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_mail\'] . \'" class="input_check" />\';
+						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_mail\'] . \'" class="input_check">\';
 					'),
 					'class' => 'smalltext',
 				),
@@ -199,7 +199,7 @@ function BrowseMailQueue()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['quickmod_confirm'] . '\');" class="button_submit" /><a class="button_link" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['mailqueue_clear_list_warning'] . '\');">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['quickmod_confirm'] . '\');" class="button_submit"><a class="button_link" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['mailqueue_clear_list_warning'] . '\');">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 		),
 	);
@@ -343,7 +343,7 @@ function ModifyMailSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 
 	$context['settings_insert_above'] = '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		var bDay = {';
 
 	$i = 0;

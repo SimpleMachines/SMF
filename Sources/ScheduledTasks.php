@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $modSettings, $smcFunc;
+	global $time_start, $smcFunc;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
@@ -144,7 +144,7 @@ function AutoTask()
  */
 function scheduled_approval_notification()
 {
-	global $scripturl, $modSettings, $mbname, $txt, $sourcedir, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $smcFunc;
 
 	// Grab all the items awaiting approval and sort type then board - clear up any things that are no longer relevant.
 	$request = $smcFunc['db_query']('', '
@@ -348,7 +348,7 @@ function scheduled_approval_notification()
 		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
 
 		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', false, 2);
 	}
 
 	// All went well!
@@ -469,56 +469,6 @@ function scheduled_daily_maintenance()
 	));
 
 	// Log we've done it...
-	return true;
-}
-
-/**
- * Auto optimize the database?
- */
-function scheduled_auto_optimize()
-{
-	global $modSettings, $smcFunc, $db_prefix, $db_type;
-
-	// By default do it now!
-	$delay = false;
-
-	// As a kind of hack, if the server load is too great delay, but only by a bit!
-	if (!empty($modSettings['load_average']) && !empty($modSettings['loadavg_auto_opt']) && $modSettings['load_average'] >= $modSettings['loadavg_auto_opt'])
-		$delay = true;
-
-	// Otherwise are we restricting the number of people online for this?
-	if (!empty($modSettings['autoOptMaxOnline']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}log_online',
-			array(
-			)
-		);
-		list ($dont_do_it) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-
-		if ($dont_do_it > $modSettings['autoOptMaxOnline'])
-			$delay = true;
-	}
-
-	// If we are gonna delay, do so now!
-	if ($delay)
-		return false;
-
-	db_extend();
-
-	// Get all the tables.
-	$tables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
-
-	// Actually do the optimisation.
-	if ($db_type == 'sqlite')
-		$smcFunc['db_optimize_table']($tables[0]);
-	else
-		foreach ($tables as $table)
-			$smcFunc['db_optimize_table']($table);
-
-	// Return for the log...
 	return true;
 }
 
@@ -769,7 +719,7 @@ function scheduled_daily_digest()
 		$email['body'] .= "\n\n" . $txt['regards_team'];
 
 		// Send it - low priority!
-		sendmail($email['email'], $email['subject'], $email['body'], null, null, false, 4);
+		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
 	}
 
 	// Clean up...
@@ -1315,7 +1265,7 @@ function scheduled_fetchSMfiles()
  */
 function scheduled_birthdayemails()
 {
-	global $modSettings, $sourcedir, $mbname, $txt, $smcFunc, $birthdayEmails;
+	global $modSettings, $sourcedir, $txt, $smcFunc, $txtBirthdayEmails;
 
 	// Need this in order to load the language files.
 	loadEssentialThemeData();
@@ -1375,7 +1325,7 @@ function scheduled_birthdayemails()
 
 			$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 
-			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 4);
+			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
 
 			// Try to stop a timeout, this would be bad...
 			@set_time_limit(300);
@@ -1586,7 +1536,7 @@ function scheduled_weekly_maintenance()
  */
 function scheduled_paid_subscriptions()
 {
-	global $txt, $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
+	global $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
 
 	// Start off by checking for removed subscriptions.
 	$request = $smcFunc['db_query']('', '
@@ -1646,7 +1596,7 @@ function scheduled_paid_subscriptions()
 		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
 	}
 	$smcFunc['db_free_result']($request);
 

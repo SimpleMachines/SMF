@@ -34,7 +34,7 @@ $databases = array(
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysqli_get_server_info($db_connection);',
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'alter_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
@@ -54,7 +54,7 @@ $databases = array(
 		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysql_get_server_info();',
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'alter_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
@@ -69,7 +69,7 @@ $databases = array(
 		'supported' => function_exists('pg_connect'),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'utf8_support' => true,
 		'utf8_version' => '8.0',
 		'utf8_version_check' => '$request = pg_query(\'SELECT version()\'); list ($version) = pg_fetch_row($request); list($pgl, $version) = explode(" ", $version); return $version;',
@@ -121,7 +121,7 @@ $databases = array(
 		'supported' => is_callable(array('sqlite3', 'version')),
 		'always_has_db' => true,
 		'utf8_default' => true,
-		'utf8_required' => false,
+		'utf8_required' => true,
 		'utf8_support' => true,
 		'validate_prefix' => create_function('&$value', '
 			global $incontext, $txt;
@@ -232,8 +232,8 @@ function initialize_inputs()
 		session_start();
 
 		if (!headers_sent())
-			echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+			echo '<!DOCTYPE html>
+<html>
 	<head>
 		<title>', htmlspecialchars($_GET['pass_string']), '</title>
 	</head>
@@ -241,14 +241,6 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
-		exit;
-	}
-
-	// Are we calling the backup css file?
-	if (isset($_GET['infile_css']))
-	{
-		header('Content-Type: text/css');
-		template_css();
 		exit;
 	}
 
@@ -277,7 +269,6 @@ function initialize_inputs()
 			$ftp->chdir($_SESSION['installer_temp_ftp']['path']);
 
 			$ftp->unlink('install.php');
-			$ftp->unlink('webinstall.php');
 
 			foreach ($databases as $key => $dummy)
 			{
@@ -292,7 +283,6 @@ function initialize_inputs()
 		else
 		{
 			@unlink(__FILE__);
-			@unlink(dirname(__FILE__) . '/webinstall.php');
 
 			foreach ($databases as $key => $dummy)
 			{
@@ -345,8 +335,8 @@ function load_lang_file()
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 		header('Cache-Control: no-cache');
 
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+		echo '<!DOCTYPE html>
+<html>
 	<head>
 		<title>SMF Installer: Error!</title>
 	</head>
@@ -391,7 +381,7 @@ function load_lang_file()
 function load_database()
 {
 	global $db_prefix, $db_connection, $db_character_set, $sourcedir, $language;
-	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist;
+	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist, $db_port;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -412,8 +402,28 @@ function load_database()
 		if (version_compare(PHP_VERSION, '5', '<'))
 			require_once($sourcedir . '/Subs-Compat.php');
 
+		$db_options = array('persist' => $db_persist);
+		$port = '';
+
+		// Figure out the port...
+		if (!empty($_POST['db_port']))
+		{
+			if ($db_type == 'mysql' || $db_type == 'mysqli')
+			{
+				$port = ((int) $_POST['db_port'] == ini_get($db_type . 'default_port')) ? '' : (int) $_POST['db_port'];
+			}
+			elseif ($db_type == 'postgresql')
+			{
+				// PostgreSQL doesn't have a default port setting in php.ini, so just check against the default
+				$port = ((int) $_POST['db_port'] == 5432) ? '' : (int) $_POST['db_port'];
+			}
+		}
+
+		if (!empty($port))
+			$db_options['port'] = $port;
+
 		if (!$db_connection)
-			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('persist' => $db_persist));
+			$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_options);
 	}
 }
 
@@ -525,7 +535,7 @@ function Welcome()
 
 	// Mod_security blocks everything that smells funny. Let SMF handle security.
 	if (!fixModSecurity() && !isset($_GET['overmodsecurity']))
-		$incontext['error'] = $txt['error_mod_security'] . '<br /><br /><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
+		$incontext['error'] = $txt['error_mod_security'] . '<br><br><a href="' . $installurl . '?overmodsecurity=true">' . $txt['error_message_click'] . '</a> ' . $txt['error_message_bad_try_again'];
 
 	return false;
 }
@@ -540,6 +550,7 @@ function CheckFilesWritable()
 	$writable_files = array(
 		'attachments',
 		'avatars',
+		'custom_avatar',
 		'cache',
 		'Packages',
 		'Smileys',
@@ -757,8 +768,9 @@ function DatabaseSettings()
 				}
 				if (isset($db['default_password']))
 					$incontext['db']['pass'] = ini_get($db['default_password']);
-				if (isset($db['default_port']))
-					$db_port = ini_get($db['default_port']);
+
+				// For simplicity and less confusion, leave the port blank by default
+				$incontext['db']['port'] = '';
 
 				$incontext['db']['type'] = $key;
 				$foundOne = true;
@@ -773,14 +785,13 @@ function DatabaseSettings()
 		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
+
+		if (!empty($_POST['db_port']))
+			$incontext['db']['port'] = $_POST['db_port'];
 	}
 	else
 	{
 		$incontext['db']['prefix'] = 'smf_';
-
-		// Should we use a non standard port?
-		if (!empty($db_port))
-			$incontext['db']['server'] .= ':' . $db_port;
 	}
 
 	// Are we submitting?
@@ -825,6 +836,16 @@ function DatabaseSettings()
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
 		);
+
+		// Only set the port if we're not using the default
+		if (!empty($_POST['db_port']))
+		{
+			// For MySQL, we can get the "default port" from PHP. PostgreSQL has no such option though.
+			if (($db_type == 'mysql' || $db_type == 'mysqli') && $_POST['db_port'] != ini_get($db_type . '.default_port'))
+				$vars['db_port'] == (int) $_POST['db_port'];
+			elseif ($db_type == 'postgresql' && $_POST['db_port'] != 5432)
+				$vars['db_port'] == (int) $_POST['db_port'];
+		}
 
 		// God I hope it saved!
 		if (!updateSettingsFile($vars) && substr(__FILE__, 1, 2) == ':\\')
@@ -1087,7 +1108,7 @@ function DatabasePopulation()
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
 	// If the UTF-8 setting was enabled, add it to the table definitions.
-	if (empty($databases[$db_type]['utf8_required']) && isset($_POST['utf8']) && !empty($databases[$db_type]['utf8_support']))
+	if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1428,20 +1449,20 @@ function AdminAccount()
 				$db_prefix . 'members',
 				array(
 					'member_name' => 'string-25', 'real_name' => 'string-25', 'passwd' => 'string', 'email_address' => 'string',
-					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int', 'hide_email' => 'int',
+					'id_group' => 'int', 'posts' => 'int', 'date_registered' => 'int',
 					'password_salt' => 'string', 'lngfile' => 'string', 'personal_text' => 'string', 'avatar' => 'string',
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
-					'website_title' => 'string', 'website_url' => 'string', 'location' => 'string',
-					'aim' => 'string', 'icq' => 'string', 'skype' => 'string', 'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
+					'website_title' => 'string', 'website_url' => 'string',
+					'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(
 					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
-					1, 0, time(), 0,
+					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
+					'', '',
 					'', '', '',
-					'', '', '', '', '', '',
 					'', '', '',
 				),
 				array('id_member')
@@ -1450,7 +1471,7 @@ function AdminAccount()
 			// Awww, crud!
 			if ($request === false)
 			{
-				$incontext['error'] = $txt['error_user_settings_query'] . '<br />
+				$incontext['error'] = $txt['error_user_settings_query'] . '<br>
 				<div style="margin: 2ex;">' . nl2br(htmlspecialchars($smcFunc['db_error']($db_connection))) . '</div>';
 				return false;
 			}
@@ -1578,6 +1599,7 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		)
 	);
+	$context['utf8'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8';
 	if ($smcFunc['db_num_rows']($request) > 0)
 		updateStats('subject', 1, htmlspecialchars($txt['default_topic_subject']));
 	$smcFunc['db_free_result']($request);
@@ -2018,6 +2040,11 @@ function updateSettingsFile($vars)
 	fwrite($fp, $settingsArray[$i] . '?' . '>');
 	fclose($fp);
 
+	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
+	// it seems that there are times it might not. So let's MAKE it dump the cache.
+	if (function_exists('opcache_invalidate'))
+		opcache_invalidate(dirname(__FILE__) . '/Settings.php', true);
+
 	return true;
 }
 
@@ -2083,23 +2110,23 @@ function template_install_above()
 {
 	global $incontext, $txt, $smfsite, $installurl;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '" />
-		<meta name="robots" content="noindex" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21" />
-		<script type="text/javascript" src="Themes/default/scripts/script.js"></script>
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
+		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
 		<div id="header">
 			<div class="frame">
 				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
+				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
-		</div>
+
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">
@@ -2116,7 +2143,7 @@ function template_install_above()
 
 		foreach ($incontext['detected_languages'] as $lang => $name)
 			echo '
-									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected="selected"' : '', ' value="', $lang, '">', $name, '</option>';
+									<option', isset($_SESSION['installer_temp_lang']) && $_SESSION['installer_temp_lang'] == $lang ? ' selected' : '', ' value="', $lang, '">', $name, '</option>';
 
 		echo '
 								</select>
@@ -2200,7 +2227,7 @@ function template_welcome_message()
 	global $incontext, $installurl, $txt;
 
 	echo '
-	<script type="text/javascript" src="http://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
+	<script src="http://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
 		<p>', sprintf($txt['install_welcome_desc'], $GLOBALS['current_smf_version']), '</p>
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
@@ -2222,7 +2249,7 @@ function template_welcome_message()
 
 	// For the latest version stuff.
 	echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			// Latest version?
 			function smfCurrentVersion()
 			{
@@ -2307,7 +2334,7 @@ function template_chmod_files()
 
 	echo '
 		<form action="', $incontext['form_url'], '" method="post">
-			<table width="520" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 1em 0;">
+			<table align="center" style="width: 520px; margin: 1em 0; padding: 0; border: 0">
 				<tr>
 					<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
 					<td>
@@ -2365,7 +2392,7 @@ function template_database_settings()
 
 	foreach ($incontext['supported_databases'] as $key => $db)
 			echo '
-						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected="selected"' : '', '>', $db['name'], '</option>';
+						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
 
 	echo '
 					</select><div id="db_sqlite_warning" style="color: blue; display: none;" class="smalltext">', $txt['db_sqlite_warning'], '</div>
@@ -2389,6 +2416,12 @@ function template_database_settings()
 				<td>
 					<input type="text" name="db_server" id="db_server_input" value="', $incontext['db']['server'], '" size="30" class="input_text" /><br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_server_info'], '</div>
+				</td>
+			</tr><tr id="db_port_contain">
+				<td width="20%" valign="top" class="textbox"><label for="db_port_input">', $txt['db_settings_port'], ':</label></td>
+				<td>
+					<input type="text" name="db_port" id="db_port_input" value="', $incontext['db']['port'], '"><br>
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_port_info'], '</div>
 				</td>
 			</tr><tr id="db_user_contain">
 				<td valign="top" class="textbox"><label for="db_user_input">', $txt['db_settings_username'], ':</label></td>
@@ -2426,7 +2459,7 @@ function template_database_settings()
 
 	// Allow the toggling of input boxes for SQLite etc.
 	echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		function toggleDBInput()
 		{
 			// What state is it?';
@@ -2449,6 +2482,7 @@ function template_database_settings()
 			document.getElementById(\'db_name_contain\').style.display = showAll ? \'\' : \'none\';
 			document.getElementById(\'db_filename_contain\').style.display = !showAll ? \'\' : \'none\';
 			document.getElementById(\'db_sqlite_warning\').style.display = !showAll ? \'\' : \'none\';
+			document.getElementById(\'db_port_contain\').style.display = showAll ? \'\' : \'none\';
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
 				document.getElementById(\'db_name_info_warning\').style.display = \'none\';
 			else
@@ -2497,7 +2531,7 @@ function template_forum_settings()
 				<td>
 					<select name="reg_mode" id="reg_mode">
 						<optgroup label="', $txt['install_settings_reg_modes'], ':">
-							<option value="0" selected="selected">', $txt['install_settings_reg_immediate'], '</option>
+							<option value="0" selected>', $txt['install_settings_reg_immediate'], '</option>
 							<option value="1">', $txt['install_settings_reg_email'], '</option>
 							<option value="2">', $txt['install_settings_reg_admin'], '</option>
 							<option value="3">', $txt['install_settings_reg_disabled'], '</option>
@@ -2510,7 +2544,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_compress'], ':</td>
 				<td>
-					<input type="checkbox" name="compress" id="compress_check" checked="checked" class="input_check" />&nbsp;
+					<input type="checkbox" name="compress" id="compress_check" checked class="input_check" />&nbsp;
 					<label for="compress_check">', $txt['install_settings_compress_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_compress_info'], '</div>
@@ -2519,7 +2553,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_dbsession'], ':</td>
 				<td>
-					<input type="checkbox" name="dbsession" id="dbsession_check" checked="checked" class="input_check" />&nbsp;
+					<input type="checkbox" name="dbsession" id="dbsession_check" checked class="input_check" />&nbsp;
 					<label for="dbsession_check">', $txt['install_settings_dbsession_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $incontext['test_dbsession'] ? $txt['install_settings_dbsession_info1'] : $txt['install_settings_dbsession_info2'], '</div>
@@ -2528,7 +2562,7 @@ function template_forum_settings()
 			<tr>
 				<td class="textbox" style="vertical-align: top;">', $txt['install_settings_utf8'], ':</td>
 				<td>
-					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked="checked"' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled="disabled"' : '', ' />&nbsp;
+					<input type="checkbox" name="utf8" id="utf8_check"', $incontext['utf8_default'] ? ' checked' : '', ' class="input_check"', $incontext['utf8_required'] ? ' disabled' : '', ' />&nbsp;
 					<label for="utf8_check">', $txt['install_settings_utf8_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_utf8_info'], '</div>
@@ -2659,7 +2693,7 @@ function template_delete_install()
 		<div style="margin: 1ex; font-weight: bold;">
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete();" class="input_check" /> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</label>
 		</div>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			function doTheDelete()
 			{
 				var theCheck = document.getElementById ? document.getElementById("delete_self") : document.all.delete_self;

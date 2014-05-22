@@ -34,7 +34,9 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~i', create_function('$m', ' return "[nobbc]" . strtr("$m[1]", array("[" => "&#91;", "]" => "&#93;", ":" => "&#58;", "@" => "&#64;")) . "[/nobbc]";'), $message);
+	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function ($a) {
+		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
+	}, $message);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
@@ -242,7 +244,7 @@ function preparsecode(&$message, $previewing = false)
 
 	// Put it back together!
 	if (!$previewing)
-		$message = strtr(implode('', $parts), array('  ' => '&nbsp; ', "\n" => '<br />', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
+		$message = strtr(implode('', $parts), array('  ' => '&nbsp; ', "\n" => '<br>', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 	else
 		$message = strtr(implode('', $parts), array('  ' => '&nbsp; ', $context['utf8'] ? "\xC2\xA0" : "\xA0" => '&nbsp;'));
 
@@ -270,7 +272,7 @@ function un_preparsecode($message)
 			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', create_function('$m', '
 				global $smcFunc;
 
-			return "[html]" . strtr($smcFunc[\'htmlspecialchars\']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br />", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";'), $parts[$i]);
+			return "[html]" . strtr($smcFunc[\'htmlspecialchars\']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";'), $parts[$i]);
 
 			// Attempt to un-parse the time to something less awful.
 			$parts[$i] = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', create_function('$m', ' return "[time]" . timeformat("$m[1]", false) . "[/time]";'), $parts[$i]);
@@ -573,7 +575,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	if ($hotmail_fix && !$send_html)
 	{
 		$send_html = true;
-		$message = strtr($message, array($line_break => '<br />' . $line_break));
+		$message = strtr($message, array($line_break => '<br>' . $line_break));
 		$message = preg_replace('~(' . preg_quote($scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 	}
 
@@ -581,7 +583,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	list (, $subject) = mimespecialchars($subject, true, $hotmail_fix, $line_break);
 
 	// Construct the mail headers...
-	$headers = 'From: "' . $from_name . '" <' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . '>' . $line_break;
+	$headers = 'From: ' . $from_name . ' <' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . '>' . $line_break;
 	$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
 	$headers .= 'Return-Path: ' . (empty($modSettings['mail_from']) ? $webmaster_email : $modSettings['mail_from']) . $line_break;
 	$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
@@ -823,9 +825,6 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			'name' => $user_info['name'],
 			'username' => $user_info['username']
 		);
-	// Probably not needed.  /me something should be of the typer.
-	else
-		$user_info['name'] = $from['name'];
 
 	// This is the one that will go in their inbox.
 	$htmlmessage = $smcFunc['htmlspecialchars']($message, ENT_QUOTES);
@@ -1122,7 +1121,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	if (empty($modSettings['disallow_sendBody']))
 	{
 		censorText($message);
-		$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($message), false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		$message = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($smcFunc['htmlspecialchars']($message), false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 	}
 	else
 		$message = '';
@@ -1574,7 +1573,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 		censorText($row['subject']);
 		censorText($row['body']);
 		$row['subject'] = un_htmlspecialchars($row['subject']);
-		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+		$row['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($row['body'], false, $row['id_last_msg']), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 		$topicData[$row['id_topic']] = array(
 			'subject' => $row['subject'],
@@ -1950,13 +1949,9 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'unapproved_posts = unapproved_posts + {int:counter_increment}',
 			);
 		if ($topicOptions['lock_mode'] !== null)
-			$topics_columns = array(
-				'locked = {int:locked}',
-			);
+			$topics_columns[] = 'locked = {int:locked}';
 		if ($topicOptions['sticky_mode'] !== null)
-			$topics_columns = array(
-				'is_sticky = {int:is_sticky}',
-			);
+			$topics_columns[] = 'is_sticky = {int:is_sticky}';
 
 		call_integration_hook('integrate_modify_topic', array(&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions));
 
@@ -2529,7 +2524,7 @@ function sendApprovalNotifications(&$topicData)
 			censorText($topicData[$topic][$msgKey]['subject']);
 			censorText($topicData[$topic][$msgKey]['body']);
 			$topicData[$topic][$msgKey]['subject'] = un_htmlspecialchars($topicData[$topic][$msgKey]['subject']);
-			$topicData[$topic][$msgKey]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$topic][$msgKey]['body'], false), array('<br />' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
+			$topicData[$topic][$msgKey]['body'] = trim(un_htmlspecialchars(strip_tags(strtr(parse_bbc($topicData[$topic][$msgKey]['body'], false), array('<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']')))));
 
 			$topics[] = $msg['id'];
 			$digest_insert[] = array($msg['topic'], $msg['id'], 'reply', $user_info['id']);
@@ -2791,7 +2786,7 @@ function updateLastMessages($setboards, $id_msg = 0)
  */
 function adminNotify($type, $memberID, $member_name = null)
 {
-	global $txt, $modSettings, $language, $scripturl, $user_info, $context, $smcFunc;
+	global $txt, $modSettings, $language, $scripturl, $context, $smcFunc;
 
 	if ($member_name == null)
 	{
@@ -2833,7 +2828,7 @@ function adminNotify($type, $memberID, $member_name = null)
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
-	global $txt, $mbname, $scripturl, $settings, $user_info;
+	global $txt, $mbname, $scripturl, $settings;
 
 	// First things first, load up the email templates language file, if we need to.
 	if ($loadLang)
@@ -2912,9 +2907,9 @@ function user_info_callback($matches)
 
 /**
  * spell_init()
- * 
+ *
  * Sets up a dictionary resource handle. Tries enchant first then falls through to pspell.
- * 
+ *
  * @return resource|bool An enchant or pspell dictionary resource handle or false if the dictionary couldn't be loaded
  */
 function spell_init()
@@ -2934,7 +2929,7 @@ function spell_init()
 
 		// Try locale first, then general...
 		if (!empty($lang_locale) && enchant_broker_dict_exists($context['enchant_broker'], $lang_locale))
-		{			
+		{
 			$enchant_link = enchant_broker_request_dict($context['enchant_broker'], $lang_locale);
 		}
 		elseif (enchant_broker_dict_exists($context['enchant_broker'], $txt['lang_dictionary']))
@@ -2989,9 +2984,9 @@ function spell_init()
 
 /**
  * spell_check()
- * 
+ *
  * Determines whether or not the specified word is spelled correctly
- * 
+ *
  * @param resource $dict An enchant or pspell dictionary resource set up by {@link spell_init()}
  * @param string $word A word to check the spelling of
  * @return bool Whether or not the specified word is spelled properly
@@ -3019,9 +3014,9 @@ function spell_check($dict, $word)
 
 /**
  * spell_suggest()
- * 
+ *
  * Returns an array of suggested replacements for the specified word
- * 
+ *
  * @param resource $dict An enchant or pspell dictioary resource
  * @param string $word A misspelled word
  * @return array An array of suggested replacements for the misspelled word
@@ -3038,7 +3033,7 @@ function spell_suggest($dict, $word)
 			// Convert the word to UTF-8 before getting suggestions
 			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
 			$suggestions = enchant_dict_suggest($dict, $word);
-			
+
 			// Go through the suggestions and convert them back to the proper character set
 			foreach($suggestions as $index => $suggestion)
 			{

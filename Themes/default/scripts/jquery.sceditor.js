@@ -33,15 +33,15 @@
 				'<html>' +
 					'<head>' +
 						'<style>.ie * {min-height: auto !important}</style>' +
-						'<meta http-equiv="Content-Type" content="text/html;charset={charset}" />' +
-						'<link rel="stylesheet" type="text/css" href="{style}" />' +
+						'<meta http-equiv="Content-Type" content="text/html;charset={charset}">' +
+						'<link rel="stylesheet" type="text/css" href="{style}">' +
 					'</head>' +
 					'<body contenteditable="true" {spellcheck}></body>' +
 				'</html>',
 
 		toolbarButton:	'<a class="sceditor-button sceditor-button-{name}" data-sceditor-command="{name}" unselectable="on"><div unselectable="on">{dispName}</div></a>',
 
-		emoticon:	'<img src="{url}" data-sceditor-emoticon="{key}" alt="{key}" title="{tooltip}" />',
+		emoticon:	'<img src="{url}" data-sceditor-emoticon="{key}" alt="{key}" title="{tooltip}">',
 
 		fontOpt:	'<a class="sceditor-font-option" href="#" data-font="{font}"><font face="{font}">{font}</font></a>',
 
@@ -49,25 +49,25 @@
 
 		pastetext:	'<div><label for="txt">{label}</label> ' +
 				'<textarea cols="20" rows="7" id="txt"></textarea></div>' +
-				'<div><input type="button" class="button" value="{insert}" /></div>',
+				'<div><input type="button" class="button" value="{insert}"></div>',
 
-		table:		'<div><label for="rows">{rows}</label><input type="text" id="rows" value="2" /></div>' +
-				'<div><label for="cols">{cols}</label><input type="text" id="cols" value="2" /></div>' +
-				'<div><input type="button" class="button" value="{insert}" /></div>',
+		table:		'<div><label for="rows">{rows}</label><input type="text" id="rows" value="2"></div>' +
+				'<div><label for="cols">{cols}</label><input type="text" id="cols" value="2"></div>' +
+				'<div><input type="button" class="button" value="{insert}"></div>',
 
-		image:		'<div><label for="link">{url}</label> <input type="text" id="image" value="http://" /></div>' +
-				'<div><label for="width">{width}</label> <input type="text" id="width" size="2" /></div>' +
-				'<div><label for="height">{height}</label> <input type="text" id="height" size="2" /></div>' +
-				'<div><input type="button" class="button" value="{insert}" /></div>',
+		image:		'<div><label for="link">{url}</label> <input type="text" id="image" value="http://"></div>' +
+				'<div><label for="width">{width}</label> <input type="text" id="width" size="2"></div>' +
+				'<div><label for="height">{height}</label> <input type="text" id="height" size="2"></div>' +
+				'<div><input type="button" class="button" value="{insert}"></div>',
 
-		email:		'<div><label for="email">{label}</label> <input type="text" id="email" /></div>' +
-				'<div><input type="button" class="button" value="{insert}" /></div>',
+		email:		'<div><label for="email">{label}</label> <input type="text" id="email"></div>' +
+				'<div><input type="button" class="button" value="{insert}"></div>',
 
-		link:		'<div><label for="link">{url}</label> <input type="text" id="link" value="http://" /></div>' +
-				'<div><label for="des">{desc}</label> <input type="text" id="des" /></div>' +
-				'<div><input type="button" class="button" value="{ins}" /></div>',
+		link:		'<div><label for="link">{url}</label> <input type="text" id="link" value="http://"></div>' +
+				'<div><label for="des">{desc}</label> <input type="text" id="des"></div>' +
+				'<div><input type="button" class="button" value="{ins}"></div>',
 
-		youtubeMenu:	'<div><label for="link">{label}</label> <input type="text" id="link" value="http://" /></div><div><input type="button" class="button" value="{insert}" /></div>',
+		youtubeMenu:	'<div><label for="link">{label}</label> <input type="text" id="link" value="http://"></div><div><input type="button" class="button" value="{insert}"></div>',
 
 		youtube:	'<iframe width="560" height="315" src="http://www.youtube.com/embed/{id}?wmode=opaque" data-youtube-id="{id}" frameborder="0" allowfullscreen></iframe>'
 	};
@@ -356,7 +356,7 @@
 			if(options.locale && options.locale !== 'en')
 				initLocale();
 
-			$editorContainer = $('<div class="sceditor-container" />')
+			$editorContainer = $('<div class="sceditor-container">')
 				.insertAfter($original)
 				.css('z-index', options.zIndex);
 
@@ -576,9 +576,9 @@
 				exclude = (options.toolbarExclude || '').split(','),
 				groups  = options.toolbar.split('|');
 
-			$toolbar = $('<div class="sceditor-toolbar" unselectable="on" />');
+			$toolbar = $('<div class="sceditor-toolbar" unselectable="on">');
 			$.each(groups, function(idx, group) {
-				$group  = $('<div class="sceditor-group" />');
+				$group  = $('<div class="sceditor-group">');
 
 				$.each(group.split(','), function(idx, button) {
 					// The button must be a valid command and not excluded
@@ -651,9 +651,9 @@
 		 */
 		initResize = function () {
 			var	minHeight, maxHeight, minWidth, maxWidth, mouseMoveFunc, mouseUpFunc,
-				$grip       = $('<div class="sceditor-grip" />'),
+				$grip       = $('<div class="sceditor-grip">'),
 				// cover is used to cover the editor iframe so document still gets mouse move events
-				$cover      = $('<div class="sceditor-resize-cover" />'),
+				$cover      = $('<div class="sceditor-resize-cover">'),
 				startX      = 0,
 				startY      = 0,
 				startWidth  = 0,
@@ -1289,7 +1289,7 @@
 
 			$.extend(css, options.dropDownCss);
 
-			$dropdown = $('<div class="sceditor-dropdown sceditor-' + dropDownName + '" />')
+			$dropdown = $('<div class="sceditor-dropdown sceditor-' + dropDownName + '">')
 				.css(css)
 				.append(content)
 				.appendTo($('body'))
@@ -1536,11 +1536,11 @@
 		 * just be concated together.</p>
 		 *
 		 * <p>The cursor will be placed after the text param. If endText is
-		 * specified the cursor will be placed before endText, so passing:<br />
+		 * specified the cursor will be placed before endText, so passing:<br>
 		 *
 		 * '[b]', '[/b]'</p>
 		 *
-		 * <p>Would cause the cursor to be placed:<br />
+		 * <p>Would cause the cursor to be placed:<br>
 		 *
 		 * [b]Selected text|[/b]</p>
 		 *
@@ -1846,7 +1846,7 @@
 		 */
 		base.setWysiwygEditorValue = function (value) {
 			if(!value)
-				value = '<p>' + ($.sceditor.ie ? '' : '<br />') + '</p>';
+				value = '<p>' + ($.sceditor.ie ? '' : '<br>') + '</p>';
 
 			$wysiwygBody[0].innerHTML = value;
 			replaceEmoticons($wysiwygBody[0]);
@@ -2265,7 +2265,7 @@
 				if($parentNode.is('code,blockquote,pre') || $parentNode.parents('code,blockquote,pre').length !== 0)
 				{
 					lastRange = null;
-					base.wysiwygEditorInsertHtml('<br />', null, true);
+					base.wysiwygEditorInsertHtml('<br>', null, true);
 					return false;
 				}
 			}
@@ -2308,7 +2308,7 @@
 					{
 						div = $wysiwygBody[0].ownerDocument.createElement('div');
 						div.className = 'sceditor-nlf';
-						div.innerHTML = !$.sceditor.ie ? '<br />' : '';
+						div.innerHTML = !$.sceditor.ie ? '<br>' : '';
 						$wysiwygBody[0].appendChild(div);
 					}
 
@@ -2411,7 +2411,7 @@
 		/**
 		 * <p>Binds a handler to the specified events</p>
 		 *
-		 * <p>This function only binds to a limited list of supported events.<br />
+		 * <p>This function only binds to a limited list of supported events.<br>
 		 * The supported events are:
 		 * <ul>
 		 *   <li>keyup</li>
@@ -2419,7 +2419,7 @@
 		 *   <li>Keypress</li>
 		 *   <li>blur</li>
 		 *   <li>focus</li>
-		 *   <li>nodechanged<br />
+		 *   <li>nodechanged<br>
 		 *       When the current node containing the selection changes in WYSIWYG mode</li>
 		 *   <li>contextmenu</li>
 		 * </ul>
@@ -2522,7 +2522,7 @@
 				// Must use an element that isn't display:hidden or visibility:hidden for iOS
 				// so create a special blur element to use
 				if(!$blurElm)
-					$blurElm = $('<input style="position:absolute;width:0;height:0;opacity:0;border:0;padding:0;filter:alpha(opacity=0)" type="text" />').appendTo($editorContainer);
+					$blurElm = $('<input style="position:absolute;width:0;height:0;opacity:0;border:0;padding:0;filter:alpha(opacity=0)" type="text">').appendTo($editorContainer);
 
 				$blurElm.removeAttr('disabled').show().focus().blur().hide().attr('disabled', 'disabled');
 			}
@@ -2838,7 +2838,7 @@
 		 */
 		base.css = function(css) {
 			if(!inlineCss)
-				inlineCss = $('<style id="#inline" />').appendTo($wysiwygDoc.find('head'))[0];
+				inlineCss = $('<style id="#inline">').appendTo($wysiwygDoc.find('head'))[0];
 
 			if(typeof css != 'string')
 				return inlineCss.styleSheet ? inlineCss.styleSheet.cssText : inlineCss.innerHTML;
@@ -3187,7 +3187,7 @@
 			.replace(/>/g, '&gt;')
 			.replace(/ {2}/g, ' &nbsp;')
 			.replace(/\r\n|\r/g, '\n')
-			.replace(/\n/g, '<br />');
+			.replace(/\n/g, '<br>');
 	};
 
 	/**
@@ -3274,7 +3274,7 @@
 		font: {
 			_dropDown: function(editor, caller, callback) {
 				var	fonts   = editor.opts.fonts.split(','),
-					content = $('<div />'),
+					content = $('<div>'),
 					/** @private */
 					clickFunc = function () {
 						callback($(this).data('font'));
@@ -3304,7 +3304,7 @@
 		// START_COMMAND: Size
 		size: {
 			_dropDown: function(editor, caller, callback) {
-				var	content   = $('<div />'),
+				var	content   = $('<div>'),
 					/** @private */
 					clickFunc = function (e) {
 						callback($(this).data('size'));
@@ -3336,7 +3336,7 @@
 			_dropDown: function(editor, caller, callback) {
 				var	i, x, color, colors,
 					genColor     = {r: 255, g: 255, b: 255},
-					content      = $('<div />'),
+					content      = $('<div>'),
 					colorColumns = editor.opts.colors?editor.opts.colors.split('|'):new Array(21),
 					// IE is slow at string concation so use an array
 					html         = [],
@@ -3496,7 +3496,7 @@
 						html += '<tr>';
 
 						for (var col=0; col < cols; col++)
-							html += '<td>' + ($.sceditor.ie ? '' : '<br />') + '</td>';
+							html += '<td>' + ($.sceditor.ie ? '' : '<br>') + '</td>';
 
 						html += '</tr>';
 					}
@@ -3525,7 +3525,7 @@
 		code: {
 			forceNewLineAfter: ['code'],
 			exec: function () {
-				this.wysiwygEditorInsertHtml('<code>', '<br /></code>');
+				this.wysiwygEditorInsertHtml('<code>', '<br></code>');
 			},
 			tooltip: 'Code'
 		},
@@ -3554,7 +3554,7 @@
 						attrs += ' height="' + height + '"';
 
 					if(val && val !== 'http://')
-						editor.wysiwygEditorInsertHtml('<img' + attrs + ' src="' + val + '" />');
+						editor.wysiwygEditorInsertHtml('<img' + attrs + ' src="' + val + '">');
 
 					editor.closeDropDown(true);
 					e.preventDefault();
@@ -3674,7 +3674,7 @@
 				}
 				// if not add a newline to the end of the inserted quote
 				else if(this.getRangeHelper().selectedHtml() === '')
-					end = $.sceditor.ie ? '' : '<br />' + end;
+					end = $.sceditor.ie ? '' : '<br>' + end;
 
 				this.wysiwygEditorInsertHtml(before, end);
 			},
@@ -3692,8 +3692,8 @@
 						rangeHelper     = editor.getRangeHelper(),
 						startSpace      = emoticonsCompat && rangeHelper.getOuterText(true, 1)  !== ' ' ? ' ' : '',
 						endSpace        = emoticonsCompat && rangeHelper.getOuterText(false, 1) !== ' ' ? ' ' : '',
-						$content        = $('<div />'),
-						$line           = $('<div />').appendTo($content),
+						$content        = $('<div>'),
+						$line           = $('<div>').appendTo($content),
 						emoticons       = $.extend({}, editor.opts.emoticons.dropdown, includeMore ? editor.opts.emoticons.more : {}),
 						perLine         = 0;
 
@@ -3704,7 +3704,7 @@
 
 					$.each(emoticons, function(code, emoticon) {
 						$line.append(
-							$('<img />').attr({
+							$('<img>').attr({
 								src: emoticon.url || emoticon,
 								alt: code,
 								title: emoticon.tooltip || code
@@ -3715,7 +3715,7 @@
 						);
 
 						if($line.children().length >= perLine)
-							$line = $('<div />').appendTo($content);
+							$line = $('<div>').appendTo($content);
 					});
 
 					if(!includeMore)

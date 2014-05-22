@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -12,10 +12,12 @@
 
 function template_show_list($list_id = null)
 {
-	global $context, $options, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Get a shortcut to the current list.
-	$list_id = $list_id === null ? $context['default_list'] : $list_id;
+	$list_id = $list_id === null ? (!empty($context['default_list']) ? $context['default_list'] : '') : $list_id;
+	if (empty($list_id) || empty($context[$list_id]))
+		return;
 	$cur_list = &$context[$list_id];
 
 	// These are the main tabs that is used all around the template.
@@ -72,7 +74,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid" cellspacing="0" width="', !empty($cur_list['width']) ? $cur_list['width'] : '100%', '">';
+			<table class="table_grid" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
@@ -161,7 +163,7 @@ function template_show_list($list_id = null)
 	{
 		foreach ($cur_list['form']['hidden_fields'] as $name => $value)
 			echo '
-			<input type="hidden" name="', $name, '" value="', $value, '" />';
+			<input type="hidden" name="', $name, '" value="', $value, '">';
 
 		echo '
 		</div>
@@ -178,15 +180,13 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['javascript']))
 		echo '
-	<script type="text/javascript"><!-- // --><![CDATA[
+	<script><!-- // --><![CDATA[
 		', $cur_list['javascript'], '
 	// ]]></script>';
 }
 
 function template_additional_rows($row_position, $cur_list)
 {
-	global $context, $options;
-
 	foreach ($cur_list['additional_rows'][$row_position] as $row)
 		echo '
 			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>', $row['value'], '</div>';

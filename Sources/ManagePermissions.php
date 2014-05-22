@@ -193,7 +193,7 @@ function PermissionIndex()
 			'help' => $row['id_group'] == 1 ? 'membergroup_administrator' : ($row['id_group'] == 3 ? 'membergroup_moderator' : ''),
 			'is_post_group' => $row['min_posts'] != -1,
 			'color' => empty($row['online_color']) ? '' : $row['online_color'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 			'children' => array(),
 			'num_permissions' => array(
 				'allowed' => $row['id_group'] == 1 ? '(' . $txt['permissions_all'] . ')' : 0,
@@ -347,7 +347,7 @@ function PermissionIndex()
  */
 function PermissionByBoard()
 {
-	global $context, $modSettings, $txt, $smcFunc, $sourcedir, $cat_tree, $boardList, $boards;
+	global $context, $txt, $smcFunc, $sourcedir, $cat_tree, $boardList, $boards;
 
 	$context['page_title'] = $txt['permissions_boards'];
 	$context['edit_all'] = isset($_GET['edit']);
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc, $sourcedir;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
@@ -698,6 +698,7 @@ function ModifyMembergroup()
 
 	loadAllPermissions();
 	loadPermissionProfiles();
+	$context['hidden_perms'] = array();
 
 	if ($context['group']['id'] > 0)
 	{
@@ -800,11 +801,35 @@ function ModifyMembergroup()
 
 					if ($perm['has_own_any'])
 					{
-						$curPerm['any']['select'] = in_array($perm['id'] . '_any', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $permissions[$permissionType]['denied']) ? 'denied' : 'off');
-						$curPerm['own']['select'] = in_array($perm['id'] . '_own', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $permissions[$permissionType]['denied']) ? 'denied' : 'off');
+						$curPerm['any']['select'] = in_array($perm['id'] . '_any', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $permissions[$permissionType]['denied']) ? 'deny' : 'off');
+						$curPerm['own']['select'] = in_array($perm['id'] . '_own', $permissions[$permissionType]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $permissions[$permissionType]['denied']) ? 'deny' : 'off');
 					}
 					else
-						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'denied' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
+						$curPerm['select'] = in_array($perm['id'], $permissions[$permissionType]['denied']) ? 'deny' : (in_array($perm['id'], $permissions[$permissionType]['allowed']) ? 'on' : 'off');
+
+						// Keep the last value if it's hidden.
+						if ($perm['hidden'] || $permissionArray['hidden'])
+						{
+							if ($perm['has_own_any'])
+							{
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['own']['id'],
+									$curPerm['own']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['own']['select'],
+								);
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['any']['id'],
+									$curPerm['any']['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['any']['select'],
+								);
+							}
+							else
+								$context['hidden_perms'][] = array(
+									$permissionType,
+									$perm['id'],
+									$curPerm['select'] == 'deny' && !empty($modSettings['permission_enable_deny']) ? 'deny' : $curPerm['select'],
+								);
+						}
 				}
 			}
 		}
@@ -820,7 +845,7 @@ function ModifyMembergroup()
  */
 function ModifyMembergroup2()
 {
-	global $modSettings, $smcFunc, $context;
+	global $smcFunc, $context;
 
 	checkSession();
 	validateToken('admin-mp');
@@ -978,7 +1003,7 @@ function GeneralPermissionSettings($return_config = false)
 	// Saving the settings?
 	if (isset($_GET['save']))
 	{
-		checkSession('post');
+		checkSession();
 		call_integration_hook('integrate_save_permission_settings');
 		saveDBSettings($config_vars);
 
@@ -1093,7 +1118,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'delete_own',
 		'modify_own',
 		'report_any',
-		'send_topic',
 	);
 
 	// Standard - ie. members.  They can do anything Restrictive can.
@@ -1102,7 +1126,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'karma_edit',
 		'pm_read',
 		'pm_send',
-		'send_email_to_members',
 		'profile_view',
 		'profile_extra_own',
 		'profile_signature_own',
@@ -1115,6 +1138,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_remote_avatar',
 		'profile_gravatar_avatar',
 		'profile_remove_own',
+		'report_user',
 	));
 	$groupLevels['board']['standard'] = array_merge($groupLevels['board']['restrict'], array(
 		'poll_vote',
@@ -1182,7 +1206,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	$boardLevels['locked'] = array(
 		'poll_view',
 		'report_any',
-		'send_topic',
 		'view_attachments',
 	);
 
@@ -1429,7 +1452,6 @@ function loadAllPermissions()
 			'pm_send' => array(false, 'pm'),
 			'pm_draft' => array(false, 'pm'),
 			'pm_autosave_draft' => array(false, 'pm'),
-			'send_email_to_members' => array(false, 'pm'),
 			'calendar_view' => array(false, 'calendar'),
 			'calendar_post' => array(false, 'calendar'),
 			'calendar_edit' => array(true, 'calendar'),
@@ -1460,6 +1482,7 @@ function loadAllPermissions()
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
+			'view_warning' => array(true, 'profile_account'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),
@@ -1472,7 +1495,6 @@ function loadAllPermissions()
 			'post_reply' => array(true, 'topic'),
 			'merge_any' => array(false, 'topic'),
 			'split_any' => array(false, 'topic'),
-			'send_topic' => array(false, 'topic'),
 			'make_sticky' => array(false, 'topic'),
 			'move' => array(true, 'topic', 'moderate'),
 			'lock' => array(true, 'topic', 'moderate'),
@@ -1520,7 +1542,10 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'calendar_edit';
 	}
 	if ($modSettings['warning_settings'][0] == 0)
+	{
 		$hiddenPermissions[] = 'issue_warning';
+		$hiddenPermissions[] = 'view_warning';
+	}
 	if (empty($modSettings['karmaMode']))
 		$hiddenPermissions[] = 'karma_edit';
 
@@ -1941,7 +1966,7 @@ function EditPermissionProfiles()
 	// Deleting?
 	elseif (isset($_POST['delete']) && !empty($_POST['delete_profile']))
 	{
-		checkSession('post');
+		checkSession();
 		validateToken('admin-mpp');
 
 		$profiles = array();
@@ -2208,10 +2233,11 @@ function loadIllegalGuestPermissions()
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',
+		'profile_warning',
 		'profile_gravatar_avatar',
 		'remove',
 		'report_any',
-		'send_email_to_members',
+		'report_user',
 		'send_mail',
 		'split_any',
 	);

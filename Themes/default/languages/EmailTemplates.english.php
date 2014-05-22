@@ -408,46 +408,6 @@ Please log in to the forum to review these items.
 {REGARDS}';
 
 /**
-	@additional_params: send_topic
-		TOPICSUBJECT: The subject of the topic being sent.
-		SENDERNAME: The name of the member sending the topic.
-		RECPNAME: The name of the person receiving the email.
-		TOPICLINK: A link to the topic being sent.
-	@description:
-*/
-$txt['send_topic_subject'] = 'Topic: {TOPICSUBJECT} (From: {SENDERNAME})';
-$txt['send_topic_body'] = 'Dear {RECPNAME},
-I want you to check out "{TOPICSUBJECT}" on {FORUMNAME}.  To view it, please click this link:
-
-{TOPICLINK}
-
-Thanks,
-
-{SENDERNAME}';
-
-/**
-	@additional_params: send_topic_comment
-		TOPICSUBJECT: The subject of the topic being sent.
-		SENDERNAME: The name of the member sending the topic.
-		RECPNAME: The name of the person receiving the email.
-		TOPICLINK: A link to the topic being sent.
-		COMMENT: A comment left by the sender.
-	@description:
-*/
-$txt['send_topic_comment_subject'] = 'Topic: {TOPICSUBJECT} (From: {SENDERNAME})';
-$txt['send_topic_comment_body'] = 'Dear {RECPNAME},
-I want you to check out "{TOPICSUBJECT}" on {FORUMNAME}.  To view it, please click this link:
-
-{TOPICLINK}
-
-A comment has also been added regarding this topic:
-{COMMENT}
-
-Thanks,
-
-{SENDERNAME}';
-
-/**
 	@additional_params: send_email
 		EMAILSUBJECT: The subject the user wants to email.
 		EMAILBODY: The body the user wants to email.
@@ -494,6 +454,42 @@ $txt['reply_to_moderator_body'] = 'Previously, "{TOPICSUBJECT}" was reported to 
 Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
 
 The topic: {TOPICLINK}
+Moderation center: {REPORTLINK}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_user_profile
+		MEMBERNAME: The display name of the reported user
+		REPORTERNAME: The name of the person reporting the profile
+		PROFILELINK: The link to the profile that was reported
+		COMMENT: The comment left by the reporter.
+ 	@description: When a user's profile is reported
+*/
+$txt['report_member_profile_subject'] = 'Reported profile: {MEMBERNAME}';
+$txt['report_member_profile_body'] = 'The profile of "{MEMBERNAME}" has been reported by {REPORTERNAME}.
+
+The profile: {PROFILELINK}
+Moderation center: {REPORTLINK}
+
+The reporter has made the following comment:
+{COMMENT}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_user_profile
+		MEMBERNAME: The display name of the reported user
+		COMMENTERNAME: The name of the person who added the comment
+		PROFILELINK: The link to the profile that was reported
+ 	@description: When someone replies to a report about a profile, this can be sent to others who replied
+*/
+$txt['reply_to_member_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
+$txt['reply_to_member_report_body'] = 'Previously, the profile of {MEMBERNAME} was reported.
+
+Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
+
+The profile: {PROFILELINK}
 Moderation center: {REPORTLINK}
 
 {REGARDS}';
@@ -639,7 +635,7 @@ You may update your profile by visiting this page after you login:
 	@description:
 */
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_pending_body'] = 'Hello {REALNAME}, our registration request at {FORUMNAME} has been received, {REALNAME}.
+$txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
 The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 

@@ -24,6 +24,9 @@ $txt['membergroups_new_as_type'] = 'by type';
 $txt['membergroups_new_as_copy'] = 'based off of';
 $txt['membergroups_new_copy_none'] = '(none)';
 $txt['membergroups_can_edit_later'] = 'You can edit them later.';
+$txt['membergroups_can_manage_access'] = 'This group can see all boards because they have the power to manage boards.';
+
+$txt['membergroups_cannot_delete_paid'] = 'This group cannot be deleted, it is currently in use by the following paid subscription(s): %1$s';
 
 $txt['membergroups_edit_group'] = 'Edit Membergroup';
 $txt['membergroups_edit_name'] = 'Group name';

@@ -158,6 +158,9 @@ function KickGuest()
 	loadTemplate('Login');
 	createToken('login');
 
+	// Need some js goodies.
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
+
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
@@ -178,6 +181,7 @@ function InMaintenance()
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
@@ -203,6 +207,7 @@ function adminLogin($type = 'admin')
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Validate what type of session check this is.
 	$types = array();
@@ -264,7 +269,7 @@ function adminLogin_outputPostVars($k, $v)
 
 	if (!is_array($v))
 		return '
-<input type="hidden" name="' . $smcFunc['htmlspecialchars']($k) . '" value="' . strtr($v, array('"' => '&quot;', '<' => '&lt;', '>' => '&gt;')) . '" />';
+<input type="hidden" name="' . $smcFunc['htmlspecialchars']($k) . '" value="' . strtr($v, array('"' => '&quot;', '<' => '&lt;', '>' => '&gt;')) . '">';
 	else
 	{
 		$ret = '';
@@ -328,7 +333,7 @@ function construct_query_string($get)
  */
 function findMembers($names, $use_wildcards = false, $buddies_only = false, $max = 500)
 {
-	global $scripturl, $user_info, $modSettings, $smcFunc;
+	global $scripturl, $user_info, $smcFunc;
 
 	// If it's not already an array, make it one.
 	if (!is_array($names))
@@ -356,11 +361,9 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 	$results = array();
 
 	// This ensures you can't search someones email address if you can't see it.
-	$email_condition = allowedTo('moderate_forum') ? '' : 'hide_email = 0 AND ';
-
-	if ($use_wildcards || $maybe_email)
+	if (($use_wildcards || $maybe_email) && allowedTo('moderate_forum'))
 		$email_condition = '
-			OR (' . $email_condition . 'email_address ' . $comparison . ' \'' . implode( '\') OR (' . $email_condition . ' email_address ' . $comparison . ' \'', $names) . '\')';
+			OR (email_address ' . $comparison . ' \'' . implode( '\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
 	else
 		$email_condition = '';
 
@@ -370,7 +373,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 
 	// Search by username, display name, and email address.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, member_name, real_name, email_address, hide_email
+		SELECT id_member, member_name, real_name, email_address
 		FROM {db_prefix}members
 		WHERE ({raw:member_name_search}
 			OR {raw:real_name_search} {raw:email_condition})
@@ -391,7 +394,7 @@ function findMembers($names, $use_wildcards = false, $buddies_only = false, $max
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
 			'username' => $row['member_name'],
-			'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['email_address'] : '',
+			'email' => allowedTo('moderate_forum') ? $row['email_address'] : '',
 			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>'
 		);
@@ -587,7 +590,7 @@ function resetPassword($memID, $username = null)
 	$emaildata = loadEmailTemplate('change_password', $replacements, empty($lngfile) || empty($modSettings['userLanguage']) ? $language : $lngfile);
 
 	// Send them the email informing them of the change - then we're done!
-	sendmail($email, $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+	sendmail($email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $memID, false, 0);
 }
 
 /**

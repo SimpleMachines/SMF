@@ -89,7 +89,7 @@ img#smflogo {
 #overall_progress, #step_progress {
 	height: 2.3em;
 	z-index: 1;
-	background-color: #ffd000;
+	background-color: #6BB247;
 }
 
 #overall_progress_upgrade, #step_progress_upgrade {

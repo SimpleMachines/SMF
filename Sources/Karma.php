@@ -53,6 +53,9 @@ function ModifyKarma()
 	// Applauding or smiting?
 	$dir = $_REQUEST['sa'] != 'applaud' ? -1 : 1;
 
+	if (($dir == 1 && empty($modSettings['karmaApplaudLabel'])) || ($dir == -1 && empty($modSettings['karmaSmiteLabel'])))
+		fatal_lang_error('feature_disabled', false);
+
 	// Delete any older items from the log. (karmaWaitTime is by hour.)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_karma
@@ -136,11 +139,11 @@ function ModifyKarma()
 	// JavaScript as a last resort.
 	else
 	{
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+		echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>...</title>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			history.go(-1);
 		// ]]></script>
 	</head>

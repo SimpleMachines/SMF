@@ -34,7 +34,7 @@ function bbc_to_html($text, $compat_mode = false)
 		return $text;
 
 	// Turn line breaks back into br's.
-	$text = strtr($text, array("\r" => '', "\n" => '<br />'));
+	$text = strtr($text, array("\r" => '', "\n" => '<br>'));
 
 	// Prevent conversion of all bbcode inside these bbcodes.
 	// @todo Tie in with bbc permissions ?
@@ -62,7 +62,7 @@ function bbc_to_html($text, $compat_mode = false)
 	$text = parse_bbc($text, true, '', $allowed_tags);
 
 	// Fix for having a line break then a thingy.
-	$text = strtr($text, array('<br /><div' => '<div', "\n" => '', "\r" => ''));
+	$text = strtr($text, array('<br><div' => '<div', "\n" => '', "\r" => ''));
 
 	// Note that IE doesn't understand spans really - make them something "legacy"
 	$working_html = array(
@@ -76,7 +76,7 @@ function bbc_to_html($text, $compat_mode = false)
 
 	// Parse unique ID's and disable javascript into the smileys - using the double space.
 	$i = 1;
-	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley" />~', create_function('$m', 'return \'<\' . ' . 'stripslashes(\'$1\') . \'alt="" title="" onresizestart="return false;" id="smiley_\' . ' . "\$" . 'i++ . \'_$2" style="padding: 0 3px 0 3px;" />\';'), $text);
+	$text = preg_replace_callback('~(?:\s|&nbsp;)?<(img\ssrc="' . preg_quote($modSettings['smileys_url'], '~') . '/[^<>]+?/([^<>]+?)"\s*)[^<>]*?class="smiley">~', create_function('$m', 'return \'<\' . ' . 'stripslashes(\'$1\') . \'alt="" title="" onresizestart="return false;" id="smiley_\' . ' . "\$" . 'i++ . \'_$2" style="padding: 0 3px 0 3px;">\';'), $text);
 
 	return $text;
 }
@@ -99,12 +99,12 @@ function html_to_bbc($text)
 	$text = preg_replace("~\s*[\r\n]+\s*~", ' ', $text);
 
 	// Though some of us love paragraphs, the parser will do better with breaks.
-	$text = preg_replace('~</p>\s*?<p~i', '</p><br /><p', $text);
-	$text = preg_replace('~</p>\s*(?!<)~i', '</p><br />', $text);
+	$text = preg_replace('~</p>\s*?<p~i', '</p><br><p', $text);
+	$text = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $text);
 
 	// Safari/webkit wraps lines in Wysiwyg in <div>'s.
 	if (isBrowser('webkit'))
-		$text = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br />', ''), $text);
+		$text = preg_replace(array('~<div(?:\s(?:[^<>]*?))?' . '>~i', '</div>'), array('<br>', ''), $text);
 
 	// If there's a trailing break get rid of it - Firefox tends to add one.
 	$text = preg_replace('~<br\s?/?' . '>$~i', '', $text);
@@ -123,7 +123,7 @@ function html_to_bbc($text)
 				$parts[$i] = strip_tags($parts[$i]);
 		}
 
-		$text = strtr(implode('', $parts), array('#smf_br_spec_grudge_cool!#' => '<br />'));
+		$text = strtr(implode('', $parts), array('#smf_br_spec_grudge_cool!#' => '<br>'));
 	}
 
 	// Remove scripts, style and comment blocks.
@@ -1377,7 +1377,7 @@ function getMessageIcons($board_id)
 			array('value' => 'xx', 'name' => $txt['standard']),
 			array('value' => 'thumbup', 'name' => $txt['thumbs_up']),
 			array('value' => 'thumbdown', 'name' => $txt['thumbs_down']),
-			array('value' => 'exclamation', 'name' => $txt['excamation_point']),
+			array('value' => 'exclamation', 'name' => $txt['exclamation_point']),
 			array('value' => 'question', 'name' => $txt['question_mark']),
 			array('value' => 'lamp', 'name' => $txt['lamp']),
 			array('value' => 'smiley', 'name' => $txt['icon_smiley']),
@@ -1400,7 +1400,7 @@ function getMessageIcons($board_id)
 	{
 		if (($temp = cache_get_data('posting_icons-' . $board_id, 480)) == null)
 		{
-			$request = $smcFunc['db_query']('select_message_icons', '
+			$request = $smcFunc['db_query']('', '
 				SELECT title, filename
 				FROM {db_prefix}message_icons
 				WHERE id_board IN (0, {int:board_id})
@@ -1499,7 +1499,7 @@ function create_control_richedit($editorOptions)
 			if (!isset($_REQUEST['xml']))
 				$context['insert_after_template'] .= '
 		<form name="spell_form" id="spell_form" method="post" accept-charset="' . $context['character_set'] . '" target="spellWindow" action="' . $scripturl . '?action=spellcheck">
-			<input type="hidden" name="spellstring" value="" />
+			<input type="hidden" name="spellstring" value="">
 		</form>';
 		}
 	}
@@ -1520,6 +1520,7 @@ function create_control_richedit($editorOptions)
 		'preview_type' => isset($editorOptions['preview_type']) ? (int) $editorOptions['preview_type'] : 1,
 		'labels' => !empty($editorOptions['labels']) ? $editorOptions['labels'] : array(),
 		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
+		'required' => !empty($editorOptions['required']),
 	);
 
 	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.
@@ -1919,7 +1920,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($settings['show_bbc']);
+	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($modSettings['admin_bbc']);
 
 	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
 	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
@@ -1937,7 +1938,7 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $txt, $modSettings, $options, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 	global $context, $user_info, $sourcedir, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
@@ -1977,7 +1978,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// Add javascript for the object.
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'] && !WIRELESS)
 		$context['insert_after_template'] .= '
-			<script type="text/javascript"><!-- // --><![CDATA[
+			<script><!-- // --><![CDATA[
 				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
 			// ]]></script>';
 
@@ -2341,6 +2342,7 @@ function AutoSuggest_Search_MemberGroups()
  */
 function AutoSuggest_Search_SMFVersions()
 {
+	global $smcFunc;
 
 	$xml_data = array(
 		'items' => array(
@@ -2349,46 +2351,35 @@ function AutoSuggest_Search_SMFVersions()
 		),
 	);
 
-	$versions = array(
-		'SMF 1.1',
-		'SMF 1.1.1',
-		'SMF 1.1.2',
-		'SMF 1.1.3',
-		'SMF 1.1.4',
-		'SMF 1.1.5',
-		'SMF 1.1.6',
-		'SMF 1.1.7',
-		'SMF 1.1.8',
-		'SMF 1.1.9',
-		'SMF 1.1.10',
-		'SMF 1.1.11',
-		'SMF 1.1.12',
-		'SMF 1.1.13',
-		'SMF 1.1.14',
-		'SMF 1.1.15',
-		'SMF 1.1.16',
-		'SMF 1.1.17',
-		'SMF 1.1.18',
-		'SMF 1.1.19',
-		'SMF 2.0 beta 1',
-		'SMF 2.0 beta 1.2',
-		'SMF 2.0 beta 2',
-		'SMF 2.0 beta 3',
-		'SMF 2.0 beta 4',
-		'SMF 2.0 RC1',
-		'SMF 2.0 RC1.2',
-		'SMF 2.0 RC2',
-		'SMF 2.0 RC3',
-		'SMF 2.0 RC4',
-		'SMF 2.0 RC5',
-		'SMF 2.0',
-		'SMF 2.0.1',
-		'SMF 2.0.2',
-		'SMF 2.0.3',
-		'SMF 2.0.4',
-		'SMF 2.0.5',
-		'SMF 2.0.6',
+	// First try and get it from the database.
+	$versions = array();
+	$request = $smcFunc['db_query']('', '
+		SELECT data
+		FROM {db_prefix}admin_info_files
+		WHERE filename = {string:latest_versions}
+			AND path = {string:path}',
+		array(
+			'latest_versions' => 'latest-versions.txt',
+			'path' => '/smf/',
+		)
 	);
+	if (($smcFunc['db_num_rows']($request) > 0) && ($row = $smcFunc['db_fetch_assoc']($request)) && !empty($row['data']))
+	{
+		// The file can be either Windows or Linux line endings, but let's ensure we clean it as best we can.
+		$possible_versions = explode("\n", $row['data']);
+		foreach ($possible_versions as $ver)
+		{
+			$ver = trim($ver);
+			if (strpos($ver, 'SMF') === 0)
+				$versions[] = $ver;
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Just in case we don't have ANYthing.
+	if (empty($versions))
+		$versions = array('SMF 2.0');
+	
 
 	foreach ($versions as $id => $version)
 		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)

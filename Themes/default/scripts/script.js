@@ -313,7 +313,7 @@ function reqWin(desktopURL, alternateWidth, alternateHeight, noScrollbars)
 function reqOverlayDiv(desktopURL, sHeader, sIcon)
 {
 	// Set up our div details
-	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif" /></div>';
+	var sAjax_indicator = '<div class="centertext"><img src="' + smf_images_url + '/loading_sm.gif"></div>';
 	var sIcon = smf_images_url + '/' + (typeof(sIcon) == 'string' ? sIcon : 'helptopics.png');
 	var sHeader = typeof(sHeader) == 'string' ? sHeader : help_popup_heading_text;
 
@@ -358,7 +358,7 @@ smc_PopupMenu.prototype.add = function (sItem, sUrl)
 		e.preventDefault();
 		if (e.target != this)
 			return;
-			
+
 		e.data.obj.toggle(sItem);
 	});
 }
@@ -388,7 +388,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 
 	// Now set up closing the menu if we click off.
 	$(document).on('click.menu', {obj: this}, function(e) {
-		if ($(e.target).closest('#top_info').length)
+		if ($(e.target).closest(e.data.obj.opt.menus[sItem].menuObj.parent()).length)
 			return;
 		e.data.obj.closeAll();
 		$(document).off('click.menu');
@@ -424,7 +424,7 @@ smc_Popup.prototype.show = function ()
 	if (this.opt.icon_class)
 		icon = '<span class="' + this.opt.icon_class + '"></span> ';
 	else
-		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt="" /> ' : '';
+		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
 	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
@@ -647,10 +647,10 @@ function selectRadioByName(oRadioGroup, sName)
 	return false;
 }
 
-function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue)
+function selectAllRadio(oInvertCheckbox, oForm, sMask, sValue, bIgnoreDisabled)
 {
 	for (var i = 0; i < oForm.length; i++)
-		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue)
+		if (oForm[i].name != undefined && oForm[i].name.substr(0, sMask.length) == sMask && oForm[i].value == sValue && (!oForm[i].disabled || (typeof(bIgnoreDisabled) == 'boolean' && bIgnoreDisabled)))
 			oForm[i].checked = true;
 }
 
@@ -700,47 +700,6 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 	var tempImage = new Image();
 	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + option + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
 }
-
-function smf_avatarResize()
-{
-	var possibleAvatars = document.getElementsByTagName('img');
-
-	for (var i = 0; i < possibleAvatars.length; i++)
-	{
-		var tempAvatars = []; j = 0;
-		if (possibleAvatars[i].className != 'avatar')
-			continue;
-
-		// Image.prototype.avatar = possibleAvatars[i];
-		tempAvatars[j] = new Image();
-		tempAvatars[j].avatar = possibleAvatars[i];
-
-		tempAvatars[j].onload = function()
-		{
-			this.avatar.width = this.width;
-			this.avatar.height = this.height;
-			if (smf_avatarMaxWidth != 0 && this.width > smf_avatarMaxWidth)
-			{
-				this.avatar.height = (smf_avatarMaxWidth * this.height) / this.width;
-				this.avatar.width = smf_avatarMaxWidth;
-			}
-			if (smf_avatarMaxHeight != 0 && this.avatar.height > smf_avatarMaxHeight)
-			{
-				this.avatar.width = (smf_avatarMaxHeight * this.avatar.width) / this.avatar.height;
-				this.avatar.height = smf_avatarMaxHeight;
-			}
-		}
-		tempAvatars[j].src = possibleAvatars[i].src;
-		j++;
-	}
-
-	if (typeof(window_oldAvatarOnload) != 'undefined' && window_oldAvatarOnload)
-	{
-		window_oldAvatarOnload();
-		window_oldAvatarOnload = null;
-	}
-}
-
 
 function hashLoginPassword(doForm, cur_session_id, token)
 {
@@ -1013,7 +972,7 @@ smc_Toggle.prototype.changeState = function(bCollapse, bInit)
 		var oContainer = document.getElementById(this.opt.aSwappableContainers[i]);
 		if (typeof(oContainer) == 'object' && oContainer != null)
 		{
-			if (!!this.opt.bNoAnimate)
+			if (!!this.opt.bNoAnimate || bInit)
 			{
 				$(oContainer).toggle(!bCollapse);
 			}
@@ -1158,7 +1117,7 @@ JumpTo.prototype.showSelect = function ()
 	var sChildLevelPrefix = '';
 	for (var i = this.opt.iCurBoardChildLevel; i > 0; i--)
 		sChildLevelPrefix += this.opt.sBoardChildLevelIndicator;
-	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled="disabled" ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select" ' + ('implementation' in document ? '' : 'onmouseover="grabJumpToContent(this);" ') + ('onbeforeactivate' in document ? 'onbeforeactivate' : 'onfocus') + '="grabJumpToContent(this);"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';" />' : '')));
+	setInnerHTML(document.getElementById(this.opt.sContainerId), this.opt.sJumpToTemplate.replace(/%select_id%/, this.opt.sContainerId + '_select').replace(/%dropdown_list%/, '<select ' + (this.opt.bDisabled == true ? 'disabled ' : '') + (this.opt.sClassName != undefined ? 'class="' + this.opt.sClassName + '" ' : '') + 'name="' + (this.opt.sCustomName != undefined ? this.opt.sCustomName : this.opt.sContainerId + '_select') + '" id="' + this.opt.sContainerId + '_select" ' + ('implementation' in document ? '' : 'onmouseover="grabJumpToContent(this);" ') + ('onbeforeactivate' in document ? 'onbeforeactivate' : 'onfocus') + '="grabJumpToContent(this);"><option value="' + (this.opt.bNoRedirect != undefined && this.opt.bNoRedirect == true ? this.opt.iCurBoardId : '?board=' + this.opt.iCurBoardId + '.0') + '">' + sChildLevelPrefix + this.opt.sBoardPrefix + this.opt.sCurBoardName.removeEntities() + '</option></select>&nbsp;' + (this.opt.sGoButtonLabel != undefined ? '<input type="button" class="button_submit" value="' + this.opt.sGoButtonLabel + '" onclick="window.location.href = \'' + smf_prepareScriptUrl(smf_scripturl) + 'board=' + this.opt.iCurBoardId + '.0\';">' : '')));
 	this.dropdownList = document.getElementById(this.opt.sContainerId + '_select');
 }
 
@@ -1260,7 +1219,7 @@ IconList.prototype.initIcons = function ()
 {
 	for (var i = document.images.length - 1, iPrefixLength = this.opt.sIconIdPrefix.length; i >= 0; i--)
 		if (document.images[i].id.substr(0, iPrefixLength) == this.opt.sIconIdPrefix)
-			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '" style="margin: 0px; padding: ' + (is_ie ? '3px' : '3px 0px 3px 0px') + ';" /></div>');
+			setOuterHTML(document.images[i], '<div title="' + this.opt.sLabelIconList + '" onclick="' + this.opt.sBackReference + '.openPopup(this, ' + document.images[i].id.substr(iPrefixLength) + ')" onmouseover="' + this.opt.sBackReference + '.onBoxHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onBoxHover(this, false)" style="background: ' + this.opt.sBoxBackground + '; cursor: pointer; padding: 3px; text-align: center;"><img src="' + document.images[i].src + '" alt="' + document.images[i].alt + '" id="' + document.images[i].id + '" style="margin: 0px; padding: ' + (is_ie ? '3px' : '3px 0px 3px 0px') + ';"></div>');
 }
 
 // Event for the mouse hovering over the original icon.
@@ -1316,7 +1275,7 @@ IconList.prototype.onIconsReceived = function (oXMLDoc)
 	var sItems = '';
 
 	for (var i = 0, n = icons.length; i < n; i++)
-		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle" /></span>';
+		sItems += '<span onmouseover="' + this.opt.sBackReference + '.onItemHover(this, true)" onmouseout="' + this.opt.sBackReference + '.onItemHover(this, false);" onmousedown="' + this.opt.sBackReference + '.onItemMouseDown(this, \'' + icons[i].getAttribute('value') + '\');" style="padding: 2px 3px; line-height: 20px; border: ' + this.opt.sItemBorder + '; background: ' + this.opt.sItemBackground + '"><img src="' + icons[i].getAttribute('url') + '" alt="' + icons[i].getAttribute('name') + '" title="' + icons[i].firstChild.nodeValue + '" style="vertical-align: middle"></span>';
 
 	setInnerHTML(this.oContainerDiv, sItems);
 	this.oContainerDiv.style.display = 'block';
@@ -1584,12 +1543,16 @@ function pollOptions()
 function generateDays(offset)
 {
 	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : 0;
+	offset = typeof(offset) != 'undefined' ? offset : '';
 
 	var days = 0, selected = 0;
 	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
 
-	monthLength[1] = 28;
+	var monthLength = [
+		31, 28, 31, 30,
+		31, 30, 31, 31,
+		30, 31, 30, 31
+	];
 	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
 		monthLength[1] = 29;
 
@@ -1695,3 +1658,31 @@ function updateAuthMethod()
 		document.getElementById("auth_pass_div").style.display = "none";
 	}
 }
+
+$(document).ready(function() {
+	if (smf_member_id > 0)
+		$('div.boardindex_table div.cat_bar').each(function(index, el)
+		{
+			var catid = el.id.replace('category_', '');
+			new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
+				aSwappableContainers: [
+					'category_' + catid + '_boards'
+				],
+				aSwapImages: [
+					{
+						sId: 'category_' + catid + '_upshrink',
+						msgExpanded: '',
+						msgCollapsed: ''
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: 'collapse_category_' + catid,
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id
+				}
+			});
+		});
+});

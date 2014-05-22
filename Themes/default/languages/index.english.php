@@ -111,9 +111,9 @@ $txt['replies'] = 'Replies';
 $txt['last_post'] = 'Last post';
 $txt['first_post'] = 'First post';
 $txt['last_poster'] = 'Last post by';
-$txt['last_post_message'] = '<strong>Last post: </strong>%3$s<br />%2$s by %1$s';
-$txt['last_post_topic'] = '%1$s<br />by %2$s';
-$txt['post_by_member'] = '<strong>%1$s</strong> by <strong>%2$s</strong><br />';
+$txt['last_post_message'] = '<strong>Last post: </strong>%3$s<br>%2$s by %1$s';
+$txt['last_post_topic'] = '%1$s<br>by %2$s';
+$txt['post_by_member'] = '<strong>%1$s</strong> by <strong>%2$s</strong><br>';
 $txt['boardindex_total_posts'] = '%1$s Posts in %2$s Topics by %3$s Members';
 $txt['show'] = 'Show';
 $txt['hide'] = 'Hide';
@@ -122,6 +122,12 @@ $txt['admin_login'] = 'Administration Login';
 // Use numeric entities in the below string.
 $txt['topic'] = 'Topic';
 $txt['help'] = 'Help';
+$txt['terms_and_rules'] = 'Terms and Rules';
+$txt['watch_board'] = 'Watch this Board';
+$txt['unwatch_board'] = 'Stop Watching Board';
+$txt['watch_topic'] = 'Watch this Topic';
+$txt['unwatch_topic'] = 'Stop Watching Topic';
+$txt['watching_this_topic'] = 'You are watching this topic, and will receive notifications about it.';
 $txt['notify'] = 'Notify';
 $txt['unnotify'] = 'Unnotify';
 $txt['notify_request'] = 'Do you want a notification email if someone replies to this topic?';
@@ -152,10 +158,11 @@ $txt['msg_alert_one_message'] = 'you have <a href="%1$s">1 message</a>';
 $txt['msg_alert_many_message'] = 'you have <a href="%1$s">%2$d messages</a>';
 $txt['msg_alert_one_new'] = '1 is new';
 $txt['msg_alert_many_new'] = '%1$d are new';
-$txt['remove_message'] = 'Remove this message';
+$txt['remove_message'] = 'Remove this post';
 
 $txt['topic_alert_none'] = 'No messages...';
 $txt['pm_alert_none'] = 'No messages...';
+$txt['no_messages'] = 'No messages';
 
 $txt['online_users'] = 'Users Online';
 $txt['jump_to'] = 'Jump to';
@@ -203,14 +210,14 @@ $txt['female'] = 'Female';
 
 $txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
 
-$txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%2$s">login</a>.';
+$txt['welcome_guest'] = 'Welcome, <strong>%1$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a>.';
 
 //$txt['welcome_guest_register'] = 'Welcome, <strong>%1$s</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
-$txt['welcome_guest_register'] = 'Welcome to <strong>' . $context['forum_name'] . '</strong>. Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
+$txt['welcome_guest_register'] = 'Welcome to <strong>%2$s</strong>. Please <a href="%3$s" onclick="%4$s">login</a> or <a href="%5$s">register</a>.';
 
 $txt['please_login'] = 'Please <a href="' . $scripturl . '?action=login">login</a>.';
 $txt['login_or_register'] = 'Please <a href="' . $scripturl . '?action=login">login</a> or <a href="' . $scripturl . '?action=register">register</a>.';
-$txt['welcome_guest_activate'] = '<br />Did you miss your <a href="' . $scripturl . '?action=activate">activation email</a>?';
+$txt['welcome_guest_activate'] = '<br>Did you miss your <a href="' . $scripturl . '?action=activate">activation email</a>?';
 // @todo the following to sprintf
 $txt['hello_member'] = 'Hey,';
 // Use numeric entities in the below string.
@@ -271,7 +278,6 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
-$txt['topic_sent'] = 'Your email has been sent successfully.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';
@@ -287,8 +293,6 @@ $txt['ban_continue_browse'] = 'You may continue to browse the forum as a guest.'
 
 $txt['mark_as_read'] = 'Mark ALL messages as read';
 
-$txt['hot_topics'] = 'Hot Topic (More than %1$d replies)';
-$txt['very_hot_topics'] = 'Very Hot Topic (More than %1$d replies)';
 $txt['locked_topic'] = 'Locked Topic';
 $txt['normal_topic'] = 'Normal Topic';
 $txt['participation_caption'] = 'Topic you have posted in';
@@ -328,17 +332,6 @@ $txt['days_word'] = 'days';
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
 
-$txt['aim'] = 'AIM';
-// In this string, please use +'s for spaces.
-$txt['aim_default_message'] = 'Hi.+Are+you+there?';
-$txt['aim_title'] = 'AOL Instant Messenger';
-$txt['icq'] = 'ICQ';
-$txt['icq_title'] = 'ICQ Messenger';
-$txt['yim'] = 'YIM';
-$txt['yim_title'] = 'Yahoo Instant Messenger';
-
-$txt['skype'] = 'Skype';
-
 $txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
 $txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
 
@@ -365,15 +358,6 @@ $txt['send_topic'] = 'Send this topic';
 $txt['watch'] = 'Watch';
 $txt['unwatch'] = 'Stop watching';
 
-$txt['sendtopic_title'] = 'Send the topic &quot;%1$s&quot; to a friend.';
-$txt['sendtopic_sender_name'] = 'Your name';
-$txt['sendtopic_sender_email'] = 'Your email address';
-$txt['sendtopic_receiver_name'] = 'Recipient\'s name';
-$txt['sendtopic_receiver_email'] = 'Recipient\'s email address';
-$txt['sendtopic_comment'] = 'Add a comment';
-
-$txt['allow_user_email'] = 'Allow users to email me';
-
 $txt['check_all'] = 'Check all';
 
 // Use numeric entities in the below string.
@@ -385,8 +369,9 @@ $txt['line'] = 'Line';
 $txt['tried_to_repair'] = 'SMF has detected and automatically tried to repair an error in your database.  If you continue to have problems, or continue to receive these emails, please contact your host.';
 $txt['database_error_versions'] = '<strong>Note:</strong> It appears that your database <em>may</em> require an upgrade. Your forum\'s files are currently at version %1$s, while your database is at version %2$s. The above error might possibly go away if you execute the latest version of upgrade.php.';
 $txt['template_parse_error'] = 'Template Parse Error!';
-$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br /><br />You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-$txt['template_parse_error_details'] = 'There was a problem loading the <tt><strong>%1$s</strong></tt> template or language file.  Please check the syntax and try again - remember, single quotes (<tt>\'</tt>) often have to be escaped with a slash (<tt>\\</tt>).  To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s">accessing the file directly</a>.<br /><br />You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
+$txt['template_parse_error_details'] = 'There was a problem loading the <tt><strong>%1$s</strong></tt> template or language file.  Please check the syntax and try again - remember, single quotes (<tt>\'</tt>) often have to be escaped with a slash (<tt>\\</tt>).  To see more specific error information from PHP, try <a href="' . $boardurl . '%1$s">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="' . $scripturl . '?theme=1">use the default theme</a>.';
+$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
 
 $txt['today'] = '<strong>Today</strong> at ';
 $txt['yesterday'] = '<strong>Yesterday</strong> at ';
@@ -412,7 +397,9 @@ $txt['forever'] = 'Forever';
 $txt['quick_login_dec'] = 'Login with username, password and session length';
 $txt['one_hour'] = '1 Hour';
 $txt['moved'] = 'MOVED';
-$txt['moved_why'] = 'Please enter a brief description as to<br />why this topic is being moved.';
+$txt['moved_why'] = 'Please enter a brief description as to<br>why this topic is being moved.';
+$txt['merged_subject'] = '[MERGED] %1$s';
+$txt['merged_body'] = 'This topic has been merged into [url=%1$s]%2$s[/url].';
 $txt['board'] = 'Board';
 $txt['in'] = 'in';
 $txt['sticky_topic'] = 'Sticky Topic';
@@ -446,7 +433,7 @@ $txt['split_after_and_this_post'] = 'Split topic after and including this post.'
 $txt['select_split_posts'] = 'Select posts to split.';
 $txt['new_topic'] = 'New Topic';
 $txt['split_successful'] = 'Topic successfully split into two topics.';
-$txt['origin_topic'] = 'Origin Topic';
+$txt['origin_topic'] = 'Original Topic';
 $txt['please_select_split'] = 'Please select which posts you wish to split.';
 $txt['merge_successful'] = 'Topics successfully merged.';
 $txt['new_merged_topic'] = 'Newly Merged Topic';
@@ -475,6 +462,7 @@ $txt['cache_writable'] = 'The cache directory is not writable - this will advers
 $txt['page_created_full'] = 'Page created in %1$.3f seconds with %2$d queries.';
 
 $txt['report_to_mod_func'] = 'Use this function to inform the moderators and administrators of an abusive or wrongly posted message.';
+$txt['report_profile_func'] = 'Use this function to inform the administrators of abusive profile content, such as spam or inappropriate images.';
 
 $txt['online'] = 'Online';
 $txt['member_is_online'] = '%1$s is online';
@@ -487,8 +475,7 @@ $txt['status'] = 'Status';
 $txt['go_up'] = 'Go Up';
 $txt['go_down'] = 'Go Down';
 
-$forum_copyright = '<a href="' . $scripturl . '?action=credits" title="Simple Machines Forum" class="new_win">%1$s</a> |
- <a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">SMF &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
+$forum_copyright = '<a href="http://www.simplemachines.org/about/smf/license.php" title="License" target="_blank" class="new_win">%1$s &copy; %2$s</a>, <a href="http://www.simplemachines.org" title="Simple Machines" target="_blank" class="new_win">Simple Machines</a>';
 
 $txt['birthdays'] = 'Birthdays:';
 $txt['events'] = 'Events:';
@@ -514,6 +501,8 @@ $txt['calendar_upcoming'] = 'Upcoming Calendar';
 $txt['calendar_today'] = 'Today\'s Calendar';
 $txt['calendar_week'] = 'Week';
 $txt['calendar_week_title'] = 'Week %1$d of %2$d';
+// %1$s is the month, %2$s is the day, %3$s is the year. Change to suit your language.
+$txt['calendar_week_beginning'] = 'Week beginning %1$s %2$s, %3$s';
 $txt['calendar_numb_days'] = 'Number of Days:';
 $txt['calendar_how_edit'] = 'how do you edit these events?';
 $txt['calendar_link_event'] = 'Link Event To Post:';
@@ -536,6 +525,7 @@ $txt['theme_template_error'] = 'Unable to load the \'%1$s\' template.';
 $txt['theme_language_error'] = 'Unable to load the \'%1$s\' language file.';
 
 $txt['sub_boards'] = 'Sub-Boards';
+$txt['restricted_board'] = 'Restricted Board';
 
 $txt['smtp_no_connect'] = 'Could not connect to SMTP host';
 $txt['smtp_port_ssl'] = 'SMTP port setting incorrect; it should be 465 for SSL servers.';
@@ -606,6 +596,11 @@ $txt['notification_disable_topic'] = 'Are you sure you wish to disable notificat
 
 $txt['like'] = 'Like';
 $txt['unlike'] = 'Unlike';
+$txt['like_success'] = 'Your content was successfully liked.';
+$txt['like_delete'] = 'Your content was successfully deleted.';
+$txt['like_insert'] = 'Your content was successfully inserted.';
+$txt['like_error'] = 'There was en error with your request.';
+$txt['not_valid_like_type'] = 'The liked type is not a valid type.';
 // Translators, if you need to make more strings to suit your language, e.g. $txt['likes_2'] = 'Two people like this', please do so.
 $txt['likes_1'] = '<a href="%1$s">1 person</a> likes this.';
 $txt['likes_n'] = '<a href="%1$s">%2$s people</a> like this.';
@@ -614,6 +609,7 @@ $txt['you_likes_1'] = 'You and <a href="%1$s">1 other person</a> like this.';
 $txt['you_likes_n'] = 'You and <a href="%1$s">%2$s other people</a> like this.';
 
 $txt['report_to_mod'] = 'Report to moderator';
+$txt['report_profile'] = 'Report profile of %1$s';
 
 $txt['unread_topics_visit'] = 'Recent Unread Topics';
 $txt['unread_topics_visit_none'] = 'No unread topics found since your last visit.  <a href="' . $scripturl . '?action=unread;all">Click here to try all unread topics</a>.';
@@ -704,7 +700,7 @@ $txt['quickmod_delete_selected'] = 'Remove Selected';
 $txt['quickmod_split_selected'] = 'Split Selected';
 
 $txt['show_personal_messages_heading'] = 'New messages';
-$txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal messages in your inbox.<br /><br /><a href="%2$s">Go to your inbox</a>';
+$txt['show_personal_messages'] = 'You have <strong>%1$s</strong> unread personal messages in your inbox.<br><br><a href="%2$s">Go to your inbox</a>';
 
 $txt['help_popup'] = 'A little lost? Let me explain:';
 
@@ -722,7 +718,7 @@ $txt['preview_fetch'] = 'Fetching preview...';
 $txt['preview_new'] = 'New message';
 $txt['pm_error_while_submitting'] = 'The following error or errors occurred while sending this personal message:';
 $txt['error_while_submitting'] = 'The message has the following error or errors that must be corrected before continuing:';
-$txt['error_old_topic'] = 'Warning: this topic has not been posted in for at least %1$d days.<br />Unless you\'re sure you want to reply, please consider starting a new topic.';
+$txt['error_old_topic'] = 'Warning: this topic has not been posted in for at least %1$d days.<br>Unless you\'re sure you want to reply, please consider starting a new topic.';
 
 $txt['split_selected_posts'] = 'Selected posts';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
@@ -756,7 +752,8 @@ $txt['summary'] = 'Summary';
 $txt['account'] = 'Account Settings';
 $txt['theme'] = 'Look and Layout';
 $txt['forumprofile'] = 'Forum Profile';
-
+$txt['activate_changed_email_title'] = 'Email Address Changed';
+$txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
 $txt['modSettings_title'] = 'Features and Options';
 $txt['package'] = 'Package Manager';
 $txt['errlog'] = 'Error Log';
@@ -764,13 +761,13 @@ $txt['edit_permissions'] = 'Permissions';
 $txt['mc_unapproved_attachments'] = 'Unapproved Attachments';
 $txt['mc_unapproved_poststopics'] = 'Unapproved Posts and Topics';
 $txt['mc_reported_posts'] = 'Reported Posts';
+$txt['mc_reported_members'] = 'Reported Members';
 $txt['modlog_view'] = 'Moderation Log';
 $txt['calendar_menu'] = 'View Calendar';
 
 // @todo Send email strings - should move?
 $txt['send_email'] = 'Send Email';
 $txt['send_email_disclosed'] = 'Note this will be visible to the recipient.';
-$txt['send_email_subject'] = 'Email Subject';
 
 $txt['ignoring_user'] = 'You are ignoring this user.';
 $txt['show_ignore_user_post'] = 'Show me the post.';
@@ -781,7 +778,6 @@ $txt['openid'] = 'OpenID';
 
 $txt['downloads'] = 'Downloads';
 $txt['filesize'] = 'Filesize';
-$txt['subscribe_webslice'] = 'Subscribe to Webslice';
 
 // Restore topic
 $txt['restore_topic'] = 'Restore Topic';
@@ -803,6 +799,7 @@ $txt['debug_subtemplates'] = 'Sub templates: ';
 $txt['debug_language_files'] = 'Language files: ';
 $txt['debug_stylesheets'] = 'Style sheets: ';
 $txt['debug_files_included'] = 'Files included: ';
+$txt['debug_memory_use'] = 'Memory used: ';
 $txt['debug_kb'] = 'KB.';
 $txt['debug_show'] = 'show';
 $txt['debug_cache_hits'] = 'Cache hits: ';

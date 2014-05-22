@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageBoards()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Everything's gonna need this.
 	loadLanguage('ManageBoards');
@@ -390,6 +390,11 @@ function EditBoard()
 	require_once($sourcedir . '/ManagePermissions.php');
 	loadPermissionProfiles();
 
+	// People with manage-boards are special.
+	require_once($sourcedir . '/Subs-Members.php');
+	$groups = groupsAllowedTo('manage_boards', null);
+	$context['board_managers'] = $groups['allowed']; // We don't need *all* this in $context.
+
 	// id_board must be a number....
 	$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
 	if (!isset($boards[$_REQUEST['boardid']]))
@@ -591,6 +596,7 @@ function EditBoard()
 	{
 		$context['sub_template'] = 'modify_board';
 		$context['page_title'] = $txt['boardsEdit'];
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 	}
 	else
 	{
@@ -614,7 +620,7 @@ function EditBoard()
  */
 function EditBoard2()
 {
-	global $txt, $sourcedir, $modSettings, $smcFunc, $context;
+	global $sourcedir, $smcFunc, $context;
 
 	$_POST['boardid'] = (int) $_POST['boardid'];
 	checkSession();
@@ -658,6 +664,15 @@ function EditBoard2()
 				elseif ($action == 'deny')
 					$boardOptions['deny_groups'][] = (int) $group;
 			}
+
+		// People with manage-boards are special.
+		require_once($sourcedir . '/Subs-Members.php');
+		$board_managers = groupsAllowedTo('manage_boards', null);
+		$board_managers = array_diff($board_managers['allowed'], array(1)); // We don't need to list admins anywhere.
+		// Firstly, we can't ever deny them.
+		$boardOptions['deny_groups'] = array_diff($boardOptions['deny_groups'], $board_managers);
+		// Secondly, make sure those with super cow powers (like apt-get, or in this case manage boards) are upgraded.
+		$boardOptions['access_groups'] = array_unique(array_merge($boardOptions['access_groups'], $board_managers));
 
 		if (strlen(implode(',', $boardOptions['access_groups'])) > 255 || strlen(implode(',', $boardOptions['deny_groups'])) > 255)
 			fatal_lang_error('too_many_groups', false);
@@ -716,7 +731,6 @@ function EditBoard2()
 			// Resetting the count?
 			elseif ($boardOptions['redirect'] && !empty($_POST['reset_redirect']))
 				$boardOptions['num_posts'] = 0;
-
 		}
 
 		// Create a new board...
@@ -765,7 +779,7 @@ function EditBoard2()
  */
 function ModifyCat()
 {
-	global $cat_tree, $boardList, $boards, $sourcedir, $smcFunc;
+	global $boards, $sourcedir, $smcFunc;
 
 	// Get some information about the boards and the cats.
 	require_once($sourcedir . '/Subs-Boards.php');
@@ -809,10 +823,9 @@ function ModifyCat()
  */
 function EditBoardSettings($return_config = false)
 {
-	global $context, $txt, $sourcedir, $modSettings, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
 
 	// Load the boards list - for the recycle bin!
-	$recycle_boards = array('');
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 		FROM {db_prefix}boards AS b
@@ -825,6 +838,11 @@ function EditBoardSettings($return_config = false)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$recycle_boards[$row['id_board']] = $row['cat_name'] . ' - ' . $row['board_name'];
 	$smcFunc['db_free_result']($request);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortBoards($recycle_boards);
+
+	array_unshift($recycle_boards, '');
 
 	// Here and the board settings...
 	$config_vars = array(
@@ -858,10 +876,8 @@ function EditBoardSettings($return_config = false)
 	$context['sub_template'] = 'show_settings';
 
 	// Add some javascript stuff for the recycle box.
-	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;
-		// ]]></script>';
+	addInlineJavascript('
+	document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 	// Warn the admin against selecting the recycle topic without selecting a board.
 	$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . $txt['recycle_board_unselected_notice'] . '\');} return true;';

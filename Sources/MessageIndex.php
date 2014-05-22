@@ -45,6 +45,18 @@ function MessageIndex()
 	else
 		loadTemplate('MessageIndex');
 
+	if (!$user_info['is_guest'])
+	{
+		// We can't know they read it if we allow prefetches.
+		// But we'll actually mark it read later after we've done everything else.
+		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
+		{
+			ob_end_clean();
+			header('HTTP/1.1 403 Prefetch Forbidden');
+			die;
+		}
+	}
+
 	$context['name'] = $board_info['name'];
 	$context['description'] = $board_info['description'];
 	if (!empty($board_info['description']))
@@ -138,82 +150,6 @@ function MessageIndex()
 	{
 	 	$context['linktree'][count($context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count($context['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators']) . ': ' . implode(', ', $context['link_moderators']) . ')</span>';
 	}
-
-	// Mark current and parent boards as seen.
-	if (!$user_info['is_guest'])
-	{
-		// We can't know they read it if we allow prefetches.
-		if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
-		{
-			ob_end_clean();
-			header('HTTP/1.1 403 Prefetch Forbidden');
-			die;
-		}
-
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}log_boards',
-			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
-			array($modSettings['maxMsgID'], $user_info['id'], $board),
-			array('id_member', 'id_board')
-		);
-
-		if (!empty($board_info['parent_boards']))
-		{
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}log_boards
-				SET id_msg = {int:id_msg}
-				WHERE id_member = {int:current_member}
-					AND id_board IN ({array_int:board_list})',
-				array(
-					'current_member' => $user_info['id'],
-					'board_list' => array_keys($board_info['parent_boards']),
-					'id_msg' => $modSettings['maxMsgID'],
-				)
-			);
-
-			// We've seen all these boards now!
-			foreach ($board_info['parent_boards'] as $k => $dummy)
-				if (isset($_SESSION['topicseen_cache'][$k]))
-					unset($_SESSION['topicseen_cache'][$k]);
-		}
-
-		if (isset($_SESSION['topicseen_cache'][$board]))
-			unset($_SESSION['topicseen_cache'][$board]);
-
-		$request = $smcFunc['db_query']('', '
-			SELECT sent
-			FROM {db_prefix}log_notify
-			WHERE id_board = {int:current_board}
-				AND id_member = {int:current_member}
-			LIMIT 1',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
-		$context['is_marked_notify'] = $smcFunc['db_num_rows']($request) != 0;
-		if ($context['is_marked_notify'])
-		{
-			list ($sent) = $smcFunc['db_fetch_row']($request);
-			if (!empty($sent))
-			{
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_notify
-					SET sent = {int:is_sent}
-					WHERE id_board = {int:current_board}
-						AND id_member = {int:current_member}',
-					array(
-						'current_board' => $board,
-						'current_member' => $user_info['id'],
-						'is_sent' => 0,
-					)
-				);
-			}
-		}
-		$smcFunc['db_free_result']($request);
-	}
-	else
-		$context['is_marked_notify'] = false;
 
 	// 'Print' the header and board info.
 	$context['page_title'] = strip_tags($board_info['name']);
@@ -387,7 +323,7 @@ function MessageIndex()
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
-				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time,
+				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
 				ml.poster_name AS last_member_name, ml.id_member AS last_id_member, ' . (!empty($settings['avatars_on_indexes']) ? 'meml.avatar,' : '') . '
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
@@ -430,14 +366,14 @@ function MessageIndex()
 				$topic_ids[] = $row['id_topic'];
 
 			// Does the theme support message previews?
-			if (!empty($settings['message_index_preview']) && !empty($modSettings['preview_characters']))
+			if (!empty($modSettings['preview_characters']))
 			{
 				// Limit them to $modSettings['preview_characters'] characters
-				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br />' => '&#10;')));
+				$row['first_body'] = strip_tags(strtr(parse_bbc($row['first_body'], $row['first_smileys'], $row['id_first_msg']), array('<br>' => '&#10;')));
 				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
 					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
 
-				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br />' => '&#10;')));
+				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
 				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
 					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
 
@@ -502,23 +438,8 @@ function MessageIndex()
 					$context['icon_sources'][$row['last_icon']] = 'images_url';
 			}
 
-			if (!empty($settings['avatars_on_indexes']))
-			{
-				// Allow themers to show the latest poster's avatar along with the topic
-				if (!empty($row['avatar']))
-				{
-					if ($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize')
-					{
-						$avatar_width = !empty($modSettings['avatar_max_width_external']) ? ' width="' . $modSettings['avatar_max_width_external'] . '"' : '';
-						$avatar_height = !empty($modSettings['avatar_max_height_external']) ? ' height="' . $modSettings['avatar_max_height_external'] . '"' : '';
-					}
-					else
-					{
-						$avatar_width = '';
-						$avatar_height = '';
-					}
-				}
-			}
+			if (!empty($board_info['recycle']))
+				$row['first_icon'] = 'recycled';
 
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
@@ -561,10 +482,10 @@ function MessageIndex()
 				),
 				'is_sticky' => !empty($row['is_sticky']),
 				'is_locked' => !empty($row['locked']),
+				'is_redirect' => !empty($row['id_redirect_topic']),
 				'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
-				'is_hot' => $row['num_replies'] >= $modSettings['hotTopicPosts'],
-				'is_very_hot' => $row['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 				'is_posted_in' => false,
+				'is_watched' => false,
 				'icon' => $row['first_icon'],
 				'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 				'subject' => $row['first_subject'],
@@ -585,8 +506,6 @@ function MessageIndex()
 					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') || stristr($row['avatar'], $modSettings['gravatar_url']) ? (!stristr($row['avatar'], $modSettings['gravatar_url']) ? $row['avatar'] : str_replace('gravatar://', 'http://', $row['avatar'])) : $modSettings['avatar_url'] . '/' . $row['avatar']),
 					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') || stristr($row['avatar'], $modSettings['gravatar_url']) ? (!stristr($row['avatar'], $modSettings['gravatar_url']) ? $row['avatar'] : str_replace('gravatar://', 'http://', $row['avatar'])) : $modSettings['avatar_url'] . '/' . $row['avatar'])
 				);
-
-			determineTopicClass($context['topics'][$row['id_topic']]);
 		}
 		$smcFunc['db_free_result']($result);
 
@@ -609,10 +528,7 @@ function MessageIndex()
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
-			{
 				$context['topics'][$row['id_topic']]['is_posted_in'] = true;
-				$context['topics'][$row['id_topic']]['class'] = 'my_' . $context['topics'][$row['id_topic']]['class'];
-			}
 			$smcFunc['db_free_result']($result);
 		}
 	}
@@ -635,7 +551,7 @@ function MessageIndex()
 		// Ignore approving own topics as it's unlikely to come up...
 		$context['can_approve'] = $modSettings['postmod_active'] && allowedTo('approve_posts') && !empty($board_info['unapproved_topics']);
 		// Can we restore topics?
-		$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
+		$context['can_restore'] = allowedTo('move_any') && !empty($board_info['recycle']);
 
 		if ($user_info['is_admin'] || $modSettings['topic_move_any'])
 			$context['can_move_any'] = true;
@@ -643,7 +559,7 @@ function MessageIndex()
 		{
 			// We'll use this in a minute
 			$boards_allowed = boardsAllowedTo('post_new');
-			
+
 			// How many boards can you do this on besides this one?
 			$context['can_move_any'] = count($boards_allowed) > 1;
 		}
@@ -679,6 +595,82 @@ function MessageIndex()
 		call_integration_hook('integrate_quick_mod_actions');
 	}
 
+	// Mark current and parent boards as seen.
+	if (!$user_info['is_guest'])
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}log_boards',
+			array('id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'),
+			array($modSettings['maxMsgID'], $user_info['id'], $board),
+			array('id_member', 'id_board')
+		);
+
+		if (!empty($board_info['parent_boards']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}log_boards
+				SET id_msg = {int:id_msg}
+				WHERE id_member = {int:current_member}
+					AND id_board IN ({array_int:board_list})',
+				array(
+					'current_member' => $user_info['id'],
+					'board_list' => array_keys($board_info['parent_boards']),
+					'id_msg' => $modSettings['maxMsgID'],
+				)
+			);
+
+			// We've seen all these boards now!
+			foreach ($board_info['parent_boards'] as $k => $dummy)
+				if (isset($_SESSION['topicseen_cache'][$k]))
+					unset($_SESSION['topicseen_cache'][$k]);
+		}
+
+		if (isset($_SESSION['topicseen_cache'][$board]))
+			unset($_SESSION['topicseen_cache'][$board]);
+
+		$request = $smcFunc['db_query']('', '
+			SELECT id_topic, id_board, sent
+			FROM {db_prefix}log_notify
+			WHERE id_member = {int:current_member}
+				AND (' . (!empty($context['topics']) ? 'id_topic IN ({array_int:topics}) OR ' : '') . 'id_board = {int:current_board})',
+			array(
+				'current_board' => $board,
+				'topics' => !empty($context['topics']) ? array_keys($context['topics']) : array(),
+				'current_member' => $user_info['id'],
+			)
+		);
+		$context['is_marked_notify'] = false; // this is for the *board* only
+		$notify = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!empty($row['id_board']))
+			{
+				$context['is_marked_notify'] = true;
+				$board_sent = $row['sent'];
+			}
+			if (!empty($row['id_topic']))
+				$context['topics'][$row['id_topic']]['is_watched'] = true;
+		}
+		$smcFunc['db_free_result']($request);
+
+		if ($context['is_marked_notify'] && !empty($board_sent))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}log_notify
+				SET sent = {int:is_sent}
+				WHERE id_member = {int:current_member}
+					AND id_board = {int:current_board}',
+				array(
+					'current_board' => $board,
+					'current_member' => $user_info['id'],
+					'is_sent' => 0,
+				)
+			);
+		}
+	}
+	else
+		$context['is_marked_notify'] = false;
+
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
 
@@ -686,13 +678,16 @@ function MessageIndex()
 	$context['normal_buttons'] = array(
 		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
 		'post_poll' => array('test' => 'can_post_poll', 'text' => 'new_poll', 'image' => 'new_poll.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0;poll'),
-		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unnotify' : 'notify', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
+		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unwatch_board' : 'watch_board', 'image' => ($context['is_marked_notify'] ? 'un' : ''). 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_board'] : $txt['notification_enable_board']) . '\');"', 'url' => $scripturl . '?action=notifyboard;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';board=' . $context['current_board'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'markread' => array('text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=board;board=' . $context['current_board'] . '.0;' . $context['session_var'] . '=' . $context['session_id']),
 	);
 
 	// Allow adding new buttons easily.
 	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
+
+	// Javascript for inline editing.
+	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 }
 
 /**
@@ -834,7 +829,7 @@ function QuickModeration()
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{		
+		{
 			if (!empty($board))
 			{
 				if ($row['id_board'] != $board || ($modSettings['postmod_active'] && !$row['approved'] && !allowedTo('approve_posts')))

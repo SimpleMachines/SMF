@@ -870,7 +870,7 @@
 							// Add placeholder br to end of block level elements in all browsers apart from IE < 9 which
 							// handle new lines differently and doesn't need one.
 							if(!$.sceditor.ie)
-								content += '<br />';
+								content += '<br>';
 						}
 
 						if($.isFunction(bbcode.html))
@@ -885,7 +885,7 @@
 				{
 					if(!isRoot)
 					{
-						ret.push('<br />');
+						ret.push('<br>');
 						continue;
 					}
 
@@ -909,14 +909,14 @@
 
 					// Putting BR in a div in IE causes it to do a double line break.
 					if(!$.sceditor.ie)
-						ret.push('<br />');
+						ret.push('<br>');
 
 					// Normally the div acts as a line-break with by moving whatever comes
 					// after onto a new line.
 					// If this is the last token, add an extra line-break so it shows as
 					// there will be nothing after it.
 					if(!tokens.length)
-						ret.push('<br />');
+						ret.push('<br>');
 
 					ret.push('</div>\n');
 					blockWrapOpen = false;
@@ -1596,7 +1596,7 @@
 			{
 				if(typeof html === 'string')
 				{
-					$tmpContainer = $('<div />').css('visibility', 'hidden').appendTo(document.body).html(html);
+					$tmpContainer = $('<div>').css('visibility', 'hidden').appendTo(document.body).html(html);
 					$body = $tmpContainer;
 				}
 				else
@@ -1742,7 +1742,7 @@
 		 */
 		removeFirstLastDiv = function(html) {
 			var	node, next, removeDiv,
-				$output = $('<div />').hide().appendTo(document.body),
+				$output = $('<div>').hide().appendTo(document.body),
 				output  = $output[0];
 
 			removeDiv = function(node, isFirst) {
@@ -2126,7 +2126,7 @@
 			isSelfClosing: true,
 			isInline: false,
 			format: '[hr]{0}',
-			html: '<hr />'
+			html: '<hr>'
 		},
 		// END_COMMAND
 
@@ -2178,7 +2178,7 @@
 						' height="' + (parts.length === 2 ? parts[1] : parts[0]) + '"';
 				}
 
-				return '<img' + attribs + ' src="' + content + '" />';
+				return '<img' + attribs + ' src="' + content + '">';
 			}
 		},
 		// END_COMMAND

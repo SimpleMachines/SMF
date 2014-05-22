@@ -50,8 +50,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	require_once($sourcedir . '/ManageAttachments.php');
 	removeAttachments(array('id_member' => $memID));
 
-	$id_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : 1;
-	$avatar_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
+	$id_folder = 1;
+	$avatar_hash = '';
 	$smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
@@ -59,7 +59,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 			'id_folder' => 'int',
 		),
 		array(
-			$memID, empty($modSettings['custom_avatar_enabled']) ? 0 : 1, $destName, $avatar_hash, $ext, 1,
+			$memID, 1, $destName, $avatar_hash, $ext, 1,
 			$id_folder,
 		),
 		array('id_attach')
@@ -70,10 +70,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	$modSettings['new_avatar_data'] = array(
 		'id' => $attachID,
 		'filename' => $destName,
-		'type' => empty($modSettings['custom_avatar_enabled']) ? 0 : 1,
+		'type' => 1,
 	);
 
-	$destName = (empty($modSettings['custom_avatar_enabled']) ? (is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] : $modSettings['attachmentUploadDir']) : $modSettings['custom_avatar_dir']) . '/' . $destName . '.tmp';
+	$destName = $modSettings['custom_avatar_dir'] . '/' . $destName . '.tmp';
 
 	// Resize it.
 	if (!empty($modSettings['avatar_download_png']))
@@ -86,20 +86,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 
 	if ($success)
 	{
-		// Walk the right path.
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-			$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$path = $modSettings['attachmentUploadDir'];
-
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash))
+		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash;
+			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 
@@ -428,7 +418,6 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 		if (checkImagick())
 		{
-
 			$imagick = New Imagick($destName);
 			$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
 			$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
@@ -468,14 +457,14 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) || !empty($max_height))
 		{
-			if (!empty($max_width) && (empty($max_height) || $src_height * $max_width / $src_width <= $max_height))
+			if (!empty($max_width) && (empty($max_height) || round($src_height * $max_width / $src_width) <= $max_height))
 			{
 				$dst_width = $max_width;
-				$dst_height = floor($src_height * $max_width / $src_width);
+				$dst_height = round($src_height * $max_width / $src_width);
 			}
 			elseif (!empty($max_height))
 			{
-				$dst_width = floor($src_width * $max_height / $src_height);
+				$dst_width = round($src_width * $max_height / $src_height);
 				$dst_height = $max_height;
 			}
 
@@ -614,7 +603,7 @@ if (!function_exists('imagecreatefrombmp'))
 		$info = unpack('Vsize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vncolor/Vcolorimportant', fread($fp, 40));
 
 		if ($header['type'] != 0x4D42)
-			false;
+			return false;
 
 		if ($gd2)
 			$dst_img = imagecreatetruecolor($info['width'], $info['height']);
@@ -866,10 +855,14 @@ function showCodeImage($code)
 	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
 	$font_list = array();
 	$ttfont_list = array();
+	$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
 	while ($entry = $font_dir->read())
 	{
 		if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1)
-			$font_list[] = $entry;
+		{
+			if ($endian ^ (strpos($entry, '_end.gdf') === false))
+				$font_list[] = $entry;
+		}
 		elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
 			$ttfont_list[] = $entry;
 	}
@@ -956,7 +949,6 @@ function showCodeImage($code)
 		{
 			// Can we use true type fonts?
 			$can_do_ttf = function_exists('imagettftext');
-
 
 			// How much rotation will we give?
 			if ($rotationType == 'none')

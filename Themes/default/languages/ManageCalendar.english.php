@@ -54,7 +54,6 @@ $txt['setting_cal_prev_next_links'] = 'Show <em>Previous / Next</em> Month Links
 // The name of this setting is kind of misleading...we can't shorten actual months unfortunately!
 $txt['setting_cal_short_months'] = 'Short Month Titles';
 $txt['setting_cal_short_days'] = 'Short Day Titles';
-$txt['setting_cal_week_numbers'] = 'Show Week Numbers';
 
 // Adding/Editing/Viewing Holidays
 $txt['manage_holidays_desc'] = 'From here you can add and remove holidays from your forum calendar.';

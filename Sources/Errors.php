@@ -41,7 +41,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Basically, htmlspecialchars it minus &. (for entities!)
 	$error_message = strtr($error_message, array('<' => '&lt;', '>' => '&gt;', '"' => '&quot;'));
-	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br />', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br />'));
+	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>'));
 
 	// Add a file and line to the error message?
 	// Don't use the actual txt entries for file and line but instead use %1$s for file and %2$s for line
@@ -83,6 +83,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'template',
 		'debug',
 		'cron',
+		'paidsubs',
 	);
 
 	// This prevents us from infinite looping if the hook or call produces an error.
@@ -228,8 +229,8 @@ function error_handler($error_level, $error_string, $file, $line)
 		}
 
 		// Debugging!  This should look like a PHP error message.
-		echo '<br />
-<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br />';
+		echo '<br>
+<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br>';
 	}
 
 	$error_type = stripos($error_string, 'undefined') !== false ? 'undefined_vars' : 'general';
@@ -349,10 +350,10 @@ function display_maintenance_message()
 	set_fatal_error_headers();
 
 	if (!empty($maintenance))
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+		echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>', $mtitle, '</title>
 	</head>
 	<body>
@@ -373,8 +374,9 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc;
+	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
 
+	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
@@ -396,10 +398,10 @@ function display_db_error()
 	}
 
 	// What to do?  Language files haven't and can't be loaded yet...
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Connection Problems</title>
 	</head>
 	<body>
@@ -423,10 +425,10 @@ function display_loadavg_error()
 
 	set_fatal_error_headers();
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Temporarily Unavailable</title>
 	</head>
 	<body>

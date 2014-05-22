@@ -303,13 +303,6 @@ function deleteMembers($users, $check_not_admin = false)
 			'users' => $users,
 		)
 	);
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}collapsed_categories
-		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
 
 	// Make their votes appear as guest votes - at least it keeps the totals right.
 	// @todo Consider adding back in cookie protection.
@@ -440,7 +433,7 @@ function deleteMembers($users, $check_not_admin = false)
 function registerMember(&$regOptions, $return_errors = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $user_info, $options, $smcFunc;
+	global $user_info, $smcFunc;
 
 	loadLanguage('Login');
 
@@ -551,7 +544,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	$smcFunc['db_free_result']($request);
 
-	// Perhaps someone else wants to check this user
+	// Perhaps someone else wants to check this user.
 	call_integration_hook('integrate_register_check', array(&$regOptions, &$reg_errors));
 
 	// If we found any errors we need to do something about it right away!
@@ -625,11 +618,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'pm_ignore_list' => '',
 		'website_title' => '',
 		'website_url' => '',
-		'location' => '',
-		'icq' => '',
-		'aim' => '',
-		'yim' => '',
-		'skype' => '',
 		'time_format' => '',
 		'signature' => '',
 		'avatar' => '',
@@ -684,10 +672,6 @@ function registerMember(&$regOptions, $return_errors = false)
 			$regOptions['register_vars']['id_group'] = 0;
 	}
 
-	// ICQ cannot be zero.
-	if (isset($regOptions['extra_register_vars']['icq']) && empty($regOptions['extra_register_vars']['icq']))
-		$regOptions['extra_register_vars']['icq'] = '';
-
 	// Integrate optional member settings to be set.
 	if (!empty($regOptions['extra_register_vars']))
 		foreach ($regOptions['extra_register_vars'] as $var => $value)
@@ -702,7 +686,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Right, now let's prepare for insertion.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'hide_email', 'show_online', 'pm_email_notify', 'karma_good', 'karma_bad',
+		'new_pm', 'pm_prefs', 'show_online', 'pm_email_notify', 'karma_good', 'karma_bad',
 		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
@@ -786,7 +770,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 			$emaildata = loadEmailTemplate($email_message, $replacements);
 
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, $email_message . $memberID, false, 0);
 		}
 
 		// All admins are finished here.
@@ -806,7 +790,7 @@ function registerMember(&$regOptions, $return_errors = false)
 				'OPENID' => !empty($regOptions['openid']) ? $regOptions['openid'] : '',
 			);
 			$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'immediate', $replacements);
-			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', false, 0);
 		}
 
 		// Send admin their notification.
@@ -836,7 +820,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, false, 0);
 	}
 	// Must be awaiting approval.
 	else
@@ -851,7 +835,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'pending', $replacements);
 
-		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 0);
+		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', false, 0);
 
 		// Admin gets informed here...
 		adminNotify('approval', $memberID, $regOptions['username']);
@@ -882,7 +866,7 @@ function registerMember(&$regOptions, $return_errors = false)
  */
 function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal = true)
 {
-	global $user_info, $modSettings, $smcFunc, $context;
+	global $modSettings, $smcFunc, $context;
 
 	$name = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'replaceEntities__callback', $name);
 	$checkName = $smcFunc['strtolower']($name);
@@ -1165,7 +1149,7 @@ function membersAllowedTo($permission, $board_id = null)
  */
 function reattributePosts($memID, $email = false, $membername = false, $post_count = false)
 {
-	global $smcFunc;
+	global $smcFunc, $modSettings;
 
 	$updated = array(
 		'messages' => 0,
@@ -1192,13 +1176,14 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 	// If they want the post count restored then we need to do some research.
 	if ($post_count)
 	{
+		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND b.count_posts = {int:count_posts})
 			WHERE m.id_member = {int:guest_id}
-				AND m.approved = {int:is_approved}
-				AND m.icon != {string:recycled_icon}' . (empty($email) ? '' : '
+				AND m.approved = {int:is_approved}' . (!empty($recycle_board) ? '
+				AND m.id_board != {int:recycled_board}' : '') . (empty($email) ? '' : '
 				AND m.poster_email = {string:email_address}') . (empty($membername) ? '' : '
 				AND m.poster_name = {string:member_name}'),
 			array(
@@ -1207,7 +1192,7 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
 				'email_address' => $email,
 				'member_name' => $membername,
 				'is_approved' => 1,
-				'recycled_icon' => 'recycled',
+				'recycled_board' => $recycle_board,
 			)
 		);
 		list ($messageCount) = $smcFunc['db_fetch_row']($request);
@@ -1319,7 +1304,7 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.icq, mem.aim, mem.yim, mem.skype, mem.member_ip, mem.member_ip2, mem.last_login,
+			mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.member_ip, mem.member_ip2, mem.last_login,
 			mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
 		FROM {db_prefix}members AS mem
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)

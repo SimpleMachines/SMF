@@ -122,7 +122,7 @@ function RemindPick()
 	// You can't get emailed if you have no email address.
 	$row['email_address'] = trim($row['email_address']);
 	if ($row['email_address'] == '')
-		fatal_error($txt['no_reminder_email'] . '<br />' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
+		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
@@ -144,7 +144,7 @@ function RemindPick()
 		$context['description'] = $txt['reminder_' . (!empty($row['openid_uri']) ? 'openid_' : '') . 'sent'];
 
 		// If they were using OpenID simply email them their OpenID identity.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', false, 1);
 		if (empty($row['openid_uri']))
 			// Set the password in the database.
 			updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
@@ -188,13 +188,15 @@ function setPassword()
 		'memID' => (int) $_REQUEST['u']
 	);
 
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
+
 	// Tokens!
 	createToken('remind-sp');
 }
 
 function setPassword2()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sp');
@@ -270,13 +272,15 @@ function setPassword2()
 		'never_expire' => false,
 		'description' => $txt['reminder_password_set']
 	);
+
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 	createToken('login');
 }
 
 // Get the secret answer.
 function SecretAnswerInput()
 {
-	global $txt, $context, $smcFunc;
+	global $context, $smcFunc;
 
 	checkSession();
 
@@ -316,11 +320,12 @@ function SecretAnswerInput()
 
 	$context['sub_template'] = 'ask';
 	createToken('remind-sai');
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 function SecretAnswer2()
 {
-	global $txt, $context, $modSettings, $smcFunc, $sourcedir;
+	global $txt, $context, $smcFunc, $sourcedir;
 
 	checkSession();
 	validateToken('remind-sai');

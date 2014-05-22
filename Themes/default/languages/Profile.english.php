@@ -7,7 +7,6 @@ global $scripturl, $context;
 $txt['popup_summary'] = 'My Profile';
 $txt['popup_showposts'] = 'My Posts';
 $txt['popup_ignore'] = 'Ignore People';
-$txt['popup_preferences'] = 'Preferences';
 
 $txt['no_profile_edit'] = 'You are not allowed to change this person\'s profile.';
 $txt['website_title'] = 'Website title';
@@ -43,10 +42,9 @@ $txt['dob_year'] = 'Year (YYYY)';
 $txt['password_strength'] = 'For best security, you should use eight or more characters with a combination of letters, numbers, and symbols.';
 $txt['include_website_url'] = 'This must be included if you specify a URL below.';
 $txt['complete_url'] = 'This must be a complete URL.';
-$txt['your_icq'] = 'This is your ICQ number.';
-$txt['your_aim'] = 'This is your AOL Instant Messenger nickname.';
-$txt['your_yim'] = 'This is your Yahoo! Instant Messenger nickname.';
 $txt['sig_info'] = 'Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature.';
+$txt['no_signature_set'] = 'No signature set.';
+$txt['no_signature_preview'] = 'No signature to preview.';
 $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
@@ -61,6 +59,7 @@ $txt['invalid_registration'] = 'Invalid Date Registered value, valid example:';
 $txt['current_password'] = 'Current Password';
 // Don't use entities in the below string, except the main ones. (lt, gt, quot.)
 $txt['required_security_reasons'] = 'For security reasons, your current password is required to make changes to your account.';
+$txt['email_change_logout'] = 'Since you decided to change your email, you will need to reactivate your account. You will now be logged out.';
 
 $txt['timeoffset_autodetect'] = 'auto detect';
 
@@ -72,7 +71,7 @@ $txt['secret_ask'] = 'Ask me my question';
 $txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email.  You also have the option of setting a new password by answering your secret question.';
 $txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile.  Please click on the back button, and use the default method of obtaining your password.';
 $txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use.  Your password will be changed to the one you select provided you answer the question correctly.';
-$txt['password_success'] = 'Your password was changed successfully.<br />Click <a href="' . $scripturl . '?action=login">here</a> to login.';
+$txt['password_success'] = 'Your password was changed successfully.<br>Click <a href="' . $scripturl . '?action=login">here</a> to login.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
@@ -83,7 +82,7 @@ $txt['authentication_openid_secret'] = 'Answer my &quot;secret question&quot; to
 $txt['authentication_password_email'] = 'Email me a new password';
 $txt['authentication_password_secret'] = 'Let me set a new password by answering my &quot;secret question&quot;';
 $txt['openid_secret_reminder'] = 'Please enter your answer to the question below. If you get it correct your OpenID identity will be shown.';
-$txt['reminder_openid_is'] = 'The OpenID identity associated with your account is:<br />&nbsp;&nbsp;&nbsp;&nbsp;<strong>%1$s</strong><br /><br />Please make a note of this for future reference.';
+$txt['reminder_openid_is'] = 'The OpenID identity associated with your account is:<br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>%1$s</strong><br><br>Please make a note of this for future reference.';
 $txt['reminder_continue'] = 'Continue';
 
 $txt['current_theme'] = 'Current Theme';
@@ -143,13 +142,16 @@ $txt['alert_pm_new'] = 'When I receive a new personal message';
 $txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
 $txt['alert_group_moderation'] = 'Moderation';
 $txt['alert_msg_report'] = 'When a message is reported';
-$txt['alert_msg_report_reply'] = 'When a report I\'ve replied to gets replied to';
+$txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets replied to';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
+$txt['alert_member_report'] = 'When another member\'s profile is reported';
+$txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
+
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
 $txt['notifications_topics_list'] = 'You are being notified of replies to the following topics';
@@ -187,6 +189,7 @@ $txt['deleteAccount_member'] = 'Delete this member\'s account';
 $txt['deleteAccount_posts'] = 'Remove posts made by this member';
 $txt['deleteAccount_all_posts'] = 'Replies to Topics';
 $txt['deleteAccount_topics'] = 'Topics and Posts';
+$txt['deleteAccount_votes'] = 'Remove poll votes made by this member';
 $txt['deleteAccount_confirm'] = 'Are you completely sure you want to delete this account?';
 $txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account\'s deletion before it will be removed.';
 
@@ -213,7 +216,6 @@ $txt['trackLogins'] = 'Logins';
 $txt['authentication'] = 'Authentication';
 $txt['change_authentication'] = 'From this section you can change how you login to the forum. You may choose to either use an OpenID account for your authentication, or alternatively switch to use a username and password.';
 
-$txt['profileEdit'] = 'Modify Profile';
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 $txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
@@ -257,9 +259,9 @@ $txt['own_profile_confirm'] = 'Are you sure you want to delete your account?';
 $txt['view_ips_by'] = 'View IPs used by';
 
 $txt['avatar_will_upload'] = 'Upload an avatar';
-
-$txt['activate_changed_email_title'] = 'Email Address Changed';
-$txt['activate_changed_email_desc'] = 'You\'ve changed your email address. In order to validate this address you will receive an email. Click the link in that email to reactivate your account.';
+$txt['avatar_max_size_wh'] = 'Max size: %1$spx by %2$spx';
+$txt['avatar_max_size_w'] = 'Max size: %1$spx wide';
+$txt['avatar_max_size_h'] = 'Max size: %2$spx high';
 
 // Use numeric entities in the below three strings.
 $txt['no_reminder_email'] = 'Unable to send reminder email.';
@@ -327,15 +329,11 @@ $txt['topics_per_page'] = 'Topics to display per page:';
 $txt['messages_per_page'] = 'Messages to display per page:';
 $txt['per_page_default'] = 'forum default';
 $txt['calendar_start_day'] = 'First day of the week on the calendar';
-$txt['display_quick_reply'] = 'Use quick reply on topic display: ';
-$txt['display_quick_reply1'] = 'don\'t show at all';
-$txt['display_quick_reply2'] = 'show, off by default';
-$txt['display_quick_reply3'] = 'show, on by default';
 $txt['use_editor_quick_reply'] = 'Use full editor in Quick Reply';
-$txt['display_quick_mod'] = 'Show quick-moderation as ';
-$txt['display_quick_mod_none'] = 'don\'t show.';
-$txt['display_quick_mod_check'] = 'checkboxes.';
-$txt['display_quick_mod_image'] = 'icons.';
+$txt['display_quick_mod'] = 'Show quick-moderation as';
+$txt['display_quick_mod_none'] = 'don\'t show';
+$txt['display_quick_mod_check'] = 'checkboxes';
+$txt['display_quick_mod_image'] = 'icons';
 
 $txt['whois_title'] = 'Look up IP on a regional whois-server';
 $txt['whois_afrinic'] = 'AfriNIC (Africa)';
@@ -525,4 +523,6 @@ $txt['outcome_pending'] = 'Open';
 $txt['outcome_approved'] = 'Approved by %1$s on %2$s';
 $txt['outcome_refused'] = 'Refused by %1$s on %2$s';
 $txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
+
+$txt['report_profile'] = 'Report This Member';
 ?>

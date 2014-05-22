@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageScheduledTasks()
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -73,7 +73,7 @@ function ManageScheduledTasks()
  */
 function ScheduledTasks()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings, $scripturl;
+	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -187,7 +187,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' => '
-							<a href="' . $scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br /><span class="smalltext">%3$s</span>',
+							<a href="' . $scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br><span class="smalltext">%3$s</span>',
 						'params' => array(
 							'id' => false,
 							'name' => false,
@@ -223,7 +223,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0" /><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s class="input_check" />',
+							'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s class="input_check">',
 						'params' => array(
 							'id' => false,
 							'checked_state' => false,
@@ -241,7 +241,7 @@ function ScheduledTasks()
 				'data' => array(
 					'sprintf' => array(
 						'format' =>
-							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check" />',
+							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
 						'params' => array(
 							'id' => false,
 						),
@@ -257,8 +257,8 @@ function ScheduledTasks()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="save" value="' . $txt['scheduled_tasks_save_changes'] . '" class="button_submit" />
-					<input type="submit" name="run" value="' . $txt['scheduled_tasks_run_now'] . '" class="button_submit" />',
+					<input type="submit" name="save" value="' . $txt['scheduled_tasks_save_changes'] . '" class="button_submit">
+					<input type="submit" name="run" value="' . $txt['scheduled_tasks_run_now'] . '" class="button_submit">',
 			),
 			array(
 				'position' => 'after_title',
@@ -307,7 +307,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
 			'desc' => isset($txt['scheduled_task_desc_' . $row['task']]) ? $txt['scheduled_task_desc_' . $row['task']] : '',
 			'next_time' => $row['disabled'] ? $txt['scheduled_tasks_na'] : timeformat(($row['next_time'] == 0 ? time() : $row['next_time']), true, 'server'),
 			'disabled' => $row['disabled'],
-			'checked_state' => $row['disabled'] ? '' : 'checked="checked"',
+			'checked_state' => $row['disabled'] ? '' : 'checked',
 			'regularity' => $offset . ', ' . $repeating,
 		);
 	}
@@ -323,7 +323,7 @@ function list_getScheduledTasks($start, $items_per_page, $sort)
  */
 function EditTask()
 {
-	global $context, $txt, $sourcedir, $smcFunc, $user_info, $modSettings;
+	global $context, $txt, $sourcedir, $smcFunc;
 
 	// Just set up some lovely context stuff.
 	$context[$context['admin_menu_name']]['current_subsection'] = 'tasks';
@@ -512,7 +512,7 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" onclick="return confirm(\'' . $txt['scheduled_log_empty_log_confirm'] . '\');" class="button_submit" />',
+					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" onclick="return confirm(\'' . $txt['scheduled_log_empty_log_confirm'] . '\');" class="button_submit">',
 			),
 			array(
 				'position' => 'after_title',

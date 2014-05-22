@@ -43,8 +43,8 @@ $txt['permissionname_profile_forum'] = 'Allow Forum Profile edits';
 $txt['permissionhelp_profile_forum'] = 'This option will allow a member to edit their Forum Profile';
 $txt['permissionname_profile_forum_own'] = 'Own profile';
 $txt['permissionname_profile_forum_any'] = 'Any profile';
-$txt['permissionname_profile_other'] = 'Edit website and location';
-$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website, and location fields in their profile';
+$txt['permissionname_profile_other'] = 'Edit website';
+$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website fields in their profile';
 $txt['permissionname_profile_other_own'] = 'Own profile';
 $txt['permissionname_profile_other_any'] = 'Any profile';
 $txt['permissionname_profile_blurb'] = 'Edit personal text';
@@ -84,10 +84,12 @@ $txt['permissions_board_desc'] = '<strong>Note</strong>: changing these board pe
 $txt['permissions_commit'] = 'Save changes';
 $txt['permissions_on'] = 'in profile';
 $txt['permissions_local_for'] = 'Permissions for group';
+$txt['permissions_option_own'] = 'Own';
+$txt['permissions_option_any'] = 'Any';
 $txt['permissions_option_on'] = 'A';
 $txt['permissions_option_off'] = 'X';
 $txt['permissions_option_deny'] = 'D';
-$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span style="color: red;">\'Deny\' (D)</span>.<br /><br />Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br />For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
+$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span style="color: red;">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
@@ -106,8 +108,6 @@ $txt['permissionname_pm_read'] = 'Read personal messages';
 $txt['permissionhelp_pm_read'] = 'This permission allows users to access the Personal Messages section and read their Personal Messages. Without this permission a user is unable to send Personal Messages.';
 $txt['permissionname_pm_send'] = 'Send personal messages';
 $txt['permissionhelp_pm_send'] = 'Send personal messages to other registered members. Requires the \'Read personal messages\' permission.';
-$txt['permissionname_send_email_to_members'] = 'Send emails';
-$txt['permissionhelp_send_email_to_members'] = 'Send emails to other registered members.';
 
 $txt['permissiongroup_calendar'] = 'Calendar';
 $txt['permissionname_calendar_view'] = 'View the calendar';
@@ -184,6 +184,13 @@ $txt['permissionname_profile_remove'] = 'Delete account';
 $txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete his account, when set to \'Own Account\'.';
 $txt['permissionname_profile_remove_own'] = 'Own account';
 $txt['permissionname_profile_remove_any'] = 'Any account';
+$txt['permissionname_view_warning'] = 'View warning status';
+$txt['permissionname_view_warning_own'] = 'Own account';
+$txt['permissionname_view_warning_any'] = 'Any account';
+$txt['permissionhelp_view_warning'] = 'Allows users to view their own warning status and history (\'Own account\') or that of any user (\'Any account\')';
+
+$txt['permissionname_report_user'] = 'Report users\' profiles';
+$txt['permissionhelp_report_user'] = 'This permission will allow members to report other users\' profiles to the admins to alert them of spam or other inappropriate content in the profile.';
 
 $txt['permissiongroup_general_board'] = 'General';
 $txt['permissionname_moderate_board'] = 'Moderate board';
@@ -196,8 +203,6 @@ $txt['permissionname_merge_any'] = 'Merge any topic';
 $txt['permissionhelp_merge_any'] = 'Merge two or more topic into one. The order of messages within the merged topic will be based on the time the messages were created. A user can only merge topics on those boards a user is allowed to merge. In order to merge multiple topics at once, a user has to enable quickmoderation in their profile settings.';
 $txt['permissionname_split_any'] = 'Split any topic';
 $txt['permissionhelp_split_any'] = 'Split a topic into two separate topics.';
-$txt['permissionname_send_topic'] = 'Send topics to friends';
-$txt['permissionhelp_send_topic'] = 'This permission allows a user to mail a topic to a friend, by entering their email address and allows adding a message.';
 $txt['permissionname_make_sticky'] = 'Make topics sticky';
 $txt['permissionhelp_make_sticky'] = 'Sticky topics are topics that always remain on top of a board. They can be useful for announcements or other important messages.';
 $txt['permissionname_move'] = 'Move topic';
@@ -300,7 +305,7 @@ $txt['permission_settings_enable_postgroups'] = 'Enable permissions for post cou
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['permission_disable_postgroups_warning'] = 'Disabling this setting will remove permissions currently set to post count based groups.';
 
-$txt['permissions_post_moderation_desc'] = 'Post Moderation is the situation where posts are &quot;moderated&quot;, where the author and the moderation team can view posts and decide whether to permit them to be visible to other users or not. From this page you can easily change which groups have their posts moderated for a particular permissions profile.';
+$txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
 $txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';
 $txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced permissions enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
 $txt['permissions_post_moderation_select'] = 'Select Profile';

@@ -392,6 +392,11 @@ function updateSettingsFile($config_vars)
 				@copy($boarddir . '/Settings_bak.php', $boarddir . '/Settings.php');
 		}
 	}
+
+	// Even though on normal installations the filemtime should prevent this being used by the installer incorrectly
+	// it seems that there are times it might not. So let's MAKE it dump the cache.
+	if (function_exists('opcache_invalidate'))
+		opcache_invalidate($boarddir . '/Settings.php', true);
 }
 
 /**
@@ -506,7 +511,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 		$emaildata = loadEmailTemplate($template, $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Then send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
+		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, $template, false, 1);
 
 		// Track who we emailed so we don't do it twice.
 		$emails_sent[] = $row['email_address'];
@@ -528,7 +533,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 			$emaildata = loadEmailTemplate($template, $replacements, empty($recipient['lang']) || empty($modSettings['userLanguage']) ? $language : $recipient['lang']);
 
 			// Send off the email.
-			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 1);
+			sendmail($recipient['email'], $emaildata['subject'], $emaildata['body'], null, $template, false, 1);
 		}
 }
 

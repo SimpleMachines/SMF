@@ -26,7 +26,8 @@ if (!defined('SMF'))
 function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
-	global $modSettings, $memberContext, $profile_vars, $smcFunc, $post_errors, $options, $user_settings;
+	global $modSettings, $memberContext, $profile_vars, $post_errors, $user_settings;
+	global $db_show_debug;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -81,9 +82,10 @@ function ModifyProfile($post_errors = array())
 				string $label:		Text string that will be used to show the area in the menu.
 				string $file:		Optional text string that may contain a file name that's needed for inclusion in order to display the area properly.
 				string $custom_url:	Optional href for area.
-				string $function:	Function to execute for this section.
+				string $function:	Function to execute for this section. Can be a call to an static method: class::method
+				string $class		If your function is a method, set the class field with your class's name and SMF will create a new instance for it.
 				bool $enabled:		Should area be shown?
-				string $sc:		Session check validation to do on save - note without this save will get unset - if set.
+				string $sc:			Session check validation to do on save - note without this save will get unset - if set.
 				bool $hidden:		Does this not actually appear on the menu?
 				bool $password:		Whether to require the user's password in order to save the data in the area.
 				array $subsections:	Array of subsections, in order of appearance.
@@ -185,19 +187,19 @@ function ModifyProfile($post_errors = array())
 				),
 				'viewwarning' => array(
 					'label' => $txt['profile_view_warnings'],
-					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'] && (!empty($modSettings['warning_show']) && ($context['user']['is_owner'] || $modSettings['warning_show'] == 2)),
+					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
 					'icon' => 'warning.png',
 					'permission' => array(
-						'own' => 'is_not_guest', // @todo this needs to be a view-own warning
-						'any' => 'issue_warning',
+						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
+						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
 					),
 				),
 			),
 		),
 		'edit_profile' => array(
-			'title' => $txt['profileEdit'],
+			'title' => $txt['forumprofile'],
 			'areas' => array(
 				'account' => array(
 					'label' => $txt['account'],
@@ -326,6 +328,15 @@ function ModifyProfile($post_errors = array())
 						'any' => array('pm_send'),
 					),
 				),
+				'report' => array(
+					'label' => $txt['report_profile'],
+					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
+					'icon' => 'warning.png',
+					'permission' => array(
+						'own' => array(),
+						'any' => array('moderate_forum', 'report_user'),
+					),
+				),
 				'issuewarning' => array(
 					'label' => $txt['profile_issue_warning'],
 					'enabled' => $modSettings['warning_settings'][0] == 1,
@@ -378,6 +389,7 @@ function ModifyProfile($post_errors = array())
 					'icon' => 'regcenter.png',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
+					'token_type' => 'get',
 					'permission' => array(
 						'own' => array(),
 						'any' => array('moderate_forum'),
@@ -517,8 +529,9 @@ function ModifyProfile($post_errors = array())
 	if (isset($profile_include_data['file']))
 		require_once($sourcedir . '/' . $profile_include_data['file']);
 
-	// Make sure that the area function does exist!
-	if (!isset($profile_include_data['function']) || !function_exists($profile_include_data['function']))
+	// Make sure that the area function/method does exist!
+	$exists = (isset($profile_include_data['class']) ? 'class' : 'function') .'_exists';
+	if (!isset($profile_include_data['function']) || !$exists(isset($profile_include_data['class']) ? $profile_include_data['class'] : $profile_include_data['function']))
 	{
 		destroyMenu();
 		fatal_lang_error('no_access', false);
@@ -553,6 +566,9 @@ function ModifyProfile($post_errors = array())
 	// If we're in wireless then we have a cut down template...
 	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_profile';
+
+	if (!WIRELESS)
+		loadJavascriptFile('profile.js', array('default_theme' => true, 'defer' => false), 'smf_profile');
 
 	// These will get populated soon!
 	$post_errors = array();
@@ -708,8 +724,34 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-	// Call the appropriate subaction function.
-	$profile_include_data['function']($memID);
+	// Is this a "real" method?
+	if (isset($profile_include_data['class']) && !empty($profile_include_data['class']) && is_string($profile_include_data['class']))
+	{
+		// Is there an instance already? nope? then create it!
+		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
+		{
+			$context['instances'][$profile_include_data['class']] = new $profile_include_data['class'];
+
+			// Add another one to the list.
+			if ($db_show_debug === true)
+			{
+				if (!isset($context['debug']['instances']))
+					$context['debug']['instances'] = array();
+
+				$context['debug']['instances'][$profile_include_data['class']] = $profile_include_data['class'];
+			}
+		}
+
+		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
+	}
+
+	// A static one or more likely, a plain good old function.
+	else
+		$call = $profile_include_data['function'];
+
+	// Is it valid?
+	if (is_callable($call))
+		call_user_func($call, $memID);
 
 	// Set the page title if it's not already set...
 	if (!isset($context['page_title']))
@@ -750,6 +792,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'forumprofile',
+			'title' => $txt['forumprofile'],
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -758,7 +801,7 @@ function profile_popup($memID)
 		array(
 			'menu' => 'edit_profile',
 			'area' => 'theme',
-			'title' => $txt['popup_preferences'],
+			'title' => $txt['theme'],
 		),
 		array(
 			'menu' => 'edit_profile',
@@ -843,10 +886,11 @@ function loadCustomFields($memID, $area = 'summary')
 	// Load all the relevant fields - and data.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			col_name, field_name, field_desc, field_type, show_reg, field_length, field_options,
+			col_name, field_name, field_desc, field_type, field_order, show_reg, field_length, field_options,
 			default_value, bbc, enclose, placement
 		FROM {db_prefix}custom_fields
-		WHERE ' . $where,
+		WHERE ' . $where .'
+		ORDER BY field_order',
 		array(
 			'area' => $area,
 		)
@@ -872,17 +916,17 @@ function loadCustomFields($memID, $area = 'summary')
 		if ($row['field_type'] == 'check')
 		{
 			$true = (!$exists && $row['default_value']) || $value;
-			$input_html = '<input type="checkbox" name="customfield[' . $row['col_name'] . ']" ' . ($true ? 'checked="checked"' : '') . ' class="input_check" />';
+			$input_html = '<input type="checkbox" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($true ? ' checked' : '') . ' class="input_check">';
 			$output_html = $true ? $txt['yes'] : $txt['no'];
 		}
 		elseif ($row['field_type'] == 'select')
 		{
-			$input_html = '<select name="customfield[' . $row['col_name'] . ']"><option value="-1"></option>';
+			$input_html = '<select name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"><option value="-1"></option>';
 			$options = explode(',', $row['field_options']);
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected="selected"' : '') . '>' . $v . '</option>';
+				$input_html .= '<option value="' . $k . '"' . ($true ? ' selected' : '') . '>' . $v . '</option>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -896,7 +940,7 @@ function loadCustomFields($memID, $area = 'summary')
 			foreach ($options as $k => $v)
 			{
 				$true = (!$exists && $row['default_value'] == $v) || $value == $v;
-				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" class="input_radio" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '" ' . ($true ? 'checked="checked"' : '') . ' />' . $v . '</label><br />';
+				$input_html .= '<label for="customfield_' . $row['col_name'] . '_' . $k . '"><input type="radio" name="customfield[' . $row['col_name'] . ']" class="input_radio" id="customfield_' . $row['col_name'] . '_' . $k . '" value="' . $k . '"' . ($true ? ' checked' : '') . '>' . $v . '</label><br>';
 				if ($true)
 					$output_html = $v;
 			}
@@ -904,12 +948,12 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 		elseif ($row['field_type'] == 'text')
 		{
-			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" ' . ($row['field_length'] != 0 ? 'maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . $value . '" class="input_text" />';
+			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . $value . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
 		}
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" ' . (!empty($rows) ? 'rows="' . $rows . '"' : '') . ' ' . (!empty($cols) ? 'cols="' . $cols . '"' : '') . '>' . $value . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '' ). '>' . $value . '</textarea>';
 		}
 
 		// Parse BBCode
@@ -917,7 +961,7 @@ function loadCustomFields($memID, $area = 'summary')
 			$output_html = parse_bbc($output_html);
 		elseif ($row['field_type'] == 'textarea')
 			// Allow for newlines at least
-			$output_html = strtr($output_html, array("\n" => '<br />'));
+			$output_html = strtr($output_html, array("\n" => '<br>'));
 
 		// Enclosing the user input within some other text?
 		if (!empty($row['enclose']) && !empty($output_html))
@@ -932,6 +976,7 @@ function loadCustomFields($memID, $area = 'summary')
 			'name' => $row['field_name'],
 			'desc' => $row['field_desc'],
 			'type' => $row['field_type'],
+			'order' => $row['field_order'],
 			'input_html' => $input_html,
 			'output_html' => $output_html,
 			'placement' => $row['placement'],
@@ -939,7 +984,7 @@ function loadCustomFields($memID, $area = 'summary')
 			'value' => $value,
 			'show_reg' => $row['show_reg'],
 		);
-		$context['custom_fields_required'] = $context['custom_fields_required'] || $row['show_reg'];
+		$context['custom_fields_required'] = $context['custom_fields_required'] || $row['show_reg'] == 2;
 	}
 	$smcFunc['db_free_result']($request);
 

@@ -49,9 +49,11 @@ $txt['whoall_register'] = 'Registering for an account on the forum.';
 $txt['whoall_register2'] = 'Registering for an account on the forum.';
 $txt['whoall_reminder'] = 'Requesting a password reminder.';
 $txt['whoall_reporttm'] = 'Reporting a topic to a moderator.';
+$txt['whoall_restoretopic'] = 'Restoring a topic.';
 $txt['whoall_spellcheck'] = 'Using the spellchecker';
 $txt['whoall_unread'] = 'Viewing unread topics since their last visit.';
 $txt['whoall_unreadreplies'] = 'Viewing unread replies since their last visit.';
+$txt['whoall_unwatchtopic'] = 'Unwatching a topic.';
 $txt['whoall_who'] = 'Viewing <a href="' . $scripturl . '?action=who">Who\'s Online</a>.';
 
 $txt['whoall_collapse_collapse'] = 'Collapsing a category.';
@@ -78,7 +80,6 @@ $txt['whotopic_printpage'] = 'Printing the topic &quot;<a href="' . $scripturl .
 $txt['whotopic_quickmod2'] = 'Moderating the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
 $txt['whotopic_removepoll'] = 'Removing the poll in &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot;.';
 $txt['whotopic_removetopic2'] = 'Removing the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
-$txt['whotopic_sendtopic'] = 'Sending the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; to a friend.';
 $txt['whotopic_splittopics'] = 'Splitting the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; into two topics.';
 $txt['whotopic_sticky'] = 'Setting the topic &quot;<a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>&quot; as sticky.';
 $txt['whotopic_vote'] = 'Voting in <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
@@ -111,8 +112,6 @@ $txt['whoallow_optimizetables'] = 'Optimizing the database tables.';
 $txt['whoallow_repairboards'] = 'Repairing the database tables.';
 $txt['whoallow_search'] = '<a href="' . $scripturl . '?action=search">Searching</a> the forum.';
 $txt['whoallow_search2'] = 'Viewing the results of a search.';
-$txt['whoallow_setcensor'] = 'Editing the censor text.';
-$txt['whoallow_setreserve'] = 'Editing the reserved names.';
 $txt['whoallow_stats'] = 'Viewing the <a href="' . $scripturl . '?action=stats">forum stats</a>.';
 $txt['whoallow_viewErrorLog'] = 'Viewing the error log.';
 $txt['whoallow_viewmembers'] = 'Viewing a list of members.';

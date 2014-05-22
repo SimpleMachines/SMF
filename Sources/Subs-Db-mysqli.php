@@ -59,7 +59,10 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 		);
 
 	if (!empty($db_options['persist']))
-		$connection = @mysqli_connect('p:' . $db_server, $db_user, $db_passwd);
+		$db_server = 'p:' . $db_server;
+
+	if (!empty($db_options['port']))
+		$connection = @mysqli_connect($db_server, $db_user, $db_passwd, '', $db_options['port']);
 	else
 		$connection = @mysqli_connect($db_server, $db_user, $db_passwd);
 
@@ -605,7 +608,7 @@ function smf_db_error($db_string, $connection = null)
 					REPAIR TABLE $table", false, false);
 
 			// And send off an email!
-			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair']);
+			sendmail($webmaster_email, $txt['database_error'], $txt['tried_to_repair'], null, 'dberror');
 
 			$modSettings['cache_enable'] = $old_cache;
 
@@ -682,13 +685,13 @@ function smf_db_error($db_string, $connection = null)
 	// Show an error message, if possible.
 	$context['error_title'] = $txt['database_error'];
 	if (allowedTo('admin_forum'))
-		$context['error_message'] = nl2br($query_error) . '<br />' . $txt['file'] . ': ' . $file . '<br />' . $txt['line'] . ': ' . $line;
+		$context['error_message'] = nl2br($query_error) . '<br>' . $txt['file'] . ': ' . $file . '<br>' . $txt['line'] . ': ' . $line;
 	else
 		$context['error_message'] = $txt['try_again'];
 
 	if (allowedTo('admin_forum') && isset($db_show_debug) && $db_show_debug === true)
 	{
-		$context['error_message'] .= '<br /><br />' . nl2br($db_string);
+		$context['error_message'] .= '<br><br>' . nl2br($db_string);
 	}
 
 	// It's already been logged... don't log it again.
@@ -779,7 +782,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		// Found it?
 		if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 		{
-			$log_message .= '<br />Function: ' . $step['function'];
+			$log_message .= '<br>Function: ' . $step['function'];
 			break;
 		}
 

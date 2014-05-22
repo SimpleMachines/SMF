@@ -57,8 +57,62 @@ if (!isset($modSettings['allow_no_censored']))
 ---}
 ---#
 
+---# Converting collapsed categories...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.1')
+{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, id_cat
+		FROM {db_prefix}collapsed_categories');
+
+	$inserts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$inserts[] = array($row['id_member'], 1, 'collapse_category_' . $row['id_cat'], $row['id_cat']);
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$inserts,
+			array('id_theme', 'id_member', 'variable')
+		);
+}
+---}
+---#
+
+---# Dropping "collapsed_categories"
+DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
+---#
+
 ---# Adding new "topic_move_any" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
+---#
+
+---# Adding new "browser_cache" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
+---#
+
+---# Enable BBC on Editor and collapse object
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
+---#
+
+---# Enable some settings we ripped from Theme settings
+---{
+$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+
+foreach($ripped_settings as $var)
+{
+	$smcFunc['db_query']('', 'INSERT INTO {db_prefix}settings (variable, value) VALUES ({string:setting}, {int:value})'',
+					array(
+						'setting' => $var,
+						'value' => $settings[$var],
+						'db_error_skip' => true,
+					));
+}
+---}
 ---#
 
 /******************************************************************************/
@@ -67,6 +121,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 
 ---# Converting legacy attachments.
 ---{
+
+// Need to know a few things first.
+$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+
+// This little fellow has to cooperate...
+if (!is_writable($custom_av_dir))
+	@chmod($custom_av_dir, 0777);
+
 $request = upgrade_query("
 	SELECT MAX(id_attach)
 	FROM {$db_prefix}attachments");
@@ -85,10 +147,9 @@ $is_done = false;
 while (!$is_done)
 {
 	nextSubStep($substep);
-	$fileHash = '';
 
 	$request = upgrade_query("
-		SELECT id_attach, id_folder, filename, file_hash
+		SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 		FROM {$db_prefix}attachments
 		WHERE attachment_type != 1
 		LIMIT $_GET[a], 100");
@@ -101,6 +162,8 @@ while (!$is_done)
 	{
 		// The current folder.
 		$currentFolder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$row['id_folder']] : $modSettings['attachmentUploadDir'];
+
+		$fileHash = '';
 
 		// Old School?
 		if (empty($row['file_hash']))
@@ -122,12 +185,13 @@ while (!$is_done)
 			// Create a nice hash.
 			$fileHash = sha1(md5($row['filename'] . time()) . mt_rand());
 
-			// The old file, we need to know if the filename was encrypted or not.
-			if (file_exists($currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename'])))
-				$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
-
-			else if (file_exists($currentFolder . '/' . $row['filename']));
+			// Iterate through the possible attachment names until we find the one that exists
+			$oldFile = $currentFolder . '/' . $row['id_attach']. '_' . strtr($row['filename'], '.', '_') . md5($row['filename']);
+			if (!file_exists($oldFile))
+			{
 				$oldFile = $currentFolder . '/' . $row['filename'];
+				if (!file_exists($oldFile)) $oldFile = false;
+			}
 
 			// Build the new file.
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $fileHash .'.dat';
@@ -140,8 +204,26 @@ while (!$is_done)
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
 		}
 
-		// And we try to move it.
-		rename($oldFile, $newFile);
+		if (!$oldFile)
+		{
+			// Existing attachment could not be found. Just skip it...
+			continue;
+		}
+
+		// Check if the av is an attachment
+		if ($row['id_member'] != 0)
+		{
+			if (rename($oldFile, $custom_av_dir . '/' . $row['filename']))
+				upgrade_query("
+					UPDATE {$db_prefix}attachments
+					SET file_hash = '', attachment_type = 1
+					WHERE id_attach = $row[id_attach]");
+		}
+		// Just a regular attachment.
+		else
+		{
+			rename($oldFile, $newFile);
+		}
 
 		// Only update this if it was successful and the file was using the old system.
 		if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile))
@@ -149,6 +231,22 @@ while (!$is_done)
 				UPDATE {$db_prefix}attachments
 				SET file_hash = '$fileHash'
 				WHERE id_attach = $row[id_attach]");
+
+		// While we're here, do we need to update the mime_type?
+		if (empty($row['mime_type']) && file_exists($newFile))
+		{
+			$size = @getimagesize($newFile);
+			if (!empty($size['mime']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}attachments
+					SET mime_type = {string:mime_type}
+					WHERE id_attach = {int:id_attach}',
+					array(
+						'id_attach' => $row['id_attach'],
+						'mime_type' => substr($size['mime'], 0, 20),
+					)
+				);
+		}
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -157,6 +255,37 @@ while (!$is_done)
 }
 
 unset($_GET['a']);
+---}
+---#
+
+---# Fixing invalid sizes on attachments
+---{
+$attachs = array();
+// If id_member = 0, then it's not an avatar
+// If attachment_type = 0, then it's also not a thumbnail
+// Theory says there shouldn't be *that* many of these
+$request = $smcFunc['db_query']('', '
+	SELECT id_attach, mime_type, width, height
+	FROM {db_prefix}attachments
+	WHERE id_member = 0
+		AND attachment_type = 0');
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	if (($row['width'] > 0 || $row['height'] > 0) && strpos($row['mime_type'], 'image') !== 0)
+		$attachs[] = $row['id_attach'];
+}
+$smcFunc['db_free_result']($request);
+
+if (!empty($attachs))
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}attachments
+		SET width = 0,
+			height = 0
+		WHERE id_attach IN ({array_int:attachs})',
+		array(
+			'attachs' => $attachs,
+		)
+	);
 ---}
 ---#
 
@@ -271,19 +400,71 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 ---#
 
 /******************************************************************************/
----- Replacing MSN with Skype
-/******************************************************************************/
----# Modifying the "msn" column...
-ALTER TABLE {$db_prefix}members
-CHANGE msn skype varchar(255) NOT NULL DEFAULT '';
----#
-
-/******************************************************************************/
 --- Adding support for deny boards access
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
 ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+---#
+
+/******************************************************************************/
+--- Updating board access rules
+/******************************************************************************/
+---# Updating board access rules
+---{
+$member_groups = array(
+	'allowed' => array(),
+	'denied' => array(),
+);
+
+$request = $smcFunc['db_query']('', '
+	SELECT id_group, add_deny
+	FROM {db_prefix}permissions
+	WHERE permission = {string:permission}',
+	array(
+		'permission' => 'manage_boards',
+	)
+);
+while ($row = $smcFunc['db_fetch_assoc']($request))
+	$member_groups[$row['add_deny'] === '1' ? 'allowed' : 'denied'][] = $row['id_group'];
+$smcFunc['db_free_result']($request);
+
+$member_groups = array_diff($member_groups['allowed'], $member_groups['denied']);
+
+if (!empty($member_groups))
+{
+	$count = count($member_groups);
+	$changes = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_board, member_groups
+		FROM {db_prefix}boards');
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$current_groups = explode(',', $row['member_groups']);
+		if (count(array_intersect($current_groups, $member_groups)) != $count)
+		{
+			$new_groups = array_unique(array_merge($current_groups, $member_groups));
+			$changes[$row['id_board']] = implode(',', $new_groups);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($changes))
+	{
+		foreach ($changes as $id_board => $member_groups)
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}boards
+				SET member_groups = {string:member_groups}
+					WHERE id_board = {int:id_board}',
+				array(
+					'member_groups' => $member_groups,
+					'id_board' => $id_board,
+				)
+			);
+	}
+}
+---}
 ---#
 
 /******************************************************************************/
@@ -312,7 +493,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   content_type varchar(255) NOT NULL default '',
   content_id int(10) unsigned NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
-  is_read tinyint(3) unsigned NOT NULL default '0',
+  is_read int(10) unsigned NOT NULL default '0',
   extra text NOT NULL,
   PRIMARY KEY (id_alert),
   KEY id_member (id_member),
@@ -445,6 +626,113 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 ---#
 
 /******************************************************************************/
+--- Messenger fields
+/******************************************************************************/
+---# Adding new field_order column...
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN field_order smallint NOT NULL default '0';
+---#
+
+---# Adding new show_mlist column...
+ALTER TABLE {$db_prefix}custom_fields
+ADD COLUMN show_mlist smallint NOT NULL default '0';
+---#
+
+---# Insert fields
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+---#
+
+---# Add an order and show on mlist value to each existing cust profile field.
+---{
+	$ocf = $smcFunc['db_query']('', '
+		SELECT id_field
+		FROM {db_prefix}custom_fields');
+
+		// We start counting from 6 because we already have the first 6 fields.
+		$fields_count = 6;
+
+		while ($row = $smcFunc['db_fetch_assoc']($ocf))
+		{
+			$fields_count++;
+
+			if (!empty($row['id_field']))
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}custom_fields
+					SET field_order = {int:field_count}, show_mlist = {int:show_mlist}
+					WHERE id_field = {int:id_field}
+						AND field_order = {int:show_mlist}',
+					array(
+						'field_count' => $fields_count,
+						'show_list' => 0,
+						'id_field' => $row['id_field'],
+						'six' => 6,
+					)
+				);
+		}
+		$smcFunc['db_free_result']($ocf);
+---}
+---#
+
+---# Converting member values...
+---{
+// We cannot do this twice
+if (@$modSettings['smfVersion'] < '2.1')
+{
+	$request = $smcFunc['db_query']('', '
+		SELECT id_member, aim, icq, msn, yim, location, gender
+		FROM {db_prefix}members');
+
+	$inserts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!empty($row['aim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_aolins', $row['aim']);
+
+		if (!empty($row['icq']))
+			$inserts[] = array($row['id_member'], -1, 'cust_icq', $row['icq']);
+
+		if (!empty($row['msn']))
+			$inserts[] = array($row['id_member'], -1, 'cust_skyp', $row['msn']);
+
+		if (!empty($row['yim']))
+			$inserts[] = array($row['id_member'], -1, 'cust_yim', $row['yim']);
+
+		if (!empty($row['location']))
+			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
+
+		if (!empty($row['gender']))
+			$inserts[] = array($row['id_member'], -1, 'cust_gender', $row['gender']);
+	}
+	$smcFunc['db_free_result']($request);
+
+	if (!empty($inserts))
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}themes',
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
+			$inserts,
+			array('id_theme', 'id_member', 'variable')
+		);
+}
+---}
+---#
+
+---# Dropping old fields
+ALTER TABLE `{$db_prefix}members`
+  DROP `icq`,
+  DROP `aim`,
+  DROP `yim`,
+  DROP `msn`,
+  DROP `location`,
+  DROP `gender`;
+---#
+
+/******************************************************************************/
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating draft table
@@ -570,23 +858,115 @@ WHERE variable LIKE 'integrate_%';
 /******************************************************************************/
 --- Cleaning up old settings
 /******************************************************************************/
----# Showing contact details to guests should never happen.
+---# Updating the default time format
+---{
+if (!empty($modSettings['time_format']))
+{
+	// First, use the shortened form of the month in the date.
+	$time_format = str_replace('%B', '%b', $modSettings['time_format']);
+
+	// Second, shorten the time to stop including seconds.
+	$time_format = str_replace(':%S', '', $time_format);
+
+	// Then, update the database.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:new_format}
+		WHERE variable = {literal:time_format}',
+		array(
+			'new_format' => $time_format,
+		)
+	);
+}
+---}
+---#
+
+---# Fixing a deprecated option.
+UPDATE {$db_prefix}settings
+SET value = 'option_css_resize'
+WHERE variable = 'avatar_action_too_large'
+	AND (value = 'option_html_resize' OR value = 'option_js_resize');
+---#
+
+---# Cleaning up the old Core Features page.
+---{
+	// First get the original value
+	$request = $smcFunc['db_query']('', '
+		SELECT value
+		FROM {db_prefix}settings
+		WHERE variable = {literal:admin_features}');
+	if ($smcFunc['db_num_rows']($request) > 0 && $row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// Some of these *should* already be set but you never know.
+		$new_settings = array();
+		$admin_features = explode(',', $row['value']);
+
+		// Now, let's just recap something.
+		// cd = calendar, should also have set cal_enabled already
+		// cp = custom profile fields, which already has several fields that cover tracking
+		// k = karma, should also have set karmaMode already
+		// ps = paid subs, should also have set paid_enabled already
+		// rg = reports generation, which is now permanently on
+		// sp = spider tracking, should also have set spider_mode already
+		// w = warning system, which will be covered with warning_settings
+
+		// The rest we have to deal with manually.
+		// Moderation log - modlog_enabled itself should be set but we have others now
+		if (in_array('ml', $admin_features))
+		{
+			$new_settings[] = array('adminlog_enabled', '1');
+			$new_settings[] = array('userlog_enabled', '1');
+		}
+
+		// Post moderation
+		if (in_array('pm', $admin_features))
+		{
+			$new_settings[] = array('postmod_active', '1');
+		}
+
+		// And now actually apply it.
+		if (!empty($new_settings))
+		{
+			$smcFunc['db_insert']('replace',
+				'{db_prefix}settings',
+				array('variable' => 'string', 'value' => 'string'),
+				$new_settings,
+				array('variable')
+			);
+		}
+	}
+	$smcFunc['db_free_result']($request);
+---}
+---#
+
+---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin');
 ---#
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
 ---#
 
 /******************************************************************************/
---- Removing old Simple Machines files we do not need to fetch any more
+--- Updating files that fetched from simplemachines.org
 /******************************************************************************/
----# We no longer call on the latest packages list.
+---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
 WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
+---#
+
+---# But we do need new files.
+---{
+$smcFunc['db_insert']('',
+	'{db_prefix}admin_info_files',
+	array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
+	array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+	array('id_file')
+);
+---}
 ---#
 
 /******************************************************************************/
@@ -659,6 +1039,11 @@ WHERE permission = 'profile_view_any';
 ---# Removing the old notification permissions
 DELETE FROM {$db_prefix}board_permissions
 WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
+---#
+
+---# Removing the send-topic permission
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'send_topic';
 ---#
 
 ---# Adding "profile_password_own"
@@ -774,11 +1159,18 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 			{
 				// Keep track of the index of this label - we'll need that in a bit...
 				$label_info[$row['id_member']][$label] = $index;
-				$inserts[] = array($row['id_member'], $label);
 			}
 		}
 
 		$smcFunc['db_free_result']($get_labels);
+
+		foreach ($label_info AS $id_member => $labels)
+		{
+			foreach ($labels as $label => $index)
+			{
+				$inserts[] = array($id_member, $label);
+			}
+		}
 
 		if (!empty($inserts))
 		{
@@ -811,8 +1203,8 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		while ($label_row = $smcFunc['db_fetch_assoc']($get_new_label_ids))
 		{
 			// Map the old index values to the new ID values...
-			$old_index = $label_info[$row['id_member']][$row['label_name']];
-			$label_info_2[$row['id_member']][$old_index] = $row['id_label'];
+			$old_index = $label_info[$label_row['id_member']][$label_row['name']];
+			$label_info_2[$label_row['id_member']][$old_index] = $label_row['id_label'];
 		}
 
 		$smcFunc['db_free_result']($get_new_label_ids);
@@ -904,7 +1296,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL;
+ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
@@ -972,4 +1364,36 @@ ADD COLUMN modified_reason varchar(255) NOT NULL;
 		);
 	}
 ---}
+---#
+
+/******************************************************************************/
+--- Cleaning up old email settings
+/******************************************************************************/
+---# Removing the "send_email_to_members" permission
+---{
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}permissions
+		WHERE permission = {literal:send_email_to_members}',
+		array()
+	);
+---}
+---#
+
+---# Dropping the "hide_email" column from the members table
+ALTER TABLE {$db_prefix}members
+DROP hide_email;
+---#
+
+/******************************************************************************/
+--- Deleting the "Auto Optimize" task
+/******************************************************************************/
+---# Removing the task and associated data
+DELETE FROM {$db_prefix}scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}log_scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'autoOptMaxOnline';
 ---#

@@ -23,7 +23,6 @@ $txt['username_reserved'] = 'The username you tried to use contains the reserved
 $txt['numbers_one_to_nine'] = 'This field only accepts numbers from 0-9';
 $txt['not_a_user'] = 'The user whose profile you are trying to view does not exist.';
 $txt['not_a_topic'] = 'This topic doesn\'t exist on this board.';
-$txt['not_approved_topic'] = 'This topic has not been approved yet.';
 $txt['email_in_use'] = 'That email address (%1$s) is being used by a registered member already. If you feel this is a mistake, go to the login page and use the password reminder with that address.';
 $txt['attachments_no_write'] = 'The attachments directory is not writable';
 
@@ -128,7 +127,6 @@ $txt['cannot_report_any'] = 'You are not allowed to report posts in this board.'
 $txt['cannot_search_posts'] = 'You are not allowed to search for posts in this forum.';
 $txt['cannot_send_mail'] = 'You don\'t have the privilege of sending out emails to everyone.';
 $txt['cannot_issue_warning'] = 'Sorry, you do not have permission to issue warnings to members.';
-$txt['cannot_send_topic'] = 'Sorry, but the administrator has disallowed sending topics on this board.';
 $txt['cannot_send_email_to_members'] = 'Sorry, but the administrator has disallowed sending emails on this board.';
 $txt['cannot_split_any'] = 'Splitting just any topic is not allowed in this board.';
 $txt['cannot_view_attachments'] = 'It seems that you are not allowed to download or view attachments on this board.';
@@ -177,11 +175,11 @@ $txt['topic_already_moved'] = 'This topic %1$s has been moved to the board %2$s,
 $txt['already_activated'] = 'Your account has already been activated.';
 $txt['still_awaiting_approval'] = 'Your account is still awaiting admin approval.';
 
-$txt['invalid_email'] = 'Invalid email address / email address range.<br />Example of a valid email address: evil.user@badsite.com.<br />Example of a valid email address range: *@*.badsite.com';
+$txt['invalid_email'] = 'Invalid email address / email address range.<br>Example of a valid email address: evil.user@badsite.com.<br>Example of a valid email address range: *@*.badsite.com';
 $txt['invalid_expiration_date'] = 'Expiration date is not valid';
-$txt['invalid_hostname'] = 'Invalid host name / host name range.<br />Example of a valid host name: proxy4.badhost.com<br />Example of a valid host name range: *.badhost.com';
-$txt['invalid_ip'] = 'Invalid IP / IP range.<br />Example of a valid IP address: 127.0.0.1<br />Example of a valid IP range: 127.0.0-20.*';
-$txt['invalid_tracking_ip'] = 'Invalid IP / IP range.<br />Example of a valid IP address: 127.0.0.1<br />Example of a valid IP range: 127.0.0.*';
+$txt['invalid_hostname'] = 'Invalid host name / host name range.<br>Example of a valid host name: proxy4.badhost.com<br>Example of a valid host name range: *.badhost.com';
+$txt['invalid_ip'] = 'Invalid IP / IP range.<br>Example of a valid IP address: 127.0.0.1<br>Example of a valid IP range: 127.0.0-20.*';
+$txt['invalid_tracking_ip'] = 'Invalid IP / IP range.<br>Example of a valid IP address: 127.0.0.1<br>Example of a valid IP range: 127.0.0.*';
 $txt['invalid_username'] = 'Member name not found';
 $txt['no_user_selected'] = 'Member not found';
 $txt['no_ban_admin'] = 'You may not ban an admin - You must demote them first!';
@@ -190,7 +188,6 @@ $txt['ban_not_found'] = 'Ban not found';
 $txt['ban_unknown_restriction_type'] = 'Restriction type unknown';
 $txt['ban_name_empty'] = 'The name of the ban was left empty';
 $txt['ban_id_empty'] = 'Ban id not found';
-$txt['ban_group_id_empty'] = 'Ban group id missing';
 $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';
 $txt['impossible_insert_new_bangroup'] = 'An error occurred while inserting the new ban';
@@ -199,7 +196,7 @@ $txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please ch
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
 $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';
-$txt['post_already_deleted'] = 'The topic or message has already been moved to the recycle board. Are you sure you want to delete it completely?<br />If so follow <a href="%1$s">this link</a>';
+$txt['post_already_deleted'] = 'The topic or message has already been moved to the recycle board. Are you sure you want to delete it completely?<br>If so follow <a href="%1$s">this link</a>';
 
 $txt['login_threshold_fail'] = 'Sorry, you are out of login chances.  Please come back and try again later.';
 $txt['login_threshold_brute_fail'] = 'Sorry, but you\'ve reached your login attempts threshold.  Please wait 30 seconds and try again later.';
@@ -214,7 +211,6 @@ $txt['register_WaitTime_broken'] = 'You already registered just %1$d seconds ago
 $txt['login_WaitTime_broken'] = 'You will have to wait about %1$d seconds to login again, sorry.';
 $txt['pm_WaitTime_broken'] = 'The last personal message from your IP was less than %1$d seconds ago. Please try again later.';
 $txt['reporttm_WaitTime_broken'] = 'The last topic report from your IP was less than %1$d seconds ago. Please try again later.';
-$txt['sendtopic_WaitTime_broken'] = 'The last topic sent from your IP was less than %1$d seconds ago. Please try again later.';
 $txt['sendmail_WaitTime_broken'] = 'The last email sent from your IP was less than %1$d seconds ago. Please try again later.';
 $txt['search_WaitTime_broken'] = 'Your last search was less than %1$d seconds ago. Please try again later.';
 $txt['remind_WaitTime_broken'] = 'Your last reminder was less than %1$d seconds ago. Please try again later.';
@@ -290,12 +286,12 @@ $txt['package_upload_error_nofile'] = 'You did not select a package to upload.';
 $txt['package_upload_error_failed'] = 'Could not upload package, please check directory permissions!';
 $txt['package_upload_error_exists'] = 'The file you are uploading already exists on the server. Please delete it first then try again.';
 $txt['package_upload_error_supports'] = 'The package manager currently allows only these file types: %1$s.';
-$txt['package_upload_error_broken'] = 'Package upload failed due to the following error:<br />&quot;%1$s&quot;';
-$txt['package_theme_upload_error_broken'] = 'Theme upload failed due to the following error:<br />&quot;%1$s&quot;';
+$txt['package_upload_error_broken'] = 'Package upload failed due to the following error:<br>&quot;%1$s&quot;';
+$txt['package_theme_upload_error_broken'] = 'Theme upload failed due to the following error:<br>&quot;%1$s&quot;';
 
 $txt['package_get_error_not_found'] = 'The package you are trying to install cannot be located. You may want to manually upload the package to your Packages directory.';
 $txt['package_get_error_missing_xml'] = 'The package you are attempting to install is missing the package-info.xml that must be in the root package directory.';
-$txt['package_get_error_is_zero'] = 'Although the package was downloaded to the server it appears to be empty. Please check the Packages directory, and the &quot;temp&quot; sub-directory are both writable. If you continue to experience this problem you should try extracting the package on your PC and uploading the extracted files into a subdirectory in your Packages directory and try again. For example, if the package was called shout.tar.gz you should:<br />1) Download the package to your local PC and extract it into files.<br />2) Using an FTP client create a new directory in your &quot;Packages&quot; folder, in this example you may call it "shout".<br />3) Upload all the files from the extracted package to this directory.<br />4) Go back to the package manager browse page and the package will be automatically found by SMF.';
+$txt['package_get_error_is_zero'] = 'Although the package was downloaded to the server it appears to be empty. Please check the Packages directory, and the &quot;temp&quot; sub-directory are both writable. If you continue to experience this problem you should try extracting the package on your PC and uploading the extracted files into a subdirectory in your Packages directory and try again. For example, if the package was called shout.tar.gz you should:<br>1) Download the package to your local PC and extract it into files.<br>2) Using an FTP client create a new directory in your &quot;Packages&quot; folder, in this example you may call it "shout".<br>3) Upload all the files from the extracted package to this directory.<br>4) Go back to the package manager browse page and the package will be automatically found by SMF.';
 $txt['package_get_error_packageinfo_corrupt'] = 'SMF was unable to find any valid information within the package-info.xml file included within the Package. There may be an error with the modification, or the package may be corrupt.';
 $txt['package_get_error_is_theme'] = 'You can\'t install a Theme from this section, please use the <a href="{MANAGETHEMEURL}">Themes and Layout</a> management page to upload it';
 $txt['package_get_error_is_mod'] = 'You can\'t install a mod from this section, please use the <a href="{MANAGEMODURL}">Package manager</a> page to upload it';
@@ -319,7 +315,7 @@ $txt['error_invalid_search_string'] = 'Did you forget to put something to search
 $txt['error_invalid_search_string_blacklist'] = 'Your search query contained too trivial words. Please try again with a different query.';
 $txt['error_search_string_small_words'] = 'Each word must be at least two characters long.';
 $txt['error_query_not_specific_enough'] = 'Your search query didn\'t return any matches.';
-$txt['error_no_messages_in_time_frame'] = 'No messages found in selected time frame.';
+$txt['error_no_messages_in_time_frame'] = 'No posts found in selected time frame.';
 $txt['error_no_labels_selected'] = 'No labels were selected.';
 $txt['error_no_search_daemon'] = 'Unable to access the search daemon';
 
@@ -335,17 +331,24 @@ $txt['profile_error_email_taken'] = 'Another user is already registered with tha
 $txt['profile_error_no_password'] = 'You did not enter your password';
 $txt['profile_error_bad_new_password'] = 'The new passwords you entered do not match';
 $txt['profile_error_bad_password'] = 'The password you entered was not correct';
-$txt['profile_error_bad_avatar'] = 'The avatar you have selected is either too large or not an avatar';
+$txt['profile_error_bad_avatar'] = 'The avatar you have selected is not a valid image';
+$txt['profile_error_bad_avatar_invalid_url'] = 'The url you specified is invalid, please check it.';
+$txt['profile_error_bad_avatar_too_large'] = 'The image you\'re trying to use surpasses the max width/height settings, please use a smaller one.';
+$txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
 $txt['profile_error_password_short'] = 'Your password must be at least ' . (empty($modSettings['password_strength']) ? 4 : 8) . ' characters long.';
 $txt['profile_error_password_restricted_words'] = 'Your password must not contain your username, email address or other commonly used words.';
 $txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_openid_in_use'] = 'Another user is already using that OpenID authentication URL';
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
-$txt['profile_error_aim_too_long'] = 'The AIM nickname is too long.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';
 $txt['profile_error_user_title_too_long'] = 'The custom title is too long.';
+$txt['profile_error_custom_field_mail_fail'] = 'The mail validation check returned an error, you need to enter a valid email format (user@domain).';
+$txt['profile_error_custom_field_regex_fail'] = 'The regex verification returned an error, if you are unsure about what to type here, please contact the forum administrator.';
 
+// Registration form.
+$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
+$txt['error_too_quickly'] = 'You went through registration a bit too quickly, faster than should normally be possible. Please give it a moment and try again.';
 $txt['mysql_error_space'] = ' - check database storage space or contact the server administrator.';
 
 $txt['icon_not_found'] = 'The icon image could not be found in the default theme - please ensure the image has been uploaded and try again.';

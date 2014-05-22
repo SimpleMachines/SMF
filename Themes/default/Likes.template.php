@@ -3,7 +3,7 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
+ * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
@@ -12,17 +12,17 @@
 
 function template_popup()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $txt, $modSettings;
 
 	// Since this is a popup of its own we need to start the html, etc.
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body id="likes_popup">
 		<div class="windowbg">
@@ -35,7 +35,7 @@ function template_popup()
 					<span class="floatleft avatar">', $like_details['profile']['avatar']['image'], '</span>
 					<span class="floatright">', $like_details['time'], '</span>
 					<span class="floatleft">
-						', $like_details['profile']['link_color'], '<br />
+						', $like_details['profile']['link_color'], '<br>
 						', $like_details['profile']['group'], '
 					</span>
 				</li>';
@@ -43,11 +43,51 @@ function template_popup()
 
 	echo '
 			</ul>
-			<br class="clear" />
+			<br class="clear">
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
 	</body>
 </html>';
+}
+
+function template_like()
+{
+	global $context, $scripturl, $txt;
+
+	echo '
+	<ul class="floatleft">';
+
+	if (!empty($context['data']['can_like']))
+	{
+		echo '
+		<li class="like_button" id="msg_', $context['data']['id_msg'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $context['data']['id_msg'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+	}
+
+	if (!empty($context['data']['count']))
+	{
+		$context['some_likes'] = true;
+		$count = $context['data']['count'];
+		$base = 'likes_';
+		if ($context['data']['already_liked'])
+		{
+			$base = 'you_' . $base;
+			$count--;
+		}
+		$base .= (isset($txt[$base . $count])) ? $count : 'n';
+
+		echo '
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;js=1;like=' . $context['data']['id_msg'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+	}
+
+	echo '
+	</ul>';
+}
+
+function template_generic()
+{
+	global $context;
+
+	echo $context['data'];
 }
 
 ?>

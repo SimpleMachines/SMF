@@ -20,7 +20,7 @@ if (!defined('SMF'))
  */
 function summary($memID)
 {
-	global $context, $memberContext, $txt, $modSettings, $user_info, $user_profile, $sourcedir, $scripturl, $smcFunc;
+	global $context, $memberContext, $txt, $modSettings, $user_profile, $sourcedir, $scripturl, $smcFunc;
 
 	// Attempt to load the member's profile data.
 	if (!loadMemberContext($memID) || !isset($memberContext[$memID]))
@@ -30,12 +30,11 @@ function summary($memID)
 	$context += array(
 		'page_title' => sprintf($txt['profile_of_username'], $memberContext[$memID]['name']),
 		'can_send_pm' => allowedTo('pm_send'),
-		'can_send_email' => allowedTo('send_email_to_members'),
 		'can_have_buddy' => allowedTo('profile_identity_own') && !empty($modSettings['enable_buddylist']),
 		'can_issue_warning' => allowedTo('issue_warning') && $modSettings['warning_settings'][0] == 1,
+		'can_view_warning' => (allowedTo('moderate_forum') || allowedTo('issue_warning') || allowedTo('view_warning_any') || ($context['user']['is_owner'] && allowedTo('view_warning_own')) && $modSettings['warning_settings'][0] === 1)
 	);
 	$context['member'] = &$memberContext[$memID];
-	$context['can_view_warning'] = (allowedTo('issue_warning') && !$context['user']['is_owner']) || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $context['user']['is_owner']));
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl . '?action=profile;u=' . $memID;
@@ -113,6 +112,12 @@ function summary($memID)
 
 		// Should we show a custom message?
 		$context['activate_message'] = isset($txt['account_activate_method_' . $context['member']['is_activated'] % 10]) ? $txt['account_activate_method_' . $context['member']['is_activated'] % 10] : $txt['account_not_activated'];
+
+		// If they can be approved, we need to set up a token for them.
+		$context['token_check'] = 'profile-aa' . $memID;
+		createToken($context['token_check'], 'get');
+
+		$context['activate_link'] = $scripturl . '?action=profile;save;area=activateaccount;u=' . $context['id_member'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';' . $context[$context['token_check'] . '_token_var'] . '=' . $context[$context['token_check'] . '_token'];
 	}
 
 	// Is the signature even enabled on this forum?
@@ -169,7 +174,7 @@ function summary($memID)
 			$ban_explanation = sprintf($txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
 
 			$context['member']['bans'][$row['id_ban_group']] = array(
-				'reason' => empty($row['reason']) ? '' : '<br /><br /><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
+				'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . $txt['ban_reason'] . ':</strong> ' . $row['reason'],
 				'cannot' => array(
 					'access' => !empty($row['cannot_access']),
 					'register' => !empty($row['cannot_register']),
@@ -182,6 +187,9 @@ function summary($memID)
 		$smcFunc['db_free_result']($request);
 	}
 
+	// Are they hidden?
+	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
+		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
 }
 
@@ -308,6 +316,8 @@ function fetch_alerts($memID, $all = false)
 			$alerts[$id_alert]['extra']['topic_msg'] = $topics[$alert['extra']['topic']];
 		if ($alert['content_type'] == 'msg')
 			$alerts[$id_alert]['extra']['msg_msg'] = $msgs[$alert['content_id']];
+		if ($alert['content_type'] == 'profile')
+			$alerts[$id_alert]['extra']['profile_msg'] = '<a href="' . $scripturl . '?action=profile;u=' . $alerts[$id_alert]['content_id'] . '">' . $alerts[$id_alert]['extra']['user_name'] . '</a>';
 
 		if (!empty($memberContext[$alert['sender_id']]))
 			$alerts[$id_alert]['sender'] = &$memberContext[$alert['sender_id']];
@@ -316,8 +326,8 @@ function fetch_alerts($memID, $all = false)
 		if (isset($txt[$string]))
 		{
 			$extra = $alerts[$id_alert]['extra'];
-			$search = array('{member_link}');
-			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name']);
+			$search = array('{member_link}', '{scripturl}');
+			$repl = array(!empty($alert['sender_id']) ? '<a href="' . $scripturl . '?action=profile;u=' . $alert['sender_id'] . '">' . $alert['sender_name'] . '</a>' : $alert['sender_name'], $scripturl);
 			foreach ($extra as $k => $v)
 			{
 				$search[] = '{' . $k . '}';
@@ -679,7 +689,7 @@ function showPosts($memID)
  */
 function showAttachments($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $board;
+	global $txt, $scripturl, $modSettings, $board;
 	global $context, $user_profile, $sourcedir, $smcFunc;
 
 	// OBEY permissions!
@@ -1022,7 +1032,7 @@ function showUnwatched($memID)
  */
 function list_getUnwatched($start, $items_per_page, $sort, $memID)
 {
-	global $smcFunc, $board, $modSettings, $context;
+	global $smcFunc;
 
 	// Get the list of topics we can see
 	$request = $smcFunc['db_query']('', '
@@ -1082,7 +1092,7 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
  */
 function list_getNumUnwatched($memID)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc;
 
 	// Get the total number of attachments they have posted.
 	$request = $smcFunc['db_query']('', '
@@ -1424,7 +1434,7 @@ function trackActivity($memID)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '%1$s<br /><a href="%2$s">%2$s</a>',
+						'format' => '%1$s<br><a href="%2$s">%2$s</a>',
 						'params' => array(
 							'message' => false,
 							'url' => false,
@@ -1926,7 +1936,7 @@ function TrackIP($memID = 0)
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '%1$s<br /><a href="%2$s">%2$s</a>',
+						'format' => '%1$s<br><a href="%2$s">%2$s</a>',
 						'params' => array(
 							'message' => false,
 							'url' => false,
@@ -2012,8 +2022,7 @@ function TrackIP($memID = 0)
  */
 function TrackLogins($memID = 0)
 {
-	global $user_profile, $scripturl, $txt, $user_info, $modSettings, $sourcedir;
-	global $context, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $context;
 
 	// Gonna want this for the list.
 	require_once($sourcedir . '/Subs-List.php');
@@ -2532,7 +2541,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 function showPermissions($memID)
 {
 	global $scripturl, $txt, $board, $modSettings;
-	global $user_profile, $context, $user_info, $sourcedir, $smcFunc;
+	global $user_profile, $context, $sourcedir, $smcFunc;
 
 	// Verify if the user has sufficient permissions.
 	isAllowedTo('manage_permissions');
@@ -2592,6 +2601,9 @@ function showPermissions($memID)
 			);
 	}
 	$smcFunc['db_free_result']($request);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortBoards($context['boards']);
 
 	if (!empty($context['no_access_boards']))
 		$context['no_access_boards'][count($context['no_access_boards']) - 1]['is_last'] = true;
@@ -2719,7 +2731,7 @@ function viewWarning($memID)
 	global $modSettings, $context, $sourcedir, $txt, $scripturl;
 
 	// Firstly, can we actually even be here?
-	if (!allowedTo('issue_warning') && (empty($modSettings['warning_show']) || ($modSettings['warning_show'] == 1 && !$context['user']['is_owner'])))
+	if (!($context['user']['is_owner'] && allowedTo('view_warning_own')) && !allowedTo('view_warning_any') && !allowedTo('issue_warning') && !allowedTo('moderate_forum'))
 		fatal_lang_error('no_access', false);
 
 	// Make sure things which are disabled stay disabled.
