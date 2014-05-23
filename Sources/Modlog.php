@@ -606,7 +606,6 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 	}
 
 	// Do some formatting of the action string.
-	$callback = pregReplaceCurry('list_getModLogEntriesCallback', 3);
 	foreach ($entries as $k => $entry)
 	{
 		// Make any message info links so its easier to go find that message.
@@ -629,29 +628,15 @@ function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '
 
 		if (empty($entries[$k]['action_text']))
 			$entries[$k]['action_text'] = isset($txt['modlog_ac_' . $entry['action']]) ? $txt['modlog_ac_' . $entry['action']] : $entry['action'];
-		$entries[$k]['action_text'] = preg_replace_callback('~\{([A-Za-z\d_]+)\}~i', $callback($entries, $k), $entries[$k]['action_text']);
+		$entries[$k]['action_text'] = preg_replace_callback('~\{([A-Za-z\d_]+)\}~i',
+			function ($matches) use ($entries, $k)
+			{
+				return isset($entries[$k]['extra'][$matches[1]]) ? $entries[$k]['extra'][$matches[1]] : '';
+			}, $entries[$k]['action_text']);
 	}
 
 	// Back we go!
 	return $entries;
-}
-
-/**
- * Mog Log Replacment Callback.
- *
- * Our callback that does the actual replacments.
- *
- * Original code from: http://php.net/manual/en/function.preg-replace-callback.php#88013
- * This is needed until SMF only supports PHP 5.3+ and we change to "use"
- *
- * @param string $entries
- * @param string $key
- * @param string $matches
- * @return string the replaced results.
- */
-function list_getModLogEntriesCallback($entries, $key, $matches)
-{
-    return isset($entries[$key]['extra'][$matches[1]]) ? $entries[$key]['extra'][$matches[1]] : '';
 }
 
 ?>
