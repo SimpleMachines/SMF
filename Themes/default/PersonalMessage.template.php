@@ -1934,7 +1934,7 @@ function template_showPMDrafts()
 							', $draft['body'], '
 						</div>
 						<ul class="reset smalltext quickbuttons">
-							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="modifybutton"><span>', $txt['draft_edit'], '</span></a></li>
 							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
 						</ul>
 					</div>
