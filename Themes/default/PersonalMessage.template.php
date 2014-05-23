@@ -1333,18 +1333,27 @@ function template_prune()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_prune'], '</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
+	<div class="cat_bar">
+		<h3 class="catbg">', $txt['pm_prune'], '</h3>
+	</div>
+	<div class="windowbg">
+		<div class="content">
+			<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
 				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14" class="input_text"> ', $txt['pm_prune_desc2'], '</p>
 				<input type="submit" value="', $txt['delete'], '" class="button_submit">
-			</div>
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</form>
 		</div>
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-	</form>';
+	</div>
+	<div class="windowbg">
+		<div class="content">
+			<form action="', $scripturl, '?action=pm;sa=removeall2" method="post" onsubmit="return confirm(\'', $txt['pm_remove_all_warning'], '\');">
+				<p>', $txt['pm_remove_all'], '</p>
+				<input type="submit" value="', $txt['delete_all_prune'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</form>
+		</div>
+	</div>';
 }
 
 // Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
