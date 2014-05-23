@@ -170,8 +170,6 @@ function DisplayStats()
 					$context['gender'][$row['gender']]++;
 			}
 			$smcFunc['db_free_result']($result);
-			
-			$context['gender']['Astronaut'] = 2;
 
 			cache_put_data('stats_gender', $context['gender'], 240);
 		}
