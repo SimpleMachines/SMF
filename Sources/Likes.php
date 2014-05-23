@@ -34,6 +34,11 @@ class Likes
 	protected $_type = '';
 
 	/**
+	 *@var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
+	 */
+	protected $_extra = false;
+
+	/**
 	 *@var integer a valid ID to identify your like content.
 	 */
 	protected $_content = 0;
@@ -44,11 +49,16 @@ class Likes
 	protected $_numLikes = 0;
 
 	/**
+	 *@var boolean If the current user has already liked this content.
+	 */
+	protected $_alreadyLiked = false;
+
+	/**
 	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
 	 * => 'can_see' boolean|string whether or not the current user can see the like.
 	 * => 'can_like' boolean|string whether or not the current user can actually like your content.
 	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
-	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid url to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
+	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid URL to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_hook_helper(); so the same format for your function/method can be applied here.
@@ -88,12 +98,13 @@ class Likes
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
 		$this->_js = isset($_GET['js']) ? true : false;
 		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
+		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
 	}
 
 	/**
 	 * Likes::call()
 	 *
-	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different subactions.
+	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different sub-actions.
 	 * Accessed from index.php?action=likes
 	 * @param
 	 * @return
@@ -119,10 +130,6 @@ class Likes
 		// we know it exists, now we need to figure out what we're doing with that.
 		if (in_array($this->_sa, $subActions) && empty($this->_error))
 		{
-			// Set everything up for display.
-			loadTemplate('Likes');
-			$context['template_layers'] = array();
-
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
 
@@ -134,12 +141,10 @@ class Likes
 
 			// Call the appropriate method.
 			$this->$call();
-
-			// Send the response back to the browser.
-			$this->response();
 		}
 
 		// else An error message.
+		$this->response();
 	}
 
 	/**
@@ -188,6 +193,8 @@ class Likes
 			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
 			$this->_validLikes['can_see'] = true;
+
+			// @todo implement likes permissions.
 			$this->_validLikes['can_like'] = true;
 		}
 
@@ -198,7 +205,7 @@ class Likes
 			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content));
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
 
 			$found = false;
 			if (!empty($can_like))
@@ -237,7 +244,7 @@ class Likes
 	/**
 	 * Likes::delete()
 	 *
-	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id']
+	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id'].
 	 */
 	protected function delete()
 	{
@@ -291,7 +298,7 @@ class Likes
 			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
 				'content_id' => $content,
 				'content_type' => $type,
-				'sender_id' => $user,
+				'sender_id' => $user['id'],
 				'sender_name' => $user['name'],
 				'time' => $time,
 			)), 0),
@@ -356,10 +363,10 @@ class Likes
 				'id_member' => $this->_user['id'],
 			)
 		);
-		$already_liked = (bool) $smcFunc['db_num_rows']($request) != 0;
+		$this->_alreadyLiked = (bool) $smcFunc['db_num_rows']($request) != 0;
 		$smcFunc['db_free_result']($request);
 
-		if ($already_liked)
+		if ($this->_alreadyLiked)
 			$this->delete();
 
 		else
@@ -376,11 +383,11 @@ class Likes
 		elseif (!empty($this->_validLikes['callback']))
 		{
 			$call = call_hook_helper($this->_validLikes['callback']);
-			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, $already_liked));
+			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, $already_liked));
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
@@ -390,12 +397,13 @@ class Likes
 
 		// All done, start building the data to pass as response.
 		$this->_data = array(
-			'id_topic' => $this->_idTopic,
-			'id_msg' => $this->_content,
+			'id_topic' => !empty($this->_idTopic) ? $this->_idTopic : 0,
+			'id_content' => $this->_content,
 			'count' => $this->_numLikes,
 			'can_like' => $this->_validLikes['can_like'],
 			'can_see' => $this->_validLikes['can_see'],
-			'already_liked' => empty($already_liked),
+			'already_liked' => empty($this->_alreadyLiked),
+			'type' => $this->_type,
 		);
 	}
 
@@ -481,9 +489,9 @@ class Likes
 		$title_base = isset($txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
 		$context['page_title'] = strip_tags(sprintf($txt[$title_base], '', comma_format($count)));
 
-		// Lastly, setting up for display
+		// Lastly, setting up for display.
 		loadTemplate('Likes');
-		loadLanguage('Help'); // for the close window button
+		loadLanguage('Help'); // For the close window button.
 		$context['template_layers'] = array();
 		$context['sub_template'] = 'popup';
 
@@ -494,7 +502,7 @@ class Likes
 	/**
 	 * Likes::response()
 	 *
-	 * Checks if the user cna use JavaScript and acts accordingly 
+	 * Checks if the user can use JavaScript and acts accordingly.
 	 * Calls the appropriate sub-template for each method
 	 * Handles error messages.
 	 */
@@ -505,6 +513,10 @@ class Likes
 		// Don't do anything if someone else has already take care of the response.
 		if (!$this->_setResponse)
 			return;
+
+		// Set everything up for display.
+		loadTemplate('Likes');
+		$context['template_layers'] = array();
 
 		// If there are any errors, process them first.
 		if ($this->_error)
@@ -520,9 +532,9 @@ class Likes
 				$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
-			// Nope?  then just do a redirect to whatever url was provided.
+			// Nope?  then just do a redirect to whatever URL was provided.
 			else
-				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
 		}
 
 		// A like operation.
@@ -530,7 +542,7 @@ class Likes
 		{
 			// Not an ajax request so send the user back to the previous location or the main page.
 			if (!$this->_js)
-				redirect(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
 
 			// These fine gentlemen all share the same template.
 			$generic = array('delete', 'insert', '_count');
@@ -540,6 +552,7 @@ class Likes
 				$context['data'] = isset($txt['like_'. $this->_data]) ? $txt['like_'. $this->_data] : $this->_data;
 			}
 
+			// Directly pass the current called sub-action and the data generated by its associated Method.
 			else
 			{
 				$context['sub_template'] = $this->_sa;
