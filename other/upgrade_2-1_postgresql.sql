@@ -114,15 +114,17 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 		'ripped_settings' => $ripped_settings,
 	));
 
+	$inserts = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$smcFunc['db_insert']('replace',
-			'{db_prefix}settings',
-			array('variable' => 'string', 'value' => 'string'),
-			array($row['variable'], $row['value']),
-			array('id_theme', 'id_member', 'variable')
-		);
+		$inserts[] = array($row['variable'], $row['value']);
 
 	$smcFunc['db_free_result']($request);
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		$inserts,
+		array('id_theme', 'id_member', 'variable')
+	);
 ---}
 ---#
 
