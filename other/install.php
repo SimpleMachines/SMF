@@ -2126,7 +2126,7 @@ function template_install_above()
 				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
-
+                </div>
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">
