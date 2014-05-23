@@ -476,7 +476,7 @@ function ModifySubscription()
 		}
 
 		// Delete the subscription
-		$smcFunc['db_query']('delete_subscription', '
+		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}subscriptions
 			WHERE id_subscribe = {int:current_subscription}',
 			array(
