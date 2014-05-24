@@ -164,6 +164,9 @@ function PlushSearch1()
 	}
 	$smcFunc['db_free_result']($request);
 
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortCategories($context['categories']);
+
 	// Now, let's sort the list of categories into the boards for templates that like that.
 	$temp_boards = array();
 	foreach ($context['categories'] as $category)
@@ -2120,12 +2123,14 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
+ * @return search_api_interface
  */
 function findSearchAPI()
 {
 	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
+	require_once($sourcedir . '/Class-SearchAPI.php');
 
 	// Search has a special database set.
 	db_extend('search');
@@ -2141,7 +2146,7 @@ function findSearchAPI()
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');

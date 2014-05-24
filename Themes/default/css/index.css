@@ -2117,22 +2117,27 @@ ul.quickbuttons li {
 	font-size: 0.9em;
 }
 ul.quickbuttons li a {
-	padding: 0 4px 0 20px;
+	padding: 0 4px 0 5px;
 	display: block;
 	line-height: 1.9em;
 	float: left;
 }
-ul.quickbuttons li a.quote_button {
-	padding: 0 4px 0 16px;
+ul.quickbuttons li a img {
+	padding-bottom: 2px;
+}
+ul.quickbuttons li input {
+	margin-top: 4px;
 }
 ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
+	padding: 0 4px 0 16px;
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
+	padding: 0px 4px 0px 22px
 }
 ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
@@ -2161,6 +2166,10 @@ ul.quickbuttons li a.unapprove_button {
 ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
 }
+ul.quickbuttons li a.modifybutton {
+	background: url(../images/icons/modify_inline.png) no-repeat 1px;
+	padding: 0 4px 0 22px;
+}
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
@@ -2177,9 +2186,14 @@ ul.quickbuttons li.inline_mod_check {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.quickbuttons li:first-child {
+.quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
 	padding-bottom: 0;
+}
+.quickbuttons li:last-child, .quickbuttons li:last-child:hover {
+	border-radius: 1px 4px 4px 1px;
+	padding-bottom: 0;
+	line-height: 1.9em;
 }
 .quickbuttons li:hover {
 	border: 1px solid #ccc;
@@ -2191,25 +2205,8 @@ ul.quickbuttons li.inline_mod_check {
 	background: linear-gradient(to top, #FFFFFF 1%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	padding: 0 6px 0 22px;
 	line-height: 1.9em;
 	position: relative;
-	color: #222;
-}
-.quickbuttons li.quick_edit img {
-	padding: 4px 7em 4px 4px;
-	position: absolute;
-	left: 0;
-	top: 0;
-}
-.quickbuttons li.quick_edit {
-	display: none;
-}
-ul.quickbuttons li.inline_mod_check {
-	padding: 3px 0 0 3px;
-	background: none;
-	border: none;
-	box-shadow: none;
 }
 .quickbuttons li a, .quickbuttons li a:hover {
 	text-decoration: none;
@@ -2217,7 +2214,6 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li.post_options {
 	padding: 0 4px 0 4px;
-	border-radius: 1px 4px 4px 1px;
 }
 .quickbuttons li.post_options>a {
 	padding: 0 4px 0 4px;
@@ -3086,7 +3082,7 @@ dl {
 }
 
 #profileview div.content dt {
-	width: 65%;
+	width: 35%;
 	float: left;
 	margin: 0 0 3px 0;
 	padding: 0;
@@ -3094,7 +3090,7 @@ dl {
 	clear: both;
 }
 #profileview div.content dd {
-	width: 35%;
+	width: 65%;
 	float: left;
 	margin: 0 0 3px 0;
 	padding: 0;
@@ -3956,11 +3952,12 @@ div.icon {
 	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
+	min-width: 60px;
 }
 div.info {
 	float: left;
-	width: 56%;
-	padding: 12px 7px 0 0;
+	width: 50%;
+	margin: 10px 0 5px 0;
 }
 div.info .subject {
 	font-weight: 600;
@@ -3968,7 +3965,7 @@ div.info .subject {
 	color: #A85400;
 }
 div.stats {
-	width: 12%;
+	width: 14%;
 	float: left;
 	padding: 7px;
 	font-size: 0.9em;
@@ -3981,7 +3978,7 @@ div.stats p {
 	margin: 3px 0 0;
 }
 div.lastpost {
-	width: 24%;
+	width: 26%;
 	float: left;
 	padding-top: 7px;
 	font-size: 0.9em;
@@ -3989,8 +3986,8 @@ div.lastpost {
 div.lastpost p {
 	margin: 3px 0 0 0;
 }
-div.icon, div.info, div.stats, div.lastpost {
-	height: 4.5em;
+#boardindex_table .icon, #boardindex_table .info, #boardindex_table .stats, #boardindex_table .lastpost {
+	min-height: 4.5em;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -4017,7 +4014,7 @@ div.icon, div.info, div.stats, div.lastpost {
 }
 
 /* MessageIndex > Topic list */
-.topic_container {
+#topic_container .windowbg, #topic_container .windowbg2 {
 	height: 4em;
 	border: 1px solid #CCC;
 	border-top: none;
@@ -4030,6 +4027,7 @@ div.icon, div.info, div.stats, div.lastpost {
 	font-weight: bold;
 	font-size: 1em;
 	margin-top: 3px;
+	padding: 0;
 }
 #topic_header input {
 	margin-top: 5px !important;
@@ -4038,13 +4036,14 @@ div.icon, div.info, div.stats, div.lastpost {
 	float: right;
 	width: 2%;
 }
-#messageindex .icon, #messageindex .info, #messageindex .windowbg2, #messageindex .windowbg, #messageindex .stats, #messageindex .lastpost {
+#topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	border-radius: 0;
 	padding: 0;
+	margin: 0;
 	overflow: hidden;
 	height: 3.5em;
 }
-#messageindex .information {
+#messageindex .information, #topic_container .info {
 	border-radius: 0;
 	margin: 0;
 }

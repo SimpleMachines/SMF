@@ -1566,8 +1566,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 		);
 
+		// Inside these tags autolink is not recommendable.
+		$no_autolink_tags = array(
+			'url',
+			'iurl',
+			'ftp',
+			'email',
+		);
+		
 		// Let mods add new BBC without hassle.
-		call_integration_hook('integrate_bbc_codes', array(&$codes));
+		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
 
 		// This is mainly for the bbc manager, so it's easy to add tags above.  Custom BBC should be added above this line.
 		if ($message === false)
@@ -1593,14 +1601,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			foreach ($itemcodes as $c => $dummy)
 				$bbc_codes[$c] = array();
 		}
-
-		// Inside these tags autolink is not recommendable.
-		$no_autolink_tags = array(
-			'url',
-			'iurl',
-			'ftp',
-			'email',
-		);
 
 		// Shhhh!
 		if (!isset($disabled['color']))
@@ -3283,7 +3283,7 @@ function template_javascript($do_defered = false)
 		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
 	<script><!-- // --><![CDATA[
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.7.1.min.js"><\/script>\');
+		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
 	// ]]></script>';
 
 	}

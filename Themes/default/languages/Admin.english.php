@@ -566,6 +566,14 @@ $txt['preview_characters_units'] = 'characters';
 $txt['preview_characters_zero'] = '0 to disable';
 $txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
 $txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
+$txt['show_user_images'] = 'Show user avatars in message view';
+$txt['show_blurb'] = 'Show personal text in message view';
+$txt['hide_post_group'] = 'Hide post group titles for grouped members';
+$txt['hide_post_group_desc'] = 'Enabling this will not display a member\'s post group title on the message view if they are assigned to a non-post based group.';
+$txt['show_gender'] = 'Show gender images in message view';
+$txt['subject_toggle'] = 'Show subjects in topics.';
+$txt['show_profile_buttons'] = 'Show view profile button under post';
+$txt['show_modify'] = 'Show last modification date on modified posts';
 
 $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';

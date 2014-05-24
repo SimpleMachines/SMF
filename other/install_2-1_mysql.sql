@@ -722,7 +722,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
@@ -1667,7 +1667,6 @@ INSERT INTO {$db_prefix}scheduled_tasks
 	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(1, 0, 0, 2, 'h', 0, 'approval_notification'),
-	(2, 0, 0, 7, 'd', 0, 'auto_optimize'),
 	(3, 0, 60, 1, 'd', 0, 'daily_maintenance'),
 	(5, 0, 0, 1, 'd', 0, 'daily_digest'),
 	(6, 0, 0, 1, 'w', 0, 'weekly_digest'),
@@ -1815,7 +1814,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('enableBBC', '1'),
 	('max_messageLength', '20000'),
 	('signature_settings', '1,300,0,0,0,0,0,0:'),
-	('autoOptMaxOnline', '0'),
 	('defaultMaxMessages', '15'),
 	('defaultMaxTopics', '20'),
 	('defaultMaxMembers', '30'),
@@ -1886,7 +1884,14 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('topic_move_any', '0'),
 	('browser_cache', '?alph21'),
 	('mail_limit', '5'),
-	('mail_quantity', '5');
+	('mail_quantity', '5'),
+	('admin_bbc', '1'),
+	('additional_options_collapsable', '1'),
+	('show_modify', '1'),
+	('show_user_images', '1'),
+	('show_blurb', '1'),
+	('show_profile_buttons', '1');
+
 # --------------------------------------------------------
 
 #
@@ -2029,12 +2034,8 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'images_url', '{$boardurl}/Themes/default/images'),
 	(1, 'theme_dir', '{$boarddir}/Themes/default'),
 	(1, 'show_latest_member', '1'),
-	(1, 'show_modify', '1'),
-	(1, 'show_user_images', '1'),
-	(1, 'show_blurb', '1'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
-	(1, 'show_profile_buttons', '1'),
 	(1, 'show_stats_index', '1'),
 	(1, 'newsfader_time', '5000'),
 	(1, 'use_image_buttons', '1'),

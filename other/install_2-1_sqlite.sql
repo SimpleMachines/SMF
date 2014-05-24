@@ -745,7 +745,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
@@ -1810,7 +1810,6 @@ CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_ta
 
 BEGIN TRANSACTION;
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (1, 0, 0, 2, 'h', 0, 'approval_notification');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (2, 0, 0, 7, 'd', 0, 'auto_optimize');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (3, 0, 60, 1, 'd', 0, 'daily_maintenance');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (5, 0, 0, 1, 'd', 0, 'daily_digest');
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (6, 0, 0, 1, 'w', 0, 'weekly_digest');
@@ -1958,7 +1957,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('number_format', '123
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableBBC', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('max_messageLength', '20000');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('signature_settings', '1,300,0,0,0,0,0,0:');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('autoOptMaxOnline', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxMessages', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxTopics', '20');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxMembers', '30');
@@ -2033,6 +2031,12 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_modify', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_blurb', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
 COMMIT;
 
 # --------------------------------------------------------
@@ -2181,12 +2185,8 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'theme_url
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'images_url', '{$boardurl}/Themes/default/images');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'theme_dir', '{$boarddir}/Themes/default');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_latest_member', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_modify', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_user_images', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_blurb', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_newsfader', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'number_recent_posts', '0');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_profile_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');

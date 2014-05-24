@@ -17,27 +17,8 @@ if (!defined('SMF'))
 /**
  * Fulltext API, used when an SQL fulltext index is used
  */
-class fulltext_search
+class fulltext_search extends search_api
 {
-	/**
-	 * This is the last version of SMF that this was tested on, to protect against API changes.
-	 * @var type
-	 */
-	public $version_compatible = 'SMF 2.1 Alpha 1';
-
-	/**
-	 * This won't work with versions of SMF less than this.
-	 * @var type
-	 */
-	public $min_smf_version = 'SMF 2.1 Alpha 1';
-
-	/**
-	 * Is it supported?
-	 *
-	 * @var type
-	 */
-	public $is_supported = true;
-
 	/**
 	 * What words are banned?
 	 * @var type
@@ -58,7 +39,6 @@ class fulltext_search
 
 	/**
 	 * fulltext_search::__construct()
-	 *
 	 */
 	public function __construct()
 	{
@@ -76,13 +56,7 @@ class fulltext_search
 	}
 
 	/**
-	 * fulltext_search::supportsMethod()
-	 *
-	 * Check whether the method can be performed by this API.
-	 *
-	 * @param mixed $methodName
-	 * @param mixed $query_params
-	 * @return
+	 * {@inheritDoc}
 	 */
 	public function supportsMethod($methodName, $query_params = null)
 	{
@@ -106,7 +80,7 @@ class fulltext_search
 	 *
 	 * What is the minimum word length full text supports?
 	 *
-	 * @return
+	 * @return int
 	 */
 	protected function _getMinWordLength()
 	{
@@ -133,13 +107,7 @@ class fulltext_search
 	}
 
 	/**
-	 * callback function for usort used to sort the fulltext results.
-	 * the order of sorting is: large words, small words, large words that
-	 * are excluded from the search, small words that are excluded.
-	 *
-	 * @param string $a Word A
-	 * @param string $b Word B
-	 * @return int
+	 * {@inheritDoc}
 	 */
 	public function searchSort($a, $b)
 	{
@@ -152,17 +120,9 @@ class fulltext_search
 	}
 
 	/**
-	 * fulltext_search::prepareIndexes()
-	 *
-	 * Do we have to do some work with the words we are searching for to prepare them?
-	 *
-	 * @param mixed $word
-	 * @param mixed $wordsSearch
-	 * @param mixed $wordsExclude
-	 * @param mixed $isExcluded
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public function prepareIndexes($word, &$wordsSearch, &$wordsExclude, $isExcluded)
+	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded)
 	{
 		global $modSettings, $smcFunc;
 
@@ -196,15 +156,9 @@ class fulltext_search
 	}
 
 	/**
-	 * fulltext_search::indexedWordQuery()
-	 *
-	 * Search for indexed words.
-	 *
-	 * @param mixed $words
-	 * @param mixed $search_data
-	 * @return
+	 * {@inheritDoc}
 	 */
-	public function indexedWordQuery($words, $search_data)
+	public function indexedWordQuery(array $words, array $search_data)
 	{
 		global $modSettings, $smcFunc;
 

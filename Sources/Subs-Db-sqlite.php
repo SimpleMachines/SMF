@@ -296,9 +296,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'unread_fetch_topic_count' => array(
 			'~\s*SELECT\sCOUNT\(DISTINCT\st\.id_topic\),\sMIN\(t\.id_last_msg\)(.+)$~is' => 'SELECT COUNT(id_topic), MIN(id_last_msg) FROM (SELECT DISTINCT t.id_topic, t.id_last_msg $1)',
 		),
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
 		),
@@ -313,12 +310,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'pm_conversation_list' => array(
 			'~ORDER BY id_pm~' => 'ORDER BY MAX(pm.id_pm)',
-		),
-		'boardindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'order_by_board_order' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 	);
 

@@ -107,7 +107,8 @@ function template_main()
 					', $category['link'], '
 				</h3>', !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
-			</div>';
+			</div>
+			<div id="category_', $category['id'], '_boards">';
 
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
@@ -186,6 +187,7 @@ function template_main()
 			}
 
 		echo '
+			</div>
 		</div>';
 	}
 

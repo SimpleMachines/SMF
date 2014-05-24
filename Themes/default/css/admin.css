@@ -87,6 +87,8 @@ body.action_admin .navigate_section ul li a {
 }
 #admin_content .windowbg, #admin_content .windowbg2 {
 	margin-bottom: 5px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 #admincenter .content {
 	padding: 12px;

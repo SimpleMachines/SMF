@@ -194,6 +194,10 @@ function template_main()
 				</div>';
 		}
 
+		// Contain the topic list
+		echo '
+			<div id="topic_container">';
+
 		foreach ($context['topics'] as $topic)
 		{
 			$color_class = 'windowbg';
@@ -213,7 +217,7 @@ function template_main()
 			$alternate_class = $color_class . '2';
 
 			echo '
-			<div class="topic_container ', $color_class, '">
+			<div class="', $color_class, '">
 				<div class="icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
@@ -291,6 +295,8 @@ function template_main()
 			echo '
 				</div>';
 		}
+		echo '
+			</div>';
 
 		if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']))
 		{

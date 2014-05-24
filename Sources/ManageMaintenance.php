@@ -206,7 +206,7 @@ function MaintainMembers()
  */
 function MaintainTopics()
 {
-	global $context, $smcFunc, $txt;
+	global $context, $smcFunc, $txt, $sourcedir;
 
 	// Let's load up the boards in case they are useful.
 	$result = $smcFunc['db_query']('order_by_board_order', '
@@ -235,6 +235,9 @@ function MaintainTopics()
 		);
 	}
 	$smcFunc['db_free_result']($result);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortCategories($context['categories']);
 
 	if (isset($_GET['done']) && $_GET['done'] == 'purgeold')
 		$context['maintenance_finished'] = $txt['maintain_old'];
@@ -1119,10 +1122,6 @@ function OptimizeTables()
 	// Number of tables, etc....
 	$txt['database_numb_tables'] = sprintf($txt['database_numb_tables'], $context['num_tables']);
 	$context['num_tables_optimized'] = count($context['optimized_tables']);
-
-	// Check that we don't auto optimise again too soon!
-	require_once($sourcedir . '/ScheduledTasks.php');
-	CalculateNextTrigger('auto_optimize', true);
 }
 
 /**

@@ -237,7 +237,7 @@ function template_folder()
 								<ul>';
 
 			// Show the user's avatar.
-			if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+			if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 				echo '
 				<li class="avatar">
 					<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
@@ -260,7 +260,7 @@ function template_folder()
 			if (!$message['member']['is_guest'])
 			{
 				// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-				if ((empty($settings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+				if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 					echo '
 				<li class="postgroup">', $message['member']['post_group'], '</li>';
 
@@ -285,7 +285,7 @@ function template_folder()
 				</li>';
 
 				// Show their personal text?
-				if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
+				if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
 					echo '
 				<li class="blurb">', $message['member']['blurb'], '</li>';
 
@@ -443,7 +443,7 @@ function template_folder()
 
 			if (empty($context['display_mode']))
 				echo '
-					<li class="inline_mod_check"><input type="checkbox" name="pms[]" id="deletedisplay', $message['id'], '" value="', $message['id'], '" onclick="document.getElementById(\'deletelisting', $message['id'], '\').checked = this.checked;" class="input_check"></li>';
+					<li><input type="checkbox" name="pms[]" id="deletedisplay', $message['id'], '" value="', $message['id'], '" onclick="document.getElementById(\'deletelisting', $message['id'], '\').checked = this.checked;" class="input_check"></li>';
 
 			echo '
 				</ul>
@@ -1333,18 +1333,27 @@ function template_prune()
 	global $context, $scripturl, $txt;
 
 	echo '
-	<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['pm_prune'], '</h3>
-		</div>
-		<div class="windowbg">
-			<div class="content">
+	<div class="cat_bar">
+		<h3 class="catbg">', $txt['pm_prune'], '</h3>
+	</div>
+	<div class="windowbg">
+		<div class="content">
+			<form action="', $scripturl, '?action=pm;sa=prune" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['pm_prune_warning'], '\');">
 				<p>', $txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14" class="input_text"> ', $txt['pm_prune_desc2'], '</p>
 				<input type="submit" value="', $txt['delete'], '" class="button_submit">
-			</div>
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</form>
 		</div>
-		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-	</form>';
+	</div>
+	<div class="windowbg">
+		<div class="content">
+			<form action="', $scripturl, '?action=pm;sa=removeall2" method="post" onsubmit="return confirm(\'', $txt['pm_remove_all_warning'], '\');">
+				<p>', $txt['pm_remove_all'], '</p>
+				<input type="submit" value="', $txt['delete_all_prune'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</form>
+		</div>
+	</div>';
 }
 
 // Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
@@ -1934,7 +1943,7 @@ function template_showPMDrafts()
 							', $draft['body'], '
 						</div>
 						<ul class="reset smalltext quickbuttons">
-							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="modifybutton"><span>', $txt['draft_edit'], '</span></a></li>
 							<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
 						</ul>
 					</div>

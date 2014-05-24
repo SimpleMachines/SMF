@@ -357,10 +357,6 @@ function template_main()
 	echo '
 				<script><!-- // --><![CDATA[';
 
-	if (!empty($context['some_likes']))
-		echo '
-					add_like_popup();';
-
 	echo '
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,
@@ -408,7 +404,7 @@ function template_main()
 						var oQuickModify = new QuickModify({
 							sScriptUrl: smf_scripturl,
 							sClassName: \'quick_edit\',
-							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
+							bShowModify: ', $modSettings['show_modify'] ? 'true' : 'false', ',
 							iTopicId: ', $context['current_topic'], ',
 							sTemplateBodyEdit: ', JavaScriptEscape('
 								<div id="quick_edit_body_container" style="width: 90%">
@@ -448,7 +444,7 @@ function template_main()
 							sBackReference: "aIconLists[" + aIconLists.length + "]",
 							sIconIdPrefix: "msg_icon_",
 							sScriptUrl: smf_scripturl,
-							bShowModify: ', $settings['show_modify'] ? 'true' : 'false', ',
+							bShowModify: ', $modSettings['show_modify'] ? 'true' : 'false', ',
 							iBoardId: ', $context['current_board'], ',
 							iTopicId: ', $context['current_topic'], ',
 							sSessionId: smf_session_id,
@@ -548,7 +544,7 @@ function template_single_post($message, $force_alternate = null)
 
 
 	// Show the user's avatar.
-	if (!empty($settings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
+	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
 									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
@@ -587,7 +583,7 @@ function template_single_post($message, $force_alternate = null)
 	{
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
-		if ((empty($settings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
+		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
 
@@ -613,7 +609,7 @@ function template_single_post($message, $force_alternate = null)
 								</li>';
 
 		// Show their personal text?
-		if (!empty($settings['show_blurb']) && $message['member']['blurb'] != '')
+		if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
 			echo '
 								<li class="blurb">', $message['member']['blurb'], '</li>';
 
@@ -731,7 +727,7 @@ function template_single_post($message, $force_alternate = null)
 
 	//Some people dont want subject ... The div is still required or quick edit breaks...
 	echo '
-								<div id="subject_', $message['id'], '" class="subject_title">', (empty($settings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
+								<div id="subject_', $message['id'], '" class="subject_title">', (empty($modSettings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
 	echo '
 								<div class="page_number floatright">
@@ -745,7 +741,7 @@ function template_single_post($message, $force_alternate = null)
 	echo '
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
 
-	if ($settings['show_modify'] && !empty($message['modified']['name']))
+	if ($modSettings['show_modify'] && !empty($message['modified']['name']))
 		echo $message['modified']['last_edit_text'];
 	echo '</span>';
 
@@ -868,7 +864,7 @@ function template_single_post($message, $force_alternate = null)
 	if (!empty($message['likes']['can_like']))
 	{
 		echo '
-									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($message['likes']['count']))
@@ -884,7 +880,7 @@ function template_single_post($message, $force_alternate = null)
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;view;ltype=msg;like=' . $message['id'], comma_format($count)), '</li>';
+									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '
@@ -904,7 +900,7 @@ function template_single_post($message, $force_alternate = null)
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="quick_edit"><img src="', $settings['images_url'], '/icons/modify_inline.png" alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')">', $txt['quick_edit'], '</li>';
+									<li class="quick_edit"><a alt="', $txt['modify_msg'], '" title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" style="cursor: pointer" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\')">', $txt['quick_edit'], '</a></li>';
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
@@ -958,7 +954,7 @@ function template_single_post($message, $force_alternate = null)
 		// Show a checkbox for quick moderation?
 		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $message['can_remove'])
 			echo '
-									<li class="inline_mod_check" style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
+									<li style="display: none;" id="in_topic_mod_check_', $message['id'], '"></li>';
 
 		if ($message['can_approve'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '

@@ -94,6 +94,38 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 ---#
 
+---# Enable BBC on Editor and collapse object
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
+---#
+---# Enable some settings we ripped from Theme settings
+---{
+	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
+
+	$request = $smcFunc['db_query']('', '
+		SELECT variable, value
+		FROM {db_prefix}themes
+		WHERE variable IN({array_string:ripped_settings})
+			AND id_member = 0
+			AND id_theme = 1',
+	array(
+		'ripped_settings' => $ripped_settings,
+	));
+
+	$inserts = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$inserts[] = array($row['variable'], $row['value']);
+
+	$smcFunc['db_free_result']($request);
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		$inserts,
+		array('id_theme', 'id_member', 'variable')
+	);
+---}
+---#
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
@@ -638,7 +670,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 		while ($row = $smcFunc['db_fetch_assoc']($ocf))
 		{
-			$fields_count++;
+			++$fields_count;
 
 			if (!empty($row['id_field']))
 				$smcFunc['db_query']('', '
@@ -648,7 +680,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 						AND field_order = {int:show_mlist}',
 					array(
 						'field_count' => $fields_count,
-						'show_list' => 0,
+						'show_mlist' => 0,
 						'id_field' => $row['id_field'],
 						'six' => 6,
 					)
@@ -709,6 +741,27 @@ ALTER TABLE `{$db_prefix}members`
   DROP `msn`,
   DROP `location`,
   DROP `gender`;
+---#
+
+---# Create the displayFields setting
+	$request = $smcFunc['db_query']('', '
+		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+		FROM {db_prefix}custom_fields',
+		array()
+	);
+
+	$fields = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$fields[] = $row;
+
+	$smcFunc['db_free_result']($request);
+
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('displayFields', serialize($fields)),
+		array('id_theme', 'id_member', 'variable')
+	);
 ---#
 
 /******************************************************************************/
@@ -925,7 +978,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
 ---#
 
 /******************************************************************************/
@@ -1361,4 +1414,18 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---# Dropping the "hide_email" column from the members table
 ALTER TABLE {$db_prefix}members
 DROP hide_email;
+---#
+
+/******************************************************************************/
+--- Deleting the "Auto Optimize" task
+/******************************************************************************/
+---# Removing the task and associated data
+DELETE FROM {$db_prefix}scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}log_scheduled_tasks
+WHERE id_task = '2';
+
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'autoOptMaxOnline';
 ---#

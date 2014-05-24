@@ -15,7 +15,7 @@
 define('SMF_VERSION', '2.1 Alpha 1');
 define('SMF_LANG_VERSION', '2.1 Alpha 1');
 
-$GLOBALS['required_php_version'] = '5.1.0';
+$GLOBALS['required_php_version'] = '5.3.2';
 $GLOBALS['required_mysql_version'] = '4.0.18';
 
 $databases = array(
@@ -928,14 +928,6 @@ function initialize_inputs()
 		@unlink(dirname(__FILE__) . '/Sources/LockTopic.php');
 
 		header('Location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
-		exit;
-	}
-
-	// Are we calling the backup css file?
-	if (isset($_GET['infile_css']))
-	{
-		header('Content-Type: text/css');
-		template_css();
 		exit;
 	}
 

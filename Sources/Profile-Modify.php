@@ -1262,7 +1262,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		$errors = array_merge($errors, $hook_errors);
 
 	// Make those changes!
-	if (!empty($changes) && empty($context['password_auth_failed']) && !empty($errors))
+	if (!empty($changes) && empty($context['password_auth_failed']) && empty($errors))
 	{
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',
@@ -2600,7 +2600,7 @@ function loadThemeOptions($memID)
  */
 function ignoreboards($memID)
 {
-	global $txt, $context, $modSettings, $smcFunc, $cur_profile;
+	global $txt, $context, $modSettings, $smcFunc, $cur_profile, $sourcedir;
 
 	// Have the admins enabled this option?
 	if (empty($modSettings['allow_ignore_boards']))
@@ -2640,6 +2640,9 @@ function ignoreboards($memID)
 		);
 	}
 	$smcFunc['db_free_result']($request);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortCategories($context['categories']);
 
 	// Now, let's sort the list of categories into the boards for templates that like that.
 	$temp_boards = array();

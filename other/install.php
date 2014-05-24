@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Alpha 1';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.1.0';
+$GLOBALS['required_php_version'] = '5.3.2';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -241,14 +241,6 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
-		exit;
-	}
-
-	// Are we calling the backup css file?
-	if (isset($_GET['infile_css']))
-	{
-		header('Content-Type: text/css');
-		template_css();
 		exit;
 	}
 
@@ -793,7 +785,7 @@ function DatabaseSettings()
 		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
-		
+
 		if (!empty($_POST['db_port']))
 			$incontext['db']['port'] = $_POST['db_port'];
 	}
@@ -2134,7 +2126,7 @@ function template_install_above()
 				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
-
+                </div>
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">

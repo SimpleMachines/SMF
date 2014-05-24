@@ -431,7 +431,7 @@ smc_Popup.prototype.show = function ()
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.css({top: '25%', left: '50%', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
+	this.popup_body.css({top: '25%', left: 'calc(50% - 240px)', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
 
 	// Trigger hide on escape or mouse click
 	var popup_instance = this;
@@ -1661,11 +1661,10 @@ function updateAuthMethod()
 
 $(document).ready(function() {
 	if (smf_member_id > 0)
-		$('div.boardindex_table tbody.header').each(function(index, el)
+		$('div.boardindex_table div.cat_bar').each(function(index, el)
 		{
 			var catid = el.id.replace('category_', '');
 			new smc_Toggle({
-				bNoAnimate: true, // Tables are finicky and you should avoid using effects on a table directly. You don't have the same control over tables as you do other elements. Which is why you can't change the height of the table during animation.
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
 				aSwappableContainers: [
