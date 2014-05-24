@@ -6,13 +6,19 @@
 		min-width: 50px;
 	}
 	input, select {
-		width: 95%;
+		width: 90%;
 		float: left;
 	}
-	input.input_check {
-		width: 5%;
+	input.input_check, input.input_radio {
+		width: 10%;
 	}
-
+	#registration .field_icons {
+		float: left;
+		margin: 5px 0 0 3px;
+	}
+	dl.register_form dt span {
+		display: inline;
+	}
 	/* General */
 	.action_home {
 		width: 100% !important;
@@ -23,7 +29,7 @@
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;
 	}
-	.stats, .lastpost {
+	#boardindex_table .stats, #boardindex_table .lastpost {
 		display: none;
 	}
 	#menu_nav, #upshrinkHeaderIC {
@@ -179,6 +185,9 @@
 	.half_content {
 		width: 100%;
 		padding: 0;
+	}
+	.stats_left {
+		border-right: 0;
 	}
 	#ic_recentposts {
 		margin: 0 !important;
