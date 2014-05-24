@@ -3347,9 +3347,6 @@ dl.stats dd span {
 	background: none;
 	border: none;
 }
-.half {
-	width: 50%;
-}
 /* Forum history table. */
 #stats {
 	margin: 4px 0;
