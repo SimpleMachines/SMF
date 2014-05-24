@@ -444,7 +444,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 				MagickSetCompressionQuality($magick_wand, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
 
 			MagickSetImageFormat($magick_wand, $default_formats[$preferred_format]);
-			MagickResizeImage($magic_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
+			MagickResizeImage($magick_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
 			$success = MagickWriteImage($magick_wand, $destName);
 		}
 
