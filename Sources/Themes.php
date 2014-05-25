@@ -1839,7 +1839,7 @@ function EditTheme()
 	{
 		$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($context['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.
