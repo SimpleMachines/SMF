@@ -441,7 +441,7 @@ function logActions($logs)
 			return false;
 
 		if (!is_array($log['extra']))
-			trigger_error('logActions(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
+			trigger_error('logActions(): data is not an array with action \'' . $log['action'] . '\'', E_USER_NOTICE);
 
 		// Pull out the parts we want to store separately, but also make sure that the data is proper
 		if (isset($log['extra']['topic']))
