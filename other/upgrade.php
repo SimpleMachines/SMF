@@ -3463,24 +3463,6 @@ function template_chmod()
 	if (empty($upcontext['chmod']['files']) && empty($upcontext['chmod']['ftp_error']))
 		return;
 
-	// @todo Temporary!
-	$txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
-	$txt['ftp_login'] = 'Your FTP connection information';
-	$txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you.  Please note that none of this information is saved in your installation, it is just used to setup SMF.';
-	$txt['ftp_server'] = 'Server';
-	$txt['ftp_server_info'] = 'The address (often localhost) and port for your FTP server.';
-	$txt['ftp_port'] = 'Port';
-	$txt['ftp_username'] = 'Username';
-	$txt['ftp_username_info'] = 'The username to login with. <em>This will not be saved anywhere.</em>';
-	$txt['ftp_password'] = 'Password';
-	$txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
-	$txt['ftp_path'] = 'Install Path';
-	$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank">(more help)</a>.';
-	$txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-	$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client.  It commonly starts with &quot;<tt>www</tt>&quot;, &quot;<tt>public_html</tt>&quot;, or &quot;<tt>httpdocs</tt>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;.  It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
-	$txt['ftp_path_help_close'] = 'Close';
-	$txt['ftp_connect'] = 'Connect';
-
 	// Was it a problem with Windows?
 	if (!empty($upcontext['chmod']['ftp_error']) && $upcontext['chmod']['ftp_error'] == 'total_mess')
 	{
