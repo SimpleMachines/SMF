@@ -1493,14 +1493,14 @@ function InstallDir()
 
 	// All good! set some needed vars.
 	$context['to_install'] = array(
-		'dir' => $_REQUEST['theme_dir'],
+		'theme_dir' => $_REQUEST['theme_dir'],
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
 	);
 
 	// Read its info form the XML file.
-	$theme_info = get_theme_info($context['to_install']['dir']);
+	$theme_info = get_theme_info($context['to_install']['theme_dir']);
 	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
