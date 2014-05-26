@@ -25,7 +25,7 @@ function template_main()
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
-			<div class="stats_left half top_row">
+			<div class="stats_left half_content top_row">
 				<dl class="stats">
 					<dt>', $txt['total_members'], ':</dt>
 					<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
@@ -50,7 +50,7 @@ function template_main()
 	echo '
 				</dl>
 			</div>
-			<div class="stats_right half top_row">
+			<div class="stats_right half_content top_row">
 				<dl class="stats">
 					<dt>', $txt['average_members'], ':</dt>
 					<dd>', $context['average_members'], '</dd>

@@ -2262,6 +2262,10 @@ ul.quickbuttons li.inline_mod_check {
 	width: 12em;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
+/* Sub buttons doesn't need to be effected by first-child/last-child */
+ul.quickbuttons li > ul > li {
+	border-radius: 3px !important;
+}
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
 	margin: 0 -9910px 0 9910px;
@@ -3348,9 +3352,6 @@ dl.stats dd span {
 .top_row dl.stats dd {
 	background: none;
 	border: none;
-}
-.half {
-	width: 50%;
 }
 /* Forum history table. */
 #stats {
