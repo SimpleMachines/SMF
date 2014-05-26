@@ -1500,7 +1500,7 @@ function InstallDir()
 	);
 
 	// Read its info form the XML file.
-	$theme_info = get_theme_info($context['to_install']['theme_dir']);
+	$theme_info = get_theme_info($context['to_install']['dir']);
 	$context['to_install'] += $theme_info;
 
 	// Install the theme. theme_install() will take care of possible errors.
