@@ -165,7 +165,7 @@ class xmlArray
 					$i = 0;
 					while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this))
 						$i++;
-					$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
+					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
