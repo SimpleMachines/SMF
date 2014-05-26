@@ -1492,7 +1492,7 @@ function InstallDir()
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// All good! set some needed vars.
-		$context['to_install'] = array(
+	$context['to_install'] = array(
 		'dir' => $_REQUEST['theme_dir'],
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
