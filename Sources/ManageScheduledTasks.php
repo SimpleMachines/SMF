@@ -477,9 +477,10 @@ function TaskLog()
 					'value' => $txt['scheduled_log_time_run'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'time_run\'], true);
-					'),
+					'function' => function ($rowData)
+					{
+						return timeformat($rowData['time_run'], true);
+					},
 				),
 				'sort' => array(
 					'default' => 'lst.id_log DESC',

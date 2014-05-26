@@ -152,15 +152,15 @@ function EditNews()
 					'value' => $txt['admin_edit_news'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width 100%;margin 0 5em') . ';">' . $news['unparsed'] . '</textarea>
 							<br>
-							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
+							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
-							return $news[\'unparsed\'];
-					'),
+							return $news['unparsed'];
+					},
 					'style' => 'width: 50%;',
 				),
 			),
@@ -169,10 +169,10 @@ function EditNews()
 					'value' => $txt['preview'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						return \'<div id="box_preview_\' . $news[\'id\'] . \'" style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
-					'),
+					'function' => function ($news)
+					{
+						return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
+					},
 					'style' => 'width: 45%;',
 				),
 			),
@@ -182,13 +182,13 @@ function EditNews()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check">\';
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
 						else
-							return \'\';
-					'),
+							return '';
+					},
 					'class' => 'centercol',
 				),
 			),

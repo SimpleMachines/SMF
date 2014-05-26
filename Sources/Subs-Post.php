@@ -117,14 +117,20 @@ function preparsecode(&$message, $previewing = false)
 			}
 
 			// Let's look at the time tags...
-			$parts[$i] = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', create_function('$m', 'global $modSettings, $user_info; return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";'), $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function ($m)
+		{
+		global $modSettings, $user_info; return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+		}, $parts[$i]);
 
 			// Change the color specific tags to [color=the color].
 			$parts[$i] = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $parts[$i]);  // First do the opening tags.
 			$parts[$i] = preg_replace('~\[/(black|blue|green|red|white)\]~', '[/color]', $parts[$i]);   // And now do the closing tags
 
 			// Make sure all tags are lowercase.
-			$parts[$i] = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', create_function('$m', ' return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";'), $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[([/]?)(list|li|table|tr|td)((\s[^\]]+)*)\]~i', function ($m)
+			{
+				return "[$m[1]" . strtolower("$m[2]") . "$m[3]]";
+			}, $parts[$i]);
 
 			$list_open = substr_count($parts[$i], '[list]') + substr_count($parts[$i], '[list ');
 			$list_close = substr_count($parts[$i], '[/list]');
@@ -275,7 +281,10 @@ function un_preparsecode($message)
 			return "[html]" . strtr($smcFunc[\'htmlspecialchars\']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";'), $parts[$i]);
 
 			// Attempt to un-parse the time to something less awful.
-			$parts[$i] = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', create_function('$m', ' return "[time]" . timeformat("$m[1]", false) . "[/time]";'), $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function ($m)
+			{
+				return "[time]" . timeformat("$m[1]", false) . "[/time]";
+			}, $parts[$i]);
 		}
 	}
 
@@ -362,7 +371,10 @@ function fixTags(&$message)
 		fixTag($message, $param['tag'], $param['protocols'], $param['embeddedUrl'], $param['hasEqualSign'], !empty($param['hasExtra']));
 
 	// Now fix possible security problems with images loading links automatically...
-	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', create_function('$m', 'return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";'), $message);
+	$message = preg_replace_callback('~(\[img.*?\])(.+?)\[/img\]~is', function ($m)
+	{
+		return "$m[1]" . preg_replace("~action(=|%3d)(?!dlattach)~i", "action-", "$m[2]") . "[/img]";
+	}, $message);
 
 	// Limit the size of images posted?
 	if (!empty($modSettings['max_image_width']) || !empty($modSettings['max_image_height']))
@@ -1207,7 +1219,10 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 		unset($matches);
 
 		if ($simple)
-			$string = preg_replace_callback('~&#(\d{3,8});~', create_function('$m', ' return chr("$m[1]");'), $string);
+			$string = preg_replace_callback('~&#(\d{3,8});~', function ($m)
+			{
+				return chr("$m[1]");
+			}, $string);
 		else
 		{
 			// Try to convert the string to UTF-8.
@@ -1235,7 +1250,8 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 				$string = $newstring;
 		}
 
-		$entityConvert = create_function('$m', '
+		$entityConvert = function ($m)
+		{
 			$c = $m[1];
 			if (strlen($c) === 1 && ord($c[0]) <= 0x7F)
 				return $c;
@@ -1246,7 +1262,8 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
 			elseif (strlen($c) === 4 && ord($c[0]) >= 0xF0 && ord($c[0]) <= 0xF7)
 				return "&#" . (((ord($c[0]) ^ 0xF0) << 18) + ((ord($c[1]) ^ 0x80) << 12) + ((ord($c[2]) ^ 0x80) << 6) + (ord($c[3]) ^ 0x80)) . ";";
 			else
-				return "";');
+				return "";
+		};
 
 		// Convert all 'special' characters to HTML entities.
 		return array($charset, preg_replace_callback('~([\x80-\x{10FFFF}])~u', $entityConvert, $string), '7bit');

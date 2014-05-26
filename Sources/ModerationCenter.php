@@ -1058,11 +1058,12 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_warning'],
 				),
 				'data' => array(
-					'function' => create_function('$member', '
+					'function' => function ($member)
+					{
 						global $scripturl;
 
-						return allowedTo(\'issue_warning\') ? \'<a href="\' . $scripturl . \'?action=profile;area=issuewarning;u=\' . $member[\'id\'] . \'">\' . $member[\'warning\'] . \'%</a>\' : $member[\'warning\'] . \'%\';
-					'),
+						return allowedTo('issue_warning') ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
+					},
 				),
 				'sort' => array(
 					'default' => 'warning',
@@ -1104,14 +1105,15 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
-					'function' => create_function('$member', '
+					'function' => function ($member)
+					{
 						global $scripturl;
 
-						if ($member[\'last_post_id\'])
-							return \'<a href="\' . $scripturl . \'?msg=\' . $member[\'last_post_id\'] . \'">\' . $member[\'last_post\'] . \'</a>\';
+						if ($member['last_post_id'])
+							return '<a href="' . $scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
 						else
-							return $member[\'last_post\'];
-					'),
+							return $member['last_post'];
+					},
 				),
 			),
 		),
@@ -1140,9 +1142,10 @@ function ViewWatchedUsers()
 		$listOptions['columns'] = array(
 			'posts' => array(
 				'data' => array(
-					'function' => create_function('$post', '
+					'function' => function ($post)
+					{
 						return template_user_watch_post_callback($post);
-					'),
+					},
 				),
 			),
 		);
@@ -1741,11 +1744,12 @@ function ViewWarningTemplates()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $context, $txt, $scripturl;
 
-						return \'<input type="checkbox" name="deltpl[]" value="\' . $rowData[\'id_comment\'] . \'" class="input_check">\';
-					'),
+						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
+					},
 					'class' => 'centercol',
 				),
 			),
