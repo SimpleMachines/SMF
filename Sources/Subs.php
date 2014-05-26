@@ -1067,36 +1067,38 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
+				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled)
+				{
 					global $context;
 
-					if (!isset($disabled[\'code\']))
+					if (!isset($disabled['code']))
 					{
-						$php_parts = preg_split(\'~(&lt;\?php|\?&gt;)~\', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 						for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++)
 						{
 							// Do PHP code coloring?
-							if ($php_parts[$php_i] != \'&lt;?php\')
+							if ($php_parts[$php_i] != '&lt;?php')
 								continue;
 
-							$php_string = \'\';
-							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != \'?&gt;\')
+							$php_string = '';
+							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;')
 							{
 								$php_string .= $php_parts[$php_i];
-								$php_parts[$php_i++] = \'\';
+								$php_parts[$php_i++] = '';
 							}
 							$php_parts[$php_i] = highlight_php_code($php_string . $php_parts[$php_i]);
 						}
 
 						// Fix the PHP code stuff...
-						$data = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
+						$data = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
 						$data = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context[\'browser\'][\'is_opera\'])
-							$data .= \'&nbsp;\';
-					}'),
+						if ($context['browser']['is_opera'])
+							$data .= '&nbsp;';
+					}
+				},
 				'block_level' => true,
 			),
 			array(
@@ -1104,36 +1106,38 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : create_function('&$tag, &$data, $disabled', '
+				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled)
+				{
 					global $context;
 
-					if (!isset($disabled[\'code\']))
+					if (!isset($disabled['code']))
 					{
-						$php_parts = preg_split(\'~(&lt;\?php|\?&gt;)~\', $data[0], -1, PREG_SPLIT_DELIM_CAPTURE);
+						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data[0], -1, PREG_SPLIT_DELIM_CAPTURE);
 
 						for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++)
 						{
 							// Do PHP code coloring?
-							if ($php_parts[$php_i] != \'&lt;?php\')
+							if ($php_parts[$php_i] != '&lt;?php')
 								continue;
 
-							$php_string = \'\';
-							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != \'?&gt;\')
+							$php_string = '';
+							while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;')
 							{
 								$php_string .= $php_parts[$php_i];
-								$php_parts[$php_i++] = \'\';
+								$php_parts[$php_i++] = '';
 							}
 							$php_parts[$php_i] = highlight_php_code($php_string . $php_parts[$php_i]);
 						}
 
 						// Fix the PHP code stuff...
-						$data[0] = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode(\'\', $php_parts));
+						$data[0] = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
 						$data[0] = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $data[0]);
 
 						// Recent Opera bug requiring temporary fix. &nsbp; is needed before </code> to avoid broken selection.
-						if ($context[\'browser\'][\'is_opera\'])
-							$data[0] .= \'&nbsp;\';
-					}'),
+						if ($context['browser']['is_opera'])
+							$data[0] .= '&nbsp;';
+					}
+				},
 				'block_level' => true,
 			),
 			array(
@@ -1148,7 +1152,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<a href="mailto:$1" class="bbc_email">$1</a>',
 				// @todo Should this respect guest_hideContacts?
-				'validate' => create_function('&$tag, &$data, $disabled', '$data = strtr($data, array(\'<br>\' => \'\'));'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+				},
 			),
 			array(
 				'tag' => 'email',
@@ -1164,12 +1171,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
 				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1"><param name="play" value="true"><param name="loop" value="true"><param name="quality" value="high"><param name="AllowScriptAccess" value="never"><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					if (isset($disabled[\'url\']))
-						$tag[\'content\'] = \'$1\';
-					elseif (strpos($data[0], \'http://\') !== 0 && strpos($data[0], \'https://\') !== 0)
-						$data[0] = \'http://\' . $data[0];
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+		
+					if (isset($disabled['url']))
+						$tag['content'] = '$1';
+					elseif (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
+						$data[0] = 'http://' . $data[0];
+				
+				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
 			array(
@@ -1183,21 +1193,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'ftp',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br>\' => \'\'));
-					if (strpos($data, \'ftp://\') !== 0 && strpos($data, \'ftps://\') !== 0)
-						$data = \'ftp://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
 			),
 			array(
 				'tag' => 'ftp',
 				'type' => 'unparsed_equals',
 				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
 				'after' => '</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					if (strpos($data, \'ftp://\') !== 0 && strpos($data, \'ftps://\') !== 0)
-						$data = \'ftp://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
+						$data = 'ftp://' . $data;
+				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
@@ -1240,45 +1252,50 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '<img src="$1" alt="{alt}"{width}{height} class="bbc_img resized">',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br>\' => \'\'));
-					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				},
 				'disabled_content' => '($1)',
 			),
 			array(
 				'tag' => 'img',
 				'type' => 'unparsed_content',
 				'content' => '<img src="$1" alt="" class="bbc_img">',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br>\' => \'\'));
-					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				
+				},
 				'disabled_content' => '($1)',
 			),
 			array(
 				'tag' => 'iurl',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link">$1</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br>\' => \'\'));
-					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				},
 			),
 			array(
 				'tag' => 'iurl',
 				'type' => 'unparsed_equals',
 				'before' => '<a href="$1" class="bbc_link">',
 				'after' => '</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					if (substr($data, 0, 1) == \'#\')
-						$data = \'#post_\' . substr($data, 1);
-					elseif (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					if (substr($data, 0, 1) == '#')
+						$data = '#post_' . substr($data, 1);
+					elseif (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
@@ -1349,14 +1366,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'php',
 				'type' => 'unparsed_content',
 				'content' => '<span class="phpcode">$1</span>',
-				'validate' => isset($disabled['php']) ? null : create_function('&$tag, &$data, $disabled', '
-					if (!isset($disabled[\'php\']))
+				'validate' => isset($disabled['php']) ? null : function (&$tag, &$data, $disabled)
+				{
+					if (!isset($disabled['php']))
 					{
-						$add_begin = substr(trim($data), 0, 5) != \'&lt;?\';
-						$data = highlight_php_code($add_begin ? \'&lt;?php \' . $data . \'?&gt;\' : $data);
+						$add_begin = substr(trim($data), 0, 5) != '&lt;?';
+						$data = highlight_php_code($add_begin ? '&lt;?php ' . $data . '?&gt;' : $data);
 						if ($add_begin)
-							$data = preg_replace(array(\'~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~\', \'~\?&gt;((?:</(font|span)>)*)$~\'), \'$1\', $data, 2);
-					}'),
+							$data = preg_replace(array('~^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)~', '~\?&gt;((?:</(font|span)>)*)$~'), '$1', $data, 2);
+					}
+				},
 				'block_level' => false,
 				'disabled_content' => '$1',
 			),
@@ -1438,27 +1457,33 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
 				'before' => isBrowser('ie') ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
 				'after' => '</span>',
-				'validate' => isBrowser('ie') ? create_function('&$tag, &$data, $disabled', '
-					if ($data[1] == \'left\')
+				'validate' => isBrowser('ie') ? function (&$tag, &$data, $disabled)
+				{
+		
+					if ($data[1] == 'left')
 						$data[1] = 270;
-					elseif ($data[1] == \'right\')
+					elseif ($data[1] == 'right')
 						$data[1] = 90;
-					elseif ($data[1] == \'top\')
+					elseif ($data[1] == 'top')
 						$data[1] = 0;
-					elseif ($data[1] == \'bottom\')
+					elseif ($data[1] == 'bottom')
 						$data[1] = 180;
 					else
-						$data[1] = (int) $data[1];') : create_function('&$tag, &$data, $disabled', '
-					if ($data[1] == \'top\' || (is_numeric($data[1]) && $data[1] < 50))
-						$data[1] = \'0 -2px 1px\';
-					elseif ($data[1] == \'right\' || (is_numeric($data[1]) && $data[1] < 100))
-						$data[1] = \'2px 0 1px\';
-					elseif ($data[1] == \'bottom\' || (is_numeric($data[1]) && $data[1] < 190))
-						$data[1] = \'0 2px 1px\';
-					elseif ($data[1] == \'left\' || (is_numeric($data[1]) && $data[1] < 280))
-						$data[1] = \'-2px 0 1px\';
+						$data[1] = (int) $data[1];
+				} : function (&$tag, &$data, $disabled)
+				{
+		
+					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
+						$data[1] = '0 -2px 1px';
+					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
+						$data[1] = '2px 0 1px';
+					elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
+						$data[1] = '0 2px 1px';
+					elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
+						$data[1] = '-2px 0 1px';
 					else
-						$data[1] = \'1px 1px 1px\';'),
+						$data[1] = '1px 1px 1px';
+				},
 			),
 			array(
 				'tag' => 'size',
@@ -1510,11 +1535,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'time',
 				'type' => 'unparsed_content',
 				'content' => '$1',
-				'validate' => create_function('&$tag, &$data, $disabled', '
+				'validate' => function (&$tag, &$data, $disabled)
+				{
 					if (is_numeric($data))
 						$data = timeformat($data);
 					else
-						$tag[\'content\'] = \'[time]$1[/time]\';'),
+						$tag['content'] = '[time]$1[/time]';
+				},
 			),
 			array(
 				'tag' => 'tr',
@@ -1541,21 +1568,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'url',
 				'type' => 'unparsed_content',
 				'content' => '<a href="$1" class="bbc_link" target="_blank">$1</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					$data = strtr($data, array(\'<br>\' => \'\'));
-					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					$data = strtr($data, array('<br>' => ''));
+					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				},
 			),
 			array(
 				'tag' => 'url',
 				'type' => 'unparsed_equals',
 				'before' => '<a href="$1" class="bbc_link" target="_blank">',
 				'after' => '</a>',
-				'validate' => create_function('&$tag, &$data, $disabled', '
-					if (strpos($data, \'http://\') !== 0 && strpos($data, \'https://\') !== 0)
-						$data = \'http://\' . $data;
-				'),
+				'validate' => function (&$tag, &$data, $disabled)
+				{
+					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
+						$data = 'http://' . $data;
+				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
@@ -2612,9 +2641,19 @@ function redirectexit($setLocation = '', $refresh = false)
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
 		if (defined('SID') && SID != '')
-			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html?\' . SID. (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
+			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+				function ($m)
+				{
+					global $scripturl;
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID. (isset($m[2]) ? "$m[2]" : "");
+				}, $setLocation);
 		else
-			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . (isset($m[2]) ? "$m[2]" : "");'), $setLocation);
+			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+				function ($m)
+				{
+					global $scripturl;
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
+				}, $setLocation);
 	}
 
 	// Maybe integrations want to change where we are heading?

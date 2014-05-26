@@ -482,17 +482,18 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $scripturl, $smcFunc;
 
 						// In case of an attachment, return the poster of the attachment.
-						if (empty($rowData[\'id_member\']))
-							return $smcFunc[\'htmlspecialchars\']($rowData[\'poster_name\']);
+						if (empty($rowData['id_member']))
+							return $smcFunc['htmlspecialchars']($rowData['poster_name']);
 
 						// Otherwise it must be an avatar, return the link to the owner of it.
 						else
-							return sprintf(\'<a href="%1$s?action=profile;u=%2$d">%3$s</a>\', $scripturl, $rowData[\'id_member\'], $rowData[\'poster_name\']);
-					'),
+							return sprintf('<a href="%1$s?action=profile;u=%2$d">%3$s</a>', $scripturl, $rowData['id_member'], $rowData['poster_name']);
+					},
 				),
 				'sort' => array(
 					'default' => 'mem.real_name',
@@ -504,18 +505,19 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $txt, $context, $scripturl;
 
 						// The date the message containing the attachment was posted or the owner of the avatar was active.
-						$date = empty($rowData[\'poster_time\']) ? $txt[\'never\'] : timeformat($rowData[\'poster_time\']);
+						$date = empty($rowData['poster_time']) ? $txt['never'] : timeformat($rowData['poster_time']);
 
 						// Add a link to the topic in case of an attachment.
-						if ($context[\'browse_type\'] !== \'avatars\')
-							$date .= sprintf(\'<br>%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>\', $txt[\'in\'], $scripturl, $rowData[\'id_topic\'], $rowData[\'id_msg\'], $rowData[\'subject\']);
+						if ($context['browse_type'] !== 'avatars')
+							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
-						'),
+					},
 				),
 				'sort' => array(
 					'default' => $context['browse_type'] === 'avatars' ? 'mem.last_login' : 'm.id_msg',
@@ -2242,9 +2244,10 @@ function ManageAttachmentPaths()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="current_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . (!empty($rowData[\'disable_current\']) ? \' disabled\' : \'\') . \' class="input_radio">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="radio" name="current_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . (!empty($rowData['disable_current']) ? ' disabled' : '') . ' class="input_radio">';
+					},
 					'style' => 'width: 10%;',
 					'class' => 'centercol',
 				),
@@ -2254,9 +2257,10 @@ function ManageAttachmentPaths()
 					'value' => $txt['attach_path'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="hidden" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"><input type="text" size="40" name="dirs[\' . $rowData[\'id\'] . \']" value="\' . $rowData[\'path\'] . \'"\' . (!empty($rowData[\'disable_base_dir\']) ? \' disabled\' : \'\') . \' class="input_text" style="width: 100%">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="hidden" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"><input type="text" size="40" name="dirs[' . $rowData['id'] . ']" value="' . $rowData['path'] . '"' . (!empty($rowData['disable_base_dir']) ? ' disabled' : '') . ' class="input_text" style="width: 100%">';
+					},
 					'style' => 'width: 40%;',
 				),
 			),
@@ -2333,9 +2337,12 @@ function ManageAttachmentPaths()
 						'class' => 'centercol',
 					),
 					'data' => array(
-						'function' => create_function('$rowData', '
-							return \'<input type="radio" name="current_base_dir" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'current\'] ? \' checked\' : \'\') . \' class="input_radio">\';
-						'),
+						'function' => function ($rowData)
+		{
+		
+							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . ' class="input_radio">';
+						
+		},
 						'style' => 'width: 10%;',
 						'class' => 'centercol',
 					),

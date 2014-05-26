@@ -238,11 +238,12 @@ function ViewSpiders()
 					'value' => $txt['spider_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $scripturl, $smcFunc;
 
-						return sprintf(\'<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>\', $scripturl, $rowData[\'id_spider\'], $smcFunc[\'htmlspecialchars\']($rowData[\'spider_name\']));
-					'),
+						return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', $scripturl, $rowData['id_spider'], $smcFunc['htmlspecialchars']($rowData['spider_name']));
+					},
 				),
 				'sort' => array(
 					'default' => 'spider_name',
@@ -254,11 +255,12 @@ function ViewSpiders()
 					'value' => $txt['spider_last_seen'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $context, $txt;
 
-						return isset($context[\'spider_last_seen\'][$rowData[\'id_spider\']]) ? timeformat($context[\'spider_last_seen\'][$rowData[\'id_spider\']]) : $txt[\'spider_last_never\'];
-					'),
+						return isset($context['spider_last_seen'][$rowData['id_spider']]) ? timeformat($context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
+					},
 				),
 			),
 			'user_agent' => array(
@@ -735,9 +737,10 @@ function SpiderLogs()
 					'value' => $txt['spider_time'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'log_time\']);
-					'),
+					'function' => function ($rowData)
+					{
+						return timeformat($rowData['log_time']);
+					},
 				),
 				'sort' => array(
 					'default' => 'sl.id_hit DESC',

@@ -1400,12 +1400,13 @@ function PackageBrowse()
 						'style' => 'width: 40px;',
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
+						'function' => function ($package_md5) use ($type)
+						{
 							global $context;
 
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'sort_id\'];
-						'),
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['sort_id'];
+						},
 					),
 					'sort' => array(
 						'default' => 'sort_id',
@@ -1418,12 +1419,13 @@ function PackageBrowse()
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
+						'function' => function ($package_md5) use ($type)
+						{
 							global $context;
 
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];
-						'),
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['name'];
+						},
 					),
 					'sort' => array(
 						'default' => 'name',
@@ -1435,12 +1437,13 @@ function PackageBrowse()
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
+						'function' => function ($package_md5) use ($type)
+						{
 							global $context;
 
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];
-						'),
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['version'];
+						},
 					),
 					'sort' => array(
 						'default' => 'version',
@@ -1452,12 +1455,13 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
+						'function' => function ($package_md5) use ($type)
+						{
 							global $context, $txt;
 
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return !empty($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) ? timeformat($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) : $txt[\'not_applicable\'];
-						'),
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return !empty($context['available_' . $type . ''][$package_md5]['time_installed']) ? timeformat($context['available_' . $type . ''][$package_md5]['time_installed']) : $txt['not_applicable'];
+						},
 						'class' => 'smalltext',
 					),
 					'sort' => array(
