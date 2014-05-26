@@ -116,19 +116,19 @@ function RecentPosts()
 			);
 		}
 
-		$recycling = empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0;
+		$recycling = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']);
 
 		$request = $smcFunc['db_query']('', '
 			SELECT b.id_board, b.num_posts
 			FROM {db_prefix}boards AS b
 			WHERE b.id_cat IN ({array_int:category_list})
-				AND b.redirect = {string:empty}' . $recycle ? '
-				AND b.id_board != {int:recycle_board}' : '' . '
+				AND b.redirect = {string:empty}' . ($recycling ? '
+				AND b.id_board != {int:recycle_board}' : '') . '
 				AND {query_wanna_see_board}',
 			array(
 				'category_list' => $_REQUEST['c'],
 				'empty' => '',
-				'recycle_board' => $modSettings['recycle_board'],
+				'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
 			)
 		);
 		$total_cat_posts = 0;
