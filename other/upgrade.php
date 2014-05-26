@@ -1157,11 +1157,11 @@ function checkLogin()
 
 					// Challenge passed.
 					$tk = validateToken('login');
-					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))
+					if (hash('sha256', $_REQUEST['hash_passwrd']) == $password)
 						$sha_passwd = $password;
 				}
 				else
-					$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+					$sha_passwd = hash('sha256', sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd'])));
 			}
 			else
 				$upcontext['username_incorrect'] = true;

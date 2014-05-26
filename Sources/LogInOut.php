@@ -108,7 +108,7 @@ function Login2()
 		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
-		setLoginCookie($timeout - time(), $user_info['id'], sha1($user_settings['passwd'] . $user_settings['password_salt']));
+		setLoginCookie($timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
 	}
@@ -276,7 +276,7 @@ function Login2()
 	if (isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40)
 	{
 		// Needs upgrading?
-		if (strlen($user_settings['passwd']) != 40)
+		if (strlen($user_settings['passwd']) != 64)
 		{
 			$context['login_errors'] = array($txt['login_hash_error']);
 			$context['disable_login_hashing'] = true;
@@ -284,7 +284,7 @@ function Login2()
 			return;
 		}
 		// Challenge passed.
-		elseif ($_POST['hash_passwrd'] == sha1($user_settings['passwd'] . $sc . $tk))
+		elseif (hash_simple($_POST['hash_passwrd']) == $user_settings['passwd'])
 			$sha_passwd = $user_settings['passwd'];
 		else
 		{
@@ -307,7 +307,7 @@ function Login2()
 		}
 	}
 	else
-		$sha_passwd = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
+		$sha_passwd = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
 
 	// Bad password!  Thought you could fool the database?!
 	if ($user_settings['passwd'] != $sha_passwd)
@@ -360,6 +360,7 @@ function Login2()
 		elseif (strlen($user_settings['passwd']) == 40)
 		{
 			// Maybe they are using a hash from before the password fix.
+			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to SHA256 in SMF 2.1
 			$other_passwords[] = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 
 			// BurningBoard3 style of hashing.
@@ -509,7 +510,7 @@ function DoLogin()
 	$user_info['id'] = $user_settings['id_member'];
 
 	// Bam!  Cookie set.  A session too, just in case.
-	setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], sha1($user_settings['passwd'] . $user_settings['password_salt']));
+	setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 	// Reset the login threshold.
 	if (isset($_SESSION['failed_login']))

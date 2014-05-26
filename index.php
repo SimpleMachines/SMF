@@ -48,6 +48,7 @@ if ((empty($cachedir) || !file_exists($cachedir)) && file_exists($boarddir . '/c
 // Without those we can't go anywhere
 require_once($sourcedir . '/QueryString.php');
 require_once($sourcedir . '/Subs.php');
+require_once($sourcedir . '/Subs-Auth.php');
 require_once($sourcedir . '/Errors.php');
 require_once($sourcedir . '/Load.php');
 
@@ -229,17 +230,11 @@ function smf_main()
 		}
 		// Don't even try it, sonny.
 		else
-		{
-			require_once($sourcedir . '/Subs-Auth.php');
 			return 'InMaintenance';
-		}
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
 	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'openidreturn'))))
-	{
-		require_once($sourcedir . '/Subs-Auth.php');
 		return 'KickGuest';
-	}
 	elseif (empty($_REQUEST['action']))
 	{
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.

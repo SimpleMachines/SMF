@@ -348,6 +348,7 @@ function loadProfileFields($force_reload = false)
 
 				// Set up the new password variable... ready for storage.
 				$value = hash_password($cur_profile['member_name'], un_htmlspecialchars($value));
+
 				return true;
 			},
 		),

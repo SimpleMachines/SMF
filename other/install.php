@@ -1457,7 +1457,7 @@ function AdminAccount()
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(
-					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
+					stripslashes($_POST['username']), stripslashes($_POST['username']), hash('sha256', sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1']))), stripslashes($_POST['email']),
 					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
@@ -1548,7 +1548,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
-		setLoginCookie(3153600 * 60, $incontext['member_id'], sha1(sha1(strtolower($_POST['username']) . $_POST['password1']) . $incontext['member_salt']));
+		setLoginCookie(3153600 * 60, $incontext['member_id'], hash('sha256', hash('sha256', sha1(strtolower($_POST['username']) . $_POST['password1'])) . $incontext['member_salt']));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT value

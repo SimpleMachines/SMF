@@ -259,7 +259,7 @@ function setPassword2()
 	validatePasswordFlood($_POST['u'], $flood_value, true);
 
 	// User validated.  Update the database!
-	updateMemberData($_POST['u'], array('validation_code' => '', 'passwd' => sha1(strtolower($username) . $_POST['passwrd1'])));
+	updateMemberData($_POST['u'], array('validation_code' => '', 'passwd' => hash_password($username, $_POST['passwrd1'])));
 
 	call_integration_hook('integrate_reset_pass', array($username, $username, $_POST['passwrd1']));
 
@@ -384,7 +384,7 @@ function SecretAnswer2()
 		fatal_lang_error('profile_error_password_' . $passwordError, false);
 
 	// Alright, so long as 'yer sure.
-	updateMemberData($row['id_member'], array('passwd' => sha1(strtolower($row['member_name']) . $_POST['passwrd1'])));
+	updateMemberData($row['id_member'], array('passwd' => hash_password($row['member_name'], $_POST['passwrd1'])));
 
 	call_integration_hook('integrate_reset_pass', array($row['member_name'], $row['member_name'], $_POST['passwrd1']));
 

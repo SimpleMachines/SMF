@@ -567,7 +567,7 @@ function resetPassword($memID, $username = null)
 
 	// Generate a random password.
 	$newPassword = substr(preg_replace('/\W/', '', md5(mt_rand())), 0, 10);
-	$newPassword_sha1 = sha1(strtolower($user) . $newPassword);
+	$newPassword_sha1 = hash_password($user, $newPassword);
 
 	// Do some checks on the username if needed.
 	if ($username !== null)
@@ -809,6 +809,41 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 
 	// This function is pointless if we have PHP >= 5.2.
 	return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+}
+
+/**
+ * Hashes username with password
+ *
+ * @param string $username
+ * @param string $password
+ * @return string
+ */
+function hash_password($username, $password)
+{
+	return hash('sha256', sha1(strtolower($username) . $password));
+}
+
+/**
+ * Hashes password with salt
+ *
+ * @param string $password
+ * @param string $salt
+ * @return string
+ */
+function hash_salt($password, $salt)
+{
+	return hash('sha256', $password . $salt);
+}
+
+/**
+ * Simple hash for verifying
+ *
+ * @param string $string
+ * @return string
+ */
+function hash_simple($string)
+{
+	return hash('sha256', $string);
 }
 
 ?>

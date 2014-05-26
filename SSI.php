@@ -1922,7 +1922,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 	list ($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return sha1(strtolower($user) . $password) == $pass && $active == 1;
+	return hash('sha256', sha1(strtolower($user) . $password)) == $pass && $active == 1;
 }
 
 // We want to show the recent attachments outside of the forum.

@@ -532,7 +532,7 @@ function Register2($verifiedOpenID = false)
 	{
 		call_integration_hook('integrate_activate', array($regOptions['username']));
 
-		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, sha1(sha1(strtolower($regOptions['username']) . $regOptions['password']) . $regOptions['register_vars']['password_salt']));
+		setLoginCookie(60 * $modSettings['cookieTime'], $memberID, hash_salt(hash_password($regOptions['username'], $regOptions['password']),  $regOptions['register_vars']['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $memberID, $context['server']['needs_login_fix']);
 	}
@@ -595,7 +595,7 @@ function Activate()
 	$smcFunc['db_free_result']($request);
 
 	// Change their email address? (they probably tried a fake one first :P.)
-	if (isset($_POST['new_email'], $_REQUEST['passwd']) && sha1(strtolower($row['member_name']) . $_REQUEST['passwd']) == $row['passwd'] && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
+	if (isset($_POST['new_email'], $_REQUEST['passwd']) && hash_password($row['member_name'], $_REQUEST['passwd']) == $row['passwd'] && ($row['is_activated'] == 0 || $row['is_activated'] == 2))
 	{
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);

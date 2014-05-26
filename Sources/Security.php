@@ -72,7 +72,7 @@ function validateSession($type = 'admin')
 		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
 
 		// Password correct?
-		if ($good_password || sha1(strtolower($user_info['username']) . $_POST[$type . '_pass']) == $user_info['passwd'])
+		if ($good_password || hash_password($user_info['username'], $_POST[$type . '_pass']) == $user_info['passwd'])
 		{
 			$_SESSION[$type . '_time'] = time();
 			unset($_SESSION['request_referer']);
