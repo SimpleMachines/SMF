@@ -1440,7 +1440,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] .'">
+<install for="'. $context['to_install']['install_for'] .'" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1492,8 +1492,8 @@ function InstallDir()
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// All good! set some needed vars.
-		$context['to_install'] = array(
-		'dir' => $_REQUEST['theme_dir'],
+	$context['to_install'] = array(
+		'theme_dir' => $_REQUEST['theme_dir'],
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
