@@ -15,11 +15,6 @@ function template_login()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
-	// AJAX request?
-	if (!empty($context['from_ajax']))
-		echo '
-		<script src="', $settings['default_theme_url'], '/scripts/sha1.js', $modSettings['browser_cache'] ,'"></script>';
-
 	echo '
 		<div class="tborder login">
 			<div class="cat_bar">
@@ -28,7 +23,7 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>';
+				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
@@ -100,7 +95,7 @@ function template_kick_guest()
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
+	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
@@ -171,7 +166,7 @@ function template_maintenance()
 
 	// Display the administrator's message at the top.
 	echo '
-<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
+<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
 	<div class="tborder login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>

@@ -273,7 +273,6 @@ function setPassword2()
 		'description' => $txt['reminder_password_set']
 	);
 
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 	createToken('login');
 }
 
