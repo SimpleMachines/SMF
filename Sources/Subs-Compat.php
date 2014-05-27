@@ -136,4 +136,27 @@ function sha1_raw($text)
 	return sha1($text, true);
 }
 
+/**
+ * Compatibility function.
+ * crc32 doesn't work as expected on 64-bit functions - make our own.
+ * http://www.php.net/crc32#79567
+ * @param $number
+ */
+if (!function_exists('smf_crc32'))
+{
+	function smf_crc32($number)
+	{
+		$crc = crc32($number);
+
+		if ($crc & 0x80000000)
+		{
+			$crc ^= 0xffffffff;
+			$crc += 1;
+			$crc = -$crc;
+		}
+
+		return $crc;
+	}
+}
+
 ?>
