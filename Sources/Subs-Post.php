@@ -275,10 +275,12 @@ function un_preparsecode($message)
 		// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
 		if ($i % 4 == 0)
 		{
-			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', create_function('$m', '
+			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function ($m)
+			{
 				global $smcFunc;
 
-			return "[html]" . strtr($smcFunc[\'htmlspecialchars\']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";'), $parts[$i]);
+				return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
+			}, $parts[$i]);
 
 			// Attempt to un-parse the time to something less awful.
 			$parts[$i] = preg_replace_callback('~\[time\](\d{0,10})\[/time\]~i', function ($m)
