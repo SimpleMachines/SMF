@@ -150,7 +150,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
+	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
@@ -569,12 +569,21 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-weight: bold;
 	cursor: pointer;
 }
-.next_page, .previous_page {
-	text-transform: capitalize;
-	padding: 0 2px;
+.previous_page {
+	background: url(../images/generic_icons.png) no-repeat -113px -49px;
+	width: 14px;
+	height: 13px;
+	display: inline-block;
+	margin: 0 0 -1px 0;
+}
+.next_page {
+	background: url(../images/generic_icons.png) no-repeat -113px -33px;
+	width: 14px;
+	height: 13px;
+	display: inline-block;
+	margin: 0 0 -1px 0;
 }
 .current_page strong {
-	font-size: 1.2em;
 	padding: 0 4px 0 2px;
 	color: #b46100;
 	font-family: verdana, sans-serif;
@@ -861,7 +870,7 @@ h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.cat
 	color: #fff;
 }
 h3.catbg a:hover, h4.catbg a:hover {
-	color: #ffc178;
+	color: #fff;
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
@@ -1306,7 +1315,7 @@ img.sort, .sort {
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
+	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	padding: 0 8px;
 	margin: 0 0 0 5px;
@@ -1337,7 +1346,6 @@ img.sort, .sort {
 	background: #557ea0;
 	color: #fff;
 	font-weight: bold;
-	border-radius: 3px;
 	border: 1px solid #558080;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
@@ -2157,7 +2165,8 @@ ul.quickbuttons li a.reply_all_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
 }
 ul.quickbuttons li a.notify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -210px;
+	padding: 0 4px 0 22px;
 }
 ul.quickbuttons li a.unapprove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
@@ -2883,7 +2892,12 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 .generic_icons.filter {
 	background-position: -16px -80px;
 }
-
+.generic_icons.right {
+	background-position: -113px -33px;
+}
+.generic_icons.left {
+	background-position: -113px -49px;
+}
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
@@ -4034,7 +4048,8 @@ div.lastpost p {
 }
 .moderation {
 	float: right;
-	width: 2%;
+	width: 35px;
+	margin: 5px 0 0 0;
 }
 #topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	border-radius: 0;

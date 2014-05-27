@@ -546,12 +546,13 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		$base_url .= ';' . WIRELESS_PROTOCOL;
 
 	$base_link = '<a class="navPages" href="' . ($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d') . '">%2$s</a> ';
+	$pageindex = $txt['pages'] . ': ';
 
 	// Compact pages is off or on?
 	if (empty($modSettings['compactTopicPagesEnable']))
 	{
 		// Show the left arrow.
-		$pageindex = $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, '<span class="previous_page">' . $txt['prev'] . '</span>');
+		$pageindex .= $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, '<span class="previous_page"></span>');
 
 		// Show all the pages.
 		$display_page = 1;
@@ -561,7 +562,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		// Show the right arrow.
 		$display_page = ($start + $num_per_page) > $max_value ? $max_value : ($start + $num_per_page);
 		if ($start != $counter - $max_value && !$start_invalid)
-			$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, '<span class="next_page">' . $txt['next'] . '</span>');
+			$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, '<span class="next_page"></span>');
 	}
 	else
 	{
@@ -570,9 +571,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "prev page" link. (>prev page< 1 ... 6 7 [8] 9 10 ... 15 next page)
 		if (!empty($start) && $show_prevnext)
-			$pageindex = sprintf($base_link, $start - $num_per_page, '<span class="previous_page">' . $txt['prev'] . '</span>');
+			$pageindex .= sprintf($base_link, $start - $num_per_page, '<span class="previous_page"></span>');
 		else
-			$pageindex = '';
+			$pageindex .= '';
 
 		// Show the first page. (prev page >1< ... 6 7 [8] 9 10 ... 15)
 		if ($start > $num_per_page * $PageContiguous)
@@ -587,12 +588,12 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 			if ($start >= $num_per_page * $nCont)
 			{
 				$tmpStart = $start - $num_per_page * $nCont;
-				$pageindex.= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
+				$pageindex .= sprintf($base_link, $tmpStart, $tmpStart / $num_per_page + 1);
 			}
 
 		// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
 		if (!$start_invalid)
-			$pageindex .= '<span class="current_page"><strong>' . ($start / $num_per_page + 1) . '</strong></span>';
+			$pageindex .= '<span class="current_page"><strong>[' . ($start / $num_per_page + 1) . ']</strong></span>';
 		else
 			$pageindex .= sprintf($base_link, $start, $start / $num_per_page + 1);
 
@@ -615,7 +616,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "next page" link. (prev page 1 ... 6 7 [8] 9 10 ... 15 >next page<)
 		if ($start != $tmpMaxPages && $show_prevnext)
-			$pageindex .= sprintf($base_link, $start + $num_per_page, '<span class="next_page">' . $txt['next'] . '</span>');
+			$pageindex .= sprintf($base_link, $start + $num_per_page, '<span class="next_page"></span>');
 	}
 
 	return $pageindex;
