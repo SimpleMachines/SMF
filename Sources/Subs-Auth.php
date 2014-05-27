@@ -860,7 +860,7 @@ function hash_verify_password($username, $password, $hash)
 	if (!function_exists('password_verify'))
 		require_once($sourcedir . '/Subs-Password.php');
 
-	return password_verify(sha1(strtolower($username) . $password), $hash);
+	return password_verify(strtolower($username) . $password, $hash);
 }
 
 /**
