@@ -268,7 +268,7 @@ function Login2()
 	$user_settings = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$sha_passwd = strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']);
+	$sha_passwd = $smcFunc['strtolower']($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']);
 
 	// Bad password!  Thought you could fool the database?!
 	if (!hash_verify($sha_passwd, $user_settings['passwd']))

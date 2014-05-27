@@ -816,7 +816,9 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
  */
 function hash_password($username, $password)
 {
-	return hash_simple(strtolower($username) . $password);
+	global $smcFunc;
+
+	return hash_simple($smcFunc['strtolower']($username) . $password);
 }
 
 /**
@@ -856,11 +858,11 @@ function hash_simple($string)
  */
 function hash_verify_password($username, $password, $hash)
 {
-	global $sourcedir;
+	global $sourcedir, $smcFunc;
 	if (!function_exists('password_verify'))
 		require_once($sourcedir . '/Subs-Password.php');
 
-	return password_verify(strtolower($username) . $password, $hash);
+	return password_verify($smcFunc['strtolower']($username) . $password, $hash);
 }
 
 /**
