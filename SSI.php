@@ -68,10 +68,6 @@ require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
 
-// Using an pre-PHP 5.1 version?
-if (version_compare(PHP_VERSION, '5.1', '<'))
-	require_once($sourcedir . '/Subs-Compat.php');
-
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
