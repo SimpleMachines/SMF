@@ -3560,7 +3560,7 @@ function template_upgrade_above()
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
-				<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script><!-- // --><![CDATA[
 			var smf_scripturl = \'', $upgradeurl, '\';
 			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
