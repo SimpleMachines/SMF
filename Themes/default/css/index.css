@@ -2892,12 +2892,7 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 .generic_icons.filter {
 	background-position: -16px -80px;
 }
-.generic_icons.right {
-	background-position: -113px -33px;
-}
-.generic_icons.left {
-	background-position: -113px -49px;
-}
+
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
