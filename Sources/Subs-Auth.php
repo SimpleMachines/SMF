@@ -820,11 +820,11 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
  */
 function hash_password($username, $password)
 {
-	return hash('sha256', sha1(strtolower($username) . $password));
+	return hash_simple(sha1(strtolower($username) . $password));
 }
 
 /**
- * Hashes password with salt
+ * Hashes password with salt, this is solely used for cookies.
  *
  * @param string $password
  * @param string $salt
@@ -832,7 +832,7 @@ function hash_password($username, $password)
  */
 function hash_salt($password, $salt)
 {
-	return hash('sha256', $password . $salt);
+	return hash('sha512', $password . $salt);
 }
 
 /**
@@ -843,7 +843,53 @@ function hash_salt($password, $salt)
  */
 function hash_simple($string)
 {
-	return hash('sha256', $string);
+	global $sourcedir;
+	if (!function_exists('password_hash'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_hash($string, PASSWORD_BCRYPT);
 }
 
+/**
+ * Verifies a raw SMF password against the bcrypt'd string
+ *
+ * @param string $username
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ */
+function hash_verify_password($username, $password, $hash)
+{
+	global $sourcedir;
+	if (!function_exists('password_verify'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_verify(sha1(strtolower($username) . $password), $hash);
+}
+
+/**
+ * Verifies hash, protects against timing attacks
+ *
+ * @param string $string
+ * @param string $verify_hash
+ * @return bool
+ */
+function hash_verify($string, $verify_hash)
+{
+	global $sourcedir;
+	if (!function_exists('password_verify'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_verify($string, $verify_hash);
+}
+
+/**
+ * Returns the length for current hash
+ *
+ * @return int
+ */
+function hash_length()
+{
+	return 60;
+}
 ?>

@@ -295,7 +295,7 @@ function loadUserSettings()
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
-		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -327,8 +327,8 @@ function loadUserSettings()
 			// As much as the password should be right, we can assume the integration set things up.
 			if (!empty($already_verified) && $already_verified === true)
 				$check = true;
-			// SHA-256 passwords should be 64 characters long.
-			elseif (strlen($password) == 64)
+			// SHA-512 hash should be 128 characters long.
+			elseif (strlen($password) == 128)
 				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
 			else
 				$check = false;

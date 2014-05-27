@@ -276,7 +276,7 @@ function Login2()
 	if (isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40)
 	{
 		// Needs upgrading?
-		if (strlen($user_settings['passwd']) != 64)
+		if (strlen($user_settings['passwd']) != hash_length())
 		{
 			$context['login_errors'] = array($txt['login_hash_error']);
 			$context['disable_login_hashing'] = true;
@@ -284,8 +284,8 @@ function Login2()
 			return;
 		}
 		// Challenge passed.
-		elseif (hash_simple($_POST['hash_passwrd']) == $user_settings['passwd'])
-			$sha_passwd = $user_settings['passwd'];
+		elseif (hash_verify($_POST['hash_passwrd'], $user_settings['passwd']))
+			$sha_passwd = $_POST['hash_passwrd'];
 		else
 		{
 			// Don't allow this!
@@ -307,10 +307,10 @@ function Login2()
 		}
 	}
 	else
-		$sha_passwd = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
+		$sha_passwd = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 
 	// Bad password!  Thought you could fool the database?!
-	if ($user_settings['passwd'] != $sha_passwd)
+	if (!hash_verify($sha_passwd, $user_settings['passwd']))
 	{
 		// Let's be cautious, no hacking please. thanx.
 		validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
@@ -393,7 +393,7 @@ function Login2()
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
-			$user_settings['passwd'] = $sha_passwd;
+			$user_settings['passwd'] = hash_simple($sha_passwd);
 			$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 
 			// Update the password and set up the hash.
