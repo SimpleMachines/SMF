@@ -1124,6 +1124,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	$groupLevels['global']['standard'] = array_merge($groupLevels['global']['restrict'], array(
 		'view_mlist',
 		'karma_edit',
+		'likes_view',
+		'likes_like',
 		'pm_read',
 		'pm_send',
 		'profile_view',
@@ -1421,6 +1423,7 @@ function loadAllPermissions()
 			'maintenance',
 			'member_admin',
 			'profile',
+			'likes',
 		),
 		'board' => array(
 			'general_board',
@@ -1481,6 +1484,8 @@ function loadAllPermissions()
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
 			'view_warning' => array(true, 'profile_account'),
+			'likes_view' => array(false, 'likes'),
+			'likes_like' => array(false, 'likes'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),
