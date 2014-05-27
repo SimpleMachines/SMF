@@ -62,6 +62,7 @@ class Likes
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_hook_helper(); so the same format for your function/method can be applied here.
+	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
@@ -70,6 +71,7 @@ class Likes
 		'type' => '',
 		'flush_cache' => '',
 		'callback' => false,
+		'json' => false,
 	);
 
 	/**
@@ -514,6 +516,10 @@ class Likes
 		if (!$this->_setResponse)
 			return;
 
+		// Want a json response huh?
+		if ($this->_validLikes['json'])
+			return $this->jsonResponse();
+
 		// Set everything up for display.
 		loadTemplate('Likes');
 		$context['template_layers'] = array();
@@ -559,6 +565,42 @@ class Likes
 				$context['data'] = $this->_data;
 			}
 		}
+	}
+
+	protected function jsonResponse()
+	{
+		global $modSettings;
+
+		// Kill anything else.
+		ob_end_clean();
+
+		if (!empty($modSettings['CompressedOutput']))
+			@ob_start('ob_gzhandler');
+
+		else
+			ob_start();
+
+		// Send the header.
+		header('Content-Type: application/json');
+
+		$print = array(
+			'data' => $this->_data;
+		);
+
+		// If there is an error, send it.
+		if ($this->_error)
+		{
+			if ($this->_error == 'cannot_')
+				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
+
+			$print['error'] = $this->_error;
+		}
+
+		// Do you want to add something at the very last minute?
+		call_integration_hook('integrate_likes_json_response', array(&$print));
+
+		// Print the data.
+		echo json_encode($print);
 	}
 }
 
