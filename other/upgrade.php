@@ -641,6 +641,7 @@ else
 	);
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 }
+
 // If this isn't the first stage see whether they are logging in and resuming.
 if ($upcontext['current_step'] != 0 || !empty($upcontext['user']['step']))
 	checkLogin();
