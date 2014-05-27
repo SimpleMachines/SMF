@@ -133,10 +133,26 @@ function reloadSettings()
 		},
 		'strtolower' => $utf8 ? function ($string)
 		{
+			global $sourcedir;
+
+			if (!function_exists('mb_strtolower'))
+			{
+				require_once($sourcedir . '/Subs-Charset.php');
+				return utf8_strtolower($string);
+			}
+
 			return mb_strtolower($string, 'UTF-8');
 		} : 'strtolower',
 		'strtoupper' => $utf8 ? function ($string)
 		{
+			global $sourcedir;
+
+			if (!function_exists('mb_strtolower'))
+			{
+				require_once($sourcedir . '/Subs-Charset.php');
+				return utf8_strtoupper($string);
+			}
+
 			return mb_strtoupper($string, 'UTF-8');
 		} : 'strtoupper',
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list)
