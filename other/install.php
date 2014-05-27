@@ -2111,13 +2111,14 @@ function template_install_above()
 	global $incontext, $txt, $smfsite, $installurl;
 
 	echo '<!DOCTYPE html>
-<html', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="Themes/default/css/rtl.css?alp21">' : '' , '
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2338,7 +2339,7 @@ function template_chmod_files()
 				<tr>
 					<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
 					<td>
-						<div style="float: ', empty($txt['lang_rtl']) ? 'right' : 'left', '; margin-', empty($txt['lang_rtl']) ? 'right' : 'left', ': 1px;"><label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $incontext['ftp']['port'], '" class="input_text" /></div>
+						<div style="float: ', $txt['lang_rtl'] == false ? 'right' : 'left', '; margin-', $txt['lang_rtl'] == false ? 'right' : 'left', ': 1px;"><label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $incontext['ftp']['port'], '" class="input_text" /></div>
 						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $incontext['ftp']['server'], '" style="width: 70%;" class="input_text" />
 						<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['ftp_server_info'], '</div>
 					</td>
@@ -2362,7 +2363,7 @@ function template_chmod_files()
 					</td>
 				</tr>
 			</table>
-			<div style="margin: 1ex; margin-top: 1ex; text-align: ', empty($txt['lang_rtl']) ? 'right' : 'left', ';"><input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button_submit" /></div>
+			<div style="margin: 1ex; margin-top: 1ex; text-align: ', $txt['lang_rtl'] == false ? 'right' : 'left', ';"><input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button_submit" /></div>
 		</form>
 		<a href="', $incontext['form_url'], '">', $txt['error_message_click'], '</a> ', $txt['ftp_setup_again'];
 }
@@ -2656,7 +2657,7 @@ function template_admin_account()
 				<td valign="top" class="textbox"><label for="email">', $txt['user_settings_email'], ':</label></td>
 				<td>
 					<input type="text" name="email" id="email" value="', $incontext['email'], '" size="40" class="input_text" />
-					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['user_settings_email_info'], '</div>
+					<div style="font-size:F smaller; margin-bottom: 2ex;">', $txt['user_settings_email_info'], '</div>
 				</td>
 			</tr>
 		</table>';
@@ -2666,7 +2667,7 @@ function template_admin_account()
 		<h2>', $txt['user_settings_database'], '</h2>
 		<p>', $txt['user_settings_database_info'], '</p>
 
-		<div style="margin-bottom: 2ex; padding-', empty($txt['lang_rtl']) ? 'left' : 'right', ': 50px;">
+		<div style="margin-bottom: 2ex; padding-', $txt['lang_rtl'] == false ? 'left' : 'right', ': 50px;">
 			<input type="password" name="password3" size="30" class="input_password" />
 		</div>';
 }
