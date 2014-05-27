@@ -424,37 +424,38 @@ function BrowseFiles()
 					'value' => $txt['attachment_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function ($rowData)
+					{
 						global $modSettings, $context, $scripturl, $smcFunc;
 
-						$link = \'<a href="\';
+						$link = '<a href="';
 
 						// In case of a custom avatar URL attachments have a fixed directory.
-						if ($rowData[\'attachment_type\'] == 1)
-							$link .= sprintf(\'%1$s/%2$s\', $modSettings[\'custom_avatar_url\'], $rowData[\'filename\']);
+						if ($rowData['attachment_type'] == 1)
+							$link .= sprintf('%1$s/%2$s', $modSettings['custom_avatar_url'], $rowData['filename']);
 
 						// By default avatars are downloaded almost as attachments.
-						elseif ($context[\'browse_type\'] == \'avatars\')
-							$link .= sprintf(\'%1$s?action=dlattach;type=avatar;attach=%2$d\', $scripturl, $rowData[\'id_attach\']);
+						elseif ($context['browse_type'] == 'avatars')
+							$link .= sprintf('%1$s?action=dlattach;type=avatar;attach=%2$d', $scripturl, $rowData['id_attach']);
 
 						// Normal attachments are always linked to a topic ID.
 						else
-							$link .= sprintf(\'%1$s?action=dlattach;topic=%2$d.0;attach=%3$d\', $scripturl, $rowData[\'id_topic\'], $rowData[\'id_attach\']);
+							$link .= sprintf('%1$s?action=dlattach;topic=%2$d.0;attach=%3$d', $scripturl, $rowData['id_topic'], $rowData['id_attach']);
 
-						$link .= \'"\';
+						$link .= '"';
 
-						// Show a popup on click if it\'s a picture and we know its dimensions.
-						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
-							$link .= sprintf(\' onclick="return reqWin(this.href\' . ($rowData[\'attachment_type\'] == 1 ? \'\' : \' + \\\';image\\\'\') . \', %1$d, %2$d, true);"\', $rowData[\'width\'] + 20, $rowData[\'height\'] + 20);
+						// Show a popup on click if it's a picture and we know its dimensions.
+						if (!empty($rowData['width']) && !empty($rowData['height']))
+							$link .= sprintf(' onclick="return reqWin(this.href' . ($rowData['attachment_type'] == 1 ? '' : ' + \';image\'') . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 
-						$link .= sprintf(\'>%1$s</a>\', preg_replace(\'~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~\', \'&#\\\\1;\', $smcFunc[\'htmlspecialchars\']($rowData[\'filename\'])));
+						$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', $smcFunc['htmlspecialchars']($rowData['filename'])));
 
 						// Show the dimensions.
-						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
-							$link .= sprintf(\' <span class="smalltext">%1$dx%2$d</span>\', $rowData[\'width\'], $rowData[\'height\']);
+						if (!empty($rowData['width']) && !empty($rowData['height']))
+							$link .= sprintf(' <span class="smalltext">%1$dx%2$d</span>', $rowData['width'], $rowData['height']);
 
 						return $link;
-					'),
+					},
 				),
 				'sort' => array(
 					'default' => 'a.filename',
@@ -466,11 +467,12 @@ function BrowseFiles()
 					'value' => $txt['attachment_file_size'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData','
+					'function' => function ($rowData)
+					{
 						global $txt;
 
-						return sprintf(\'%1$s%2$s\', round($rowData[\'size\'] / 1024, 2), $txt[\'kilobyte\']);
-					'),
+						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), $txt['kilobyte']);
+					},
 				),
 				'sort' => array(
 					'default' => 'a.size',

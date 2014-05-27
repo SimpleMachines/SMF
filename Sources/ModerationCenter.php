@@ -1510,19 +1510,20 @@ function ViewWarningLog()
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => create_function('$warning', '
+					'function' => function ($rowData)
+					{
 						global $scripturl, $txt;
 
-						$output = \'
+						$output = '
 							<div class="floatleft">
-								\' . $warning[\'reason\'] . \'
-							</div>\';
+								' . $rowData['reason'] . '
+							</div>';
 
-						if (!empty($warning[\'id_notice\']))
-							$output .= \'
-								&nbsp;<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><span class="generic_icons filter centericon"></span></a>\';
+						if (!empty($warning['id_notice']))
+							$output .= '
+								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
 						return $output;
-					'),
+					},
 				),
 			),
 			'points' => array(

@@ -631,9 +631,10 @@ function ModifyLanguages()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="def_language" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'default\'] ? \' checked\' : \'\') . \' onclick="highlightSelected(\\\'list_language_list_\' . $rowData[\'id\'] . \'\\\');" class="input_radio">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="radio" name="def_language" value="' . $rowData['id'] . '"' . ($rowData['default'] ? ' checked' : '') . ' onclick="highlightSelected(\'list_language_list_' . $rowData['id'] . '\');" class="input_radio">';
+					},
 					'style' => 'width: 8%;',
 					'class' => 'centercol',
 				),
@@ -644,13 +645,12 @@ function ModifyLanguages()
 				),
 				'data' => array(
 					'function' => function ($rowData)
-		{
+					{
 		
 						global $scripturl, $context;
 
 						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
-					
-		},
+					},
 				),
 			),
 			'character_set' => array(

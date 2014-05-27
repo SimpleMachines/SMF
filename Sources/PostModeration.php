@@ -436,9 +436,10 @@ function UnapprovedAttachments()
 					'value' => $txt['mc_unapproved_attach_poster'],
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						return $data[\'poster\'][\'link\'];'
-					)
+					'function' => function ($data)
+					{
+						return $data['poster']['link'];
+					},
 				),
 				'sort' => array(
 					'default' => 'm.id_member',
@@ -465,9 +466,10 @@ function UnapprovedAttachments()
 					'value' => $txt['post'],
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						return \'<a href="\' . $data[\'message\'][\'href\'] . \'">\' . shorten_subject($data[\'message\'][\'subject\'], 20) . \'</a>\';'
-					),
+					'function' => function ($data)
+					{
+						return '<a href="' . $data['message']['href'] . '">' . shorten_subject($data['message']['subject'], 20) . '</a>';
+					},
 					'class' => 'smalltext',
 					'style' => 'width:15em;',
 				),
