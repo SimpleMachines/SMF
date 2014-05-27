@@ -165,7 +165,7 @@ class xmlArray
 					$i = 0;
 					while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this))
 						$i++;
-					$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
+					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
@@ -610,7 +610,7 @@ class xmlArray
 	 * Turn the CDATAs back to normal text.
 	 *
 	 * @param string $data
-	 * @return string The transformed data	 
+	 * @return string The transformed data
 	 */
 	protected function _from_cdata($data)
 	{
@@ -661,7 +661,7 @@ class xmlArray
 	 * @param string $path
 	 * @param int $level
 	 * @param bool $no_error
-	 * @return string|array The specified array (or the contents of said array if there's only one result) 
+	 * @return string|array The specified array (or the contents of said array if there's only one result)
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{

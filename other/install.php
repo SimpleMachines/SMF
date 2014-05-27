@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Alpha 1';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.1.0';
+$GLOBALS['required_php_version'] = '5.3.2';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -2126,7 +2126,7 @@ function template_install_above()
 				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
-
+                </div>
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">

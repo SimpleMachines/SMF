@@ -66,9 +66,17 @@ function template_main()
 					<dd>', $context['average_online'], '</dd>';
 
 	if (!empty($context['gender']))
+	{
 		echo '
-					<dt>', $txt['gender_ratio'], ':</dt>
-					<dd>', $context['gender']['ratio'], '</dd>';
+					<dt><b>', $txt['gender_stats'], ':</b></dt>
+					<dd>';
+					
+		foreach ($context['gender'] as $g => $n)
+			echo $g, ': ', $n, '<br>';
+			
+		echo '</dd>';
+					
+	}
 
 	if (!empty($modSettings['hitStats']))
 		echo '

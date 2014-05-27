@@ -57,7 +57,10 @@ $txt['pm_replied'] = 'Replied To';
 $txt['pm_prune'] = 'Prune Messages';
 $txt['pm_prune_desc1'] = 'Delete all personal messages older than';
 $txt['pm_prune_desc2'] = 'days.';
-$txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages?';
+$txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages? They cannot be recovered!';
+$txt['pm_remove_all'] = 'Delete all of your personal messages (this will wipe out your inbox and your outbox).';
+$txt['pm_remove_all_warning'] = 'Are you absolutely sure you wish to delete all of your personal messages? They cannot be recovered!';
+$txt['delete_all_prune'] = 'Delete all';
 
 // Actions Drop Down.
 $txt['pm_actions_title'] = 'Further actions';

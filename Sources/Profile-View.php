@@ -2136,7 +2136,7 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
 	$request = $smcFunc['db_query']('', '
 		SELECT time, ip, ip2
 		FROM {db_prefix}member_logins
-		WHERE {int:id_member}
+		WHERE id_member = {int:id_member}
 		ORDER BY time DESC',
 		array(
 			'id_member' => $where_vars['current_member'],

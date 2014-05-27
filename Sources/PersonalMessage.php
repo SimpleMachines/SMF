@@ -2062,7 +2062,11 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
 
 	if (!WIRELESS && !isset($_REQUEST['xml']))
+	{
 		$context['sub_template'] = 'send';
+		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	}
 	elseif (isset($_REQUEST['xml']))
 		$context['sub_template'] = 'pm';
 
@@ -3857,7 +3861,10 @@ function ManageRules()
 					)
 				);
 				if ($smcFunc['db_num_rows']($request) == 0)
-					continue;
+				{
+					loadLanguage('Errors');
+					fatal_lang_error('invalid_username', false);
+				}
 				list ($memID) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 

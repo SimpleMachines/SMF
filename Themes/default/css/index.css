@@ -2145,6 +2145,7 @@ ul.quickbuttons li a.quote_button {
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
+	padding: 0px 4px 0px 22px
 }
 ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
@@ -2160,6 +2161,7 @@ ul.quickbuttons li a.split_button {
 }
 ul.quickbuttons li a.reply_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	padding: 0px 4px 0px 22px;
 }
 ul.quickbuttons li a.reply_all_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
