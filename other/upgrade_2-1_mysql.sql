@@ -936,7 +936,6 @@ WHERE variable = 'avatar_action_too_large'
 		// Now, let's just recap something.
 		// cd = calendar, should also have set cal_enabled already
 		// cp = custom profile fields, which already has several fields that cover tracking
-		// k = karma, should also have set karmaMode already
 		// ps = paid subs, should also have set paid_enabled already
 		// rg = reports generation, which is now permanently on
 		// sp = spider tracking, should also have set spider_mode already
@@ -973,12 +972,22 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel');
 ---#
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
+---#
+
+---# Cleaning up old karma member settings.
+DELETE FROM {$db_prefix}members
+WHERE variable IN ('karma_bad', 'karma_good');
+---#
+
+---# Cleaning up old karma permissions.
+DELETE FROM {$db_prefix}permissions
+WHERE variable IN ('karma_edit');
 ---#
 
 /******************************************************************************/
