@@ -424,10 +424,8 @@ function BrowseFiles()
 					'value' => $txt['attachment_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($modSettings, $context, $scripturl, $smcFunc)
 					{
-						global $modSettings, $context, $scripturl, $smcFunc;
-
 						$link = '<a href="';
 
 						// In case of a custom avatar URL attachments have a fixed directory.
@@ -467,10 +465,8 @@ function BrowseFiles()
 					'value' => $txt['attachment_file_size'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), $txt['kilobyte']);
 					},
 				),
@@ -484,10 +480,8 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_member'] : $txt['posted_by'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($scripturl, $smcFunc)
 					{
-						global $scripturl, $smcFunc;
-
 						// In case of an attachment, return the poster of the attachment.
 						if (empty($rowData['id_member']))
 							return $smcFunc['htmlspecialchars']($rowData['poster_name']);
@@ -507,10 +501,8 @@ function BrowseFiles()
 					'value' => $context['browse_type'] == 'avatars' ? $txt['attachment_manager_last_active'] : $txt['date'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt, $context, $scripturl)
 					{
-						global $txt, $context, $scripturl;
-
 						// The date the message containing the attachment was posted or the owner of the avatar was active.
 						$date = empty($rowData['poster_time']) ? $txt['never'] : timeformat($rowData['poster_time']);
 
@@ -2340,11 +2332,9 @@ function ManageAttachmentPaths()
 					),
 					'data' => array(
 						'function' => function ($rowData)
-		{
-		
+						{
 							return '<input type="radio" name="current_base_dir" value="' . $rowData['id'] . '"' . ($rowData['current'] ? ' checked' : '') . ' class="input_radio">';
-						
-		},
+						},
 						'style' => 'width: 10%;',
 						'class' => 'centercol',
 					),

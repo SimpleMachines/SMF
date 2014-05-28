@@ -1338,10 +1338,8 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($context, $txt, $scripturl)
 					{
-						global $scripturl, $context, $txt;
-
 						$return = '<p class="centertext bold_text">'. $rowData['field_order'] .'<br />';
 
 						if ($rowData['field_order'] > 1)
@@ -1366,10 +1364,8 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldname'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($scripturl)
 					{
-						global $scripturl;
-
 						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
 					},
 					'style' => 'width: 62%;',
@@ -1384,10 +1380,8 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldtype'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
 					},
@@ -1403,10 +1397,8 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_active'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						return $rowData['active'] ? $txt['yes'] : $txt['no'];
 					},
 					'style' => 'width: 8%;',
@@ -1421,10 +1413,8 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : ($rowData['placement'] == 1 ? 'withicons' : 'abovesignature'))];
 					},
 					'style' => 'width: 8%;',

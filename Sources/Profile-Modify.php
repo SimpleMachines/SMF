@@ -26,6 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
+	global $sourcedir, $profile_vars;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -85,10 +86,8 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'birthdate',
 			'permission' => 'profile_extra',
-			'preload' => function ()
+			'preload' => function () use ($cur_profile, $context)
 			{
-				global $cur_profile, $context;
-
 				// Split up the birthdate....
 				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] == '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
 				$context['member']['birth_date'] = array(
@@ -99,10 +98,8 @@ function loadProfileFields($force_reload = false)
 
 				return true;
 			},
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($cur_profile, $profile_vars)
 			{
-				global $profile_vars, $cur_profile;
-
 				if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0)
 				{
 					// Set to blank?
@@ -123,9 +120,8 @@ function loadProfileFields($force_reload = false)
 		'birthdate' => array(
 			'type' => 'hidden',
 			'permission' => 'profile_extra',
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($cur_profile)
 			{
-				global $cur_profile;
 				// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 				if (preg_match('/(\d{4})[\-\., ](\d{2})[\-\., ](\d{2})/', $value, $dates) === 1)
 				{
@@ -145,10 +141,8 @@ function loadProfileFields($force_reload = false)
 			'label' => $txt['date_registered'],
 			'log_change' => true,
 			'permission' => 'moderate_forum',
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($txt, $user_info, $modSettings, $cur_profile, $context)
 			{
-				global $txt, $user_info, $modSettings, $cur_profile, $context;
-
 				// Bad date!  Go try again - please?
 				if (($value = strtotime($value)) === -1)
 				{
@@ -215,10 +209,8 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_pick',
 			'permission' => 'profile_extra',
 			'enabled' => $modSettings['theme_allow'] || allowedTo('admin_forum'),
-			'preload' => function ()
+			'preload' => function () use ($smcFunc, $context, $cur_profile, $txt)
 			{
-				global $smcFunc, $context, $cur_profile, $txt;
-
 				$request = $smcFunc['db_query']('', '
 					SELECT value
 					FROM {db_prefix}themes
@@ -249,10 +241,8 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'karma_modify',
 			'permission' => 'admin_forum',
 			// Set karma_bad too!
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($profile_vars, $cur_profile)
 			{
-				global $profile_vars, $cur_profile;
-
 				$value = (int) $value;
 				if (isset($_POST['karma_bad']))
 				{
@@ -261,10 +251,8 @@ function loadProfileFields($force_reload = false)
 				}
 				return true;
 			},
-			'preload' => function ()
+			'preload' => function () use ($context, $cur_profile)
 			{
-				global $context, $cur_profile;
-
 				$context['member']['karma']['good'] = $cur_profile['karma_good'];
 				$context['member']['karma']['bad'] = $cur_profile['karma_bad'];
 
@@ -280,10 +268,8 @@ function loadProfileFields($force_reload = false)
 			'preload' => 'profileLoadLanguages',
 			'enabled' => !empty($modSettings['userLanguage']),
 			'value' => empty($cur_profile['lngfile']) ? $language : $cur_profile['lngfile'],
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($context, $cur_profile)
 			{
-				global $context, $cur_profile;
-
 				// Load the languages.
 				profileLoadLanguages();
 
@@ -308,10 +294,8 @@ function loadProfileFields($force_reload = false)
 			'log_change' => true,
 			'permission' => 'profile_identity',
 			'prehtml' => allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . $txt['username_warning'] . '</div>' : '',
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($sourcedir, $context, $user_info, $cur_profile)
 			{
-				global $sourcedir, $context, $user_info, $cur_profile;
-
 				if (allowedTo('admin_forum'))
 				{
 					// We'll need this...
@@ -344,10 +328,8 @@ function loadProfileFields($force_reload = false)
 			'permission' => 'profile_password',
 			'save_key' => 'passwd',
 			// Note this will only work if passwrd2 also exists!
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($sourcedir, $user_info, $smcFunc, $cur_profile)
 			{
-				global $sourcedir, $user_info, $smcFunc, $cur_profile;
-
 				// If we didn't try it then ignore it!
 				if ($value == '')
 					return false;
@@ -385,10 +367,8 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="50"'),
 			'size' => 50,
 			'permission' => 'profile_blurb',
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($smcFunc)
 			{
-				global $smcFunc;
-
 				if ($smcFunc['strlen']($value) > 50)
 					return 'personal_text_too_long';
 
@@ -400,20 +380,16 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'pm_settings',
 			'permission' => 'pm_read',
-			'preload' => function ()
+			'preload' => function () use ($context, $cur_profile)
 			{
-				global $context, $cur_profile;
-
 				$context['display_mode'] = $cur_profile['pm_prefs'] & 3;
 				$context['send_email'] = $cur_profile['pm_email_notify'];
 				$context['receive_from'] = !empty($cur_profile['pm_receive_from']) ? $cur_profile['pm_receive_from'] : 0;
 
 				return true;
 			},
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($cur_profile, $profile_vars)
 			{
-				global $cur_profile, $profile_vars;
-
 				// Simple validate and apply the two "sub settings"
 				$value = max(min($value, 2), 0);
 
@@ -446,10 +422,8 @@ function loadProfileFields($force_reload = false)
 			'input_attr' => array('maxlength="60"'),
 			'permission' => 'profile_displayed_name',
 			'enabled' => allowedTo('profile_displayed_name_own') || allowedTo('profile_displayed_name_any') || allowedTo('moderate_forum'),
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($context, $smcFunc, $sourcedir, $cur_profile)
 			{
-				global $context, $smcFunc, $sourcedir, $cur_profile;
-
 				$value = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $value));
 
 				if (trim($value) == '')
@@ -505,10 +479,8 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function ()
+			'preload' => function () use ($modSettings, $context, $txt, $cur_profile, $smcFunc)
 			{
-				global $modSettings, $context, $txt, $cur_profile, $smcFunc;
-
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
 				$set_names = explode("\n", $txt['smileys_none'] . "\n" . $txt['smileys_forum_board_default'] . "\n" . $modSettings['smiley_sets_names']);
@@ -541,10 +513,8 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_settings',
 			'permission' => 'profile_extra',
 			'is_dummy' => true,
-			'preload' => function ()
+			'preload' => function () use ($context, $user_info, $modSettings)
 			{
-				global $context, $user_info, $modSettings;
-
 				loadLanguage('Settings');
 
 				$context['allow_no_censored'] = false;
@@ -558,10 +528,8 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeformat_modify',
 			'permission' => 'profile_extra',
-			'preload' => function ()
+			'preload' => function () use ($context, $user_info, $txt, $cur_profile, $modSettings)
 			{
-				global $context, $user_info, $txt, $cur_profile, $modSettings;
-
 				$context['easy_timeformats'] = array(
 					array('format' => '', 'title' => $txt['timeformat_default']),
 					array('format' => '%B %d, %Y, %I:%M:%S %p', 'title' => $txt['timeformat_easy1']),
@@ -582,9 +550,8 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeoffset_modify',
 			'permission' => 'profile_extra',
-			'preload' => function ()
+			'preload' => function () use ($context, $cur_profile)
 			{
-				global $context, $cur_profile;
 				$context['member']['time_offset'] = $cur_profile['time_offset'];
 				return true;
 			},
@@ -607,10 +574,8 @@ function loadProfileFields($force_reload = false)
 			'size' => 50,
 			'permission' => 'profile_other',
 			'enabled' => !empty($modSettings['titlesEnable']),
-			'input_validate' => function (&$value)
+			'input_validate' => function (&$value) use ($smcFunc)
 			{
-				global $smcFunc;
-
 				if ($smcFunc['strlen']($value) > 50)
 					return 'user_title_too_long';
 
@@ -2237,10 +2202,8 @@ function alert_notifications_topics($memID)
 					'class' => 'lefttext first_th',
 				),
 				'data' => array(
-					'function' => function ($topic)
+					'function' => function ($topic) use ($txt)
 					{
-						global $txt;
-
 						$link = $topic['link'];
 
 						if ($topic['new'])
@@ -2371,10 +2334,8 @@ function alert_notifications_boards($memID)
 					'class' => 'lefttext first_th',
 				),
 				'data' => array(
-					'function' => function ($board)
+					'function' => function ($board) use ($txt)
 					{
-						global $txt;
-
 						$link = $board['link'];
 
 						if ($board['new'])

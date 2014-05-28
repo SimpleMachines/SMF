@@ -335,10 +335,8 @@ function issueWarning($memID)
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function ($warning)
+					'function' => function ($warning) use ($scripturl, $txt)
 					{
-						global $scripturl, $txt;
-
 						$ret = '
 						<div class="floatleft">
 							' . $warning['reason'] . '

@@ -1400,10 +1400,8 @@ function PackageBrowse()
 						'style' => 'width: 40px;',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type)
+						'function' => function ($package_md5) use ($type, $context)
 						{
-							global $context;
-
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['sort_id'];
 						},
@@ -1419,10 +1417,8 @@ function PackageBrowse()
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type)
+						'function' => function ($package_md5) use ($type, $context)
 						{
-							global $context;
-
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['name'];
 						},
@@ -1437,10 +1433,8 @@ function PackageBrowse()
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type)
+						'function' => function ($package_md5) use ($type, $context)
 						{
-							global $context;
-
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return $context['available_' . $type . ''][$package_md5]['version'];
 						},
@@ -1455,10 +1449,8 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type)
+						'function' => function ($package_md5) use ($type, $txt, $context)
 						{
-							global $context, $txt;
-
 							if (isset($context['available_' . $type . ''][$package_md5]))
 								return !empty($context['available_' . $type . ''][$package_md5]['time_installed']) ? timeformat($context['available_' . $type . ''][$package_md5]['time_installed']) : $txt['not_applicable'];
 						},
@@ -1474,10 +1466,8 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => function ($package_md5) use ($type)
+						'function' => function ($package_md5) use ($type, $context, $scripturl, $txt)
 						{
-							global $context, $scripturl, $txt;
-
 							if (!isset($context['available_' . $type . ''][$package_md5]))
 								return '';
 

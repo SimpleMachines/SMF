@@ -2252,10 +2252,8 @@ function list_integration_hooks()
 					'value' => $txt['hooks_field_function_name'],
 				),
 				'data' => array(
-					'function' => function ($data)
+					'function' => function ($data) use ($txt)
 					{
-						global $txt;
-
 						if (!empty($data['included_file']))
 							return $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'] . (!empty($data['instance']) ? '<br>'. $txt['hooks_field_function_method'] : '');
 						else
@@ -2285,10 +2283,8 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data)
+					'function' => function ($data) use ($txt, $settings, $scripturl, $context)
 					{
-						global $txt, $settings, $scripturl, $context;
-
 						$change_status = array('before' => '', 'after' => '');
 						if ($data['can_be_disabled'] && $data['status'] != 'deny')
 						{
@@ -2327,10 +2323,8 @@ function list_integration_hooks()
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => function ($data)
+			'function' => function ($data) use ($txt, $scripturl, $context)
 			{
-				global $txt, $scripturl, $context;
-
 				if (!$data['hook_exists'])
 					return '
 					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . JavaScriptEscape($txt['quickmod_confirm']) . ');">

@@ -183,10 +183,8 @@ function BanList()
 					'value' => $txt['ban_added'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($context)
 					{
-						global $context;
-
 						return timeformat($rowData['ban_time'], empty($context['ban_time_format']) ? true : $context['ban_time_format']);
 					},
 				),
@@ -200,10 +198,8 @@ function BanList()
 					'value' => $txt['ban_expires'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						// This ban never expires...whahaha.
 						if ($rowData['expire_time'] === null)
 							return $txt['never'];
@@ -401,10 +397,8 @@ function BanEdit()
 							'style' => 'width: 60%;text-align: left;',
 						),
 						'data' => array(
-							'function' => function ($ban_item)
+							'function' => function ($ban_item) use ($txt)
 							{
-								global $txt;
-
 								if (in_array($ban_item['type'], array('ip', 'hostname', 'email')))
 									return '<strong>' . $txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
 								elseif ($ban_item['type'] == 'user')
@@ -431,10 +425,8 @@ function BanEdit()
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => function ($ban_item)
+							'function' => function ($ban_item) use ($txt, $context, $scripturl)
 							{
-								global $txt, $context, $scripturl;
-
 								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban']['id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
 							},
 							'style' => 'text-align: center;',
@@ -1871,9 +1863,8 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'hostname')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function ($rowData)
+			'function' => function ($rowData) use ($smcFunc)
 			{
-				global $smcFunc;
 				return strtr($smcFunc['htmlspecialchars']($rowData['hostname']), array('%' => '*'));
 			},
 		);
@@ -1885,9 +1876,8 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'email')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => function ($rowData)
+			'function' => function ($rowData) use ($smcFunc)
 			{
-				global $smcFunc;
 				return strtr($smcFunc['htmlspecialchars']($rowData['email_address']), array('%' => '*'));
 			},
 		);

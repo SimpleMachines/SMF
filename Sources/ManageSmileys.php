@@ -450,7 +450,6 @@ function EditSmileySets()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-		
 						return $rowData['id'] == 0 ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
 					},
 					'class' => 'centercol',
@@ -987,10 +986,8 @@ function EditSmileys()
 						'value' => $txt['smileys_location'],
 					),
 					'data' => array(
-						'function' => function ($rowData)
+						'function' => function ($rowData) use ($txt)
 						{
-							global $txt;
-
 							if (empty($rowData['hidden']))
 								return $txt['smileys_location_form'];
 							elseif ($rowData['hidden'] == 1)
@@ -1009,10 +1006,8 @@ function EditSmileys()
 						'value' => $txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => function ($rowData)
+						'function' => function ($rowData) use ($modSettings, $context, $txt, $modSettings, $smcFunc)
 						{
-							global $modSettings, $context, $txt, $modSettings, $smcFunc;
-
 							if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']))
 								return $smcFunc['htmlspecialchars']($rowData['description']);
 
@@ -1854,10 +1849,8 @@ function EditMessageIcons()
 		'columns' => array(
 			'icon' => array(
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($settings, $smcFunc)
 					{
-						global $settings, $smcFunc;
-
 						$images_url = $settings[file_exists(sprintf('%1$s/images/post/%2$s.png', $settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
 						return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], $smcFunc['htmlspecialchars']($rowData['title']));
 					},
@@ -1890,10 +1883,8 @@ function EditMessageIcons()
 					'value' => $txt['icons_board'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						return empty($rowData['board_name']) ? $txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
 					},
 				),

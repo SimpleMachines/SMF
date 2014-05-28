@@ -516,10 +516,8 @@ function ViewMemberlist()
 					'value' => $txt['viewmembers_online'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						// Calculate number of days since last online.
 						if (empty($rowData['last_login']))
 							$difference = $txt['never'];
@@ -570,10 +568,8 @@ function ViewMemberlist()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($user_info)
 					{
-						global $user_info;
-
 						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_member'] . '" class="input_check"' . ($rowData['id_member'] == $user_info['id'] || $rowData['id_group'] == 1 || in_array(1, explode(',', $rowData['additional_groups'])) ? ' disabled' : '') . '>';
 					},
 					'class' => 'centercol',
@@ -889,9 +885,8 @@ function MembersAwaitingActivation()
 					'value' => $context['current_filter'] == 4 ? $txt['viewmembers_online'] : $txt['date_registered'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($context)
 					{
-						global $context;
 						return timeformat($rowData['' . ($context['current_filter'] == 4 ? 'last_login' : 'date_registered') . '']);
 					},
 				),
@@ -907,10 +902,8 @@ function MembersAwaitingActivation()
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($scripturl, $txt)
 					{
-						global $scripturl, $txt;
-
 						$member_links = array();
 						foreach ($rowData['duplicate_members'] as $member)
 						{

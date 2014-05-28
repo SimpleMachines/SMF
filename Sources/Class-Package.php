@@ -620,7 +620,7 @@ class xmlArray
 		// Translate all the entities out.
 		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function ($m)
 		{
-				return chr("$m[1]");
+			return chr("$m[1]");
 		}, $data), $trans_tbl);
 
 		return $this->trim ? trim($data) : $data;
