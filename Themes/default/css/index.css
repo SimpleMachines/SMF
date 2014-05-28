@@ -2332,18 +2332,18 @@ ul.quickbuttons li > ul > li {
 form#postmodify .roundframe {
 	padding: 12px 12%;
 }
-#post_header, .postbox {
+#post_header {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt, .postbox dt {
+#post_header dt {
 	float: left;
 	padding: 0;
 	width: 15%;
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd, .postbox dd {
+#post_header dd {
 	float: left;
 	padding: 0;
 	width: 83%;
