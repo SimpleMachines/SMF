@@ -2027,7 +2027,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
@@ -2080,7 +2080,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
