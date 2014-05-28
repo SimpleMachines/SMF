@@ -475,10 +475,10 @@ function DownloadLanguage()
 		'id' => 'lang_main_files_list',
 		'title' => $txt['languages_download_main_files'],
 		'get_items' => array(
-			'function' => create_function('', '
-				global $context;
-				return $context[\'files\'][\'lang\'];
-			'),
+			'function' => function () use ($context)
+			{
+				return $context['files']['lang'];
+			},
 		),
 		'columns' => array(
 			'name' => array(
@@ -486,11 +486,10 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_filename'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt;
-
-						return \'<strong>\' . $rowData[\'name\'] . \'</strong><br><span class="smalltext">\' . $txt[\'languages_download_dest\'] . \': \' . $rowData[\'destination\'] . \'</span>\' . ($rowData[\'version_compare\'] == \'older\' ? \'<br>\' . $txt[\'languages_download_older\'] : \'\');
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return '<strong>' . $rowData['name'] . '</strong><br><span class="smalltext">' . $txt['languages_download_dest'] . ': ' . $rowData['destination'] . '</span>' . ($rowData['version_compare'] == 'older' ? '<br>' . $txt['languages_download_older'] : '');
+					},
 				),
 			),
 			'writable' => array(
@@ -498,11 +497,10 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_writable'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return \'<span style="color: \' . ($rowData[\'writable\'] ? \'green\' : \'red\') . \';">\' . ($rowData[\'writable\'] ? $txt[\'yes\'] : $txt[\'no\']) . \'</span>\';
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . ($rowData['writable'] ? $txt['yes'] : $txt['no']) . '</span>';
+					},
 				),
 			),
 			'version' => array(
@@ -510,11 +508,10 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_version'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return \'<span style="color: \' . ($rowData[\'version_compare\'] == \'older\' ? \'red\' : ($rowData[\'version_compare\'] == \'same\' ? \'orange\' : \'green\')) . \';">\' . $rowData[\'version\'] . \'</span>\';
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return '<span style="color: ' . ($rowData['version_compare'] == 'older' ? 'red' : ($rowData['version_compare'] == 'same' ? 'orange' : 'green')) . ';">' . $rowData['version'] . '</span>';
+					},
 				),
 			),
 			'exists' => array(
@@ -522,11 +519,10 @@ function DownloadLanguage()
 					'value' => $txt['languages_download_exists'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return $rowData[\'exists\'] ? ($rowData[\'exists\'] == \'same\' ? $txt[\'languages_download_exists_same\'] : $txt[\'languages_download_exists_different\']) : $txt[\'no\'];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return $rowData['exists'] ? ($rowData['exists'] == 'same' ? $txt['languages_download_exists_same'] : $txt['languages_download_exists_different']) : $txt['no'];
+					},
 				),
 			),
 			'copy' => array(
@@ -535,9 +531,10 @@ function DownloadLanguage()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="checkbox" name="copy_file[]" value="\' . $rowData[\'generaldest\'] . \'"\' . ($rowData[\'default_copy\'] ? \' checked\' : \'\') . \' class="input_check">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="checkbox" name="copy_file[]" value="' . $rowData['generaldest'] . '"' . ($rowData['default_copy'] ? ' checked' : '') . ' class="input_check">';
+					},
 					'style' => 'width: 4%;',
 					'class' => 'centercol',
 				),
@@ -613,9 +610,10 @@ function ModifyLanguages()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="radio" name="def_language" value="\' . $rowData[\'id\'] . \'"\' . ($rowData[\'default\'] ? \' checked\' : \'\') . \' onclick="highlightSelected(\\\'list_language_list_\' . $rowData[\'id\'] . \'\\\');" class="input_radio">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="radio" name="def_language" value="' . $rowData['id'] . '"' . ($rowData['default'] ? ' checked' : '') . ' onclick="highlightSelected(\'list_language_list_' . $rowData['id'] . '\');" class="input_radio">';
+					},
 					'style' => 'width: 8%;',
 					'class' => 'centercol',
 				),
@@ -625,11 +623,10 @@ function ModifyLanguages()
 					'value' => $txt['languages_lang_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl, $context;
-
-						return sprintf(\'<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>\', $scripturl, $rowData[\'id\'], $rowData[\'name\']);
-					'),
+					'function' => function ($rowData) use ($scripturl)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
+					},
 				),
 			),
 			'character_set' => array(
@@ -924,7 +921,10 @@ function ModifyLanguage()
 			);
 		}
 		$dir->close();
-		usort($context['possible_files'][$theme]['files'], create_function('$val1, $val2', 'return strcmp($val1[\'name\'], $val2[\'name\']);'));
+		usort($context['possible_files'][$theme]['files'], function ($val1, $val2)
+		{
+			return strcmp($val1['name'], $val2['name']);
+		});
 	}
 
 	// We no longer wish to speak this language.
