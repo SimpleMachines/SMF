@@ -359,25 +359,21 @@ function template_moderation_settings()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<div id="modcenter">
+	<div id="modcenter">';
+	
+	if (!empty($context['can_moderate_approvals']))
+	{
+		echo '
 		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg2">
 				<div class="content">
-					<dl class="settings">';
-
-	if ($context['can_moderate_approvals'])
-	{
-		echo '
-
+					<dl class="settings">
 						<dt>
 							<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
 						</dt>
 						<dd>
 							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check">
-						</dd>';
-	}
-
-	echo '
+						</dd>
 					</dl>
 					<hr class="hrcolor">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -385,7 +381,15 @@ function template_moderation_settings()
 					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
 				</div>
 			</div>
-		</form>
+		</form>';
+	}
+	else
+		echo '
+		<div class="windowbg2">
+			<div class="content centertext">', $txt['mc_no_settings'], '</div>
+		</div>';
+		
+	echo '
 	</div>';
 }
 
