@@ -1149,19 +1149,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				// Figure out the password using SMF's encryption - if what they typed is right.
-				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
-				{
-					// This is needed for validateToken, but isn't always included for some reason...
-					include_once($sourcedir . '/Security.php');
-
-					// Challenge passed.
-					$tk = validateToken('login');
-					if (hash('sha256', $_REQUEST['hash_passwrd']) == $password)
-						$sha_passwd = $password;
-				}
-				else
-					$sha_passwd = hash('sha256', sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd'])));
+				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
 			}
 			else
 				$upcontext['username_incorrect'] = true;
@@ -1183,7 +1171,7 @@ function checkLogin()
 			$upcontext['user']['version'] = $modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if ((empty($sha_passwd) || $password != $sha_passwd) && empty($upcontext['username_incorrect']) && !$disable_security)
+		if ((empty($sha_passwd) || $password != $sha_passwd) && !hash_verify_password($name, $_REQUEST['passwrd'], $password) && empty($upcontext['username_incorrect']) && !$disable_security)
 		{
 			// MD5?
 			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));

@@ -1323,7 +1323,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir;
+	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1337,9 +1337,17 @@ function AdminAccount()
 	require(dirname(__FILE__) . '/Settings.php');
 	load_database();
 
-	// Define the sha1 function, if it doesn't exist.
-	if (!function_exists('sha1') || version_compare(PHP_VERSION, '5', '<'))
-		require_once($sourcedir . '/Subs-Compat.php');
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	// We need this to properly hash the password for Admin
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1588,8 +1596,14 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8' ? create_function('$string', '
-		return $string;') : 'strtolower';
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg
