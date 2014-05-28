@@ -596,6 +596,11 @@ $txt['notification_disable_board'] = 'Are you sure you wish to disable notificat
 $txt['notification_enable_topic'] = 'Are you sure you wish to enable notification of new replies for this topic?';
 $txt['notification_disable_topic'] = 'Are you sure you wish to disable notification of new replies for this topic?';
 
+// Mentions
+$txt['mentions'] = 'Mentions';
+
+// Likes
+$txt['likes'] = 'Likes';
 $txt['like'] = 'Like';
 $txt['unlike'] = 'Unlike';
 $txt['like_success'] = 'Your content was successfully liked.';

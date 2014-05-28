@@ -98,6 +98,12 @@ $txt['karmaLabel'] = 'Karma label';
 $txt['karmaApplaudLabel'] = 'Karma applaud label';
 $txt['karmaSmiteLabel'] = 'Karma smite label';
 
+// Like settings.
+$txt['enable_likes'] = 'Enable likes';
+
+// Mention settings.
+$txt['enable_mentions'] = 'Enable mentions';
+
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
 	<li>APC</li>

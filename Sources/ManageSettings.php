@@ -60,6 +60,8 @@ function ModifyFeatureSettings()
 		'sig' => 'ModifySignatureSettings',
 		'profile' => 'ShowCustomProfiles',
 		'profileedit' => 'EditCustomProfiles',
+		'likes' => 'ModifyLikesSettings',
+		// 'mentions' => 'ModifyMentionsSettings' temp put mentions settings on Likes settings page.
 	);
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
@@ -87,6 +89,10 @@ function ModifyFeatureSettings()
 			'profile' => array(
 				'description' => $txt['custom_profile_desc'],
 			),
+			'likes' => array(
+			),
+			// 'mentions' => array(
+			// ),
 		),
 	);
 
@@ -336,6 +342,47 @@ function ModifyLayoutSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=layout';
 	$context['settings_title'] = $txt['mods_cat_layout'];
+
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Config array for chanigng like settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=likes;
+ *
+ * @param $return_config
+ */
+function ModifyLikesSettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+
+	$config_vars = array(
+		array('check', 'enable_likes'),
+	);
+
+	$config_vars[] = '';
+	$config_vars[] = $txt['mentions'];
+	$config_vars[] = array('check', 'enable_mentions');
+
+	call_integration_hook('integrate_likes_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		call_integration_hook('integrate_save_likes_settings');
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=likes');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
+	$context['settings_title'] = $txt['likes'];
 
 	prepareDBSettingContext($config_vars);
 }
