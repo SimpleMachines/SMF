@@ -579,7 +579,7 @@ function template_single_post($message, $force_alternate = null)
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
-		
+
 		// Show how many posts they have made.
 		if (!isset($context['disabled_fields']['posts']))
 			echo '
