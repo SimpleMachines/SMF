@@ -744,6 +744,7 @@ ALTER TABLE `{$db_prefix}members`
 ---#
 
 ---# Create the displayFields setting
+---{
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 		FROM {db_prefix}custom_fields',
@@ -762,6 +763,7 @@ ALTER TABLE `{$db_prefix}members`
 		array('displayFields', serialize($fields)),
 		array('id_theme', 'id_member', 'variable')
 	);
+---}
 ---#
 
 /******************************************************************************/
