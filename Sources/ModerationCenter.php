@@ -1058,11 +1058,10 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_warning'],
 				),
 				'data' => array(
-					'function' => create_function('$member', '
-						global $scripturl;
-
-						return allowedTo(\'issue_warning\') ? \'<a href="\' . $scripturl . \'?action=profile;area=issuewarning;u=\' . $member[\'id\'] . \'">\' . $member[\'warning\'] . \'%</a>\' : $member[\'warning\'] . \'%\';
-					'),
+					'function' => function ($member) use ($scripturl)
+					{
+						return allowedTo('issue_warning') ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
+					},
 				),
 				'sort' => array(
 					'default' => 'warning',
@@ -1104,14 +1103,13 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
-					'function' => create_function('$member', '
-						global $scripturl;
-
-						if ($member[\'last_post_id\'])
-							return \'<a href="\' . $scripturl . \'?msg=\' . $member[\'last_post_id\'] . \'">\' . $member[\'last_post\'] . \'</a>\';
+					'function' => function ($member) use ($scripturl)
+					{
+						if ($member['last_post_id'])
+							return '<a href="' . $scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
 						else
-							return $member[\'last_post\'];
-					'),
+							return $member['last_post'];
+					},
 				),
 			),
 		),
@@ -1140,9 +1138,10 @@ function ViewWatchedUsers()
 		$listOptions['columns'] = array(
 			'posts' => array(
 				'data' => array(
-					'function' => create_function('$post', '
+					'function' => function ($post)
+					{
 						return template_user_watch_post_callback($post);
-					'),
+					},
 				),
 			),
 		);
@@ -1507,19 +1506,18 @@ function ViewWarningLog()
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => create_function('$warning', '
-						global $scripturl, $txt;
-
-						$output = \'
+					'function' => function ($rowData) use ($scripturl, $txt)
+					{
+						$output = '
 							<div class="floatleft">
-								\' . $warning[\'reason\'] . \'
-							</div>\';
+								' . $rowData['reason'] . '
+							</div>';
 
-						if (!empty($warning[\'id_notice\']))
-							$output .= \'
-								&nbsp;<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><span class="generic_icons filter centericon"></span></a>\';
+						if (!empty($warning['id_notice']))
+							$output .= '
+								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
 						return $output;
-					'),
+					},
 				),
 			),
 			'points' => array(
@@ -1741,11 +1739,10 @@ function ViewWarningTemplates()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return \'<input type="checkbox" name="deltpl[]" value="\' . $rowData[\'id_comment\'] . \'" class="input_check">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
+					},
 					'class' => 'centercol',
 				),
 			),
