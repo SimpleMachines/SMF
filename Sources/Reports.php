@@ -690,8 +690,7 @@ function GroupPermissionsReport()
 	}
 	if (empty($modSettings['warning_settings']) || $modSettings['warning_settings'][0] == 0)
 		$disabled_permissions[] = 'issue_warning';
-	if (empty($modSettings['karmaMode']))
-		$disabled_permissions[] = 'karma_edit';
+
 	call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
 
 	// Now the big permission fetch!
