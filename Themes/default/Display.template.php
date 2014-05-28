@@ -437,7 +437,7 @@ function template_main()
 							sBackReference: "aIconLists[" + aIconLists.length + "]",
 							sIconIdPrefix: "msg_icon_",
 							sScriptUrl: smf_scripturl,
-							bShowModify: ', $modSettings['show_modify'] ? 'true' : 'false', ',
+							bShowModify: ', !empty($modSettings['show_modify']) ? 'true' : 'false', ',
 							iBoardId: ', $context['current_board'], ',
 							iTopicId: ', $context['current_topic'], ',
 							sSessionId: smf_session_id,
@@ -579,7 +579,7 @@ function template_single_post($message, $force_alternate = null)
 		if ((empty($modSettings['hide_post_group']) || $message['member']['group'] == '') && $message['member']['post_group'] != '')
 			echo '
 								<li class="postgroup">', $message['member']['post_group'], '</li>';
-
+		
 		// Show how many posts they have made.
 		if (!isset($context['disabled_fields']['posts']))
 			echo '
@@ -734,7 +734,7 @@ function template_single_post($message, $force_alternate = null)
 	echo '
 									<span class="smalltext modified" id="modified_', $message['id'], '">';
 
-	if ($modSettings['show_modify'] && !empty($message['modified']['name']))
+	if (!empty($modSettings['show_modify']) && !empty($message['modified']['name']))
 		echo $message['modified']['last_edit_text'];
 	echo '</span>';
 
