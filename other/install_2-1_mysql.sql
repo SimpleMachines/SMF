@@ -885,19 +885,6 @@ CREATE TABLE {$db_prefix}log_group_requests (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `log_karma`
-#
-
-CREATE TABLE {$db_prefix}log_karma (
-  id_target mediumint(8) unsigned NOT NULL default '0',
-  id_executor mediumint(8) unsigned NOT NULL default '0',
-  log_time int(10) unsigned NOT NULL default '0',
-  action tinyint(4) NOT NULL default '0',
-  PRIMARY KEY (id_target, id_executor),
-  KEY log_time (log_time)
-) ENGINE=MyISAM;
-
-#
 # Table structure for table `log_mark_read`
 #
 
@@ -1240,8 +1227,6 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL default '',
   pm_email_notify tinyint(4) NOT NULL default '0',
-  karma_bad smallint(5) unsigned NOT NULL default '0',
-  karma_good smallint(5) unsigned NOT NULL default '0',
   usertitle varchar(255) NOT NULL default '',
   notify_announcements tinyint(4) NOT NULL default '1',
   notify_regularity tinyint(4) NOT NULL default '1',
@@ -1494,7 +1479,6 @@ VALUES (-1, 'search_posts'),
 	(0, 'profile_upload_avatar'),
 	(0, 'profile_remote_avatar'),
 	(0, 'send_email_to_members'),
-	(0, 'karma_edit'),
 	(2, 'view_mlist'),
 	(2, 'search_posts'),
 	(2, 'profile_view'),
@@ -1521,7 +1505,6 @@ VALUES (-1, 'search_posts'),
 	(2, 'profile_title_own'),
 	(2, 'calendar_post'),
 	(2, 'calendar_edit_any'),
-	(2, 'karma_edit'),
 	(2, 'access_mod_center');
 # --------------------------------------------------------
 
@@ -1701,16 +1684,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('compactTopicPagesContiguous', '5'),
 	('compactTopicPagesEnable', '1'),
 	('todayMod', '1'),
-	('karmaMode', '0'),
-	('karmaTimeRestrictAdmins', '1'),
 	('enablePreviousNext', '1'),
 	('pollMode', '1'),
 	('enableCompressedOutput', '{$enableCompressedOutput}'),
-	('karmaWaitTime', '1'),
-	('karmaMinPosts', '0'),
-	('karmaLabel', '{$default_karmaLabel}'),
-	('karmaSmiteLabel', '{$default_karmaSmiteLabel}'),
-	('karmaApplaudLabel', '{$default_karmaApplaudLabel}'),
 	('attachmentSizeLimit', '128'),
 	('attachmentPostLimit', '192'),
 	('attachmentNumPerPostLimit', '4'),
