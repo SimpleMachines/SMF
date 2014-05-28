@@ -268,10 +268,8 @@ function Login2()
 	$user_settings = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	$sha_passwd = $smcFunc['strtolower']($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']);
-
 	// Bad password!  Thought you could fool the database?!
-	if (!hash_verify($sha_passwd, $user_settings['passwd']))
+	if (!hash_verify_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']), $user_settings['passwd']))
 	{
 		// Let's be cautious, no hacking please. thanx.
 		validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
@@ -354,7 +352,7 @@ function Login2()
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
-			$user_settings['passwd'] = hash_simple($sha_passwd);
+			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
 			$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 
 			// Update the password and set up the hash.
