@@ -1050,6 +1050,8 @@ function Display()
 		'can_issue_warning' => 'issue_warning',
 		'can_restore_topic' => 'move_any',
 		'can_restore_msg' => 'move_any',
+		'can_see_likes' => 'likes_view',
+		'can_like' => 'likes_like',
 	);
 	foreach ($common_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm);
@@ -1350,7 +1352,7 @@ function prepareDisplayContext($reset = false)
 		'likes' => array(
 			'count' => $message['likes'],
 			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'], // @todo!
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'], // @todo!
 		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),

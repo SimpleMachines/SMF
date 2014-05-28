@@ -157,7 +157,11 @@ class Likes
 	 */
 	protected function check()
 	{
-		global $smcFunc, $context;
+		global $smcFunc, $context, $modSettings;
+
+		// This feature is currently disable.
+		if (empty($modSettings['enable_likes']))
+			return $this->_error = 'like_disable';
 
 		// Zerothly, they did indicate some kind of content to like, right?
 		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->_type, $matches);
