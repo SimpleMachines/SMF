@@ -1161,24 +1161,6 @@ CREATE TABLE {$db_prefix}log_group_requests (
 CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
 
 #
-# Table structure for table `log_karma`
-#
-
-CREATE TABLE {$db_prefix}log_karma (
-  id_target int NOT NULL default '0',
-  id_executor int NOT NULL default '0',
-  log_time int NOT NULL default '0',
-  action smallint NOT NULL default '0',
-  PRIMARY KEY (id_target, id_executor)
-);
-
-#
-# Indexes for table `log_karma`
-#
-
-CREATE INDEX {$db_prefix}log_karma_log_time ON {$db_prefix}log_karma (log_time);
-
-#
 # Table structure for table `log_mark_read`
 #
 
@@ -1639,8 +1621,6 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL,
   pm_email_notify smallint NOT NULL default '0',
-  karma_bad smallint NOT NULL default '0',
-  karma_good smallint NOT NULL default '0',
   usertitle varchar(255) NOT NULL,
   notify_announcements smallint NOT NULL default '1',
   notify_regularity smallint NOT NULL default '1',
@@ -1946,7 +1926,6 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_s
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view');
@@ -1973,7 +1952,6 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_emai
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'karma_edit');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'access_mod_center');
 # --------------------------------------------------------
 
@@ -2212,16 +2190,9 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('news', '{$default_ne
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('compactTopicPagesContiguous', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('compactTopicPagesEnable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('todayMod', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaMode', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaTimeRestrictAdmins', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enablePreviousNext', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('pollMode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enableCompressedOutput', '{$enableCompressedOutput}');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaWaitTime', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaMinPosts', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaLabel', '{$default_karmaLabel}');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaSmiteLabel', '{$default_karmaSmiteLabel}');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('karmaApplaudLabel', '{$default_karmaApplaudLabel}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentSizeLimit', '128');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentPostLimit', '192');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentNumPerPostLimit', '4');
