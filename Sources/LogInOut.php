@@ -202,7 +202,7 @@ function Login2()
 	}
 
 	// Hmm... maybe 'admin' will login with no password. Uhh... NO!
-	if ((!isset($_POST['passwrd']) || $_POST['passwrd'] == '') && (!isset($_POST['hash_passwrd']) || strlen($_POST['hash_passwrd']) != 40))
+	if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '')
 	{
 		$context['login_errors'] = array($txt['no_password']);
 		return;
@@ -220,14 +220,6 @@ function Login2()
 	{
 		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
-	}
-
-	// Are we using any sort of integration to validate the login?
-	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40 ? $_POST['hash_passwrd'] : null, $modSettings['cookieTime'])), true))
-	{
-		$context['login_errors'] = array($txt['login_hash_error']);
-		$context['disable_login_hashing'] = true;
-		return;
 	}
 
 	// Load the data up!
@@ -462,7 +454,7 @@ function DoLogin()
 	require_once($sourcedir . '/Subs-Auth.php');
 
 	// Call login integration functions.
-	call_integration_hook('integrate_login', array($user_settings['member_name'], isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40 ? $_POST['hash_passwrd'] : null, $modSettings['cookieTime']));
+	call_integration_hook('integrate_login', array($user_settings['member_name'], null, $modSettings['cookieTime']));
 
 	// Get ready to set the cookie...
 	$username = $user_settings['member_name'];
