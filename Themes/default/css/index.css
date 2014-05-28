@@ -2375,8 +2375,11 @@ ul.post_options li {
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: 4px 0 4px 12px;
+#postAttachment dd {
+	margin: 2px 12px;
+}
+#postAttachment2 dd {
+	margin: 4px 12px;
 }
 #postAttachment dd {
 	width: 45%;
