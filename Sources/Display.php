@@ -1352,7 +1352,7 @@ function prepareDisplayContext($reset = false)
 		'likes' => array(
 			'count' => $message['likes'],
 			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'], // @todo!
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'],
 		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
