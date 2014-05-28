@@ -100,8 +100,6 @@ $txt['permissionname_who_view'] = 'View Who\'s Online';
 $txt['permissionhelp_who_view'] = 'Who\'s online shows all members that are currently online and what they are doing at that moment. This permission will only work if you also have enabled it in \'Features and Options\'. You can access the \'Who\'s Online\' screen by clicking the link in the \'Users Online\' section of the board index. Even if this is denied, members will still be able to see who\'s online, just not where they are.';
 $txt['permissionname_search_posts'] = 'Search for posts and topics';
 $txt['permissionhelp_search_posts'] = 'The Search permission allows the user to search all boards he or she is allowed to access. When the search permission is enabled, a \'Search\' button will be added to the forum button bar.';
-$txt['permissionname_karma_edit'] = 'Change other people\'s karma';
-$txt['permissionhelp_karma_edit'] = 'Karma is a feature that shows the popularity of a member. In order to use this feature, you need to have it enabled in \'Features and Options\'. This permission will allow a membergroup to cast a vote. This permission has no effect on guests.';
 
 $txt['permissiongroup_pm'] = 'Personal Messaging';
 $txt['permissionname_pm_read'] = 'Read personal messages';
