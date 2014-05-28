@@ -2933,15 +2933,15 @@ function cache_get_data($key, $ttl = 120)
 			if (is_file($cachedir . '/data_' . $key . '.php') && is_readable($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 			{
 				$expired = true;
-				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-				@include($cachedir . '/data_' . $key . '.php');
+				// php will cache file_exists et all.
+				include($cachedir . '/data_' . $key . '.php');
 				if ($duration === null) $duration = 0;
-					if((int)$duration > time()) {
+					if((int) $duration > time()) {
 						$expired = false;
 					}
 				unset($duration);
 
-				if ((bool)$expired !== false && isset($value)) {
+				if ((bool) $expired !== false && isset($value)) {
 					@unlink($cache_filename);
 					unset($value);
 				}
