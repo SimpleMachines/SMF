@@ -89,15 +89,6 @@ $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
 
-$txt['karmaMode'] = 'Karma mode';
-$txt['karma_options'] = 'Disable karma|Enable karma total|Enable karma positive/negative';
-$txt['karmaMinPosts'] = 'Set the minimum posts needed to modify karma';
-$txt['karmaWaitTime'] = 'Set wait time in hours';
-$txt['karmaTimeRestrictAdmins'] = 'Restrict administrators to wait time';
-$txt['karmaLabel'] = 'Karma label';
-$txt['karmaApplaudLabel'] = 'Karma applaud label';
-$txt['karmaSmiteLabel'] = 'Karma smite label';
-
 // Like settings.
 $txt['enable_likes'] = 'Enable likes';
 
