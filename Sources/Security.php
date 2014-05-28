@@ -50,20 +50,6 @@ function validateSession($type = 'admin')
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	// Hashed password, ahoy!
-	if (isset($_POST[$type . '_hash_pass']) && strlen($_POST[$type . '_hash_pass']) == 40)
-	{
-		checkSession();
-
-		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_hash_pass'], true)), true);
-
-		if ($good_password || $_POST[$type . '_hash_pass'] == sha1($user_info['passwd'] . $sc))
-		{
-			$_SESSION[$type . '_time'] = time();
-			unset($_SESSION['request_referer']);
-			return;
-		}
-	}
 	// Posting the password... check it.
 	if (isset($_POST[$type. '_pass']))
 	{
@@ -72,7 +58,7 @@ function validateSession($type = 'admin')
 		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
 
 		// Password correct?
-		if ($good_password || hash_password($user_info['username'], $_POST[$type . '_pass']) == $user_info['passwd'])
+		if ($good_password || hash_verify_password($user_info['username'], $_POST[$type . '_pass'], $user_info['passwd']))
 		{
 			$_SESSION[$type . '_time'] = time();
 			unset($_SESSION['request_referer']);
