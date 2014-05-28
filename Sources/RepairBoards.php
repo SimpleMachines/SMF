@@ -289,7 +289,7 @@ function loadForumTests()
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
-				SET id_topic = {int:newTopicID}, id_board = {int:board_id}
+					SET id_topic = {int:newTopicID}, id_board = {int:board_id}
 					WHERE id_topic = {int:topic_id}',
 					array(
 						'board_id' => $row['id_board'],

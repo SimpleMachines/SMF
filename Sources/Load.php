@@ -150,7 +150,7 @@ function reloadSettings()
 
 			return mb_strtoupper($string, 'UTF-8');
 		} : 'strtoupper',
-		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, $smcFunc)
+		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
             $string = $ent_check($string);
             preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
@@ -159,11 +159,11 @@ function reloadSettings()
                 $string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
             return $string;
 		},
-		'ucfirst' => $utf8 ? function ($string) use ($smcFunc)
+		'ucfirst' => $utf8 ? function ($string) use (&$smcFunc)
 		{
 			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
 		} : 'ucfirst',
-		'ucwords' => $utf8 ? function ($string) use ($smcFunc)
+		'ucwords' => $utf8 ? function ($string) use (&$smcFunc)
 		{
 			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 			for ($i = 0, $n = count($words); $i < $n; $i += 2)
