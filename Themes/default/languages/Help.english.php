@@ -318,11 +318,6 @@ $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
 $helptxt['max_image_height'] = 'As with the maximum width, this option indicates the maximum height a posted image can be.';
 $helptxt['avatar_paranoid'] = 'Selecting this option will enable very strict security checks on avatars. Warning! These extensive checks can fail on valid images too. It is strongly recommended to only use this option together with avatars re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if re-encoding of avatars is not enabled, all avatars failing checks will be rejected.';
 $helptxt['avatar_reencode'] = 'Selecting this option will enable trying to re-encode the uploaded avatars. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
-$helptxt['karmaMode'] = 'Karma is a feature that shows the popularity of a member. Members, if allowed, can
-		\'applaud\' or \'smite\' other members, which is how their popularity is calculated. You can change the
-		number of posts needed to have a &quot;karma&quot;, the time between smites or applauds, and if administrators
-		have to wait this time as well.<br><br>Whether or not groups of members can smite others is controlled by
-		a permission.  If you have trouble getting this feature to work for everyone, double check your permissions.';
 $helptxt['cal_enabled'] = 'The calendar can be used for showing birthdays, or for showing important moments happening in your community.<br><br>
 		<strong>Show days as link to \'Post Event\'</strong>:<br>This will allow members to post events for that day, when they click on that date<br>
 		<strong>Max days in advance on board index</strong>:<br>If this is set to 7, the next week\'s worth of events will be shown.<br>
