@@ -56,7 +56,6 @@ function ModifyFeatureSettings()
 		'basic' => 'ModifyBasicSettings',
 		'bbc' => 'ModifyBBCSettings',
 		'layout' => 'ModifyLayoutSettings',
-		'karma' => 'ModifyKarmaSettings',
 		'sig' => 'ModifySignatureSettings',
 		'profile' => 'ShowCustomProfiles',
 		'profileedit' => 'EditCustomProfiles',
@@ -80,8 +79,6 @@ function ModifyFeatureSettings()
 				'description' => $txt['manageposts_bbc_settings_description'],
 			),
 			'layout' => array(
-			),
-			'karma' => array(
 			),
 			'sig' => array(
 				'description' => $txt['signature_settings_desc'],
@@ -383,65 +380,6 @@ function ModifyLikesSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
 	$context['settings_title'] = $txt['likes'];
-
-	prepareDBSettingContext($config_vars);
-}
-
-/**
- * Config array for chaning the karma settings
- * Accessed  from ?action=admin;area=featuresettings;sa=karma;
- *
- * @param $return_config
- */
-function ModifyKarmaSettings($return_config = false)
-{
-	global $txt, $scripturl, $context, $modSettings, $smcFunc;
-
-	if (empty($modSettings['karmaMode']))
-		$config_vars = array(
-			array('select', 'karmaMode', explode('|', $txt['karma_options'])),
-		);
-	else
-		$config_vars = array(
-				// Karma - On or off?
-				array('select', 'karmaMode', explode('|', $txt['karma_options'])),
-			'',
-				// Who can do it.... and who is restricted by time limits?
-				array('int', 'karmaMinPosts', 6, 'postinput' => strtolower($txt['posts'])),
-				array('float', 'karmaWaitTime', 6, 'postinput' => $txt['hours']),
-				array('check', 'karmaTimeRestrictAdmins'),
-			'',
-				// What does it look like?  [smite]?
-				array('text', 'karmaLabel'),
-				array('text', 'karmaApplaudLabel'),
-				array('text', 'karmaSmiteLabel'),
-		);
-
-	call_integration_hook('integrate_karma_settings', array(&$config_vars));
-
-	if ($return_config)
-		return $config_vars;
-
-	// Saving?
-	if (isset($_GET['save']))
-	{
-		checkSession();
-
-		$removeTags = array('karmaLabel', 'karmaApplaudLabel', 'karmaSmiteLabel');
-
-		foreach ($removeTags as $tag)
-			if (isset($_POST[$tag]))
-				$_POST[$tag] = $smcFunc['htmlspecialchars'](strip_tags($_POST[$tag]));
-
-		call_integration_hook('integrate_save_karma_settings');
-
-		saveDBSettings($config_vars);
-		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=karma');
-	}
-
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=karma';
-	$context['settings_title'] = $txt['karma'];
 
 	prepareDBSettingContext($config_vars);
 }
