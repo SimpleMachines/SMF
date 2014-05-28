@@ -130,7 +130,7 @@ class Likes
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
-		if (in_array($this->_sa, $subActions) && empty($this->_error))
+		if (in_array($this->_sa, $subActions) && !is_string($this->_error))
 		{
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
@@ -174,7 +174,7 @@ class Likes
 			// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
 			// we need this later for other things.
 			$request = $smcFunc['db_query']('', '
-				SELECT m.id_topic
+				SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 				WHERE {query_see_board}
@@ -184,7 +184,7 @@ class Likes
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) == 1)
-				list ($this->_idTopic) = $smcFunc['db_fetch_row']($request);
+				list ($this->_idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
 
 			$smcFunc['db_free_result']($request);
 			if (empty($this->_idTopic))
@@ -192,19 +192,19 @@ class Likes
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
+			$this->_validLikes['type'] = 'msg';
 			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
 			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
-			$this->_validLikes['can_see'] = true;
+			$this->_validLikes['can_see'] = allowedTo('likes_view') ? true : 'cannot_view_likes';
 
-			// @todo implement likes permissions.
-			$this->_validLikes['can_like'] = true;
+			$this->_validLikes['can_like'] = ($this->_user['id'] == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
 
 		else
 		{
 			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
 			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
-			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists).
+			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists) Remember that users can't like their own content.
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
 			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
@@ -217,14 +217,6 @@ class Likes
 				{
 					if ($result !== false)
 					{
-						// Does the user can see this?
-						if (isset($result['can_see']) && is_string($result['can_see']))
-							return $this->_error = $result['can_see'];
-
-						// Does the user can like this?
-						if (isset($result['can_like']) && is_string($result['can_like']))
-							return $this->_error = $result['can_like'];
-
 						// Match the type with what we already have.
 						if (!isset($result['type']) || $result['type'] != $this->_type)
 							return $this->_error = 'not_valid_like_type';
@@ -241,6 +233,14 @@ class Likes
 			if (!$found)
 				return $this->_error = 'cannot_';
 		}
+
+		// Does the user can see this?
+		if (isset($this->_validLikes['can_see']) && is_string($this->_validLikes['can_see']))
+			return $this->_error = $this->_validLikes['can_see'];
+
+		// Does the user can like this?
+		if (isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
+			return $this->_error = $this->_validLikes['can_like'];
 	}
 
 	/**
@@ -541,6 +541,8 @@ class Likes
 			// Nope?  then just do a redirect to whatever URL was provided.
 			else
 				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
+
+			return;
 		}
 
 		// A like operation.
@@ -584,7 +586,7 @@ class Likes
 		header('Content-Type: application/json');
 
 		$print = array(
-			'data' => $this->_data;
+			'data' => $this->_data,
 		);
 
 		// If there is an error, send it.
@@ -601,6 +603,7 @@ class Likes
 
 		// Print the data.
 		echo json_encode($print);
+		die;
 	}
 }
 
