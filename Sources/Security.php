@@ -487,8 +487,11 @@ function banPermissions()
 		$user_info['mod_cache'] = $_SESSION['mc'];
 	else
 	{
-		require_once($sourcedir . '/Subs-Auth.php');
-		rebuildModCache();
+		if (!$user_info['is_guest'])
+		{
+			require_once($sourcedir . '/Subs-Auth.php');
+			rebuildModCache();
+		}
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
