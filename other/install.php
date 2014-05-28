@@ -1323,7 +1323,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir;
+	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1337,9 +1337,17 @@ function AdminAccount()
 	require(dirname(__FILE__) . '/Settings.php');
 	load_database();
 
-	// Define the sha1 function, if it doesn't exist.
-	if (!function_exists('sha1') || version_compare(PHP_VERSION, '5', '<'))
-		require_once($sourcedir . '/Subs-Compat.php');
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	// We need this to properly hash the password for Admin
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1445,6 +1453,8 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
+			$_POST['password1'] = hash_password(stripslashes($_POST['username']), stripslashes($_POST['password1']));
+
 			$request = $smcFunc['db_insert']('',
 				$db_prefix . 'members',
 				array(
@@ -1457,7 +1467,7 @@ function AdminAccount()
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(
-					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
+					stripslashes($_POST['username']), stripslashes($_POST['username']), $_POST['password1'], stripslashes($_POST['email']),
 					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
@@ -1548,7 +1558,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
-		setLoginCookie(3153600 * 60, $incontext['member_id'], sha1(sha1(strtolower($_POST['username']) . $_POST['password1']) . $incontext['member_salt']));
+		setLoginCookie(3153600 * 60, $incontext['member_id'], hash_salt($_POST['password1'], $incontext['member_salt']));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT value
@@ -1586,8 +1596,14 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8' ? create_function('$string', '
-		return $string;') : 'strtolower';
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg

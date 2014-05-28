@@ -288,20 +288,14 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		// Fix a security hole in PHP 4.3.9 and below...
-		if (preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~i', $_COOKIE[$cookiename]) == 1)
-		{
-			list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
-			$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
-		}
-		else
-			$id_member = 0;
+		list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
+		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
-		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -333,9 +327,9 @@ function loadUserSettings()
 			// As much as the password should be right, we can assume the integration set things up.
 			if (!empty($already_verified) && $already_verified === true)
 				$check = true;
-			// SHA-1 passwords should be 40 characters long.
-			elseif (strlen($password) == 40)
-				$check = sha1($user_settings['passwd'] . $user_settings['password_salt']) == $password;
+			// SHA-512 hash should be 128 characters long.
+			elseif (strlen($password) == 128)
+				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
 			else
 				$check = false;
 

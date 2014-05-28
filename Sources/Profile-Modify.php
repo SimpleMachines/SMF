@@ -348,6 +348,7 @@ function loadProfileFields($force_reload = false)
 
 				// Set up the new password variable... ready for storage.
 				$value = hash_password($cur_profile['member_name'], un_htmlspecialchars($value));
+
 				return true;
 			},
 		),
@@ -1843,9 +1844,11 @@ function authentication($memID, $saving = false)
 
 				// Do the important bits.
 				updateMemberData($memID, array('openid_uri' => '', 'passwd' => $passwd));
+				$cur_profile['passwd'] = $passwd;
+
 				if ($context['user']['is_owner'])
 				{
-					setLoginCookie(60 * $modSettings['cookieTime'], $memID, hash_salt(hash_password($cur_profile['member_name'], un_htmlspecialchars($_POST['passwrd2'])), $cur_profile['password_salt']));
+					setLoginCookie(60 * $modSettings['cookieTime'], $memID, hash_salt($passwd, $cur_profile['password_salt']));
 					redirectexit('action=profile;area=authentication;updated');
 				}
 				else
@@ -3459,12 +3462,8 @@ function profileReloadUser()
 {
 	global $sourcedir, $modSettings, $context, $cur_profile, $smcFunc, $profile_vars;
 
-	// Log them back in - using the verify password as they must have matched and this one doesn't get changed by anyone!
 	if (isset($_POST['passwrd2']) && $_POST['passwrd2'] != '')
-	{
-		require_once($sourcedir . '/Subs-Auth.php');
-		setLoginCookie(60 * $modSettings['cookieTime'], $context['id_member'], hash_salt(hash_password($cur_profile['member_name'], un_htmlspecialchars($_POST['passwrd2'])), $cur_profile['password_salt']));
-	}
+		setLoginCookie(60 * $modSettings['cookieTime'], $context['id_member'], hash_salt($_POST['passwrd1'], $cur_profile['password_salt']));
 
 	loadUserSettings();
 	writeLog();

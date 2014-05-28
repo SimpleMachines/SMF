@@ -70,9 +70,6 @@ function Login()
 	else
 		unset($_SESSION['login_url']);
 
-	// Need some js goodies.
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
-
 	// Create a one time token.
 	createToken('login');
 }
@@ -108,7 +105,7 @@ function Login2()
 		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
-		setLoginCookie($timeout - time(), $user_info['id'], sha1($user_settings['passwd'] . $user_settings['password_salt']));
+		setLoginCookie($timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
 	}
@@ -177,7 +174,6 @@ function Login2()
 		$context['sub_template'] = 'login';
 	}
 
-
 	// Set up the default/fallback stuff.
 	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';
 	$context['default_password'] = '';
@@ -206,7 +202,7 @@ function Login2()
 	}
 
 	// Hmm... maybe 'admin' will login with no password. Uhh... NO!
-	if ((!isset($_POST['passwrd']) || $_POST['passwrd'] == '') && (!isset($_POST['hash_passwrd']) || strlen($_POST['hash_passwrd']) != 40))
+	if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '')
 	{
 		$context['login_errors'] = array($txt['no_password']);
 		return;
@@ -224,14 +220,6 @@ function Login2()
 	{
 		$_POST['user'] = $smcFunc['substr']($_POST['user'], 0, 79);
 		$context['default_username'] = preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user']));
-	}
-
-	// Are we using any sort of integration to validate the login?
-	if (in_array('retry', call_integration_hook('integrate_validate_login', array($_POST['user'], isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40 ? $_POST['hash_passwrd'] : null, $modSettings['cookieTime'])), true))
-	{
-		$context['login_errors'] = array($txt['login_hash_error']);
-		$context['disable_login_hashing'] = true;
-		return;
 	}
 
 	// Load the data up!
@@ -272,45 +260,8 @@ function Login2()
 	$user_settings = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Figure out the password using SMF's encryption - if what they typed is right.
-	if (isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40)
-	{
-		// Needs upgrading?
-		if (strlen($user_settings['passwd']) != 40)
-		{
-			$context['login_errors'] = array($txt['login_hash_error']);
-			$context['disable_login_hashing'] = true;
-			unset($user_settings);
-			return;
-		}
-		// Challenge passed.
-		elseif ($_POST['hash_passwrd'] == sha1($user_settings['passwd'] . $sc . $tk))
-			$sha_passwd = $user_settings['passwd'];
-		else
-		{
-			// Don't allow this!
-			validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
-
-			$_SESSION['failed_login'] = isset($_SESSION['failed_login']) ? ($_SESSION['failed_login'] + 1) : 1;
-
-			if ($_SESSION['failed_login'] >= $modSettings['failed_login_threshold'])
-				redirectexit('action=reminder');
-			else
-			{
-				log_error($txt['incorrect_password'] . ' - <span class="remove">' . $user_settings['member_name'] . '</span>', 'user');
-
-				$context['disable_login_hashing'] = true;
-				$context['login_errors'] = array($txt['incorrect_password']);
-				unset($user_settings);
-				return;
-			}
-		}
-	}
-	else
-		$sha_passwd = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
-
 	// Bad password!  Thought you could fool the database?!
-	if ($user_settings['passwd'] != $sha_passwd)
+	if (!hash_verify_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']), $user_settings['passwd']))
 	{
 		// Let's be cautious, no hacking please. thanx.
 		validatePasswordFlood($user_settings['id_member'], $user_settings['passwd_flood']);
@@ -360,6 +311,7 @@ function Login2()
 		elseif (strlen($user_settings['passwd']) == 40)
 		{
 			// Maybe they are using a hash from before the password fix.
+			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
 
 			// BurningBoard3 style of hashing.
@@ -392,7 +344,7 @@ function Login2()
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array($user_settings['passwd'], $other_passwords))
 		{
-			$user_settings['passwd'] = $sha_passwd;
+			$user_settings['passwd'] = hash_password($user_settings['member_name'], un_htmlspecialchars($_POST['passwrd']));
 			$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 
 			// Update the password and set up the hash.
@@ -502,14 +454,14 @@ function DoLogin()
 	require_once($sourcedir . '/Subs-Auth.php');
 
 	// Call login integration functions.
-	call_integration_hook('integrate_login', array($user_settings['member_name'], isset($_POST['hash_passwrd']) && strlen($_POST['hash_passwrd']) == 40 ? $_POST['hash_passwrd'] : null, $modSettings['cookieTime']));
+	call_integration_hook('integrate_login', array($user_settings['member_name'], null, $modSettings['cookieTime']));
 
 	// Get ready to set the cookie...
 	$username = $user_settings['member_name'];
 	$user_info['id'] = $user_settings['id_member'];
 
 	// Bam!  Cookie set.  A session too, just in case.
-	setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], sha1($user_settings['passwd'] . $user_settings['password_salt']));
+	setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 	// Reset the login threshold.
 	if (isset($_SESSION['failed_login']))
