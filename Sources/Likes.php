@@ -242,9 +242,9 @@ class Likes
 		if (isset($this->_validLikes['can_see']) && is_string($this->_validLikes['can_see']))
 			return $this->_error = $this->_validLikes['can_see'];
 
-		// Does the user can like this?
-		if (isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
-			return $this->_error = $this->_validLikes['can_like'];
+		// Does the user can like this? Viewing a list of likes doesn't require this permission.
+			if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
+				return $this->_error = $this->_validLikes['can_like'];
 	}
 
 	/**
