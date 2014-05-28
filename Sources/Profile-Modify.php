@@ -86,7 +86,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'birthdate',
 			'permission' => 'profile_extra',
-			'preload' => function () use ($cur_profile, $context)
+			'preload' => function () use ($cur_profile, &$context)
 			{
 				// Split up the birthdate....
 				list ($uyear, $umonth, $uday) = explode('-', empty($cur_profile['birthdate']) || $cur_profile['birthdate'] == '0001-01-01' ? '0000-00-00' : $cur_profile['birthdate']);
@@ -98,7 +98,7 @@ function loadProfileFields($force_reload = false)
 
 				return true;
 			},
-			'input_validate' => function (&$value) use ($cur_profile, $profile_vars)
+			'input_validate' => function (&$value) use (&$cur_profile, &$profile_vars)
 			{
 				if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0)
 				{
@@ -209,7 +209,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_pick',
 			'permission' => 'profile_extra',
 			'enabled' => $modSettings['theme_allow'] || allowedTo('admin_forum'),
-			'preload' => function () use ($smcFunc, $context, $cur_profile, $txt)
+			'preload' => function () use ($smcFunc, &$context, $cur_profile, $txt)
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT value
@@ -241,7 +241,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'karma_modify',
 			'permission' => 'admin_forum',
 			// Set karma_bad too!
-			'input_validate' => function (&$value) use ($profile_vars, $cur_profile)
+			'input_validate' => function (&$value) use (&$profile_vars, &$cur_profile)
 			{
 				$value = (int) $value;
 				if (isset($_POST['karma_bad']))
@@ -251,7 +251,7 @@ function loadProfileFields($force_reload = false)
 				}
 				return true;
 			},
-			'preload' => function () use ($context, $cur_profile)
+			'preload' => function () use (&$context, $cur_profile)
 			{
 				$context['member']['karma']['good'] = $cur_profile['karma_good'];
 				$context['member']['karma']['bad'] = $cur_profile['karma_bad'];
@@ -380,7 +380,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'pm_settings',
 			'permission' => 'pm_read',
-			'preload' => function () use ($context, $cur_profile)
+			'preload' => function () use (&$context, $cur_profile)
 			{
 				$context['display_mode'] = $cur_profile['pm_prefs'] & 3;
 				$context['send_email'] = $cur_profile['pm_email_notify'];
@@ -388,7 +388,7 @@ function loadProfileFields($force_reload = false)
 
 				return true;
 			},
-			'input_validate' => function (&$value) use ($cur_profile, $profile_vars)
+			'input_validate' => function (&$value) use (&$cur_profile, &$profile_vars)
 			{
 				// Simple validate and apply the two "sub settings"
 				$value = max(min($value, 2), 0);
@@ -479,7 +479,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'smiley_pick',
 			'enabled' => !empty($modSettings['smiley_sets_enable']),
 			'permission' => 'profile_extra',
-			'preload' => function () use ($modSettings, $context, $txt, $cur_profile, $smcFunc)
+			'preload' => function () use ($modSettings, &$context, $txt, $cur_profile, $smcFunc)
 			{
 				$context['member']['smiley_set']['id'] = empty($cur_profile['smiley_set']) ? '' : $cur_profile['smiley_set'];
 				$context['smiley_sets'] = explode(',', 'none,,' . $modSettings['smiley_sets_known']);
@@ -513,7 +513,7 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'theme_settings',
 			'permission' => 'profile_extra',
 			'is_dummy' => true,
-			'preload' => function () use ($context, $user_info, $modSettings)
+			'preload' => function () use (&$context, $user_info, $modSettings)
 			{
 				loadLanguage('Settings');
 
@@ -550,7 +550,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeoffset_modify',
 			'permission' => 'profile_extra',
-			'preload' => function () use ($context, $cur_profile)
+			'preload' => function () use (&$context, $cur_profile)
 			{
 				$context['member']['time_offset'] = $cur_profile['time_offset'];
 				return true;

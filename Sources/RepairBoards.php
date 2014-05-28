@@ -162,7 +162,7 @@ function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0
  */
 function loadForumTests()
 {
-	global $errorTests;
+	global $errorTests, $smcFunc, $txt, $context;
 
 	/* Here this array is defined like so:
 		string check_query:	Query to be executed when testing if errors exist.
@@ -232,9 +232,9 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				WHERE t.id_topic IS NULL
 				GROUP BY m.id_topic, m.id_board',
-			'fix_processing' => function ($row)
+			'fix_processing' => function ($row) use ($smcFunc)
 			{
-				global $smcFunc, $salvageBoardID;
+				global $salvageBoardID;
 
 				// Only if we don't have a reasonable idea of where to put it.
 				if ($row['id_board'] == 0)
@@ -319,10 +319,8 @@ function loadForumTests()
 			// Remove all topics that have zero messages in the messages table.
 			'fix_collect' => array(
 				'index' => 'id_topic',
-				'process' => function ($topics)
-		{
-		
-					global $smcFunc;
+				'process' => function ($topics) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}topics
 						WHERE id_topic IN ({array_int:topics})',
@@ -338,7 +336,7 @@ function loadForumTests()
 						)
 					);
 				
-		},
+				},
 			),
 			'messages' => array('repair_missing_messages', 'id_topic'),
 		),
@@ -355,10 +353,9 @@ function loadForumTests()
 					LEFT JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
 				WHERE p.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
 					AND t.id_poll IS NULL',
-			'fix_processing' => function ($row)
-		{
-		
-				global $smcFunc, $salvageBoardID, $txt;
+			'fix_processing' => function ($row) use ($smcFunc, $txt)
+			{
+				global $salvageBoardID;
 
 				// Only if we don't have a reasonable idea of where to put it.
 				if ($row['id_board'] == 0)
@@ -470,10 +467,8 @@ function loadForumTests()
 				WHERE t.id_topic BETWEEN {STEP_LOW} AND {STEP_HIGH}
 				GROUP BY t.id_topic, t.id_first_msg, t.id_last_msg, t.approved, mf.approved
 				ORDER BY t.id_topic',
-			'fix_processing' => function ($row)
-		{
-		
-				global $smcFunc;
+			'fix_processing' => function ($row) use ($smcFunc)
+			{
 				$row['firstmsg_approved'] = (int) $row['firstmsg_approved'];
 				$row['myid_first_msg'] = (int) $row['myid_first_msg'];
 				$row['myid_last_msg'] = (int) $row['myid_last_msg'];
@@ -500,13 +495,9 @@ function loadForumTests()
 						'topic_id' => $row['id_topic'],
 					)
 				);
-			
-		},
-			'message_function' => function ($row)
-		{
-		
-				global $txt, $context;
-
+			},
+			'message_function' => function ($row) use ($txt, &$context)
+			{
 				// A pretend error?
 				if ($row['myid_first_msg'] == $row['myid_first_msg'] && $row['myid_first_msg'] == $row['myid_first_msg'] && $row['approved'] == $row['firstmsg_approved'])
 					return false;
@@ -519,8 +510,7 @@ function loadForumTests()
 					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_5'], $row['id_topic']);
 
 				return true;
-			
-		},
+			},
 		),
 		// Find topics with incorrect num_replies.
 		'stats_topics2' => array(
@@ -686,8 +676,7 @@ function loadForumTests()
 			'fix_collect' => array(
 				'index' => 'id_cat',
 				'process' => function ($cats)
-		{
-		
+				{
 					global $smcFunc, $salvageCatID;
 					createSalvageArea();
 					$smcFunc['db_query']('', '
@@ -699,8 +688,7 @@ function loadForumTests()
 							'categories' => $cats,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_categories', 'id_board', 'id_cat'),
 		),
@@ -753,8 +741,7 @@ function loadForumTests()
 			'fix_collect' => array(
 				'index' => 'id_parent',
 				'process' => function ($parents)
-		{
-		
+				{
 					global $smcFunc, $salvageBoardID, $salvageCatID;
 					createSalvageArea();
 					$smcFunc['db_query']('', '
@@ -767,8 +754,7 @@ function loadForumTests()
 							'parents' => $parents,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_parents', 'id_board', 'id_parent'),
 		),
@@ -950,10 +936,8 @@ function loadForumTests()
 				GROUP BY lb.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function ($members)
-		{
-		
-					global $smcFunc;
+				'process' => function ($members) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_boards
 						WHERE id_member IN ({array_int:members})',
@@ -961,8 +945,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_log_boards_members', 'id_member'),
 		),
@@ -982,10 +965,8 @@ function loadForumTests()
 				GROUP BY lmr.id_board',
 			'fix_collect' => array(
 				'index' => 'id_board',
-				'process' => function ($boards)
-		{
-		
-					global $smcFunc;
+				'process' => function ($boards) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_mark_read
 						WHERE id_board IN ({array_int:boards})',
@@ -993,8 +974,7 @@ function loadForumTests()
 							'boards' => $boards,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_log_mark_read', 'id_board'),
 		),
@@ -1014,10 +994,8 @@ function loadForumTests()
 				GROUP BY lmr.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function ($members)
-		{
-		
-					global $smcFunc;
+				'process' => function ($members) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_mark_read
 						WHERE id_member IN ({array_int:members})',
@@ -1025,8 +1003,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_log_mark_read_members', 'id_member'),
 		),
@@ -1046,10 +1023,8 @@ function loadForumTests()
 				GROUP BY pmr.id_pm',
 			'fix_collect' => array(
 				'index' => 'id_pm',
-				'process' => function ($pms)
-		{
-		
-					global $smcFunc;
+				'process' => function ($pms) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}pm_recipients
 						WHERE id_pm IN ({array_int:pms})',
@@ -1057,8 +1032,7 @@ function loadForumTests()
 							'pms' => $pms,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_pms', 'id_pm'),
 		),
@@ -1143,10 +1117,8 @@ function loadForumTests()
 				GROUP BY ln.id_member',
 			'fix_collect' => array(
 				'index' => 'id_member',
-				'process' => function ($members)
-		{
-		
-					global $smcFunc;
+				'process' => function ($members) use ($smcFunc)
+				{
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_notify
 						WHERE id_member IN ({array_int:members})',
@@ -1154,8 +1126,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_missing_notify_members', 'id_member'),
 		),
@@ -1361,8 +1332,7 @@ function loadForumTests()
 			'fix_collect' => array(
 				'index' => 'id_report',
 				'process' => function ($reports)
-		{
-		
+				{
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_reported_comments
@@ -1371,8 +1341,7 @@ function loadForumTests()
 							'reports' => $reports,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_comments_missing_report', 'id_report', 'membername'),
 		),
@@ -1393,8 +1362,7 @@ function loadForumTests()
 			'fix_collect' => array(
 				'index' => 'id_member',
 				'process' => function ($members)
-		{
-		
+				{
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_group_requests
@@ -1403,8 +1371,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_group_request_missing_member', 'id_member'),
 		),
@@ -1425,8 +1392,7 @@ function loadForumTests()
 			'fix_collect' => array(
 				'index' => 'id_group',
 				'process' => function ($groups)
-		{
-		
+				{
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_group_requests
@@ -1435,8 +1401,7 @@ function loadForumTests()
 							'groups' => $groups,
 						)
 					);
-				
-		},
+				},
 			),
 			'messages' => array('repair_group_request_missing_group', 'id_group'),
 		),
