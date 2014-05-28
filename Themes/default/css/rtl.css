@@ -465,12 +465,6 @@ ul.post_options {
 ul.post_options li {
 	float: right;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: .3em 1em .3em 0;
-}
-#postAttachment dt, #postAttachment2 dt {
-	font-weight: bold;
-}
 .post_verification #verification_control {
 	margin: .3em 1em .3em 0;
 }
