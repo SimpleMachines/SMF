@@ -34,7 +34,8 @@ function preparsecode(&$message, $previewing = false)
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
 	// Clean up after nobbc ;).
-	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function ($a) {
+	$message = preg_replace_callback('~\[nobbc\](.+?)\[/nobbc\]~is', function ($a)
+	{
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
 
@@ -117,10 +118,10 @@ function preparsecode(&$message, $previewing = false)
 			}
 
 			// Let's look at the time tags...
-			$parts[$i] = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function ($m)
-		{
-		global $modSettings, $user_info; return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
-		}, $parts[$i]);
+			$parts[$i] = preg_replace_callback('~\[time(?:=(absolute))*\](.+?)\[/time\]~i', function ($m) use ($modSettings, $user_info)
+			{
+				return "[time]" . (is_numeric("$m[2]") || @strtotime("$m[2]") == 0 ? "$m[2]" : strtotime("$m[2]") - ("$m[1]" == "absolute" ? 0 : (($modSettings["time_offset"] + $user_info["time_offset"]) * 3600))) . "[/time]";
+			}, $parts[$i]);
 
 			// Change the color specific tags to [color=the color].
 			$parts[$i] = preg_replace('~\[(black|blue|green|red|white)\]~', '[color=$1]', $parts[$i]);  // First do the opening tags.
@@ -275,10 +276,8 @@ function un_preparsecode($message)
 		// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
 		if ($i % 4 == 0)
 		{
-			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function ($m)
+			$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~i', function ($m) use ($smcFunc)
 			{
-				global $smcFunc;
-
 				return "[html]" . strtr($smcFunc['htmlspecialchars']("$m[1]", ENT_QUOTES), array("\\&quot;" => "&quot;", "&amp;#13;" => "<br>", "&amp;#32;" => " ", "&amp;#91;" => "[", "&amp;#93;" => "]")) . "[/html]";
 			}, $parts[$i]);
 

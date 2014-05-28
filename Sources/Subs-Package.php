@@ -592,10 +592,8 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_cur_status'],
 					),
 					'data' => array(
-						'function' => function ($rowData)
+						'function' => function ($rowData) use ($txt)
 						{
-							global $txt;
-
 							$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? $txt['package_restore_permissions_pre_change'] : $txt['package_restore_permissions_post_change'];
 							return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
 						},
@@ -622,10 +620,8 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_result'],
 					),
 					'data' => array(
-						'function' => function ($rowData)
+						'function' => function ($rowData) use ($txt)
 						{
-							global $txt;
-
 							return $txt['package_restore_permissions_action_' . $rowData['result']];
 						},
 						'class' => 'smalltext',

@@ -1067,10 +1067,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled)
+				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
-					global $context;
-
 					if (!isset($disabled['code']))
 					{
 						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1171,12 +1169,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1"><param name="play" value="true"><param name="loop" value="true"><param name="quality" value="high"><param name="AllowScriptAccess" value="never"><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-		
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
 					elseif (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
 						$data[0] = 'http://' . $data[0];
-				
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
@@ -1457,7 +1453,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</span>',
 				'validate' => isBrowser('ie') ? function (&$tag, &$data, $disabled)
 				{
-		
 					if ($data[1] == 'left')
 						$data[1] = 270;
 					elseif ($data[1] == 'right')
@@ -1470,7 +1465,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$data[1] = (int) $data[1];
 				} : function (&$tag, &$data, $disabled)
 				{
-		
 					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
 						$data[1] = '0 -2px 1px';
 					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
@@ -2595,16 +2589,14 @@ function redirectexit($setLocation = '', $refresh = false)
 	{
 		if (defined('SID') && SID != '')
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function ($m)
+				function ($m) use ($scripturl)
 				{
-					global $scripturl;
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID. (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
 		else
 			$setLocation = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-				function ($m)
+				function ($m) use ($scripturl)
 				{
-					global $scripturl;
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? "$m[2]" : "");
 				}, $setLocation);
 	}
