@@ -2514,57 +2514,11 @@ function parsesmileys(&$message)
 	}
 
 	// Replace away!
-	/*
-	* TODO: When SMF supports only PHP 5.3+, we can change this to "uses" keyword and simpifly this.
-	*/
-	$callback = pregReplaceCurry('smielyPregReplaceCallback', 2);
-	$message = preg_replace_callback($smileyPregSearch, $callback($smileyPregReplacements), $message);
-}
-
-/**
- * Preg Replacment Curry.
- *
- * This allows use to do delayed argument binding and bring in
- * the replacement variables for some preg replacments.
- *
- * Original code from: http://php.net/manual/en/function.preg-replace-callback.php#88013
- * This is needed until SMF only supports PHP 5.3+ and we change to "use"
- *
- * @param string $func
- * @param string $arity
- * @return function a lambda function bound to $func.
- */
-function pregReplaceCurry($func, $arity)
-{
-	return create_function('', "
-		\$args = func_get_args();
-		if(count(\$args) >= $arity)
-			return call_user_func_array('$func', \$args);
-		\$args = var_export(\$args, 1);
-		return create_function('','
-			\$a = func_get_args();
-			\$z = ' . \$args . ';
-			\$a = array_merge(\$z,\$a);
-			return call_user_func_array(\'$func\', \$a);
-		');
-	");
-}
-
-/**
- * Smiely Replacment Callback.
- *
- * Our callback that does the actual smiley replacments.
- *
- * Original code from: http://php.net/manual/en/function.preg-replace-callback.php#88013
- * This is needed until SMF only supports PHP 5.3+ and we change to "use"
- *
- * @param string $replacements
- * @param string $matches
- * @return string the replaced results.
- */
-function smielyPregReplaceCallback($replacements, $matches)
-{
-    return $replacements[$matches[1]];
+	$message = preg_replace_callback($smileyPregSearch,
+		function ($matches) use ($smileyPregReplacements)
+		{
+			return $smileyPregReplacements[$matches[1]];
+		}, $message);
 }
 
 /**

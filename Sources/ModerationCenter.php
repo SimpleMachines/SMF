@@ -754,20 +754,25 @@ function ReportedMembers()
 				)
 			);
 
+			$logs = array();
 			while ($reports = $smcFunc['db_fetch_assoc']($request))
 			{
-				$report_data = array(
-					'report' => $reports['id_report'],
-					'membername' => $reports['membername'],
-					'member' => (string)$reports['id_member'],
+				$logs[] = array(
+					'action' => 'close_user_report',
+					'log_type' => 'moderate',
+					'extra' => array(
+						'report' => $reports['id_report'],
+						'membername' => $reports['membername'],
+						'member' => (string)$reports['id_member'],
+					),
 				);
-
-				// Log that this report was closed
-				logAction('close_user_report', $report_data);
 			}
 
 			$smcFunc['db_free_result']($request);
 
+			// Log the closing of all the reports
+			logActions($logs);
+			
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_reported
 				SET closed = {int:is_closed}
