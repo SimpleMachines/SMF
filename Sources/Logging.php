@@ -221,7 +221,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)/.'));
+		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)'));
 	}
 
 	$warnings = 0;
