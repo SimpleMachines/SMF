@@ -114,9 +114,8 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_subject'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($smcFunc)
 					{
-						global $smcFunc;
 						return $smcFunc['strlen']($rowData['subject']) > 50 ? sprintf('%1$s...', $smcFunc['htmlspecialchars']($smcFunc['substr']($rowData['subject'], 0, 47))) : $smcFunc['htmlspecialchars']($rowData['subject']);
 					},
 					'class' => 'smalltext',
@@ -149,10 +148,8 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_priority'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						// We probably have a text label with your priority.
 						$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
 

@@ -93,10 +93,8 @@ function GroupList()
 					'value' => $txt['name'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($scripturl)
 					{
-						global $scripturl;
-
 						// Since the moderator group has no explicit members, no link is needed.
 						if ($rowData['id_group'] == 3)
 							$group_name = $rowData['group_name'];
@@ -145,10 +143,8 @@ function GroupList()
 					'value' => $txt['moderators'],
 				),
 				'data' => array(
-					'function' => function ($group)
+					'function' => function ($group) use ($txt)
 					{
-						global $txt;
-
 						return empty($group['moderators']) ? '<em>' . $txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
 					},
 				),
@@ -158,10 +154,8 @@ function GroupList()
 					'value' => $txt['membergroups_members_top'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						// No explicit members for the moderator group.
 						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
 					},

@@ -238,10 +238,8 @@ function ViewSpiders()
 					'value' => $txt['spider_name'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($smcFunc, $scripturl)
 					{
-						global $scripturl, $smcFunc;
-
 						return sprintf('<a href="%1$s?action=admin;area=sengines;sa=editspiders;sid=%2$d">%3$s</a>', $scripturl, $rowData['id_spider'], $smcFunc['htmlspecialchars']($rowData['spider_name']));
 					},
 				),
@@ -255,10 +253,8 @@ function ViewSpiders()
 					'value' => $txt['spider_last_seen'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($context, $txt)
 					{
-						global $context, $txt;
-
 						return isset($context['spider_last_seen'][$rowData['id_spider']]) ? timeformat($context['spider_last_seen'][$rowData['id_spider']]) : $txt['spider_last_never'];
 					},
 				),

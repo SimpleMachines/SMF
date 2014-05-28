@@ -92,16 +92,14 @@ function reloadSettings()
 		},
 		'htmltrim' => function ($string) use ($utf8, $space_chars, $ent_check)
 		{
-			global $smcFunc;
 			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
 		},
 		'strlen' => function ($string) use ($ent_list, $utf8, $ent_check)
 		{
 			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
 		},
-		'strpos' => function ($haystack, $needle, $offset = 0) use ($utf8, $ent_check)
+		'strpos' => function ($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $modSettings)
 		{
-			global $smcFunc, $modSettings;
 			$haystack_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			if (strlen($needle) === 1)
@@ -125,16 +123,13 @@ function reloadSettings()
 				return false;
 			}
 		},
-		'substr' => function ($string, $start, $length = null) use ($utf8, $ent_check)
+		'substr' => function ($string, $start, $length = null) use ($utf8, $ent_check, $modSettings)
 		{
-			global $smcFunc;
 			$ent_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
 		},
-		'strtolower' => $utf8 ? function ($string)
+		'strtolower' => $utf8 ? function ($string) use ($sourcedir)
 		{
-			global $sourcedir;
-
 			if (!function_exists('mb_strtolower'))
 			{
 				require_once($sourcedir . '/Subs-Charset.php');
@@ -155,9 +150,8 @@ function reloadSettings()
 
 			return mb_strtoupper($string, 'UTF-8');
 		} : 'strtoupper',
-		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list)
+		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, $smcFunc)
 		{
-            global $smcFunc;
             $string = $ent_check($string);
             preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
             $string = $matches[0];
@@ -165,14 +159,12 @@ function reloadSettings()
                 $string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
             return $string;
 		},
-		'ucfirst' => $utf8 ? function ($string)
+		'ucfirst' => $utf8 ? function ($string) use ($smcFunc)
 		{
-			global $smcFunc;
 			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
 		} : 'ucfirst',
-		'ucwords' => $utf8 ? function ($string)
+		'ucwords' => $utf8 ? function ($string) use ($smcFunc)
 		{
-			global $smcFunc;
 			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 			for ($i = 0, $n = count($words); $i < $n; $i += 2)
 				$words[$i] = $smcFunc['ucfirst']($words[$i]);

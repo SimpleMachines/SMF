@@ -1053,10 +1053,8 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_warning'],
 				),
 				'data' => array(
-					'function' => function ($member)
+					'function' => function ($member) use ($scripturl)
 					{
-						global $scripturl;
-
 						return allowedTo('issue_warning') ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $member['id'] . '">' . $member['warning'] . '%</a>' : $member['warning'] . '%';
 					},
 				),
@@ -1100,10 +1098,8 @@ function ViewWatchedUsers()
 					'value' => $txt['mc_watched_users_last_post'],
 				),
 				'data' => array(
-					'function' => function ($member)
+					'function' => function ($member) use ($scripturl)
 					{
-						global $scripturl;
-
 						if ($member['last_post_id'])
 							return '<a href="' . $scripturl . '?msg=' . $member['last_post_id'] . '">' . $member['last_post'] . '</a>';
 						else
@@ -1505,10 +1501,8 @@ function ViewWarningLog()
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($scripturl, $txt)
 					{
-						global $scripturl, $txt;
-
 						$output = '
 							<div class="floatleft">
 								' . $rowData['reason'] . '
@@ -1742,8 +1736,6 @@ function ViewWarningTemplates()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						global $context, $txt, $scripturl;
-
 						return '<input type="checkbox" name="deltpl[]" value="' . $rowData['id_comment'] . '" class="input_check">';
 					},
 					'class' => 'centercol',

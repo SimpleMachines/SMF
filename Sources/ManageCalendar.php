@@ -136,10 +136,8 @@ function ModifyHolidays()
 					'value' => $txt['date'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt;
-
 						// Recurring every year or just a single year?
 						$year = $rowData['year'] == '0004' ? sprintf('(%1$s)', $txt['every_year']) : $rowData['year'];
 

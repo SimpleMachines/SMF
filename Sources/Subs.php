@@ -1106,10 +1106,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals_content',
 				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
-				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled)
+				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
-					global $context;
-
 					if (!isset($disabled['code']))
 					{
 						$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $data[0], -1, PREG_SPLIT_DELIM_CAPTURE);
