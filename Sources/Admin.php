@@ -713,6 +713,8 @@ function AdminSearchInternal()
 		array('ModifyBBCSettings', 'area=featuresettings;sa=bbc'),
 		array('ModifyLayoutSettings', 'area=featuresettings;sa=layout'),
 		array('ModifyKarmaSettings', 'area=featuresettings;sa=karma'),
+		array('ModifyLikesSettings', 'area=featuresettings;sa=likes'),
+		// array('ModifyMentionsSettings', 'area=featuresettings;sa=mentions'),
 		array('ModifySignatureSettings', 'area=featuresettings;sa=sig'),
 		array('ModifyAntispamSettings', 'area=antispam'),
 		array('ModifyWarningSettings', 'area=warnings'),
