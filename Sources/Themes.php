@@ -1520,7 +1520,7 @@ function InstallDir()
  */
 function WrapAction()
 {
-	global $context, $settings, $sourcedir;
+	global $context, $settings, $modSettings;
 
 	// Load any necessary template(s)?
 	if (isset($settings['catch_action']['template']))
@@ -1534,13 +1534,17 @@ function WrapAction()
 	if (isset($settings['catch_action']['layers']))
 		$context['template_layers'] = $settings['catch_action']['layers'];
 
-	// Just call a function?
+	// Any function to call?
 	if (isset($settings['catch_action']['function']))
 	{
-		if (isset($settings['catch_action']['filename']))
-			template_include($sourcedir . '/' . $settings['catch_action']['filename'], true);
+		$hook = $settings['catch_action']['function'];
 
-		$settings['catch_action']['function']();
+		if (isset($settings['catch_action']['filename']))
+			$hook = $settings['catch_action']['filename'] . '|' . $hook;
+
+		$modSettings['integrate_wrap_action'] = $hook;
+
+		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
 	if (isset($settings['catch_action']['sub_template']))
