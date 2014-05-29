@@ -2876,7 +2876,7 @@ function cache_put_data($key, $value, $ttl = 120)
 				@unlink($cachedir . '/data_' . $key . '.php');
 			else
 			{
-				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; if (' . (time() + $ttl) . ' < time()) $expired = true; else{$expired = false; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
+				$cache_data = '<' . '?' . 'php if (!defined(\'SMF\')) die; $duration = \'' . (time() + $ttl) . '\'; $value = \'' . addcslashes($value, '\\\'') . '\';}' . '?' . '>';
 
 				// Write out the cache file, check that the cache write was successful; all the data must be written
 				// If it fails due to low diskspace, or other, remove the cache file
@@ -2953,13 +2953,19 @@ function cache_get_data($key, $ttl = 120)
 			break;
 		default:
 			// Otherwise it's SMF data!
-			if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
+			if (is_file($cachedir . '/data_' . $key . '.php') && is_readable($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 			{
-				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
-				@include($cachedir . '/data_' . $key . '.php');
-				if (!empty($expired) && isset($value))
-				{
-					@unlink($cachedir . '/data_' . $key . '.php');
+				$expired = true;
+				// php will cache file_exists et all.
+				include($cachedir . '/data_' . $key . '.php');
+				if ($duration === null) $duration = 0;
+					if((int) $duration > time()) {
+						$expired = false;
+					}
+				unset($duration);
+
+				if ((bool) $expired !== false && isset($value)) {
+					@unlink($cache_filename);
 					unset($value);
 				}
 			}
