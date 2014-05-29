@@ -760,7 +760,7 @@ a.moderation_link, a.moderation_link:visited {
 	border: 1px solid #ccc;
 	border-top: none;
 	border-radius: 0 0 3px 3px;
-	background: none;
+	background: none repeat scroll 0 0 #E9EEF2;
 	margin: -1px 0 12px 0;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
@@ -1194,6 +1194,7 @@ img.sort, .sort {
 	border-top: solid 1px #ccc;
 	border-radius: 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
+	background: #FFFFFF;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
