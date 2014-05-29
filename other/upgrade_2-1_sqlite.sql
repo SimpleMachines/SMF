@@ -836,7 +836,7 @@ ALTER TABLE `{$db_prefix}members`
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_drafts (
 	id_draft int unsigned NOT NULL auto_increment,
 	id_topic int unsigned NOT NULL default '0',
 	id_board smallint unsigned NOT NULL default '0',
@@ -853,7 +853,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL default '',
 	PRIMARY KEY (id_draft)
 );
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}member_drafts_id_member ON {$db_prefix}member_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...
