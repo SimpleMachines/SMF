@@ -109,32 +109,32 @@ function template_group_requests_block()
 	// ]]></script>';
 }
 
-function template_watched_users()
+function template_watched_members()
 {
 	global $context, $txt, $scripturl;
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="watched_users_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
-				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
+				<span id="watched_members_toggle" class="', !empty($context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_members_link">', $txt['mc_watched_members'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg" id="watched_users_panel">
+		<div class="windowbg" id="watched_members_panel">
 			<div class="content modbox">
 				<ul class="reset">';
 
-		foreach ($context['watched_users'] as $user)
+		foreach ($context['watched_members'] as $user)
 			echo '
 					<li>
 						<span class="smalltext">', sprintf(!empty($user['last_login']) ? $txt['mc_seen'] : $txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
 					</li>';
 
 		// Don't have any watched users right now?
-		if (empty($context['watched_users']))
+		if (empty($context['watched_members']))
 			echo '
 					<li>
-						<strong class="smalltext">', $txt['mc_watched_users_none'], '</strong>
+						<strong class="smalltext">', $txt['mc_watched_members_none'], '</strong>
 					</li>';
 
 		echo '
@@ -147,20 +147,20 @@ function template_watched_users()
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
 			aSwappableContainers: [
-				\'watched_users_panel\'
+				\'watched_members_panel\'
 			],
 			aSwapImages: [
 				{
-					sId: \'watched_users_toggle\',
+					sId: \'watched_members_toggle\',
 					altExpanded: ', JavaScriptEscape($txt['hide']), ',
 					altCollapsed: ', JavaScriptEscape($txt['show']), '
 				}
 			],
 			aSwapLinks: [
 				{
-					sId: \'watched_users_link\',
-					msgExpanded: ', JavaScriptEscape($txt['mc_watched_users']), ',
-					msgCollapsed: ', JavaScriptEscape($txt['mc_watched_users']), '
+					sId: \'watched_members_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_watched_members']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_watched_members']), '
 				}
 			],
 			oThemeOptions: {
@@ -338,14 +338,14 @@ function template_user_watch_post_callback($post)
 
 	if ($post['can_delete'])
 		$output_html .= '
-							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['mc_watched_users_delete_post'] . '\');">' . $delete_button . '</a>
+							<a href="' . $scripturl . '?action=moderate;area=userwatch;sa=post;delete=' . $post['id'] . ';start=' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['mc_watched_members_delete_post'] . '\');">' . $delete_button . '</a>
 							<input type="checkbox" name="delete[]" value="' . $post['id'] . '" class="input_check">';
 
 	$output_html .= '
 						</div>
 					</div><br>
 					<div class="smalltext">
-						&#171; ' . $txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . ' &#187;
+						&#171; ' . $txt['mc_watched_members_posted'] . ': ' . $post['poster_time'] . ' &#187;
 					</div>
 					<hr>
 					' . $post['body'];

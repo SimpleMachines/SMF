@@ -159,13 +159,13 @@ function ModerationMain($dont_call = false)
 			'enabled' => $context['can_moderate_users'] || ($modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards']),
 			'areas' => array(
 				'userwatch' => array(
-					'label' => $txt['mc_watched_users_title'],
+					'label' => $txt['mc_watched_members_title'],
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
 					'icon' => 'members_watched.png',
 					'subsections' => array(
-						'member' => array($txt['mc_watched_users_member']),
-						'post' => array($txt['mc_watched_users_post']),
+						'member' => array($txt['mc_watched_members_member']),
+						'post' => array($txt['mc_watched_members_post']),
 					),
 				),
 				'reportedmembers' => array(
@@ -295,7 +295,7 @@ function ModBlockWatchedUsers()
 {
 	global $context, $smcFunc, $scripturl, $modSettings;
 
-	if (($watched_users = cache_get_data('recent_user_watches', 240)) === null)
+	if (($watched_members = cache_get_data('recent_member_watches', 240)) === null)
 	{
 		$modSettings['warning_watch'] = empty($modSettings['warning_watch']) ? 1 : $modSettings['warning_watch'];
 		$request = $smcFunc['db_query']('', '
@@ -308,18 +308,18 @@ function ModBlockWatchedUsers()
 				'warning_watch' => $modSettings['warning_watch'],
 			)
 		);
-		$watched_users = array();
+		$watched_members = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$watched_users[] = $row;
+			$watched_members[] = $row;
 		$smcFunc['db_free_result']($request);
 
-		cache_put_data('recent_user_watches', $watched_users, 240);
+		cache_put_data('recent_member_watches', $watched_members, 240);
 	}
 
-	$context['watched_users'] = array();
-	foreach ($watched_users as $user)
+	$context['watched_members'] = array();
+	foreach ($watched_members as $user)
 	{
-		$context['watched_users'][] = array(
+		$context['watched_members'][] = array(
 			'id' => $user['id_member'],
 			'name' => $user['real_name'],
 			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $user['id_member'] . '">' . $user['real_name'] . '</a>',
@@ -328,7 +328,7 @@ function ModBlockWatchedUsers()
 		);
 	}
 
-	return 'watched_users';
+	return 'watched_members';
 }
 
 /**
@@ -951,7 +951,7 @@ function ViewWatchedUsers()
 	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
 
 	// Some important context!
-	$context['page_title'] = $txt['mc_watched_users_title'];
+	$context['page_title'] = $txt['mc_watched_members_title'];
 	$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
 	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
@@ -962,9 +962,9 @@ function ViewWatchedUsers()
 
 	// Put some pretty tabs on cause we're gonna be doing hot stuff here...
 	$context[$context['moderation_menu_name']]['tab_data'] = array(
-		'title' => $txt['mc_watched_users_title'],
+		'title' => $txt['mc_watched_members_title'],
 		'help' => '',
-		'description' => $txt['mc_watched_users_desc'],
+		'description' => $txt['mc_watched_members_desc'],
 	);
 
 	// First off - are we deleting?
@@ -1014,10 +1014,10 @@ function ViewWatchedUsers()
 	// This is all the information required for a watched user listing.
 	$listOptions = array(
 		'id' => 'watch_user_list',
-		'title' => $txt['mc_watched_users_title'] . ' - ' . ($context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
+		'title' => $txt['mc_watched_members_title'] . ' - ' . ($context['view_posts'] ? $txt['mc_watched_members_post'] : $txt['mc_watched_members_member']),
 		'width' => '100%',
 		'items_per_page' => $modSettings['defaultMaxMessages'],
-		'no_items_label' => $context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
+		'no_items_label' => $context['view_posts'] ? $txt['mc_watched_members_no_posts'] : $txt['mc_watched_members_none'],
 		'base_href' => $scripturl . '?action=moderate;area=userwatch;sa=' . ($context['view_posts'] ? 'post' : 'member'),
 		'default_sort_col' => $context['view_posts'] ? '' : 'member',
 		'get_items' => array(
@@ -1037,7 +1037,7 @@ function ViewWatchedUsers()
 		'columns' => array(
 			'member' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_member'],
+					'value' => $txt['mc_watched_members_member'],
 				),
 				'data' => array(
 					'sprintf' => array(
@@ -1055,7 +1055,7 @@ function ViewWatchedUsers()
 			),
 			'warning' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_warning'],
+					'value' => $txt['mc_watched_members_warning'],
 				),
 				'data' => array(
 					'function' => function ($member) use ($scripturl)
@@ -1088,7 +1088,7 @@ function ViewWatchedUsers()
 			),
 			'last_login' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_last_login'],
+					'value' => $txt['mc_watched_members_last_login'],
 				),
 				'data' => array(
 					'db' => 'last_login',
@@ -1100,7 +1100,7 @@ function ViewWatchedUsers()
 			),
 			'last_post' => array(
 				'header' => array(
-					'value' => $txt['mc_watched_users_last_post'],
+					'value' => $txt['mc_watched_members_last_post'],
 				),
 				'data' => array(
 					'function' => function ($member) use ($scripturl)
@@ -1200,11 +1200,11 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 			'sort' => $sort,
 		)
 	);
-	$watched_users = array();
+	$watched_members = array();
 	$members = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$watched_users[$row['id_member']] = array(
+		$watched_members[$row['id_member']] = array(
 			'id' => $row['id_member'],
 			'name' => $row['real_name'],
 			'last_login' => $row['last_login'] ? timeformat($row['last_login']) : $txt['never'],
@@ -1249,8 +1249,8 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				$watched_users[$row['id_member']]['last_post'] = timeformat($row['poster_time']);
-				$watched_users[$row['id_member']]['last_post_id'] = $latest_posts[$row['id_member']];
+				$watched_members[$row['id_member']]['last_post'] = timeformat($row['poster_time']);
+				$watched_members[$row['id_member']]['last_post_id'] = $latest_posts[$row['id_member']];
 			}
 
 			$smcFunc['db_free_result']($request);
@@ -1270,13 +1270,13 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$watched_users[$row['id_member']]['last_post'] = timeformat($row['last_post']);
-			$watched_users[$row['id_member']]['last_post_id'] = $row['last_post_id'];
+			$watched_members[$row['id_member']]['last_post'] = timeformat($row['last_post']);
+			$watched_members[$row['id_member']]['last_post_id'] = $row['last_post_id'];
 		}
 		$smcFunc['db_free_result']($request);
 	}
 
-	return $watched_users;
+	return $watched_members;
 }
 
 /**
