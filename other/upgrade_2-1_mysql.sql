@@ -126,6 +126,16 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 ---}
 ---#
 
+---# Calculate appropriate hash cost
+---{
+  $smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('bcrypt_hash_cost', hash_benchmark()),
+		array('variable')
+  );
+---}
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
