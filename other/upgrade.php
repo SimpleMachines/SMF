@@ -1333,6 +1333,15 @@ function UpgradeOptions()
 				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
 			)
 		);
+
+		// Cleaning up old karma member settings.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}members
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karma_bad', 'karma_good'),
+			)
+		);
 	}
 
 	// Emptying the error log?

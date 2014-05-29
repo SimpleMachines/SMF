@@ -1051,11 +1051,6 @@ DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
 ---#
 
----# Cleaning up old karma member settings.
-DELETE FROM {$db_prefix}members
-WHERE variable IN ('karma_bad', 'karma_good');
----#
-
 ---# Cleaning up old karma permissions.
 DELETE FROM {$db_prefix}permissions
 WHERE variable IN ('karma_edit');
