@@ -211,7 +211,7 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Delete any drafts...
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}user_drafts
+		DELETE FROM {db_prefix}member_drafts
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,

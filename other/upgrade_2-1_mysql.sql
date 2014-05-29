@@ -770,7 +770,7 @@ ALTER TABLE `{$db_prefix}members`
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating draft table
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_drafts (
   id_draft int(10) unsigned NOT NULL auto_increment,
   id_topic mediumint(8) unsigned NOT NULL default '0',
   id_board smallint(5) unsigned NOT NULL default '0',

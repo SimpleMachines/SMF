@@ -20,7 +20,7 @@ if (!defined('SMF'))
 loadLanguage('Drafts');
 
 /**
- * Saves a post draft in the user_drafts table
+ * Saves a post draft in the member_drafts table
  * The core draft feature must be enabled, as well as the post draft option
  * Determines if this is a new or an existing draft
  * Returns errors in $post_errors for display in the template
@@ -70,7 +70,7 @@ function SaveDraft(&$post_errors)
 	if (!empty($id_draft) && !empty($draft_info) && $draft_info['id_member'] == $user_info['id'])
 	{
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}user_drafts
+			UPDATE {db_prefix}member_drafts
 			SET
 				id_topic = {int:id_topic},
 				id_board = {int:id_board},
@@ -107,7 +107,7 @@ function SaveDraft(&$post_errors)
 	else
 	{
 		$smcFunc['db_insert']('',
-			'{db_prefix}user_drafts',
+			'{db_prefix}member_drafts',
 			array(
 				'id_topic' => 'int',
 				'id_board' => 'int',
@@ -140,7 +140,7 @@ function SaveDraft(&$post_errors)
 		);
 
 		// get the id of the new draft
-		$id_draft = $smcFunc['db_insert_id']('{db_prefix}user_drafts', 'id_draft');
+		$id_draft = $smcFunc['db_insert_id']('{db_prefix}member_drafts', 'id_draft');
 
 		// everything go as expected?
 		if (!empty($id_draft))
@@ -166,7 +166,7 @@ function SaveDraft(&$post_errors)
 }
 
 /**
- * Saves a PM draft in the user_drafts table
+ * Saves a PM draft in the member_drafts table
  * The core draft feature must be enabled, as well as the pm draft option
  * Determines if this is a new or and update to an existing pm draft
  *
@@ -221,7 +221,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	if (!empty($id_pm_draft) && !empty($draft_info) && $draft_info['id_member'] == $user_info['id'])
 	{
 		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}user_drafts
+			UPDATE {db_prefix}member_drafts
 			SET id_reply = {int:id_reply},
 				type = {int:type},
 				poster_time = {int:poster_time},
@@ -249,7 +249,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 	else
 	{
 		$smcFunc['db_insert']('',
-			'{db_prefix}user_drafts',
+			'{db_prefix}member_drafts',
 			array(
 				'id_reply' => 'int',
 				'type' => 'int',
@@ -274,7 +274,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 		);
 
 		// get the new id
-		$id_pm_draft = $smcFunc['db_insert_id']('{db_prefix}user_drafts', 'id_draft');
+		$id_pm_draft = $smcFunc['db_insert_id']('{db_prefix}member_drafts', 'id_draft');
 
 		// everything go as expected, if not toss back an error
 		if (!empty($id_pm_draft))
@@ -297,7 +297,7 @@ function SavePMDraft(&$post_errors, $recipientList)
 }
 
 /**
- * Reads a draft in from the user_drafts table
+ * Reads a draft in from the member_drafts table
  * Validates that the draft is the user''s draft
  * Optionally loads the draft in to context or superglobal for loading in to the form
  *
@@ -322,7 +322,7 @@ function ReadDraft($id_draft, $type = 0, $check = true, $load = false)
 	// load in this draft from the DB
 	$request = $smcFunc['db_query']('', '
 		SELECT *
-		FROM {db_prefix}user_drafts
+		FROM {db_prefix}member_drafts
 		WHERE id_draft = {int:id_draft}' . ($check ? '
 			AND id_member = {int:id_member}' : '') . '
 			AND type = {int:type}' . (!empty($modSettings['drafts_keep_days']) ? '
@@ -404,7 +404,7 @@ function DeleteDraft($id_draft, $check = true)
 		return false;
 
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}user_drafts
+		DELETE FROM {db_prefix}member_drafts
 		WHERE id_draft IN ({array_int:id_draft})' . ($check ? '
 			AND  id_member = {int:id_member}' : ''),
 		array (
@@ -442,7 +442,7 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 	// load the drafts this user has available
 	$request = $smcFunc['db_query']('', '
 		SELECT *
-		FROM {db_prefix}user_drafts
+		FROM {db_prefix}member_drafts
 		WHERE id_member = {int:id_member}' . ((!empty($topic) && empty($draft_type)) ? '
 			AND id_topic = {int:id_topic}' : (!empty($topic) ? '
 			AND id_reply = {int:id_topic}' : '')) . '
@@ -521,7 +521,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$id_delete = (int) $_REQUEST['delete'];
 
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}user_drafts
+			DELETE FROM {db_prefix}member_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
 				AND type = {int:draft_type}
@@ -544,7 +544,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	// @todo .. should we just let them see their drafts even if they have lost board access ?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_draft)
-		FROM {db_prefix}user_drafts AS ud
+		FROM {db_prefix}member_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
@@ -580,7 +580,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 		SELECT
 			b.id_board, b.name AS bname,
 			ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
-		FROM {db_prefix}user_drafts AS ud
+		FROM {db_prefix}member_drafts AS ud
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
@@ -672,7 +672,7 @@ function showPMDrafts($memID = -1)
 		$start = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}user_drafts
+			DELETE FROM {db_prefix}member_drafts
 			WHERE id_draft = {int:id_draft}
 				AND id_member = {int:id_member}
 				AND type = {int:draft_type}
@@ -703,7 +703,7 @@ function showPMDrafts($memID = -1)
 	// Get the count of applicable drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_draft)
-		FROM {db_prefix}user_drafts
+		FROM {db_prefix}member_drafts
 		WHERE id_member = {int:id_member}
 			AND type={int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : ''),
@@ -735,7 +735,7 @@ function showPMDrafts($memID = -1)
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.id_reply, ud.to_list
-		FROM {db_prefix}user_drafts AS ud
+		FROM {db_prefix}member_drafts AS ud
 		WHERE ud.id_member = {int:current_member}
 			AND type = {int:draft_type}' . (!empty($modSettings['drafts_keep_days']) ? '
 			AND poster_time > {int:time}' : '') . '
