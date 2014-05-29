@@ -1342,6 +1342,15 @@ function UpgradeOptions()
 				'karma_vars' => array('karma_bad', 'karma_good'),
 			)
 		);
+
+		// Cleaning up old karma permissions.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}members
+			WHERE variable = {string:karma_vars}',
+			array(
+				'karma_vars' => 'karma_edit',
+			)
+		);
 	}
 
 	// Emptying the error log?
