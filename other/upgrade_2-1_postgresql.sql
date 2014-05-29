@@ -839,10 +839,10 @@ ALTER TABLE `{$db_prefix}members`
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+CREATE SEQUENCE {$db_prefix}member_drafts_seq;
 
-CREATE TABLE {$db_prefix}user_drafts (
-	id_draft int NOT NULL default nextval('{$db_prefix}user_drafts_seq'),
+CREATE TABLE {$db_prefix}member_drafts (
+	id_draft int NOT NULL default nextval('{$db_prefix}member_drafts_seq'),
 	id_topic int NOT NULL default '0',
 	id_board smallint NOT NULL default '0',
 	id_reply int NOT NULL default '0',
@@ -858,7 +858,7 @@ CREATE TABLE {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL default '',
 	PRIMARY KEY (id_draft)
 );
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}member_drafts_id_member ON {$db_prefix}member_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...

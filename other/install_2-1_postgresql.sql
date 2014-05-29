@@ -2658,17 +2658,17 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 # --------------------------------------------------------
 
 #
-# Sequence for table `user_drafts`
+# Sequence for table `member_drafts`
 #
 
-CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+CREATE SEQUENCE {$db_prefix}member_drafts_seq;
 
 #
-# Table structure for table `user_drafts`
+# Table structure for table `member_drafts`
 #
 
-CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int default nextval('{$db_prefix}user_drafts_seq'),
+CREATE TABLE {$db_prefix}member_drafts (
+  id_draft int default nextval('{$db_prefix}member_drafts_seq'),
   id_topic int NOT NULL default '0',
   id_board smallint NOT NULL default '0',
   id_reply int NOT NULL default '0',
@@ -2686,10 +2686,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 );
 
 #
-# Indexes for table `user_drafts`
+# Indexes for table `member_drafts`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}member_drafts_id_member ON {$db_prefix}member_drafts (id_member, id_draft, type);
 
 #
 # Table structure for table `user_likes`

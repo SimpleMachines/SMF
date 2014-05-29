@@ -2266,10 +2266,10 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_drafts`
+# Table structure for table `member_drafts`
 #
 
-CREATE TABLE {$db_prefix}user_drafts (
+CREATE TABLE {$db_prefix}member_drafts (
   id_draft int primary key,
   id_topic int unsigned NOT NULL default '0',
   id_board smallint unsigned NOT NULL default '0',
@@ -2287,10 +2287,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 );
 
 #
-# Indexes for table `user_drafts`
+# Indexes for table `member_drafts`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}member_drafts_id_member ON {$db_prefix}member_drafts (id_member, id_draft, type);
 
 #
 # Table structure for table `user_likes`

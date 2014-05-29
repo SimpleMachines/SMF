@@ -1834,7 +1834,7 @@ function MaintainRemoveOldDrafts()
 	// Find all of the old drafts
 	$request = $smcFunc['db_query']('', '
 		SELECT id_draft
-		FROM {db_prefix}user_drafts
+		FROM {db_prefix}member_drafts
 		WHERE poster_time <= {int:poster_time_old}',
 		array(
 			'poster_time_old' => time() - (86400 * $_POST['draftdays']),
