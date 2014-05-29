@@ -26,8 +26,7 @@ if (!defined('SMF'))
  *   - removes all log entries concerning the deleted members, except the
  * error logs, ban logs and moderation logs.
  *   - removes these members' personal messages (only the inbox), avatars,
- * ban entries, theme settings, moderator positions, poll votes, and
- * karma votes.
+ * ban entries, theme settings, moderator positions, poll and votes.
  *   - updates member statistics afterwards.
  *
  * @param array $users
@@ -256,14 +255,6 @@ function deleteMembers($users, $check_not_admin = false)
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_group_requests
 		WHERE id_member IN ({array_int:users})',
-		array(
-			'users' => $users,
-		)
-	);
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_karma
-		WHERE id_target IN ({array_int:users})
-			OR id_executor IN ({array_int:users})',
 		array(
 			'users' => $users,
 		)
@@ -686,7 +677,7 @@ function registerMember(&$regOptions, $return_errors = false)
 	// Right, now let's prepare for insertion.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'show_online', 'pm_email_notify', 'karma_good', 'karma_bad',
+		'new_pm', 'pm_prefs', 'show_online', 'pm_email_notify',
 		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);

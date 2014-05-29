@@ -302,10 +302,6 @@ function MaintainEmptyUnimportantLogs()
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_floodcontrol');
 
-	// Clear out the karma actions.
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}log_karma');
-
 	// Last but not least, the search logs!
 	$smcFunc['db_query']('truncate_table', '
 		TRUNCATE {db_prefix}log_search_topics');

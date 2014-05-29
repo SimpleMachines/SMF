@@ -585,22 +585,6 @@ function template_single_post($message, $force_alternate = null)
 			echo '
 								<li class="postcount">', $txt['member_postcount'], ': ', $message['member']['posts'], '</li>';
 
-		// Is karma display enabled?  Total or +/-?
-		if ($modSettings['karmaMode'] == '1')
-			echo '
-								<li class="karma">', $modSettings['karmaLabel'], ' ', $message['member']['karma']['good'] - $message['member']['karma']['bad'], '</li>';
-		elseif ($modSettings['karmaMode'] == '2')
-			echo '
-								<li class="karma">', $modSettings['karmaLabel'], ' +', $message['member']['karma']['good'], '/-', $message['member']['karma']['bad'], '</li>';
-
-		// Is this user allowed to modify this member's karma?
-		if ($message['member']['karma']['allow'])
-			echo '
-								<li class="karma_allow">
-									<a href="', $scripturl, '?action=modifykarma;sa=applaud;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.' . $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaApplaudLabel'], '</a>
-									<a href="', $scripturl, '?action=modifykarma;sa=smite;uid=', $message['member']['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';m=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $modSettings['karmaSmiteLabel'], '</a>
-								</li>';
-
 		// Show their personal text?
 		if (!empty($modSettings['show_blurb']) && $message['member']['blurb'] != '')
 			echo '
@@ -852,32 +836,36 @@ function template_single_post($message, $force_alternate = null)
 								</ul>';
 
 	// What about likes?
-	echo '
+	if (!empty($modSettings['enable_likes']))
+	{
+		echo '
 								<ul class="floatleft">';
-	if (!empty($message['likes']['can_like']))
-	{
-		echo '
-									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
-	}
 
-	if (!empty($message['likes']['count']))
-	{
-		$context['some_likes'] = true;
-		$count = $message['likes']['count'];
-		$base = 'likes_';
-		if ($message['likes']['you'])
+		if (!empty($message['likes']['can_like']) && !empty($context['can_like']))
 		{
-			$base = 'you_' . $base;
-			$count--;
+			echo '
+									<li class="like_button" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $message['likes']['you'] ? 'unlike' : 'like', '"></span>', $message['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 		}
-		$base .= (isset($txt[$base . $count])) ? $count : 'n';
+
+		if (!empty($message['likes']['count']) && !empty($context['can_see_likes']))
+		{
+			$context['some_likes'] = true;
+			$count = $message['likes']['count'];
+			$base = 'likes_';
+			if ($message['likes']['you'])
+			{
+				$base = 'you_' . $base;
+				$count--;
+			}
+			$base .= (isset($txt[$base . $count])) ? $count : 'n';
+
+			echo '
+									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+		}
 
 		echo '
-									<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
-	}
-
-	echo '
 								</ul>';
+	}
 
 	// Show the quickbuttons, for various operations on posts.
 	if ($message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])

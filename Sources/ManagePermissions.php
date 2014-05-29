@@ -1123,7 +1123,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Standard - ie. members.  They can do anything Restrictive can.
 	$groupLevels['global']['standard'] = array_merge($groupLevels['global']['restrict'], array(
 		'view_mlist',
-		'karma_edit',
+		'likes_view',
+		'likes_like',
 		'pm_read',
 		'pm_send',
 		'profile_view',
@@ -1421,6 +1422,7 @@ function loadAllPermissions()
 			'maintenance',
 			'member_admin',
 			'profile',
+			'likes',
 		),
 		'board' => array(
 			'general_board',
@@ -1446,7 +1448,6 @@ function loadAllPermissions()
 			'view_mlist' => array(false, 'general'),
 			'who_view' => array(false, 'general'),
 			'search_posts' => array(false, 'general'),
-			'karma_edit' => array(false, 'general'),
 			'pm_read' => array(false, 'pm'),
 			'pm_send' => array(false, 'pm'),
 			'pm_draft' => array(false, 'pm'),
@@ -1481,6 +1482,8 @@ function loadAllPermissions()
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
 			'view_warning' => array(true, 'profile_account'),
+			'likes_view' => array(false, 'likes'),
+			'likes_like' => array(false, 'likes'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),
@@ -1544,8 +1547,6 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'issue_warning';
 		$hiddenPermissions[] = 'view_warning';
 	}
-	if (empty($modSettings['karmaMode']))
-		$hiddenPermissions[] = 'karma_edit';
 
 	// Post moderation?
 	if (!$modSettings['postmod_active'])
@@ -2193,7 +2194,6 @@ function loadIllegalGuestPermissions()
 		'delete_replies',
 		'edit_news',
 		'issue_warning',
-		'karma_edit',
 		'lock',
 		'make_sticky',
 		'manage_attachments',

@@ -710,7 +710,12 @@ function template_servers()
 		</div>
 		<br>
 		<div class="cat_bar">
-			<h3 class="catbg"><a class="download_new_package">', $txt['download_new_package'], '</a></h3>
+			<h3 class="catbg">
+				<a class="download_new_package">
+					<span class="toggle_down floatright" alt="*" title="', $txt['show'], '"></span>
+					', $txt['download_new_package'], '
+				</a>
+			</h3>
 		</div>
 		<div class="new_package_content">';
 

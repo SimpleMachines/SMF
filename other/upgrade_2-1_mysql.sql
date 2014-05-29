@@ -938,7 +938,6 @@ WHERE variable = 'avatar_action_too_large'
 		// Now, let's just recap something.
 		// cd = calendar, should also have set cal_enabled already
 		// cp = custom profile fields, which already has several fields that cover tracking
-		// k = karma, should also have set karmaMode already
 		// ps = paid subs, should also have set paid_enabled already
 		// rg = reports generation, which is now permanently on
 		// sp = spider tracking, should also have set spider_mode already

@@ -1308,6 +1308,37 @@ function UpgradeOptions()
 			)
 		);
 
+	// Deleting old karma stuff?
+	if (!empty($_POST['delete_karma']))
+	{
+		// Delete old settings vars.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
+			)
+		);
+
+		// Cleaning up old karma member settings.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}members
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karma_bad', 'karma_good'),
+			)
+		);
+
+		// Cleaning up old karma permissions.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}members
+			WHERE variable = {string:karma_vars}',
+			array(
+				'karma_vars' => 'karma_edit',
+			)
+		);
+	}
+
 	// Emptying the error log?
 	if (!empty($_POST['empty_error']))
 		$smcFunc['db_query']('truncate_table', '
@@ -3995,6 +4026,14 @@ function template_upgrade_options()
 						</td>
 						<td width="100%">
 							<label for="empty_error">Empty error log before upgrading</label>
+						</td>
+					</tr>
+					<tr valign="top">
+						<td width="2%">
+							<input type="checkbox" name="delete_karma" id="delete_karma" value="1" class="input_check">
+						</td>
+						<td width="100%">
+							<label for="empty_error">Delete all karma settings and info from the DB</label>
 						</td>
 					</tr>
 					<tr valign="top">

@@ -236,30 +236,6 @@ function loadProfileFields($force_reload = false)
 				return true;
 			},
 		),
-		'karma_good' => array(
-			'type' => 'callback',
-			'callback_func' => 'karma_modify',
-			'permission' => 'admin_forum',
-			// Set karma_bad too!
-			'input_validate' => function (&$value) use (&$profile_vars, &$cur_profile)
-			{
-				$value = (int) $value;
-				if (isset($_POST['karma_bad']))
-				{
-					$profile_vars['karma_bad'] = $_POST['karma_bad'] != '' ? (int) $_POST['karma_bad'] : 0;
-					$cur_profile['karma_bad'] = $_POST['karma_bad'] != '' ? (int) $_POST['karma_bad'] : 0;
-				}
-				return true;
-			},
-			'preload' => function () use (&$context, $cur_profile)
-			{
-				$context['member']['karma']['good'] = $cur_profile['karma_good'];
-				$context['member']['karma']['bad'] = $cur_profile['karma_bad'];
-
-				return true;
-			},
-			'enabled' => !empty($modSettings['karmaMode']),
-		),
 		'lngfile' => array(
 			'type' => 'select',
 			'options' => 'return $context[\'profile_languages\'];',
@@ -1685,7 +1661,6 @@ function forumProfile($memID)
 		array(
 			'avatar_choice', 'hr', 'personal_text', 'hr',
 			'bday1', 'usertitle', 'signature', 'hr',
-			'karma_good', 'hr',
 			'website_title', 'website_url',
 		)
 	);
