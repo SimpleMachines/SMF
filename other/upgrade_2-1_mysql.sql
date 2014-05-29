@@ -505,7 +505,7 @@ ADD COLUMN alerts int(10) unsigned NOT NULL default '0';
 ---#
 
 ---# Adding the new table for alerts.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_alerts (
   id_alert int(10) unsigned NOT NULL auto_increment,
   alert_time int(10) unsigned NOT NULL default '0',
   id_member mediumint(10) unsigned NOT NULL default '0',
@@ -523,14 +523,14 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_alerts_prefs (
   id_member mediumint(8) unsigned NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
   alert_value tinyint(3) NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 ) ENGINE=MyISAM;
 
-INSERT INTO {$db_prefix}user_alerts_prefs
+INSERT INTO {$db_prefix}member_alerts_prefs
 	(id_member, alert_pref, alert_value)
 VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),

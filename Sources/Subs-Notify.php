@@ -40,7 +40,7 @@ function getNotifyPrefs($members, $prefs = '', $process_default = false)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, alert_pref, alert_value
-		FROM {db_prefix}user_alerts_prefs
+		FROM {db_prefix}member_alerts_prefs
 		WHERE id_member IN ({array_int:members})' . (!empty($prefs) ? '
 			AND alert_pref IN ({array_string:prefs})' : ''),
 		array(
@@ -84,7 +84,7 @@ function setNotifyPrefs($memID, $prefs = array())
 		$update_rows[] = array($memID, $k, $v);
 
 	$smcFunc['db_insert']('replace',
-		'{db_prefix}user_alerts_prefs',
+		'{db_prefix}member_alerts_prefs',
 		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
 		$update_rows,
 		array('id_member', 'alert_pref')

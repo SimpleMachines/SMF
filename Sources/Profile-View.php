@@ -207,7 +207,7 @@ function fetch_alerts($memID, $all = false)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert, alert_time, mem.id_member AS sender_id, IFNULL(mem.real_name, ua.member_name) AS sender_name,
 			content_type, content_id, content_action, is_read, extra
-		FROM {db_prefix}user_alerts AS ua
+		FROM {db_prefix}member_alerts AS ua
 			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
 		WHERE ua.id_member = {int:id_member}' . (!$all ? '
 			AND is_read = 0' : '') . '
