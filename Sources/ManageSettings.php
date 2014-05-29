@@ -1260,11 +1260,12 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'disabled\'] ? \'\' : \' checked\';
-						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\' onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
-						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>\', $rowData[\'id\'], $isChecked, $onClickHandler);
-					'),
+					'function' => function ($rowData)
+					{
+						$isChecked = $rowData['disabled'] ? '' : ' checked';
+						$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
+						return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
+					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',
 				),
@@ -1275,11 +1276,12 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'on_register\'] && !$rowData[\'disabled\'] ? \' checked\' : \'\';
-						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled\';
-						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s>\', $rowData[\'id\'], $isChecked, $isDisabled);
-					'),
+					'function' => function ($rowData)
+					{
+						$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
+						$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
+						return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
+					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',
 				),
@@ -1321,21 +1323,20 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl, $context, $txt;
+					'function' => function ($rowData) use ($context, $txt, $scripturl)
+					{
+						$return = '<p class="centertext bold_text">'. $rowData['field_order'] .'<br />';
 
-						$return = \'<p class="centertext bold_text">\'. $rowData[\'field_order\'] .\'<br />\';
+						if ($rowData['field_order'] > 1)
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_up'] .'"></span></a>';
 
-						if ($rowData[\'field_order\'] > 1)
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=up"><span class="toggle_up" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_up\'] .\'"></span></a>\';
+						if ($rowData['field_order'] < $context['custFieldsMaxOrder'])
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_down'] .'"></span></a>';
 
-						if ($rowData[\'field_order\'] < $context[\'custFieldsMaxOrder\'])
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=down"><span class="toggle_down" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_down\'] .\'"></span></a>\';
-
-						$return .= \'</p>\';
+						$return .= '</p>';
 
 						return $return;
-					'),
+					},
 					'style' => 'width: 12%;',
 				),
 				'sort' => array(
@@ -1348,11 +1349,10 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldname'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
-						return sprintf(\'<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>\', $scripturl, $rowData[\'id_field\'], $rowData[\'field_name\'], $rowData[\'field_desc\']);
-					'),
+					'function' => function ($rowData) use ($scripturl)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
+					},
 					'style' => 'width: 62%;',
 				),
 				'sort' => array(
@@ -1365,12 +1365,11 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldtype'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						$textKey = sprintf(\'custom_profile_type_%1$s\', $rowData[\'field_type\']);
+					'function' => function ($rowData) use ($txt)
+					{
+						$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
-					'),
+					},
 					'style' => 'width: 15%;',
 				),
 				'sort' => array(
@@ -1383,11 +1382,10 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_active'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return $rowData[\'active\'] ? $txt[\'yes\'] : $txt[\'no\'];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return $rowData['active'] ? $txt['yes'] : $txt['no'];
+					},
 					'style' => 'width: 8%;',
 				),
 				'sort' => array(
@@ -1400,11 +1398,10 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return $txt[\'custom_profile_placement_\' . (empty($rowData[\'placement\']) ? \'standard\' : ($rowData[\'placement\'] == 1 ? \'withicons\' : \'abovesignature\'))];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : ($rowData['placement'] == 1 ? 'withicons' : 'abovesignature'))];
+					},
 					'style' => 'width: 8%;',
 				),
 				'sort' => array(

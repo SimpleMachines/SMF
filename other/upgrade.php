@@ -15,7 +15,7 @@
 define('SMF_VERSION', '2.1 Alpha 1');
 define('SMF_LANG_VERSION', '2.1 Alpha 1');
 
-$GLOBALS['required_php_version'] = '5.3.2';
+$GLOBALS['required_php_version'] = '5.3.7';
 $GLOBALS['required_mysql_version'] = '4.0.18';
 
 $databases = array(
@@ -612,8 +612,6 @@ $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSetting
 // Default title...
 $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SMF Install!' : 'Upgrading from YaBB SE!';
 
-$upcontext['right_to_left'] = isset($txt['lang_rtl']) ? $txt['lang_rtl'] : false;
-
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
@@ -1151,19 +1149,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				// Figure out the password using SMF's encryption - if what they typed is right.
-				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
-				{
-					// This is needed for validateToken, but isn't always included for some reason...
-					include_once($sourcedir . '/Security.php');
-
-					// Challenge passed.
-					$tk = validateToken('login');
-					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))
-						$sha_passwd = $password;
-				}
-				else
-					$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
 			}
 			else
 				$upcontext['username_incorrect'] = true;
@@ -1185,7 +1171,7 @@ function checkLogin()
 			$upcontext['user']['version'] = $modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if ((empty($sha_passwd) || $password != $sha_passwd) && empty($upcontext['username_incorrect']) && !$disable_security)
+		if ((empty($sha_passwd) || $password != $sha_passwd) && !hash_verify_password($name, $_REQUEST['passwrd'], $password) && empty($upcontext['username_incorrect']) && !$disable_security)
 		{
 			// MD5?
 			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));
@@ -3519,7 +3505,7 @@ function template_chmod()
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
-					content.write(\'<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
+					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
@@ -3586,14 +3572,15 @@ function template_upgrade_above()
 	global $modSettings, $txt, $smfsite, $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
-<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-				<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script><!-- // --><![CDATA[
 			var smf_scripturl = \'', $upgradeurl, '\';
 			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
@@ -3793,9 +3780,8 @@ function template_welcome_message()
 
 	echo '
 		<script src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
-	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($upcontext['login_token']) ? $upcontext['login_token'] : '') . '\');"' : '', '>
+	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>

@@ -158,9 +158,6 @@ function KickGuest()
 	loadTemplate('Login');
 	createToken('login');
 
-	// Need some js goodies.
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
-
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
@@ -181,7 +178,6 @@ function InMaintenance()
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
@@ -567,7 +563,7 @@ function resetPassword($memID, $username = null)
 
 	// Generate a random password.
 	$newPassword = substr(preg_replace('/\W/', '', md5(mt_rand())), 0, 10);
-	$newPassword_sha1 = sha1(strtolower($user) . $newPassword);
+	$newPassword_sha1 = hash_password($user, $newPassword);
 
 	// Do some checks on the username if needed.
 	if ($username !== null)
@@ -808,20 +804,61 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 	call_integration_hook('integrate_cookie', array($name, $value, $expire, $path, $domain, $secure, $httponly));
 
 	// This function is pointless if we have PHP >= 5.2.
-	if (version_compare(PHP_VERSION, '5.2', '>='))
-		return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
-
-	// $httponly is the only reason I made this function. If it's not being used, use setcookie().
-	if (!$httponly)
-		return setcookie($name, $value, $expire, $path, $domain, $secure);
-
-	// Ugh, looks like we have to resort to using a manual process.
-	header('Set-Cookie: '.rawurlencode($name).'='.rawurlencode($value)
-			.(empty($domain) ? '' : '; Domain='.$domain)
-			.(empty($expire) ? '' : '; Max-Age='.$expire)
-			.(empty($path) ? '' : '; Path='.$path)
-			.(!$secure ? '' : '; Secure')
-			.(!$httponly ? '' : '; HttpOnly'), false);
+	return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
 }
 
+/**
+ * Hashes username with password
+ *
+ * @param string $username
+ * @param string $password
+ * @return string
+ */
+function hash_password($username, $password)
+{
+	global $sourcedir, $smcFunc;
+	if (!function_exists('password_hash'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_hash($smcFunc['strtolower']($username) . $password, PASSWORD_BCRYPT);
+}
+
+/**
+ * Hashes password with salt, this is solely used for cookies.
+ *
+ * @param string $password
+ * @param string $salt
+ * @return string
+ */
+function hash_salt($password, $salt)
+{
+	return hash('sha512', $password . $salt);
+}
+
+/**
+ * Verifies a raw SMF password against the bcrypt'd string
+ *
+ * @param string $username
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ */
+function hash_verify_password($username, $password, $hash)
+{
+	global $sourcedir, $smcFunc;
+	if (!function_exists('password_verify'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_verify($smcFunc['strtolower']($username) . $password, $hash);
+}
+
+/**
+ * Returns the length for current hash
+ *
+ * @return int
+ */
+function hash_length()
+{
+	return 60;
+}
 ?>

@@ -93,34 +93,33 @@ function GroupList()
 					'value' => $txt['name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
+					'function' => function ($rowData) use ($scripturl)
+					{
 						// Since the moderator group has no explicit members, no link is needed.
-						if ($rowData[\'id_group\'] == 3)
-							$group_name = $rowData[\'group_name\'];
+						if ($rowData['id_group'] == 3)
+							$group_name = $rowData['group_name'];
 						else
 						{
-							$color_style = empty($rowData[\'online_color\']) ? \'\' : sprintf(\' style="color: %1$s;"\', $rowData[\'online_color\']);
+							$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
 
-							if (allowedTo(\'manage_membergroups\'))
+							if (allowedTo('manage_membergroups'))
 							{
-								$group_name = sprintf(\'<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+								$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 							else
 							{
-								$group_name = sprintf(\'<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+								$group_name = sprintf('<a href="%1$s?action=groups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 							}
 						}
 
 						// Add a help option for moderator and administrator.
-						if ($rowData[\'id_group\'] == 1)
-							$group_name .= sprintf(\' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)\', $scripturl);
-						elseif ($rowData[\'id_group\'] == 3)
-							$group_name .= sprintf(\' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)\', $scripturl);
+						if ($rowData['id_group'] == 1)
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
+						elseif ($rowData['id_group'] == 3)
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
 
 						return $group_name;
-					'),
+					},
 				),
 				'sort' => array(
 					'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name',
@@ -144,11 +143,10 @@ function GroupList()
 					'value' => $txt['moderators'],
 				),
 				'data' => array(
-					'function' => create_function('$group', '
-						global $txt;
-
-						return empty($group[\'moderators\']) ? \'<em>\' . $txt[\'membergroups_new_copy_none\'] . \'</em>\' : implode(\', \', $group[\'moderators\']);
-					'),
+					'function' => function ($group) use ($txt)
+					{
+						return empty($group['moderators']) ? '<em>' . $txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
+					},
 				),
 			),
 			'members' => array(
@@ -156,12 +154,11 @@ function GroupList()
 					'value' => $txt['membergroups_members_top'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
+					'function' => function ($rowData) use ($txt)
+					{
 						// No explicit members for the moderator group.
-						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : comma_format($rowData[\'num_members\']);
-					'),
+						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
+					},
 					'class' => 'centercol',
 				),
 				'sort' => array(

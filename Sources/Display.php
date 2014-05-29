@@ -1316,7 +1316,7 @@ function prepareDisplayContext($reset = false)
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
-	$memberContext[$message['id_member']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
+	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty($modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
 
 	// Do the censor thang.
 	censorText($message['body']);
@@ -1551,11 +1551,20 @@ function Download()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
+			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r", $buffer);
+			};
 		else
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\n", $buffer);
+			};
 	}
 
 	// Since we don't do output compression for files this large...

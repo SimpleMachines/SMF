@@ -2248,14 +2248,13 @@ function list_integration_hooks()
 					'value' => $txt['hooks_field_function_name'],
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						global $txt;
-
-						if (!empty($data[\'included_file\']))
-							return $txt[\'hooks_field_function\'] . \': \' . $data[\'real_function\'] . \'<br>\' . $txt[\'hooks_field_included_file\'] . \': \' . $data[\'included_file\'] . (!empty($data[\'instance\']) ? \'<br>\'. $txt[\'hooks_field_function_method\'] : \'\');
+					'function' => function ($data) use ($txt)
+					{
+						if (!empty($data['included_file']))
+							return $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'] . (!empty($data['instance']) ? '<br>'. $txt['hooks_field_function_method'] : '');
 						else
-							return $data[\'real_function\'];
-					'),
+							return $data['real_function'];
+					},
 				),
 				'sort' =>  array(
 					'default' => 'function_name',
@@ -2280,17 +2279,16 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						global $txt, $settings, $scripturl, $context;
-
-						$change_status = array(\'before\' => \'\', \'after\' => \'\');
-						if ($data[\'can_be_disabled\'] && $data[\'status\'] != \'deny\')
+					'function' => function ($data) use ($txt, $settings, $scripturl, $context)
+					{
+						$change_status = array('before' => '', 'after' => '');
+						if ($data['can_be_disabled'] && $data['status'] != 'deny')
 						{
-							$change_status[\'before\'] = \'<a href="\' . $scripturl . \'?action=admin;area=maintain;sa=hooks;do=\' . ($data[\'enabled\'] ? \'disable\' : \'enable\') . \';hook=\' . $data[\'hook_name\'] . \';function=\' . $data[\'real_function\'] . (!empty($data[\'included_file\']) ? \';includedfile=\' . urlencode($data[\'included_file\']) : \'\') . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . javaScriptEscape($txt[\'quickmod_confirm\']) . \');">\';
-							$change_status[\'after\'] = \'</a>\';
+							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . $data['real_function'] . (!empty($data['included_file']) ? ';includedfile=' . urlencode($data['included_file']) : '') . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . javaScriptEscape($txt['quickmod_confirm']) . ');">';
+							$change_status['after'] = '</a>';
 						}
-						return $change_status[\'before\'] . \'<img src="\' . $settings[\'images_url\'] . \'/admin/post_moderation_\' . $data[\'status\'] . \'.png" alt="\' . $data[\'img_text\'] . \'" title="\' . $data[\'img_text\'] . \'">\' . $change_status[\'after\'];
-					'),
+						return $change_status['before'] . '<img src="' . $settings['images_url'] . '/admin/post_moderation_' . $data['status'] . '.png" alt="' . $data['img_text'] . '" title="' . $data['img_text'] . '">' . $change_status['after'];
+					},
 					'class' => 'centertext',
 				),
 				'sort' =>  array(
@@ -2321,15 +2319,14 @@ function list_integration_hooks()
 			'style' => 'width:3%',
 		),
 		'data' => array(
-			'function' => create_function('$data', '
-				global $txt, $scripturl, $context;
-
-				if (!$data[\'hook_exists\'])
-					return \'
-					<a href="\' . $scripturl . \'?action=admin;area=maintain;sa=hooks;do=remove;hook=\' . $data[\'hook_name\'] . \';function=\' . urlencode($data[\'function_name\']) . $context[\'filter_url\'] . \';\' . $context[\'admin-hook_token_var\'] . \'=\' . $context[\'admin-hook_token\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'" onclick="return confirm(\' . JavaScriptEscape($txt[\'quickmod_confirm\']) . \');">
-						<span class="generic_icons delete" title="\' . $txt[\'hooks_button_remove\'] . \'"></span>
-					</a>\';
-			'),
+			'function' => function ($data) use ($txt, $scripturl, $context)
+			{
+				if (!$data['hook_exists'])
+					return '
+					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . JavaScriptEscape($txt['quickmod_confirm']) . ');">
+						<span class="generic_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
+					</a>';
+			},
 			'class' => 'centertext',
 		),
 	);
