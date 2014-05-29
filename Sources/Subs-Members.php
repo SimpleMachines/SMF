@@ -219,7 +219,7 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Delete anything they liked.
 	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}user_likes
+		DELETE FROM {db_prefix}member_likes
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,
