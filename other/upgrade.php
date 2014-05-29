@@ -1334,17 +1334,16 @@ function UpgradeOptions()
 
 		// Cleaning up old karma member settings.
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}members
-			WHERE variable IN ({array_string:karma_vars})',
-			array(
-				'karma_vars' => array('karma_bad', 'karma_good'),
-			)
+			ALTER TABLE {db_prefix}members
+			DROP karma_bad,
+			DROP karma_good',
+			array()
 		);
 
 		// Cleaning up old karma permissions.
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}members
-			WHERE variable = {string:karma_vars}',
+			DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:karma_vars}',
 			array(
 				'karma_vars' => 'karma_edit',
 			)
@@ -2297,7 +2296,7 @@ function php_version_check()
 	$minver = explode('.', $GLOBALS['required_php_version']);
 	$curver = explode('.', PHP_VERSION);
 
-	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2][0] < $minver[2][0]));
+	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2] < $minver[2]));
 }
 
 function db_version_check()
