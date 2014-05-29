@@ -941,6 +941,23 @@ ADD COLUMN likes smallint NOT NULL default '0';
 ---#
 
 /******************************************************************************/
+--- Adding support for mentions
+/******************************************************************************/
+---# Creating mentions table
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned)
+);
+
+CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
+CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
+---#
+
+/******************************************************************************/
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table

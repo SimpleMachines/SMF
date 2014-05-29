@@ -881,6 +881,22 @@ ADD COLUMN likes smallint(5) unsigned NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
+--- Adding support for mentions
+/******************************************************************************/
+---# Creating mentions table
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned),
+  INDEX content (content_id, content_type),
+  INDEX mentionee (id_member)
+) ENGINE=MyISAM;
+---#
+
+/******************************************************************************/
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table

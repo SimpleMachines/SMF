@@ -2147,3 +2147,18 @@ CREATE TABLE {$db_prefix}user_likes (
   INDEX content (content_id, content_type),
   INDEX liker (id_member)
 ) ENGINE=MyISAM;
+
+#
+# Table structure for table `mentions`
+#
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned),
+  INDEX content (content_id, content_type),
+  INDEX mentionee (id_member)
+) ENGINE=MyISAM;
+---#
