@@ -2143,7 +2143,7 @@ function alert_markread($memID)
 	// Assuming we're here, mark everything as read and head back.
 	// We only spit back the little layer because this should be called AJAXively.
 	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}user_alerts
+		UPDATE {db_prefix}member_alerts
 		SET is_read = {int:now}
 		WHERE id_member = {int:current_member}
 			AND is_read = 0',

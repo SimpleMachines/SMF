@@ -2248,10 +2248,10 @@ VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_alerts`
+# Table structure for table `member_alerts`
 #
 
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE {$db_prefix}member_alerts (
   id_alert int primary key,
   alert_time int unsigned NOT NULL default '0',
   id_member int unsigned NOT NULL default '0',
@@ -2266,17 +2266,17 @@ CREATE TABLE {$db_prefix}user_alerts (
 );
 
 #
-# Indexes for table `user_alerts`
+# Indexes for table `member_alerts`
 #
 
-CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
-CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
+CREATE INDEX {$db_prefix}member_alerts_id_member ON {$db_prefix}member_alerts (id_member);
+CREATE INDEX {$db_prefix}member_alerts_alert_time ON {$db_prefix}member_alerts (alert_time);
 
 #
-# Table structure for table `user_alerts_prefs`
+# Table structure for table `member_alerts_prefs`
 #
 
-CREATE TABLE {$db_prefix}user_alerts_prefs (
+CREATE TABLE {$db_prefix}member_alerts_prefs (
   id_member int unsigned NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
   alert_value tinyint(3) NOT NULL default '0',
@@ -2284,14 +2284,14 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 );
 
 #
-# Dumping data for table `user_alerts_prefs`
+# Dumping data for table `member_alerts_prefs`
 #
 
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 # --------------------------------------------------------
 
 #
