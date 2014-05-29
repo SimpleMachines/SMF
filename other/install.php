@@ -1643,6 +1643,11 @@ function DeleteInstall()
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
 	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(dirname(__FILE__)) || is_writable(__FILE__);
 
+	// Update hash's cost to an appropriate setting
+	updateSettings(array(
+		'bcrypt_hash_cost' => hash_benchmark(),
+	));
+
 	return false;
 }
 

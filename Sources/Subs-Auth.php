@@ -812,15 +812,20 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
  *
  * @param string $username
  * @param string $password
+ * @param int $cost
  * @return string
  */
-function hash_password($username, $password)
+function hash_password($username, $password, $cost = null)
 {
-	global $sourcedir, $smcFunc;
+	global $sourcedir, $smcFunc, $modSettings;
 	if (!function_exists('password_hash'))
 		require_once($sourcedir . '/Subs-Password.php');
 
-	return password_hash($smcFunc['strtolower']($username) . $password, PASSWORD_BCRYPT);
+	$cost = empty($cost) ? (empty($modSettings['bcrypt_hash_cost']) ? 10 : $modSettings['bcrypt_hash_cost']) : $cost;
+
+	return password_hash($smcFunc['strtolower']($username) . $password, PASSWORD_BCRYPT, array(
+		'cost' => $cost,
+	));
 }
 
 /**
@@ -861,4 +866,24 @@ function hash_length()
 {
 	return 60;
 }
+
+/**
+ * Benchmarks the server to figure out an appropriate cost factor (minimum 9)
+ *
+ * @param int $hashTime Time to target, in seconds
+ * @return int
+ */
+function hash_benchmark($hashTime = 0.2)
+{
+	$cost = 9;
+	do {
+		$timeStart = microtime(true);
+		hash_password('test', 'thisisatestpassword', $cost);
+		$timeTaken = microtime(true) - $timeStart;
+		$cost++;
+	} while ($timeTaken < $hashTime);
+
+	return $cost;
+}
+
 ?>

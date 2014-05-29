@@ -808,6 +808,9 @@ function loadEssentialData()
 	if (empty($smcFunc))
 		$smcFunc = array();
 
+	// We need this for authentication and some upgrade code
+	require_once($sourcedir . '/Subs-Auth.php');
+
 	// Check we don't need some compatibility.
 	if (@version_compare(PHP_VERSION, '5.1', '<='))
 		require_once($sourcedir . '/Subs-Compat.php');
