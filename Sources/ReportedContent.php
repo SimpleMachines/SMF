@@ -282,7 +282,7 @@ function ReportDetails()
 		$params = array(
 			'lm.extra LIKE {raw:member}
 				AND lm.action LIKE {raw:report}',
-			array('member' => '\'%' . $member . '\'', 'report' => '\'%_user_report\''),
+			array('member' => '\'%' . $member . '\'', 'report' => '\'%_member_report\''),
 			1,
 			true,
 		);

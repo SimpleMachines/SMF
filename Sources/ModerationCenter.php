@@ -727,7 +727,7 @@ function ReportedMembers()
 		$context['report_member_action'] = isset($_GET['ignore']) ? (!empty($_GET['ignore']) ? 'ignore' : 'unignore') : (!empty($_GET['close']) ? 'close' : 'open');
 
 		// Log this action
-		logAction($context['report_member_action'] . '_user_report', $extra);
+		logAction($context['report_member_action'] . '_member_report', $extra);
 
 		// Time to update.
 		updateSettings(array('last_mod_report_action' => time()));
@@ -758,7 +758,7 @@ function ReportedMembers()
 			while ($reports = $smcFunc['db_fetch_assoc']($request))
 			{
 				$logs[] = array(
-					'action' => 'close_user_report',
+					'action' => 'close_member_report',
 					'log_type' => 'moderate',
 					'extra' => array(
 						'report' => $reports['id_report'],

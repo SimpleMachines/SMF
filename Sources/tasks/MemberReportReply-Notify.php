@@ -145,7 +145,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'REPORTLINK' => $scripturl . '?action=moderate;area=userreports;report=' . $this->_details['report_id'],
 				);
 
-				$emaildata = loadEmailTemplate('reply_to_user_reports', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('reply_to_member_reports', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)
