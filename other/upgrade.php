@@ -2284,7 +2284,7 @@ function php_version_check()
 	$minver = explode('.', $GLOBALS['required_php_version']);
 	$curver = explode('.', PHP_VERSION);
 
-	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2][0] < $minver[2][0]));
+	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2] < $minver[2]));
 }
 
 function db_version_check()
