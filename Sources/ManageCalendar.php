@@ -253,6 +253,7 @@ function EditHoliday()
 
 		updateSettings(array(
 			'calendar_updated' => time(),
+			'settings_updated' => time(),
 		));
 
 		redirectexit('action=admin;area=managecalendar;sa=holidays');
