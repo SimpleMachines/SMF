@@ -1322,6 +1322,19 @@ function UpgradeOptions()
 			)
 		);
 
+	// Deleting old karma stuff?
+	if (!empty($_POST['delete_karma']))
+	{
+		// Delete old settings vars.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
+			)
+		);
+	}
+
 	// Emptying the error log?
 	if (!empty($_POST['empty_error']))
 		$smcFunc['db_query']('truncate_table', '
