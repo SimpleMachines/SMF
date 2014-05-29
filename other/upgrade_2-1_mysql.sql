@@ -864,7 +864,7 @@ VALUES
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_likes (
   id_member mediumint(8) unsigned NOT NULL default '0',
   content_type char(6) default '',
   content_id int(10) unsigned NOT NULL default '0',
