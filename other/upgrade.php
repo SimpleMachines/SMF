@@ -811,6 +811,15 @@ function loadEssentialData()
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 
+	$smcFunc['strtolower'] = $db_character_set != 'utf8'  ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
+
 	// Check we don't need some compatibility.
 	if (@version_compare(PHP_VERSION, '5.1', '<='))
 		require_once($sourcedir . '/Subs-Compat.php');
