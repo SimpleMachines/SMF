@@ -101,7 +101,7 @@ $txt['modlog_ac_ignore_report'] = 'Disregarded {report} on &quot;{message}&quot;
 $txt['modlog_ac_open_report'] = 'Reopened {report} on &quot;{message}&quot;';
 $txt['modlog_ac_unignore_report'] = 'Undone disregard of {report} on &quot;{message}&quot;';
 
-// Handling reports on users
+// Handling reports on members
 $txt['modlog_ac_close_member_report'] = 'Closed {report} on profile of {member}';
 $txt['modlog_ac_ignore_member_report'] = 'Disregarded {report} on profile of {member}';
 $txt['modlog_ac_open_member_report'] = 'Reopened {report} on profile of {member}';
