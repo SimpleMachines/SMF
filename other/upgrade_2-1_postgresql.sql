@@ -928,7 +928,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}member_likes (
   id_member int NOT NULL default '0',
   content_type char(6) default '',
   content_id int NOT NULL default '0',
@@ -936,8 +936,8 @@ CREATE TABLE {$db_prefix}user_likes (
   PRIMARY KEY (content_id, content_type, id_member)
 );
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX {$db_prefix}member_likes_content ON {$db_prefix}member_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}member_likes_liker ON {$db_prefix}member_likes (id_member);
 ---#
 
 ---# Adding count to the messages table.

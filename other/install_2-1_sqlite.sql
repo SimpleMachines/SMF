@@ -2322,10 +2322,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `member_likes`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}member_likes (
   id_member int NOT NULL default '0',
   content_type char(6) default '',
   content_id int NOT NULL default '0',
@@ -2334,8 +2334,8 @@ CREATE TABLE {$db_prefix}user_likes (
 );
 
 #
-# Indexes for table `user_likes`
+# Indexes for table `member_likes`
 #
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX {$db_prefix}member_likes_content ON {$db_prefix}member_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}member_likes_liker ON {$db_prefix}member_likes (id_member);

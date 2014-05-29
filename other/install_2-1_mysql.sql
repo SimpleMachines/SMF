@@ -2159,10 +2159,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `member_likes`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}member_likes (
   id_member mediumint(8) unsigned NOT NULL default '0',
   content_type char(6) default '',
   content_id int(10) unsigned NOT NULL default '0',

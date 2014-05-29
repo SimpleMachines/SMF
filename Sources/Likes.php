@@ -244,14 +244,14 @@ class Likes
 	/**
 	 * Likes::delete()
 	 *
-	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id'].
+	 * Deletes an entry from member_likes table, needs 3 properties: $_content, $_type and $_user['id'].
 	 */
 	protected function delete()
 	{
 		global $smcFunc;
 
 		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}user_likes
+			DELETE FROM {db_prefix}member_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
@@ -270,7 +270,7 @@ class Likes
 	/**
 	 * Likes::insert()
 	 *
-	 * Inserts a new entry on user_likes table. Creates a background task for the inserted entry.
+	 * Inserts a new entry on member_likes table. Creates a background task for the inserted entry.
 	 */
 	protected function insert()
 	{
@@ -285,7 +285,7 @@ class Likes
 
 		// Insert the like.
 		$smcFunc['db_insert']('insert',
-			'{db_prefix}user_likes',
+			'{db_prefix}member_likes',
 			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
 			array($content, $type, $user['id'], $time),
 			array('content_id', 'content_type', 'id_member')
@@ -321,7 +321,7 @@ class Likes
 
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member)
-			FROM {db_prefix}user_likes
+			FROM {db_prefix}member_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}',
 			array(
@@ -353,7 +353,7 @@ class Likes
 		// Do we already like this?
 		$request = $smcFunc['db_query']('', '
 			SELECT content_id, content_type, id_member
-			FROM {db_prefix}user_likes
+			FROM {db_prefix}member_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
@@ -431,7 +431,7 @@ class Likes
 		);
 
 		// Note that we could just as easily have cleared the cache here, or set up the redirection address
-		// but if your liked content doesn't need to do anything other than have the record in smf_user_likes,
+		// but if your liked content doesn't need to do anything other than have the record in smf_member_likes,
 		// there's no point in creating another function unnecessarily.
 	}
 
@@ -450,7 +450,7 @@ class Likes
 		$context['likers'] = array();
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, like_time
-			FROM {db_prefix}user_likes
+			FROM {db_prefix}member_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
 			ORDER BY like_time DESC',
