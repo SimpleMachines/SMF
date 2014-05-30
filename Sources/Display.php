@@ -1226,7 +1226,7 @@ function Display()
 	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 
 	// Mentions
-	if (allowedTo('mention'))
+	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
 		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');

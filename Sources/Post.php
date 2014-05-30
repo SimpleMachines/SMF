@@ -1153,7 +1153,7 @@ function Post($post_errors = array())
 	checkSubmitOnce('register');
 
 	// Mentions
-	if (allowedTo('mention'))
+	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
 		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
