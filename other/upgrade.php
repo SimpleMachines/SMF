@@ -4044,7 +4044,7 @@ function template_upgrade_options()
 							<input type="checkbox" name="delete_karma" id="delete_karma" value="1" class="input_check">
 						</td>
 						<td width="100%">
-							<label for="empty_error">Delete all karma settings and info from the DB</label>
+							<label for="delete_karma">Delete all karma settings and info from the DB</label>
 						</td>
 					</tr>
 					<tr valign="top">
