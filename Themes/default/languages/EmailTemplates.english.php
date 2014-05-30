@@ -1010,6 +1010,21 @@ The message they sent you was:
 {MESSAGE}
 
 Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+/**
+	@additional_params: msg_mention
+		CONTENTSUBJECT: The post subject.
+		MENTIONNAME:  The user name for the member creating the mention
+		MEMBERNAME:  The user name for the member being mentioned
+		CONTENTLINK:  The post's link
+	@description: A notification email sent to the members who've been mentioned in a post
+ */
+$txt['msg_mention_subject'] = 'You have been mentioned in the post: {CONTENTSUBJECT}';
+$txt['msg_mention_body'] = 'Hello {MENTIONAME},
+
+You have been mentioned in the post titled "{CONTENTSUBJECT}}" by {MENTIONNAME}, you can see the post here:
+{CONTENTLINK}
+
+{REGARDS}';
 
 /**
 	@additional_params: happy_birthday

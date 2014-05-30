@@ -242,6 +242,9 @@ $txt['permissionhelp_likes_view'] = 'This permission allows an user to view any 
 $txt['permissionname_likes_like'] = 'Can like any content';
 $txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
 
+$txt['permissiongroup_mentions'] = 'Mentions';
+$txt['permissionname_mention'] = 'Mention others via @name';
+
 $txt['permissiongroup_poll'] = 'Polls';
 $txt['permissionname_poll_view'] = 'View polls';
 $txt['permissionhelp_poll_view'] = 'This permission allows a user to view a poll. Without this permission, the user will only see the topic.';

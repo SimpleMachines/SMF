@@ -60,7 +60,7 @@ function ModifyFeatureSettings()
 		'profile' => 'ShowCustomProfiles',
 		'profileedit' => 'EditCustomProfiles',
 		'likes' => 'ModifyLikesSettings',
-		// 'mentions' => 'ModifyMentionsSettings' temp put mentions settings on Likes settings page.
+		'mentions' => 'ModifyMentionsSettings',
 	);
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
@@ -88,8 +88,8 @@ function ModifyFeatureSettings()
 			),
 			'likes' => array(
 			),
-			// 'mentions' => array(
-			// ),
+			'mentions' => array(
+			),
 		),
 	);
 
@@ -357,10 +357,6 @@ function ModifyLikesSettings($return_config = false)
 		array('check', 'enable_likes'),
 	);
 
-	$config_vars[] = '';
-	$config_vars[] = $txt['mentions'];
-	$config_vars[] = array('check', 'enable_mentions');
-
 	call_integration_hook('integrate_likes_settings', array(&$config_vars));
 
 	if ($return_config)
@@ -380,6 +376,44 @@ function ModifyLikesSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
 	$context['settings_title'] = $txt['likes'];
+
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Config array for changing like settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=mentions;
+ *
+ * @param bool $return_config
+ * @return array $return_config
+ */
+function ModifyMentionsSettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+
+	$config_vars = array(
+		array('check', 'enable_mentions'),
+	);
+
+	call_integration_hook('integrate_mentions_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		call_integration_hook('integrate_save_mentions_settings');
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=mentions');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
+	$context['settings_title'] = $txt['mentions'];
 
 	prepareDBSettingContext($config_vars);
 }

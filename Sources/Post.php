@@ -1152,6 +1152,13 @@ function Post($post_errors = array())
 	// Register this form in the session variables.
 	checkSubmitOnce('register');
 
+	// Mentions
+	if (allowedTo('mention'))
+	{
+		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+	}
+
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_post';

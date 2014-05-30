@@ -293,7 +293,7 @@ function fetch_alerts($memID, $all = false)
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_msg, t.id_topic, m.subject
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_first_msg = m.id_msg)
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 			WHERE {query_see_board}
 				AND m.id_msg IN ({array_int:msgs})',
