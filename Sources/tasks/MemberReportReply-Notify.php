@@ -97,7 +97,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 			}
 
 			$smcFunc['db_insert']('insert',
-				'{db_prefix}user_alerts',
+				'{db_prefix}member_alerts',
 				array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int',
 					'member_name' => 'string', 'content_type' => 'string', 'content_id' => 'int',
 					'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
@@ -145,7 +145,7 @@ class MemberReportReply_Notify_Background extends SMF_BackgroundTask
 					'REPORTLINK' => $scripturl . '?action=moderate;area=userreports;report=' . $this->_details['report_id'],
 				);
 
-				$emaildata = loadEmailTemplate('reply_to_user_reports', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
+				$emaildata = loadEmailTemplate('reply_to_member_reports', $replacements, empty($modSettings['userLanguage']) ? $language : $this_lang);
 
 				// And do the actual sending...
 				foreach ($recipients as $id_member => $email_address)

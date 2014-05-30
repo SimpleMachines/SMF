@@ -2068,10 +2068,10 @@ VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_alerts`
+# Table structure for table `member_alerts`
 #
 
-CREATE TABLE {$db_prefix}user_alerts (
+CREATE TABLE {$db_prefix}member_alerts (
   id_alert int(10) unsigned NOT NULL auto_increment,
   alert_time int(10) unsigned NOT NULL default '0',
   id_member mediumint(10) unsigned NOT NULL default '0',
@@ -2088,10 +2088,10 @@ CREATE TABLE {$db_prefix}user_alerts (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `user_alerts_prefs`
+# Table structure for table `member_alerts_prefs`
 #
 
-CREATE TABLE {$db_prefix}user_alerts_prefs (
+CREATE TABLE {$db_prefix}member_alerts_prefs (
   id_member mediumint(8) unsigned NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
   alert_value tinyint(3) NOT NULL default '0',
@@ -2099,10 +2099,10 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 ) ENGINE=MyISAM;
 
 #
-# Dumping data for table `user_alerts_prefs`
+# Dumping data for table `member_alerts_prefs`
 #
 
-INSERT INTO {$db_prefix}user_alerts_prefs
+INSERT INTO {$db_prefix}member_alerts_prefs
 	(id_member, alert_pref, alert_value)
 VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),
@@ -2112,10 +2112,10 @@ VALUES (0, 'member_group_request', 1),
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_drafts`
+# Table structure for table `member_drafts`
 #
 
-CREATE TABLE {$db_prefix}user_drafts (
+CREATE TABLE {$db_prefix}member_drafts (
   id_draft int(10) unsigned NOT NULL auto_increment,
   id_topic mediumint(8) unsigned NOT NULL default '0',
   id_board smallint(5) unsigned NOT NULL default '0',
@@ -2135,10 +2135,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `member_likes`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}member_likes (
   id_member mediumint(8) unsigned NOT NULL default '0',
   content_type char(6) default '',
   content_id int(10) unsigned NOT NULL default '0',

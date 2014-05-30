@@ -548,7 +548,7 @@ $smcFunc['db_alter_table']('{db_prefix}members', array(
 ---#
 
 ---# Adding the new table for alerts.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_alerts (
   id_alert int primary key,
   alert_time int unsigned NOT NULL default '0',
   id_member int unsigned NOT NULL default '0',
@@ -562,23 +562,23 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   PRIMARY KEY (id_alert)
 );
 
-CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
-CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
+CREATE INDEX {$db_prefix}member_alerts_id_member ON {$db_prefix}member_alerts (id_member);
+CREATE INDEX {$db_prefix}member_alerts_alert_time ON {$db_prefix}member_alerts (alert_time);
 ---#
 
 ---# Adding alert preferences.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_alerts_prefs (
   id_member int unsigned NOT NULL default '0',
   alert_pref varchar(32) NOT NULL default '',
   alert_value tinyint(3) NOT NULL default '0',
   PRIMARY KEY (id_member, alert_pref)
 );
 
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
+INSERT INTO {$db_prefix}member_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 ---#
 
 /******************************************************************************/
@@ -836,7 +836,7 @@ ALTER TABLE `{$db_prefix}members`
 --- Adding support for drafts
 /******************************************************************************/
 ---# Creating drafts table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_drafts (
 	id_draft int unsigned NOT NULL auto_increment,
 	id_topic int unsigned NOT NULL default '0',
 	id_board smallint unsigned NOT NULL default '0',
@@ -853,7 +853,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL default '',
 	PRIMARY KEY (id_draft)
 );
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX {$db_prefix}member_drafts_id_member ON {$db_prefix}member_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...
@@ -923,7 +923,7 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 --- Adding support for likes
 /******************************************************************************/
 ---# Creating likes table.
-CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
+CREATE TABLE IF NOT EXISTS {$db_prefix}member_likes (
   id_member int NOT NULL default '0',
   content_type char(6) default '',
   content_id int NOT NULL default '0',
@@ -931,8 +931,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
   PRIMARY KEY (content_id, content_type, id_member)
 );
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX {$db_prefix}member_likes_content ON {$db_prefix}member_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}member_likes_liker ON {$db_prefix}member_likes (id_member);
 ---#
 
 ---# Adding count to the messages table.

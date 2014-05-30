@@ -101,11 +101,11 @@ $txt['modlog_ac_ignore_report'] = 'Disregarded {report} on &quot;{message}&quot;
 $txt['modlog_ac_open_report'] = 'Reopened {report} on &quot;{message}&quot;';
 $txt['modlog_ac_unignore_report'] = 'Undone disregard of {report} on &quot;{message}&quot;';
 
-// Handling reports on users
-$txt['modlog_ac_close_user_report'] = 'Closed {report} on profile of {member}';
-$txt['modlog_ac_ignore_user_report'] = 'Disregarded {report} on profile of {member}';
-$txt['modlog_ac_open_user_report'] = 'Reopened {report} on profile of {member}';
-$txt['modlog_ac_unignore_user_report'] = 'Undone disregard of {report} on profile of {member}';
+// Handling reports on members
+$txt['modlog_ac_close_member_report'] = 'Closed {report} on profile of {member}';
+$txt['modlog_ac_ignore_member_report'] = 'Disregarded {report} on profile of {member}';
+$txt['modlog_ac_open_member_report'] = 'Reopened {report} on profile of {member}';
+$txt['modlog_ac_unignore_member_report'] = 'Undone disregard of {report} on profile of {member}';
 
 // Poll stuff
 $txt['modlog_add_poll'] = 'Added a poll to &quot;{topic}&quot;';

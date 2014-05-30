@@ -1922,7 +1922,7 @@ function prepareLikesContext()
 		$temp = array();
 		$request = $smcFunc['db_query']('', '
 			SELECT content_id
-			FROM {db_prefix}user_likes AS l
+			FROM {db_prefix}member_likes AS l
 				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
 			WHERE l.id_member = {int:current_user}
 				AND l.content_type = {literal:msg}

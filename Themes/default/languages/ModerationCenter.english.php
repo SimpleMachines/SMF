@@ -13,19 +13,19 @@ $txt['mc_view_groups'] = 'View Membergroups';
 $txt['mc_description'] = 'This is your &quot;Moderation Center&quot;. From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community.';
 $txt['mc_group_requests'] = 'Membergroup Requests';
 $txt['mc_unapproved_posts'] = 'Unapproved Posts';
-$txt['mc_watched_users'] = 'Recent Watched Members';
+$txt['mc_watched_members'] = 'Recent Watched Members';
 $txt['mc_watched_topics'] = 'Watched Topics';
 $txt['mc_scratch_board'] = 'Moderator Scratch Board';
 $txt['mc_latest_news'] = 'Simple Machines Latest News';
 $txt['mc_recent_reports'] = 'Recent Topic Reports';
-$txt['mc_recent_user_reports'] = 'Recent Profile Reports';
+$txt['mc_recent_member_reports'] = 'Recent Profile Reports';
 $txt['mc_warnings'] = 'Warnings';
 $txt['mc_notes'] = 'Moderator Notes';
 
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
 $txt['mc_recent_reports_none'] = 'There are no outstanding reports';
-$txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
+$txt['mc_watched_members_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
 
 $txt['mc_seen'] = '%1$s last seen %2$s';
@@ -50,7 +50,7 @@ $txt['mc_reportedp_unignore'] = 'Undo Disregard';
 $txt['mc_reportedp_delete'] = 'Delete message';
 $txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
-$txt['mc_reportedp_ban'] = 'Ban this user';
+$txt['mc_reportedp_ban'] = 'Ban this member';
 // Do not use numeric entries in the below string.
 $txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message? This will turn off further reports for all moderators of the forum.';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
@@ -99,18 +99,18 @@ $txt['show_notice'] = 'Notice Text';
 $txt['show_notice_subject'] = 'Subject';
 $txt['show_notice_text'] = 'Text';
 
-$txt['mc_watched_users_title'] = 'Watched Members';
-$txt['mc_watched_users_desc'] = 'Here you can keep a track of all members who have been assigned a &quot;watch&quot; by the moderation team.';
-$txt['mc_watched_users_post'] = 'View by Post';
-$txt['mc_watched_users_warning'] = 'Warning Level';
-$txt['mc_watched_users_last_login'] = 'Last Login';
-$txt['mc_watched_users_last_post'] = 'Last Post';
-$txt['mc_watched_users_no_posts'] = 'There are no posts from watched members.';
+$txt['mc_watched_members_title'] = 'Watched Members';
+$txt['mc_watched_members_desc'] = 'Here you can keep a track of all members who have been assigned a &quot;watch&quot; by the moderation team.';
+$txt['mc_watched_members_post'] = 'View by Post';
+$txt['mc_watched_members_warning'] = 'Warning Level';
+$txt['mc_watched_members_last_login'] = 'Last Login';
+$txt['mc_watched_members_last_post'] = 'Last Post';
+$txt['mc_watched_members_no_posts'] = 'There are no posts from watched members.';
 // Don't use entities in the two strings below.
-$txt['mc_watched_users_delete_post'] = 'Are you sure you want to delete this post?';
-$txt['mc_watched_users_delete_posts'] = 'Are you sure you want to delete these posts?';
-$txt['mc_watched_users_posted'] = 'Posted';
-$txt['mc_watched_users_member'] = 'Member';
+$txt['mc_watched_members_delete_post'] = 'Are you sure you want to delete this post?';
+$txt['mc_watched_members_delete_posts'] = 'Are you sure you want to delete these posts?';
+$txt['mc_watched_members_posted'] = 'Posted';
+$txt['mc_watched_members_member'] = 'Member';
 
 $txt['mc_warnings_description'] = 'From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member.';
 $txt['mc_warning_log'] = 'Log';
@@ -165,7 +165,7 @@ $txt['mc_click_add_note'] = 'Add a new note';
 $txt['mc_add_note'] = 'Add';
 
 // Do not use numeric entries in the below string.
-$txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this user\'s profile?\\n\\nThis will turn off further reports for everyone.';
+$txt['mc_reportedm_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this member\'s profile?\\n\\nThis will turn off further reports for everyone.';
 $txt['mc_reported_members_title'] = 'Reported Members';
-$txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
+$txt['mc_reported_members_desc'] = 'Allows you to view a list of all members whose profiles have been reported';
 ?>
