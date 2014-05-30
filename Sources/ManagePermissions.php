@@ -1125,6 +1125,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'view_mlist',
 		'likes_view',
 		'likes_like',
+		'mention',
 		'pm_read',
 		'pm_send',
 		'profile_view',
@@ -1423,6 +1424,7 @@ function loadAllPermissions()
 			'member_admin',
 			'profile',
 			'likes',
+			'mentions',
 		),
 		'board' => array(
 			'general_board',
@@ -1484,6 +1486,7 @@ function loadAllPermissions()
 			'view_warning' => array(true, 'profile_account'),
 			'likes_view' => array(false, 'likes'),
 			'likes_like' => array(false, 'likes'),
+			'mention' => array(false, 'mentions'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),

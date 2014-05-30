@@ -9,6 +9,7 @@ $txt['mark_alerts_read'] = 'Mark read';
 $txt['alert_settings'] = 'Settings';
 $txt['alerts_no_unread'] = 'No unread alerts.';
 
+$txt['alert_msg_mention'] = '{member_link} mentioned you in the post {msg_msg}';
 $txt['alert_msg_like'] = '{member_link} liked your post {msg_msg}';
 $txt['alert_msg_report'] = '{member_link} <a href="{scripturl}{report_link}">reported a post</a> - {msg_msg}';
 $txt['alert_msg_report_reply'] = '{member_link} replied to <a href="{scripturl}{report_link}">the report</a> about {msg_msg}';

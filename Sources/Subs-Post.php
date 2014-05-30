@@ -1764,6 +1764,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
 	global $user_info, $txt, $modSettings, $smcFunc, $context, $sourcedir;
 
+	require_once($sourcedir . '/Mentions.php');
+
 	// Set optional parameters to the default value.
 	$msgOptions['icon'] = empty($msgOptions['icon']) ? 'xx' : $msgOptions['icon'];
 	$msgOptions['smileys_enabled'] = !empty($msgOptions['smileys_enabled']);
@@ -1835,6 +1837,14 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
+	$mentions = array();
+	if (!empty($modSettings['enable_mentions']))
+	{
+		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
+		if (!empty($mentions))
+			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+	}
+
 	// It's do or die time: forget any user aborts!
 	$previous_ignore_user_abort = ignore_user_abort(true);
 
@@ -1879,6 +1889,13 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_msg' => $msgOptions['id'],
 			)
 		);
+
+	if (!empty($mentions))
+	{
+		Mentions::insertMentions('msg', $msgOptions['id'], $mentions);
+		if ($msgOptions['approved'])
+			Mentions::queueMentionNotifications('msg', $msgOptions['id'], $mentions);
+	}
 
 	// What if we want to export new posts out to a CMS?
 	call_integration_hook('integrate_after_create_post', array($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters));
@@ -2158,6 +2175,18 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$update_parameters = array(
 		'id_msg' => $msgOptions['id'],
 	);
+
+	if (!empty($modSettings['enable_mentions']))
+	{
+		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
+		if (!empty($mentions))
+		{
+			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+			Mentions::insertMentions('msg', $msgOptions['id'], $mentions);
+			if (!isset($msgOptions['approved']) || $msgOptions['approved'])
+				Mentions::queueMentionNotifications('msg', $msgOptions['id'], $mentions);
+		}
+	}
 
 	call_integration_hook('integrate_modify_post', array(&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts));
 
