@@ -57,7 +57,7 @@ div.sceditor-resize-cover {
 div.sceditor-grip {
 	overflow: hidden;
 	height: 12px;
-	cursor: pointer;
+	cursor: row-resize;
 	position: absolute;
 	bottom: 0;
 	left: -1px;
