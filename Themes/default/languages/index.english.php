@@ -825,4 +825,12 @@ $txt['debug_browser'] = 'Browser ID: ';
 $txt['debug_hooks'] = 'Hooks called: ';
 $txt['debug_instances'] = 'Instances created: ';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
+
+// Accessibility
+$txt['hide_category'] = 'Hide Category';
+$txt['show_category'] = 'Show Category';
+$txt['hide_infocenter'] = 'Hide Info Center';
+$txt['show_infocenter'] = 'Show Info Center';
+$txt['hide_newsfader'] = 'Hide Newsfader';
+$txt['show_newsfader'] = 'Show Newsfader';
 ?>
