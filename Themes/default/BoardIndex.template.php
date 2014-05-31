@@ -101,7 +101,7 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !empty($category['is_collapsed']) ? $txt['show'] : $txt['hide'], '" align="bottom" style="display: none;"></span>';
 
 		echo '
 					', $category['link'], '
