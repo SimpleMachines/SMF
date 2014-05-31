@@ -3780,6 +3780,9 @@ div#editlang_desc {
 #recent .core_posts span {
 	font-weight: normal;
 }
+.core_posts .quickbuttons li:last-child, .core_posts .quickbuttons li:last-child:hover {
+	border-radius: 4px;
+}
 #recent .quickbuttons {
 	margin-top: -2px;
 }
