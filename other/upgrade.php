@@ -1335,12 +1335,38 @@ function UpgradeOptions()
 		);
 
 		// Cleaning up old karma member settings.
-		$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}members
-			DROP karma_bad,
-			DROP karma_good',
+		$karma_good = 0;
+		$request = $smcFunc['db_query']('', '
+			SELECT karma_good
+			FROM {db_prefix}members',
 			array()
 		);
+		$karma_good = $smcFunc['db_num_rows']($request);
+		$smcFunc['db_free_result']($request);
+
+		if ($karma_good)
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_good',
+				array()
+			);
+
+		// Does karma bad was enable?
+		$karma_bad = 0;
+		$request = $smcFunc['db_query']('', '
+			SELECT karma_bad
+			FROM {db_prefix}members',
+			array()
+		);
+		$karma_bad = $smcFunc['db_num_rows']($request);
+		$smcFunc['db_free_result']($request);
+
+		if ($karma_bad)
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_bad',
+				array()
+			);
 
 		// Cleaning up old karma permissions.
 		$smcFunc['db_query']('', '
