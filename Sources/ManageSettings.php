@@ -1434,7 +1434,17 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function ($rowData) use ($txt)
 					{
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : ($rowData['placement'] == 1 ? 'withicons' : 'abovesignature'))];
+						$placement = array(
+							'standard',
+							'withicons',
+							'abovesignature',
+							'belowsignature',
+							'below_avatar',
+							'above_name',
+							'bottom',
+							'hidden',
+						);
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
 				),
@@ -1598,7 +1608,7 @@ function EditCustomProfiles()
 			$context['field'] = array(
 				'name' => $row['field_name'],
 				'desc' => $row['field_desc'],
-				'colname' => $row['col_name'],
+				'col_name' => $row['col_name'],
 				'profile_area' => $row['show_profile'],
 				'reg' => $row['show_reg'],
 				'display' => $row['show_display'],
@@ -1628,7 +1638,7 @@ function EditCustomProfiles()
 	if (empty($context['field']))
 		$context['field'] = array(
 			'name' => '',
-			'colname' => '???',
+			'col_name' => '???',
 			'desc' => '',
 			'profile_area' => 'forumprofile',
 			'reg' => false,
@@ -1755,14 +1765,14 @@ function EditCustomProfiles()
 		// Come up with the unique name?
 		if (empty($context['fid']))
 		{
-			$colname = $smcFunc['substr'](strtr($_POST['field_name'], array(' ' => '')), 0, 6);
-			preg_match('~([\w\d_-]+)~', $colname, $matches);
+			$col_name = $smcFunc['substr'](strtr($_POST['field_name'], array(' ' => '')), 0, 6);
+			preg_match('~([\w\d_-]+)~', $col_name, $matches);
 
 			// If there is nothing to the name, then let's start out own - for foreign languages etc.
 			if (isset($matches[1]))
-				$colname = $initial_colname = 'cust_' . strtolower($matches[1]);
+				$col_name = $initial_col_name = 'cust_' . strtolower($matches[1]);
 			else
-				$colname = $initial_colname = 'cust_' . mt_rand(1, 9999);
+				$col_name = $initial_col_name = 'cust_' . mt_rand(1, 9999);
 
 			// Make sure this is unique.
 			$current_fields = array();
@@ -1776,10 +1786,10 @@ function EditCustomProfiles()
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i ++)
 			{
-				if (!in_array($colname, $current_fields))
+				if (!in_array($col_name, $current_fields))
 					$unique = true;
 				else
-					$colname = $initial_colname . $i;
+					$col_name = $initial_col_name . $i;
 			}
 
 			// Still not a unique column name? Leave it up to the user, then.
@@ -1800,7 +1810,7 @@ function EditCustomProfiles()
 						AND id_member > {int:no_member}',
 					array(
 						'no_member' => 0,
-						'current_column' => $context['field']['colname'],
+						'current_column' => $context['field']['col_name'],
 					)
 				);
 			}
@@ -1837,7 +1847,7 @@ function EditCustomProfiles()
 							array(
 								'no_member' => 0,
 								'new_value' => $newOptions[$k],
-								'current_column' => $context['field']['colname'],
+								'current_column' => $context['field']['col_name'],
 								'old_value' => $option,
 							)
 						);
@@ -1892,7 +1902,7 @@ function EditCustomProfiles()
 					array(
 						'no_member' => 0,
 						'new_option_values' => $newOptions,
-						'current_column' => $context['field']['colname'],
+						'current_column' => $context['field']['col_name'],
 					)
 				);
 		}
@@ -1911,7 +1921,7 @@ function EditCustomProfiles()
 					'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
 				),
 				array(
-					$colname, $_POST['field_name'], $_POST['field_desc'],
+					$col_name, $_POST['field_name'], $_POST['field_desc'],
 					$_POST['field_type'], $field_length, $field_options, $new_order,
 					$show_reg, $show_display, $show_mlist, $show_profile,
 					$private, $active, $default, $can_search,
@@ -1922,7 +1932,7 @@ function EditCustomProfiles()
 		}
 	}
 	// Deleting?
-	elseif (isset($_POST['delete']) && $context['field']['colname'])
+	elseif (isset($_POST['delete']) && $context['field']['col_name'])
 	{
 		checkSession();
 		validateToken('admin-ecp');
@@ -1934,7 +1944,7 @@ function EditCustomProfiles()
 				AND id_member > {int:no_member}',
 			array(
 				'no_member' => 0,
-				'current_column' => $context['field']['colname'],
+				'current_column' => $context['field']['col_name'],
 			)
 		);
 		// Finally - the field itself is gone!
@@ -1982,7 +1992,7 @@ function EditCustomProfiles()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$fields[] = array(
-				'colname' => strtr($row['col_name'], array('|' => '', ';' => '')),
+				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
 				'title' => strtr($row['field_name'], array('|' => '', ';' => '')),
 				'type' => $row['field_type'],
 				'order' => $row['field_order'],
