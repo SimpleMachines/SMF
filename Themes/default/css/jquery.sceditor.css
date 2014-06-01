@@ -99,6 +99,8 @@ div.sceditor-inserttable, div.sceditor-insertimage, div.sceditor-pastetext, div.
 }
 div.sceditor-smileyPopup {
 	margin: 0;
+	max-width: 50%;
+	max-height: 50%;
 }
 .sceditor-insertemoticon img, .sceditor-smileyPopup img {
 	cursor: pointer;
