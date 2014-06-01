@@ -83,7 +83,7 @@ div.sceditor-dropdown form {
 }
 div.sceditor-dropdown label {
 	display: block;
-	font-eight: bold;
+	font-weight: bold;
 	font-size: .95em;
 	margin: .65em 0 .15em;
 }
