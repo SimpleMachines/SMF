@@ -1434,7 +1434,17 @@ function ShowCustomProfiles()
 				'data' => array(
 					'function' => function ($rowData) use ($txt)
 					{
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : ($rowData['placement'] == 1 ? 'withicons' : 'abovesignature'))];
+						$placement = array(
+							'standard',
+							'withicons',
+							'abovesignature',
+							'belowsignature',
+							'below_avatar',
+							'above_name',
+							'bottom',
+							'hidden',
+						);
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
 				),
