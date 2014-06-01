@@ -969,7 +969,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $db_prefix, $language, $modSettings, $cachedir, $upgradeurl, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $databases, $txt;
+	global $smcFunc, $db_type, $databases, $txt, $boardurl;
 
 	$upcontext['sub_template'] = 'welcome_message';
 
@@ -1020,6 +1020,7 @@ function WelcomeLogin()
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
 
 	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl .'/custom_avatar';
 
 	// This little fellow has to cooperate...
 	if (!is_writable($custom_av_dir))
@@ -1033,6 +1034,7 @@ function WelcomeLogin()
 		if (!function_exists('cache_put_data'))
 			require_once($sourcedir . '/Load.php');
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
 
 	require_once($sourcedir . '/Security.php');
