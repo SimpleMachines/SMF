@@ -1230,10 +1230,10 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		foreach ($context['display_fields'] as $custom)
 		{
-			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($profile['options'][$custom['colname']]))
+			if (!isset($custom['col_name']) || trim($custom['col_name']) == '' || empty($profile['options'][$custom['col_name']]))
 				continue;
 
-			$value = $profile['options'][$custom['colname']];
+			$value = $profile['options'][$custom['col_name']];
 
 			// BBC?
 			if ($custom['bbc'])
@@ -1252,8 +1252,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => $custom['title'],
-				'colname' => $custom['colname'],
+				'title' => $custom['field_name'],
+				'colname' => $custom['col_name'],
 				'value' => $value,
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
