@@ -446,6 +446,27 @@ function updateSettings($changeArray, $update = false)
 	if (empty($changeArray) || !is_array($changeArray))
 		return;
 
+	$toRemove = array();
+
+	// Go check if there is any setting to be removed.
+	foreach ($changeArray as $k => $v)
+		if ($v === null)
+		{
+			// Found some, remove them from the original array and add them to ours.
+			unset($changeArray[$k]);
+			$toRemove[] = $k;
+		}
+
+	// Proceed with the deletion.
+	if (!empty($toRemove))
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:remove})',
+			array(
+				'remove' => $toRemove,
+			)
+		);
+
 	// In some cases, this may be better and faster, but for large sets we don't want so many UPDATEs.
 	if ($update)
 	{
@@ -1264,7 +1285,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
 						$data = 'http://' . $data;
-				
+
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1602,7 +1623,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'ftp',
 			'email',
 		);
-		
+
 		// Let mods add new BBC without hassle.
 		call_integration_hook('integrate_bbc_codes', array(&$codes, &$no_autolink_tags));
 
