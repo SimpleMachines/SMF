@@ -1252,7 +1252,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => $custom['field_name'],
+				'title' => $custom['title'],
 				'col_name' => $custom['col_name'],
 				'value' => $value,
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
