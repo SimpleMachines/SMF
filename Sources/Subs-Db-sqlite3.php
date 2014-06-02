@@ -433,7 +433,13 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['s'] = array_sum(explode(' ', $st)) - array_sum(explode(' ', $time_start));
 	}
 
-	$ret = @$connection->query($db_string);
+	// When we don't want results, we use exec() instead...
+	// Right now we do this for everything but SELECT queries. This may change in the future.
+	if (stristr($db_string, 'SELECT') === false)
+		$ret = @$connection->exec($db_string);
+	else
+		$ret = @$connection->query($db_string);
+
 	if ($ret === false && empty($db_values['db_error_skip']) && $connection->lastErrorCode() > 0)
 	{
 		$err_msg = $connection->lastErrorMsg();
