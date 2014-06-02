@@ -80,6 +80,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	// Make some user defined functions!
 	smf_db_define_udfs($connection);
 
+	// Fix for "Database Is Locked" error (measured in ms, so this is 1 second)
+	$connection->busyTimeout(1000);
 	return $connection;
 }
 
@@ -116,6 +118,9 @@ function smf_db_check_connection($connection)
 		$connection = new Sqlite3($db_name);
 
 		smf_db_define_udfs($connection);
+
+		// Fix for the "Database Is Locked" error (measured in ms, so this is 1 second)
+		$connection->busyTimeout(1000);
 	}
 
 	return $connection;
