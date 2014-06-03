@@ -244,15 +244,13 @@ function checkGD()
 {
 	global $gd2;
 
-	// Check to see if GD is installed and what version.
-	if (function_exists('extension_loaded') && extension_loaded('gd')) {
-
-		// Also determine if GD2 is installed and store it in a global.
-		$gd2 = function_exists('imagecreatetruecolor');
+	// Ddetermine if GD2 is installed and store it in a global.
+	$gd2 = function_exists('imagecreatetruecolor');
 		
+	// Check to see if GD is installed.
+	if (function_exists('extension_loaded') && extension_loaded('gd'))
 		return true;
-	}
-	$gd2 = false;
+
 	return false;
 }
 
