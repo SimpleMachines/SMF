@@ -35,9 +35,6 @@
 	#upshrinkHeaderIC {
 		display: none;
 	}
-	.dropmenu li ul {
-		display: none !important;
-	}
 	.login {
 		width: 100%;
 	}
