@@ -694,7 +694,7 @@ function getXmlNews($xml_format)
 function getXmlRecent($xml_format)
 {
 	global $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $context;
+	global $query_this_board, $smcFunc, $context, $user_info;
 
 	$done = false;
 	$loops = 0;
