@@ -810,6 +810,7 @@ ALTER TABLE `{$db_prefix}members`
 ---#
 
 ---# Create the displayFields setting
+---{
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 		FROM {db_prefix}custom_fields',
@@ -828,6 +829,7 @@ ALTER TABLE `{$db_prefix}members`
 		array('displayFields', serialize($fields)),
 		array('id_theme', 'id_member', 'variable')
 	);
+---}
 ---#
 
 /******************************************************************************/
@@ -936,6 +938,23 @@ CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 ---# Adding count to the messages table.
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN likes smallint NOT NULL default '0';
+---#
+
+/******************************************************************************/
+--- Adding support for mentions
+/******************************************************************************/
+---# Creating mentions table
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned)
+);
+
+CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
+CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
 ---#
 
 /******************************************************************************/
@@ -1050,6 +1069,16 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
 ---#
+
+---# Calculate appropriate hash cost
+---{
+  $smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('bcrypt_hash_cost', hash_benchmark()),
+		array('variable')
+  );
+---}
 
 /******************************************************************************/
 --- Updating files that fetched from simplemachines.org

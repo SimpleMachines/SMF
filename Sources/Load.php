@@ -67,29 +67,41 @@ function reloadSettings()
 
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
-	$ent_check = empty($modSettings['disableEntityCheck']) ? array('preg_replace_callback(\'~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~\', \'entity_fix__callback\', ', ')') : array('', '');
+	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
+		{
+			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
+			return $string;
+		} : function($string)
+		{
+			return $string;
+		};
 
 	// Preg_replace space characters depend on the character set in use
 	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
 	// global array of anonymous helper functions, used mosly to properly handle multi byte strings
 	$smcFunc += array(
-		'entity_fix' => create_function('$string', '
-			$num = $string[0] === \'x\' ? hexdec(substr($string, 1)) : (int) $string;
-			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? \'\' : \'&#\' . $num . \';\';'),
-		'htmlspecialchars' => create_function('$string, $quote_style = ENT_COMPAT, $charset = \'ISO-8859-1\'', '
-			global $smcFunc;
-			return ' . strtr($ent_check[0], array('&' => '&amp;')) . 'htmlspecialchars($string, $quote_style, ' . ($utf8 ? '\'UTF-8\'' : '$charset') . ')' . $ent_check[1] . ';'),
-		'htmltrim' => create_function('$string', '
-			global $smcFunc;
-			return preg_replace(\'~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : '') . '\', \'\', ' . implode('$string', $ent_check) . ');'),
-		'strlen' => create_function('$string', '
-			global $smcFunc;
-			return strlen(preg_replace(\'~' . $ent_list . ($utf8 ? '|.~u' : '~') . '\', \'_\', ' . implode('$string', $ent_check) . '));'),
-		'strpos' => create_function('$haystack, $needle, $offset = 0', '
-			global $smcFunc;
-			$haystack_arr = preg_split(\'~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '\', ' . implode('$haystack', $ent_check) . ', -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-			$haystack_size = count($haystack_arr);
+		'entity_fix' => function ($string)
+		{
+			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
+			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
+		},
+		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8)
+		{
+			return $ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset));
+		},
+		'htmltrim' => function ($string) use ($utf8, $space_chars, $ent_check)
+		{
+			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
+		},
+		'strlen' => function ($string) use ($ent_list, $utf8, $ent_check)
+		{
+			return strlen(preg_replace('~' . $ent_list . ($utf8 ? '|.~u' : '~'), '_', $ent_check($string)));
+		},
+		'strpos' => function ($haystack, $needle, $offset = 0) use ($utf8, $ent_check, $modSettings)
+		{
+			$haystack_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : ''), $ent_check($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
 			if (strlen($needle) === 1)
 			{
 				$result = array_search($needle, array_slice($haystack_arr, $offset));
@@ -97,7 +109,7 @@ function reloadSettings()
 			}
 			else
 			{
-				$needle_arr = preg_split(\'~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '\',  ' . implode('$needle', $ent_check) . ', -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+				$needle_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 				$needle_size = count($needle_arr);
 
 				$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
@@ -109,38 +121,55 @@ function reloadSettings()
 					$result = array_search($needle_arr[0], array_slice($haystack_arr, ++$offset));
 				}
 				return false;
-			}'),
-		'substr' => create_function('$string, $start, $length = null', '
-			global $smcFunc;
-			$ent_arr = preg_split(\'~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '\', ' . implode('$string', $ent_check) . ', -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-			return $length === null ? implode(\'\', array_slice($ent_arr, $start)) : implode(\'\', array_slice($ent_arr, $start, $length));'),
-		'strtolower' => $utf8 ? (function_exists('mb_strtolower') ? create_function('$string', '
-			return mb_strtolower($string, \'UTF-8\');') : create_function('$string', '
+			}
+		},
+		'substr' => function ($string, $start, $length = null) use ($utf8, $ent_check, $modSettings)
+		{
+			$ent_arr = preg_split('~(&#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . ';|&quot;|&amp;|&lt;|&gt;|&nbsp;|.)~' . ($utf8 ? 'u' : '') . '', $ent_check($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			return $length === null ? implode('', array_slice($ent_arr, $start)) : implode('', array_slice($ent_arr, $start, $length));
+		},
+		'strtolower' => $utf8 ? function ($string) use ($sourcedir)
+		{
+			if (!function_exists('mb_strtolower'))
+			{
+				require_once($sourcedir . '/Subs-Charset.php');
+				return utf8_strtolower($string);
+			}
+
+			return mb_strtolower($string, 'UTF-8');
+		} : 'strtolower',
+		'strtoupper' => $utf8 ? function ($string)
+		{
 			global $sourcedir;
-			require_once($sourcedir . \'/Subs-Charset.php\');
-			return utf8_strtolower($string);')) : 'strtolower',
-		'strtoupper' => $utf8 ? (function_exists('mb_strtoupper') ? create_function('$string', '
-			return mb_strtoupper($string, \'UTF-8\');') : create_function('$string', '
-			global $sourcedir;
-			require_once($sourcedir . \'/Subs-Charset.php\');
-			return utf8_strtoupper($string);')) : 'strtoupper',
-		'truncate' => create_function('$string, $length', (empty($modSettings['disableEntityCheck']) ? '
-			global $smcFunc;
-			$string = ' . implode('$string', $ent_check) . ';' : '') . '
-			preg_match(\'~^(' . $ent_list . '|.){\' . $smcFunc[\'strlen\'](substr($string, 0, $length)) . \'}~'.  ($utf8 ? 'u' : '') . '\', $string, $matches);
-			$string = $matches[0];
-			while (strlen($string) > $length)
-				$string = preg_replace(\'~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : '') . '\', \'\', $string);
-			return $string;'),
-		'ucfirst' => $utf8 ? create_function('$string', '
-			global $smcFunc;
-			return $smcFunc[\'strtoupper\']($smcFunc[\'substr\']($string, 0, 1)) . $smcFunc[\'substr\']($string, 1);') : 'ucfirst',
-		'ucwords' => $utf8 ? create_function('$string', '
-			global $smcFunc;
-			$words = preg_split(\'~([\s\r\n\t]+)~\', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+			if (!function_exists('mb_strtolower'))
+			{
+				require_once($sourcedir . '/Subs-Charset.php');
+				return utf8_strtoupper($string);
+			}
+
+			return mb_strtoupper($string, 'UTF-8');
+		} : 'strtoupper',
+		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
+		{
+            $string = $ent_check($string);
+            preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
+            $string = $matches[0];
+            while (strlen($string) > $length)
+                $string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
+            return $string;
+		},
+		'ucfirst' => $utf8 ? function ($string) use (&$smcFunc)
+		{
+			return $smcFunc['strtoupper']($smcFunc['substr']($string, 0, 1)) . $smcFunc['substr']($string, 1);
+		} : 'ucfirst',
+		'ucwords' => $utf8 ? function ($string) use (&$smcFunc)
+		{
+			$words = preg_split('~([\s\r\n\t]+)~', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 			for ($i = 0, $n = count($words); $i < $n; $i += 2)
-				$words[$i] = $smcFunc[\'ucfirst\']($words[$i]);
-			return implode(\'\', $words);') : 'ucwords',
+				$words[$i] = $smcFunc['ucfirst']($words[$i]);
+			return implode('', $words);
+		} : 'ucwords',
 	);
 
 	// Setting the timezone is a requirement for some functions in PHP >= 5.1.
@@ -259,20 +288,14 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		// Fix a security hole in PHP 4.3.9 and below...
-		if (preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~i', $_COOKIE[$cookiename]) == 1)
-		{
-			list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
-			$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
-		}
-		else
-			$id_member = 0;
+		list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
+		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
 		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
-		$id_member = !empty($id_member) && strlen($password) == 40 && $login_span > time() ? (int) $id_member : 0;
+		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 
 	// Only load this stuff if the user isn't a guest.
@@ -304,9 +327,9 @@ function loadUserSettings()
 			// As much as the password should be right, we can assume the integration set things up.
 			if (!empty($already_verified) && $already_verified === true)
 				$check = true;
-			// SHA-1 passwords should be 40 characters long.
-			elseif (strlen($password) == 40)
-				$check = sha1($user_settings['passwd'] . $user_settings['password_salt']) == $password;
+			// SHA-512 hash should be 128 characters long.
+			elseif (strlen($password) == 128)
+				$check = hash_salt($user_settings['passwd'], $user_settings['password_salt']) == $password;
 			else
 				$check = false;
 
@@ -948,8 +971,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
-			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login,
-			mem.karma_good, mem.id_post_group, mem.karma_bad, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
+			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
 			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group,
 			mem.is_activated, mem.warning, ' . (!empty($modSettings['titlesEnable']) ? 'mem.usertitle, ' : '') . '
@@ -1172,12 +1194,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 			),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
-			'karma' => array(
-				'good' => $profile['karma_good'],
-				'bad' => $profile['karma_bad'],
-				'allow' => !$user_info['is_guest'] && !empty($modSettings['karmaMode']) && $user_info['id'] != $user && allowedTo('karma_edit') &&
-				($user_info['posts'] >= $modSettings['karmaMinPosts'] || $user_info['is_admin']),
-			),
 			'ip' => $smcFunc['htmlspecialchars']($profile['member_ip']),
 			'ip2' => $smcFunc['htmlspecialchars']($profile['member_ip2']),
 			'online' => array(
@@ -1214,10 +1230,10 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 		foreach ($context['display_fields'] as $custom)
 		{
-			if (!isset($custom['title']) || trim($custom['title']) == '' || empty($profile['options'][$custom['colname']]))
+			if (!isset($custom['col_name']) || trim($custom['col_name']) == '' || empty($profile['options'][$custom['col_name']]))
 				continue;
 
-			$value = $profile['options'][$custom['colname']];
+			$value = $profile['options'][$custom['col_name']];
 
 			// BBC?
 			if ($custom['bbc'])
@@ -1236,8 +1252,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => $custom['title'],
-				'colname' => $custom['colname'],
+				'title' => $custom['field_name'],
+				'col_name' => $custom['col_name'],
 				'value' => $value,
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
@@ -2030,7 +2046,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
@@ -2083,7 +2099,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
-	$params['seed'] = (!isset($params['seed']) || $params['seed'] === true) ? $modSettings['browser_cache'] : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
+	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 

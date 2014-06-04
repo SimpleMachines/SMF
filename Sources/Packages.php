@@ -1400,12 +1400,11 @@ function PackageBrowse()
 						'style' => 'width: 40px;',
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
-							global $context;
-
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'sort_id\'];
-						'),
+						'function' => function ($package_md5) use ($type, &$context)
+						{
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['sort_id'];
+						},
 					),
 					'sort' => array(
 						'default' => 'sort_id',
@@ -1418,12 +1417,11 @@ function PackageBrowse()
 						'style' => 'width: 25%;',
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
-							global $context;
-
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'name\'];
-						'),
+						'function' => function ($package_md5) use ($type, &$context)
+						{
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['name'];
+						},
 					),
 					'sort' => array(
 						'default' => 'name',
@@ -1435,12 +1433,11 @@ function PackageBrowse()
 						'value' => $txt['mod_version'],
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
-							global $context;
-
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return $context[\'available_' . $type . '\'][$package_md5][\'version\'];
-						'),
+						'function' => function ($package_md5) use ($type, &$context)
+						{
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return $context['available_' . $type . ''][$package_md5]['version'];
+						},
 					),
 					'sort' => array(
 						'default' => 'version',
@@ -1452,12 +1449,11 @@ function PackageBrowse()
 						'value' => $txt['mod_installed_time'],
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
-							global $context, $txt;
-
-							if (isset($context[\'available_' . $type . '\'][$package_md5]))
-								return !empty($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) ? timeformat($context[\'available_' . $type . '\'][$package_md5][\'time_installed\']) : $txt[\'not_applicable\'];
-						'),
+						'function' => function ($package_md5) use ($type, $txt, &$context)
+						{
+							if (isset($context['available_' . $type . ''][$package_md5]))
+								return !empty($context['available_' . $type . ''][$package_md5]['time_installed']) ? timeformat($context['available_' . $type . ''][$package_md5]['time_installed']) : $txt['not_applicable'];
+						},
 						'class' => 'smalltext',
 					),
 					'sort' => array(
@@ -1470,36 +1466,35 @@ function PackageBrowse()
 						'value' => '',
 					),
 					'data' => array(
-						'function' => create_function('$package_md5', '
-							global $context, $scripturl, $txt;
-
-							if (!isset($context[\'available_' . $type . '\'][$package_md5]))
-								return \'\';
+						'function' => function ($package_md5) use ($type, &$context, $scripturl, $txt)
+						{
+							if (!isset($context['available_' . $type . ''][$package_md5]))
+								return '';
 
 							// Rewrite shortcut
-							$package = $context[\'available_' . $type . '\'][$package_md5];
-							$return = \'\';
+							$package = $context['available_' . $type . ''][$package_md5];
+							$return = '';
 
-							if ($package[\'can_uninstall\'])
-								$return = \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'uninstall\'] . \' ]</a>\';
-							elseif ($package[\'can_emulate_uninstall\'])
-								$return = \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=uninstall;ve=\' . $package[\'can_emulate_uninstall\'] . \';package=\' . $package[\'filename\'] . \';pid=\' . $package[\'installed_id\'] . \'">[ \' . $txt[\'package_emulate_uninstall\'] . \' \' . $package[\'can_emulate_uninstall\'] . \' ]</a>\';
-							elseif ($package[\'can_upgrade\'])
-								$return = \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_upgrade\'] . \' ]</a>\';
-							elseif ($package[\'can_install\'])
-								$return = \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'install_mod\'] . \' ]</a>\';
-							elseif ($package[\'can_emulate_install\'])
-								$return = \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=install;ve=\' . $package[\'can_emulate_install\'] . \';package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'package_emulate_install\'] . \' \' . $package[\'can_emulate_install\'] . \' ]</a>\';
+							if ($package['can_uninstall'])
+								$return = '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '">[ ' . $txt['uninstall'] . ' ]</a>';
+							elseif ($package['can_emulate_uninstall'])
+								$return = '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '">[ ' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . ' ]</a>';
+							elseif ($package['can_upgrade'])
+								$return = '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '">[ ' . $txt['package_upgrade'] . ' ]</a>';
+							elseif ($package['can_install'])
+								$return = '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
+							elseif ($package['can_emulate_install'])
+								$return = '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '">[ ' . $txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . ' ]</a>';
 
-							return $return . \'
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=list;package=\' . $package[\'filename\'] . \'">[ \' . $txt[\'list_files\'] . \' ]</a>
-									<a href="\' . $scripturl . \'?action=admin;area=packages;sa=remove;package=\' . $package[\'filename\'] . \';\' . $context[\'session_var\'] . \'=\' . $context[\'session_id\'] . \'"\' . ($package[\'is_installed\'] && $package[\'is_current\'] ? \' onclick="return confirm(\\\'\' . $txt[\'package_delete_bad\'] . \'\\\');"\' : \'\') . \'>[ \' . $txt[\'package_delete\'] . \' ]</a>\';
-						'),
+							return $return . '
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $package['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=remove;package=' . $package['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"' . ($package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '') . '>[ ' . $txt['package_delete'] . ' ]</a>';
+						},
 						'class' => 'righttext',
 					),
 				),

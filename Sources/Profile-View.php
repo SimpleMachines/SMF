@@ -293,7 +293,7 @@ function fetch_alerts($memID, $all = false)
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_msg, t.id_topic, m.subject
 			FROM {db_prefix}messages AS m
-				INNER JOIN {db_prefix}topics AS t ON (t.id_first_msg = m.id_msg)
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
 			WHERE {query_see_board}
 				AND m.id_msg IN ({array_int:msgs})',
@@ -724,9 +724,10 @@ function showAttachments($memID)
 			),
 		),
 		'data_check' => array(
-			'class' => create_function('$data', '
-				return $data[\'approved\'] ? \'\' : \'approvebg\';
-			')
+			'class' => function ($data)
+			{
+				return $data['approved'] ? '' : 'approvebg';
+			}
 		),
 		'columns' => array(
 			'filename' => array(
@@ -2136,7 +2137,7 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
 	$request = $smcFunc['db_query']('', '
 		SELECT time, ip, ip2
 		FROM {db_prefix}member_logins
-		WHERE {int:id_member}
+		WHERE id_member = {int:id_member}
 		ORDER BY time DESC',
 		array(
 			'id_member' => $where_vars['current_member'],

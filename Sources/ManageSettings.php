@@ -56,10 +56,11 @@ function ModifyFeatureSettings()
 		'basic' => 'ModifyBasicSettings',
 		'bbc' => 'ModifyBBCSettings',
 		'layout' => 'ModifyLayoutSettings',
-		'karma' => 'ModifyKarmaSettings',
 		'sig' => 'ModifySignatureSettings',
 		'profile' => 'ShowCustomProfiles',
 		'profileedit' => 'EditCustomProfiles',
+		'likes' => 'ModifyLikesSettings',
+		'mentions' => 'ModifyMentionsSettings',
 	);
 
 	call_integration_hook('integrate_modify_features', array(&$subActions));
@@ -79,13 +80,15 @@ function ModifyFeatureSettings()
 			),
 			'layout' => array(
 			),
-			'karma' => array(
-			),
 			'sig' => array(
 				'description' => $txt['signature_settings_desc'],
 			),
 			'profile' => array(
 				'description' => $txt['custom_profile_desc'],
+			),
+			'likes' => array(
+			),
+			'mentions' => array(
 			),
 		),
 	);
@@ -341,36 +344,20 @@ function ModifyLayoutSettings($return_config = false)
 }
 
 /**
- * Config array for chaning the karma settings
- * Accessed  from ?action=admin;area=featuresettings;sa=karma;
+ * Config array for chanigng like settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=likes;
  *
  * @param $return_config
  */
-function ModifyKarmaSettings($return_config = false)
+function ModifyLikesSettings($return_config = false)
 {
 	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
-	if (empty($modSettings['karmaMode']))
-		$config_vars = array(
-			array('select', 'karmaMode', explode('|', $txt['karma_options'])),
-		);
-	else
-		$config_vars = array(
-				// Karma - On or off?
-				array('select', 'karmaMode', explode('|', $txt['karma_options'])),
-			'',
-				// Who can do it.... and who is restricted by time limits?
-				array('int', 'karmaMinPosts', 6, 'postinput' => strtolower($txt['posts'])),
-				array('float', 'karmaWaitTime', 6, 'postinput' => $txt['hours']),
-				array('check', 'karmaTimeRestrictAdmins'),
-			'',
-				// What does it look like?  [smite]?
-				array('text', 'karmaLabel'),
-				array('text', 'karmaApplaudLabel'),
-				array('text', 'karmaSmiteLabel'),
-		);
+	$config_vars = array(
+		array('check', 'enable_likes'),
+	);
 
-	call_integration_hook('integrate_karma_settings', array(&$config_vars));
+	call_integration_hook('integrate_likes_settings', array(&$config_vars));
 
 	if ($return_config)
 		return $config_vars;
@@ -380,21 +367,53 @@ function ModifyKarmaSettings($return_config = false)
 	{
 		checkSession();
 
-		$removeTags = array('karmaLabel', 'karmaApplaudLabel', 'karmaSmiteLabel');
-
-		foreach ($removeTags as $tag)
-			if (isset($_POST[$tag]))
-				$_POST[$tag] = $smcFunc['htmlspecialchars'](strip_tags($_POST[$tag]));
-
-		call_integration_hook('integrate_save_karma_settings');
+		call_integration_hook('integrate_save_likes_settings');
 
 		saveDBSettings($config_vars);
 		$_SESSION['adm-save'] = true;
-		redirectexit('action=admin;area=featuresettings;sa=karma');
+		redirectexit('action=admin;area=featuresettings;sa=likes');
 	}
 
-	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=karma';
-	$context['settings_title'] = $txt['karma'];
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
+	$context['settings_title'] = $txt['likes'];
+
+	prepareDBSettingContext($config_vars);
+}
+
+/**
+ * Config array for changing like settings
+ * Accessed  from ?action=admin;area=featuresettings;sa=mentions;
+ *
+ * @param bool $return_config
+ * @return array $return_config
+ */
+function ModifyMentionsSettings($return_config = false)
+{
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+
+	$config_vars = array(
+		array('check', 'enable_mentions'),
+	);
+
+	call_integration_hook('integrate_mentions_settings', array(&$config_vars));
+
+	if ($return_config)
+		return $config_vars;
+
+	// Saving?
+	if (isset($_GET['save']))
+	{
+		checkSession();
+
+		call_integration_hook('integrate_save_mentions_settings');
+
+		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=featuresettings;sa=mentions');
+	}
+
+	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
+	$context['settings_title'] = $txt['mentions'];
 
 	prepareDBSettingContext($config_vars);
 }
@@ -1275,11 +1294,12 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'disabled\'] ? \'\' : \' checked\';
-						$onClickHandler = $rowData[\'can_show_register\'] ? sprintf(\' onclick="document.getElementById(\\\'reg_%1$s\\\').disabled = !this.checked;"\', $rowData[\'id\']) : \'\';
-						return sprintf(\'<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>\', $rowData[\'id\'], $isChecked, $onClickHandler);
-					'),
+					'function' => function ($rowData)
+					{
+						$isChecked = $rowData['disabled'] ? '' : ' checked';
+						$onClickHandler = $rowData['can_show_register'] ? sprintf(' onclick="document.getElementById(\'reg_%1$s\').disabled = !this.checked;"', $rowData['id']) : '';
+						return sprintf('<input type="checkbox" name="active[]" id="active_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $onClickHandler);
+					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',
 				),
@@ -1290,11 +1310,12 @@ function ShowCustomProfiles()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						$isChecked = $rowData[\'on_register\'] && !$rowData[\'disabled\'] ? \' checked\' : \'\';
-						$isDisabled = $rowData[\'can_show_register\'] ? \'\' : \' disabled\';
-						return sprintf(\'<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s>\', $rowData[\'id\'], $isChecked, $isDisabled);
-					'),
+					'function' => function ($rowData)
+					{
+						$isChecked = $rowData['on_register'] && !$rowData['disabled'] ? ' checked' : '';
+						$isDisabled = $rowData['can_show_register'] ? '' : ' disabled';
+						return sprintf('<input type="checkbox" name="reg[]" id="reg_%1$s" value="%1$s" class="input_check"%2$s%3$s>', $rowData['id'], $isChecked, $isDisabled);
+					},
 					'style' => 'width: 20%;',
 					'class' => 'centercol',
 				),
@@ -1336,21 +1357,20 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldorder'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl, $context, $txt;
+					'function' => function ($rowData) use ($context, $txt, $scripturl)
+					{
+						$return = '<p class="centertext bold_text">'. $rowData['field_order'] .'<br />';
 
-						$return = \'<p class="centertext bold_text">\'. $rowData[\'field_order\'] .\'<br />\';
+						if ($rowData['field_order'] > 1)
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_up'] .'"></span></a>';
 
-						if ($rowData[\'field_order\'] > 1)
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=up"><span class="toggle_up" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_up\'] .\'"></span></a>\';
+						if ($rowData['field_order'] < $context['custFieldsMaxOrder'])
+							$return .= '<a href="' . $scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="'. $txt['custom_edit_order_move'] .' '. $txt['custom_edit_order_down'] .'"></span></a>';
 
-						if ($rowData[\'field_order\'] < $context[\'custFieldsMaxOrder\'])
-							$return .= \'<a href="\' . $scripturl . \'?action=admin;area=featuresettings;sa=profileedit;fid=\' . $rowData[\'id_field\'] . \';move=down"><span class="toggle_down" title="\'. $txt[\'custom_edit_order_move\'] .\' \'. $txt[\'custom_edit_order_down\'] .\'"></span></a>\';
-
-						$return .= \'</p>\';
+						$return .= '</p>';
 
 						return $return;
-					'),
+					},
 					'style' => 'width: 12%;',
 				),
 				'sort' => array(
@@ -1363,11 +1383,10 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldname'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
-						return sprintf(\'<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>\', $scripturl, $rowData[\'id_field\'], $rowData[\'field_name\'], $rowData[\'field_desc\']);
-					'),
+					'function' => function ($rowData) use ($scripturl)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=featuresettings;sa=profileedit;fid=%2$d">%3$s</a><div class="smalltext">%4$s</div>', $scripturl, $rowData['id_field'], $rowData['field_name'], $rowData['field_desc']);
+					},
 					'style' => 'width: 62%;',
 				),
 				'sort' => array(
@@ -1380,12 +1399,11 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_fieldtype'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						$textKey = sprintf(\'custom_profile_type_%1$s\', $rowData[\'field_type\']);
+					'function' => function ($rowData) use ($txt)
+					{
+						$textKey = sprintf('custom_profile_type_%1$s', $rowData['field_type']);
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
-					'),
+					},
 					'style' => 'width: 15%;',
 				),
 				'sort' => array(
@@ -1398,11 +1416,10 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_active'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return $rowData[\'active\'] ? $txt[\'yes\'] : $txt[\'no\'];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return $rowData['active'] ? $txt['yes'] : $txt['no'];
+					},
 					'style' => 'width: 8%;',
 				),
 				'sort' => array(
@@ -1415,11 +1432,20 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return $txt[\'custom_profile_placement_\' . (empty($rowData[\'placement\']) ? \'standard\' : ($rowData[\'placement\'] == 1 ? \'withicons\' : \'abovesignature\'))];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						$placement = array(
+							'standard',
+							'withicons',
+							'abovesignature',
+							'belowsignature',
+							'below_avatar',
+							'above_name',
+							'bottom',
+							'hidden',
+						);
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
+					},
 					'style' => 'width: 8%;',
 				),
 				'sort' => array(
@@ -1582,7 +1608,7 @@ function EditCustomProfiles()
 			$context['field'] = array(
 				'name' => $row['field_name'],
 				'desc' => $row['field_desc'],
-				'colname' => $row['col_name'],
+				'col_name' => $row['col_name'],
 				'profile_area' => $row['show_profile'],
 				'reg' => $row['show_reg'],
 				'display' => $row['show_display'],
@@ -1612,7 +1638,7 @@ function EditCustomProfiles()
 	if (empty($context['field']))
 		$context['field'] = array(
 			'name' => '',
-			'colname' => '???',
+			'col_name' => '???',
 			'desc' => '',
 			'profile_area' => 'forumprofile',
 			'reg' => false,
@@ -1739,14 +1765,14 @@ function EditCustomProfiles()
 		// Come up with the unique name?
 		if (empty($context['fid']))
 		{
-			$colname = $smcFunc['substr'](strtr($_POST['field_name'], array(' ' => '')), 0, 6);
-			preg_match('~([\w\d_-]+)~', $colname, $matches);
+			$col_name = $smcFunc['substr'](strtr($_POST['field_name'], array(' ' => '')), 0, 6);
+			preg_match('~([\w\d_-]+)~', $col_name, $matches);
 
 			// If there is nothing to the name, then let's start out own - for foreign languages etc.
 			if (isset($matches[1]))
-				$colname = $initial_colname = 'cust_' . strtolower($matches[1]);
+				$col_name = $initial_col_name = 'cust_' . strtolower($matches[1]);
 			else
-				$colname = $initial_colname = 'cust_' . mt_rand(1, 9999);
+				$col_name = $initial_col_name = 'cust_' . mt_rand(1, 9999);
 
 			// Make sure this is unique.
 			$current_fields = array();
@@ -1760,10 +1786,10 @@ function EditCustomProfiles()
 			$unique = false;
 			for ($i = 0; !$unique && $i < 9; $i ++)
 			{
-				if (!in_array($colname, $current_fields))
+				if (!in_array($col_name, $current_fields))
 					$unique = true;
 				else
-					$colname = $initial_colname . $i;
+					$col_name = $initial_col_name . $i;
 			}
 
 			// Still not a unique column name? Leave it up to the user, then.
@@ -1784,7 +1810,7 @@ function EditCustomProfiles()
 						AND id_member > {int:no_member}',
 					array(
 						'no_member' => 0,
-						'current_column' => $context['field']['colname'],
+						'current_column' => $context['field']['col_name'],
 					)
 				);
 			}
@@ -1821,7 +1847,7 @@ function EditCustomProfiles()
 							array(
 								'no_member' => 0,
 								'new_value' => $newOptions[$k],
-								'current_column' => $context['field']['colname'],
+								'current_column' => $context['field']['col_name'],
 								'old_value' => $option,
 							)
 						);
@@ -1876,7 +1902,7 @@ function EditCustomProfiles()
 					array(
 						'no_member' => 0,
 						'new_option_values' => $newOptions,
-						'current_column' => $context['field']['colname'],
+						'current_column' => $context['field']['col_name'],
 					)
 				);
 		}
@@ -1895,7 +1921,7 @@ function EditCustomProfiles()
 					'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
 				),
 				array(
-					$colname, $_POST['field_name'], $_POST['field_desc'],
+					$col_name, $_POST['field_name'], $_POST['field_desc'],
 					$_POST['field_type'], $field_length, $field_options, $new_order,
 					$show_reg, $show_display, $show_mlist, $show_profile,
 					$private, $active, $default, $can_search,
@@ -1906,7 +1932,7 @@ function EditCustomProfiles()
 		}
 	}
 	// Deleting?
-	elseif (isset($_POST['delete']) && $context['field']['colname'])
+	elseif (isset($_POST['delete']) && $context['field']['col_name'])
 	{
 		checkSession();
 		validateToken('admin-ecp');
@@ -1918,7 +1944,7 @@ function EditCustomProfiles()
 				AND id_member > {int:no_member}',
 			array(
 				'no_member' => 0,
-				'current_column' => $context['field']['colname'],
+				'current_column' => $context['field']['col_name'],
 			)
 		);
 		// Finally - the field itself is gone!
@@ -1966,7 +1992,7 @@ function EditCustomProfiles()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$fields[] = array(
-				'colname' => strtr($row['col_name'], array('|' => '', ';' => '')),
+				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
 				'title' => strtr($row['field_name'], array('|' => '', ';' => '')),
 				'type' => $row['field_type'],
 				'order' => $row['field_order'],

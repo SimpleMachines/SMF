@@ -63,6 +63,7 @@ hoverIntent | © Brian Cherne | Licensed under The MIT License (MIT)
 Superfish | © Joel Birch | Licensed under The MIT License (MIT)
 SCEditor | © Sam Clarke | Licensed under The MIT License (MIT)
 animaDrag | © Abel Mohler | Licensed under The MIT License (MIT)
+At.js | © chord.luo@gmail.com | Licensed under The MIT License (MIT)
 
 Fonts
 Anonymous Pro | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1

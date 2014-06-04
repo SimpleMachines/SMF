@@ -1050,6 +1050,8 @@ function Display()
 		'can_issue_warning' => 'issue_warning',
 		'can_restore_topic' => 'move_any',
 		'can_restore_msg' => 'move_any',
+		'can_see_likes' => 'likes_view',
+		'can_like' => 'likes_like',
 	);
 	foreach ($common_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm);
@@ -1222,6 +1224,13 @@ function Display()
 
 	// topic.js
 	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+
+	// Mentions
+	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+	{
+		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+	}
 }
 
 /**
@@ -1314,7 +1323,7 @@ function prepareDisplayContext($reset = false)
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
-	$memberContext[$message['id_member']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
+	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty($modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
 
 	// Do the censor thang.
 	censorText($message['body']);
@@ -1350,7 +1359,7 @@ function prepareDisplayContext($reset = false)
 		'likes' => array(
 			'count' => $message['likes'],
 			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'], // @todo!
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'],
 		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
@@ -1549,11 +1558,20 @@ function Download()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
+			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r", $buffer);
+			};
 		else
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\n", $buffer);
+			};
 	}
 
 	// Since we don't do output compression for files this large...

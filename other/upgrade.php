@@ -15,7 +15,7 @@
 define('SMF_VERSION', '2.1 Alpha 1');
 define('SMF_LANG_VERSION', '2.1 Alpha 1');
 
-$GLOBALS['required_php_version'] = '5.3.2';
+$GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '4.0.18';
 
 $databases = array(
@@ -612,8 +612,6 @@ $upcontext['is_large_forum'] = (empty($modSettings['smfVersion']) || $modSetting
 // Default title...
 $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SMF Install!' : 'Upgrading from YaBB SE!';
 
-$upcontext['right_to_left'] = isset($txt['lang_rtl']) ? $txt['lang_rtl'] : false;
-
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
@@ -810,6 +808,18 @@ function loadEssentialData()
 	if (empty($smcFunc))
 		$smcFunc = array();
 
+	// We need this for authentication and some upgrade code
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	$smcFunc['strtolower'] = $db_character_set != 'utf8'  ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
+
 	// Check we don't need some compatibility.
 	if (@version_compare(PHP_VERSION, '5.1', '<='))
 		require_once($sourcedir . '/Subs-Compat.php');
@@ -959,7 +969,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $db_prefix, $language, $modSettings, $cachedir, $upgradeurl, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $databases, $txt;
+	global $smcFunc, $db_type, $databases, $txt, $boardurl;
 
 	$upcontext['sub_template'] = 'welcome_message';
 
@@ -1010,6 +1020,7 @@ function WelcomeLogin()
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
 
 	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl .'/custom_avatar';
 
 	// This little fellow has to cooperate...
 	if (!is_writable($custom_av_dir))
@@ -1023,6 +1034,7 @@ function WelcomeLogin()
 		if (!function_exists('cache_put_data'))
 			require_once($sourcedir . '/Load.php');
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
 
 	require_once($sourcedir . '/Security.php');
@@ -1151,19 +1163,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				// Figure out the password using SMF's encryption - if what they typed is right.
-				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
-				{
-					// This is needed for validateToken, but isn't always included for some reason...
-					include_once($sourcedir . '/Security.php');
-
-					// Challenge passed.
-					$tk = validateToken('login');
-					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))
-						$sha_passwd = $password;
-				}
-				else
-					$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
 			}
 			else
 				$upcontext['username_incorrect'] = true;
@@ -1185,7 +1185,7 @@ function checkLogin()
 			$upcontext['user']['version'] = $modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if ((empty($sha_passwd) || $password != $sha_passwd) && empty($upcontext['username_incorrect']) && !$disable_security)
+		if ((empty($sha_passwd) || $password != $sha_passwd) && !hash_verify_password($name, $_REQUEST['passwrd'], $password) && empty($upcontext['username_incorrect']) && !$disable_security)
 		{
 			// MD5?
 			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));
@@ -1321,6 +1321,62 @@ function UpgradeOptions()
 				'db_error_skip' => true,
 			)
 		);
+
+	// Deleting old karma stuff?
+	if (!empty($_POST['delete_karma']))
+	{
+		// Delete old settings vars.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
+			)
+		);
+
+		// Cleaning up old karma member settings.
+		$karma_good = 0;
+		$request = $smcFunc['db_query']('', '
+			SELECT karma_good
+			FROM {db_prefix}members',
+			array()
+		);
+		$karma_good = $smcFunc['db_num_rows']($request);
+		$smcFunc['db_free_result']($request);
+
+		if ($karma_good)
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_good',
+				array()
+			);
+
+		// Does karma bad was enable?
+		$karma_bad = 0;
+		$request = $smcFunc['db_query']('', '
+			SELECT karma_bad
+			FROM {db_prefix}members',
+			array()
+		);
+		$karma_bad = $smcFunc['db_num_rows']($request);
+		$smcFunc['db_free_result']($request);
+
+		if ($karma_bad)
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_bad',
+				array()
+			);
+
+		// Cleaning up old karma permissions.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:karma_vars}',
+			array(
+				'karma_vars' => 'karma_edit',
+			)
+		);
+	}
 
 	// Emptying the error log?
 	if (!empty($_POST['empty_error']))
@@ -2268,7 +2324,7 @@ function php_version_check()
 	$minver = explode('.', $GLOBALS['required_php_version']);
 	$curver = explode('.', PHP_VERSION);
 
-	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2][0] < $minver[2][0]));
+	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2] < $minver[2]));
 }
 
 function db_version_check()
@@ -3463,24 +3519,6 @@ function template_chmod()
 	if (empty($upcontext['chmod']['files']) && empty($upcontext['chmod']['ftp_error']))
 		return;
 
-	// @todo Temporary!
-	$txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
-	$txt['ftp_login'] = 'Your FTP connection information';
-	$txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you.  Please note that none of this information is saved in your installation, it is just used to setup SMF.';
-	$txt['ftp_server'] = 'Server';
-	$txt['ftp_server_info'] = 'The address (often localhost) and port for your FTP server.';
-	$txt['ftp_port'] = 'Port';
-	$txt['ftp_username'] = 'Username';
-	$txt['ftp_username_info'] = 'The username to login with. <em>This will not be saved anywhere.</em>';
-	$txt['ftp_password'] = 'Password';
-	$txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
-	$txt['ftp_path'] = 'Install Path';
-	$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank">(more help)</a>.';
-	$txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
-	$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client.  It commonly starts with &quot;<tt>www</tt>&quot;, &quot;<tt>public_html</tt>&quot;, or &quot;<tt>httpdocs</tt>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;.  It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
-	$txt['ftp_path_help_close'] = 'Close';
-	$txt['ftp_connect'] = 'Connect';
-
 	// Was it a problem with Windows?
 	if (!empty($upcontext['chmod']['ftp_error']) && $upcontext['chmod']['ftp_error'] == 'total_mess')
 	{
@@ -3506,7 +3544,7 @@ function template_chmod()
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
-					content.write(\'<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
+					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
@@ -3573,14 +3611,15 @@ function template_upgrade_above()
 	global $modSettings, $txt, $smfsite, $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
-<html', $upcontext['right_to_left'] ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-				<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script><!-- // --><![CDATA[
 			var smf_scripturl = \'', $upgradeurl, '\';
 			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
@@ -3780,9 +3819,8 @@ function template_welcome_message()
 
 	echo '
 		<script src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
-	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($upcontext['login_token']) ? $upcontext['login_token'] : '') . '\');"' : '', '>
+	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
@@ -4027,6 +4065,14 @@ function template_upgrade_options()
 						</td>
 						<td width="100%">
 							<label for="empty_error">Empty error log before upgrading</label>
+						</td>
+					</tr>
+					<tr valign="top">
+						<td width="2%">
+							<input type="checkbox" name="delete_karma" id="delete_karma" value="1" class="input_check">
+						</td>
+						<td width="100%">
+							<label for="delete_karma">Delete all karma settings and info from the DB</label>
 						</td>
 					</tr>
 					<tr valign="top">

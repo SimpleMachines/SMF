@@ -628,12 +628,6 @@ pre.file_content {
 	border: none;
 	border-radius: 7px 7px 0 0;
 }
-#manage_boards .catbg a {
-	color: #346;
-}
-#manage_boards .catbg a:hover {
-	border-bottom: 1px solid #346;
-}
 #manage_boards .windowbg {
 	margin: 0;
 	padding: 0;
@@ -681,7 +675,6 @@ pre.file_content {
 	padding: 0 0.5em;
 }
 #manage_boards span.modify_boards a {
-
 	border: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
@@ -696,7 +689,6 @@ pre.file_content {
 	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 #manage_boards span.modify_boards a:hover {
-
 	text-decoration: none;
 	color: #444;
 	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);

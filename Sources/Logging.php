@@ -201,7 +201,7 @@ function logLastDatabaseError()
  */
 function displayDebug()
 {
-	global $context, $scripturl, $boarddir, $modSettings;
+	global $context, $scripturl, $boarddir, $sourcedir, $modSettings;
 	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
@@ -221,7 +221,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.'));
+		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)'));
 	}
 
 	$warnings = 0;
@@ -256,13 +256,7 @@ function displayDebug()
 
 	// What tokens are active?
 	if (isset($_SESSION['token']))
-	{
-		$token_list = array();
-		foreach ($_SESSION['token'] as $key => $data)
-			$token_list[] = $key;
-
-		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', $token_list), '</em>.<br>';
-	}
+		echo $txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
 
 	if (!empty($modSettings['cache_enable']) && !empty($cache_hits))
 	{
@@ -441,7 +435,7 @@ function logActions($logs)
 			return false;
 
 		if (!is_array($log['extra']))
-			trigger_error('logActions(): data is not an array with action \'' . $action . '\'', E_USER_NOTICE);
+			trigger_error('logActions(): data is not an array with action \'' . $log['action'] . '\'', E_USER_NOTICE);
 
 		// Pull out the parts we want to store separately, but also make sure that the data is proper
 		if (isset($log['extra']['topic']))

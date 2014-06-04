@@ -150,7 +150,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
+	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
@@ -569,12 +569,21 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-weight: bold;
 	cursor: pointer;
 }
-.next_page, .previous_page {
-	text-transform: capitalize;
-	padding: 0 2px;
+.previous_page {
+	background: url(../images/generic_icons.png) no-repeat -113px -49px;
+	width: 14px;
+	height: 13px;
+	display: inline-block;
+	margin: 0 0 -1px 0;
+}
+.next_page {
+	background: url(../images/generic_icons.png) no-repeat -113px -33px;
+	width: 14px;
+	height: 13px;
+	display: inline-block;
+	margin: 0 0 -1px 0;
 }
 .current_page strong {
-	font-size: 1.2em;
 	padding: 0 4px 0 2px;
 	color: #b46100;
 	font-family: verdana, sans-serif;
@@ -751,7 +760,7 @@ a.moderation_link, a.moderation_link:visited {
 	border: 1px solid #ccc;
 	border-top: none;
 	border-radius: 0 0 3px 3px;
-	background: none;
+	background: none repeat scroll 0 0 #E9EEF2;
 	margin: -1px 0 12px 0;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
@@ -861,7 +870,7 @@ h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.cat
 	color: #fff;
 }
 h3.catbg a:hover, h4.catbg a:hover {
-	color: #ffc178;
+	color: #fff;
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
@@ -1185,6 +1194,7 @@ img.sort, .sort {
 	border-top: solid 1px #ccc;
 	border-radius: 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
+	background: #FFFFFF;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
@@ -1309,7 +1319,7 @@ img.sort, .sort {
 	border: 1px solid #ccc;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
-	border-radius: 1px;
+	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	padding: 0 8px;
 	margin: 0 0 0 5px;
@@ -1340,7 +1350,6 @@ img.sort, .sort {
 	background: #557ea0;
 	color: #fff;
 	font-weight: bold;
-	border-radius: 3px;
 	border: 1px solid #558080;
 	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
@@ -1486,6 +1495,7 @@ img#smflogo {
 .welcome
 {
 	padding-left: 10px;
+	padding-top: 5px;
 }
 /*
 /* The user info, news, etc.*/
@@ -2159,12 +2169,14 @@ ul.quickbuttons li a.split_button {
 }
 ul.quickbuttons li a.reply_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	padding: 0px 4px 0px 22px;
 }
 ul.quickbuttons li a.reply_all_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
 }
 ul.quickbuttons li a.notify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -210px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 1px -210px;
+	padding: 0 4px 0 22px;
 }
 ul.quickbuttons li a.unapprove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
@@ -2267,6 +2279,10 @@ ul.quickbuttons li.inline_mod_check {
 	width: 12em;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
+/* Sub buttons doesn't need to be effected by first-child/last-child */
+ul.quickbuttons li > ul > li {
+	border-radius: 3px !important;
+}
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
 	margin: 0 -9910px 0 9910px;
@@ -2333,18 +2349,18 @@ ul.quickbuttons li.inline_mod_check {
 form#postmodify .roundframe {
 	padding: 12px 12%;
 }
-#post_header, .postbox {
+#post_header {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt, .postbox dt {
+#post_header dt {
 	float: left;
 	padding: 0;
 	width: 15%;
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd, .postbox dd {
+#post_header dd {
 	float: left;
 	padding: 0;
 	width: 83%;
@@ -2376,8 +2392,11 @@ ul.post_options li {
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: 4px 0 4px 12px;
+#postAttachment dd {
+	margin: 2px 12px;
+}
+#postAttachment2 dd {
+	margin: 4px 12px;
 }
 #postAttachment dd {
 	width: 45%;
@@ -3354,9 +3373,6 @@ dl.stats dd span {
 	background: none;
 	border: none;
 }
-.half {
-	width: 50%;
-}
 /* Forum history table. */
 #stats {
 	margin: 4px 0;
@@ -3770,6 +3786,9 @@ div#editlang_desc {
 #recent .core_posts span {
 	font-weight: normal;
 }
+.core_posts .quickbuttons li:last-child, .core_posts .quickbuttons li:last-child:hover {
+	border-radius: 4px;
+}
 #recent .quickbuttons {
 	margin-top: -2px;
 }
@@ -4040,7 +4059,8 @@ div.lastpost p {
 }
 .moderation {
 	float: right;
-	width: 2%;
+	width: 35px;
+	margin: 5px 0 0 0;
 }
 #topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	border-radius: 0;
@@ -4063,4 +4083,51 @@ div.lastpost p {
 .infolinks {
 	min-width: 95%;
 	float: left;
+}
+
+.atwho-view {
+	position:absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	margin-top: 18px;
+	background: white;
+	border: 1px solid #DDD;
+	border-radius: 3px;
+	box-shadow: 0 0 5px rgba(0,0,0,0.1);
+	min-width: 120px;
+	z-index: 11110 !important;
+}
+
+.atwho-view .cur {
+	background: #3366FF;
+	color: white;
+}
+.atwho-view .cur small {
+	color: white;
+}
+.atwho-view strong {
+	color: #3366FF;
+}
+.atwho-view .cur strong {
+	color: white;
+	font:bold;
+}
+.atwho-view ul {
+	/* width: 100px; */
+	list-style:none;
+	padding:0;
+	margin:auto;
+}
+.atwho-view ul li {
+	display: block;
+	padding: 5px 10px;
+	border-bottom: 1px solid #DDD;
+	cursor: pointer;
+	/* border-top: 1px solid #C8C8C8; */
+}
+.atwho-view small {
+	font-size: smaller;
+	color: #777;
+	font-weight: normal;
 }

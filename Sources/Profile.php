@@ -602,7 +602,7 @@ function ModifyProfile($post_errors = array())
 				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
 
 				// Bad password!!!
-				if (!$good_password && $user_info['passwd'] != sha1(strtolower($user_profile[$memID]['member_name']) . un_htmlspecialchars(stripslashes($_POST['oldpasswrd']))))
+				if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
 					$post_errors[] = 'bad_password';
 
 				// Warn other elements not to jump the gun and do custom changes!

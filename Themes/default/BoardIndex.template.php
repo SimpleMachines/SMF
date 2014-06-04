@@ -26,7 +26,7 @@ function template_newsfader()
 			<div id="newsfader">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>
+						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide_newsfader'],'" align="bottom" style="display: none;"></span>
 						', $txt['news'], '
 					</h3>
 				</div>
@@ -56,8 +56,8 @@ function template_newsfader()
 					aSwapImages: [
 						{
 							sId: \'newsupshrink\',
-							altExpanded: ', JavaScriptEscape($txt['hide']), ',
-							altCollapsed: ', JavaScriptEscape($txt['show']), '
+							altExpanded: ', JavaScriptEscape($txt['hide_newsfader']), ',
+							altCollapsed: ', JavaScriptEscape($txt['show_newsfader']), '
 						}
 					],
 					oThemeOptions: {
@@ -101,7 +101,7 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', $txt['hide'], '" align="bottom" style="display: none;"></span>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? $txt['hide_category'] : $txt['show_category'] ,'" align="bottom" style="display: none;"></span>';
 
 		echo '
 					', $category['link'], '
@@ -217,7 +217,7 @@ function template_info_center()
 	<div class="roundframe" id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide'], '" style="display: none;"></span>
+				<span class="toggle_up floatright" id="upshrink_ic" title="', $txt['hide_infocenter'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', sprintf($txt['info_center_title'], $context['forum_name_html_safe']), '</a>
 			</h3>
 		</div>
@@ -245,8 +245,8 @@ function template_info_center()
 			aSwapImages: [
 				{
 					sId: \'upshrink_ic\',
-					altExpanded: ', JavaScriptEscape($txt['hide']), ',
-					altCollapsed: ', JavaScriptEscape($txt['show']), '
+					altExpanded: ', JavaScriptEscape($txt['hide_infocenter']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show_infocenter']), '
 				}
 			],
 			aSwapLinks: [

@@ -21,8 +21,6 @@ $txt['yearly_summary'] = 'Yearly Summary';
 $txt['smf_stats_14'] = 'Most Online';
 $txt['top_starters'] = 'Top Topic Starters';
 $txt['most_time_online'] = 'Most Time Online';
-$txt['best_karma'] = 'Best Karma';
-$txt['worst_karma'] = 'Worst Karma';
 $txt['stats_more_detailed'] = 'more detailed &raquo;';
 
 $txt['average_members'] = 'Average registrations per day';

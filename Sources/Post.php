@@ -770,7 +770,10 @@ function Post($post_errors = array())
 				{
 					// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 					if ($i % 4 == 0)
-						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', create_function('$m', ' return \'[html]\' . preg_replace(\'~<br\s?/?' . '>~i\', \'&lt;br /&gt;<br>\', "$m[1]") . \'[/html]\';'), $parts[$i]);
+						$parts[$i] = preg_replace_callback('~\[html\](.+?)\[/html\]~is', function ($m)
+						{
+							return '[html]' . preg_replace('~<br\s?/?' . '>~i', '&lt;br /&gt;<br>', "$m[1]") . '[/html]';
+						}, $parts[$i]);
 				}
 				$form_message = implode('', $parts);
 			}
@@ -1148,6 +1151,13 @@ function Post($post_errors = array())
 
 	// Register this form in the session variables.
 	checkSubmitOnce('register');
+
+	// Mentions
+	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+	{
+		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+	}
 
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')

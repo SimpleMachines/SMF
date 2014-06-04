@@ -126,6 +126,16 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 ---}
 ---#
 
+---# Calculate appropriate hash cost
+---{
+  $smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('bcrypt_hash_cost', hash_benchmark()),
+		array('variable')
+  );
+---}
+
 /******************************************************************************/
 --- Updating legacy attachments...
 /******************************************************************************/
@@ -744,6 +754,7 @@ ALTER TABLE `{$db_prefix}members`
 ---#
 
 ---# Create the displayFields setting
+---{
 	$request = $smcFunc['db_query']('', '
 		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 		FROM {db_prefix}custom_fields',
@@ -762,6 +773,7 @@ ALTER TABLE `{$db_prefix}members`
 		array('displayFields', serialize($fields)),
 		array('id_theme', 'id_member', 'variable')
 	);
+---}
 ---#
 
 /******************************************************************************/
@@ -869,6 +881,22 @@ ADD COLUMN likes smallint(5) unsigned NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
+--- Adding support for mentions
+/******************************************************************************/
+---# Creating mentions table
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned),
+  INDEX content (content_id, content_type),
+  INDEX mentionee (id_member)
+) ENGINE=MyISAM;
+---#
+
+/******************************************************************************/
 --- Adding support for group-based board moderation
 /******************************************************************************/
 ---# Creating moderator_groups table
@@ -936,7 +964,6 @@ WHERE variable = 'avatar_action_too_large'
 		// Now, let's just recap something.
 		// cd = calendar, should also have set cal_enabled already
 		// cp = custom profile fields, which already has several fields that cover tracking
-		// k = karma, should also have set karmaMode already
 		// ps = paid subs, should also have set paid_enabled already
 		// rg = reports generation, which is now permanently on
 		// sp = spider tracking, should also have set spider_mode already

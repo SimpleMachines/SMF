@@ -701,53 +701,6 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + option + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
 }
 
-function hashLoginPassword(doForm, cur_session_id, token)
-{
-	// Compatibility.
-	if (cur_session_id == null)
-		cur_session_id = smf_session_id;
-
-	if (typeof(hex_sha1) == 'undefined')
-		return;
-	// Are they using an email address?
-	if (doForm.user.value.indexOf('@') != -1)
-		return;
-
-	// Unless the browser is Opera, the password will not save properly.
-	if (!('opera' in window))
-		doForm.passwrd.autocomplete = 'off';
-
-	doForm.hash_passwrd.value = hex_sha1(hex_sha1(doForm.user.value.php_to8bit().php_strtolower() + doForm.passwrd.value.php_to8bit()) + cur_session_id + token);
-
-	// It looks nicer to fill it with asterisks, but Firefox will try to save that.
-	if (is_ff != -1)
-		doForm.passwrd.value = '';
-	else
-		doForm.passwrd.value = doForm.passwrd.value.replace(/./g, '*');
-}
-
-function hashAdminPassword(doForm, username, cur_session_id, token)
-{
-	// Compatibility.
-	if (cur_session_id == null)
-		cur_session_id = smf_session_id;
-
-	if (typeof(hex_sha1) == 'undefined')
-		return;
-
-	doForm.admin_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.admin_pass.value.php_to8bit()) + cur_session_id + token);
-	doForm.admin_pass.value = doForm.admin_pass.value.replace(/./g, '*');
-}
-
-function hashModeratePassword(doForm, username, cur_session_id, token)
-{
-	if (typeof(hex_sha1) == 'undefined')
-		return;
-
-	doForm.moderate_hash_pass.value = hex_sha1(hex_sha1(username.php_to8bit().php_strtolower() + doForm.moderate_pass.value.php_to8bit()) + cur_session_id + token);
-	doForm.moderate_pass.value = doForm.moderate_pass.value.replace(/./g, '*');
-}
-
 // Shows the page numbers by clicking the dots (in compact view).
 function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 {

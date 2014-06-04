@@ -67,10 +67,7 @@ require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
-
-// Using an pre-PHP 5.1 version?
-if (version_compare(PHP_VERSION, '5.1', '<'))
-	require_once($sourcedir . '/Subs-Compat.php');
+require_once($sourcedir . '/Subs-Auth.php');
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
@@ -1926,7 +1923,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 	list ($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return sha1(strtolower($user) . $password) == $pass && $active == 1;
+	return hash_verify_password($user, $password, $pass) && $active == 1;
 }
 
 // We want to show the recent attachments outside of the forum.

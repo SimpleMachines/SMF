@@ -1440,7 +1440,7 @@ function InstallCopy()
 <!-- The theme\'s version, please try to use semantic versioning. -->
 <version>1.0</version>
 <!-- Install for, the SMF versions this theme was designed for. Uses the same wildcards used in the packager manager. This field is mandatory. -->
-<install for="'. $context['to_install']['install_for'] .'">
+<install for="'. $context['to_install']['install_for'] .'" />
 <!-- Theme name, used purely for aesthetics. -->
 <name>' . $context['to_install']['name'] . '</name>
 <!-- Author: your email address or contact information. The name attribute is optional. -->
@@ -1492,8 +1492,8 @@ function InstallDir()
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// All good! set some needed vars.
-		$context['to_install'] = array(
-		'dir' => $_REQUEST['theme_dir'],
+	$context['to_install'] = array(
+		'theme_dir' => $_REQUEST['theme_dir'],
 		'theme_url' => $themeurl . '/' . $name,
 		'name' => $name,
 		'images_url' => $themeurl . '/' . $name . '/images',
@@ -1520,7 +1520,7 @@ function InstallDir()
  */
 function WrapAction()
 {
-	global $context, $settings, $sourcedir;
+	global $context, $settings, $modSettings;
 
 	// Load any necessary template(s)?
 	if (isset($settings['catch_action']['template']))
@@ -1534,13 +1534,17 @@ function WrapAction()
 	if (isset($settings['catch_action']['layers']))
 		$context['template_layers'] = $settings['catch_action']['layers'];
 
-	// Just call a function?
+	// Any function to call?
 	if (isset($settings['catch_action']['function']))
 	{
-		if (isset($settings['catch_action']['filename']))
-			template_include($sourcedir . '/' . $settings['catch_action']['filename'], true);
+		$hook = $settings['catch_action']['function'];
 
-		$settings['catch_action']['function']();
+		if (isset($settings['catch_action']['filename']))
+			$hook = $settings['catch_action']['filename'] . '|' . $hook;
+
+		$modSettings['integrate_wrap_action'] = $hook;
+
+		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
 	if (isset($settings['catch_action']['sub_template']))
@@ -1839,7 +1843,7 @@ function EditTheme()
 	{
 		$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($theme_dir . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($context['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.

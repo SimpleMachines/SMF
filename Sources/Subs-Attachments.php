@@ -545,7 +545,7 @@ function attachmentChecks($attachID)
 			// Success! However, successes usually come for a price:
 			// we might get a new format for our image...
 			$old_format = $size[2];
-			$size = @getimagesize($attachmentOptions['tmp_name']);
+			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
 			{
 				if (isset($validImageTypes[$size[2]]))

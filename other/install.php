@@ -14,7 +14,7 @@
 $GLOBALS['current_smf_version'] = '2.1 Alpha 1';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.3.2';
+$GLOBALS['required_php_version'] = '5.3.8';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -1323,7 +1323,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir;
+	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1337,9 +1337,17 @@ function AdminAccount()
 	require(dirname(__FILE__) . '/Settings.php');
 	load_database();
 
-	// Define the sha1 function, if it doesn't exist.
-	if (!function_exists('sha1') || version_compare(PHP_VERSION, '5', '<'))
-		require_once($sourcedir . '/Subs-Compat.php');
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	// We need this to properly hash the password for Admin
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1445,6 +1453,8 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
+			$_POST['password1'] = hash_password(stripslashes($_POST['username']), stripslashes($_POST['password1']));
+
 			$request = $smcFunc['db_insert']('',
 				$db_prefix . 'members',
 				array(
@@ -1457,7 +1467,7 @@ function AdminAccount()
 					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
 				),
 				array(
-					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
+					stripslashes($_POST['username']), stripslashes($_POST['username']), $_POST['password1'], stripslashes($_POST['email']),
 					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
@@ -1548,7 +1558,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
-		setLoginCookie(3153600 * 60, $incontext['member_id'], sha1(sha1(strtolower($_POST['username']) . $_POST['password1']) . $incontext['member_salt']));
+		setLoginCookie(3153600 * 60, $incontext['member_id'], hash_salt($_POST['password1'], $incontext['member_salt']));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT value
@@ -1586,8 +1596,14 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8' ? create_function('$string', '
-		return $string;') : 'strtolower';
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg
@@ -1626,6 +1642,11 @@ function DeleteInstall()
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
 	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(dirname(__FILE__)) || is_writable(__FILE__);
+
+	// Update hash's cost to an appropriate setting
+	updateSettings(array(
+		'bcrypt_hash_cost' => hash_benchmark(),
+	));
 
 	return false;
 }
@@ -2111,13 +2132,14 @@ function template_install_above()
 	global $incontext, $txt, $smfsite, $installurl;
 
 	echo '<!DOCTYPE html>
-<html', !empty($txt['lang_rtl']) ? ' dir="rtl"' : '', '>
+<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="Themes/default/css/rtl.css?alp21">' : '' , '
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2338,7 +2360,7 @@ function template_chmod_files()
 				<tr>
 					<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
 					<td>
-						<div style="float: ', empty($txt['lang_rtl']) ? 'right' : 'left', '; margin-', empty($txt['lang_rtl']) ? 'right' : 'left', ': 1px;"><label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $incontext['ftp']['port'], '" class="input_text" /></div>
+						<div style="float: ', $txt['lang_rtl'] == false ? 'right' : 'left', '; margin-', $txt['lang_rtl'] == false ? 'right' : 'left', ': 1px;"><label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', $incontext['ftp']['port'], '" class="input_text" /></div>
 						<input type="text" size="30" name="ftp_server" id="ftp_server" value="', $incontext['ftp']['server'], '" style="width: 70%;" class="input_text" />
 						<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['ftp_server_info'], '</div>
 					</td>
@@ -2362,7 +2384,7 @@ function template_chmod_files()
 					</td>
 				</tr>
 			</table>
-			<div style="margin: 1ex; margin-top: 1ex; text-align: ', empty($txt['lang_rtl']) ? 'right' : 'left', ';"><input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button_submit" /></div>
+			<div style="margin: 1ex; margin-top: 1ex; text-align: ', $txt['lang_rtl'] == false ? 'right' : 'left', ';"><input type="submit" value="', $txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button_submit" /></div>
 		</form>
 		<a href="', $incontext['form_url'], '">', $txt['error_message_click'], '</a> ', $txt['ftp_setup_again'];
 }
@@ -2666,7 +2688,7 @@ function template_admin_account()
 		<h2>', $txt['user_settings_database'], '</h2>
 		<p>', $txt['user_settings_database_info'], '</p>
 
-		<div style="margin-bottom: 2ex; padding-', empty($txt['lang_rtl']) ? 'left' : 'right', ': 50px;">
+		<div style="margin-bottom: 2ex; padding-', $txt['lang_rtl'] == false ? 'left' : 'right', ': 50px;">
 			<input type="password" name="password3" size="30" class="input_password" />
 		</div>';
 }

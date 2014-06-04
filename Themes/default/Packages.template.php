@@ -91,7 +91,7 @@ function template_view_package()
 	}
 
 	echo '
-		<form action="', $context['post_url'], '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
+		<form action="', !empty($context['post_url']) ? $context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $context['uninstalling'] ? $txt['package_uninstall_actions'] : $txt['package_install_actions'], ' &quot;', $context['package_name'], '&quot;
@@ -710,7 +710,12 @@ function template_servers()
 		</div>
 		<br>
 		<div class="cat_bar">
-			<h3 class="catbg"><a class="download_new_package">', $txt['download_new_package'], '</a></h3>
+			<h3 class="catbg">
+				<a class="download_new_package">
+					<span class="toggle_down floatright" alt="*" title="', $txt['show'], '"></span>
+					', $txt['download_new_package'], '
+				</a>
+			</h3>
 		</div>
 		<div class="new_package_content">';
 

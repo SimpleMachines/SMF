@@ -38,9 +38,6 @@ $txt['default_board_description'] = 'Feel free to talk about anything and everyt
 $txt['default_category_name'] = 'General Category';
 $txt['default_time_format'] = '%b %d, %Y, %I:%M %p';
 $txt['default_news'] = 'SMF - Just Installed!';
-$txt['default_karmaLabel'] = 'Karma:';
-$txt['default_karmaSmiteLabel'] = '[smite]';
-$txt['default_karmaApplaudLabel'] = '[applaud]';
 $txt['default_reserved_names'] = 'Admin\nWebmaster\nGuest\nroot';
 $txt['default_smileyset_name'] = 'Alienine\'s Set';
 $txt['default_aaron_smileyset_name'] = 'Aaron\'s Set';
@@ -241,5 +238,22 @@ $txt['upgrade_error_script_js'] = 'The upgrade script cannot find script.js or i
 
 $txt['upgrade_warning_lots_data'] = 'This upgrade script has detected that your forum contains a lot of data which needs upgrading. This process may take quite some time depending on your server and forum size, and for very large forums (~300,000 messages) may take several hours to complete.';
 $txt['upgrade_warning_out_of_date'] = 'This upgrade script is out of date! The current version of SMF is <em id="smfVersion" style="white-space: nowrap;">??</em> but this upgrade script is for <em id="yourVersion" style="white-space: nowrap;">%1$s</em>.<br><br>It is recommended that you visit the <a href="http://www.simplemachines.org">Simple Machines</a> website to ensure you are upgrading to the latest version.';
+
+$txt['error_ftp_no_connect'] = 'Unable to connect to FTP server with this combination of details.';
+$txt['ftp_login'] = 'Your FTP connection information';
+$txt['ftp_login_info'] = 'This web installer needs your FTP information in order to automate the installation for you.  Please note that none of this information is saved in your installation, it is just used to setup SMF.';
+$txt['ftp_server'] = 'Server';
+$txt['ftp_server_info'] = 'The address (often localhost) and port for your FTP server.';
+$txt['ftp_port'] = 'Port';
+$txt['ftp_username'] = 'Username';
+$txt['ftp_username_info'] = 'The username to login with. <em>This will not be saved anywhere.</em>';
+$txt['ftp_password'] = 'Password';
+$txt['ftp_password_info'] = 'The password to login with. <em>This will not be saved anywhere.</em>';
+$txt['ftp_path'] = 'Install Path';
+$txt['ftp_path_info'] = 'This is the <em>relative</em> path you use in your FTP client <a href="' . $_SERVER['PHP_SELF'] . '?ftphelp" onclick="window.open(this.href, \'\', \'width=450,height=250\');return false;" target="_blank">(more help)</a>.';
+$txt['ftp_path_found_info'] = 'The path in the box above was automatically detected.';
+$txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to your FTP client.  It commonly starts with &quot;<tt>www</tt>&quot;, &quot;<tt>public_html</tt>&quot;, or &quot;<tt>httpdocs</tt>&quot; - but it should include the directory SMF is in too, such as &quot;/public_html/forum&quot;.  It is different from your URL and full path.<br><br>Files in this path may be overwritten, so make sure it\'s correct.';
+$txt['ftp_path_help_close'] = 'Close';
+$txt['ftp_connect'] = 'Connect';
 
 ?>

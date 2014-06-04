@@ -80,6 +80,8 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 	// Make some user defined functions!
 	smf_db_define_udfs($connection);
 
+	// Fix for "Database Is Locked" error (measured in ms, so this is 1 second)
+	$connection->busyTimeout(1000);
 	return $connection;
 }
 
@@ -116,6 +118,9 @@ function smf_db_check_connection($connection)
 		$connection = new Sqlite3($db_name);
 
 		smf_db_define_udfs($connection);
+
+		// Fix for the "Database Is Locked" error (measured in ms, so this is 1 second)
+		$connection->busyTimeout(1000);
 	}
 
 	return $connection;
@@ -183,7 +188,7 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if ($matches[1] === 'literal')
-		return '\'' . SQLite::escapeString($matches[2]) . '\'';
+		return '\'' . SQLite3::escapeString($matches[2]) . '\'';
 
 	if (!isset($values[$matches[2]]))
 		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
@@ -428,8 +433,14 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$db_cache[$db_count]['s'] = array_sum(explode(' ', $st)) - array_sum(explode(' ', $time_start));
 	}
 
-	$ret = @$connection->query($db_string);
-	if ($ret === false && empty($db_values['db_error_skip']))
+	// When we don't want results, we use exec() instead...
+	// Right now we do this for everything but SELECT queries. This may change in the future.
+	if (stristr($db_string, 'SELECT') === false)
+		$ret = @$connection->exec($db_string);
+	else
+		$ret = @$connection->query($db_string);
+
+	if ($ret === false && empty($db_values['db_error_skip']) && $connection->lastErrorCode() > 0)
 	{
 		$err_msg = $connection->lastErrorMsg();
 		$ret = smf_db_error($db_string . '#!#' . $err_msg, $connection);
