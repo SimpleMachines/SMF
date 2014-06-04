@@ -305,6 +305,10 @@ function smf_db_quote($db_string, $db_values, $connection = null)
  */
 function smf_db_fetch_array($handle)
 {
+
+	if(!is_object($handle))
+		return false; 
+	
 	return $handle->fetchArray();
 }
 
@@ -741,6 +745,9 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
  */
 function smf_db_free_result($handle = false)
 {
+	if(!is_object($handle))
+		return false;
+ 
 	return $handle->finalize();
 }
 
