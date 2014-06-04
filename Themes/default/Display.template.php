@@ -509,7 +509,7 @@ function template_single_post($message, $force_alternate = null)
 		{
 			if ($custom['placement'] != 5 || empty($custom['value']))
 				continue;
-			if (empty($shown))
+			elseif (empty($shown))
 			{
 				$shown = true;
 				echo '
@@ -517,7 +517,7 @@ function template_single_post($message, $force_alternate = null)
 								<ul class="reset nolist">';
 			}
 			echo '
-									<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
 		}
 		if ($shown)
 			echo '
@@ -605,15 +605,15 @@ function template_single_post($message, $force_alternate = null)
 			{
 				if ($custom['placement'] != 1 || empty($custom['value']))
 					continue;
-				if (empty($shown))
-						{
-							$shown = true;
-							echo '
-								<li class="im_icons">
-									<ol>';
-						}
+				elseif (empty($shown))
+				{
+					$shown = true;
+						echo '
+							<li class="im_icons">
+								<ol>';
+				}
 				echo '
-										<li class="custom ', $custom['colname'] ,'">', $custom['value'], '</li>';
+										<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
 			}
 
 			if ($shown)
