@@ -100,7 +100,7 @@ function template_html_above()
 	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
 	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" />';
+	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
