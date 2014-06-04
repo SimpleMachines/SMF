@@ -408,11 +408,6 @@ function template_menu()
 
 	echo '
 				<div id="main_menu">
-					<a class="button mobile">Main Menu</a>
-					<script>
-						$( "a.button.mobile" ).click(function() {
-							$( "#menu_nav" ).toggle();
-						});</script>
 					<ul class="dropmenu" id="menu_nav">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
