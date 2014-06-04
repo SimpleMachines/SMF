@@ -2319,6 +2319,7 @@ ul.quickbuttons li > ul > li {
 	border: none;
 	float: right;
 	font-size: 1em;
+	background: none;
 }
 #display_jump_to select {
 	margin: 0 -12px 0 0;
@@ -4130,4 +4131,12 @@ div.lastpost p {
 	font-size: smaller;
 	color: #777;
 	font-weight: normal;
+}
+p.moderators {
+	font-size: 0.9em;
+	font-weight: bold;
+}
+span.postby {
+	width: 100%;
+	float: left;
 }

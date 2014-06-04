@@ -29,19 +29,11 @@
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;
 	}
-	#boardindex_table .stats, #boardindex_table .lastpost {
+	#boardindex_table .stats {
 		display: none;
 	}
-	#menu_nav, #upshrinkHeaderIC {
+	#upshrinkHeaderIC {
 		display: none;
-	}
-	#menu_nav li a {
-		float: left !important;
-		min-width: 50%;
-	}
-	.dropmenu li {
-		width: 50% !important;
-		float: left;
 	}
 	.dropmenu li ul {
 		display: none !important;
@@ -58,7 +50,18 @@
 		margin-top: 10px;
 	}
 	div.info {
-		width: 70% !important;
+		width: 80% !important;
+	}
+	div.stats {
+		display: none;
+	}
+	div.lastpost {
+		width: 100%;
+		margin: 0 0 0 5px;
+		padding: 0;
+	}
+	span.postby {
+		float: none;
 	}
 
 	/* MessageIndex */
@@ -66,14 +69,12 @@
 		display: none;
 	}
 	#messageindex .info {
-		margin-left: 5px;
+		width: 95% !important;
+		margin: 0 5px 0 5px;
 	}
 
 	/* Display (Topics) */
 	.user_info {
-		display: none;
-	}
-	#moderationbuttons_strip {
 		display: none;
 	}
 	#moderationbuttons_strip a {
@@ -100,7 +101,7 @@
 
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#postAttachment2, #siteslogan, .sceditor-group, th.smalltext.last_th, th.id_group, th.registered,
+	#postAttachment2, #siteslogan, th.smalltext.last_th, th.id_group, th.registered,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
 		display: none !important;
@@ -277,7 +278,4 @@
 
 @media (min-width: 1024px) {
 /* I need to hide them from you desktop people... */
-	.button.mobile {
-		display: none;
-	}
 }
