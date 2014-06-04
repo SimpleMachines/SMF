@@ -145,7 +145,7 @@ function template_main()
 
 	// Show the page index... "Pages: [1]".
 	echo '
-			<div class="pagesection">
+			<div class="pagesection top">
 				', template_button_strip($context['normal_buttons'], 'right'), '
 				', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
 				<div class="pagelinks floatleft">
@@ -208,7 +208,14 @@ function template_main()
 	theme_linktree();
 
 	echo '
-			<div id="moderationbuttons">', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '</div>';
+			<div id="moderationbuttons">
+				<a class="button mobile">Moderation Buttons</a>
+					<script>
+						$( "a.button.mobile" ).click(function() {
+							$( "#moderationbuttons_strip" ).toggle();
+						});</script>
+				', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '
+			</div>';
 
 	// Show the jumpto box, or actually...let Javascript do it.
 	echo '
@@ -533,7 +540,7 @@ function template_single_post($message, $force_alternate = null)
 									</h4>';
 
 	echo '
-								<ul>';
+								<ul class="user_info">';
 
 
 	// Show the user's avatar.

@@ -1234,19 +1234,19 @@ img.sort, .sort {
 	margin-left: 19950px;
 }
 /* Cancel those for hover and/or js access. */
-.dropmenu ul li:hover a:focus, .dropmenu ul li.sfhover a:focus {
+.dropmenu ul li:hover a:focus, .dropmenu ul li a:focus {
 	margin-left: 0;
 	width: auto;
 }
 /* Necessary to allow highlighting of 1st level while hovering over submenu. */
-.dropmenu li:hover li a, .dropmenu li.sfhover li a {
+.dropmenu li:hover li a, .dropmenu li li a {
 	padding: 0 9px;
 	background: none;
 	color: #346;
 	border: none;
 }
 /* Level 3 submenu wrapper positioning. */
-.dropmenu li ul ul, .dropmenu li.sfhover ul ul {
+.dropmenu li ul ul {
 	margin: -2em 0 0 15.3em;
 }
 /* Level 3 maintains font-size the same as Level 2. */
@@ -1259,7 +1259,7 @@ img.sort, .sort {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.dropmenu li li:hover>a, .dropmenu li li.sfhover a:focus, .dropmenu li li a:hover, .dropmenu li li a:focus {
+.dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover {
 	color: #333;
 	text-decoration: none;
 	border: 1px solid #cfcfcf;
@@ -1268,15 +1268,18 @@ img.sort, .sort {
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Reposition Level 2 submenu as visible on hover. */
-.dropmenu li:hover ul, .dropmenu li.sfhover ul {
-	left: 0;
+.dropmenu li ul {
+	display: none;
+}
+.dropmenu li:hover ul {
+	display: block;
 }
 /* Hiding Level 3 submenu off hover. */
-.dropmenu li:hover ul ul, .dropmenu li.sfhover ul ul, .dropmenu li:hover ul ul ul, .dropmenu li.sfhover ul ul ul {
+.dropmenu li:hover ul ul, .dropmenu li ul ul, .dropmenu li:hover ul ul ul, .dropmenu li ul ul ul {
 	left: -9999px;
 }
 /* Reposition as visible on hover. */
-.dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
+.dropmenu li li:hover ul, .dropmenu li li ul {
 	left: -14px;
 }
 .dropmenu li li.subsections > a:after {
@@ -1992,7 +1995,7 @@ div#pollmoderation {
 .poster h4 {
 	font-size: 1.2em;
 }
-.poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li.sfhover h4 a, .poster h4 a:focus {
+.poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li h4 a, .poster h4 a:focus {
 	margin: 0 0 0 0;
 	padding: 0 0 0 0;
 	color: #c06002;
@@ -2142,15 +2145,18 @@ ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat -1px -1px;
-	padding: 0 4px 0 16px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -1px;
+	padding: 0 2px 0 20px;
+}
+ul.quickbuttons li a.modifybutton {
+	background: url(../images/theme/quickbuttons.png) no-repeat 0 -59px;
+	padding: 0 2px 0 20px;
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
-	padding: 0px 4px 0px 22px
 }
 ul.quickbuttons li a.modify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 3px -57px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 2px -59px;
 }
 ul.quickbuttons li a.approve_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -88px;
@@ -2159,7 +2165,7 @@ ul.quickbuttons li a.restore_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
 }
 ul.quickbuttons li a.split_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 5px -147px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 2px -149px;
 }
 ul.quickbuttons li a.reply_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
@@ -2176,11 +2182,7 @@ ul.quickbuttons li a.unapprove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
 }
 ul.quickbuttons li a.warn_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 4px -270px;
-}
-ul.quickbuttons li a.modifybutton {
-	background: url(../images/icons/modify_inline.png) no-repeat 1px;
-	padding: 0 4px 0 22px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 2px -270px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -2246,11 +2248,15 @@ ul.quickbuttons li.inline_mod_check {
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
-.quickbuttons li:hover ul, .quickbuttons li.sfhover ul {
+.quickbuttons li ul {
+	display: none;
+}
+.quickbuttons li:hover ul {
 	left: auto;
 	right: -1px;
+	display: block;
 }
-.quickbuttons li.sfhover ul li, .quickbuttons li:hover ul li{
+.quickbuttons li ul li, .quickbuttons li:hover ul li{
 	display: block;
 	background: none;
 	border: none;
@@ -2284,7 +2290,7 @@ ul.quickbuttons li > ul > li {
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
 }
 /* Cancel for hover and/or js access. */
-.quickbuttons ul li:hover a:focus, .quickbuttons ul li.sfhover a:focus {
+.quickbuttons ul li:hover a:focus, .quickbuttons ul li a:focus {
 	margin: 0;
 }
 
@@ -4073,6 +4079,10 @@ div.lastpost p {
 .info .icons, #messageindex .stats p, .lastpost p {
 	margin-top: 5px;
 	border: none;
+}
+.infolinks {
+	min-width: 95%;
+	float: left;
 }
 
 .atwho-view {
