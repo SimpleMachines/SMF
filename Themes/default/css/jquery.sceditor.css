@@ -13,7 +13,6 @@
 	position: relative;
 	border: 1px solid #aaa;
 	background: #fff;
-
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	-opera-border-radius: 4px;
@@ -221,7 +220,7 @@ div.sceditor-row {
 	background: url('../images/bbc/toggle.png');
 }
 .sourceMode .sceditor-button-source {
-	background: #fafafa;
+	background: #E5EBF4;
 	box-shadow: 1px 1px 3px rgba(96,134,166,0.3) inset;
 	border: 1px solid #ccc;
 	border-left: none;
