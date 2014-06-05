@@ -55,7 +55,7 @@
 		margin-top: 10px;
 	}
 	div.info {
-		width: 80% !important;
+		width: 75% !important;
 	}
 	div.stats {
 		display: none;
@@ -130,12 +130,15 @@
 		min-height: 285px !important;
 	}
 	.button_submit {
-		font-size: 0.67em !important;
-		max-width: 275px !important;
+		min-width: 25%;
+		margin: 0 0 0 2px;
 	}
 	h1.forumtitle a, h1.forumtitle, a img {
 		padding: 5px 0 0 4px !important;
 		max-width: 300px;
+	}
+	span.board_moderators {
+		display: none !important;
 	}
 	/* BoardIndex */
 	div.icon {
@@ -144,6 +147,9 @@
 	/* MessageIndex */
 
 	/* Register Page */
+	#registration .button_submit {
+		font-size: 0.67em;
+	}
 	dl.register_form {
 		float: none !important;
 		max-width: 350px !important;

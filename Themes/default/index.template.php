@@ -382,21 +382,11 @@ function theme_linktree($force_show = false)
 
 		// Show the link, including a URL if it should have one.
 		if (isset($tree['url']))
-		{
-			if ($tree['url'] == $scripturl)
-				echo '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
-			else
-				echo '
-						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
-							<a href="' . $tree['url'] . '" itemprop="url"><span itemprop="title">' . $tree['name'] . '</span></a>
-						</div>';
-		}
+			echo '
+					<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
 		else
 			echo '
-						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
-							<span>' . $tree['name'] . '</span>
-						</div>';
+					<span>' . $tree['name'] . '</span>';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after']))
