@@ -229,7 +229,7 @@ function deleteMembers($users, $check_not_admin = false)
 	// Delete their mentions
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}mentions
-		WHERE id_member IN ({array_int}members})',
+		WHERE id_member IN ({array_int:members})',
 		array(
 			'members' => $users,
 		)

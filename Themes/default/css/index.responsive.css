@@ -1,0 +1,290 @@
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+	/* Stuff */
+	.infolinks {
+		margin: 0 7px 0 0;
+		min-width: 50px;
+	}
+	input, select {
+		width: 90%;
+		float: left;
+	}
+	input.input_check, input.input_radio {
+		width: 10%;
+	}
+	#registration .field_icons {
+		float: left;
+		margin: 5px 0 0 3px;
+	}
+	dl.register_form dt span {
+		display: inline;
+	}
+	.button_submit.qaction {
+		width: 10%;
+		margin: 0;
+	}
+	.qaction {
+		width: 40%;
+		margin: 0 5px 0 0;
+	}
+	/* General */
+	.action_home {
+		width: 100% !important;
+	}
+	#wrapper, .frame {
+		min-width: 100% !important;
+	}
+	#upper_section, #inner_section, #content_section {
+		border-radius: 0;
+	}
+	#boardindex_table .stats {
+		display: none;
+	}
+	#upshrinkHeaderIC {
+		display: none;
+	}
+	.login {
+		width: 100%;
+	}
+	.top_menu {
+		width: 23em !important;
+	}
+
+	/* BoardIndex */
+	div.icon span {
+		margin-top: 10px;
+	}
+	div.info {
+		width: 80% !important;
+	}
+	div.stats {
+		display: none;
+	}
+	div.lastpost {
+		width: 100%;
+		margin: 0 0 0 5px;
+		padding: 0;
+	}
+	span.postby {
+		float: none;
+	}
+
+	/* MessageIndex */
+	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
+		display: none;
+	}
+	#messageindex .info {
+		width: 95% !important;
+		margin: 0 5px 0 5px;
+	}
+
+	/* Display (Topics) */
+	.user_info {
+		display: none;
+	}
+	#moderationbuttons_strip a {
+		float: left;
+		width: 40%;
+	}
+	.button.button_strip_mark_unread {
+		display: none;
+	}
+	.button.mobile {
+		margin: 0 0 5px 0;
+	}
+
+	/* Profile */
+	#admin_content .content {
+		padding: 0;
+	}
+	#creator dt {
+		width: 33%;
+	}
+	#creator dd {
+		width: 65%;
+	}
+
+	/* Hide me */
+	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#postAttachment2, #siteslogan, th.smalltext.last_th, th.id_group, th.registered,
+	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
+	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
+		display: none !important;
+	}
+	.unread_links {
+		width: 95%;
+		float: left !important;
+	}
+	.unread_links a {
+		padding: 5px 0 5px 0 !important;
+		margin-right: 3px;
+	}
+}
+
+/* I have a Lumia with 480px screen... so ^^ */
+@media (max-width: 480px) {
+
+	/* This is general */
+	.popup_window {
+		width: 310px !important;
+		min-height: 285px !important;
+	}
+	.button_submit {
+		font-size: 0.67em !important;
+		max-width: 275px !important;
+	}
+	h1.forumtitle a, h1.forumtitle, a img {
+		padding: 5px 0 0 4px !important;
+		max-width: 300px;
+	}
+	/* BoardIndex */
+	div.icon {
+		width: 15% !important;
+	}
+	/* MessageIndex */
+
+	/* Register Page */
+	dl.register_form {
+		float: none !important;
+		max-width: 350px !important;
+	}
+	dl.register_form dt, dl.register_form dd {
+		float: none !important;
+		min-width: 250px !important;
+	}
+
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+
+	/* Post Section */
+	#post_header dd {
+		width: 50% !important;
+	}
+	#post_header dt {
+		width: 35% !important;
+	}
+
+	/* Profile */
+	#basicinfo, #detailedinfo {
+		float: none !important;
+		width: 95% !important;
+	}
+
+	/* Stats Center */
+	.half_content {
+		width: 100%;
+		padding: 0;
+	}
+	.stats_left {
+		border-right: 0;
+	}
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+
+	/* Search */
+	#searchform .roundframe {
+		padding: 5px;
+	}
+	#advanced_search dt {
+		text-align: left;
+		float: left;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+}
+
+@media (min-width: 481px) and (max-width: 720px) {
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+	/* Profile */
+	#basicinfo, #detailedinfo {
+		float: none !important;
+		width: 95% !important;
+	}
+
+	/* Stats Center */
+	th.recentposter, th.recentboard, th.recenttime,
+	td.recentposter, td.recentboard, td.recenttime {
+		display: none;
+	}
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+
+	/* Search */
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: 100%;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+}
+
+/* Still not enough data or people to test this... */
+@media (min-width: 721px) and (max-width: 1023px) {
+	#messageindex .lastpost {
+		width: 20% !important;
+		margin: 3px 0 0 5px;
+	}
+}
+
+@media (min-width: 1024px) {
+/* I need to hide them from you desktop people... */
+}

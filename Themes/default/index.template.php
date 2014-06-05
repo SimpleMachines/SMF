@@ -99,7 +99,8 @@ function template_html_above()
 	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
 	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
-	<title>', $context['page_title_html_safe'], '</title>';
+	<title>', $context['page_title_html_safe'], '</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
@@ -380,13 +381,21 @@ function theme_linktree($force_show = false)
 			echo $tree['extra_before'], ' ';
 
 		// Show the link, including a URL if it should have one.
-		if ($tree['url'] == $scripturl)
-			echo isset($tree['url']) ? '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>';
-		else
-			echo isset($tree['url']) ? '
+		if (isset($tree['url']))
+		{
+			if ($tree['url'] == $scripturl)
+				echo '
+							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
+			else
+				echo '
 						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
-							<a href="' . $tree['url'] . '" itemprop="url"><span itemprop="title">' . $tree['name'] . '</span></a>' : '<span>' . $tree['name'] . '</span>
+							<a href="' . $tree['url'] . '" itemprop="url"><span itemprop="title">' . $tree['name'] . '</span></a>
+						</div>';
+		}
+		else
+			echo '
+						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
+							<span>' . $tree['name'] . '</span>
 						</div>';
 
 		// Show something after the link...?
@@ -423,6 +432,7 @@ function template_menu()
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
 								', $button['title'], '
 							</a>';
+
 		if (!empty($button['sub_buttons']))
 		{
 			echo '
