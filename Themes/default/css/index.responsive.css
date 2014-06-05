@@ -19,6 +19,14 @@
 	dl.register_form dt span {
 		display: inline;
 	}
+	.button_submit.qaction {
+		width: 10%;
+		margin: 0;
+	}
+	.qaction {
+		width: 40%;
+		margin: 0 5px 0 0;
+	}
 	/* General */
 	.action_home {
 		width: 100% !important;
@@ -133,6 +141,7 @@
 	div.icon {
 		width: 15% !important;
 	}
+	/* MessageIndex */
 
 	/* Register Page */
 	dl.register_form {
@@ -232,7 +241,6 @@
 	.keyinfo h5 .modified {
 		float: none !important;
 	}
-
 	/* Profile */
 	#basicinfo, #detailedinfo {
 		float: none !important;
@@ -271,6 +279,10 @@
 
 /* Still not enough data or people to test this... */
 @media (min-width: 721px) and (max-width: 1023px) {
+	#messageindex .lastpost {
+		width: 20% !important;
+		margin: 3px 0 0 5px;
+	}
 }
 
 @media (min-width: 1024px) {
