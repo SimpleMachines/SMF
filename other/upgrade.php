@@ -1278,6 +1278,15 @@ function UpgradeOptions()
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
 
+	db_extend('packages');
+	$upcontext['karma_installed'] = array('good' => false, 'bad' => false);
+	$member_columns = $smcFunc['db_list_columns']('{db_prefix}members');
+
+	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
+	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
+
+	unset($member_columns);
+
 	// If we've not submitted then we're done.
 	if (empty($_POST['upcont']))
 		return false;
@@ -1335,16 +1344,7 @@ function UpgradeOptions()
 		);
 
 		// Cleaning up old karma member settings.
-		$karma_good = 0;
-		$request = $smcFunc['db_query']('', '
-			SELECT karma_good
-			FROM {db_prefix}members',
-			array()
-		);
-		$karma_good = $smcFunc['db_num_rows']($request);
-		$smcFunc['db_free_result']($request);
-
-		if ($karma_good)
+		if ($upcontext['karma_installed']['good'])
 			$smcFunc['db_query']('', '
 				ALTER TABLE {db_prefix}members
 				DROP karma_good',
@@ -1352,16 +1352,7 @@ function UpgradeOptions()
 			);
 
 		// Does karma bad was enable?
-		$karma_bad = 0;
-		$request = $smcFunc['db_query']('', '
-			SELECT karma_bad
-			FROM {db_prefix}members',
-			array()
-		);
-		$karma_bad = $smcFunc['db_num_rows']($request);
-		$smcFunc['db_free_result']($request);
-
-		if ($karma_bad)
+		if ($upcontext['karma_installed']['bad'])
 			$smcFunc['db_query']('', '
 				ALTER TABLE {db_prefix}members
 				DROP karma_bad',
@@ -4066,7 +4057,10 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="empty_error">Empty error log before upgrading</label>
 						</td>
-					</tr>
+					</tr>';
+
+	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))
+		echo '
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="delete_karma" id="delete_karma" value="1" class="input_check">
@@ -4074,7 +4068,9 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="delete_karma">Delete all karma settings and info from the DB</label>
 						</td>
-					</tr>
+					</tr>';
+
+	echo '
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked', ' class="input_check">
