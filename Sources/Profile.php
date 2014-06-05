@@ -948,12 +948,12 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 		elseif ($row['field_type'] == 'text')
 		{
-			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . $value . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
+			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . un_htmlspecialchars($value) . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
 		}
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '' ). '>' . $value . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '' ). '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode
@@ -969,7 +969,7 @@ function loadCustomFields($memID, $area = 'summary')
 				'{SCRIPTURL}' => $scripturl,
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-				'{INPUT}' => $output_html,
+				'{INPUT}' => un_htmlspecialchars($output_html),
 			));
 
 		$context['custom_fields'][] = array(

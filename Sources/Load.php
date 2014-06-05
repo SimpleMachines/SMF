@@ -1248,11 +1248,11 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{SCRIPTURL}' => $scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => $value,
+					'{INPUT}' => un_htmlspecialchars($value),
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
-				'title' => $custom['field_name'],
+				'title' => $custom['title'],
 				'col_name' => $custom['col_name'],
 				'value' => $value,
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
@@ -1314,7 +1314,7 @@ function loadMemberCustomFields($users, $params)
 				'{SCRIPTURL}' => $scripturl,
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-				'{INPUT}' => $row['value'],
+				'{INPUT}' => un_htmlspecialchars($row['value']),
 			));
 
 		// Send a simple array if there is just 1 param

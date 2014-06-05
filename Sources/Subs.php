@@ -3258,7 +3258,7 @@ function template_javascript($do_defered = false)
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output');
+	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
 
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
