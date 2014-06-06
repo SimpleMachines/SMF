@@ -6,7 +6,6 @@
 		min-width: 50px;
 	}
 	input, select {
-		width: 90%;
 		float: left;
 	}
 	input.input_check, input.input_radio {
@@ -26,6 +25,15 @@
 	.qaction {
 		width: 40%;
 		margin: 0 5px 0 0;
+	}
+	/* Menu */
+	.quickbuttons li:focus ul {
+		opacity: 1;
+		right: -1px;
+		display: block;
+	}
+	.quickbuttons li:hover ul {
+		display: block;
 	}
 	/* General */
 	.action_home {
@@ -102,6 +110,10 @@
 	}
 	#creator dd {
 		width: 65%;
+	}
+	/* Post Screen */
+	form#postmodify .roundframe {
+		padding: 5px !important;
 	}
 
 	/* Hide me */

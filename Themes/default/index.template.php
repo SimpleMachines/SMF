@@ -418,7 +418,7 @@ function template_menu()
 	foreach ($context['menu_buttons'] as $act => $button)
 	{
 		echo '
-						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
+						<li tabindex="0" id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
 								', $button['title'], '
 							</a>';

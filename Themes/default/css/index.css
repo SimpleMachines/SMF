@@ -2250,7 +2250,7 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons li ul {
 	display: none;
 }
-.quickbuttons li:active ul {
+.quickbuttons li:hover ul {
 	display: block;
 	right: -1px;
 }
