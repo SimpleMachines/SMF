@@ -146,11 +146,41 @@ function template_control_richedit_buttons($editor_id)
 		</span>';
 		
 	$tempTab = $context['tabindex'];
+	if (!empty($context['drafts_pm_save'])) $tempTab++;
 	if (!empty($context['drafts_save'])) $tempTab++;
 	if ($editor_context['preview_type']) $tempTab++;
 	if ($context['show_spellchecking']) $tempTab++;
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
+	
+	if (!empty($context['drafts_pm_save']))
+	{
+		// The PM draft save button
+		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="',  --$tabTemp, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
+		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
+
+		// Load in the PM autosaver if its enabled and the user wants to use it
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
+		<span class="righttext padding" style="display: block">
+			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
+			<span id="draft_lastautosave" ></span>
+		</span>
+		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
+		<script><!-- // --><![CDATA[
+			var oDraftAutoSave = new smf_DraftAutoSave({
+				sSelf: \'oDraftAutoSave\',
+				sLastNote: \'draft_lastautosave\',
+				sLastID: \'id_pm_draft\',
+				sSceditorID: \'', $editor_id, '\',
+				sType: \'post\',
+				bPM: true,
+				iBoard: 0,
+				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
+			});
+		// ]]></script>';
+	}
 	
 	if (!empty($context['drafts_save']))
 	{
@@ -192,36 +222,7 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tabTemp, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit">';
-
-
-	if (!empty($context['drafts_pm_save']))
-	{
-		// The PM draft save button
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', $context['tabindex']++, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
-		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
-
-		// Load in the PM autosaver if its enabled and the user wants to use it
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
-			echo '
-		<span class="righttext padding" style="display: block">
-			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
-			<span id="draft_lastautosave" ></span>
-		</span>
-		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
-		<script><!-- // --><![CDATA[
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_pm_draft\',
-				sSceditorID: \'', $editor_id, '\',
-				sType: \'post\',
-				bPM: true,
-				iBoard: 0,
-				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
-			});
-		// ]]></script>';
-	}
+		
 }
 
 // What's this, verification?!
