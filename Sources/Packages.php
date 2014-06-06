@@ -336,7 +336,7 @@ function PackageInstallTest()
 			}
 			else if (!empty($action['parse_markdown']))
 			{
-				require_once($sourcedir . '/Parsedown.php');
+				require_once($sourcedir . '/Class-Parsedown.php');
 				$Parsedown = new Parsedown();
 				$context[$type] = $Parsedown->text($context[$type]);
 			}
