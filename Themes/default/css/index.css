@@ -2235,7 +2235,6 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons li ul {
 	position: absolute;
 	top: 1.9em;
-	left: -9999px;
 	z-index: 90;
 	padding: 0.5em;
 	font-weight: normal;
@@ -2252,9 +2251,8 @@ ul.quickbuttons li.inline_mod_check {
 	display: none;
 }
 .quickbuttons li:hover ul {
-	left: auto;
-	right: -1px;
 	display: block;
+	right: -1px;
 }
 .quickbuttons li ul li, .quickbuttons li:hover ul li{
 	display: block;
