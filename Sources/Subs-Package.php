@@ -1139,6 +1139,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'redirect_url' => $action->exists('@url') ? $action->fetch('@url') : '',
 				'redirect_timeout' => $action->exists('@timeout') ? (int) $action->fetch('@timeout') : '',
 				'parse_bbc' => $action->exists('@parsebbc') && $action->fetch('@parsebbc') == 'true',
+				'parse_markdown' => $action->exists('@parsemarkdown') && $action->fetch('@parsemarkdown') == 'true',
 				'language' => (($actionType == 'readme' || $actionType == 'license')  && $action->exists('@lang') && $action->fetch('@lang') == $language) ? $language : '',
 			);
 
