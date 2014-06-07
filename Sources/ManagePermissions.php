@@ -1243,6 +1243,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'approve_posts',
 	));
 
+	call_integration_hook('integrate_load_permission_levelss', array(&$groupLevels, &$boardLevels));
+
 	// Make sure we're not granting someone too many permissions!
 	foreach ($groupLevels['global'][$level] as $k => $permission)
 	{
@@ -2351,7 +2353,7 @@ function ModifyPostModeration()
 					'postmod_active' => 0,
 					'warning_moderate' => 0,
 				));
-				
+
 				require_once($sourcedir . '/PostModeration.php');
 				approveAllData();
 			}
