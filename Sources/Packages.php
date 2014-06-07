@@ -334,6 +334,12 @@ function PackageInstallTest()
 				preparsecode($context[$type]);
 				$context[$type] = parse_bbc($context[$type]);
 			}
+			else if (!empty($action['parse_markdown']))
+			{
+				require_once($sourcedir . '/Class-Parsedown.php');
+				$Parsedown = new Parsedown();
+				$context[$type] = $Parsedown->text($context[$type]);
+			}
 			else
 				$context[$type] = nl2br($context[$type]);
 
