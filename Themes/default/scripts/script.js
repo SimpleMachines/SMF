@@ -702,7 +702,7 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 }
 
 // Shows the page numbers by clicking the dots (in compact view).
-function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
+function expandPages(spanNode, baseLink, firstPage, lastPage, perPage)
 {
 	var replacement = '', i, oldLastPage = 0;
 	var perPageLimit = 50;
@@ -716,13 +716,17 @@ function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 
 	// Calculate the new pages.
 	for (i = firstPage; i < lastPage; i += perPage)
-		replacement += '<a class="navPages" href="' + baseURL.replace(/%1\$d/, i).replace(/%%/g, '%') + '">' + (1 + i / perPage) + '</a> ';
+		replacement += baseLink.replace(/%1\$d/, i).replace(/%2\$s/, 1 + i / perPage).replace(/%%/g, '%');
 
-	if (oldLastPage > 0)
-		replacement += '<span class="expand_pages" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"> ... </span>';
+	// Add the new page links.
+	$(spanNode).before(replacement);
 
-	// Replace the dots by the new page links.
-	setOuterHTML(spanNode, replacement);
+	if (oldLastPage)
+		$(spanNode).off().one('click', function () {
+			expandPages(this, baseLink, lastPage, oldLastPage, perPage);
+		});
+	else
+		$(spanNode).remove()
 }
 
 function smc_preCacheImage(sSrc)

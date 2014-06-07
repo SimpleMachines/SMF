@@ -562,6 +562,9 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .pagelinks {
 	margin: 8px 0 0 0;
 }
+.pagelinks p {
+	display: inline;
+}
 .navPages {
 	padding: 0 1px;
 }

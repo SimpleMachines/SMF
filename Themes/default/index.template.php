@@ -40,7 +40,7 @@
  */
 function template_init()
 {
-	global $settings;
+	global $settings, $txt;
 
 	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
 
@@ -62,8 +62,19 @@ function template_init()
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
-	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index
+	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index.
 	$settings['avatars_on_indexes'] = false;
+
+	// This defines the formatting for the page indexes used throughout the forumm.
+	$settings['page_index'] = array(
+		'extra_before' => '<p>' . $txt['pages'] . ':</p> ',
+		'previous_page' => '<span class="previous_page"></span>',
+		'current_page' => '<span class="current_page"><strong>[%1$d]</strong></span> ',
+		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+		'next_page' => '<span class="next_page"></span>',
+		'extra_after' => '',
+	);
 }
 
 /**
