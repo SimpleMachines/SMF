@@ -4046,10 +4046,10 @@ function call_integration_hook($hook, $parameters = array())
 		$function = trim($function);
 		$call = '';
 
-		// Do we found a file to load?
+		// Did we find a file to load?
 		if (strpos($function, '|') !== false)
 		{
-			list($file, $func) = explode('|', $function);
+			list($func, $file) = explode('|', $function);
 
 			// Match the wildcards to their regular vars.
 			if (empty($settings['theme_dir']))
@@ -4090,6 +4090,11 @@ function call_integration_hook($hook, $parameters = array())
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
+		elseif (!empty($func) && !empty($absPath))
+		{
+			loadLanguage('Errors');
+			log_error(sprintf($txt['hook_fail_call_to'], $func , $absPath), 'general');
+		}
 		elseif (!empty($function) && !empty($absPath))
 		{
 			loadLanguage('Errors');
@@ -4114,7 +4119,7 @@ function add_integration_function($hook, $function, $file = '', $object = false,
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file) && $file !== true) ? ($function . ':' . $file . ($object ? '#' : '')) : $function;
+	$integration_call = (!empty($file) && $file !== true) ? ($function . '|' . $file . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -4168,7 +4173,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $function . ':' . $file .($object ? '#' : '') : $function;
+	$integration_call = (!empty($file)) ? $function . '|' . $file .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
