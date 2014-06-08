@@ -76,6 +76,12 @@ td.lastpost {
 	border-left: 0px !important;
 	border-right: 1px solid #ddd;
 }
+.previous_page {
+	background-position: -113px -33px;
+}
+.next_page {
+	background-position: -113px -49px;
+}
 
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
