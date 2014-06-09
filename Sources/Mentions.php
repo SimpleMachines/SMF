@@ -212,9 +212,9 @@ class Mentions
 		$matches = array();
 		$string = str_split($body);
 		$depth = 0;
-		foreach ($string as $char)
+		foreach ($string as $k => $char)
 		{
-			if ($char == static::$char)
+			if ($char == static::$char && ($k == 0 || trim($char[$k - 1]) == ''))
 			{
 				$depth++;
 				$matches[] = array();
@@ -244,7 +244,7 @@ class Mentions
 			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($i = 1; $i <= count($match); $i++)
-				$names[] = trim(implode('', array_slice($match, 0, $i)));
+				$names[] = htmlspecialchars(trim(implode('', array_slice($match, 0, $i))));
 		}
 
 		$names = array_unique($names);
