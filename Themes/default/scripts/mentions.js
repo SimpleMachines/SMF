@@ -65,5 +65,5 @@ $(function()
 	$('#message').parent().find('textarea').atwho(config);
 	var iframe = $('#message').parent().find('iframe')[0];
 	if (typeof iframe != 'undefined')
-		$(iframe[0].contentDocument.body).atwho(config);
+		$(iframe.contentDocument.body).atwho(config);
 });
