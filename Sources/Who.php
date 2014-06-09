@@ -348,7 +348,7 @@ function determineActions($urls, $preferred_prefix = false)
 					$actions['u'] = $url[1];
 
 				$data[$k] = $txt['who_hidden'];
-				$profile_ids[(int) $actions['u']][$k] = $actions['action'] == 'profile' ? $txt['who_viewprofile'] : $txt['who_profile'];
+				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? $txt['who_viewownprofile'] : $txt['who_viewprofile'];
 			}
 			elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board']))
 			{
