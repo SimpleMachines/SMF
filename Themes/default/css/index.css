@@ -2256,10 +2256,10 @@ ul.quickbuttons li.inline_mod_check {
 }
 .quickbuttons li ul {
 	display: none;
+	right: -1px;
 }
 .quickbuttons li:hover ul {
 	display: block;
-	right: -1px;
 }
 .quickbuttons li ul li, .quickbuttons li:hover ul li{
 	display: block;
