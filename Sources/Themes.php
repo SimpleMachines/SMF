@@ -1516,11 +1516,10 @@ function InstallDir()
  *  - happens if $settings['catch_action'] is set and action isn't found
  *   in the action array.
  *  - can use a template, layers, sub_template, filename, and/or function.
- * @todo look at this
  */
 function WrapAction()
 {
-	global $context, $settings, $modSettings;
+	global $context, $settings;
 
 	// Load any necessary template(s)?
 	if (isset($settings['catch_action']['template']))
@@ -1539,11 +1538,10 @@ function WrapAction()
 	{
 		$hook = $settings['catch_action']['function'];
 
-		if (isset($settings['catch_action']['filename']))
-			$hook = $settings['catch_action']['filename'] . '|' . $hook;
+		if (!isset($settings['catch_action']['filename']))
+			$settings['catch_action']['filename'] = '';
 
-		$modSettings['integrate_wrap_action'] = $hook;
-
+		add_integration_function('integrate_wrap_action', $hook, $settings['catch_action']['filename'], false, false);
 		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
