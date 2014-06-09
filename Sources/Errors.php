@@ -266,7 +266,7 @@ function error_handler($error_level, $error_string, $file, $line)
  * @param string $error_message The error message
  * @param string $error_code An error code
  */
-function setup_fatal_error_context($error_message, $error_code)
+function setup_fatal_error_context($error_message, $error_code = null)
 {
 	global $context, $txt, $ssi_on_error_method;
 	static $level = 0;
