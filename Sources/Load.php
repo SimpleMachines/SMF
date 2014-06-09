@@ -1323,7 +1323,12 @@ function loadMemberCustomFields($users, $params)
 
 		// More than 1? knock yourself out...
 		else
-			$return[$row['id_member']][$row['id_field']] = $row;
+		{
+			if (!isset($return[$row['id_member']]))
+				$return[$row['id_member']] = array();
+
+			$return[$row['id_member']][$row['variable']] = $row;
+		}
 	}
 
 	$smcFunc['db_free_result']($request);
