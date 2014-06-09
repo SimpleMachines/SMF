@@ -47,7 +47,7 @@
 					})
 					.click(function (e) {
 						var	start = '', end = '';
-						
+
 						if (base.opts.emoticonsCompat)
 						{
 							start = '<span> ';
@@ -140,9 +140,9 @@
 							"overflow": "auto"
 						});
 
-						$('.sceditor-smileyPopup').animaDrag({ 
-							speed: 150, 
-							interval: 120, 
+						$('.sceditor-smileyPopup').animaDrag({
+							speed: 150,
+							interval: 120,
 							during: function(e) {
 								$(this).height(this.startheight);
 								$(this).width(this.startwidth);
@@ -287,13 +287,39 @@ $.sceditor.command.set(
 
 $.sceditor.command.set(
 	'bulletlist', {
-		txtExec: ["[list]\n[li]", "[/li]\n[li][/li]\n[/list]"]
+		txtExec: function(caller, selected) {
+			if (selected)
+			{
+				var content = '';
+
+				$.each(selected.split(/\r?\n/), function() {
+					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+				});
+
+				this.insertText('[list]\n' + content + '\n[/list]');
+			}
+			else
+				this.insertText('[list]\n[li]', '[/li]\n[li][/li]\n[/list]');
+		}
 	}
 );
 
 $.sceditor.command.set(
 	'orderedlist', {
-		txtExec:  ["[list type=decimal]\n[li]", "[/li]\n[li][/li]\n[/list]"]
+		txtExec:  function(caller, selected) {
+			if (selected)
+			{
+				var content = '';
+
+				$.each(selected.split(/\r?\n/), function() {
+					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+				});
+
+				this.insertText('[list type=decimal]\n' + content + '\n[/list]');
+			}
+			else
+				this.insertText('[list type=decimal]\n[li]', '[/li]\n[li][/li]\n[/list]');
+		}
 	}
 );
 
@@ -682,7 +708,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 
 			if (author == '' && sDate == '')
 				author = bbc_quote;
-			else
+			else if (author == '' && sDate != '')
 				author += ' ' + bbc_search_on;
 
 			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
