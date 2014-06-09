@@ -1020,7 +1020,6 @@ img.sort, .sort {
 	width: 100%;
 }
 .dropmenu, #top_info {
-	float: left;
 	width: 100%;
 	position: relative;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
