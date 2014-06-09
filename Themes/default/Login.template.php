@@ -28,7 +28,7 @@ function template_login()
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
 		echo '
-					<p class="errorbox">', implode('<br>', $context['login_errors']), '</p><br>';
+					<div class="errorbox">', implode('<br>', $context['login_errors']), '</div><br>';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
