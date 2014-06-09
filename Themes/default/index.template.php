@@ -44,20 +44,8 @@ function template_init()
 
 	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
 
-	/* Use images from default theme when using templates from the default theme?
-		if this is 'always', images from the default theme will be used.
-		if this is 'defaults', images from the default theme will only be used with default templates.
-		if this is 'never' or isn't set at all, images from the default theme will not be used. */
-	$settings['use_default_images'] = 'never';
-
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.1';
-
-	// Use plain buttons - as opposed to text buttons?
-	$settings['use_buttons'] = true;
-
-	// Show sticky and lock status separate from topic icons?
-	$settings['separate_sticky_lock'] = true;
 
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
@@ -67,9 +55,9 @@ function template_init()
 
 	// This defines the formatting for the page indexes used throughout the forumm.
 	$settings['page_index'] = array(
-		'extra_before' => '<p>' . $txt['pages'] . ':</p> ',
+		'extra_before' => '' . $txt['pages'] . ': ',
 		'previous_page' => '<span class="previous_page"></span>',
-		'current_page' => '<span class="current_page"><strong>[%1$d]</strong></span> ',
+		'current_page' => '<span class="current_page">[%1$d]</span> ',
 		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 		'next_page' => '<span class="next_page"></span>',

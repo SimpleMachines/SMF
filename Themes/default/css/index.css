@@ -586,10 +586,11 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	display: inline-block;
 	margin: 0 0 -1px 0;
 }
-.current_page strong {
+.current_page {
 	padding: 0 4px 0 2px;
 	color: #b46100;
 	font-family: verdana, sans-serif;
+	font-weight: bold;
 }
 /* Next and previous topic links for Display.template.php. */
 /* Give them a bit of extra height for an easier target. */
@@ -1447,6 +1448,10 @@ img.sort, .sort {
 	color: #333;
 	background: -webkit-linear-gradient(bottom, #E2E9F3 1%, #FFFFFF 70%);
 	background: linear-gradient(to top, #E2E9F3 1%, #FFFFFF 70%);
+}
+h3.search_hd {
+	background: url(../images/buttons/search_hd.png) 4px no-repeat;
+	padding: 8px 35px 6px;
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */

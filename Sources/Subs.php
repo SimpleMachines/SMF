@@ -3208,13 +3208,6 @@ function template_header()
 				</div>';
 		}
 	}
-
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
-	{
-		$settings['theme_url'] = $settings['default_theme_url'];
-		$settings['images_url'] = $settings['default_images_url'];
-		$settings['theme_dir'] = $settings['default_theme_dir'];
-	}
 }
 
 /**
@@ -3247,13 +3240,6 @@ function template_footer()
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
 	$context['load_time'] = comma_format(round(array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)), 3));
 	$context['load_queries'] = $db_count;
-
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
-	{
-		$settings['theme_url'] = $settings['actual_theme_url'];
-		$settings['images_url'] = $settings['actual_images_url'];
-		$settings['theme_dir'] = $settings['actual_theme_dir'];
-	}
 
 	foreach (array_reverse($context['template_layers']) as $layer)
 		loadSubTemplate($layer . '_below', true);
@@ -3609,8 +3595,6 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 
 	if (!$settings['use_image_buttons'])
 		return $txt[$alt];
-	elseif (!empty($settings['use_buttons']))
-		return '<img src="' . $settings['images_url'] . '/buttons/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
 	else
 		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
 }

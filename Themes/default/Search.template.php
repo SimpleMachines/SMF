@@ -17,8 +17,8 @@ function template_main()
 	echo '
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
-			<h3 class="catbg">
-				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="" class="icon">' : ' ', $txt['set_parameters'], '
+			<h3 class="catbg search_hd">
+				', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
