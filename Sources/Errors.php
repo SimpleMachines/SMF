@@ -129,7 +129,7 @@ function fatal_error($error, $log = 'general')
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log ? log_error($error, $log) : $error, $error);
+	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
 /**
