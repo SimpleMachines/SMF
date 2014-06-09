@@ -1750,13 +1750,6 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!empty($settings['require_theme_strings']))
 		loadLanguage('ThemeStrings', '', false);
 
-	// Sort out some themes.
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'always')
-	{
-		$settings['theme_url'] = $settings['default_theme_url'];
-		$settings['images_url'] = $settings['default_images_url'];
-		$settings['theme_dir'] = $settings['default_theme_dir'];
-	}
 	// Make a special URL for the language.
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 

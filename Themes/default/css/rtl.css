@@ -380,13 +380,12 @@ span.percent {
 .modifybutton {
 	clear: left;
 	float: left;
-	margin: 8px 0 10px 20px;
 	text-align: left;
 }
 
 /* The quick buttons */
 ul.quickbuttons {
-	margin: 0.9em 0 0 11px;
+	margin: 5px 0 5px 0;
 	clear: left;
 	float: left;
 	text-align: left;
@@ -856,4 +855,12 @@ ul.moderation_notes li {
 }
 h3 .collapse {
 	float: left;
+}
+
+.pagelinks {
+	margin: 8px 5px 0 0;
+}
+span.pages {
+	float: right;
+	margin: 0 5px 0 5px;
 }

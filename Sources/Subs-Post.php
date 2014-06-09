@@ -2176,6 +2176,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		'id_msg' => $msgOptions['id'],
 	);
 
+	require_once($sourcedir . '/Mentions.php');
 	if (!empty($modSettings['enable_mentions']))
 	{
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);

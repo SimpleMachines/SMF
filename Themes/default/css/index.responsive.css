@@ -26,15 +26,12 @@
 		width: 40%;
 		margin: 0 5px 0 0;
 	}
+
 	/* Menu */
-	.quickbuttons li:focus ul {
-		opacity: 1;
-		right: -1px;
-		display: block;
-	}
 	.quickbuttons li:hover ul {
-		display: block;
+		display: none;
 	}
+
 	/* General */
 	.action_home {
 		width: 100% !important;

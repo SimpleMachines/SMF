@@ -1527,19 +1527,6 @@ function create_control_richedit($editorOptions)
 		'required' => !empty($editorOptions['required']),
 	);
 
-	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
-	{
-		$temp1 = $settings['theme_url'];
-		$settings['theme_url'] = $settings['default_theme_url'];
-
-		$temp2 = $settings['images_url'];
-		$settings['images_url'] = $settings['default_images_url'];
-
-		$temp3 = $settings['theme_dir'];
-		$settings['theme_dir'] = $settings['default_theme_dir'];
-	}
-
 	if (empty($context['bbc_tags']))
 	{
 		// The below array makes it dead easy to add images to this control. Add it to the array and everything else is done for you!
@@ -1925,14 +1912,6 @@ function create_control_richedit($editorOptions)
 
 	// Set a flag so the sub template knows what to do...
 	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($modSettings['admin_bbc']);
-
-	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
-	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
-	{
-		$settings['theme_url'] = $temp1;
-		$settings['images_url'] = $temp2;
-		$settings['theme_dir'] = $temp3;
-	}
 }
 
 /**
