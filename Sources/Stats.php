@@ -165,7 +165,7 @@ function DisplayStats()
 			$context['gender'] = array();
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
-				// Assuming we're telling... male or female?
+				// Assuming we're telling the genders in the forum...
 				if (!empty($row['gender']))
 					$context['gender'][$row['gender']]++;
 			}
