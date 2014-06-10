@@ -1248,13 +1248,13 @@ function loadMemberContext($user, $display_custom_fields = false)
 					'{SCRIPTURL}' => $scripturl,
 					'{IMAGES_URL}' => $settings['images_url'],
 					'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-					'{INPUT}' => un_htmlspecialchars($value),
+					'{INPUT}' => $value,
 				));
 
 			$memberContext[$user]['custom_fields'][] = array(
 				'title' => $custom['title'],
 				'col_name' => $custom['col_name'],
-				'value' => $value,
+				'value' => un_htmlspecialchars($value),
 				'placement' => !empty($custom['placement']) ? $custom['placement'] : 0,
 			);
 		}
