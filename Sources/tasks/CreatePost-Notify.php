@@ -90,7 +90,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 
 			// Watched topic?
-			if (!empty($data['id_topic']))
+			if (!empty($data['id_topic']) && $type != 'topic')
 			{
 				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : $prefs[$member]['topic_notify'];
 
@@ -135,7 +135,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				}
 			}
 			// Watched board then
-			else
+			elseif (!empty($data['id_board']))
 			{
 				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : $prefs[$member]['board_notify'];
 
