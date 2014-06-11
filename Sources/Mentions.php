@@ -75,7 +75,7 @@ class Mentions
 	 * @param string $content_type
 	 * @param int $content_id
 	 * @param array $members
-	 * @param int $id_emmber
+	 * @param int $id_member
 	 * @return void
 	 */
 	public static function insertMentions($content_type, $content_id, array $members, $id_member)
@@ -91,33 +91,6 @@ class Mentions
 				array((int) $content_id, $content_type, $id_member, $member['id'], time()),
 				array('content_id', 'content_type', 'id_mentioned')
 			);
-	}
-
-	/**
-	 * Queues mentions for background task (notification etc)
-	 *
-	 * @static
-	 * @access public
-	 * @param string $content_type
-	 * @param int $content_id
-	 * @param array $members
-	 * @return void
-	 */
-	public static function queueMentionNotifications($content_type, $content_id, array $members)
-	{
-		global $smcFunc, $user_info;
-
-		$smcFunc['db_insert']('',
-			'{db_prefix}background_tasks',
-			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/Mentions-Notify.php', 'Mentions_Notify_Background', serialize(array(
-				'content_id' => $content_id,
-				'content_type' => $content_type,
-				'time' => time(),
-				'members' => $members,
-			)), 0),
-			array('id_task')
-		);
 	}
 
 	/**
