@@ -1467,6 +1467,7 @@ VALUES (-1, 'search_posts'),
 	(0, 'profile_server_avatar'),
 	(0, 'profile_upload_avatar'),
 	(0, 'profile_remote_avatar'),
+	(0, 'profile_gravatar_avatar'),
 	(0, 'send_email_to_members'),
 	(2, 'view_mlist'),
 	(2, 'search_posts'),
@@ -1489,6 +1490,7 @@ VALUES (-1, 'search_posts'),
 	(2, 'profile_server_avatar'),
 	(2, 'profile_upload_avatar'),
 	(2, 'profile_remote_avatar'),
+	(2, 'profile_gravatar_avatar'),
 	(2, 'send_email_to_members'),
 	(2, 'profile_title_own'),
 	(2, 'calendar_post'),
@@ -1855,7 +1857,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_user_images', '1'),
 	('show_blurb', '1'),
 	('show_profile_buttons', '1');
-
+	('gravatar_url', 'gravatar://www.gravatar.com/avatar/');
 # --------------------------------------------------------
 
 #
