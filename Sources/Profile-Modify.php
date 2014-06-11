@@ -505,7 +505,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'timeformat_modify',
 			'permission' => 'profile_extra',
-			'preload' => function () use ($context, $user_info, $txt, $cur_profile, $modSettings)
+			'preload' => function () use (&$context, $user_info, $txt, $cur_profile, $modSettings)
 			{
 				$context['easy_timeformats'] = array(
 					array('format' => '', 'title' => $txt['timeformat_default']),
