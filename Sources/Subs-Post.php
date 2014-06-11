@@ -2301,8 +2301,9 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
  *
  * @param array $msgs - array of message ids
  * @param bool $approve = true
+ * @param bool $notify
  */
-function approvePosts($msgs, $approve = true)
+function approvePosts($msgs, $approve = true, $notify = true)
 {
 	global $sourcedir, $smcFunc;
 
@@ -2374,6 +2375,7 @@ function approvePosts($msgs, $approve = true)
 				'topic' => $row['id_topic'],
 				'msg' => $row['id_first_msg'],
 				'poster' => $row['id_member'],
+				'new_topic' => true,
 			);
 		}
 		else
@@ -2382,12 +2384,15 @@ function approvePosts($msgs, $approve = true)
 
 			// This will be a post... but don't notify unless it's not followed by approved ones.
 			if ($row['id_msg'] > $row['id_last_msg'])
-				$notification_posts[$row['id_topic']][] = array(
+				$notification_posts[$row['id_topic']] = array(
 					'id' => $row['id_msg'],
 					'body' => $row['body'],
 					'subject' => $row['subject'],
 					'name' => $row['poster_name'],
 					'topic' => $row['id_topic'],
+					'board' => $row['id_board'],
+					'poster' => $row['id_member'],
+					'new_topic' => false,
 				);
 		}
 
@@ -2477,13 +2482,34 @@ function approvePosts($msgs, $approve = true)
 	// Finally, least importantly, notifications!
 	if ($approve)
 	{
-		if (!empty($notification_topics))
-		{
-			require_once($sourcedir . '/Post.php');
-			notifyMembersBoard($notification_topics);
-		}
-		if (!empty($notification_posts))
-			sendApprovalNotifications($notification_posts);
+		$task_rows = array();
+		foreach (array_merge($notification_topics, $notification_posts) as $topic)
+			$task_rows[] = array(
+				'$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Background_Task', serialize(array(
+					'msgOptions' => array(
+						'id' => $topic['msg'],
+						'body' => $topic['body'],
+						'subject' => $topic['subject'],
+					),
+					'topicOptions' => array(
+						'id' => $topic['topic'],
+						'board' => $topic['board'],
+					),
+					'posterOptions' => array(
+						'id' => $topic['poster'],
+						'name' => $topic['name'],
+					),
+					'type' => $topic['new_topic'] ? 'topic' : 'reply',
+				)), time()
+			);
+
+		if ($notify)
+			$smcFunc['db_insert']('',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				$task_rows,
+				array('id_task')
+			);
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}approval_queue
