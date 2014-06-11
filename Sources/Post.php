@@ -1695,7 +1695,7 @@ function Post2()
 
 		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
 		{
-			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+			if ($attachID != 'initial_efrror' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;
 
 			// If there was an initial error just show that message.
@@ -1974,32 +1974,6 @@ function Post2()
 
 	if (isset($_POST['sticky']))
 		logAction(empty($_POST['sticky']) ? 'unsticky' : 'sticky', array('topic' => $topicOptions['id'], 'board' => $topicOptions['board']));
-
-	// Notify any members who have notification turned on for this topic - only do this if it's going to be approved(!)
-	if ($becomesApproved)
-	{
-		if ($newTopic)
-		{
-			$notifyData = array(
-				'body' => $_POST['message'],
-				'subject' => $_POST['subject'],
-				'name' => $user_info['name'],
-				'poster' => $user_info['id'],
-				'msg' => $msgOptions['id'],
-				'board' => $board,
-				'topic' => $topic,
-			);
-			notifyMembersBoard($notifyData);
-		}
-		elseif (empty($_REQUEST['msg']))
-		{
-			// Only send it to everyone if the topic is approved, otherwise just to the topic starter if they want it.
-			if ($topic_info['approved'])
-				sendNotifications($topic, 'reply');
-			else
-				sendNotifications($topic, 'reply', array(), $topic_info['id_member_started']);
-		}
-	}
 
 	// Returning to the topic?
 	if (!empty($_REQUEST['goback']))

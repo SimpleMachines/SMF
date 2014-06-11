@@ -1780,6 +1780,9 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	$posterOptions['id'] = empty($posterOptions['id']) ? 0 : (int) $posterOptions['id'];
 	$posterOptions['ip'] = empty($posterOptions['ip']) ? $user_info['ip'] : $posterOptions['ip'];
 
+	// Not exactly a post option but it allows hooks and/or other sources to skip sending notifications if they don't want to
+	$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
+
 	// We need to know if the topic is approved. If we're told that's great - if not find out.
 	if (!$modSettings['postmod_active'])
 		$topicOptions['is_approved'] = true;
@@ -1837,12 +1840,11 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
-	$mentions = array();
 	if (!empty($modSettings['enable_mentions']))
 	{
-		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
-		if (!empty($mentions))
-			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+		$msgOptions['mentioned_members'] = Mentions::getMentionedMembers($msgOptions['body']);
+		if (!empty($msgOptions['mentioned_members']))
+			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $msgOptions['mentioned_members']);
 	}
 
 	// It's do or die time: forget any user aborts!
@@ -1889,13 +1891,6 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'id_msg' => $msgOptions['id'],
 			)
 		);
-
-	if (!empty($mentions))
-	{
-		Mentions::insertMentions('msg', $msgOptions['id'], $mentions);
-		if ($msgOptions['approved'])
-			Mentions::queueMentionNotifications('msg', $msgOptions['id'], $mentions);
-	}
 
 	// What if we want to export new posts out to a CMS?
 	call_integration_hook('integrate_after_create_post', array($msgOptions, $topicOptions, $posterOptions, $message_columns, $message_parameters));
@@ -2109,6 +2104,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 	if ($msgOptions['approved'])
 		updateLastMessages($topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? $msgOptions['id'] : 0);
 
+	// Queue createPost background notification
+	if ($msgOptions['send_notifications'])
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+				'msgOptions' => $msgOptions,
+				'topicOptions' => $topicOptions,
+				'posterOptions' => $posterOptions,
+				'type' => 'reply',
+			)), time()),
+			array('id_task')
+		);
+
 	// Alright, done now... we can abort now, I guess... at least this much is done.
 	ignore_user_abort($previous_ignore_user_abort);
 
@@ -2182,6 +2191,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		if (!empty($mentions))
 		{
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
+			$msgOptions['mentioned_members'] = $mentions;
 			Mentions::insertMentions('msg', $msgOptions['id'], $mentions);
 			if (!isset($msgOptions['approved']) || $msgOptions['approved'])
 				Mentions::queueMentionNotifications('msg', $msgOptions['id'], $mentions);

@@ -30,7 +30,7 @@ define('WIRELESS', false);
 define('MAX_CRON_TIME', 10);
 // If a task fails for whatever reason it will still be marked as claimed. This is the threshold
 // by which if a task has not completed in this time, the task should become available again.
-define('MAX_CLAIM_THRESHOLD', 300);
+define('MAX_CLAIM_THRESHOLD', 0);
 
 // We're going to want a few globals... these are all set later.
 global $time_start, $maintenance, $msubject, $mmessage, $mbname, $language;
@@ -65,14 +65,6 @@ if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 if (file_exists($cachedir . '/cron.lock'))
 	obExit_cron();
 
-// Before we go any further, if this is not a CLI request, we need to do some checking.
-if (!FROM_CLI)
-{
-	// We will clean up $_GET shortly. But we want to this ASAP.
-	$ts = isset($_GET['ts']) ? (int) $_GET['ts'] : 0;
-	if ($ts <= 0 || $ts % 15 != 0 || time() - $ts < 0 || time() - $ts > 20)
-		obExit_cron();
-}
 
 // Load the most important includes. In general, a background should be loading its own dependencies.
 require_once($sourcedir . '/Errors.php');

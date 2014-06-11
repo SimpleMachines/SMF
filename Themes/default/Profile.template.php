@@ -1751,17 +1751,6 @@ function template_alert_configuration()
 
 	echo '
 						<dt>
-							<label for="notify_regularity">', $txt['notify_regularity'], ':</label>
-						</dt>
-						<dd>
-							<select name="notify_regularity" id="notify_regularity">
-								<option value="0"', $context['member']['notify_regularity'] == 0 ? ' selected' : '', '>', $txt['notify_regularity_instant'], '</option>
-								<option value="1"', $context['member']['notify_regularity'] == 1 ? ' selected' : '', '>', $txt['notify_regularity_first_only'], '</option>
-								<option value="2"', $context['member']['notify_regularity'] == 2 ? ' selected' : '', '>', $txt['notify_regularity_daily'], '</option>
-								<option value="3"', $context['member']['notify_regularity'] == 3 ? ' selected' : '', '>', $txt['notify_regularity_weekly'], '</option>
-							</select>
-						</dd>
-						<dt>
 							<label for="notify_types">', $txt['notify_send_types'], ':</label>
 						</dt>
 						<dd>
