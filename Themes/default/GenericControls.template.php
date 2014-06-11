@@ -162,7 +162,7 @@ function template_control_richedit_buttons($editor_id)
 		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
 
 		// Start an instance of the auto saver if its enabled
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+		if (!empty($context['drafts_autosave']))
 			echo '
 		<br>
 		<span class="righttext padding" style="display: block">
