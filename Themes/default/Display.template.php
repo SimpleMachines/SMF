@@ -315,7 +315,7 @@ function template_main()
 								<input type="submit" name="save_draft" value="', $txt['draft_save'], '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" tabindex="', $context['tabindex']++, '" class="button_submit">
 								<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
 
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+		if (!empty($context['drafts_autosave']))
 			echo '
 								<div class="clear righttext padding"><span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span><span id="draft_lastautosave" ></span></div>';
 

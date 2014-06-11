@@ -875,7 +875,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
-		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -900,7 +899,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -920,7 +918,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
 ---#
 
@@ -1072,7 +1069,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled');
 ---#
 
 ---# Calculate appropriate hash cost
@@ -1190,6 +1187,14 @@ WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
 ---# Removing the send-topic permission
 DELETE FROM {$db_prefix}board_permissions
 WHERE permission = 'send_topic';
+---#
+
+---# Removing the draft "autosave" permissions
+DELETE FROM {$db_prefix}permissions
+WHERE permission = 'post_autosave_draft' OR permission = 'pm_autosave_draft';
+
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'post_autosave_draft';
 ---#
 
 ---# Adding "profile_password_own"
