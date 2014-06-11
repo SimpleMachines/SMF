@@ -1695,7 +1695,7 @@ function Post2()
 
 		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
 		{
-			if ($attachID != 'initial_efrror' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
+			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;
 
 			// If there was an initial error just show that message.
