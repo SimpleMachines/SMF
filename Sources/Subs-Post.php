@@ -2113,7 +2113,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'msgOptions' => $msgOptions,
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
-				'type' => 'reply',
+				'type' => $new_topic ? 'topic' : 'reply',
 			)), time()),
 			array('id_task')
 		);
