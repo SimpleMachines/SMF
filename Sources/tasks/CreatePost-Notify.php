@@ -44,14 +44,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.groups,
+			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.member_groups,
 					mem.id_group, mem.id_post_group, mem.additional_groups
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board OR b.id_board = t.id_board)
-			WHERE id_topic = {int:topic}
-				OR id_board = {int:board}',
+			WHERE ln.id_topic = {int:topic}
+				OR ln.id_board = {int:board}',
 			array(
 				'topic' => $topicOptions['id'],
 				'board' => $topicOptions['board'],
@@ -62,7 +62,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			$groups = array_merge(array($row['id_group'], $row['id_post_group']), explode(',', $row['additional_groups']));
-			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['groups']))) == 0)
+			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
 
 			$members[] = $row['id_member'];
@@ -103,92 +103,55 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (!empty($data['id_topic']) && $type != 'topic')
 			{
 				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : $prefs[$member]['topic_notify'];
+				$message_type = 'notification_' . $type;
 
-				if ($pref & 0x02)
-				{
-					$message_type = 'notification_' . $type;
+				if (!empty($frequency) && $type == 'reply')
+					$message_type .= '_once';
 
-					$replacements = array(
-						'TOPICSUBJECT' => $msgOptions['subject'],
-						'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
-						'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
-						'UNSUBSCRIBELINK' => $scripturl . '?action=notify;topic=' . $topicOptions['id'] . '.0',
-					);
-
-					if ($type == 'remove')
-						unset($replacements['TOPICLINK'], $replacements['UNSUBSCRIBELINK']);
-
-					if (!empty($frequency) && $type == 'reply')
-						$message_type .= '_once';
-
-					$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-					sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
-				}
-
-				if ($pref & 0x01)
-				{
-					$alert_rows[] = array(
-						'alert_time' => time(),
-						'id_member' => $member,
-						'id_member_started' => $posterOptions['id'],
-						'member_name' => $posterOptions['name'],
-						'content_type' => 'topic',
-						'content_id' => $topicOptions['id'],
-						'content_action' => $type,
-						'is_read' => 0,
-						'extra' => serialize(array(
-							'topic' => $topicOptions['id'],
-							'board' => $topicOptions['board'],
-							'content_subject' => $msgOptions['subject'],
-							'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
-						)),
-					);
-					updateMemberData($member['id'], array('alerts' => '+'));
-				}
+				$content_type = 'topic';
 			}
-			// Watched board then
-			elseif (!empty($data['id_board']))
+			else
 			{
 				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : $prefs[$member]['board_notify'];
 
-				if ($pref & 0x02)
-				{
-					$replacements = array(
-						'TOPICSUBJECT' => $msgOptions['subject'],
-						'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
-						'MESSAGE' => $msgOptions['body'],
-						'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
-					);
+				$content_type = 'board';
 
-					if (!empty($frequency))
-						$emailtype = 'notify_boards_once';
-					else
-						$emailtype = 'notify_boards';
+				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+			}
 
-					$emaildata = loadEmailTemplate($emailtype, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-					sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'notbrd', false, 3);
-				}
+			if ($pref & 0x02)
+			{
+				$replacements = array(
+					'TOPICSUBJECT' => $msgOptions['subject'],
+					'POSTERNAME' => un_htmlspecialchars($posterOptions['name']),
+					'TOPICLINK' => $scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
+					'MESSAGE' => $msgOptions['body'],
+					'UNSUBSCRIBELINK' => $scripturl . '?action=notifyboard;board=' . $topicOptions['board'] . '.0',
+				);
 
-				if ($pref & 0x01)
-				{
-					$alert_rows[] = array(
-						'alert_time' => time(),
-						'id_member' => $member,
-						'id_member_started' => $posterOptions['id'],
-						'member_name' => $posterOptions['name'],
-						'content_type' => 'board',
-						'content_id' => $topicOptions['id'],
-						'content_action' => $type,
-						'is_read' => 0,
-						'extra' => serialize(array(
-							'topic' => $topicOptions['id'],
-							'board' => $topicOptions['board'],
-							'content_subject' => $msgOptions['subject'],
-							'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
-						)),
-					);
-					updateMemberData($member['id'], array('alerts' => '+'));
-				}
+				$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
+				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
+			}
+
+			if ($pref & 0x01)
+			{
+				$alert_rows[] = array(
+					'alert_time' => time(),
+					'id_member' => $member,
+					'id_member_started' => $posterOptions['id'],
+					'member_name' => $posterOptions['name'],
+					'content_type' => $content_type,
+					'content_id' => $topicOptions['id'],
+					'content_action' => $type,
+					'is_read' => 0,
+					'extra' => serialize(array(
+						'topic' => $topicOptions['id'],
+						'board' => $topicOptions['board'],
+						'content_subject' => $msgOptions['subject'],
+						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
+					)),
+				);
+				updateMemberData($member['id'], array('alerts' => '+'));
 			}
 
 			$smcFunc['db_query']('', '
