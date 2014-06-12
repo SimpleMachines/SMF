@@ -844,7 +844,7 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $context, $scripturl, $txt, $sourcedir, $db_show_debug;
+	global $context, $scripturl, $txt, $sourcedir, $db_show_debug, $cur_profile;
 
 	// We do not want to output debug information here.
 	$db_show_debug = false;
@@ -852,9 +852,13 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
-	// Now fetch me my unread alerts, pronto!
-	require_once($sourcedir . '/Profile-View.php');
-	$context['unread_alerts'] = fetch_alerts($memID, false);
+	$context['unread_alerts'] = array();
+	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	{
+		// Now fetch me my unread alerts, pronto!
+		require_once($sourcedir . '/Profile-View.php');
+		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+	}
 }
 
 /**

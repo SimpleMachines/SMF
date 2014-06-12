@@ -113,7 +113,7 @@ function template_alerts_popup()
 			<div class="unread">
 				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
 				<div class="details floatleft">
-					', !empty($details['icon']) ? $details['icon'] : '', $details['text'], ' - ', $details['time'], '
+					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
 				<br class="clear">
 			</div>';
@@ -1748,6 +1748,16 @@ function template_alert_configuration()
 							<input type="hidden" name="notify_send_body" value="0">
 							<input type="checkbox" id="notify_send_body" name="notify_send_body"', !empty($context['member']['notify_send_body']) ? ' checked' : '', ' class="input_check">
 						</dd>';
+
+	if (!empty($modSettings['enable_ajax_alerts']))
+		echo '
+						<dt>
+							<label for="notify_send_body">', $txt['notify_alert_timeout'], '</label>
+						</dt>
+						<dd>
+							<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" value="', $context['member']['alert_timeout'], '" class="input_text">
+						</dd>
+		';
 
 	echo '
 						<dt>

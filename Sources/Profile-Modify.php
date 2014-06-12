@@ -1923,6 +1923,10 @@ function alert_configuration($memID)
 
 	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
+	$context['member'] += array(
+		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
+	);
+
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
 	// Valid values for these keys are 'always', 'yes', 'never'; if using always or never you should add a help string.
@@ -2091,6 +2095,9 @@ function alert_configuration($memID)
 				$update_prefs[$item_key] = $this_value;
 			}
 		}
+
+		if (!empty($_POST['opt_alert_timeout']))
+			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
 
 		setNotifyPrefs($memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)

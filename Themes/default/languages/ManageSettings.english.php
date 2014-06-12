@@ -58,6 +58,7 @@ $txt['approveAccountDeletion'] = 'Require admin approval when member deletes acc
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
+$txt['enable_ajax_alerts'] = 'Allow AJAX Desktop Notifications for Alerts';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom url to the jQuery Library';

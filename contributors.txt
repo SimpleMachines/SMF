@@ -1,4 +1,4 @@
-﻿Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today!
+Simple Machines wants to thank everyone who helped make SMF 2.1 what it is today!
 Those who contributed their time and effort in the form of code submissions, and in SMF's various teams including;
 Project Management, Support Specialists, Customizers, Doc Writers, Localizers, Marketing, Site Team and Server Team.
 
@@ -64,6 +64,7 @@ Superfish | © Joel Birch | Licensed under The MIT License (MIT)
 SCEditor | © Sam Clarke | Licensed under The MIT License (MIT)
 animaDrag | © Abel Mohler | Licensed under The MIT License (MIT)
 At.js | © chord.luo@gmail.com | Licensed under The MIT License (MIT)
+HTML5 Desktop Notifications | © Tsvetan Tsvetkov | Licensed under The Apache License Version 2.0
 
 Fonts
 Anonymous Pro | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1

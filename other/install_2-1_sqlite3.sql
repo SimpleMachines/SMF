@@ -2016,6 +2016,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_modify', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_blurb', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 COMMIT;
 
 # --------------------------------------------------------
