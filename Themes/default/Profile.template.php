@@ -1760,17 +1760,6 @@ function template_alert_configuration()
 		';
 
 	echo '
-						<dt>
-							<label for="notify_types">', $txt['notify_send_types'], ':</label>
-						</dt>
-						<dd>
-							<select name="notify_types" id="notify_types">
-								<option value="1"', $context['member']['notify_types'] == 1 ? ' selected' : '', '>', $txt['notify_send_type_everything'], '</option>
-								<option value="2"', $context['member']['notify_types'] == 2 ? ' selected' : '', '>', $txt['notify_send_type_everything_own'], '</option>
-								<option value="3"', $context['member']['notify_types'] == 3 ? ' selected' : '', '>', $txt['notify_send_type_only_replies'], '</option>
-								<option value="4"', $context['member']['notify_types'] == 4 ? ' selected' : '', '>', $txt['notify_send_type_nothing'], '</option>
-							</select>
-						</dd>
 					</dl>
 				</div>
 			</div>

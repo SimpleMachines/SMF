@@ -93,8 +93,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
-			$frequency = $prefs[$member]['msg_notify_pref'];
-			$notify_types = $prefs[$member]['msg_notify_type'];
+			$frequency = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_pref'] : 1;
+			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $posterOptions['id'])
 				continue;
