@@ -44,9 +44,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address
+			SELECT mem.id_member, ln.id_topic, ln.id_board, ln.sent, mem.email_address, b.groups,
+					mem.id_group, mem.id_post_group, mem.additional_groups
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
+				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
+				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board OR b.id_board = t.id_board)
 			WHERE id_topic = {int:topic}
 				OR id_board = {int:board}',
 			array(
@@ -58,6 +61,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			$groups = array_merge(array($row['id_group'], $row['id_post_group']), explode(',', $row['additional_groups']));
+			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['groups']))) == 0)
+				continue;
+
 			$members[] = $row['id_member'];
 			$watched[$row['id_member']] = $row;
 		}
