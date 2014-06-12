@@ -33,7 +33,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$alert_rows = array();
 
 		if ($type == 'reply' || $type == 'topic')
-			$quotedMembers = $members = self::getQuotedMembers($msgOptions, $posterOptions);
+		{
+			$quotedMembers = self::getQuotedMembers($msgOptions, $posterOptions);
+			$members = array_keys($quotedMembers);
+		}
 
 		// Insert the post mentions
 		if (!empty($msgOptions['mentioned_members']))
@@ -70,6 +73,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		}
 
 		$smcFunc['db_free_result']($request);
+
+		if (empty($members))
+			return true;
 
 		$members = array_unique($members);
 		$prefs = getNotifyPrefs($members);
@@ -151,7 +157,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 					)),
 				);
-				updateMemberData($member['id'], array('alerts' => '+'));
+				updateMemberData($member, array('alerts' => '+'));
 			}
 
 			$smcFunc['db_query']('', '
@@ -199,7 +205,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			if (in_array($member['id'], $done_members) || $member['id'] == $posterOptions['id'])
 				continue;
 
-			if (!empty($prefs[$id]['quote_msg']))
+			if (!empty($prefs[$id]['msg_quote']))
 				$done_members[] = $id;
 
 			if ($prefs[$id]['msg_quote'] & 0x02)
@@ -215,7 +221,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], false, 2);
 			}
 
-			if ($prefs[$id]['msg_qupte'] & 0x01)
+			if ($prefs[$id]['msg_quote'] & 0x01)
 			{
 				$alert_rows[] = array(
 					'alert_time' => time(),
