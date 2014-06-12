@@ -238,7 +238,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					)),
 				);
 
-				updateMemberData($member['id'], array('alerts' => '+'));
+				updateMemberData($member['id_member'], array('alerts' => '+'));
 			}
 		}
 	}
