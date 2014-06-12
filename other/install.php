@@ -1343,9 +1343,9 @@ function AdminAccount()
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
 		create_function($string,'
                         global $sourcedir;
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
+			if (function_exists(\'mb_strtolower\'))
+				return mb_strtolower($string, \'UTF-8\');
+			require_once($sourcedir . \'/Subs-Charset.php\');
 			return utf8_strtolower($string);
 		');
 
@@ -1599,9 +1599,9 @@ function DeleteInstall()
 	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
 		create_function($string,'
                         global $sourcedir;
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
+			if (function_exists(\'mb_strtolower\'))
+				return mb_strtolower($string, \'UTF-8\');
+			require_once($sourcedir . \'/Subs-Charset.php\');
 			return utf8_strtolower($string);
 		');
 
