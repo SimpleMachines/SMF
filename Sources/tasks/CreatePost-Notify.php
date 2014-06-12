@@ -32,7 +32,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$done_members = array();
 		$alert_rows = array();
 
-		if ($type == 'reply')
+		if ($type == 'reply' || $type == 'topic')
 			$quotedMembers = $members = self::getQuotedMembers($msgOptions, $posterOptions);
 
 		// Insert the post mentions
@@ -128,6 +128,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_action' => $type,
 						'is_read' => 0,
 						'extra' => serialize(array(
+							'topic' => $topicOptions['id'],
+							'board' => $topicOptions['board'],
 							'content_subject' => $msgOptions['subject'],
 							'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 						)),
@@ -170,6 +172,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 						'content_action' => $type,
 						'is_read' => 0,
 						'extra' => serialize(array(
+							'topic' => $topicOptions['id'],
+							'board' => $topicOptions['board'],
 							'content_subject' => $msgOptions['subject'],
 							'content_link' => $scripturl . '?topic=' . $topicOptions['id'] . '.new;topicseen#new',
 						)),
