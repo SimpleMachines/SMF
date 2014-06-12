@@ -92,6 +92,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $posterOptions['id'])
 				continue;
+			elseif (in_array($type, array('reply', 'topic')) && $member == $posterOptions['id'])
+				continue;
 
 			if ($frequency > 2 || (!empty($frequency) && $data['sent']) || in_array($member, $done_members)
 				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
@@ -231,7 +233,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		foreach ($quotedMembers as $id => $member)
 		{
-			if (in_array($member['id'], $done_members))
+			if (in_array($member['id'], $done_members) || $member['id'] == $posterOptions['id'])
 				continue;
 
 			if (!empty($prefs[$id]['quote_msg']))
