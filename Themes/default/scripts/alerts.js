@@ -1,11 +1,14 @@
 var updateAlerts = function ()
 {
-    var unreadAlerts = parseInt($('.amt:first').text());
+    var unreadAlerts = parseInt($('.amt:first').text() ? $('.amt:first').text() : 0);
     $.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts, function (data)
     {
         var alerts = $(data).find('.unread');
         if (alerts.length == 0)
             return true;
+
+        if (unreadAlerts == 0)
+            $('#alerts_menu_top').append('<span class="amt">0</span>');
 
         unreadAlerts += alerts.length;
 
