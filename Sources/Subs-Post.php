@@ -1572,7 +1572,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 
 	// Get the subject and body...
 	$result = $smcFunc['db_query']('', '
-		SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic,
+		SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 			IFNULL(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
