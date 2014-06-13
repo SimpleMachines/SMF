@@ -184,6 +184,9 @@ function ModifyBasicSettings($return_config = false)
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
 			array('check', 'disallow_sendBody'),
+		'',
+			// Alerts stuff
+			array('check', 'enable_ajax_alerts'),
 	);
 
 	// Get all the time zones.

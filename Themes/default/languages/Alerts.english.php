@@ -9,6 +9,15 @@ $txt['mark_alerts_read'] = 'Mark read';
 $txt['alert_settings'] = 'Settings';
 $txt['alerts_no_unread'] = 'No unread alerts.';
 
+$txt['alert_topic_reply'] = '{member_link} replied to the topic {topic_msg}';
+$txt['alert_topic_move'] = '{member_link} moved the topic {topic_msg}';
+$txt['alert_topic_unlock'] = '{member_link} unlocked the topic {topic_msg}';
+$txt['alert_topic_lock'] = '{member_link} locked the topic {topic_msg}';
+$txt['alert_topic_split'] = '{member_link} split the topic {topic_msg}';
+$txt['alert_topic_merge'] = '{member_link} merged topics into {topic_msg}';
+$txt['alert_topic_sticky'] = '{member_link} stickied the topic {topic_msg}';
+$txt['alert_board_topic'] = '{member_link} posted {topic_msg} in {board_msg}';
+$txt['alert_msg_quote'] = '{member_link} quoted you in the post {msg_msg}';
 $txt['alert_msg_mention'] = '{member_link} mentioned you in the post {msg_msg}';
 $txt['alert_msg_like'] = '{member_link} liked your post {msg_msg}';
 $txt['alert_msg_report'] = '{member_link} <a href="{scripturl}{report_link}">reported a post</a> - {msg_msg}';

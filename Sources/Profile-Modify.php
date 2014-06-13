@@ -1907,7 +1907,6 @@ function alert_configuration($memID)
 		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
 		'notify_send_body' => $user_profile[$memID]['notify_send_body'],
 		'notify_types' => $user_profile[$memID]['notify_types'],
-		'notify_regularity' => $user_profile[$memID]['notify_regularity'],
 	);
 
 	loadThemeOptions($memID);
@@ -1923,13 +1922,19 @@ function alert_configuration($memID)
 
 	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
+	$context['member'] += array(
+		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
+	);
+
 	// Now for the exciting stuff.
 	// We have groups of items, each item has both an alert and an email key as well as an optional help string.
 	// Valid values for these keys are 'always', 'yes', 'never'; if using always or never you should add a help string.
 	$alert_types = array(
-		'msg' => array(
+		'board' => array(
 			'topic_notify' => array('alert' => 'yes', 'email' => 'yes'),
 			'board_notify' => array('alert' => 'yes', 'email' => 'yes'),
+		),
+		'msg' => array(
 			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_like' => array('alert' => 'yes', 'email' => 'never'),
@@ -1954,7 +1959,7 @@ function alert_configuration($memID)
 		),
 	);
 	$group_options = array(
-		'msg' => array(
+		'board' => array(
 			array('check', 'msg_auto_notify', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
 				0 => $txt['alert_opt_msg_notify_pref_nothing'],
@@ -1962,6 +1967,12 @@ function alert_configuration($memID)
 				2 => $txt['alert_opt_msg_notify_pref_first'],
 				3 => $txt['alert_opt_msg_notify_pref_daily'],
 				4 => $txt['alert_opt_msg_notify_pref_weekly'],
+			)),
+			array('select', 'msg_notify_type', 'label' => 'before', 'opts' => array(
+				1 => $txt['notify_send_type_everything'],
+				2 => $txt['notify_send_type_everything_own'],
+				3 => $txt['notify_send_type_only_replies'],
+				4 => $txt['notify_send_type_nothing'],
 			)),
 		),
 	);
@@ -2091,6 +2102,9 @@ function alert_configuration($memID)
 				$update_prefs[$item_key] = $this_value;
 			}
 		}
+
+		if (!empty($_POST['opt_alert_timeout']))
+			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
 
 		setNotifyPrefs($memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)

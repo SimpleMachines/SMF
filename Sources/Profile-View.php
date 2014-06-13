@@ -198,8 +198,9 @@ function summary($memID)
  *
  * @param int $memID id_member
  * @param bool $all Fetch all, or only fetch unread.
+ * @param int $counter
  */
-function fetch_alerts($memID, $all = false)
+function fetch_alerts($memID, $all = false, $counter = 0)
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
@@ -211,9 +212,11 @@ function fetch_alerts($memID, $all = false)
 			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
 		WHERE ua.id_member = {int:id_member}' . (!$all ? '
 			AND is_read = 0' : '') . '
-		ORDER BY id_alert DESC',
+		ORDER BY id_alert DESC' . (!empty($counter) ? '
+		LIMIT {int:counter}' : ''),
 		array(
 			'id_member' => $memID,
+			'counter' => $counter,
 		)
 	);
 
@@ -338,6 +341,19 @@ function fetch_alerts($memID, $all = false)
 	}
 
 	return $alerts;
+}
+
+/**
+ * Shows all alerts for this user
+ *
+ * @param int $memID
+ * @return void
+ */
+function showAlerts($memID)
+{
+	global $txt, $sourcedir, $context;
+
+	$context['alerts'] = fetch_alerts($memID, true);
 }
 
 /**

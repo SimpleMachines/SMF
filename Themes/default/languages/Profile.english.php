@@ -119,11 +119,14 @@ $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topi
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
 $txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
+$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications';
 
 $txt['notify_what_how'] = 'Alert Preferences';
 $txt['receive_alert'] = 'Receive alert';
 $txt['receive_mail'] = 'Receive email';
-$txt['alert_group_msg'] = 'Posts and Topics';
+$txt['alert_group_board'] = 'Boards and Topics';
+$txt['alert_group_msg'] = 'Posts';
+$txt['alert_opt_msg_notify_type'] = 'Notify me of:';
 $txt['alert_opt_msg_auto_notify'] = 'Follow topics I reply to.';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
 $txt['alert_opt_msg_notify_pref_nothing'] = 'Nothing, just make a note of it';
@@ -224,6 +227,7 @@ $txt['groupmembership'] = 'Group Membership';
 $txt['groupMembership_info'] = 'In this section of your profile you can change which groups you belong to.';
 $txt['ignoreboards'] = 'Ignore Boards';
 $txt['ignoreboards_info'] = 'This page lets you ignore particular boards.  When a board is ignored, the new post indicator will not show up on the board index.  New posts will not show up using the "unread post" search link (when searching it will not look in those boards) however, ignored boards will still appear on the board index and upon entering will show which topics have new posts.  When using the "unread replies" link, new posts in an ignored board will still be shown.';
+$txt['alerts_show'] = 'Show Alerts';
 
 $txt['profileAction'] = 'Actions';
 $txt['deleteAccount'] = 'Delete this account';

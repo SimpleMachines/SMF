@@ -1853,7 +1853,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('show_modify', '1'),
 	('show_user_images', '1'),
 	('show_blurb', '1'),
-	('show_profile_buttons', '1');
+	('show_profile_buttons', '1'),
+	('enable_ajax_alerts', '1'));
 
 # --------------------------------------------------------
 

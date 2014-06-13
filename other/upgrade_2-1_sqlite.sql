@@ -94,6 +94,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 ---#
 
+---# Adding new "enable_ajax_alerts" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+---#
+
 ---# Enable BBC on Editor and collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');

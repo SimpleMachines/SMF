@@ -96,7 +96,7 @@ function template_alerts_popup()
 				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
-				<a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+				<a href="', $scripturl, '?action=profile;area=showalerts">', $txt['all_alerts'], '</a>
 			</div>
 		</div>
 		<div class="alerts_unread">';
@@ -113,7 +113,7 @@ function template_alerts_popup()
 			<div class="unread">
 				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
 				<div class="details floatleft">
-					', !empty($details['icon']) ? $details['icon'] : '', $details['text'], ' - ', $details['time'], '
+					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
 				<br class="clear">
 			</div>';
@@ -495,6 +495,46 @@ function template_showPosts()
 		<div class="pagesection" style="margin-bottom: 0;">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
+}
+
+function template_showAlerts()
+{
+	global $context, $settings, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['alerts'], ' - ', $context['member']['name'], '
+			</h3>
+		</div>';
+
+	if (empty($context['alerts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['alerts_none'], '
+		</div>';
+	else
+	{
+		$alt = false;
+		$counter = 1;
+		foreach ($context['alerts'] as $alert)
+		{
+			$alt = !$alt;
+
+			echo '
+			<div class="topic">
+				<div class="', $alt ? 'windowbg' : 'windowbg2', ' core_posts">
+					<div class="content">
+						<div class="counter">', $counter++, '</div>
+						<div class="topic_details">', $alert['time'], '</div>
+						<div class="list_posts">
+							', $alert['text'], '
+						</div>
+					</div>
+				</div>
+			</div>';
+		}
+	}
 }
 
 // Template for showing all the drafts of the user.
@@ -1749,29 +1789,17 @@ function template_alert_configuration()
 							<input type="checkbox" id="notify_send_body" name="notify_send_body"', !empty($context['member']['notify_send_body']) ? ' checked' : '', ' class="input_check">
 						</dd>';
 
+	if (!empty($modSettings['enable_ajax_alerts']))
+		echo '
+						<dt>
+							<label for="notify_send_body">', $txt['notify_alert_timeout'], '</label>
+						</dt>
+						<dd>
+							<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" value="', $context['member']['alert_timeout'], '" class="input_text">
+						</dd>
+		';
+
 	echo '
-						<dt>
-							<label for="notify_regularity">', $txt['notify_regularity'], ':</label>
-						</dt>
-						<dd>
-							<select name="notify_regularity" id="notify_regularity">
-								<option value="0"', $context['member']['notify_regularity'] == 0 ? ' selected' : '', '>', $txt['notify_regularity_instant'], '</option>
-								<option value="1"', $context['member']['notify_regularity'] == 1 ? ' selected' : '', '>', $txt['notify_regularity_first_only'], '</option>
-								<option value="2"', $context['member']['notify_regularity'] == 2 ? ' selected' : '', '>', $txt['notify_regularity_daily'], '</option>
-								<option value="3"', $context['member']['notify_regularity'] == 3 ? ' selected' : '', '>', $txt['notify_regularity_weekly'], '</option>
-							</select>
-						</dd>
-						<dt>
-							<label for="notify_types">', $txt['notify_send_types'], ':</label>
-						</dt>
-						<dd>
-							<select name="notify_types" id="notify_types">
-								<option value="1"', $context['member']['notify_types'] == 1 ? ' selected' : '', '>', $txt['notify_send_type_everything'], '</option>
-								<option value="2"', $context['member']['notify_types'] == 2 ? ' selected' : '', '>', $txt['notify_send_type_everything_own'], '</option>
-								<option value="3"', $context['member']['notify_types'] == 3 ? ' selected' : '', '>', $txt['notify_send_type_only_replies'], '</option>
-								<option value="4"', $context['member']['notify_types'] == 4 ? ' selected' : '', '>', $txt['notify_send_type_nothing'], '</option>
-							</select>
-						</dd>
 					</dl>
 				</div>
 			</div>
