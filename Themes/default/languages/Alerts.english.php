@@ -15,6 +15,7 @@ $txt['alert_topic_unlock'] = '{member_link} unlocked the topic {topic_msg}';
 $txt['alert_topic_lock'] = '{member_link} locked the topic {topic_msg}';
 $txt['alert_topic_split'] = '{member_link} split the topic {topic_msg}';
 $txt['alert_topic_merge'] = '{member_link} merged topics into {topic_msg}';
+$txt['alert_topic_sticky'] = '{member_link} stickied the topic {topic_msg}';
 $txt['alert_board_topic'] = '{member_link} posted {topic_msg} in {board_msg}';
 $txt['alert_msg_quote'] = '{member_link} quoted you in the post {msg_msg}';
 $txt['alert_msg_mention'] = '{member_link} mentioned you in the post {msg_msg}';
