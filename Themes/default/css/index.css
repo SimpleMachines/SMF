@@ -1652,14 +1652,14 @@ img#smflogo {
 		linear,
 		left top,
 		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
+		color-stop(0, #E2E9F3),
+		color-stop(0.5, #FFFFFF)
 	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
+	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
+	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
+	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
+	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 50%);
 }
 #inner_section:after {
 	content:"";
