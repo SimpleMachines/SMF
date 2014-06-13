@@ -1544,6 +1544,11 @@ ALTER TABLE {$db_prefix}members
 DROP hide_email;
 ---#
 
+---# Dropping the "email_address" column from log_reported_comments
+ALTER TABLE {$db_prefix}log_reported_comments
+DROP email_address;
+---#
+
 /******************************************************************************/
 --- Deleting the "Auto Optimize" task
 /******************************************************************************/
