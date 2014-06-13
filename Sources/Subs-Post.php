@@ -2063,14 +2063,25 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 
 	if (!empty($modSettings['enable_mentions']))
 	{
+		require_once($sourcedir . '/Mentions.php');
 		$mentions = Mentions::getMentionedMembers($msgOptions['body']);
 		if (!empty($mentions))
 		{
 			$msgOptions['body'] = Mentions::getBody($msgOptions['body'], $mentions);
 			$msgOptions['mentioned_members'] = $mentions;
-			Mentions::insertMentions('msg', $msgOptions['id'], $mentions);
-			if (!isset($msgOptions['approved']) || $msgOptions['approved'])
-				Mentions::queueMentionNotifications('msg', $msgOptions['id'], $mentions);
+
+			// Queue this for notification
+			$smcFunc['db_insert']('',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/CreatePost-Notify.php', 'CreatePost_Notify_Background', serialize(array(
+					'msgOptions' => $msgOptions,
+					'topicOptions' => $topicOptions,
+					'posterOptions' => $posterOptions,
+					'type' => 'edit',
+				)), time()),
+				array('id_task')
+			);
 		}
 	}
 
