@@ -1525,6 +1525,12 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---}
 ---#
 
+---# Dropping the "email_address" column from log_reported_comments
+---{
+	$smcFunc['db_alter_table']('{db_prefix}log_reported_comments', array('remove' => array('email_address')));
+---}
+---#
+
 /******************************************************************************/
 --- Deleting the "Auto Optimize" task
 /******************************************************************************/
