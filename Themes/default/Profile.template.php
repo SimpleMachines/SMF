@@ -96,7 +96,7 @@ function template_alerts_popup()
 				| <a href="', $scripturl, '?action=profile;area=notification;sa=alerts">', $txt['alert_settings'], '</a>
 			</div>
 			<div class="alerts_box floatleft">
-				<a href="', $scripturl, '?action=pm">', $txt['all_alerts'], '</a>
+				<a href="', $scripturl, '?action=profile;area=showalerts">', $txt['all_alerts'], '</a>
 			</div>
 		</div>
 		<div class="alerts_unread">';
@@ -495,6 +495,46 @@ function template_showPosts()
 		<div class="pagesection" style="margin-bottom: 0;">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
+}
+
+function template_showAlerts()
+{
+	global $context, $settings, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['alerts'], ' - ', $context['member']['name'], '
+			</h3>
+		</div>';
+
+	if (empty($context['alerts']))
+		echo '
+		<div class="tborder windowbg2 padding centertext">
+			', $txt['alerts_none'], '
+		</div>';
+	else
+	{
+		$alt = false;
+		$counter = 1;
+		foreach ($context['alerts'] as $alert)
+		{
+			$alt = !$alt;
+
+			echo '
+			<div class="topic">
+				<div class="', $alt ? 'windowbg' : 'windowbg2', ' core_posts">
+					<div class="content">
+						<div class="counter">', $counter++, '</div>
+						<div class="topic_details">', $alert['time'], '</div>
+						<div class="list_posts">
+							', $alert['text'], '
+						</div>
+					</div>
+				</div>
+			</div>';
+		}
+	}
 }
 
 // Template for showing all the drafts of the user.

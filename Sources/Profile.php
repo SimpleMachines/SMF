@@ -158,6 +158,16 @@ function ModifyProfile($post_errors = array())
 						'any' => array(),
 					),
 				),
+				'showalerts' => array(
+					'label' => $txt['alerts_show'],
+					'file' => 'Profile-View.php',
+					'function' => 'showAlerts',
+					'icon' => 'blank.png',
+					'permission' => array(
+						'own' => 'is_not_guest',
+						'any' => array(),
+					),
+				),
 				'permissions' => array(
 					'label' => $txt['showPermissions'],
 					'file' => 'Profile-View.php',

@@ -344,6 +344,19 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 }
 
 /**
+ * Shows all alerts for this user
+ *
+ * @param int $memID
+ * @return void
+ */
+function showAlerts($memID)
+{
+	global $txt, $sourcedir, $context;
+
+	$context['alerts'] = fetch_alerts($memID, true);
+}
+
+/**
  * Show all posts by the current user
  * @todo This function needs to be split up properly.
  *
