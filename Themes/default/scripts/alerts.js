@@ -21,6 +21,13 @@ var updateAlerts = function ()
                 icon: smf_images_url + '/blank.png'
             });
 
+            notification.click(function()
+            {
+                window.focus();
+                if (!$('#alerts_menu').is(':visible'))
+                    $('#alerts_menu_top').click();
+            });
+
             if (alert_timeout > 0)
                 setTimeout(function()
                 {
@@ -172,6 +179,9 @@ $(function ()
                             }
                         }
                     }
+                },
+                click: function(callback) {
+                    notification.addEventListener('click', callback);
                 }
             };
         }
