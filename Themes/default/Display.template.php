@@ -331,7 +331,7 @@ function template_main()
 			<br class="clear">';
 
 	// draft autosave available and the user has it enabled?
-	if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+	if (!empty($context['drafts_autosave']))
 		echo '
 			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
