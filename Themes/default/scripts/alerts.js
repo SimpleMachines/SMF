@@ -1,6 +1,31 @@
+var pingTime = 60000;
+
 var updateAlerts = function ()
 {
-    var unreadAlerts = parseInt($('.amt:first').text() ? $('.amt:first').text() : 0);
+    var unreadAlerts;
+
+    // Prevent multiple notifications across browsers
+    if (typeof localStorage != 'undefined')
+    {
+        unreadAlerts = localStorage.getItem('alertsCounter');
+
+        if (!$('.amt:first').is(':visible'))
+            $('#alerts_menu_top').append('<span class="amt">0</span>');
+
+        $('.amt:first').text(unreadAlerts);
+
+        if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
+        {
+            setTimeout(updateAlerts, 1000);
+            return true;
+        }
+        localStorage.setItem('alertsPoll', +(new Date()));
+    }
+    else
+        unreadAlerts = $('.amt:first').text() ? $('.amt:first').text() : 0;
+
+    unreadAlerts = parseInt(unreadAlerts);
+
     $.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts, function (data)
     {
         var alerts = $(data).find('.unread');
@@ -11,6 +36,9 @@ var updateAlerts = function ()
             $('#alerts_menu_top').append('<span class="amt">0</span>');
 
         unreadAlerts += alerts.length;
+
+        if (typeof localStorage != 'undefined')
+            localStorage.setItem('alertsCounter', unreadAlerts);
 
         $('.amt:first').text(unreadAlerts);
 
@@ -36,7 +64,7 @@ var updateAlerts = function ()
         });
     });
 
-    setTimeout(updateAlerts, 60000);
+    setTimeout(updateAlerts, pingTime);
 }
 
 $(function ()
@@ -54,7 +82,11 @@ $(function ()
         });
     }
     else if (permission == notify.PERMISSION_GRANTED)
-        setTimeout(updateAlerts, 60000);
+    {
+        setTimeout(updateAlerts, pingTime);
+        if (typeof localStorage != 'undefined')
+            localStorage.setItem('alertsCounter', parseInt($('.amt:first').text() ? $('.amt:first').text() : 0));
+    }
 });
 
 /**
