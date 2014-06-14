@@ -143,6 +143,7 @@ class curl_fetch_web_data
 			'error' => $error,
 			'headers' => isset($this->headers) ? $this->headers : false,
 			'body' => $body,
+			'size' => $curl_info['download_content_length'],
 		);
 
 		// If this a redirect with a location header and we have not given up, then do it again
