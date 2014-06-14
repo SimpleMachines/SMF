@@ -1069,7 +1069,7 @@ img.sort, .sort {
 }
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
-	margin: 0 0 0 0;
+	margin: 0;
 	display: block;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -1497,7 +1497,7 @@ img.sort, .sort {
 }
 #search_form .input_text, #search_form select, #search_form .button_submit {
 	padding: 2px;
-	margin: 0 0 0 0;
+	margin: 0;
 	background: #fff;
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
@@ -1671,7 +1671,7 @@ ul li.greeting {
 }
 #main_content_section .navigate_section {
 	margin: 4px 0 0 0;
-	padding: 0 0 0 0;
+	padding: 0;
 }
 .navigate_section ul {
 	margin: 4px 0 0 0;
@@ -1878,7 +1878,7 @@ ul#smfFadeScroller li {
 }
 #upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
 	border: none;
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 2px 29px;
 	line-height: 1.6em;
 	font-size: 0.9em;
@@ -2042,7 +2042,7 @@ h4#pollquestion {
 #poll_options dl.options .percentage {
 	display: block;
 	float: right;
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 0 2px;
 	position: absolute;
 	right: 0;
@@ -2116,8 +2116,8 @@ div#pollmoderation {
 	font-size: 1.2em;
 }
 .poster h4, .poster h4 a, .poster li:hover h4 a, .poster h4 a:hover .poster li h4 a, .poster h4 a:focus {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 0;
 	color: #c06002;
 }
 
@@ -3304,7 +3304,7 @@ dl {
 	float: right;
 }
 .counter {
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 5px 6px 1px 2px;
 	font-size: 2.2em;
 	font-weight: bold;
@@ -3460,8 +3460,8 @@ dl {
 dl.stats {
 	clear: both;
 	overflow: hidden;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 0;
 }
 dl.stats dt {
 	width: 50%;
@@ -3706,7 +3706,7 @@ dl.addrules dt.floatleft {
 ------------------------------------------------- */
 
 #help_container {
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 0 0 8px 0;
 	overflow: auto;
 }
