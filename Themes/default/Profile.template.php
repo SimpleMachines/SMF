@@ -643,7 +643,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 			<tr class="windowbg2">
-				<td colspan="8" align="center"><strong>', $txt['no_buddies'], '</strong></td>
+				<td colspan="10" align="center"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
 		// Now loop through each buddy showing info on each.

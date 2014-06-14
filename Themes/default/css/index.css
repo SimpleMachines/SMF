@@ -1558,6 +1558,7 @@ img.sort, .sort {
 	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
 	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
+/* h3 HD Icons */
 h3.search_hd {
 	background: url(../images/buttons/search_hd.png) 4px no-repeat;
 	padding: 8px 35px 6px;
@@ -3376,9 +3377,6 @@ dl {
 	padding: 0;
 }
 
-#creator dl {
-	margin: 0;
-}
 #creator dt {
 	width: 40%;
 	float: left;
