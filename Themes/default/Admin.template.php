@@ -317,7 +317,7 @@ function template_view_versions()
 						<div class="information">', $txt['version_check_desc'], '</div>
 							<table class="table_grid">
 								<thead>
-									<tr class="catbg" align="left">
+									<tr class="title_bar" align="left">
 										<th class="first_th" scope="col" width="50%">
 											<strong>', $txt['admin_smffile'], '</strong>
 										</th>
@@ -1477,7 +1477,7 @@ function template_php_info()
 		echo '
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
-								<tr class="catbg">
+								<tr class="title_bar">
 									<th class="first_th" scope="col" width="33%"></th>
 									<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
 									<th class="last_th" scope="col" width="33%"></th>
@@ -1498,7 +1498,7 @@ function template_php_info()
 				{
 					// heading row for the settings section of this categorys settings
 					echo '
-								<tr class="catbg">
+								<tr class="title_bar">
 									<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>

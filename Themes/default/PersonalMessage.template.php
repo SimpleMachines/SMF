@@ -560,7 +560,7 @@ function template_subject_list()
 	echo '
 	<table class="table_grid">
 	<thead>
-		<tr class="catbg">
+		<tr class="title_bar">
 			<th align="center" width="4%" class="centercol first_th">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"><span class="pm_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 			</th>
@@ -810,7 +810,7 @@ function template_search_results()
 		echo '
 	<table class="table_grid">
 	<thead>
-		<tr class="catbg">
+		<tr class="title_bar">
 			<th class="lefttext first_th" width="30%">', $txt['date'], '</th>
 			<th class="lefttext" width="50%">', $txt['subject'], '</th>
 			<th class="lefttext last_th" width="20%">', $txt['from'], '</th>
@@ -1356,7 +1356,7 @@ function template_labels()
 		</div>
 		<table class="table_grid">
 		<thead>
-			<tr class="catbg">
+			<tr class="title_bar">
 				<th class="lefttext first_th">
 					', $txt['pm_label_name'], '
 				</th>
@@ -1517,7 +1517,7 @@ function template_rules()
 		</div>
 		<table class="table_grid">
 		<thead>
-			<tr class="catbg">
+			<tr class="title_bar">
 				<th class="lefttext first_th">
 					', $txt['pm_rule_title'], '
 				</th>

@@ -136,7 +136,7 @@ function template_view_package()
 			</div><br>
 			<table class="table_grid">
 			<thead>
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th class="first_th" scope="col" width="20"></th>
 					<th scope="col" width="30"></th>
 					<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
@@ -232,7 +232,7 @@ function template_view_package()
 				$js_operations[$action_num] = !empty($theme['has_failure']);
 
 				echo '
-					<tr class="catbg">
+					<tr class="title_bar">
 						<td></td>
 						<td align="center">';
 				if (!empty($context['themes_locked']))
@@ -1531,7 +1531,7 @@ function template_file_permissions()
 		</div>
 		<table class="table_grid">
 			<thead>
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th class="first_th lefttext" width="30%">&nbsp;', $txt['package_file_perms_name'], '&nbsp;</th>
 					<th width="30%" class="lefttext">', $txt['package_file_perms_status'], '</th>
 					<th align="center" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_read'], '</span></th>

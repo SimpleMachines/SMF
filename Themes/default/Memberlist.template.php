@@ -35,7 +35,7 @@ function template_main()
 		<div id="mlist">
 			<table class="table_grid">
 			<thead>
-				<tr class="catbg">';
+				<tr class="title_bar">';
 
 	// Display each of the column headers of the table.
 	foreach ($context['columns'] as $key => $column)

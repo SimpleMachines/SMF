@@ -142,7 +142,7 @@ function template_search_members()
 			<div class="flow_hidden">
 				<table width="49%" class="table_grid floatleft">
 					<thead>
-						<tr class="catbg">
+						<tr class="title_bar">
 							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
 							<th scope="col" class="centercol">', $txt['primary'], '</th>
 							<th scope="col" class="last_th centercol">', $txt['additional'], '</th>
@@ -179,7 +179,7 @@ function template_search_members()
 
 				<table width="49%" class="table_grid floatright">
 					<thead>
-						<tr class="catbg">
+						<tr class="title_bar">
 							<th scope="col" class="first_th">
 								', $txt['membergroups_postgroups'], '
 							</th>

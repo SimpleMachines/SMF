@@ -374,7 +374,7 @@ function template_merge_extra_options()
 			</div>
 			<table class="bordercolor table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th scope="col" class="first_th" align="center" width="10px">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>

@@ -77,7 +77,7 @@ function template_download_language()
 			</div>
 			<table class="table_grid" cellspacing="0">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th" scope="col">
 							', $txt['languages_download_filename'], '
 						</th>

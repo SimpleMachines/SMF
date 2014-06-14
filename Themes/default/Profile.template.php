@@ -623,7 +623,7 @@ function template_editBuddies()
 			</h3>
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
-			<tr class="catbg">
+			<tr class="title_bar">
 				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
@@ -740,7 +740,7 @@ function template_editIgnoreList()
 			</h3>
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
-			<tr class="catbg">
+			<tr class="title_bar">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
@@ -941,7 +941,7 @@ function template_trackIP()
 		echo '
 		<table class="table_grid" cellspacing="0">
 			<thead>
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
 					<th class="last_th" scope="col">', $txt['display_name'], '</th>
 				</tr>
@@ -1021,7 +1021,7 @@ function template_showPermissions()
 			echo '
 					<table class="table_grid" cellspacing="0">
 						<thead>
-							<tr class="catbg">
+							<tr class="title_bar">
 								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 							</tr>
@@ -1085,7 +1085,7 @@ function template_showPermissions()
 			echo '
 				<table class="table_grid" cellspacing="0">
 					<thead>
-						<tr class="catbg">
+						<tr class="title_bar">
 							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
 							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 						</tr>
@@ -1818,7 +1818,7 @@ function template_alert_configuration()
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
 		echo '
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th colspan="3">
 						', $txt['alert_group_' . $alert_group];
 		if (isset($context['alert_group_options'][$alert_group]))
@@ -1992,7 +1992,7 @@ function template_groupMembership()
 		echo '
 			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th" scope="col" ', $context['can_edit_primary'] ? ' colspan="2"' : '', '>', $txt['current_membergroups'], '</th>
 						<th class="last_th" scope="col"></th>
 					</tr>
@@ -2044,7 +2044,7 @@ function template_groupMembership()
 			<br>
 			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th" scope="col">
 							', $txt['available_groups'], '
 						</th>

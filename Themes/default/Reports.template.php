@@ -77,7 +77,7 @@ function template_main()
 		if (!empty($table['title']))
 			echo '
 			<thead>
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th scope="col" colspan="', $table['column_count'], '">', $table['title'], '</th>
 				</tr>
 			</thead>
@@ -169,7 +169,7 @@ function template_print()
 
 		if (!empty($table['title']))
 			echo '
-				<tr class="catbg">
+				<tr class="title_bar">
 					<td colspan="', $table['column_count'], '">
 						', $table['title'], '
 					</td>

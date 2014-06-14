@@ -138,9 +138,6 @@ div.quick_tasks {
 	background: #fff;
 	color: #666;
 }
-.action_admin .table_grid tr.catbg th a:link {
-	color: #666;
-}
 .action_admin .table_grid .first_th, .action_admin .table_grid  td:first-child {
 	border-left: 1px solid #ccc;
 }

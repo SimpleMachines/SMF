@@ -566,7 +566,7 @@ function template_group_members()
 			<div class="pagesection">', $context['page_index'], '</div>
 			<table class="table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="sort sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	if ($context['can_send_email'])

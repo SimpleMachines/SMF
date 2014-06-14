@@ -82,7 +82,7 @@ function template_show_list($list_id = null)
 	{
 		echo '
 			<thead>
-				<tr class="catbg">';
+				<tr class="title_bar">';
 
 		// Loop through each column and add a table header.
 		$i = 0;

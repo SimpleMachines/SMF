@@ -508,39 +508,6 @@ a img {
 	color: #222 !important;
 }
 
-/* Generic, mostly color-related, classes.
-------------------------------------------------------- */
-.catbg, tr.catbg td, tr.catbg th {
-	color: #fff;
-	font-size: 1.1em;
-	font-weight: bold;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
-}
-
-/* adjust the table versions of headers */
-tr.catbg th, td.catbg {
-	padding: 0 6px;
-}
-tr.catbg th a:link, tr.catbg th a:visited {
-	color: #fff;
-}
-.catbg select {
-	height: 2em;
-	font-size: 0.9em;
-	padding: 0;
-}
-
 /* Alternating backgrounds for posts, and several other sections of the forum. */
 .windowbg, #preview_body {
 	color: #222;
@@ -925,6 +892,7 @@ h4.catbg a.toggle img {
 	margin: 0 5px 0 5px;
 }
 h4.catbg, h3.catbg {
+	color: #FFF;
 	background: none;
 }
 
@@ -957,10 +925,6 @@ div.cat_bar {
 	margin: 2px 2px 0 2px;
 }
 
-.table_grid th.lefttext {
-	padding: 0 8px;
-}
-
 /* a general table class */
 table.table_grid {
 	border-collapse: collapse;
@@ -969,6 +933,9 @@ table.table_grid {
 }
 table.table_grid td {
 	padding: 3px;
+}
+.title_bar th {
+	padding: 4px 3px 3px 8px;
 }
 
 /* GenericList */
@@ -3958,9 +3925,6 @@ dl.addrules dt.floatleft {
 .generic_list_wrapper table.table_grid {
 	border-bottom: 1px solid #aaa;
 }
-.table_grid .catbg, .table_grid .catbg th, .table_grid .catbg th a {
-	font-size: 1em;
-}
 .generic_list_wrapper .information .additional_row{
 	border: none;
 }
@@ -4011,32 +3975,8 @@ div#editlang_desc {
 	padding: 3px 4px;
 	margin: 0 0 -10px 0;
 }
-.table_grid tr.catbg th{
-	border-top: 2px solid #ff9400;
-	border-bottom: 2px solid #bf6900;
-	background: #fff;
-	color: #666;
-	border-radius: 2px 2px 0 0;
-	text-align: left;
-}
-.table_grid tr.catbg th.stats {
+.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
 	text-align: center;
-}
-.table_grid tr.catbg th.centercol, .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
-	text-align: center;
-}
-.table_grid tr.catbg th {
-	padding: 4px 3px 3px 8px;
-}
-tr.catbg th:first-child {
-	border-left: 1px solid #ddd;
-}
-tr.catbg th:last-child {
-	border-right: 1px solid #ddd;
-}
-.table_grid tr.catbg th a {
-	color: #555;
-	text-shadow: none;
 }
 #postmodify .roundframe div{
 	padding-right: 0;

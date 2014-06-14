@@ -40,7 +40,7 @@ function template_permission_index()
 		echo '
 			<table class="table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th">', $txt['membergroups_name'], '</th>
 						<th width="10%" style="text-align:center" valign="middle">', $txt['membergroups_members_top'], '</th>';
 
@@ -373,7 +373,7 @@ function template_edit_profiles()
 
 			<table class="table_grid">
 				<thead>
-					<tr class="catbg">
+					<tr class="title_bar">
 						<th class="first_th">', $txt['permissions_profile_name'], '</th>
 						<th', !empty($context['show_rename_boxes']) ? ' class="last_th"' : '', '>', $txt['permissions_profile_used_by'], '</th>
 						<th class="last_th"', !empty($context['show_rename_boxes']) ? ' style="display:none"' : '', ' width="5%">', $txt['delete'], '</th>
@@ -585,7 +585,7 @@ function template_modify_group_display($type)
 				if ($has_display_content)
 				{
 					echo '
-							<tr class="catbg">
+							<tr class="title_bar">
 								<th width="10"></th>
 								<th', $context['group']['id'] == -1 ? ' colspan="2"' : '', ' class="smalltext">', $permissionGroup['name'], '</th>';
 
@@ -815,7 +815,7 @@ function template_postmod_permissions()
 							</div>
 							<table class="table_grid">
 								<thead>
-									<tr class="catbg">
+									<tr class="title_bar">
 										<th class="first_th"></th>
 										<th class="centercol" colspan="3">
 											', $txt['permissions_post_moderation_new_topics'], '
