@@ -1,23 +1,14 @@
 /* Styles for the general looks for the Curve2 theme.
 ----------------------------------------------------- */
 
-/* Normal, standard links. */
-a:link, a:visited {
+/* This is about links */
+a:link, a:visited, a.new_win:link, a.new_win:visited {
 	color: #346;
 	text-decoration: none;
 }
-a:hover {
+a:hover, a.new_win:hover {
 	text-decoration: underline;
 	cursor: pointer;
-}
-
-/* Links that open in a new window. */
-a.new_win:link, a.new_win:visited {
-	color: #346;
-	text-decoration: none;
-}
-a.new_win:hover {
-	text-decoration: underline;
 }
 
 html {
@@ -295,9 +286,6 @@ em {
 }
 .flow_hidden {
 	overflow: hidden;
-}
-.flow_hidden .windowbg, .flow_hidden .windowbg2 {
-	/*margin-top: 2px;*/
 }
 .clear {
 	clear: both;
@@ -1009,9 +997,10 @@ img.sort, .sort {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	margin: 2px 0 0 0;
 	padding: 9px;
-	background: #f5f5f5;
+	background: #F8F8F8;
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
+	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: hidden;
 }
 .roundframe dl, .roundframe dt, .roundframe p {
@@ -1879,8 +1868,9 @@ ul#smfFadeScroller li {
 /* Styles for the info center on the board index.
 ---------------------------------------------------- */
 #info_center {
+	margin: 12px 0 0 0;
+	padding: 8px 8px 16px 8px;
 	clear: both;
-	margin: 0;
 }
 #upshrinkHeaderIC {
 	margin-top: 4px;
@@ -2538,10 +2528,8 @@ ul.quickbuttons li > ul > li {
 	clear: both;
 }
 #quickReplyOptions .roundframe {
-	background: #f0f4f7;
 	margin: 8px 0 0 0;
 	padding: 8px 10% 12px 10%;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
 #quickReplyOptions form textarea {
@@ -3936,21 +3924,19 @@ dl.addrules dt.floatleft {
 /* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
 
 #forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages .windowbg, #personal_messages .windowbg2 {
-	background: /*#e8eff5;*/#f0f4f7;
+	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
 	border: 1px solid #ccc;
 	border-radius: 5px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 }
-#forumposts .windowbg2, #personal_messages .windowbg2 {
-	background: #eaf1f4;
-}
+
 /* The generic wrapper thingy for teh awesome cool looks innit. */
 /* This lot will be simplified once I get all the styling hooks in place. */
 .generic_list_wrapper, .action_profile  #permissions, #postmodify .roundframe, .add_buddy, #creator .windowbg2,
-#notify_options .windowbg2, #info_center, #profileview, #messageindex, #mlist,
-.core_posts, #recent .core_posts, #recent .topic_table, #searchform .roundframe {
+#notify_options .windowbg2, #profileview, #messageindex, #mlist,
+.core_posts, #recent .core_posts, #recent .topic_table {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -3983,12 +3969,8 @@ dl.addrules dt.floatleft {
 	border-bottom: 1px solid #fff;
 }
 #searchform .roundframe {
-	background: #f0f4f7;
 	margin: 8px 0 0 0;
 	padding: 32px;
-	border: 1px solid #ccc;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
 .add_buddy .roundframe {
@@ -4033,11 +4015,6 @@ div#editlang_desc {
 #recent .pagesection {
 	padding: 3px 4px;
 	margin: 0 0 -10px 0;
-}
-#info_center {
-	background: #f8f8f8;
-	margin: 12px 0 0 0;
-	padding: 16px 12px 6px 12px;
 }
 .table_grid tr.catbg th{
 	border-top: 2px solid #ff9400;
@@ -4351,7 +4328,6 @@ div.lastpost p {
 	font-weight: bold;
 }
 .atwho-view ul {
-	/* width: 100px; */
 	list-style:none;
 	padding:0;
 	margin:auto;
@@ -4361,7 +4337,6 @@ div.lastpost p {
 	padding: 5px 10px;
 	border-bottom: 1px solid #DDD;
 	cursor: pointer;
-	/* border-top: 1px solid #C8C8C8; */
 }
 .atwho-view small {
 	font-size: smaller;
