@@ -73,6 +73,44 @@ class ProxyServer
 	}
 
 	/**
+	 * Serves the request
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function serve()
+	{
+		$request = $_GET['request'];
+		$cached_file = $this->getCachedPath($request);
+		$cached = json_decode(file_get_contents($cached_file), true);
+
+		// Is the cache expired?
+		if (!$cached || time() - $cached['time'] > (5 * 86400))
+		{
+			@unlink($cached_file);
+			if ($this->checkRequest())
+				$this->serve();
+			exit;
+		}
+
+		header('Content-type: ' . $cached['content_type']);
+		header('Content-length: ' . $cached['size']);
+		echo base64_decode($cached['body']);
+	}
+
+	/**
+	 * Returns the request's hashed filepath
+	 *
+	 * @access public
+	 * @param string $request
+	 * @return string
+	 */
+	protected function getCachedPath($request)
+	{
+		return $this->cache . '/' . sha1($request . $this->secret);
+	}
+
+	/**
 	 * Check whether the image exists in local cache or not
 	 *
 	 * @access protected
@@ -81,7 +119,7 @@ class ProxyServer
 	 */
 	protected function isCached($request)
 	{
-		return file_exists($this->cache . '/' . sha1($request . $this->secret));
+		return file_exists($this->getCachedPath($request));
 	}
 
 	/**
@@ -93,7 +131,7 @@ class ProxyServer
 	 */
 	protected function cacheImage($request)
 	{
-		$dest = $this->cache . '/' . sha1($request . $this->secret);
+		$dest = $this->getCachedPath($request);
 
 		$curl = new curl_fetch_web_data(array(CURLOPT_BINARYTRANSFER => 1));
 		$request = $curl->get_url_data($request);
@@ -119,32 +157,6 @@ class ProxyServer
 			'time' => time(),
 			'body' => base64_encode($response['body']),
 		)));
-	}
-
-	/**
-	 * Serves the request
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function serve()
-	{
-		$request = $_GET['request'];
-		$cached_file = $this->cache . '/' . sha1($request . $this->secret);
-		$cached = json_decode(file_get_contents($cached_file), true);
-
-		// Is the cache expired?
-		if (!$cached || time() - $cached['time'] > (5 * 86400))
-		{
-			@unlink($cached_file);
-			if ($this->checkRequest())
-				 $this->serve();
-			exit;
-		}
-
-		header('Content-type: ' . $cached['content_type']);
-		header('Content-length: ' . $cached['size']);
-		echo base64_decode($cached['body']);
 	}
 }
 
