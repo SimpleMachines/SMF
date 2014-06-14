@@ -2543,6 +2543,7 @@ ul.quickbuttons li > ul > li {
 ---------------------------------------------------- */
 form#postmodify .roundframe {
 	padding: 12px 12%;
+	margin: 12px 0 0 0;
 }
 #post_header {
 	padding: 6px;
@@ -3934,7 +3935,7 @@ dl.addrules dt.floatleft {
 
 /* The generic wrapper thingy for teh awesome cool looks innit. */
 /* This lot will be simplified once I get all the styling hooks in place. */
-.generic_list_wrapper, .action_profile  #permissions, #postmodify .roundframe, .add_buddy, #creator .windowbg2,
+.generic_list_wrapper, .action_profile  #permissions, #creator .windowbg2,
 #notify_options .windowbg2, #profileview, #messageindex, #mlist,
 .core_posts, #recent .core_posts, #recent .topic_table {
 	background: #f0f4f7;
@@ -3972,11 +3973,6 @@ dl.addrules dt.floatleft {
 	margin: 8px 0 0 0;
 	padding: 32px;
 	overflow: auto;
-}
-.add_buddy .roundframe {
-	background: none;
-	border: none;
-	max-width: 100%;
 }
 #activitytime .windowbg2 .flow_hidden {
 	background: none;

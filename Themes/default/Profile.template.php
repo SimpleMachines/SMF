@@ -682,11 +682,11 @@ function template_editBuddies()
 	// Add a new buddy?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder add_buddy">
+		<div class="tborder roundframe">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['buddy_add'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="content">
 				<dl class="settings">
 					<dt>
 						<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
@@ -785,11 +785,11 @@ function template_editIgnoreList()
 	// Add to the ignore list?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder add_buddy">
+		<div class="tborder roundframe">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['ignore_add'], '</h3>
 			</div>
-			<div class="roundframe">
+			<div class="content">
 				<dl class="settings">
 					<dt>
 						<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
