@@ -4061,7 +4061,7 @@ function call_integration_hook($hook, $parameters = array())
 		// Did we find a file to load?
 		if (strpos($function, '|') !== false)
 		{
-			list($func, $file) = explode('|', $function);
+			list($file, $func) = explode('|', $function);
 
 			// Match the wildcards to their regular vars.
 			if (empty($settings['theme_dir']))
