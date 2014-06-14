@@ -1562,6 +1562,10 @@ h3.search_hd {
 	background: url(../images/buttons/search_hd.png) 4px no-repeat;
 	padding: 8px 35px 6px;
 }
+h3.profile_hd {
+	background: url(../images/icons/profile_hd.png) 15px no-repeat;
+	padding: 8px 0 8px 50px;
+}
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
 #ie #search_form .button_submit, #chrome #search_form .button_submit {
@@ -3935,7 +3939,7 @@ dl.addrules dt.floatleft {
 
 /* The generic wrapper thingy for teh awesome cool looks innit. */
 /* This lot will be simplified once I get all the styling hooks in place. */
-.generic_list_wrapper, .action_profile  #permissions, #creator .windowbg2,
+.generic_list_wrapper, .action_profile  #permissions,
 #notify_options .windowbg2, #profileview, #messageindex, #mlist,
 .core_posts, #recent .core_posts, #recent .topic_table {
 	background: #f0f4f7;
@@ -3990,9 +3994,6 @@ div#editlang_desc {
 }
 #recent .core_posts span {
 	font-weight: normal;
-}
-.core_posts .quickbuttons li:last-child, .core_posts .quickbuttons li:last-child:hover {
-	border-radius: 4px;
 }
 #recent .quickbuttons {
 	margin-top: -2px;

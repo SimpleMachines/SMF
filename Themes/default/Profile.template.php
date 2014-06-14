@@ -735,8 +735,8 @@ function template_editIgnoreList()
 	echo '
 	<div class="generic_list_wrapper" id="edit_buddies">
 		<div class="cat_bar">
-			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['editIgnoreList'], '
+			<h3 class="catbg profile_hd">
+				', $txt['editIgnoreList'], '
 			</h3>
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -978,8 +978,8 @@ function template_showPermissions()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['showPermissions'], '
+			<h3 class="catbg profile_hd">
+				', $txt['showPermissions'], '
 			</h3>
 		</div>';
 
@@ -1294,8 +1294,7 @@ function template_edit_options()
 	echo '
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">';
+				<h3 class="catbg profile_hd">';
 
 		// Don't say "Profile" if this isn't the profile...
 		if (!empty($context['profile_header_text']))
@@ -1315,7 +1314,7 @@ function template_edit_options()
 			<p class="description">', $context['page_desc'], '</p>';
 
 	echo '
-			<div class="windowbg2">
+			<div class="roundframe">
 				<div class="content">';
 
 	// Any bits at the start?
@@ -1957,8 +1956,8 @@ function template_groupMembership()
 	echo '
 		<form action="', $scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['profile'], '
+				<h3 class="catbg profile_hd">
+					', $txt['profile'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['groupMembership_info'], '</p>';
@@ -2126,8 +2125,8 @@ function template_ignoreboards()
 	echo '
 	<form action="', $scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 		<div class="cat_bar">
-			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['profile'], '
+			<h3 class="catbg profile_hd">
+				', $txt['profile'], '
 			</h3>
 		</div>
 		<p class="description">', $txt['ignoreboards_info'], '</p>
@@ -2220,8 +2219,7 @@ function template_viewWarning()
 
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">
+			<h3 class="catbg profile_hd">
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
 			</h3>
 		</div>
@@ -2406,8 +2404,7 @@ function template_issueWarning()
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
 		<div class="cat_bar">
-			<h3 class="catbg">
-				<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">
+			<h3 class="catbg profile_hd">
 				', $context['user']['is_owner'] ? $txt['profile_warning_level'] : $txt['profile_issue_warning'], '
 			</h3>
 		</div>';
@@ -2602,8 +2599,8 @@ function template_deleteAccount()
 	echo '
 		<form action="', $scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['deleteAccount'], '
+				<h3 class="catbg profile_hd">
+					', $txt['deleteAccount'], '
 				</h3>
 			</div>';
 
@@ -3078,12 +3075,12 @@ function template_authentication_method()
 	echo '
 		<form action="', $scripturl, '?action=profile;area=authentication;save" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data">
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/profile_hd.png" alt="" class="icon">', $txt['authentication'], '
+				<h3 class="catbg profile_hd">
+					', $txt['authentication'], '
 				</h3>
 			</div>
 			<p class="description">', $txt['change_authentication'], '</p>
-			<div class="windowbg2">
+			<div class="roundframe">
 				<div class="content">
 					<dl>
 						<dt>
