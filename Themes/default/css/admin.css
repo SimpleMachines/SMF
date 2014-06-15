@@ -94,10 +94,8 @@ body.action_admin .navigate_section ul li a {
 }
 
 /* A general admin wrapper class. */
-#admin_main_section, div.quick_tasks,
-#support_credits, #admin_newsletters,
-#generate_reports_type,
-#groupForm, #mailqueue_stats, #manage_maintenance,
+div.quick_tasks, #support_credits, #admin_newsletters,
+#generate_reports_type, #groupForm, #mailqueue_stats, #manage_maintenance,
 #new_group, #view_group, #admin_form_wrapper {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
@@ -256,13 +254,6 @@ body#chrome  #quick_search .button_submit {
 }
 
 /* The welcome thingy. */
-#admincenter .roundframe {
-	background: none;
-	border: none;
-	box-shadow: none;
-	padding: 0;
-	overflow: visible;
-}
 #welcome {
 	border: 1px solid #ddd;
 	border-top: none;
@@ -296,12 +287,7 @@ body#chrome  #quick_search .button_submit {
 
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
-/* Live news from smf.org and support information. */
-#admin_main_section {
-	margin: 12px 0;
-	padding: 8px 12px;
-	border-radius: 7px;
-}
+/* Live news from smorg and support information. */
 #live_news, #supportVersionsTable {
 	width: 70%;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
@@ -309,6 +295,9 @@ body#chrome  #quick_search .button_submit {
 #supportVersionsTable {
 	width: 30%;
 	padding-left: 6px;
+}
+#admin_main_section {
+	overflow: auto;
 }
 #admin_main_section .windowbg {
 	padding: 6px 0;

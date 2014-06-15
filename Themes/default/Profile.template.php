@@ -152,9 +152,8 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-<div id="profileview" class="flow_auto">
-	<div id="basicinfo">
-		<div class="windowbg">
+	<div id="profileview" class="flow_auto">
+		<div id="basicinfo">
 			<div class="content flow_auto">
 				<div class="username">
 					<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
@@ -213,9 +212,7 @@ function template_summary()
 	echo '
 			</div>
 		</div>
-	</div>
-	<div id="detailedinfo">
-		<div class="windowbg2">
+		<div id="detailedinfo">
 			<div class="content">
 				<dl>';
 
@@ -396,8 +393,7 @@ function template_summary()
 			</div>
 		</div>
 	</div>
-<div class="clear"></div>
-</div>';
+<div class="clear"></div>';
 }
 
 // Template for showing all the posts of the user, in chronological order.

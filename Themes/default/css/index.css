@@ -509,11 +509,7 @@ a img {
 }
 
 /* Alternating backgrounds for posts, and several other sections of the forum. */
-.windowbg, #preview_body {
-	color: #222;
-	background: #f0f4f7;
-}
-.windowbg2 {
+.windowbg, .windowbg2, #preview_body {
 	color: #222;
 	background: #f0f4f7;
 }
@@ -1497,7 +1493,7 @@ img.sort, .sort {
 }
 #search_form .input_text, #search_form select, #search_form .button_submit {
 	padding: 2px;
-	margin: 0;
+	margin: 2px;
 	background: #fff;
 	border: 1px solid #ccc;
 	border-left: 1px solid #bbb;
@@ -3312,7 +3308,6 @@ dl {
 	float: left;
 }
 .topic_details {
-	border-bottom: 1px solid #999;
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
@@ -3557,6 +3552,7 @@ dl.stats dd span {
 #stats tr.windowbg2 th {
 	border-right: 1px solid #fff;
 	border-bottom: 1px solid #fff;
+	font-size: 0.75em;
 }
 #stats tr.windowbg2 th.stats_month {
 	width: 25%;
@@ -3905,7 +3901,7 @@ dl.addrules dt.floatleft {
 /* The generic wrapper thingy for teh awesome cool looks innit. */
 /* This lot will be simplified once I get all the styling hooks in place. */
 .generic_list_wrapper, .action_profile  #permissions,
-#notify_options .windowbg2, #profileview, #messageindex, #mlist,
+#notify_options .windowbg2, #profileview, #messageindex,
 .core_posts, #recent .core_posts, #recent .topic_table {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;

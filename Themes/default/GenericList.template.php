@@ -26,12 +26,7 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['form']))
 		echo '
-	<form class="generic_list_wrapper" action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">
-		<div class="generic_list">';
-
-	else
-		echo '
-		<div class="generic_list_wrapper">';
+	<form class="generic_list_wrapper" action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">';
 
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
@@ -68,9 +63,6 @@ function template_show_list($list_id = null)
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
 			template_additional_rows('above_column_headers', $cur_list);
-
-		echo '
-			</div>';
 	}
 
 	echo '
