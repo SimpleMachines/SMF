@@ -341,9 +341,6 @@ h3.largetext {
 	display: inline-block;
 	padding: 0 3px;
 }
-#statistics .windowbg2 {
-	background: none;
-}
 
 /* Some BBC related styles.
 ------------------------------------------------------- */
@@ -3424,9 +3421,6 @@ dl {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-#statistics  div {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
 .stats_icon {
 	width: 16px;
 	height: 16px;
@@ -3451,12 +3445,6 @@ dl {
 }
 .stats_icon.starters, .stats_icon.people {
 	background-position: -80px -48px;
-}
-dl.stats {
-	clear: both;
-	overflow: hidden;
-	margin: 0;
-	padding: 0;
 }
 dl.stats dt {
 	width: 50%;
@@ -3505,34 +3493,7 @@ dl.stats dd span {
 	background: #fff;
 	white-space: pre;
 }
-/* Special styling for the top two blocks. */
-.stats_left {
-	float: left;
-	margin-top: 8px;
-	padding: 6px 15px;
-	border-right: 1px solid #bbb;
-}
-.stats_right{
-	float: right;
-	padding: 6px 15px;
-	margin-top: 8px;
-}
-.stats_left dl.stats, .stats_right dl.stats {
-	margin: -8px 0 -12px 0;
-}
-.stats_left dt a {
-	color: #232f46;
-}
-.stats_left dt {
-	width: 35%;
-}
-.stats_left dd {
-	width: 65%;
-}
-.top_row dl.stats dd {
-	background: none;
-	border: none;
-}
+
 /* Forum history table. */
 #stats {
 	margin: 4px 0;
