@@ -4131,7 +4131,7 @@ function add_integration_function($hook, $function, $file = '', $object = false,
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file) && $file !== true) ? ($function . '|' . $file . ($object ? '#' : '')) : $function;
+	$integration_call = (!empty($file) && $file !== true) ? ($file . '|' . $function . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
