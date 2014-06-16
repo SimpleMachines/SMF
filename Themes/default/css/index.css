@@ -3228,7 +3228,7 @@ dl {
 	margin: 6px 0;
 }
 .activity_stats {
-	margin: 0;
+	margin: 10px;
 	padding: 0;
 }
 .activity_stats li {
@@ -3265,21 +3265,6 @@ dl {
 	position: absolute;
 	top: -1000em;
 	left: -1000em;
-}
-
-#profileview div.content dt {
-	width: 35%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-	font-weight: bold;
-	clear: both;
-}
-#profileview div.content dd {
-	width: 65%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
 }
 
 .profile_pie {
@@ -3456,10 +3441,9 @@ dl.stats dt {
 	font-size: 1em;
 }
 dl.stats dd {
-	text-align: right;
 	width: 50%;
 	font-size: 1em;
-	float: right;
+	float: left;
 	margin: 0 0 4px 0;
 	padding: 0 4px 0 0;
 	line-height: 1.4em;
@@ -3482,6 +3466,13 @@ dl.stats dd {
 .statsbar div.bar.empty {
 	width: 0;
 	border-right: none;
+}
+#profileview dd {
+	background: none;
+	border: none;
+}
+#profileview dl.stats {
+	padding: 5px;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 dl.stats dd span {
@@ -3866,7 +3857,7 @@ dl.addrules dt.floatleft {
 .core_posts, #recent .core_posts, #recent .topic_table {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
+	padding: 12px 16px;
 	border: 1px solid #ccc;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
@@ -3876,7 +3867,6 @@ dl.addrules dt.floatleft {
 .generic_list_wrapper .additional_row {
 	margin: 0;
 	padding: 5px 0;
-	/*border-top: 1px solid #aaa;*/
 	border-radius: 0;
 }
 .generic_list_wrapper table.table_grid {
@@ -3896,11 +3886,6 @@ dl.addrules dt.floatleft {
 	margin: 8px 0 0 0;
 	padding: 32px;
 	overflow: auto;
-}
-#activitytime .windowbg2 .flow_hidden {
-	background: none;
-	border: none;
-	box-shadow: none;
 }
 
 div#editlang_desc {

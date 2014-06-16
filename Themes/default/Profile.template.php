@@ -154,21 +154,20 @@ function template_summary()
 	echo '
 	<div id="profileview" class="flow_auto">
 		<div id="basicinfo">
-			<div class="content flow_auto">
-				<div class="username">
-					<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
-				</div>
-				', $context['member']['avatar']['image'], '
-				<ul class="reset">';
+			<div class="username">
+				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
+			</div>
+			', $context['member']['avatar']['image'], '
+			<ul class="reset">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
-					<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
+				<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
 		echo '
-					<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
+				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
 	// Are there any custom profile fields for the summary?
 	if (!empty($context['custom_fields']))
@@ -189,66 +188,64 @@ function template_summary()
 				<br><a href="', $scripturl, '?action=buddy;u=', $context['id_member'], ';', $context['session_var'], '=', $context['session_id'], '">[', $txt['buddy_' . ($context['member']['is_buddy'] ? 'remove' : 'add')], ']</a>';
 
 	echo '
-				</span>';
+			</span>';
 
 	echo '
-				<p id="infolinks">';
+			<p id="infolinks">';
 
 	if (!$context['user']['is_owner'] && $context['can_send_pm'])
 		echo '
-					<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '" class="infolinks">', $txt['profile_sendpm_short'], '</a>';
+				<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '" class="infolinks">', $txt['profile_sendpm_short'], '</a>';
 
 	echo '
-					<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '" class="infolinks">', $txt['showPosts'], '</a>';
+				<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '" class="infolinks">', $txt['showPosts'], '</a>';
 
 	if ($context['user']['is_owner'] && !empty($modSettings['drafts_post_enabled']))
 		echo '
-					<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '" class="infolinks">', $txt['drafts_show'], '</a>';
+				<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '" class="infolinks">', $txt['drafts_show'], '</a>';
 
 	echo '
-					<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>
-				</p>';
+				<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>
+			</p>';
 
 	echo '
-			</div>
 		</div>
 		<div id="detailedinfo">
-			<div class="content">
-				<dl>';
+			<dl>';
 
 	if ($context['user']['is_owner'] || $context['user']['is_admin'])
 		echo '
-					<dt>', $txt['username'], ': </dt>
-					<dd>', $context['member']['username'], '</dd>';
+				<dt>', $txt['username'], ': </dt>
+				<dd>', $context['member']['username'], '</dd>';
 
 	if (!isset($context['disabled_fields']['posts']))
 		echo '
-					<dt>', $txt['profile_posts'], ': </dt>
-					<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
+				<dt>', $txt['profile_posts'], ': </dt>
+				<dd>', $context['member']['posts'], ' (', $context['member']['posts_per_day'], ' ', $txt['posts_per_day'], ')</dd>';
 
 	if ($context['member']['show_email'])
 	{
 		echo '
-					<dt>', $txt['email'], ': </dt>
-					<dd><a href="mailto:', $context['member']['email'], '">', $context['member']['email'], '</a></dd>';
+				<dt>', $txt['email'], ': </dt>
+				<dd><a href="mailto:', $context['member']['email'], '">', $context['member']['email'], '</a></dd>';
 	}
 
 	if (!empty($modSettings['titlesEnable']) && !empty($context['member']['title']))
 		echo '
-					<dt>', $txt['custom_title'], ': </dt>
-					<dd>', $context['member']['title'], '</dd>';
+				<dt>', $txt['custom_title'], ': </dt>
+				<dd>', $context['member']['title'], '</dd>';
 
 	if (!empty($context['member']['blurb']))
 		echo '
-					<dt>', $txt['personal_text'], ': </dt>
-					<dd>', $context['member']['blurb'], '</dd>';
+				<dt>', $txt['personal_text'], ': </dt>
+				<dd>', $context['member']['blurb'], '</dd>';
 
 	echo '
-					<dt>', $txt['age'], ':</dt>
-					<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
+				<dt>', $txt['age'], ':</dt>
+				<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
 	echo '
-				</dl>';
+			</dl>';
 
 	// Any custom fields for standard placement?
 	if (!empty($context['custom_fields']))
@@ -390,7 +387,6 @@ function template_summary()
 				</div>';
 
 	echo '
-			</div>
 		</div>
 	</div>
 <div class="clear"></div>';
@@ -1132,22 +1128,18 @@ function template_statPanel()
 	echo '
 	<div id="profileview">
 		<div id="generalstats">
-			<div class="windowbg2">
-				<div class="content">
-					<dl>
-						<dt>', $txt['statPanel_total_time_online'], ':</dt>
-						<dd>', $context['time_logged_in'], '</dd>
-						<dt>', $txt['statPanel_total_posts'], ':</dt>
-						<dd>', $context['num_posts'], ' ', $txt['statPanel_posts'], '</dd>
-						<dt>', $txt['statPanel_total_topics'], ':</dt>
-						<dd>', $context['num_topics'], ' ', $txt['statPanel_topics'], '</dd>
-						<dt>', $txt['statPanel_users_polls'], ':</dt>
-						<dd>', $context['num_polls'], ' ', $txt['statPanel_polls'], '</dd>
-						<dt>', $txt['statPanel_users_votes'], ':</dt>
-						<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
-					</dl>
-				</div>
-			</div>
+			<dl class="stats">
+				<dt>', $txt['statPanel_total_time_online'], ':</dt>
+				<dd>', $context['time_logged_in'], '</dd>
+				<dt>', $txt['statPanel_total_posts'], ':</dt>
+				<dd>', $context['num_posts'], ' ', $txt['statPanel_posts'], '</dd>
+				<dt>', $txt['statPanel_total_topics'], ':</dt>
+				<dd>', $context['num_topics'], ' ', $txt['statPanel_topics'], '</dd>
+				<dt>', $txt['statPanel_users_polls'], ':</dt>
+				<dd>', $context['num_polls'], ' ', $txt['statPanel_polls'], '</dd>
+				<dt>', $txt['statPanel_users_votes'], ':</dt>
+				<dd>', $context['num_votes'], ' ', $txt['statPanel_votes'], '</dd>
+			</dl>
 		</div>';
 
 	// This next section draws a graph showing what times of day they post the most.
@@ -1157,43 +1149,39 @@ function template_statPanel()
 				<h3 class="titlebg">
 					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
 				</h3>
-			</div>
-			<div class="windowbg2">
-				<div class="content">';
+			</div>';
 
 	// If they haven't post at all, don't draw the graph.
 	if (empty($context['posts_by_time']))
 		echo '
-					<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
+			<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
 	// Otherwise do!
 	else
 	{
 		echo '
-					<ul class="activity_stats flow_hidden">';
+			<ul class="activity_stats flow_hidden">';
 
 		// The labels.
 		foreach ($context['posts_by_time'] as $time_of_day)
 		{
 			echo '
-						<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
-							<div class="bar" style="padding-top: ', ((int) (100 - $time_of_day['relative_percent'])), 'px;" title="', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '">
-								<div style="height: ', (int) $time_of_day['relative_percent'], 'px;">
-									<span>', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
-								</div>
-							</div>
-							<span class="stats_hour">', $time_of_day['hour_format'], '</span>
-						</li>';
+				<li', $time_of_day['is_last'] ? ' class="last"' : '', '>
+					<div class="bar" style="padding-top: ', ((int) (100 - $time_of_day['relative_percent'])), 'px;" title="', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '">
+						<div style="height: ', (int) $time_of_day['relative_percent'], 'px;">
+							<span>', sprintf($txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
+						</div>
+					</div>
+					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
+				</li>';
 		}
 
 		echo '
 
-					</ul>';
+			</ul>';
 	}
 
 	echo '
-					<span class="clear">
-				</div>
-			</div>
+			<span class="clear">
 		</div>';
 
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
@@ -1204,38 +1192,34 @@ function template_statPanel()
 					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
 					</h3>
-				</div>
-				<div class="windowbg2">
-					<div class="content">';
+				</div>';
 
 	if (empty($context['popular_boards']))
 		echo '
-						<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
+				<span class="centertext">', $txt['statPanel_noPosts'], '</span>';
 
 	else
 	{
 		echo '
-						<dl>';
+				<dl class="stats">';
 
 		// Draw a bar for every board.
 		foreach ($context['popular_boards'] as $board)
 		{
 			echo '
-							<dt>', $board['link'], '</dt>
-							<dd>
-								<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '">
-									', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '
-								</div>
-								<span>', empty($context['hide_num_posts']) ? $board['posts'] : '', '</span>
-							</dd>';
+					<dt>', $board['link'], '</dt>
+					<dd>
+						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '">
+							', sprintf($txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '
+						</div>
+						', empty($context['hide_num_posts']) ? $board['posts'] : '', '
+					</dd>';
 		}
 
 		echo '
-						</dl>';
+				</dl>';
 	}
 	echo '
-					</div>
-				</div>
 			</div>';
 	echo '
 			<div class="half_content">
@@ -1243,37 +1227,33 @@ function template_statPanel()
 					<h3 class="titlebg">
 						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
 					</h3>
-				</div>
-				<div class="windowbg2">
-					<div class="content">';
+				</div>';
 
 	if (empty($context['board_activity']))
 		echo '
-						<span>', $txt['statPanel_noPosts'], '</span>';
+				<span>', $txt['statPanel_noPosts'], '</span>';
 	else
 	{
 		echo '
-						<dl>';
+				<dl class="stats">';
 
 		// Draw a bar for every board.
 		foreach ($context['board_activity'] as $activity)
 		{
 			echo '
-							<dt>', $activity['link'], '</dt>
-							<dd>
-								<div class="profile_pie" style="background-position: -', ((int) ($activity['percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
-									', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
-								</div>
-								<span>', $activity['percent'], '%</span>
-							</dd>';
+					<dt>', $activity['link'], '</dt>
+					<dd>
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['percent'] / 5) * 20), 'px 0;" title="', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
+							', sprintf($txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
+						</div>
+						', $activity['percent'], '%
+					</dd>';
 		}
 
 		echo '
-						</dl>';
+				</dl>';
 	}
 	echo '
-					</div>
-				</div>
 			</div>
 		</div>';
 
