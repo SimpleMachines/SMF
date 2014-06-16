@@ -134,7 +134,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	margin-left: inherit;
 }
 .button_submit, .button_reset, .button_link {
-	margin: 0 0 0 12px;
+	margin: 0 12px 0 12px;
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
@@ -506,21 +506,10 @@ a img {
 }
 
 /* Alternating backgrounds for posts, and several other sections of the forum. */
-.windowbg, .windowbg2, #preview_body {
-	color: #222;
-	background: #f0f4f7;
-}
+/* @todo kill this */
 .windowbg3 {
 	color: #222;
 	background: #cacdd3;
-}
-
-/* General code for generic divs. Should make them behave. */
-div.windowbg, div.windowbg2 {
-	border-radius: 5px;
-	overflow: auto;
-	padding: 10px 0;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
 
 /* the page navigation area */
@@ -625,42 +614,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
 	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
-}
-
-/* Nobody wants locked topics to stand out much. */
-.windowbg.locked {
-	background: #e7eaef;
-}
-.windowbg2.locked {
-	background: #e7eaef;
-}
-/* Sticky topics get a different background */
-.windowbg.sticky {
-	background: #cfdce8;
-}
-.windowbg2.sticky {
-	background: #cfdce8;
-}
-/* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked {
-	background: #e8d8cf;
-}
-.windowbg2.sticky.locked {
-	background: #e8d8cf;
-}
-/* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic {
-	background: #e4a17c;
-}
-.windowbg2.approvetopic {
-	background: #e4a17c;
-}
-/* Unapproved posts in approved topics */
-.windowbg.approvepost {
-	background: #ffeaea;
-}
-.windowbg2.approvepost {
-	background: #ffeaea;
 }
 
 /* Posts and personal messages displayed throughout the forum. */
@@ -810,7 +763,7 @@ dl.settings {
 	clear: right;
 	overflow: auto;
 	margin: 0 0 10px 0;
-	padding: 0;
+	padding: 5px;
 }
 dl.settings dt {
 	width: 40%;
@@ -955,7 +908,7 @@ img.sort, .sort {
 ----------------------------------------------------------- */ /* @todo */
 .roundframe {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	margin: 2px 0 0 0;
+	margin: 10px 0 0 0;
 	padding: 9px;
 	background: #F8F8F8;
 	border: 1px solid #c5c5c5;
@@ -1833,8 +1786,6 @@ ul#smfFadeScroller li {
 /* Styles for the info center on the board index.
 ---------------------------------------------------- */
 #info_center {
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
 	clear: both;
 }
 #upshrinkHeaderIC {
@@ -2085,12 +2036,6 @@ div#pollmoderation {
 	margin: 4px 0 0 0;
 }
 /* poster and postarea + moderation area underneath */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
-	overflow: visible;
-}
-#personal_messages div.windowbg2 {
-	overflow: auto;
-}
 .post_wrapper:after {
 	content:"";
 	display: block;
@@ -2924,9 +2869,9 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
-	padding: 0;
 	font-style: italic;
 	margin: 0;
+	padding: 0;
 }
 
 /* Styles for generic tables.
@@ -3143,9 +3088,6 @@ dl {
 #basicinfo {
 	width: 20%;
 	float: left;
-}
-#basicinfo .windowbg .content {
-	padding-left: 20px;
 }
 #detailedinfo {
 	width: 79.5%;
@@ -3486,9 +3428,6 @@ dl.stats dd span {
 }
 
 /* Forum history table. */
-#stats {
-	margin: 4px 0;
-}
 #stats td, #stats th {
 	width: 15%;
 	padding: 4px;
@@ -3504,7 +3443,6 @@ dl.stats dd span {
 #stats tr.windowbg2 th {
 	border-right: 1px solid #fff;
 	border-bottom: 1px solid #fff;
-	font-size: 0.75em;
 }
 #stats tr.windowbg2 th.stats_month {
 	width: 25%;
@@ -3837,32 +3775,46 @@ dl.addrules dt.floatleft {
 	z-index: 1;
 }
 
-/* General @todo stuff follows. Just added here temporarily, for convenience while trying stuff out. */
-/* Forum posts may require some special treatment for dealing with clearing floated content. */
-/* Suspect it will be necessary to use float: left; width: 100%; on the windowbg and windowbg2 divs. */
-
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2, #personal_messages .windowbg, #personal_messages .windowbg2 {
+#preview_body {
+	color: #222;
 	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 }
 
-/* The generic wrapper thingy for teh awesome cool looks innit. */
-/* This lot will be simplified once I get all the styling hooks in place. */
 .generic_list_wrapper, .action_profile  #permissions,
-#notify_options .windowbg2, #profileview, #messageindex,
-.core_posts, #recent .core_posts, #recent .topic_table {
+#profileview, #messageindex, #recent .core_posts, #recent .topic_table,
+.windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
 	border: 1px solid #ccc;
-	border-radius: 7px;
+	border-radius: 6px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+}
+/* Special treatment for #forumposts area */
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+	overflow: visible;
+}
+/* Nobody wants locked topics to stand out much. */
+.windowbg.locked, .windowbg2.locked {
+	background: #e7eaef;
+}
+/* Sticky topics get a different background */
+.windowbg.sticky, .windowbg2.sticky {
+	background: #cfdce8;
+}
+/* Locked AND sticky are a bit more technical */
+.windowbg.sticky.locked, .windowbg2.sticky.locked {
+	background: #e8d8cf;
+}
+/* Awaiting approval is a bit special, topics first */
+.windowbg.approvetopic, .windowbg2.approvetopic {
+	background: #e4a17c;
+}
+/* Unapproved posts in approved topics */
+.windowbg.approvepost, .windowbg2.approvepost {
+	background: #ffeaea;
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -3919,6 +3871,9 @@ div#editlang_desc {
 }
 .table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
 	text-align: center;
+}
+tr.windowbg, tr.windowbg2 {
+	box-shadow: none;
 }
 #postmodify .roundframe div{
 	padding-right: 0;

@@ -414,24 +414,23 @@ function template_showPosts()
 		foreach ($context['posts'] as $post)
 		{
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-				<div class="content">
-					<div class="counter">', $post['counter'], '</div>
-					<div class="topic_details">
-						<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
-						<span class="smalltext">', $post['time'], '</span>
-					</div>
-					<div class="list_posts">';
+			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+				<div class="counter">', $post['counter'], '</div>
+				<div class="topic_details">
+					<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
+					<span class="smalltext">', $post['time'], '</span>
+				</div>
+				<div class="list_posts">';
 
 			if (!$post['approved'])
 				echo '
-						<div class="approve_post">
-							<em>', $txt['post_awaiting_approval'], '</em>
-						</div>';
+					<div class="approve_post">
+						<em>', $txt['post_awaiting_approval'], '</em>
+					</div>';
 
 			echo '
 					', $post['body'], '
-					</div>';
+				</div>';
 
 			if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
 				echo '
@@ -464,7 +463,6 @@ function template_showPosts()
 				</div>';
 
 			echo '
-				</div>
 			</div>';
 		}
 	}
@@ -474,10 +472,8 @@ function template_showPosts()
 	// No posts? Just end with a informative message.
 	if ((isset($context['attachments']) && empty($context['attachments'])) || (!isset($context['attachments']) && empty($context['posts'])))
 		echo '
-			<div class="windowbg2 core_posts">
-				<div class="content">
-					', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
-				</div>
+			<div class="windowbg2">
+				', isset($context['attachments']) ? $txt['show_attachments_none'] : ($context['is_topics'] ? $txt['show_topics_none'] : $txt['show_posts_none']), '
 			</div>
 		</div>';
 
@@ -515,13 +511,11 @@ function template_showAlerts()
 
 			echo '
 			<div class="topic">
-				<div class="', $alt ? 'windowbg' : 'windowbg2', ' core_posts">
-					<div class="content">
-						<div class="counter">', $counter++, '</div>
-						<div class="topic_details">', $alert['time'], '</div>
-						<div class="list_posts">
-							', $alert['text'], '
-						</div>
+				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
+					<div class="counter">', $counter++, '</div>
+					<div class="topic_details">', $alert['time'], '</div>
+					<div class="list_posts">
+						', $alert['text'], '
 					</div>
 				</div>
 			</div>';
@@ -557,11 +551,10 @@ function template_showDrafts()
 		{
 			echo '
 			<div class="topic">
-				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-					<div class="content">
-						<div class="counter">', $draft['counter'], '</div>
-						<div class="topic_details">
-							<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
+				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+					<div class="counter">', $draft['counter'], '</div>
+					<div class="topic_details">
+						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
 			if (!empty($draft['sticky']))
 				echo '<span class="generic_icons sticky" title="', $txt['sticky_topic'], '"></span>';
@@ -570,19 +563,18 @@ function template_showDrafts()
 				echo '<span class="generic_icons lock" title="', $txt['locked_topic'], '"></span>';
 
 			echo '
-							</h5>
-							<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
-						</div>
-						<div class="list_posts">
-							', $draft['body'], '
-						</div>
+						</h5>
+						<span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> ', $draft['time'], '&nbsp;&#187;</span>
 					</div>
-					<div class="floatright">
-						<ul class="reset smalltext quickbuttons">
-							<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
-							<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
-						</ul>
+					<div class="list_posts">
+						', $draft['body'], '
 					</div>
+				</div>
+				<div class="floatright">
+					<ul class="reset smalltext quickbuttons">
+						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['member']['id'], ';area=showdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
+					</ul>
 				</div>
 			</div>';
 		}
@@ -608,7 +600,7 @@ function template_editBuddies()
 					<div class="errorbox">', $context['saved_failed'], '</div>';
 
 	echo '
-	<div class="generic_list_wrapper" id="edit_buddies">
+	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="stats_icon people icon"></span>', $txt['editBuddies'], '
@@ -678,24 +670,22 @@ function template_editBuddies()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['buddy_add'], '</h3>
 			</div>
-			<div class="content">
-				<dl class="settings">
-					<dt>
-						<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-					</dt>
-					<dd>
-						<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
-						<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
-					</dd>
-				</dl>';
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
+					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
+				</dd>
+			</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
-				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
+			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</div>
 	</form>
 	<script><!-- // --><![CDATA[
@@ -725,7 +715,7 @@ function template_editIgnoreList()
 					<div class="errorbox">', $context['saved_failed'], '</div>';
 
 	echo '
-	<div class="generic_list_wrapper" id="edit_buddies">
+	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
 				', $txt['editIgnoreList'], '
@@ -781,24 +771,22 @@ function template_editIgnoreList()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['ignore_add'], '</h3>
 			</div>
-			<div class="content">
-				<dl class="settings">
-					<dt>
-						<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-					</dt>
-					<dd>
-						<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
-					</dd>
-				</dl>';
+			<dl class="settings">
+				<dt>
+					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+				</dt>
+				<dd>
+					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
+				</dd>
+			</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
-				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
+			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
-			</div>
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
 		</div>
 	</form>
 	<script><!-- // --><![CDATA[
@@ -900,8 +888,7 @@ function template_trackIP()
 			</form>
 		</div>
 	</div>
-	<br>
-	<div class="generic_list_wrapper">';
+	<br>';
 
 	// The table inbetween the first and second table shows links to the whois server for every region.
 	if ($context['single_ip'])
@@ -910,14 +897,13 @@ function template_trackIP()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['whois_title'], ' ', $context['ip'], '</h3>
 			</div>
-			<div class="windowbg2">
-				<div class="padding">';
+			<div class="windowbg2">';
 			foreach ($context['whois_servers'] as $server)
-				echo '
-					<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
 			echo '
-				</div>
-			</div>';
+				<a href="', $server['url'], '" target="_blank" class="new_win"', isset($context['auto_whois_server']) && $context['auto_whois_server']['name'] == $server['name'] ? ' style="font-weight: bold;"' : '', '>', $server['name'], '</a><br>';
+			echo '
+			</div>
+			<br>';
 	}
 
 	// The second table lists all the members who have been logged as using this IP address.
@@ -954,7 +940,6 @@ function template_trackIP()
 	}
 
 	echo '
-	</div>
 	<br>';
 
 	template_show_list('track_message_list');
