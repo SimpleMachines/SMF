@@ -249,9 +249,6 @@ fieldset legend {
 	box-shadow: none;
 	border: none;
 }
-.content fieldset {
-	border: double #ccc;
-}
 
 /* Define strong as bold, and em as italics */
 /* Note: in some particular places, strong has been redefined as font-weight: 600; */
@@ -929,17 +926,6 @@ img.sort, .sort {
 	border-top: 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
-}
-
-/* The main content area.
-------------------------------------------------------- */
-.content {
-	padding: 6px 15px;
-	margin: 0;
-	border: none;
-}
-.content p {
-	margin: 0 0 6px 0;
 }
 
 /* Styles used by the auto suggest control.
@@ -1927,9 +1913,6 @@ select.qaction {
 /* Poll question */
 #poll {
 	overflow: hidden;
-}
-#poll .content {
-	padding: 0 12px;
 }
 h4#pollquestion {
 	padding: 0 0 6px 25px;
@@ -3255,12 +3238,6 @@ dl {
 .topic .mod_icons {
 	text-align: right;
 	margin-right: 12px;
-}
-
-#tracking div.content dl {
-	border-bottom: 0;
-	margin: 0;
-	padding: 0;
 }
 
 #creator dt {

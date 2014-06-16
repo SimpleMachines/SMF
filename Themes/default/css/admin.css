@@ -89,14 +89,10 @@ body.action_admin .navigate_section ul li a {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-#admincenter .content {
-	padding: 12px;
-}
 
 /* A general admin wrapper class. */
-div.quick_tasks, #support_credits, #admin_newsletters,
-#generate_reports_type, #groupForm, #mailqueue_stats, #manage_maintenance,
-#new_group, #view_group {
+div.quick_tasks, #generate_reports_type, #groupForm, 
+#mailqueue_stats, #manage_maintenance, #new_group, #view_group {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -108,22 +104,12 @@ div.quick_tasks, #support_credits, #admin_newsletters,
 div.quick_tasks {
 	margin: -8px 0 0 0;
 }
-#support_credits div.windowbg,
-#generate_reports_type div.windowbg, #new_group div.windowbg,
-#view_group  div.windowbg, #admin_newsletters .windowbg {
-	background: none;
-	padding: 0;
-	margin: 0 4px;
-}
 #mailqueue_stats {
 	padding: 8px 8px 0 8px;
 }
 #mailqueue_stats .windowbg {
 	background: none;
 	padding: 0;
-}
-#mailqueue_stats .windowbg .content {
-	padding: 12px 9px 0 9px;
 }
 #view_group .table_grid {
 	margin: 4px 0 8px 0;
@@ -318,17 +304,6 @@ body#chrome  #quick_search .button_submit {
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
-#live_news div.content, #supportVersionsTable  div.content {
-	padding: 0;
-	font-size: 0.9em;
-}
-#supportVersionsTable  div.content {
-	padding: 0 8px;
-}
-#live_news div.content dl {
-	padding: 0;
-	color: #111;
-}
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
 	border-top: 1px solid #bf6900;
@@ -415,40 +390,16 @@ div.quick_tasks {
 /* Nobody ever themes admin anyway. That's why it looked like crap. */
 #support_credits {
 	position: relative;
-	padding: 6px 12px 12px 12px;
-}
-#support_resources, #credits_sections {
-	margin: 16px 0 -24px 0;
-	border: none;
-	border-top: 1px solid #bbb;
 }
 #credits_logo {
 	position: absolute;
 	right: 10px;
 	top: 9px;
 }
-#support_credits .content {
-	padding: 0 18px;
-	line-height: 1.6em;
-}
-#support_credits .content p {
-	margin: 12px 0 0 0;
-	padding: 0;
-}
-#support_credits a {
-	border-bottom: 1px solid #d2d2d2;
-}
-#support_credits a:hover {
-	color: #00163d;
-	text-decoration: none;
-	border-bottom: 1px solid #556f82;
-}
 #support_credits img.icon {
 	vertical-align: middle;
 }
-#support_credits .catbg a.help, #support_credits .catbg a.help:hover {
-	border-bottom: none;
-}
+
 #latestSupport{
 	padding: 0 25px 15px 25px;
 }
@@ -948,8 +899,6 @@ h3.grid_header {
 	border-right: 1px solid #ddd;
 }
 
-/* These kids and their new-fangled thingummys. :P */
-/* When I were a lad, things were different! */
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
 }
