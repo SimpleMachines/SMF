@@ -85,7 +85,7 @@ body.action_admin .navigate_section ul li a {
 	overflow: auto;
 }
 #admin_content .windowbg, #admin_content .windowbg2 {
-	margin-bottom: 5px;
+	margin: 0 0 5px 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -96,7 +96,7 @@ body.action_admin .navigate_section ul li a {
 /* A general admin wrapper class. */
 div.quick_tasks, #support_credits, #admin_newsletters,
 #generate_reports_type, #groupForm, #mailqueue_stats, #manage_maintenance,
-#new_group, #view_group, #admin_form_wrapper {
+#new_group, #view_group {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -108,7 +108,7 @@ div.quick_tasks, #support_credits, #admin_newsletters,
 div.quick_tasks {
 	margin: -8px 0 0 0;
 }
-#admin_form_wrapper div.windowbg, #support_credits div.windowbg,
+#support_credits div.windowbg,
 #generate_reports_type div.windowbg, #new_group div.windowbg,
 #view_group  div.windowbg, #admin_newsletters .windowbg {
 	background: none;
@@ -145,11 +145,15 @@ div.quick_tasks {
 .action_admin .table_grid td {
 	border-bottom: 1px solid #ccc;
 }
-.action_admin .table_grid tr:nth-child(even) td {
+.action_admin .table_grid tr:nth-child(even) {
 	background: #fdfdfd;
 }
-.action_admin .table_grid tr:nth-child(odd) td {
+.action_admin .table_grid tr:nth-child(odd) {
 	background: #f8f8f8;
+}
+/* @you are here for short time */
+.table_grid tr td:last-child {
+	border: none;
 }
 
 /* Newsletters screen. */

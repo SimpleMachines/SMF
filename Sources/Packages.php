@@ -1477,25 +1477,25 @@ function PackageBrowse()
 
 							if ($package['can_uninstall'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '">[ ' . $txt['uninstall'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button">' . $txt['uninstall'] . '</a>';
 							elseif ($package['can_emulate_uninstall'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '">[ ' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=uninstall;ve=' . $package['can_emulate_uninstall'] . ';package=' . $package['filename'] . ';pid=' . $package['installed_id'] . '" class="button">' . $txt['package_emulate_uninstall'] . ' ' . $package['can_emulate_uninstall'] . '</a>';
 							elseif ($package['can_upgrade'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '">[ ' . $txt['package_upgrade'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button">' . $txt['package_upgrade'] . '</a>';
 							elseif ($package['can_install'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '">[ ' . $txt['install_mod'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $package['filename'] . '" class="button">' . $txt['install_mod'] . '</a>';
 							elseif ($package['can_emulate_install'])
 								$return = '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '">[ ' . $txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=install;ve=' . $package['can_emulate_install'] . ';package=' . $package['filename'] . '" class="button">' . $txt['package_emulate_install'] . ' ' . $package['can_emulate_install'] . '</a>';
 
 							return $return . '
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $package['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>
-									<a href="' . $scripturl . '?action=admin;area=packages;sa=remove;package=' . $package['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"' . ($package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '') . '>[ ' . $txt['package_delete'] . ' ]</a>';
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $package['filename'] . '" class="button">' . $txt['list_files'] . '</a>
+									<a href="' . $scripturl . '?action=admin;area=packages;sa=remove;package=' . $package['filename'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '"' . ($package['is_installed'] && $package['is_current'] ? ' onclick="return confirm(\'' . $txt['package_delete_bad'] . '\');"' : '') . ' class="button">' . $txt['package_delete'] . '</a>';
 						},
-						'class' => 'righttext',
+						'class' => 'floatright',
 					),
 				),
 			),
