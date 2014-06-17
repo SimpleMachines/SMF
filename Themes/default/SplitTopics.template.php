@@ -253,7 +253,7 @@ function template_merge()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['merge'], '</h3>
 			</div>
-			<div class="description">
+			<div class="information">
 				', $txt['merge_desc'], '
 			</div>
 			<div class="windowbg">

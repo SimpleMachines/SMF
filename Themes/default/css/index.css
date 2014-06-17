@@ -704,28 +704,6 @@ a.moderation_link, a.moderation_link:visited {
 	padding-left: 18px;
 }
 
-/* a descriptive style */
-.description, .information, .plainbox, #whoisviewing {
-	padding: 6px 12px;
-	font-size: 0.9em;
-	line-height: 1.4em;
-	border: 1px solid #ccc;
-	border-top: none;
-	border-radius: 0 0 3px 3px;
-	background: none repeat scroll 0 0 #E9EEF2;
-	margin: -1px 0 12px 0;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-}
-
-/* an informative style */
-.information {
-	background: #f0f6f0;
-	margin: 2px 1px 12px 1px;
-}
-.information p {
-	padding: 12px;
-	margin: 0;
-}
 p.para2 {
 	padding: 12px 0 44px 0;
 	margin: 0;
@@ -1876,11 +1854,6 @@ select.qaction {
 	float: left;
 	width: 100%;
 }
-#topic_icons .description {
-	border: 1px solid #ddd;
-	border-radius: 3px;
-	padding: 8px 12px 0 12px;
-}
 #topic_icons p {
 	line-height: 2em;
 }
@@ -2013,9 +1986,6 @@ div#pollmoderation {
 	font-size: 0.818em;
 	font-weight: normal;
 	padding: 2px 0;
-}
-#whoisviewing {
-	margin: 4px 0 0 0;
 }
 /* poster and postarea + moderation area underneath */
 .post_wrapper:after {
@@ -3800,16 +3770,6 @@ dl.addrules dt.floatleft {
 .generic_list_wrapper table.table_grid {
 	border-bottom: 1px solid #aaa;
 }
-.generic_list_wrapper .information .additional_row{
-	border: none;
-}
-.generic_list_wrapper .information {
-	margin: 0;
-	padding: 0;
-	background: none;
-	border: none;
-	border-bottom: 1px solid #fff;
-}
 #searchform .roundframe {
 	margin: 8px 0 0 0;
 	padding: 32px;
@@ -4092,10 +4052,6 @@ div.lastpost p {
 	overflow: hidden;
 	height: 3.5em;
 }
-#messageindex .information, #topic_container .info {
-	border-radius: 0;
-	margin: 0;
-}
 .icon img, .moderation input {
 	margin-top: 15px;
 }
@@ -4159,4 +4115,36 @@ p.moderators {
 span.postby {
 	width: 100%;
 	float: left;
+}
+
+/* Test the new information */
+/* We share some parts but not colors... */
+.plainbox, #whoisviewing {
+	background: none repeat scroll 0 0 #E9EEF2;
+}
+.information {
+	background: #F8F8F8;
+}
+.information, .plainbox, #whoisviewing {
+	overflow: auto;
+	padding-bottom: .5em;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0 0 7px 7px;
+	margin: 0;
+	padding: 12px 9px 8px 9px;
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+.generic_list_wrapper .information div {
+	background: none;
+}
+.information a {
+	font-weight: bold;
+}
+p.information  img {
+	vertical-align: middle;
+}
+#messageindex .information, #topic_container .info {
+	border-radius: 0;
+	margin: 0;
 }
