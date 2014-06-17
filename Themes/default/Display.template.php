@@ -885,15 +885,10 @@ function template_single_post($message, $force_alternate = null)
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
-									<li id="post_',$message['id'] ,'" class="post_options">', $txt['post_options'];
+									<li class="post_options">', $txt['post_options'];
 
 		echo '
-										<ul id="more_',$message['id'] ,'">
-										<script>
-											$( "#post_'.$message['id'].'" ).click(function() {
-											$( "#more_'.$message['id'].'" ).toggle();
-											});
-										</script>';
+										<ul>';
 
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])

@@ -4086,6 +4086,7 @@ div.lastpost p {
 	margin: 5px 0 0 0;
 }
 #topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
+	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
