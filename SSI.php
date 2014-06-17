@@ -1510,6 +1510,8 @@ function ssi_news($output_method = 'echo')
 {
 	global $context;
 
+	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+
 	if ($output_method != 'echo')
 		return $context['random_news_line'];
 
