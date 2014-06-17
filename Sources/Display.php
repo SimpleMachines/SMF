@@ -1004,7 +1004,8 @@ function Display()
 		);
 
 		// And the likes
-		$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
+		if (!empty($modSettings['enable_likes']))
+			$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset($context['start_from']) && $context['start_from'] >= $topicinfo['num_replies'])
@@ -1356,11 +1357,6 @@ function prepareDisplayContext($reset = false)
 			'name' => $message['modified_name'],
 			'reason' => $message['modified_reason']
 		),
-		'likes' => array(
-			'count' => $message['likes'],
-			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'],
-		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
 		'approved' => $message['approved'],
@@ -1372,6 +1368,14 @@ function prepareDisplayContext($reset = false)
 		'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && $context['user']['started']) || (allowedTo('delete_own') && $message['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || $message['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())),
 		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
 	);
+
+	// Are likes enable?
+	if (!empty($modSettings['enable_likes']))
+		$output['likes'] = array(
+			'count' => $message['likes'],
+			'you' => in_array($message['id_msg'], $context['my_likes']),
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+		);
 
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
