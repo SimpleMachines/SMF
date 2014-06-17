@@ -1005,7 +1005,7 @@ function Display()
 
 		// And the likes
 		if (!empty($modSettings['enable_likes']))
-			$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
+			$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext($topic);
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset($context['start_from']) && $context['start_from'] >= $topicinfo['num_replies'])
@@ -1914,45 +1914,4 @@ function QuickInTopicModeration()
 
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
-
-/**
- * Prepares an array of "likes" info for the topic specified by $topic
- * @uses $topic and $context['user']['id']
- * @return Array an array of IDs of messages in the specified topic that the current user likes
- */
-function prepareLikesContext($externalTopic = false)
-{
-	global $context, $smcFunc, $topic;
-
-	// We want to fetch this info for an external source?.
-	$innerTopic = $externalTopic ? $externalTopic : $topic;
-
-	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$cache_key = 'likes_topic_' . $innerTopic . '_' . $context['user']['id'];
-	$ttl = 180;
-
-	if (($temp = cache_get_data($cache_key, $ttl)) === null)
-	{
-		$temp = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT content_id
-			FROM {db_prefix}user_likes AS l
-				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
-			WHERE l.id_member = {int:current_user}
-				AND l.content_type = {literal:msg}
-				AND m.id_topic = {int:topic}',
-			array(
-				'current_user' => $context['user']['id'],
-				'topic' => $innerTopic,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$temp[] = (int) $row['content_id'];
-
-		cache_put_data($cache_key, $temp, $ttl);
-	}
-
-	return $temp;
-}
-
 ?>

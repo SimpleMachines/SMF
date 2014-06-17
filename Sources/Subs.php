@@ -4274,6 +4274,48 @@ function call_hook_helper($string)
 }
 
 /**
+ * Prepares an array of "likes" info for the topic specified by $topic
+ * @param Integer $topic The topic ID to fetch the info from.
+ * @return Array an array of IDs of messages in the specified topic that the current user likes
+ */
+function prepareLikesContext($topic)
+{
+	global $user_info, $smcFunc;
+
+	// Make sure we have something to work with
+	if (empty($topic) || !is_int($topic))
+		return array();
+
+	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
+	$user = $user_info['id'];
+	$cache_key = 'likes_topic_' . $topic . '_' . $user;
+	$ttl = 180;
+
+	if (($temp = cache_get_data($cache_key, $ttl)) === null)
+	{
+		$temp = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT content_id
+			FROM {db_prefix}user_likes AS l
+				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
+			WHERE l.id_member = {int:current_user}
+				AND l.content_type = {literal:msg}
+				AND m.id_topic = {int:topic}',
+			array(
+				'current_user' => $user,
+				'topic' => $topic,
+			)
+		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+			$temp[] = (int) $row['content_id'];
+
+		cache_put_data($cache_key, $temp, $ttl);
+	}
+
+	return $temp;
+}
+
+/**
  * Microsoft uses their own character set Code Page 1252 (CP1252), which is a
  * superset of ISO 8859-1, defining several characters between DEC 128 and 159
  * that are not normally displayable.  This converts the popular ones that
