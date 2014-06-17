@@ -55,7 +55,7 @@ function template_group_requests_block()
 			</h3>
 		</div>
 		<div class="windowbg" id="group_requests_panel">
-			<div class="content modbox">
+			<div class="modbox">
 				<ul class="reset">';
 
 		foreach ($context['group_requests'] as $request)
@@ -121,7 +121,7 @@ function template_watched_users()
 			</h3>
 		</div>
 		<div class="windowbg" id="watched_users_panel">
-			<div class="content modbox">
+			<div class="modbox">
 				<ul class="reset">';
 
 		foreach ($context['watched_users'] as $user)
@@ -196,7 +196,7 @@ function template_notes()
 					<h3 class="catbg">', $txt['mc_notes'], '</h3>
 				</div>
 				<div class="windowbg">
-					<div class="content modbox">';
+					<div class="modbox">';
 
 		if (!empty($context['notes']))
 		{
@@ -249,9 +249,7 @@ function template_unapproved_posts()
 	if (empty($context['unapproved_items']))
 		echo '
 		<div class="windowbg2">
-			<div class="content">
-				<p class="centertext">', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '</p>
-			</div>
+			<p class="centertext">', $txt['mc_unapproved_' . $context['current_view'] . '_none_found'], '</p>
 		</div>';
 	else
 		echo '
@@ -264,30 +262,28 @@ function template_unapproved_posts()
 		echo '
 		<div class="topic clear">
 			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
-				<div class="content">
-					<div class="counter">', $item['counter'], '</div>
-					<div class="topic_details">
-						<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
-						<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
-					</div>
-					<div class="list_posts">
-						<div class="post">', $item['body'], '</div>
-					</div>
-					<span class="floatright">
-						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
+				<div class="counter">', $item['counter'], '</div>
+				<div class="topic_details">
+					<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
+					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
+				</div>
+				<div class="list_posts">
+					<div class="post">', $item['body'], '</div>
+				</div>
+				<span class="floatright">
+					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
 
 			if ($item['can_delete'])
 				echo '
-					', $context['menu_separator'], '
-						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
+				', $context['menu_separator'], '
+					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
 
 			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
 				echo '
-						<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check"> ';
+					<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check"> ';
 
 			echo '
-					</span>
-				</div>
+				</span>
 			</div>
 		</div>';
 	}
@@ -366,27 +362,25 @@ function template_moderation_settings()
 		echo '
 		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
 			<div class="windowbg2">
-				<div class="content">
-					<dl class="settings">
-						<dt>
-							<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
-						</dt>
-						<dd>
-							<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check">
-						</dd>
-					</dl>
-					<hr class="hrcolor">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
-					<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
-				</div>
+				<dl class="settings">
+					<dt>
+						<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
+					</dt>
+					<dd>
+						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check">
+					</dd>
+				</dl>
+				<hr class="hrcolor">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
+				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
 			</div>
 		</form>';
 	}
 	else
 		echo '
 		<div class="windowbg2">
-			<div class="content centertext">', $txt['mc_no_settings'], '</div>
+			<div class="centertext">', $txt['mc_no_settings'], '</div>
 		</div>';
 		
 	echo '
@@ -414,16 +408,14 @@ function template_show_notice()
 			<h3 class="titlebg">', $txt['show_notice_subject'], ': ', $context['notice_subject'], '</h3>
 		</div>
 		<div class="windowbg">
-			<div class="content">
-				<dl>
-					<dt>
-						<strong>', $txt['show_notice_text'], ':</strong>
-					</dt>
-					<dd>
-						', $context['notice_body'], '
-					</dd>
-				</dl>
-			</div>
+			<dl>
+				<dt>
+					<strong>', $txt['show_notice_text'], ':</strong>
+				</dt>
+				<dd>
+					', $context['notice_body'], '
+				</dd>
+			</dl>
 		</div>
 	</body>
 </html>';
@@ -445,58 +437,56 @@ function template_warn_template()
 				', $txt['mc_warning_template_desc'], '
 			</div>
 			<div class="windowbg">
-				<div class="content">
-					<div class="errorbox"', empty($context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
-						<dl>
-							<dt>
-								<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
-							</dt>
-							<dd class="error" id="error_list">
-								', empty($context['warning_errors']) ? '' : implode('<br>', $context['warning_errors']), '
-							</dd>
-						</dl>
-					</div>
-					<div id="box_preview"', !empty($context['template_preview']) ? '' : ' style="display:none"', '>
-						<dl class="settings">
-							<dt>
-								<strong>', $txt['preview'] , '</strong>
-							</dt>
-							<dd id="template_preview">
-								', !empty($context['template_preview']) ? $context['template_preview'] : '', '
-							</dd>
-						</dl>
-					</div>
+				<div class="errorbox"', empty($context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
+					<dl>
+						<dt>
+							<strong id="error_serious">', $txt['error_while_submitting'] , '</strong>
+						</dt>
+						<dd class="error" id="error_list">
+							', empty($context['warning_errors']) ? '' : implode('<br>', $context['warning_errors']), '
+						</dd>
+					</dl>
+				</div>
+				<div id="box_preview"', !empty($context['template_preview']) ? '' : ' style="display:none"', '>
 					<dl class="settings">
 						<dt>
-							<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
+							<strong>', $txt['preview'] , '</strong>
 						</dt>
-						<dd>
-							<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30" class="input_text">
+						<dd id="template_preview">
+							', !empty($context['template_preview']) ? $context['template_preview'] : '', '
 						</dd>
-						<dt>
-							<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br>
-							<span class="smalltext">', $txt['mc_warning_template_body_desc'], '</span>
-						</dt>
-						<dd>
-							<textarea id="template_body" name="template_body" rows="10" cols="45" class="smalltext">', $context['template_data']['body'], '</textarea>
-						</dd>
-					</dl>';
+					</dl>
+				</div>
+				<dl class="settings">
+					<dt>
+						<strong><label for="template_title">', $txt['mc_warning_template_title'], '</label>:</strong>
+					</dt>
+					<dd>
+						<input type="text" id="template_title" name="template_title" value="', $context['template_data']['title'], '" size="30" class="input_text">
+					</dd>
+					<dt>
+						<strong><label for="template_body">', $txt['profile_warning_notify_body'], '</label>:</strong><br>
+						<span class="smalltext">', $txt['mc_warning_template_body_desc'], '</span>
+					</dt>
+					<dd>
+						<textarea id="template_body" name="template_body" rows="10" cols="45" class="smalltext">', $context['template_data']['body'], '</textarea>
+					</dd>
+				</dl>';
 
 	if ($context['template_data']['can_edit_personal'])
 		echo '
-					<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', ' class="input_check">
-						<label for="make_personal">
-							<strong>', $txt['mc_warning_template_personal'], '</strong>
-						</label>
-						<br>
-						<span class="smalltext">', $txt['mc_warning_template_personal_desc'], '</span>
-						<br>';
+				<input type="checkbox" name="make_personal" id="make_personal"', $context['template_data']['personal'] ? ' checked' : '', ' class="input_check">
+					<label for="make_personal">
+						<strong>', $txt['mc_warning_template_personal'], '</strong>
+					</label>
+					<br>
+					<span class="smalltext">', $txt['mc_warning_template_personal_desc'], '</span>
+					<br>';
 
 	echo '
-					<hr class="hrcolor">
-					<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit">
-					<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
-				</div>
+				<hr class="hrcolor">
+				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit">
+				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['mod-wt_token_var'], '" value="', $context['mod-wt_token'], '">

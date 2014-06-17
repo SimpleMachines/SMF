@@ -43,12 +43,11 @@ function template_reported_posts()
 	{
 		echo '
 		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
-			<div class="content">
-				<h5>
-					<strong>', !empty($report['topic']['board_name']) ? '<a href="' . $scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
-				</h5>
-				<div class="smalltext">
-					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+			<h5>
+				<strong>', !empty($report['topic']['board_name']) ? '<a href="' . $scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', $txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+			</h5>
+			<div class="smalltext">
+				', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
 
 		// Prepare the comments...
 		$comments = array();
@@ -56,30 +55,29 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-					', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
-				</div>
-				<hr>
-				', $report['body'], '
-				<br>
-				<ul class="quickbuttons">
-					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', (int) !$report['ignore'], '">', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
+				', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+			</div>
+			<hr>
+			', $report['body'], '
+			<br>
+			<ul class="quickbuttons">
+				<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', (int) !$report['ignore'], '">', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
 
 		// Delete message button.
 		if (!$report['closed'] && (is_array($context['report_remove_any_boards']) && in_array($report['topic']['id_board'], $context['report_remove_any_boards'])))
 			echo '
-					<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,';modcenter;', $context['session_var'], '=', $context['session_id'], '" class="delete_message">', $delete_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=deletemsg;topic=', $report['topic']['id'] ,'.0;msg=', $report['topic']['id_msg'] ,';modcenter;', $context['session_var'], '=', $context['session_id'], '" class="delete_message">', $delete_button, '</a></li>';
 
 		// Ban this user button.
 		if (!$report['closed'] && !empty($context['report_manage_bans']))
 			echo '
-					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		echo '
-					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
-				</ul>
-			</div>
+				<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
+			</ul>
 		</div>';
 	}
 
@@ -87,9 +85,7 @@ function template_reported_posts()
 	if (empty($context['reports']))
 		echo '
 		<div class="windowbg2">
-			<div class="content">
-				<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
-			</div>
+			<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
 		</div>';
 
 	echo '
@@ -118,7 +114,7 @@ function template_reported_posts_block()
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
-			<div class="content modbox">
+			<div class="modbox">
 				<ul class="reset">';
 
 		foreach ($context['reported_posts'] as $report)
@@ -213,9 +209,7 @@ function template_viewmodreport()
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<div class="content">
-					', $context['report']['body'], '
-				</div>
+				', $context['report']['body'], '
 			</div>
 			<br>
 			<div class="cat_bar">
@@ -225,10 +219,8 @@ function template_viewmodreport()
 	foreach ($context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<div class="content">
-					<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
-					<p>', $comment['message'], '</p>
-				</div>
+				<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
+				<p>', $comment['message'], '</p>
 			</div>';
 
 	echo '
@@ -253,7 +245,7 @@ function template_viewmodreport()
 
 		echo '
 						<div class="windowbg">
-							<p class="content">', $comment['message'], '</p>
+							<p>', $comment['message'], '</p>
 						</div>';
 	}
 
@@ -265,12 +257,10 @@ function template_viewmodreport()
 							</span>
 						</h3>
 					</div>
-					<div class="content">
-						<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
-						<div class="padding">
-							<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
-							<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
-						</div>
+					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<div class="padding">
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 					</div>
 				</div>
 			<br>';
@@ -296,14 +286,12 @@ function template_edit_comment()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['mc_modreport_edit_mod_comment'] ,'</h3>
 			</div>
-			<div class="windowbg2">
-				<div class="content">';
+			<div class="windowbg2">';
 
 	echo '
-					<textarea rows="6" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
-					<div>
-						<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
-					</div>
+				<textarea rows="6" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
+				<div>
+					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 				</div>
 			</div>
 			<br>';
@@ -328,7 +316,7 @@ function template_reported_members_block()
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
-			<div class="content modbox">
+			<div class="modbox">
 				<ul class="reset">';
 
 		foreach ($context['reported_members'] as $report)
@@ -417,12 +405,11 @@ function template_reported_members()
 	{
 		echo '
 		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
-			<div class="content">
-				<h5>
-					<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
-				</h5>
-				<div class="smalltext">
-					', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+			<h5>
+				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
+			</h5>
+			<div class="smalltext">
+				', $txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
 
 		// Prepare the comments...
 		$comments = array();
@@ -430,23 +417,22 @@ function template_reported_members()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-					', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
-				</div>
-				<hr>
-				<ul class="quickbuttons">
-					<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', (int) !$report['ignore'], '">', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
-					<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
+				', $txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+			</div>
+			<hr>
+			<ul class="quickbuttons">
+				<li><a href="', $report['report_href'], '">', $details_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$report['ignore'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', (int) !$report['ignore'], '">', $report['ignore'] ? $unignore_button : $ignore_button, '</a></li>
+				<li><a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;closed=', (int) !$report['closed'], ';rid=', $report['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-closed_token_var'], '=', $context['mod-report-closed_token'], '">', $close_button, '</a></li>';
 
 		// Ban this user button.
 		if (!$report['closed'] && !empty($context['report_manage_bans']) && !empty($report['user']['id']))
 			echo '
-					<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
+				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
 		echo '
-					<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
-				</ul>
-			</div>
+				<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
+			</ul>
 		</div>';
 	}
 
@@ -454,9 +440,7 @@ function template_reported_members()
 	if (empty($context['reports']))
 		echo '
 		<div class="windowbg2">
-			<div class="content">
-				<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
-			</div>
+			<p class="centertext">', $txt['mc_reportedp_none_found'], '</p>
 		</div>';
 
 	echo '
@@ -517,10 +501,8 @@ function template_viewmemberreport()
 	foreach ($context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<div class="content">
-					<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
-					<p>', $comment['message'], '</p>
-				</div>
+				<p class="smalltext">', sprintf($txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '</p>
+				<p>', $comment['message'], '</p>
 			</div>';
 
 	echo '
@@ -545,7 +527,7 @@ function template_viewmemberreport()
 
 		echo '
 						<div class="windowbg">
-							<p class="content">', $comment['message'], '</p>
+							<p>', $comment['message'], '</p>
 						</div>';
 	}
 
@@ -557,12 +539,10 @@ function template_viewmemberreport()
 							</span>
 						</h3>
 					</div>
-					<div class="content">
-						<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
-						<div class="padding">
-							<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
-							<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
-						</div>
+					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<div class="padding">
+						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
+						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
 					</div>
 				</div>
 			<br>';

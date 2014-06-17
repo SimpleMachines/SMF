@@ -45,14 +45,13 @@ function template_ban_edit()
 	}
 
 	echo '
-			<div class="content">
-				<dl class="settings">
-					<dt id="ban_name_label">
-						<strong>', $txt['ban_name'], ':</strong>
-					</dt>
-					<dd>
-						<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text">
-					</dd>';
+			<dl class="settings">
+				<dt id="ban_name_label">
+					<strong>', $txt['ban_name'], ':</strong>
+				</dt>
+				<dd>
+					<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60" class="input_text">
+				</dd>';
 
 	if (isset($context['ban']['reason']))
 		echo '
@@ -176,7 +175,6 @@ function template_ban_edit()
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
-			</div>
 		</form>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))
@@ -249,49 +247,47 @@ function template_ban_edit_trigger()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<div class="content">
-					<fieldset>
-						<legend>
-							<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');" class="input_check"> ', $txt['ban_triggers'], '
-						</legend>
-						<dl class="settings">
-							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
-								<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
-							</dt>
-							<dd>
-								<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;" class="input_text">
-							</dd>';
+				<fieldset>
+					<legend>
+						<input type="checkbox" onclick="invertAll(this, this.form, \'ban_suggestion\');" class="input_check"> ', $txt['ban_triggers'], '
+					</legend>
+					<dl class="settings">
+						<dt>
+							<input type="checkbox" name="ban_suggestions[]" id="main_ip_check" value="main_ip" class="input_check"', $context['ban_trigger']['ip']['selected'] ? ' checked' : '', '>
+							<label for="main_ip_check">', $txt['ban_on_ip'], '</label>
+						</dt>
+						<dd>
+							<input type="text" name="main_ip" value="', $context['ban_trigger']['ip']['value'], '" size="44" onfocus="document.getElementById(\'main_ip_check\').checked = true;" class="input_text">
+						</dd>';
 
 				if (empty($modSettings['disableHostnameLookup']))
 					echo '
-								<dt>
-									<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
-									<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
-								</dt>
-								<dd>
-									<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;" class="input_text">
-								</dd>';
+							<dt>
+								<input type="checkbox" name="ban_suggestions[]" id="hostname_check" value="hostname" class="input_check"', $context['ban_trigger']['hostname']['selected'] ? ' checked' : '', '>
+								<label for="hostname_check">', $txt['ban_on_hostname'], '</label>
+							</dt>
+							<dd>
+								<input type="text" name="hostname" value="', $context['ban_trigger']['hostname']['value'], '" size="44" onfocus="document.getElementById(\'hostname_check\').checked = true;" class="input_text">
+							</dd>';
 
 				echo '
-							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
-								<label for="email_check">', $txt['ban_on_email'], '</label>
-							</dt>
-							<dd>
-								<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text">
-							</dd>
-							<dt>
-								<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
-								<label for="user_check">', $txt['ban_on_username'], '</label>:
-							</dt>
-							<dd>
-								<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;"class="input_text">
-							</dd>
-						</dl>
-					</fieldset>
-					<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit">
-				</div>
+						<dt>
+							<input type="checkbox" name="ban_suggestions[]" id="email_check" value="email" class="input_check"', $context['ban_trigger']['email']['selected'] ? ' checked' : '', '>
+							<label for="email_check">', $txt['ban_on_email'], '</label>
+						</dt>
+						<dd>
+							<input type="text" name="email" value="', $context['ban_trigger']['email']['value'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;" class="input_text">
+						</dd>
+						<dt>
+							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user" class="input_check"', $context['ban_trigger']['banneduser']['selected'] ? ' checked' : '', '>
+							<label for="user_check">', $txt['ban_on_username'], '</label>:
+						</dt>
+						<dd>
+							<input type="text" value="' . $context['ban_trigger']['banneduser']['value'] . '" name="user" id="user" size="44"  onfocus="document.getElementById(\'user_check\').checked = true;"class="input_text">
+						</dd>
+					</dl>
+				</fieldset>
+				<input type="submit" name="', $context['ban_trigger']['is_new'] ? 'add_new_trigger' : 'edit_trigger', '" value="', $context['ban_trigger']['is_new'] ? $txt['ban_add_trigger_submit'] : $txt['ban_edit_trigger_submit'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="bi" value="' . $context['ban_trigger']['id'] . '">
 			<input type="hidden" name="bg" value="' . $context['ban_trigger']['group'] . '">

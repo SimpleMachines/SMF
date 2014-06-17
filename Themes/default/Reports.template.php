@@ -23,26 +23,24 @@ function template_report_type()
 					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
 				</div>
 				<div class="windowbg">
-					<div class="content">
-						<dl class="generate_report">';
+					<dl class="generate_report">';
 
 	// Go through each type of report they can run.
 	foreach ($context['report_types'] as $type)
 	{
 		echo '
-							<dt>
-								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
-								<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-							</dt>';
+						<dt>
+							<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
+							<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
+						</dt>';
 		if (isset($type['description']))
 			echo '
-							<dd>', $type['description'], '</dd>';
+						<dd>', $type['description'], '</dd>';
 	}
 		echo '
-						</dl>
-						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					</div>
+					</dl>
+					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				</div>
 			</div>
 		</form>
@@ -77,7 +75,7 @@ function template_main()
 		if (!empty($table['title']))
 			echo '
 			<thead>
-				<tr class="catbg">
+				<tr class="title_bar">
 					<th scope="col" colspan="', $table['column_count'], '">', $table['title'], '</th>
 				</tr>
 			</thead>
@@ -93,7 +91,7 @@ function template_main()
 				<tr class="windowbg table_caption">';
 			else
 				echo '
-				<tr class="', !empty($row[0]['separator']) ? 'catbg' : ($alternate ? 'windowbg' : 'windowbg2'), '" valign="top">';
+				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : ($alternate ? 'windowbg' : 'windowbg2'), '" valign="top">';
 
 			// Now do each column.
 			$column_number = 0;
@@ -169,7 +167,7 @@ function template_print()
 
 		if (!empty($table['title']))
 			echo '
-				<tr class="catbg">
+				<tr class="title_bar">
 					<td colspan="', $table['column_count'], '">
 						', $table['title'], '
 					</td>
@@ -195,7 +193,7 @@ function template_print()
 				if (!empty($data['separator']) && $column_number == 0)
 				{
 					echo '
-					<td colspan="', $table['column_count'], '" class="catbg">
+					<td colspan="', $table['column_count'], '" class="smalltext">
 						<strong>', $data['v'], ':</strong>
 					</td>';
 					break;

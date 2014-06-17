@@ -34,7 +34,7 @@ function template_recent()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
@@ -112,7 +112,7 @@ function template_unread()
 			<div class="tborder topic_table" id="unread">
 				<table class="table_grid" cellspacing="0">
 					<thead>
-						<tr class="catbg">
+						<tr class="title_bar">
 							<th scope="col" class="first_th" width="8%" colspan="1">&nbsp;</th>
 							<th scope="col">
 								<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="sort sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
@@ -272,7 +272,7 @@ function template_replies()
 			<div class="tborder topic_table" id="unreadreplies">
 				<table class="table_grid" cellspacing="0">
 					<thead>
-						<tr class="catbg">
+						<tr class="title_bar">
 							<th scope="col" class="first_th" width="8%" colspan="1">&nbsp;</th>
 							<th scope="col">
 								<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="sort sort_' . $context['sort_direction'] . '"></span>' : '', '</a>

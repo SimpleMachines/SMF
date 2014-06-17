@@ -26,12 +26,7 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['form']))
 		echo '
-	<form class="generic_list_wrapper" action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">
-		<div class="generic_list">';
-
-	else
-		echo '
-		<div class="generic_list_wrapper">';
+	<form action="', $cur_list['form']['href'], '" method="post"', empty($cur_list['form']['name']) ? '' : ' name="' . $cur_list['form']['name'] . '" id="' . $cur_list['form']['name'] . '"', ' accept-charset="', $context['character_set'], '">';
 
 	// Show the title of the table (if any).
 	if (!empty($cur_list['title']))
@@ -45,7 +40,7 @@ function template_show_list($list_id = null)
 	if (isset($cur_list['additional_rows']['after_title']))
 	{
 		echo '
-			<div class="information flow_hidden">';
+			<div class="description flow_hidden">';
 		template_additional_rows('after_title', $cur_list);
 		echo '
 			</div>';
@@ -68,9 +63,6 @@ function template_show_list($list_id = null)
 
 		if (isset($cur_list['additional_rows']['above_column_headers']))
 			template_additional_rows('above_column_headers', $cur_list);
-
-		echo '
-			</div>';
 	}
 
 	echo '
@@ -82,7 +74,7 @@ function template_show_list($list_id = null)
 	{
 		echo '
 			<thead>
-				<tr class="catbg">';
+				<tr class="title_bar">';
 
 		// Loop through each column and add a table header.
 		$i = 0;
@@ -189,7 +181,7 @@ function template_additional_rows($row_position, $cur_list)
 {
 	foreach ($cur_list['additional_rows'][$row_position] as $row)
 		echo '
-			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>', $row['value'], '</div>';
+			', $row['value'], '';
 }
 
 function template_create_list_menu($list_menu, $direction = 'top')

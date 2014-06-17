@@ -613,24 +613,7 @@ div#admin_menu {
 	margin-right: 0;
 	margin-left: 5px;
 }
-#detailedinfo div.content dl, #tracking div.content dl {
-	clear: left;
-}
-#detailedinfo div.content dt, #tracking div.content dt {
-	float: right;
-}
-#detailedinfo div.content dd, #tracking div.content dd {
-	float: right;
-}
 #avatar_server_stored div {
-	float: right;
-}
-
-/* Profile statistics */
-#generalstats div.content dt {
-	float: right;
-}
-#generalstats div.content dd {
 	float: right;
 }
 
@@ -654,13 +637,6 @@ div#admin_menu {
 }
 #popularactivity {
 	float: left;
-}
-
-#popularposts div.content dt, #popularactivity div.content dt {
-	float: right;
-}
-#popularposts div.content dd, #popularactivity div.content dd {
-	float: right;
 }
 
 .profile_pie {
@@ -780,9 +756,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 }
 
 /* admin home */
-#live_news div.content dl {
-	padding: 0.5em 0.5em 0 0;
-}
 #smfAnnouncements dd {
 	padding: 0;
 	margin: 0 1.5em 1em 0;

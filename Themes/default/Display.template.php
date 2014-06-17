@@ -39,7 +39,7 @@ function template_main()
 					</h3>
 				</div>
 				<div class="windowbg">
-					<div class="content" id="poll_options">
+					<div id="poll_options">
 						<h4 id="pollquestion">
 							', $context['poll']['question'], '
 						</h4>';
@@ -127,18 +127,16 @@ function template_main()
 					<h3 class="titlebg headerpadding">', $txt['calendar_linked_events'], '</h3>
 				</div>
 				<div class="description">
-					<div class="content">
-						<ul class="reset">';
+					<ul class="reset">';
 
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
-							<li>
-								', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"> <img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="" title="' . $txt['modify'] . '" class="edit_event"></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
-							</li>';
+						<li>
+							', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"> <img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="" title="' . $txt['modify'] . '" class="edit_event"></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
+						</li>';
 
 		echo '
-						</ul>
-					</div>
+					</ul>
 				</div>
 			</div>';
 	}
@@ -887,15 +885,10 @@ function template_single_post($message, $force_alternate = null)
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '
-									<li id="post_',$message['id'] ,'" class="post_options">', $txt['post_options'];
+									<li class="post_options">', $txt['post_options'];
 
 		echo '
-										<ul id="more_',$message['id'] ,'">
-										<script>
-											$( "#post_'.$message['id'].'" ).click(function() {
-											$( "#more_'.$message['id'].'" ).toggle();
-											});
-										</script>';
+										<ul>';
 
 		// Can the user modify the contents of this post?
 		if ($message['can_modify'])

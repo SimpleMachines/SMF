@@ -74,10 +74,8 @@ function template_main()
 					</h3>
 				</div>
 				<div class="windowbg">
-					<div class="content">
-						<div class="post" id="preview_body">
-							', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
-						</div>
+					<div class="post" id="preview_body">
+						', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 					</div>
 				</div>
 			</div><br>';
@@ -707,7 +705,7 @@ function template_main()
 						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
 							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
 
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
 
 	if ($context['can_quote'])
 		echo '
@@ -831,7 +829,7 @@ function template_main()
 
 			echo '
 			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<div class="content" id="msg', $post['id'], '">
+				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
 					</h5>&nbsp;-&nbsp;', $post['time'];
@@ -1054,31 +1052,29 @@ function template_announce()
 				', $txt['announce_desc'], '
 			</div>
 			<div class="windowbg2">
-				<div class="content">
-					<p>
-						', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
-					</p>
-					<ul class="reset">';
+				<p>
+					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
+				</p>
+				<ul class="reset">';
 
 	foreach ($context['groups'] as $group)
 		echo '
-						<li>
-							<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em>
-						</li>';
+					<li>
+						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em>
+					</li>';
 
 	echo '
-						<li>
-							<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
-						</li>
-					</ul>
-					<hr class="hrcolor">
-					<div id="confirm_buttons">
-						<input type="submit" value="', $txt['post'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						<input type="hidden" name="topic" value="', $context['current_topic'], '">
-						<input type="hidden" name="move" value="', $context['move'], '">
-						<input type="hidden" name="goback" value="', $context['go_back'], '">
-					</div>
+					<li>
+						<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
+					</li>
+				</ul>
+				<hr class="hrcolor">
+				<div id="confirm_buttons">
+					<input type="submit" value="', $txt['post'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="topic" value="', $context['current_topic'], '">
+					<input type="hidden" name="move" value="', $context['move'], '">
+					<input type="hidden" name="goback" value="', $context['go_back'], '">
 				</div>
 				<br class="clear_right">
 			</div>
@@ -1095,22 +1091,20 @@ function template_announcement_send()
 	<div id="announcement">
 		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
-				<div class="content">
-					<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
-					<div class="progress_bar">
-						<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-						<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
-					</div>
-					<hr class="hrcolor">
-					<div id="confirm_buttons">
-						<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						<input type="hidden" name="topic" value="', $context['current_topic'], '">
-						<input type="hidden" name="move" value="', $context['move'], '">
-						<input type="hidden" name="goback" value="', $context['go_back'], '">
-						<input type="hidden" name="start" value="', $context['start'], '">
-						<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
-					</div>
+				<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
+				<div class="progress_bar">
+					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+				</div>
+				<hr class="hrcolor">
+				<div id="confirm_buttons">
+					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="topic" value="', $context['current_topic'], '">
+					<input type="hidden" name="move" value="', $context['move'], '">
+					<input type="hidden" name="goback" value="', $context['go_back'], '">
+					<input type="hidden" name="start" value="', $context['start'], '">
+					<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
 				</div>
 				<br class="clear_right">
 			</div>

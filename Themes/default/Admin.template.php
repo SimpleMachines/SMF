@@ -37,9 +37,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div class="content">
-										<div id="smfAnnouncements">', $txt['lfyi'], '</div>
-									</div>
+									<div id="smfAnnouncements">', $txt['lfyi'], '</div>
 								</div>
 							</div>';
 
@@ -52,27 +50,25 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div class="content">
-										<div id="version_details">
-											<strong>', $txt['support_versions'], ':</strong><br>
-											', $txt['support_versions_forum'], ':
-											<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em><br>
-											', $txt['support_versions_current'], ':
-											<em id="smfVersion" style="white-space: nowrap;">??</em><br>
-											', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
+									<div id="version_details">
+										<strong>', $txt['support_versions'], ':</strong><br>
+										', $txt['support_versions_forum'], ':
+										<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em><br>
+										', $txt['support_versions_current'], ':
+										<em id="smfVersion" style="white-space: nowrap;">??</em><br>
+										', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
 
 	// Display all the members who can administrate the forum.
 	echo '
-											<br>
-											<strong>', $txt['administrators'], ':</strong>
-											', implode(', ', $context['administrators']);
+										<br>
+										<strong>', $txt['administrators'], ':</strong>
+										', implode(', ', $context['administrators']);
 	// If we have lots of admins... don't show them all.
 	if (!empty($context['more_admins_link']))
 		echo '
 							(', $context['more_admins_link'], ')';
 
 	echo '
-										</div>
 									</div>
 								</div>
 							</div>
@@ -166,37 +162,35 @@ function template_credits()
 	echo '
 
 					<div id="admincenter">
-						<div id="support_credits">
+						<div id="support_credits" class="roundframe">
 							<div class="sub_bar">
 								<h3 class="subbg">
 									', $txt['support_title'], ' <img src="', $settings['images_url'], '/smflogo.png" id="credits_logo" alt="">
 								</h3>
 							</div>
-							<div class="windowbg">
-								<div class="content">
-									<strong>', $txt['support_versions'], ':</strong><br>
-										', $txt['support_versions_forum'], ':
-									<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
-										', $txt['support_versions_current'], ':
-									<em id="smfVersion" style="white-space: nowrap;">??</em><br>';
+							<div class="padding">
+								<strong>', $txt['support_versions'], ':</strong><br>
+									', $txt['support_versions_forum'], ':
+								<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+									', $txt['support_versions_current'], ':
+								<em id="smfVersion" style="white-space: nowrap;">??</em><br>';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
 	{
 		echo '
-										', $version['title'], ':
-									<em>', $version['version'], '</em>';
+									', $version['title'], ':
+								<em>', $version['version'], '</em>';
 
 		// more details for this item, show them a link
 		if ($context['can_admin'] && isset($version['more']))
 			echo
-									' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
+								' <a href="', $scripturl, $version['more'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['version_check_more'], '</a>';
 		echo '
-									<br>';
+								<br>';
 	}
 
 	echo '
-								</div>
 							</div>';
 
 	// Point the admin to common support resources.
@@ -206,11 +200,9 @@ function template_credits()
 									', $txt['support_resources'], '
 								</h3>
 							</div>
-							<div class="windowbg2">
-								<div class="content">
-									<p>', $txt['support_resources_p1'], '</p>
-									<p>', $txt['support_resources_p2'], '</p>
-								</div>
+							<div class="padding">
+								<p>', $txt['support_resources_p1'], '</p>
+								<p>', $txt['support_resources_p2'], '</p>
 							</div>';
 
 	// The most important part - the credits :P.
@@ -220,41 +212,39 @@ function template_credits()
 									', $txt['admin_credits'], '
 								</h3>
 							</div>
-							<div class="windowbg2">
-								<div class="content">';
+							<div class="padding">';
 
 	foreach ($context['credits'] as $section)
 	{
 		if (isset($section['pretext']))
 			echo '
-									<p>', $section['pretext'], '</p><hr>';
+								<p>', $section['pretext'], '</p><hr>';
 
 		echo '
-									<dl>';
+								<dl>';
 
 		foreach ($section['groups'] as $group)
 		{
 			if (isset($group['title']))
 				echo '
-										<dt>
-											<strong>', $group['title'], ':</strong>
-										</dt>';
+									<dt>
+										<strong>', $group['title'], ':</strong>
+									</dt>';
 
 			echo '
-										<dd>', implode(', ', $group['members']), '</dd>';
+									<dd>', implode(', ', $group['members']), '</dd>';
 		}
 
 		echo '
-									</dl>';
+								</dl>';
 
 		if (isset($section['posttext']))
 			echo '
-									<hr>
-									<p>', $section['posttext'], '</p>';
+								<hr>
+								<p>', $section['posttext'], '</p>';
 	}
 
 	echo '
-								</div>
 							</div>
 						</div>
 					</div>';
@@ -317,7 +307,7 @@ function template_view_versions()
 						<div class="information">', $txt['version_check_desc'], '</div>
 							<table class="table_grid">
 								<thead>
-									<tr class="catbg" align="left">
+									<tr class="title_bar" align="left">
 										<th class="first_th" scope="col" width="50%">
 											<strong>', $txt['admin_smffile'], '</strong>
 										</th>
@@ -549,50 +539,48 @@ function template_edit_censored()
 								</h3>
 							</div>
 							<div class="windowbg2">
-								<div class="content">
-									<p>', $txt['admin_censored_where'], '</p>';
+								<p>', $txt['admin_censored_where'], '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
 	foreach ($context['censored_words'] as $vulgar => $proper)
 		echo '
-									<div style="margin-top: 1ex;">
-										<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30"> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30">
-									</div>';
+								<div style="margin-top: 1ex;">
+									<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30"> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30">
+								</div>';
 
 	// Now provide a way to censor more words.
 	echo '
-									<div style="margin-top: 1ex;">
-										<input type="text" name="censor_vulgar[]" size="30" class="input_text"> =&gt; <input type="text" name="censor_proper[]" size="30" class="input_text">
-									</div>
-									<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
-										<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
-									</div>
-									<script><!-- // --><![CDATA[
-										document.getElementById("moreCensoredWords_link").style.display = "";
-									// ]]></script>
-									<hr width="100%" size="1" class="hrcolor clear">
-									<dl class="settings">
-										<dt>
-											<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
-										</dt>
-										<dd>
-											<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked', ' class="input_check">
-										</dd>
-										<dt>
-											<strong><label for="censorWholeWord_check">', $txt['censor_whole_words'], ':</label></strong>
-										</dt>
-										<dd>
-											<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty($modSettings['censorWholeWord']) ? '' : ' checked', ' class="input_check">
-										</dd>
-										<dt>
-											<strong><label for="censorIgnoreCase_check">', $txt['censor_case'], ':</label></strong>
-										</dt>
-										<dd>
-											<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked', ' class="input_check">
-										</dd>
-									</dl>
-									<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit">
+								<div style="margin-top: 1ex;">
+									<input type="text" name="censor_vulgar[]" size="30" class="input_text"> =&gt; <input type="text" name="censor_proper[]" size="30" class="input_text">
 								</div>
+								<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
+									<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
+								</div>
+								<script><!-- // --><![CDATA[
+									document.getElementById("moreCensoredWords_link").style.display = "";
+								// ]]></script>
+								<hr width="100%" size="1" class="hrcolor clear">
+								<dl class="settings">
+									<dt>
+										<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
+									</dt>
+									<dd>
+										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty($modSettings['allow_no_censored']) ? '' : ' checked', ' class="input_check">
+									</dd>
+									<dt>
+										<strong><label for="censorWholeWord_check">', $txt['censor_whole_words'], ':</label></strong>
+									</dt>
+									<dd>
+										<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty($modSettings['censorWholeWord']) ? '' : ' checked', ' class="input_check">
+									</dd>
+									<dt>
+										<strong><label for="censorIgnoreCase_check">', $txt['censor_case'], ':</label></strong>
+									</dt>
+									<dd>
+										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty($modSettings['censorIgnoreCase']) ? '' : ' checked', ' class="input_check">
+									</dd>
+								</dl>
+								<input type="submit" name="save_censor" value="', $txt['save'], '" class="button_submit">
 							</div>
 							<br>';
 
@@ -604,12 +592,10 @@ function template_edit_censored()
 								</h3>
 							</div>
 							<div class="windowbg">
-								<div class="content">
-									<p class="centertext">
-										<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '" class="input_text">
-										<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit">
-									</p>
-								</div>
+								<p class="centertext">
+									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '" class="input_text">
+									<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit">
+								</p>
 							</div>
 
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -631,29 +617,27 @@ function template_not_done()
 							</h3>
 						</div>
 						<div class="windowbg">
-							<div class="content">
-								', $txt['not_done_reason'];
+							', $txt['not_done_reason'];
 
 	if (!empty($context['continue_percent']))
 		echo '
-								<div class="progress_bar">
-									<div class="full_bar">', $context['continue_percent'], '%</div>
-									<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
-								</div>';
+							<div class="progress_bar">
+								<div class="full_bar">', $context['continue_percent'], '%</div>
+								<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
+							</div>';
 
 	if (!empty($context['substep_enabled']))
 		echo '
-								<div class="progress_bar">
-									<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
-									<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
-								</div>';
+							<div class="progress_bar">
+								<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
+								<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
+							</div>';
 
 	echo '
-								<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" style="margin: 0;" name="autoSubmit" id="autoSubmit">
-									<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit">
-									', $context['continue_post_data'], '
-								</form>
-							</div>
+							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" style="margin: 0;" name="autoSubmit" id="autoSubmit">
+								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit">
+								', $context['continue_post_data'], '
+							</form>
 						</div>
 					</div>
 					<script><!-- // --><![CDATA[
@@ -758,8 +742,7 @@ function template_show_settings()
 			$is_open = true;
 			echo '
 							<div class="windowbg2">
-								<div class="content">
-									<dl class="settings">';
+								<dl class="settings">';
 		}
 
 		// Hang about? Are you pulling my leg - a callback?!
@@ -777,15 +760,15 @@ function template_show_settings()
 			if (in_array($config_var['type'], array('message', 'warning')))
 			{
 				echo '
-										<dd', $config_var['type'] == 'warning' ? ' class="alert"' : '', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>
-											', $config_var['label'], '
-										</dd>';
+									<dd', $config_var['type'] == 'warning' ? ' class="alert"' : '', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>
+										', $config_var['label'], '
+									</dd>';
 			}
 			// Otherwise it's an input box of some kind.
 			else
 			{
 				echo '
-										<dt', is_array($config_var) && !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>';
+									<dt', is_array($config_var) && !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>';
 
 				// Some quick helpers...
 				$javascript = $config_var['javascript'];
@@ -798,36 +781,36 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-											<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a><span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
-										</dt>';
+										<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a><span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
+									</dt>';
 				else
 					echo '
-											<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
-										</dt>';
+										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
+									</dt>';
 
 				echo '
-										<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
-											$config_var['preinput'];
+									<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
+										$config_var['preinput'];
 
 				// Show a check box.
 				if ($config_var['type'] == 'check')
 					echo '
-											<input type="checkbox"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '"', ($config_var['value'] ? ' checked' : ''), ' value="1" class="input_check">';
+										<input type="checkbox"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '"', ($config_var['value'] ? ' checked' : ''), ' value="1" class="input_check">';
 				// Escape (via htmlspecialchars.) the text box.
 				elseif ($config_var['type'] == 'password')
 					echo '
-											<input type="password"', $disabled, $javascript, ' name="', $config_var['name'], '[0]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' value="*#fakepass#*" onfocus="this.value = \'\'; this.form.', $config_var['name'], '.disabled = false;" class="input_password"><br>
-											<input type="password" disabled id="', $config_var['name'], '" name="', $config_var['name'], '[1]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_password">';
+										<input type="password"', $disabled, $javascript, ' name="', $config_var['name'], '[0]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' value="*#fakepass#*" onfocus="this.value = \'\'; this.form.', $config_var['name'], '.disabled = false;" class="input_password"><br>
+										<input type="password" disabled id="', $config_var['name'], '" name="', $config_var['name'], '[1]"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), ' class="input_password">';
 				// Show a selection box.
 				elseif ($config_var['type'] == 'select')
 				{
 					echo '
-											<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), '>';
+										<select name="', $config_var['name'], '" id="', $config_var['name'], '" ', $javascript, $disabled, (!empty($config_var['multiple']) ? ' multiple="multiple"' : ''), '>';
 					foreach ($config_var['data'] as $option)
 						echo '
-												<option value="', $option[0], '"', (!empty($config_var['value']) && ($option[0] == $config_var['value'] || (!empty($config_var['multiple']) && in_array($option[0], $config_var['value']))) ? ' selected' : ''), '>', $option[1], '</option>';
+											<option value="', $option[0], '"', (!empty($config_var['value']) && ($option[0] == $config_var['value'] || (!empty($config_var['multiple']) && in_array($option[0], $config_var['value']))) ? ' selected' : ''), '>', $option[1], '</option>';
 					echo '
-											</select>';
+										</select>';
 				}
 				// List of boards? This requires getBoardList() having been run and the results in $context['board_list'].
 				elseif ($config_var['type'] == 'boards')
@@ -835,23 +818,23 @@ function template_show_settings()
 					$board_list = true;
 					$first = true;
 					echo '
-											<a href="#" class="board_selector">[ ', $txt['select_boards_from_list'], ' ]</a>
-											<fieldset>
+										<a href="#" class="board_selector">[ ', $txt['select_boards_from_list'], ' ]</a>
+										<fieldset>
 												<legend class="board_selector"><a href="#">', $txt['select_boards_from_list'], '</a></legend>';
 					foreach ($context['board_list'] as $id_cat => $cat)
 					{
 						if (!$first)
 							echo '
-												<hr>';
+											<hr>';
 						echo '
-												<strong>', $cat['name'], '</strong>
-												<ul>';
+											<strong>', $cat['name'], '</strong>
+											<ul>';
 						foreach ($cat['boards'] as $id_board => $brd)
 							echo '
-													<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1" class="input_check"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
+												<li><label><input type="checkbox" name="', $config_var['name'], '[', $brd['id'], ']" value="1" class="input_check"', in_array($brd['id'], $config_var['value']) ? ' checked' : '', '> ', $brd['child_level'] > 0 ? str_repeat('&nbsp; &nbsp;', $brd['child_level']) : '', $brd['name'], '</label></li>';
 
 						echo '
-												</ul>';
+											</ul>';
 						$first = false;
 					}
 					echo '
@@ -916,28 +899,27 @@ function template_show_settings()
 			// Just show a separator.
 			if ($config_var == '')
 				echo '
-									</dl>
-									<hr class="hrcolor clear">
-									<dl class="settings">';
+								</dl>
+								<hr class="hrcolor clear">
+								<dl class="settings">';
 			else
 				echo '
-										<dd>
-											<strong>' . $config_var . '</strong>
-										</dd>';
+									<dd>
+										<strong>' . $config_var . '</strong>
+									</dd>';
 		}
 	}
 
 	if ($is_open)
 		echo '
-									</dl>';
+								</dl>';
 
 	if (empty($context['settings_save_dont_show']))
 		echo '
-									<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit">';
+								<input type="submit" value="', $txt['save'], '"', (!empty($context['save_disabled']) ? ' disabled' : ''), (!empty($context['settings_save_onclick']) ? ' onclick="' . $context['settings_save_onclick'] . '"' : ''), ' class="button_submit">';
 
 	if ($is_open)
 		echo '
-								</div>
 							</div>';
 
 
@@ -1037,198 +1019,196 @@ function template_edit_profile_field()
 								</h3>
 							</div>
 							<div class="windowbg">
-								<div class="content">
-									<fieldset>
-										<legend>', $txt['custom_edit_general'], '</legend>
+								<fieldset>
+									<legend>', $txt['custom_edit_general'], '</legend>
 
-										<dl class="settings">
-											<dt>
-												<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong>
-											</dt>
-											<dd>
-												<input type="text" name="field_name" id="field_name" value="', $context['field']['name'], '" size="20" maxlength="40" class="input_text">
-											</dd>
-											<dt>
-												<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong>
-											</dt>
-											<dd>
-												<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
-											</dd>
-											<dt>
-												<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_profile_desc'], '</span>
-											</dt>
-											<dd>
-												<select name="profile_area" id="profile_area">
-													<option value="none"', $context['field']['profile_area'] == 'none' ? ' selected' : '', '>', $txt['custom_edit_profile_none'], '</option>
-													<option value="account"', $context['field']['profile_area'] == 'account' ? ' selected' : '', '>', $txt['account'], '</option>
-													<option value="forumprofile"', $context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', $txt['forumprofile'], '</option>
-													<option value="theme"', $context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', $txt['theme'], '</option>
-												</select>
-											</dd>
-											<dt>
-												<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
-											</dt>
-											<dd>
-												<select name="reg" id="reg">
-													<option value="0"', $context['field']['reg'] == 0 ? ' selected' : '', '>', $txt['custom_edit_registration_disable'], '</option>
-													<option value="1"', $context['field']['reg'] == 1 ? ' selected' : '', '>', $txt['custom_edit_registration_allow'], '</option>
-													<option value="2"', $context['field']['reg'] == 2 ? ' selected' : '', '>', $txt['custom_edit_registration_require'], '</option>
-												</select>
-											</dd>
-											<dt>
-												<strong><label for="display">', $txt['custom_edit_display'], ':</label></strong>
-											</dt>
-											<dd>
-												<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check">
-											</dd>
-											<dt>
-												<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
-											</dt>
-											<dd>
-												<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
-											</dd>
-											<dt>
-												<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
-											</dt>
-											<dd>
-												<select name="placement" id="placement">
-													<option value="0"', $context['field']['placement'] == '0' ? ' selected' : '', '>', $txt['custom_edit_placement_standard'], '</option>
-													<option value="1"', $context['field']['placement'] == '1' ? ' selected' : '', '>', $txt['custom_edit_placement_withicons'], '</option>
-													<option value="2"', $context['field']['placement'] == '2' ? ' selected' : '', '>', $txt['custom_edit_placement_abovesignature'], '</option>
-													<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
-													<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
-													<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_above_name'], '</option>
-													<option value="6"', $context['field']['placement'] == '6' ? ' selected' : '', '>', $txt['custom_profile_placement_bottom'], '</option>
-												</select>
-											</dd>
-											<dt>
-												<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
-												<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
-											</dt>
-											<dd>
-												<textarea name="enclose" id="enclose" rows="10" cols="50">', @$context['field']['enclose'], '</textarea>
-											</dd>
-										</dl>
-									</fieldset>
-									<fieldset>
-										<legend>', $txt['custom_edit_input'], '</legend>
-										<dl class="settings">
-											<dt>
-												<strong><label for="field_type">', $txt['custom_edit_picktype'], ':</label></strong>
-											</dt>
-											<dd>
-												<select name="field_type" id="field_type" onchange="updateInputBoxes();">';
+									<dl class="settings">
+										<dt>
+											<strong><label for="field_name">', $txt['custom_edit_name'], ':</label></strong>
+										</dt>
+										<dd>
+											<input type="text" name="field_name" id="field_name" value="', $context['field']['name'], '" size="20" maxlength="40" class="input_text">
+										</dd>
+										<dt>
+											<strong><label for="field_desc">', $txt['custom_edit_desc'], ':</label></strong>
+										</dt>
+										<dd>
+											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', $context['field']['desc'], '</textarea>
+										</dd>
+										<dt>
+											<strong><label for="profile_area">', $txt['custom_edit_profile'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_profile_desc'], '</span>
+										</dt>
+										<dd>
+											<select name="profile_area" id="profile_area">
+												<option value="none"', $context['field']['profile_area'] == 'none' ? ' selected' : '', '>', $txt['custom_edit_profile_none'], '</option>
+												<option value="account"', $context['field']['profile_area'] == 'account' ? ' selected' : '', '>', $txt['account'], '</option>
+												<option value="forumprofile"', $context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', $txt['forumprofile'], '</option>
+												<option value="theme"', $context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', $txt['theme'], '</option>
+											</select>
+										</dd>
+										<dt>
+											<strong><label for="reg">', $txt['custom_edit_registration'], ':</label></strong>
+										</dt>
+										<dd>
+											<select name="reg" id="reg">
+												<option value="0"', $context['field']['reg'] == 0 ? ' selected' : '', '>', $txt['custom_edit_registration_disable'], '</option>
+												<option value="1"', $context['field']['reg'] == 1 ? ' selected' : '', '>', $txt['custom_edit_registration_allow'], '</option>
+												<option value="2"', $context['field']['reg'] == 2 ? ' selected' : '', '>', $txt['custom_edit_registration_require'], '</option>
+											</select>
+										</dd>
+										<dt>
+											<strong><label for="display">', $txt['custom_edit_display'], ':</label></strong>
+										</dt>
+										<dd>
+											<input type="checkbox" name="display" id="display"', $context['field']['display'] ? ' checked' : '', ' class="input_check">
+										</dd>
+										<dt>
+											<strong><label for="mlist">', $txt['custom_edit_mlist'], ':</label></strong>
+										</dt>
+										<dd>
+											<input type="checkbox" name="mlist" id="show_mlist"', $context['field']['mlist'] ? ' checked' : '', ' class="input_check">
+										</dd>
+										<dt>
+											<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
+										</dt>
+										<dd>
+											<select name="placement" id="placement">
+												<option value="0"', $context['field']['placement'] == '0' ? ' selected' : '', '>', $txt['custom_edit_placement_standard'], '</option>
+												<option value="1"', $context['field']['placement'] == '1' ? ' selected' : '', '>', $txt['custom_edit_placement_withicons'], '</option>
+												<option value="2"', $context['field']['placement'] == '2' ? ' selected' : '', '>', $txt['custom_edit_placement_abovesignature'], '</option>
+												<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_belowsignature'], '</option>
+												<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
+												<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_above_name'], '</option>
+												<option value="6"', $context['field']['placement'] == '6' ? ' selected' : '', '>', $txt['custom_profile_placement_bottom'], '</option>
+											</select>
+										</dd>
+										<dt>
+											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
+										</dt>
+										<dd>
+											<textarea name="enclose" id="enclose" rows="10" cols="50">', @$context['field']['enclose'], '</textarea>
+										</dd>
+									</dl>
+								</fieldset>
+								<fieldset>
+									<legend>', $txt['custom_edit_input'], '</legend>
+									<dl class="settings">
+										<dt>
+										<strong><label for="field_type">', $txt['custom_edit_picktype'], ':</label></strong>
+										</dt>
+										<dd>
+											<select name="field_type" id="field_type" onchange="updateInputBoxes();">';
 	foreach (array('text', 'textarea', 'select', 'radio', 'check') as $field_type)
 		echo '
-													<option value="', $field_type, '"', $context['field']['type'] == $field_type ? ' selected' : '', '>', $txt['custom_profile_type_' . $field_type], '</option>';
+												<option value="', $field_type, '"', $context['field']['type'] == $field_type ? ' selected' : '', '>', $txt['custom_profile_type_' . $field_type], '</option>';
 
 	echo '
-												</select>
-											</dd>
-											<dt id="max_length_dt">
-												<strong><label for="max_length_dd">', $txt['custom_edit_max_length'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_max_length_desc'], '</span>
-											</dt>
-											<dd>
-												<input type="text" name="max_length" id="max_length_dd" value="', $context['field']['max_length'], '" size="7" maxlength="6" class="input_text">
-											</dd>
-											<dt id="dimension_dt">
-												<strong><label for="dimension_dd">', $txt['custom_edit_dimension'], ':</label></strong>
-											</dt>
-											<dd id="dimension_dd">
-												<strong>', $txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', $context['field']['rows'], '" size="5" maxlength="3" class="input_text">
-												<strong>', $txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', $context['field']['cols'], '" size="5" maxlength="3" class="input_text">
-											</dd>
-											<dt id="bbc_dt">
-												<strong><label for="bbc_dd">', $txt['custom_edit_bbc'], '</label></strong>
-											</dt>
-											<dd >
-												<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', ' class="input_check">
-											</dd>
-											<dt id="options_dt">
-												<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
-												<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
-											</dt>
-											<dd id="options_dd">
-												<div>';
+											</select>
+										</dd>
+										<dt id="max_length_dt">
+											<strong><label for="max_length_dd">', $txt['custom_edit_max_length'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_max_length_desc'], '</span>
+										</dt>
+										<dd>
+											<input type="text" name="max_length" id="max_length_dd" value="', $context['field']['max_length'], '" size="7" maxlength="6" class="input_text">
+										</dd>
+										<dt id="dimension_dt">
+											<strong><label for="dimension_dd">', $txt['custom_edit_dimension'], ':</label></strong>
+										</dt>
+										<dd id="dimension_dd">
+											<strong>', $txt['custom_edit_dimension_row'], ':</strong> <input type="text" name="rows" value="', $context['field']['rows'], '" size="5" maxlength="3" class="input_text">
+											<strong>', $txt['custom_edit_dimension_col'], ':</strong> <input type="text" name="cols" value="', $context['field']['cols'], '" size="5" maxlength="3" class="input_text">
+										</dd>
+										<dt id="bbc_dt">
+											<strong><label for="bbc_dd">', $txt['custom_edit_bbc'], '</label></strong>
+										</dt>
+										<dd >
+											<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', ' class="input_check">
+										</dd>
+										<dt id="options_dt">
+											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
+										</dt>
+										<dd id="options_dd">
+											<div>';
 
 	foreach ($context['field']['options'] as $k => $option)
 	{
 		echo '
-												', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', ' class="input_radio"><input type="text" name="select_option[', $k, ']" value="', $option, '" class="input_text">';
+											', $k == 0 ? '' : '<br>', '<input type="radio" name="default_select" value="', $k, '"', $context['field']['default_select'] == $option ? ' checked' : '', ' class="input_radio"><input type="text" name="select_option[', $k, ']" value="', $option, '" class="input_text">';
 	}
 	echo '
-												<span id="addopt"></span>
-												[<a href="" onclick="addOption(); return false;">', $txt['custom_edit_options_more'], '</a>]
-												</div>
-											</dd>
-											<dt id="default_dt">
-												<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>
-											</dt>
-											<dd>
-												<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked' : '', ' class="input_check">
-											</dd>
-										</dl>
-									</fieldset>
-									<fieldset>
-										<legend>', $txt['custom_edit_advanced'], '</legend>
-										<dl class="settings">
-											<dt id="mask_dt">
-												<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
-												<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
-											</dt>
-											<dd>
-												<select name="mask" id="mask" onchange="updateInputBoxes();">
-													<option value="nohtml"', $context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', $txt['custom_edit_mask_nohtml'], '</option>
-													<option value="email"', $context['field']['mask'] == 'email' ? ' selected' : '', '>', $txt['custom_edit_mask_email'], '</option>
-													<option value="number"', $context['field']['mask'] == 'number' ? ' selected' : '', '>', $txt['custom_edit_mask_number'], '</option>
-													<option value="regex"', strpos($context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', $txt['custom_edit_mask_regex'], '</option>
-												</select>
-												<br>
-												<span id="regex_div">
-													<input type="text" name="regex" value="', $context['field']['regex'], '" size="30" class="input_text">
-												</span>
-											</dd>
-											<dt>
-												<strong><label for="private">', $txt['custom_edit_privacy'], ':</label></strong>
-												<span class="smalltext">', $txt['custom_edit_privacy_desc'], '</span>
-											</dt>
-											<dd>
-												<select name="private" id="private" onchange="updateInputBoxes();">
-													<option value="0"', $context['field']['private'] == 0 ? ' selected' : '', '>', $txt['custom_edit_privacy_all'], '</option>
-													<option value="1"', $context['field']['private'] == 1 ? ' selected' : '', '>', $txt['custom_edit_privacy_see'], '</option>
-													<option value="2"', $context['field']['private'] == 2 ? ' selected' : '', '>', $txt['custom_edit_privacy_owner'], '</option>
-													<option value="3"', $context['field']['private'] == 3 ? ' selected' : '', '>', $txt['custom_edit_privacy_none'], '</option>
-												</select>
-											</dd>
-											<dt id="can_search_dt">
-												<strong><label for="can_search_dd">', $txt['custom_edit_can_search'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
-											</dt>
-											<dd>
-												<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked' : '', ' class="input_check">
-											</dd>
-											<dt>
-												<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br>
-												<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
-											</dt>
-											<dd>
-												<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked' : '', ' class="input_check">
-											</dd>
-										</dl>
-									</fieldset>
-										<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">';
+											<span id="addopt"></span>
+											[<a href="" onclick="addOption(); return false;">', $txt['custom_edit_options_more'], '</a>]
+											</div>
+										</dd>
+										<dt id="default_dt">
+											<strong><label for="default_dd">', $txt['custom_edit_default'], ':</label></strong>
+										</dt>
+										<dd>
+											<input type="checkbox" name="default_check" id="default_dd"', $context['field']['default_check'] ? ' checked' : '', ' class="input_check">
+										</dd>
+									</dl>
+								</fieldset>
+								<fieldset>
+									<legend>', $txt['custom_edit_advanced'], '</legend>
+									<dl class="settings">
+										<dt id="mask_dt">
+											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
+										</dt>
+										<dd>
+											<select name="mask" id="mask" onchange="updateInputBoxes();">
+												<option value="nohtml"', $context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', $txt['custom_edit_mask_nohtml'], '</option>
+												<option value="email"', $context['field']['mask'] == 'email' ? ' selected' : '', '>', $txt['custom_edit_mask_email'], '</option>
+												<option value="number"', $context['field']['mask'] == 'number' ? ' selected' : '', '>', $txt['custom_edit_mask_number'], '</option>
+												<option value="regex"', strpos($context['field']['mask'], 'regex') === 0 ? ' selected' : '', '>', $txt['custom_edit_mask_regex'], '</option>
+											</select>
+											<br>
+											<span id="regex_div">
+												<input type="text" name="regex" value="', $context['field']['regex'], '" size="30" class="input_text">
+											</span>
+										</dd>
+										<dt>
+											<strong><label for="private">', $txt['custom_edit_privacy'], ':</label></strong>
+											<span class="smalltext">', $txt['custom_edit_privacy_desc'], '</span>
+										</dt>
+										<dd>
+											<select name="private" id="private" onchange="updateInputBoxes();">
+												<option value="0"', $context['field']['private'] == 0 ? ' selected' : '', '>', $txt['custom_edit_privacy_all'], '</option>
+												<option value="1"', $context['field']['private'] == 1 ? ' selected' : '', '>', $txt['custom_edit_privacy_see'], '</option>
+												<option value="2"', $context['field']['private'] == 2 ? ' selected' : '', '>', $txt['custom_edit_privacy_owner'], '</option>
+												<option value="3"', $context['field']['private'] == 3 ? ' selected' : '', '>', $txt['custom_edit_privacy_none'], '</option>
+											</select>
+										</dd>
+										<dt id="can_search_dt">
+											<strong><label for="can_search_dd">', $txt['custom_edit_can_search'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_can_search_desc'], '</span>
+										</dt>
+										<dd>
+											<input type="checkbox" name="can_search" id="can_search_dd"', $context['field']['can_search'] ? ' checked' : '', ' class="input_check">
+										</dd>
+										<dt>
+											<strong><label for="can_search_check">', $txt['custom_edit_active'], ':</label></strong><br>
+											<span class="smalltext">', $txt['custom_edit_active_desc'], '</span>
+										</dt>
+										<dd>
+											<input type="checkbox" name="active" id="can_search_check"', $context['field']['active'] ? ' checked' : '', ' class="input_check">
+										</dd>
+									</dl>
+								</fieldset>
+									<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">';
 
 	if ($context['fid'])
 		echo '
-										<input type="submit" name="delete" value="', $txt['delete'], '" onclick="return confirm(\'', $txt['custom_edit_delete_sure'], '\');" class="button_submit">';
+									<input type="submit" name="delete" value="', $txt['delete'], '" onclick="return confirm(\'', $txt['custom_edit_delete_sure'], '\');" class="button_submit">';
 
 	echo '
-								</div>
 							</div>
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 							<input type="hidden" name="', $context['admin-ecp_token_var'], '" value="', $context['admin-ecp_token'], '">
@@ -1260,54 +1240,52 @@ function template_admin_search_results()
 								<img class="icon" src="' . $settings['images_url'] . '/buttons/search.png" alt="">&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 							</h3>
 						</div>
-					<div class="windowbg2 generic_list_wrapper">
-						<div class="content">';
+					<div class="windowbg2 generic_list_wrapper">';
 
 	if (empty($context['search_results']))
 	{
 		echo '
-							<p class="centertext"><strong>', $txt['admin_search_results_none'], '</strong></p>';
+						<p class="centertext"><strong>', $txt['admin_search_results_none'], '</strong></p>';
 	}
 	else
 	{
 		echo '
-							<ol class="search_results">';
+						<ol class="search_results">';
 		foreach ($context['search_results'] as $result)
 		{
 			// Is it a result from the online manual?
 			if ($context['search_type'] == 'online')
 			{
 				echo '
-								<li>
-									<p>
-										<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" class="new_win"><strong>', $result['title'], '</strong></a>
-									</p>
-									<p class="double_height">
-										', $result['snippet'], '
-									</p>
-								</li>';
+							<li>
+								<p>
+									<a href="', $context['doc_scripturl'], str_replace(' ', '_', $result['title']), '" target="_blank" class="new_win"><strong>', $result['title'], '</strong></a>
+								</p>
+								<p class="double_height">
+									', $result['snippet'], '
+								</p>
+							</li>';
 			}
 			// Otherwise it's... not!
 			else
 			{
 				echo '
-								<li class="windowbg2">
-									<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', isset($txt['admin_search_section_' . $result['type']]) ? $txt['admin_search_section_' . $result['type']] : $result['type'] , ']';
+							<li class="windowbg2">
+								<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', isset($txt['admin_search_section_' . $result['type']]) ? $txt['admin_search_section_' . $result['type']] : $result['type'] , ']';
 
 				if ($result['help'])
 					echo '
-									<p class="double_height">', $result['help'], '</p>';
+								<p class="double_height">', $result['help'], '</p>';
 
 				echo '
-								</li>';
+							</li>';
 			}
 		}
 		echo '
-							</ol>';
+						</ol>';
 	}
 
 	echo '
-						</div>
 					</div>';
 }
 
@@ -1372,8 +1350,7 @@ function template_repair_boards()
 								$context['error_search'] ? $txt['errors_list'] : $txt['errors_fixing'] , '
 							</h3>
 						</div>
-						<div class="windowbg">
-							<div class="content">';
+						<div class="windowbg">';
 
 	// Are we actually fixing them, or is this just a prompt?
 	if ($context['error_search'])
@@ -1381,30 +1358,30 @@ function template_repair_boards()
 		if (!empty($context['to_fix']))
 		{
 			echo '
-								', $txt['errors_found'], ':
-								<ul>';
+							', $txt['errors_found'], ':
+							<ul>';
 
 			foreach ($context['repair_errors'] as $error)
 				echo '
-									<li>
-										', $error, '
-									</li>';
+								<li>
+									', $error, '
+								</li>';
 
 			echo '
-								</ul>
-								<p>
-									', $txt['errors_fix'], '
-								</p>
-								<p class="padding">
-									<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
-								</p>';
+							</ul>
+							<p>
+								', $txt['errors_fix'], '
+							</p>
+							<p class="padding">
+								<strong><a href="', $scripturl, '?action=admin;area=repairboards;fixErrors;', $context['session_var'], '=', $context['session_id'], '">', $txt['yes'], '</a> - <a href="', $scripturl, '?action=admin;area=maintain">', $txt['no'], '</a></strong>
+							</p>';
 		}
 		else
 			echo '
-								<p>', $txt['maintain_no_errors'], '</p>
-								<p class="padding">
-									<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
-								</p>';
+							<p>', $txt['maintain_no_errors'], '</p>
+							<p class="padding">
+								<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
+							</p>';
 
 	}
 	else
@@ -1412,26 +1389,25 @@ function template_repair_boards()
 		if (!empty($context['redirect_to_recount']))
 		{
 			echo '
-								<p>
-									', $txt['errors_do_recount'], '
-								</p>
-								<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
-									<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-									<input type="submit" name="recount" id="recount_now" value="', $txt['errors_recount_now'], '">
-								</form>';
+							<p>
+								', $txt['errors_do_recount'], '
+							</p>
+							<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
+								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+								<input type="submit" name="recount" id="recount_now" value="', $txt['errors_recount_now'], '">
+							</form>';
 		}
 		else
 		{
 			echo '
-								<p>', $txt['errors_fixed'], '</p>
-								<p class="padding">
-									<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
-								</p>';
+							<p>', $txt['errors_fixed'], '</p>
+							<p class="padding">
+								<a href="', $scripturl, '?action=admin;area=maintain;sa=routine">', $txt['maintain_return'], '</a>
+							</p>';
 		}
 	}
 
 	echo '
-							</div>
 						</div>
 					</div>';
 
@@ -1477,7 +1453,7 @@ function template_php_info()
 		echo '
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
-								<tr class="catbg">
+								<tr class="title_bar">
 									<th class="first_th" scope="col" width="33%"></th>
 									<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
 									<th class="last_th" scope="col" width="33%"></th>
@@ -1498,7 +1474,7 @@ function template_php_info()
 				{
 					// heading row for the settings section of this categorys settings
 					echo '
-								<tr class="catbg">
+								<tr class="title_bar">
 									<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
 									<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
@@ -1553,14 +1529,12 @@ function template_clean_cache_button_below()
 						<h3 class="catbg">', $txt['maintain_cache'], '</h3>
 					</div>
 					<div class="windowbg">
-						<div class="content">
-							<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
-								<p>', $txt['maintain_cache_info'], '</p>
-								<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit"></span>
-								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-								<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
-							</form>
-						</div>
+						<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', $context['character_set'], '">
+							<p>', $txt['maintain_cache_info'], '</p>
+							<span><input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit"></span>
+							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
+						</form>
 					</div>';
 }
 

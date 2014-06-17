@@ -54,7 +54,7 @@ body.action_admin .navigate_section ul li a {
 	border: 1px solid #ddd;
 	border-top: none;
 	border-radius: 0 0 7px 7px;
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 12px 9px 8px 9px;
 }
 .action_admin p.description a {
@@ -64,7 +64,6 @@ body.action_admin .navigate_section ul li a {
 	vertical-align: middle;
 }
 .action_admin .generic_list_wrapper .information {
-
 	margin: 8px 0;
 	padding: 4px 12px 2px 12px;
 	border: 1px solid #ccc;
@@ -86,20 +85,14 @@ body.action_admin .navigate_section ul li a {
 	overflow: auto;
 }
 #admin_content .windowbg, #admin_content .windowbg2 {
-	margin-bottom: 5px;
+	margin: 0 0 5px 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-#admincenter .content {
-	padding: 12px;
-}
 
 /* A general admin wrapper class. */
-#admin_main_section, div.quick_tasks,
-#support_credits, #admin_newsletters,
-#generate_reports_type,
-#groupForm, #mailqueue_stats, #manage_maintenance,
-#new_group, #view_group, #admin_form_wrapper {
+div.quick_tasks, #generate_reports_type, #groupForm, 
+#mailqueue_stats, #manage_maintenance, #new_group, #view_group {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -111,22 +104,12 @@ body.action_admin .navigate_section ul li a {
 div.quick_tasks {
 	margin: -8px 0 0 0;
 }
-#admin_form_wrapper div.windowbg, #support_credits div.windowbg,
-#generate_reports_type div.windowbg, #new_group div.windowbg,
-#view_group  div.windowbg, #admin_newsletters .windowbg {
-	background: none;
-	padding: 0;
-	margin: 0 4px;
-}
 #mailqueue_stats {
 	padding: 8px 8px 0 8px;
 }
 #mailqueue_stats .windowbg {
 	background: none;
 	padding: 0;
-}
-#mailqueue_stats .windowbg .content {
-	padding: 12px 9px 0 9px;
 }
 #view_group .table_grid {
 	margin: 4px 0 8px 0;
@@ -139,9 +122,6 @@ div.quick_tasks {
 	background: #fff;
 	color: #666;
 }
-.action_admin .table_grid tr.catbg th a:link {
-	color: #666;
-}
 .action_admin .table_grid .first_th, .action_admin .table_grid  td:first-child {
 	border-left: 1px solid #ccc;
 }
@@ -151,18 +131,19 @@ div.quick_tasks {
 .action_admin .table_grid td {
 	border-bottom: 1px solid #ccc;
 }
-.action_admin .table_grid tr:nth-child(even) td {
+.action_admin .table_grid tr:nth-child(even) {
 	background: #fdfdfd;
 }
-.action_admin .table_grid tr:nth-child(odd) td {
+.action_admin .table_grid tr:nth-child(odd) {
 	background: #f8f8f8;
 }
-/*-------------------------------------------*/
+/* @you are here for short time */
+.table_grid tr td:last-child {
+	border: none;
+}
 
-/* Newsletters screen.
----------------------------------------------*/
+/* Newsletters screen. */
 #admin_newsletters .information {
-
 	margin: 8px 0;
 	padding: 8px 12px 6px 12px;
 	border: 1px solid #ccc;
@@ -174,7 +155,7 @@ div.quick_tasks {
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
-/*-------------------------------------------*/
+
 .action_admin .generic_list .flow_auto {
 	padding: 4px 2px;
 }
@@ -187,7 +168,7 @@ div.quick_tasks {
 	margin-bottom: 0;
 }
 a.help .icon {
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 0 4px 0 0;
 }
 .catbg a.help .icon {
@@ -238,7 +219,6 @@ h3.catbg #quick_search form select option {
 }
 h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
-
 	padding: 3px 6px 2px 6px;
 	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
@@ -264,13 +244,6 @@ body#chrome  #quick_search .button_submit {
 }
 
 /* The welcome thingy. */
-#admincenter .roundframe {
-	background: none;
-	border: none;
-	box-shadow: none;
-	padding: 0;
-	overflow: visible;
-}
 #welcome {
 	border: 1px solid #ddd;
 	border-top: none;
@@ -304,12 +277,7 @@ body#chrome  #quick_search .button_submit {
 
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
-/* Live news from smf.org and support information. */
-#admin_main_section {
-	margin: 12px 0;
-	padding: 8px 12px;
-	border-radius: 7px;
-}
+/* Live news from smorg and support information. */
 #live_news, #supportVersionsTable {
 	width: 70%;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
@@ -318,13 +286,15 @@ body#chrome  #quick_search .button_submit {
 	width: 30%;
 	padding-left: 6px;
 }
+#admin_main_section {
+	overflow: auto;
+}
 #admin_main_section .windowbg {
 	padding: 6px 0;
 	border: 1px solid #ccc;
 	border-top: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 0;
-
 	box-shadow:  0 2px 2px rgba(255,255,255,0.5), 0 -1px 2px rgba(0,0,0,0.1);
 	height: 12em;
 	overflow: auto;
@@ -333,17 +303,6 @@ body#chrome  #quick_search .button_submit {
 	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#live_news div.content, #supportVersionsTable  div.content {
-	padding: 0;
-	font-size: 0.9em;
-}
-#supportVersionsTable  div.content {
-	padding: 0 8px;
-}
-#live_news div.content dl {
-	padding: 0;
-	color: #111;
 }
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
@@ -428,44 +387,19 @@ div.quick_tasks {
 /* Hey, people might actually want to put their names on it now!
 /* Only a couple of trivial markup hacks that wont break any mods or themes.
 /* The older I get, the more devious I get. :D
-/* Nobody ever themes admin anyway. That's why it looked like crap.
------------------------------------------------------------------*/
+/* Nobody ever themes admin anyway. That's why it looked like crap. */
 #support_credits {
 	position: relative;
-	padding: 6px 12px 12px 12px;
-}
-#support_resources, #credits_sections {
-	margin: 16px 0 -24px 0;
-	border: none;
-	border-top: 1px solid #bbb;
 }
 #credits_logo {
 	position: absolute;
 	right: 10px;
 	top: 9px;
 }
-#support_credits .content {
-	padding: 0 18px;
-	line-height: 1.6em;
-}
-#support_credits .content p {
-	margin: 12px 0 0 0;
-	padding: 0;
-}
-#support_credits a {
-	border-bottom: 1px solid #d2d2d2;
-}
-#support_credits a:hover {
-	color: #00163d;
-	text-decoration: none;
-	border-bottom: 1px solid #556f82;
-}
 #support_credits img.icon {
 	vertical-align: middle;
 }
-#support_credits .catbg a.help, #support_credits .catbg a.help:hover {
-	border-bottom: none;
-}
+
 #latestSupport{
 	padding: 0 25px 15px 25px;
 }
@@ -482,8 +416,7 @@ div.quick_tasks {
 }
 
 /* Styles for the package manager.
-/* Haven't got here yet. :P
-------------------------------------------------- */
+/* Haven't got here yet. :P */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
 }
@@ -556,8 +489,7 @@ pre.file_content {
 	padding: 0 1em;
 }
 
-/* Styles for the file permissions section.
-------------------------------------------------- */
+/* Styles for the file permissions section. */
 .filepermissions {
 	font-size: 0.8em;
 	white-space: nowrap;
@@ -604,14 +536,12 @@ pre.file_content {
 	background-position: -80px -32px;
 }
 
-/* Styles for the BBC permissions
-------------------------------------------------- */
+/* Styles for the BBC permissions */
 .list_bbc {
 	width: 33%;
 }
 
-/* Styles for the manage boards section.
-------------------------------------------------- */
+/* Styles for the manage boards section. */
 #manage_boards {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
@@ -623,8 +553,8 @@ pre.file_content {
 }
 #manage_boards .windowbg {
 	background: none;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	margin: 0;
+	padding: 0;
 	border: none;
 	border-radius: 7px 7px 0 0;
 }
@@ -726,9 +656,7 @@ pre.file_content {
 	display:none;
 }
 
-/* Styles for the manage members section.
-------------------------------------------------- */
-
+/* Styles for the manage members section. */
 .msearch_details {
 	display: block;
 	width: 49%;
@@ -737,8 +665,7 @@ dl.right dt {
 	padding-right: 10px;
 }
 
-/* Styles for the manage maintenance section.
-------------------------------------------------- */
+/* Styles for the manage maintenance section. */
 #manage_maintenance div.windowbg, #manage_maintenance div.windowbg2 {
 	background: none;
 	padding: 0 0 12px 0;
@@ -760,15 +687,13 @@ dl.right dt {
 	margin: 16px 0 0 0;
 }
 
-/* Styles for the question and answers
-------------------------------------------------- */
+/* Styles for the question and answers */
 fieldset.qa_fieldset {
 	clear: both;
 	display: none;
 }
 
-/* Styles for the manage calendar section.
-------------------------------------------------- */
+/* Styles for the manage calendar section. */
 dl.settings dt.small_caption {
 	width: 20%;
 }
@@ -776,8 +701,7 @@ dl.settings dd.small_caption {
 	width: 79%;
 }
 
-/* Styles for the manage search section.
-------------------------------------------------- */
+/* Styles for the manage search section. */
 dl.settings dt.large_caption {
 	width: 70%;
 }
@@ -793,8 +717,7 @@ span.search_weight {
 	width: 47%;
 }
 
-/* Styles for the manage bans section.
-------------------------------------------------- */
+/* Styles for the manage bans section. */
 .ban_restriction {
 	margin: 0.2em 0 0.2em 2.2em;
 }
@@ -808,8 +731,7 @@ span.search_weight {
 	margin-bottom: 0;
 }
 
-/* Styles for the manage subscriptions section.
-------------------------------------------------- */
+/* Styles for the manage subscriptions section. */
 #fixed_area {
 	width: 97%;
 }
@@ -821,8 +743,7 @@ ul.pending_payments li {
 	list-style-type: none;
 }
 
-/* Styles for the manage permissions section.
-------------------------------------------------- */
+/* Styles for the manage permissions section. */
 .perm_name, .perm_profile, .perm_board {
 	display: block;
 	width: 40%;
@@ -869,8 +790,7 @@ dl.admin_permissions dd {
 	text-align: center;
 }
 
-/* Styles for the themes section.
-------------------------------------------------- */
+/* Styles for the themes section. */
 ul.theme_options {
 	padding: 0;
 	margin: 0;
@@ -901,8 +821,7 @@ dl.themes_list dd {
 	white-space: nowrap;
 }
 
-/* Styles for the registration center.
-------------------------------------------------- */
+/* Styles for the registration center. */
 .agreement, .reserved_names {
 	padding: 0;
 }
@@ -910,8 +829,7 @@ dl.themes_list dd {
 	width: 99%;
 }
 
-/* Styles for the moderation center.
-------------------------------------------------- */
+/* Styles for the moderation center. */
 #modcenter {
 	display: block;
 	width: 100%;
@@ -936,9 +854,7 @@ ul.moderation_notes li {
 	width: 85%;
 }
 
-/* Styles for the error log.
-------------------------------------------------- */
-
+/* Styles for the error log. */
 h3.grid_header {
 	height: 25px;
 }
@@ -962,9 +878,7 @@ h3.grid_header {
 	margin: 0 8px 0 0;
 }
 
-
-/* More error log stuff. Could still be cleaned up a bit.
---------------------------------------------------*/
+/* More error log stuff. Could still be cleaned up a bit. */
 #error_log {
 	margin: 4px 0;
 }
@@ -975,8 +889,7 @@ h3.grid_header {
 	padding: 8px;
 }
 
-/* Styles for the Report generation
-------------------------------------------------- */
+/* Styles for the Report generation */
 #report_buttons {
 	min-height: 2.4em;
 	padding: 3px 0;
@@ -985,80 +898,6 @@ h3.grid_header {
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 }
-
-/* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
-
-@media screen and (max-width: 490px),(max-width: 32em) {
-	body {
-		padding: 0;
-	}
-	#wrapper, #footer_section div.frame {
-		min-width: 100%;
-	}
-	#main_content_section {
-		padding: 0 10px;
-	}
-	/* Level 1 button background. */
-	.dropmenu li {
-		line-height: 3.2em;
-	}
-	.dropmenu li ul {
-		top: 3.45em;
-	}
-	.dropmenu li li a {
-		line-height: 3.2em;
-	}
-	h3.catbg #quick_search form {
-		margin: 0 0 8px 0;
-		padding: 0;
-	}
-	h3.catbg #quick_search form input {
-		margin: 0 0 12px 0;
-	}
-	h3.catbg #quick_search form select option {
-		padding: 4px 4px;
-	}
-	h3.catbg #quick_search form .button_submit {
-		margin: 0 3px 0 3px;
-	}
-	#live_news, #supportVersionsTable {
-		width: 100%;
-	}
-	#live_news {
-		margin: 0 0 6px 0;
-	}
-	#supportVersionsTable {
-		padding: 0;
-	}
-	#quick_tasks ul li span {
-		display: block;
-		margin: 0 0 0 50px;
-	}
-	#credits_page {
-		padding-top: 35px;
-	}
-	#credits_page img {
-		right: 6px;
-	}
-	#manage_boards .catbg {
-		margin-top: 10px;
-	}
-	#manage_boards .windowbg {
-		line-height: 3.2em;
-	}
-	#manage_boards ul {
-		max-height: 120em;
-		padding: 0 0 10px 0;
-	}
-	#manage_boards dd, #manage_boards dt {
-		width: 100%;
-	}
-	#manage_boards dt {
-		line-height: 1.6em;
-	}
-}
-/* These kids and their new-fangled thingummys. :P */
-/* When I were a lad, things were different! */
 
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
