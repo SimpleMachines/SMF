@@ -134,7 +134,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	margin-left: inherit;
 }
 .button_submit, .button_reset, .button_link {
-	margin: 0 12px 0 12px;
+	margin: 0 0 0 12px;
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
@@ -506,7 +506,7 @@ a img {
 /* @todo kill this */
 .windowbg3 {
 	color: #222;
-	background: #cacdd3;
+	background: #F8F8F8;
 }
 
 /* the page navigation area */
@@ -1893,7 +1893,6 @@ select.qaction {
 }
 #message_index_jump_to_select {
 	font-size: 1em;
-	margin: 0 -12px 0 0;
 	padding: 2px;
 }
 #message_index_jump_to .button_submit {

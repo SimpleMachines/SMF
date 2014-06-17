@@ -50,7 +50,7 @@ function template_admin()
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="version_details">
+									<div id="version_details" class="padding">
 										<strong>', $txt['support_versions'], ':</strong><br>
 										', $txt['support_versions_forum'], ':
 										<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em><br>

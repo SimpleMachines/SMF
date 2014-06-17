@@ -88,6 +88,8 @@ body.action_admin .navigate_section ul li a {
 	margin: 0 0 5px 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+	box-shadow: none;
+	background: #F8F8F8;
 }
 
 /* A general admin wrapper class. */
@@ -543,42 +545,35 @@ pre.file_content {
 
 /* Styles for the manage boards section. */
 #manage_boards {
-	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
-#manage_boards .windowbg {
+#manage_boards .windowbg, #manage_boards .windowbg2 {
+	border: 0;
+	padding: 0;
 	background: none;
-	margin: 0;
-	padding: 0;
-	border: none;
-	border-radius: 7px 7px 0 0;
-}
-#manage_boards .windowbg {
-	margin: 0;
-	padding: 0;
 }
 #manage_boards ul {
 	padding: 0;
 	margin: 0 0 8px 0;
 	max-height: 30em;
 	overflow: auto;
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #fff;
 	border-radius: 2px;
 }
 #manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
-	list-style: none;
-	margin: 0 1px;
 	padding: 8px 0;
-	border: 1px solid #ccc;
-	border-bottom: 1px solid #bbb;
-	border-top: 1px solid #fff;
+	margin: 0;
 	border-radius: 0;
+	border: 1px solid #ccc;
+	border-bottom: none;
+}
+#manage_boards li:first-child {
+	border-top: none;
+}
+#manage_boards li:last-child {
+	border-bottom: 1px solid #ccc;
+}
+#manage_boards li:hover {
+	background: #D0E7F8;
 }
 #manage_boards li img {
 	vertical-align: middle;
@@ -601,46 +596,8 @@ pre.file_content {
 .move_links {
 	padding: 0 13px 0 0;
 }
-.modify_boards {
-	padding: 0 0.5em;
-}
-#manage_boards span.modify_boards a {
-	border: 1px solid #aaa;
-	border-radius: 3px;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-	padding: 3px 6px;
-	font: 95%/115% verdana, Helvetica, sans-serif;
-	color: #222;
-	font-size: 1em;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards span.modify_boards a:hover {
-	text-decoration: none;
-	color: #444;
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards .button_submit {
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1), 0 -1px 3px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #bbb;
-	border-left: 1px solid #bbb;
-	background: #dceeff;
-	text-shadow: 0 0 2px #fff;
+#manage_boards .button_submit, #manage_boards .button {
 	margin: 0 8px;
-}
-#manage_boards  .button_submit:hover {
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #999;
-	border-left: 1px solid #999;
-	background: #cde7ff;
 }
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
