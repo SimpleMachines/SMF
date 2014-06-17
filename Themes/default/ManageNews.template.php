@@ -188,10 +188,8 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<div class="content">
-					<div class="post" id="preview_body">
-						', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
-					</div>
+				<div class="post" id="preview_body">
+					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div>
 		</div><br>';
@@ -208,7 +206,6 @@ function template_email_members_compose()
 				', $txt['email_variables'], '
 			</div>
 			<div class="windowbg">
-				<div class="content">
 				<div class="', empty($context['error_type']) || $context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty($context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
@@ -248,7 +245,6 @@ function template_email_members_compose()
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>
-				</div>
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="email_force" value="', $context['email_force'], '">
@@ -399,30 +395,28 @@ function template_email_members_send()
 				</h3>
 			</div>
 			<div class="windowbg">
-				<div class="content">
-					<div class="progress_bar">
-						<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
-						<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
-					</div>
-					<hr class="hrcolor">
-					<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="subject" value="', $context['subject'], '">
-					<input type="hidden" name="message" value="', $context['message'], '">
-					<input type="hidden" name="start" value="', $context['start'], '">
-					<input type="hidden" name="total_members" value="', $context['total_members'], '">
-					<input type="hidden" name="total_emails" value="', $context['total_emails'], '">
-					<input type="hidden" name="send_pm" value="', $context['send_pm'], '">
-					<input type="hidden" name="send_html" value="', $context['send_html'], '">
-					<input type="hidden" name="parse_html" value="', $context['parse_html'], '">';
+				<div class="progress_bar">
+					<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+				</div>
+				<hr class="hrcolor">
+				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="subject" value="', $context['subject'], '">
+				<input type="hidden" name="message" value="', $context['message'], '">
+				<input type="hidden" name="start" value="', $context['start'], '">
+				<input type="hidden" name="total_members" value="', $context['total_members'], '">
+				<input type="hidden" name="total_emails" value="', $context['total_emails'], '">
+				<input type="hidden" name="send_pm" value="', $context['send_pm'], '">
+				<input type="hidden" name="send_html" value="', $context['send_html'], '">
+				<input type="hidden" name="parse_html" value="', $context['parse_html'], '">';
 
 	// All the things we must remember!
 	foreach ($context['recipients'] as $key => $values)
 		echo '
-					<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
+				<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-				</div>
 			</div>
 		</form>
 	</div>
