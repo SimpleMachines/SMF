@@ -1316,7 +1316,7 @@ function prepareDisplayContext($reset = false)
 	{
 		// Define this here to make things a bit more readable
 		$can_view_warning = $context['user']['can_mod'] || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
-		
+
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
 		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
@@ -1916,12 +1916,15 @@ function QuickInTopicModeration()
  * @uses $topic and $context['user']['id']
  * @return Array an array of IDs of messages in the specified topic that the current user likes
  */
-function prepareLikesContext()
+function prepareLikesContext($externalTopic = false)
 {
 	global $context, $smcFunc, $topic;
 
+	// We want to fetch this info for an external source?.
+	$innerTopic = $externalTopic ? $externalTopic : $topic;
+
 	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
+	$cache_key = 'likes_topic_' . $innerTopic . '_' . $context['user']['id'];
 	$ttl = 180;
 
 	if (($temp = cache_get_data($cache_key, $ttl)) === null)
@@ -1936,7 +1939,7 @@ function prepareLikesContext()
 				AND m.id_topic = {int:topic}',
 			array(
 				'current_user' => $context['user']['id'],
-				'topic' => $topic,
+				'topic' => $innerTopic,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -1944,6 +1947,7 @@ function prepareLikesContext()
 
 		cache_put_data($cache_key, $temp, $ttl);
 	}
+
 	return $temp;
 }
 
