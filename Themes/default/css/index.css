@@ -3386,11 +3386,11 @@ dl.stats dd {
 	width: 0;
 	border-right: none;
 }
-#profileview dd {
-	background: none;
-	border: none;
+#profileview dd, .nobb, .nobb dd {
+	background: none !important;
+	border: none !important;
 }
-#profileview dl.stats {
+dl.stats {
 	padding: 5px;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */

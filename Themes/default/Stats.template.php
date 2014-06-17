@@ -25,7 +25,7 @@ function template_main()
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
 				</h4>
 			</div>
-			<dl class="stats content half_content">
+			<dl class="stats half_content nobb">
 				<dt>', $txt['total_members'], ':</dt>
 				<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
 				<dt>', $txt['total_posts'], ':</dt>
@@ -48,7 +48,7 @@ function template_main()
 
 	echo '
 			</dl>
-			<dl class="stats content half_content">
+			<dl class="stats half_content nobb">
 				<dt>', $txt['average_members'], ':</dt>
 				<dd>', $context['average_members'], '</dd>
 				<dt>', $txt['average_posts'], ':</dt>
@@ -88,7 +88,7 @@ function template_main()
 						<span class="stats_icon posters"></span>', $txt['top_posters'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_posters'] as $poster)
 	{
@@ -121,7 +121,7 @@ function template_main()
 						<span class="stats_icon boards"></span>', $txt['top_boards'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_boards'] as $board)
 	{
@@ -154,7 +154,7 @@ function template_main()
 						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_topics_replies'] as $topic)
 	{
@@ -186,7 +186,7 @@ function template_main()
 						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_topics_views'] as $topic)
 	{
@@ -217,7 +217,7 @@ function template_main()
 						<span class="stats_icon starters"></span>', $txt['top_starters'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_starters'] as $poster)
 	{
@@ -247,7 +247,7 @@ function template_main()
 						<span class="stats_icon history"></span>', $txt['most_time_online'], '
 					</h4>
 				</div>
-					<dl class="stats content">';
+					<dl class="stats">';
 
 	foreach ($context['top_time_online'] as $poster)
 	{
