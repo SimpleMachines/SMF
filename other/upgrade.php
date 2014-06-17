@@ -1140,7 +1140,7 @@ function loadEssentialData()
 		return throw_error('Cannot find ' . $sourcedir . '/Subs-Db-' . $db_type . '.php' . '. Please check you have uploaded all source files and have the correct paths set.');
 	}
 
-	// avoid loading QueryString.php before chekcing php version (use of closure)
+	// avoid loading QueryString.php before checking php version (use of closure)
 		upCleanRequest();
 
 	if (!isset($_GET['substep']))
