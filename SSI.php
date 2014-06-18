@@ -327,10 +327,13 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 	global $scripturl, $txt, $user_info;
 	global $modSettings, $smcFunc;
 
+	if (!empty($modSettings['enable_likes']))
+		$context['can_like'] = allowedTo('likes_like');
+
 	// Find all the posts. Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
-			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, b.name AS board_name,
+			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
 			IFNULL(mem.real_name, m.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) >= m.id_msg_modified AS is_read,
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
@@ -362,7 +365,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		$preview = strip_tags(strtr($row['body'], array('<br>' => '&#10;')));
 
 		// Build the array.
-		$posts[] = array(
+		$posts[$row['id_msg']] = array(
 			'id' => $row['id_msg'],
 			'board' => array(
 				'id' => $row['id_board'],
@@ -389,6 +392,14 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
 		);
+
+		// Get the likes for each message.
+		if (!empty($modSettings['enable_likes']))
+			$posts[$row['id_msg']]['likes'] = array(
+				'count' => $row['likes'],
+				'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
+				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+			);
 	}
 	$smcFunc['db_free_result']($request);
 
