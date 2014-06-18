@@ -4282,9 +4282,10 @@ function prepareLikesContext($topic)
 {
 	global $user_info, $smcFunc;
 
-	// Make sure we have something to work with
-	if (empty($topic) || !is_int($topic))
+	// Make sure we have something to work with.
+	if (empty($topic))
 		return array();
+
 
 	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
 	$user = $user_info['id'];
