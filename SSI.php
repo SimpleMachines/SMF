@@ -1706,7 +1706,10 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		$icon_sources[$icon] = 'images_url';
 
 	if (!empty($modSettings['enable_likes']))
+	{
 		$context['can_like'] = allowedTo('likes_like');
+		$context['can_see_likes'] = allowedTo('likes_view');
+	}
 
 	// Find the post ids.
 	$request = $smcFunc['db_query']('', '
@@ -1781,7 +1784,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		censorText($row['subject']);
 		censorText($row['body']);
 
-		$return[$row['id_topic']] = array(
+		$return[] = array(
 			'id' => $row['id_topic'],
 			'message_id' => $row['id_msg'],
 			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" alt="' . $row['icon'] . '">',
@@ -1802,16 +1805,14 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
 			),
 			'locked' => !empty($row['locked']),
-			'is_last' => false
-		);
-
-		// Get the likes for each message.
-		if (!empty($modSettings['enable_likes']))
-			$return[$row['id_topic']]['likes'] = array(
+			'is_last' => false,
+			// Nasty ternary for likes not messing around the "is_last" check.
+			'likes' => !empty($modSettings['enable_likes']) ? array(
 				'count' => $row['likes'],
-				'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
+				'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
 				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
-			);
+			) : array(),
+		);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1840,7 +1841,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 		if (!empty($modSettings['enable_likes']))
 		{
 			echo '
-					<ul class="floatleft">';
+					<ul>';
 
 			if (!empty($news['likes']['can_like']))
 			{
@@ -1853,7 +1854,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				$context['some_likes'] = true;
 				$count = $news['likes']['count'];
 				$base = 'likes_';
-				if ($message['likes']['you'])
+				if ($news['likes']['you'])
 				{
 					$base = 'you_' . $base;
 					$count--;
