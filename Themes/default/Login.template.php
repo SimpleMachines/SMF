@@ -33,7 +33,7 @@ function template_login()
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
 		echo '
-					<p class="description">', $context['description'], '</p>';
+					<p class="information">', $context['description'], '</p>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
@@ -171,7 +171,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
-		<p class="description">
+		<p class="information">
 			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
 			', $context['description'], '<br class="clear">
 		</p>

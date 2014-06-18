@@ -196,7 +196,7 @@ function template_generic_menu_tabs(&$menu_context)
 	// Shall we use the tabs? Yes, it's the only known way!
 	if (!empty($selected_tab['description']) || !empty($tab_context['description']))
 		echo '
-					<p class="description">
+					<p class="information">
 						', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 					</p>';
 

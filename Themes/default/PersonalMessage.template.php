@@ -1335,7 +1335,7 @@ function template_labels()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_manage_labels'], '</h3>
 		</div>
-		<div class="description">
+		<div class="information">
 			', $txt['pm_labels_desc'], '
 		</div>
 		<table class="table_grid">
@@ -1424,7 +1424,7 @@ function template_report_message()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_report_title'], '</h3>
 		</div>
-		<div class="description">
+		<div class="information">
 			', $txt['pm_report_desc'], '
 		</div>
 		<div class="windowbg">
@@ -1490,7 +1490,7 @@ function template_rules()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['pm_manage_rules'], '</h3>
 		</div>
-		<div class="description">
+		<div class="information">
 			', $txt['pm_manage_rules_desc'], '
 		</div>
 		<table class="table_grid">

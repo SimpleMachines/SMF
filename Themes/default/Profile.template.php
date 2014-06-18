@@ -961,12 +961,12 @@ function template_showPermissions()
 	if ($context['member']['has_all_permissions'])
 	{
 		echo '
-		<p class="description">', $txt['showPermissions_all'], '</p>';
+		<p class="information">', $txt['showPermissions_all'], '</p>';
 	}
 	else
 	{
 		echo '
-		<p class="description">',$txt['showPermissions_help'],'</p>
+		<p class="information">',$txt['showPermissions_help'],'</p>
 		<div id="permissions" class="flow_hidden">';
 
 		if (!empty($context['no_access_boards']))
@@ -1269,7 +1269,7 @@ function template_edit_options()
 	// Have we some description?
 	if ($context['page_desc'])
 		echo '
-			<p class="description">', $context['page_desc'], '</p>';
+			<p class="information">', $context['page_desc'], '</p>';
 
 	echo '
 			<div class="roundframe">';
@@ -1702,7 +1702,7 @@ function template_alert_configuration()
 				', $txt['alert_prefs'], '
 			</h3>
 		</div>
-		<p class="description">', $txt['alert_prefs_desc'], '</p>
+		<p class="information">', $txt['alert_prefs_desc'], '</p>
 		<form action="', $scripturl, '?action=profile;area=notification;sa=alerts" id="admin_form_wrapper" method="post" accept-charset="', $context['character_set'], '" id="notify_options" class="flow_hidden">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -1879,7 +1879,7 @@ function template_alert_notifications_topics()
 				', $txt['watched_topics'], '
 			</h3>
 		</div>
-		<p class="description">', $txt['watched_topics_desc'], '</p>
+		<p class="information">', $txt['watched_topics_desc'], '</p>
 		<br>';
 
 	template_show_list('topic_notification_list');
@@ -1895,7 +1895,7 @@ function template_alert_notifications_boards()
 				', $txt['watched_boards'], '
 			</h3>
 		</div>
-		<p class="description">', $txt['watched_boards_desc'], '</p>
+		<p class="information">', $txt['watched_boards_desc'], '</p>
 		<br>';
 
 	template_show_list('board_notification_list');
@@ -1914,7 +1914,7 @@ function template_groupMembership()
 					', $txt['profile'], '
 				</h3>
 			</div>
-			<p class="description">', $txt['groupMembership_info'], '</p>';
+			<p class="information">', $txt['groupMembership_info'], '</p>';
 
 	// Do we have an update message?
 	if (!empty($context['update_message']))
@@ -2083,7 +2083,7 @@ function template_ignoreboards()
 				', $txt['profile'], '
 			</h3>
 		</div>
-		<p class="description">', $txt['ignoreboards_info'], '</p>
+		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg2">
 			<div class="flow_hidden">
 				<ul class="ignoreboards floatleft">';
@@ -2177,7 +2177,7 @@ function template_viewWarning()
 				', sprintf($txt['profile_viewwarning_for_user'], $context['member']['name']), '
 			</h3>
 		</div>
-		<p class="description">', $txt['viewWarning_help'], '</p>
+		<p class="information">', $txt['viewWarning_help'], '</p>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
@@ -2363,7 +2363,7 @@ function template_issueWarning()
 
 	if (!$context['user']['is_owner'])
 		echo '
-		<p class="description">', $txt['profile_warning_desc'], '</p>';
+		<p class="information">', $txt['profile_warning_desc'], '</p>';
 
 	echo '
 		<div class="windowbg">
@@ -3027,7 +3027,7 @@ function template_authentication_method()
 					', $txt['authentication'], '
 				</h3>
 			</div>
-			<p class="description">', $txt['change_authentication'], '</p>
+			<p class="information">', $txt['change_authentication'], '</p>
 			<div class="roundframe">
 				<dl>
 					<dt>

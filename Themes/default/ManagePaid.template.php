@@ -399,14 +399,14 @@ function template_user_subscription()
 	if (empty($context['subscriptions']))
 	{
 		echo '
-			<div class="description">
+			<div class="information">
 				', $txt['paid_subs_none'], '
 			</div>';
 	}
 	else
 	{
 		echo '
-			<div class="description">
+			<div class="information">
 				', $txt['paid_subs_desc'], '
 			</div>';
 
@@ -473,7 +473,7 @@ function template_user_subscription()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['paid_current'], '</h3>
 		</div>
-		<div class="description">
+		<div class="information">
 			', $txt['paid_current_desc'], '
 		</div>
 		<table class="table_grid">

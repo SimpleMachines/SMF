@@ -17,7 +17,7 @@ function template_main()
 
 	// Table header.
 	echo '
-	<div id="manage_boards">
+	<div id="manage_boards" class="roundframe">
 		<div class="title_bar">
 			<h3 class="titlebg">', $txt['boardsEdit'], '</h3>
 		</div>';
@@ -40,8 +40,8 @@ function template_main()
 	{
 		// Link to modify the category.
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
+			<div class="sub_bar">
+				<h3 class="subbg">
 					<a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $category['name'], '</a> <a href="', $scripturl, '?action=admin;area=manageboards;sa=cat;cat=', $category['id'], '">', $txt['catModify'], '</a>
 				</h3>
 			</div>';
@@ -68,9 +68,11 @@ function template_main()
 			echo '
 					<li', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $alternate ? '' : '2', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-' . ($context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;">
 						<span class="floatleft"><a', $board['move'] ? ' style="color: red;"' : '', ' href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
-						<span class="floatright">', $context['can_manage_permissions'] ? '<span class="modify_boards"><a href="' . $scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '">' . $txt['mboards_permissions'] . '</a></span>' : '', '
-						<span class="modify_boards"><a href="', $scripturl, '?action=admin;area=manageboards;move=', $board['id'], '">', $txt['mboards_move'], '</a></span>
-						<span class="modify_boards"><a href="', $scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], '">', $txt['mboards_modify'], '</a></span></span><br style="clear: right;">
+						<span class="floatright">
+							', $context['can_manage_permissions'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" class="button">' . $txt['mboards_permissions'] . '</a>' : '', '
+							<a href="', $scripturl, '?action=admin;area=manageboards;move=', $board['id'], '" class="button">', $txt['mboards_move'], '</a>
+							<a href="', $scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], '" class="button">', $txt['mboards_modify'], '</a>
+						</span><br style="clear: right;">
 					</li>';
 
 			if (!empty($board['move_links']))
@@ -110,7 +112,7 @@ function template_modify_category()
 
 	// Print table header.
 	echo '
-	<div id="manage_boards">
+	<div id="manage_boards" class="roundframe">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
 				<div class="cat_bar">
@@ -197,7 +199,7 @@ function template_confirm_category_delete()
 
 	// Print table header.
 	echo '
-	<div id="manage_boards">
+	<div id="manage_boards" class="roundframe">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
 			<div class="cat_bar">
@@ -247,7 +249,7 @@ function template_modify_board()
 
 	// The main table header.
 	echo '
-	<div id="manage_boards">
+	<div id="manage_boards" class="roundframe">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
 			<div class="cat_bar">
@@ -650,7 +652,7 @@ function template_confirm_board_delete()
 
 	// Print table header.
 	echo '
-	<div id="manage_boards">
+	<div id="manage_boards" class="roundframe">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
 

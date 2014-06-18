@@ -48,39 +48,7 @@ body.action_admin .navigate_section ul li a {
 /* It's left over from when I started theming admin independently over a Curve forum.
 /* Can be simplified quite a lot before production builds. */
 /* Special styling for admin descriptions. */
-.action_admin p.description, .action_admin  .information {
-	overflow: auto;
-	background: none;
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0 0 7px 7px;
-	margin: 0;
-	padding: 12px 9px 8px 9px;
-}
-.action_admin p.description a {
-	font-weight: bold;
-}
-.action_admin p.description  img {
-	vertical-align: middle;
-}
-.action_admin .generic_list_wrapper .information {
-	margin: 8px 0;
-	padding: 4px 12px 2px 12px;
-	border: 1px solid #ccc;
-	border-radius: 2px;
-	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-.action_admin .generic_list_wrapper .information div {
-	background: none;
-}
-.information a {
-	font-weight: bold;
-}
+/* I'll return here laterz */
 .action_admin .generic_list {
 	overflow: auto;
 }
@@ -88,6 +56,8 @@ body.action_admin .navigate_section ul li a {
 	margin: 0 0 5px 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+	box-shadow: none;
+	background: #F8F8F8;
 }
 
 /* A general admin wrapper class. */
@@ -136,10 +106,6 @@ div.quick_tasks {
 }
 .action_admin .table_grid tr:nth-child(odd) {
 	background: #f8f8f8;
-}
-/* @you are here for short time */
-.table_grid tr td:last-child {
-	border: none;
 }
 
 /* Newsletters screen. */
@@ -437,16 +403,6 @@ div.quick_tasks {
 	padding: 0.2em;
 	margin: 1px;
 }
-.description {
-	max-height: 15em;
-	overflow: auto;
-	padding-bottom: .5em;
-}
-.information {
-	max-height: 15em;
-	overflow: auto;
-	padding-bottom: .5em;
-}
 .package_section {
 	border: 1px solid #cacdd3;
 }
@@ -543,42 +499,35 @@ pre.file_content {
 
 /* Styles for the manage boards section. */
 #manage_boards {
-	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
-#manage_boards .windowbg {
+#manage_boards .windowbg, #manage_boards .windowbg2 {
+	border: 0;
+	padding: 0;
 	background: none;
-	margin: 0;
-	padding: 0;
-	border: none;
-	border-radius: 7px 7px 0 0;
-}
-#manage_boards .windowbg {
-	margin: 0;
-	padding: 0;
 }
 #manage_boards ul {
 	padding: 0;
 	margin: 0 0 8px 0;
 	max-height: 30em;
 	overflow: auto;
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #fff;
 	border-radius: 2px;
 }
 #manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
-	list-style: none;
-	margin: 0 1px;
 	padding: 8px 0;
-	border: 1px solid #ccc;
-	border-bottom: 1px solid #bbb;
-	border-top: 1px solid #fff;
+	margin: 0;
 	border-radius: 0;
+	border: 1px solid #ccc;
+	border-bottom: none;
+}
+#manage_boards li:first-child {
+	border-top: none;
+}
+#manage_boards li:last-child {
+	border-bottom: 1px solid #ccc;
+}
+#manage_boards li:hover {
+	background: #D0E7F8;
 }
 #manage_boards li img {
 	vertical-align: middle;
@@ -601,46 +550,8 @@ pre.file_content {
 .move_links {
 	padding: 0 13px 0 0;
 }
-.modify_boards {
-	padding: 0 0.5em;
-}
-#manage_boards span.modify_boards a {
-	border: 1px solid #aaa;
-	border-radius: 3px;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-	padding: 3px 6px;
-	font: 95%/115% verdana, Helvetica, sans-serif;
-	color: #222;
-	font-size: 1em;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards span.modify_boards a:hover {
-	text-decoration: none;
-	color: #444;
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards .button_submit {
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1), 0 -1px 3px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #bbb;
-	border-left: 1px solid #bbb;
-	background: #dceeff;
-	text-shadow: 0 0 2px #fff;
+#manage_boards .button_submit, #manage_boards .button {
 	margin: 0 8px;
-}
-#manage_boards  .button_submit:hover {
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #999;
-	border-left: 1px solid #999;
-	background: #cde7ff;
 }
 #manage_boards dl {
 	padding: 8px 6px 0 6px;

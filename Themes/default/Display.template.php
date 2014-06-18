@@ -126,7 +126,7 @@ function template_main()
 				<div class="title_bar">
 					<h3 class="titlebg headerpadding">', $txt['calendar_linked_events'], '</h3>
 				</div>
-				<div class="description">
+				<div class="information">
 					<ul class="reset">';
 
 		foreach ($context['linked_calendar_events'] as $event)
