@@ -694,7 +694,7 @@ function template_show_settings()
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
 		echo '
-							<div class="information">', $context['settings_message'], '</div>';
+							<div class="information winfo">', $context['settings_message'], '</div>';
 
 	// Now actually loop through all the variables.
 	$is_open = false;

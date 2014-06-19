@@ -63,7 +63,7 @@ div.sceditor-grip {
 	right: -1px;
 	z-index: 3;
 	background: #fff url('../images/bbc/grip.png') 100% 100% no-repeat;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-bottom: none;
 	border-radius: 0 0 4px 4px;
 	box-shadow: -1px -2px 4px rgba(0,0,0,0.1) inset, 2px 2px 4px rgba(255,255,255,0.75) inset;
@@ -156,7 +156,7 @@ div.sceditor-group {
 div.sceditor-row {
 	overflow: hidden;
 	display: inline-block;
-	border-left: 1px solid #ccc;
+	border-left: 1px solid #ddd;
 	border-radius: 1px;
 	margin: 4px 2px 2px 2px;
 }
@@ -164,7 +164,7 @@ div.sceditor-row {
 	float: left;
 	cursor: pointer;
 	background: #fff;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: none;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -203,7 +203,7 @@ div.sceditor-row {
 .sceditor-button:hover {
 	background: #fafafa;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.07) inset;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: none;
 	border-top: 1px solid #aaa;
 }
@@ -222,7 +222,7 @@ div.sceditor-row {
 .sourceMode .sceditor-button-source {
 	background: #E5EBF4;
 	box-shadow: 1px 1px 3px rgba(96,134,166,0.3) inset;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: none;
 	border-top: 1px solid #aaa;
 }

@@ -138,7 +138,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 	padding: 2px 4px;
 	float: right;
 	cursor: pointer;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
@@ -158,7 +158,7 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 }
 .button_submit:hover, .button_reset:hover, .button_link:hover {
 	color: #af6700;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
@@ -240,7 +240,7 @@ h1, h2, h3, h4, h5, h6 {
 fieldset {
 	padding: 18px;
 	margin: 0 0 6px 0;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-radius: 3px;
 }
 fieldset legend {
@@ -570,7 +570,7 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .topbottom {
 	display: block;
 	cursor: pointer;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
@@ -595,7 +595,7 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	text-decoration: none;
 	color: #af6700;
 	text-decoration: none;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
@@ -1265,7 +1265,7 @@ img.sort, .sort {
 	display: block;
 	text-transform: uppercase;
 	cursor: pointer;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
@@ -1297,7 +1297,7 @@ img.sort, .sort {
 .button:hover {
 	color: #af6700;
 	text-decoration: none;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
@@ -1409,7 +1409,7 @@ img.sort, .sort {
 	padding: 2px;
 	margin: 2px;
 	background: #fff;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -3px -3px 6px rgba(255,255,255,0.8) inset;
@@ -1588,7 +1588,7 @@ ul li.greeting {
 	padding: 0 10px;
 	font-size: 0.9em;
 	overflow: hidden;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
@@ -1813,7 +1813,7 @@ ul#smfFadeScroller li {
 	margin: -4px 8px 6px 8px;
 	padding: 4px 0 0 0;
 	font-size: 0.9em;
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 }
 
 .fix_rtl_names {
@@ -2198,7 +2198,7 @@ ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
 .quickbuttons li {
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
@@ -2230,7 +2230,7 @@ ul.quickbuttons li.inline_mod_check {
 	line-height: 1.9em;
 }
 .quickbuttons li:hover {
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
@@ -2446,7 +2446,7 @@ ul.post_options li {
 	border-radius: 0 0 4px 4px;
 }
 #postMoreOptions, #postAttachment, #postAttachment2 {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 	margin: -1px 0 0 0;
 	padding: 10px;
 }
@@ -3146,7 +3146,7 @@ dl {
 .activity_stats li div.bar {
 	margin: 0 auto;
 	width: 15px;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-bottom: none;
 	background: #fff;
 }
@@ -3187,7 +3187,7 @@ dl {
 	padding: 0 4px 4px 4px;
 }
 .list_posts {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 	box-shadow: 0 1px 0 #fff inset;
 	padding-top: 12px;
 	margin: 0;
@@ -3545,7 +3545,7 @@ dl.addrules dt.floatleft {
 #helpmain {
 	margin: 12px 0 0 0;
 	padding: 8px 20px 12px 20px;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
@@ -3651,7 +3651,7 @@ dl.addrules dt.floatleft {
 	margin: 0;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 	background-image: -webkit-gradient(
@@ -3732,7 +3732,7 @@ dl.addrules dt.floatleft {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	border-radius: 6px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
@@ -3825,14 +3825,14 @@ tr.windowbg, tr.windowbg2 {
 /* Subtle zebra striping to make tables easier to follow. Will make a solution for IE8. */
 /* CSS for locked, sticky, etc has not been applied yet. Don't panic. She'll be right, mate. :P */
 .table_grid tr td:first-child, .table_grid td.icon2 {
-	border-left: 1px solid #ccc;
+	border-left: 1px solid #ddd;
 }
 .table_grid tr td:last-child, .table_grid td.lastpost, .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell {
-	border-right: 1px solid #ccc;
+	border-right: 1px solid #ddd;
 }
 .table_grid td.windowbg, .table_grid td.windowbg2,
 .table_grid td.whos_viewing, .table_grid td.moderation, .table_grid td.qaction_cell, .table_grid tbody {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
 }
 .table_grid td.whos_viewing {
 	font-size: 0.9em;
@@ -3887,7 +3887,7 @@ div#manage_boards dl dd textarea[name=desc] {
 	margin: 0 -1px;
 }
 .sub_bar {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
 	text-shadow: none;
 	background: none;
 	box-shadow: 0 -1px 0 #999 inset;
@@ -3912,7 +3912,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 
 /* This place is about Info Center on BoardIndex */
 #info_center .sub_bar {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 }
 #info_center .sub_bar:first-child {
 	border-top: none;
@@ -4023,7 +4023,7 @@ div.lastpost p {
 /* MessageIndex > Topic list */
 #topic_container .windowbg, #topic_container .windowbg2 {
 	height: 4em;
-	border: 1px solid #CCC;
+	border: 1px solid #ddd;
 	border-top: none;
 }
 #topic_header {
