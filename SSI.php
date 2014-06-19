@@ -325,12 +325,15 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
 	global $scripturl, $txt, $user_info;
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $context;
+
+	if (!empty($modSettings['enable_likes']))
+		$context['can_like'] = allowedTo('likes_like');
 
 	// Find all the posts. Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
-			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, b.name AS board_name,
+			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
 			IFNULL(mem.real_name, m.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) >= m.id_msg_modified AS is_read,
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
@@ -362,7 +365,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		$preview = strip_tags(strtr($row['body'], array('<br>' => '&#10;')));
 
 		// Build the array.
-		$posts[] = array(
+		$posts[$row['id_msg']] = array(
 			'id' => $row['id_msg'],
 			'board' => array(
 				'id' => $row['id_board'],
@@ -389,6 +392,14 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
 		);
+
+		// Get the likes for each message.
+		if (!empty($modSettings['enable_likes']))
+			$posts[$row['id_msg']]['likes'] = array(
+				'count' => $row['likes'],
+				'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
+				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+			);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -439,7 +450,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		$include_boards = array();
 	}
 
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless');
+	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 	$icon_sources = array();
 	foreach ($stable_icons as $icon)
 		$icon_sources[$icon] = 'images_url';
@@ -1510,6 +1521,8 @@ function ssi_news($output_method = 'echo')
 {
 	global $context;
 
+	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+
 	if ($output_method != 'echo')
 		return $context['random_news_line'];
 
@@ -1687,10 +1700,16 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	$smcFunc['db_free_result']($request);
 
 	// Load the message icons - the usual suspects.
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless');
+	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 	$icon_sources = array();
 	foreach ($stable_icons as $icon)
 		$icon_sources[$icon] = 'images_url';
+
+	if (!empty($modSettings['enable_likes']))
+	{
+		$context['can_like'] = allowedTo('likes_like');
+		$context['can_see_likes'] = allowedTo('likes_view');
+	}
 
 	// Find the post ids.
 	$request = $smcFunc['db_query']('', '
@@ -1718,7 +1737,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	// Find the posts.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
+			m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
 			t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -1786,7 +1805,13 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
 			),
 			'locked' => !empty($row['locked']),
-			'is_last' => false
+			'is_last' => false,
+			// Nasty ternary for likes not messing around the "is_last" check.
+			'likes' => !empty($modSettings['enable_likes']) ? array(
+				'count' => $row['likes'],
+				'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
+				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+			) : array(),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -1809,7 +1834,44 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				</h3>
 				<div class="news_timestamp">', $news['time'], ' ', $txt['by'], ' ', $news['poster']['link'], '</div>
 				<div class="news_body" style="padding: 2ex 0;">', $news['body'], '</div>
-				', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '
+				', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
+
+
+		// Is there any likes to show?
+		if (!empty($modSettings['enable_likes']))
+		{
+			echo '
+					<ul>';
+
+			if (!empty($news['likes']['can_like']))
+			{
+				echo '
+						<li class="like_button" id="msg_', $news['message_id'], '_likes"><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+			}
+
+			if (!empty($news['likes']['count']) && !empty($context['can_see_likes']))
+			{
+				$context['some_likes'] = true;
+				$count = $news['likes']['count'];
+				$base = 'likes_';
+				if ($news['likes']['you'])
+				{
+					$base = 'you_' . $base;
+					$count--;
+				}
+				$base .= (isset($txt[$base . $count])) ? $count : 'n';
+
+				echo '
+						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+			}
+
+			echo '
+					</ul>';
+		}
+
+
+		// Close the main div.
+		echo '
 			</div>';
 
 		if (!$news['is_last'])

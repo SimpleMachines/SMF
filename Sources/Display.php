@@ -1004,7 +1004,8 @@ function Display()
 		);
 
 		// And the likes
-		$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
+		if (!empty($modSettings['enable_likes']))
+			$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext($topic);
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset($context['start_from']) && $context['start_from'] >= $topicinfo['num_replies'])
@@ -1316,7 +1317,7 @@ function prepareDisplayContext($reset = false)
 	{
 		// Define this here to make things a bit more readable
 		$can_view_warning = $context['user']['can_mod'] || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
-		
+
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
 		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
@@ -1356,11 +1357,6 @@ function prepareDisplayContext($reset = false)
 			'name' => $message['modified_name'],
 			'reason' => $message['modified_reason']
 		),
-		'likes' => array(
-			'count' => $message['likes'],
-			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'],
-		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
 		'approved' => $message['approved'],
@@ -1372,6 +1368,14 @@ function prepareDisplayContext($reset = false)
 		'can_remove' => allowedTo('delete_any') || (allowedTo('delete_replies') && $context['user']['started']) || (allowedTo('delete_own') && $message['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || $message['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())),
 		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
 	);
+
+	// Are likes enable?
+	if (!empty($modSettings['enable_likes']))
+		$output['likes'] = array(
+			'count' => $message['likes'],
+			'you' => in_array($message['id_msg'], $context['my_likes']),
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+		);
 
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
@@ -1910,41 +1914,4 @@ function QuickInTopicModeration()
 
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
-
-/**
- * Prepares an array of "likes" info for the topic specified by $topic
- * @uses $topic and $context['user']['id']
- * @return Array an array of IDs of messages in the specified topic that the current user likes
- */
-function prepareLikesContext()
-{
-	global $context, $smcFunc, $topic;
-
-	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
-	$ttl = 180;
-
-	if (($temp = cache_get_data($cache_key, $ttl)) === null)
-	{
-		$temp = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT content_id
-			FROM {db_prefix}user_likes AS l
-				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
-			WHERE l.id_member = {int:current_user}
-				AND l.content_type = {literal:msg}
-				AND m.id_topic = {int:topic}',
-			array(
-				'current_user' => $context['user']['id'],
-				'topic' => $topic,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$temp[] = (int) $row['content_id'];
-
-		cache_put_data($cache_key, $temp, $ttl);
-	}
-	return $temp;
-}
-
 ?>
