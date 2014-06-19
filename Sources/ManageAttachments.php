@@ -1567,7 +1567,7 @@ function RepairAttachments()
 			{
 				while ($file = readdir($dir))
 				{
-					if ($file == '.' || $file == '..')
+					if (in_array($file, array('.', '..', '.htaccess', 'index.php')))
 						continue;
 
 					if ($files_checked <= $current_check)
@@ -1609,7 +1609,7 @@ function RepairAttachments()
 								$smcFunc['db_free_result']($request);
 							}
 						}
-						elseif ($file != 'index.php')
+						else
 						{
 							if ($fix_errors && in_array('files_without_attachment', $to_fix))
 							{
