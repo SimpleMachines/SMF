@@ -431,7 +431,7 @@ smc_Popup.prototype.show = function ()
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.css({top: '25%', left: 'calc(50%)', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
+	this.popup_body.css({top: '25%', left: '50%', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
 
 	// Trigger hide on escape or mouse click
 	var popup_instance = this;
