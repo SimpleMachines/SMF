@@ -1712,8 +1712,8 @@ function create_control_richedit($editorOptions)
 			$tagsRow = array();
 			foreach ($tagRow as $tag)
 			{
-			 if (!empty($tag))
-			 {
+				if (!empty($tag))
+			 	{
 					if (empty($context['disabled_tags'][$tag['code']]))
 					{
 						$tagsRow[] = $tag['code'];
