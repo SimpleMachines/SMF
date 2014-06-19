@@ -1650,6 +1650,18 @@ function create_control_richedit($editorOptions)
 			),
 		);
 
+		$disabled_AltTags = array(
+			'b' => 'bold',
+			'i' => 'italic',
+			'u' => 'underline',
+			's' => 'strike',
+			'img' => 'image',
+			'url' => 'link',
+			'sup' => 'superscript',
+			'sub' => 'subscript',
+			'hr' => 'horizontalrule',
+		);
+
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is ketp for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
@@ -1677,29 +1689,15 @@ function create_control_richedit($editorOptions)
 
 		foreach ($disabled_tags as $tag)
 		{
-			if ($tag == 'list')
+			if ($tag === 'list')
 			{
 				$context['disabled_tags']['bulletlist'] = true;
 				$context['disabled_tags']['orderedlist'] = true;
 			}
-			elseif ($tag == 'b')
-				$context['disabled_tags']['bold'] = true;
-			elseif ($tag == 'i')
-				$context['disabled_tags']['italic'] = true;
-			elseif ($tag == 'i')
-				$context['disabled_tags']['underline'] = true;
-			elseif ($tag == 'i')
-				$context['disabled_tags']['strike'] = true;
-			elseif ($tag == 'img')
-				$context['disabled_tags']['image'] = true;
-			elseif ($tag == 'url')
-				$context['disabled_tags']['link'] = true;
-			elseif ($tag == 'sup')
-				$context['disabled_tags']['superscript'] = true;
-			elseif ($tag == 'sub')
-				$context['disabled_tags']['subscript'] = true;
-			elseif ($tag == 'hr')
-				$context['disabled_tags']['horizontalrule'] = true;
+
+			foreach ($disabled_AltTags as $thisTag => $tagNameBBC)
+				if ($tag === $thisTag)
+					$context['disabled_tags'][$tagNameBBC] = true;
 
 			$context['disabled_tags'][trim($tag)] = true;
 		}
