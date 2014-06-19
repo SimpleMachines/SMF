@@ -180,7 +180,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			array(
 				'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
 			),
-			array($topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id'])
+			array($topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']),
+			array()
 		);
 
 		// Insert the alerts if any
