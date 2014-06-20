@@ -766,3 +766,7 @@ h3.grid_header {
 #taskpad .button_submit, #admincenter, #admin_form_wrapper {
 	margin: 5px 0 5px 0;
 }
+h3.config_hd {
+	background: url(../images/icons/config_hd.png) no-repeat 12px;
+	padding: 8px 0 8px 45px;
+}

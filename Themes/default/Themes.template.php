@@ -464,8 +464,8 @@ function template_set_settings()
 	if ($context['theme_settings']['theme_id'] != 1)
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon"> ', $txt['theme_edit'], '
+				<h3 class="catbg config_hd">
+					', $txt['theme_edit'], '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -481,8 +481,8 @@ function template_set_settings()
 
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon"> ', $txt['theme_url_config'], '
+				<h3 class="catbg config_hd">
+					', $txt['theme_url_config'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -519,8 +519,8 @@ function template_set_settings()
 	{
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img class="icon" src="', $settings['images_url'], '/icons/config_hd.png" alt=""> ', $txt['theme_variants'], '
+				<h3 class="catbg config_hd">
+					', $txt['theme_variants'], '
 				</h3>
 			</div>
 			<div class="windowbg2">
@@ -552,8 +552,8 @@ function template_set_settings()
 
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">
-					<img src="', $settings['images_url'], '/icons/config_hd.png" alt="" class="icon"> ', $txt['theme_options'], '
+				<h3 class="catbg config_hd">
+					', $txt['theme_options'], '
 				</h3>
 			</div>
 			<div class="windowbg">
