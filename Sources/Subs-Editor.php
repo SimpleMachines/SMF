@@ -1727,15 +1727,14 @@ function create_control_richedit($editorOptions)
 						if (isset($tag['before']))
 						{
 							$context['bbcodes_handlers'] = '
-				$.sceditor.setCommand(
-					' . javaScriptEscape($tag['code']) . ',
-					function () {
+				$.sceditor.command.set(
+					' . javaScriptEscape($tag['code']) . ', {
+					exec: function () {
 						this.wysiwygEditorInsertHtml(' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ');
 					},
-					' . javaScriptEscape($tag['description']) . ',
-					null,
-					[' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ']
-				);';
+					txtExec: [' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . '],
+					tooltip: ' . javaScriptEscape($tag['description']) . '
+				});';
 						}
 					}
 				}
