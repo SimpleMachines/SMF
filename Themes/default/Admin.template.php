@@ -709,7 +709,6 @@ function template_show_settings()
 				$is_open = false;
 				echo '
 									</dl>
-								</div>
 							</div>';
 			}
 
@@ -728,7 +727,7 @@ function template_show_settings()
 			else
 			{
 				echo '
-							<p class="information">
+							<p class="information winfo">
 								', $config_var['label'], '
 							</p>';
 			}

@@ -25,7 +25,7 @@ function template_ban_edit()
 
 	if ($context['ban']['is_new'])
 		echo '
-			<div class="information">', $txt['ban_add_notes'], '</div>';
+			<div class="information winfo">', $txt['ban_add_notes'], '</div>';
 
 	// If there were errors creating the ban, show them.
 	if (!empty($context['error_messages']))
@@ -45,6 +45,7 @@ function template_ban_edit()
 	}
 
 	echo '
+		<div class="windowbg2">
 			<dl class="settings">
 				<dt id="ban_name_label">
 					<strong>', $txt['ban_name'], ':</strong>
@@ -175,6 +176,7 @@ function template_ban_edit()
 				<input type="hidden" name="u" value="' . $context['ban_suggestions']['member']['id'] . '">' : '', '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
+			</div>
 		</form>';
 
 	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))

@@ -200,8 +200,7 @@ function template_view_package()
 		}
 					echo '
 			</tbody>
-			</table>
-			';
+			</table>';
 
 		// What if we have custom themes we can install into? List them too!
 		if (!empty($context['theme_actions']))
@@ -1038,7 +1037,7 @@ function template_install_options()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_install_options'], '</h3>
 		</div>
-		<div class="information">
+		<div class="information winfo">
 			', $txt['package_install_options_ftp_why'], '
 		</div>
 

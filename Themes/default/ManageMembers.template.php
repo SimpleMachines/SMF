@@ -123,14 +123,12 @@ function template_search_members()
 							</dd>
 						</dl>
 					</div>
-					<div class="flow_hidden">
-						<div class="msearch_details floatright">
-							<fieldset>
-								<legend>', $txt['activation_status'], '</legend>
-								<label for="activated-0"><input type="checkbox" name="activated[]" value="1" id="activated-0" checked class="input_check"> ', $txt['activated'], '</label>&nbsp;&nbsp;
-								<label for="activated-1"><input type="checkbox" name="activated[]" value="0" id="activated-1" checked class="input_check"> ', $txt['not_activated'], '</label>
-							</fieldset>
-						</div>
+					<div class="msearch_details floatright">
+						<fieldset>
+							<legend>', $txt['activation_status'], '</legend>
+							<label for="activated-0"><input type="checkbox" name="activated[]" value="1" id="activated-0" checked class="input_check"> ', $txt['activated'], '</label>&nbsp;&nbsp;
+							<label for="activated-1"><input type="checkbox" name="activated[]" value="0" id="activated-1" checked class="input_check"> ', $txt['not_activated'], '</label>
+						</fieldset>
 					</div>
 				</div>
 			</div>

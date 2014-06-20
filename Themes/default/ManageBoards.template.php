@@ -112,7 +112,7 @@ function template_modify_category()
 
 	// Print table header.
 	echo '
-	<div id="manage_boards" class="roundframe">
+	<div id="manage_boards">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="cat" value="', $context['category']['id'], '">
 				<div class="cat_bar">
