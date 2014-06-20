@@ -21,14 +21,14 @@ function template_email_members()
 
 	echo '
 	<div id="admincenter">
-		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="roundframe flow_hidden" accept-charset="', $context['character_set'], '">
+		<form action="', $scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
 			</div>
-			<div class="information">
+			<div class="information winfo">
 				', $txt['admin_news_select_recipients'], '
 			</div>
-			<div class="padding">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['admin_news_select_group'], ':</strong><br>
@@ -48,7 +48,6 @@ function template_email_members()
 					</dd>
 				</dl>
 				<br class="clear">
-			</div>
 			<br>
 
 			<div id="advanced_panel_header" class="title_bar">
@@ -115,6 +114,7 @@ function template_email_members()
 			<div class="righttext">
 				<input type="submit" value="', $txt['admin_next'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			</div>
 			</div>
 		</form>
 	</div>';

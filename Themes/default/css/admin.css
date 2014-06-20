@@ -61,8 +61,7 @@ body.action_admin .navigate_section ul li a {
 }
 
 /* A general admin wrapper class. */
-div.quick_tasks, #generate_reports_type, #groupForm, 
-#mailqueue_stats, #manage_maintenance, #new_group, #view_group {
+div.quick_tasks, #groupForm, #view_group {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 8px 8px 16px 8px;
@@ -73,13 +72,6 @@ div.quick_tasks, #generate_reports_type, #groupForm,
 }
 div.quick_tasks {
 	margin: -8px 0 0 0;
-}
-#mailqueue_stats {
-	padding: 8px 8px 0 8px;
-}
-#mailqueue_stats .windowbg {
-	background: none;
-	padding: 0;
 }
 #view_group .table_grid {
 	margin: 4px 0 8px 0;
@@ -92,14 +84,8 @@ div.quick_tasks {
 	background: #fff;
 	color: #666;
 }
-.action_admin .table_grid .first_th, .action_admin .table_grid  td:first-child {
-	border-left: 1px solid #ddd;
-}
 .action_admin .table_grid .last_th, .action_admin .table_grid td {
 	border-right: 1px solid #ddd;
-}
-.action_admin .table_grid td {
-	border-bottom: 1px solid #ddd;
 }
 .action_admin .table_grid tr:nth-child(even) {
 	background: #fdfdfd;
@@ -154,7 +140,7 @@ h3.catbg #quick_search form {
 	font-size: 0.9em;
 }
 h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
-	margin: 0 3px;
+	margin: 0 3px !important;
 	padding: 4px 3px 3px 3px;
 	border-radius: 4px;
 	border: 1px solid #777;
@@ -486,17 +472,10 @@ pre.file_content {
 #manage_boards {
 	overflow: auto;
 }
-#manage_boards .windowbg, #manage_boards .windowbg2 {
+.roundframe .windowbg {
 	border: 0;
 	padding: 0;
 	background: none;
-}
-#manage_boards ul {
-	padding: 0;
-	margin: 0 0 8px 0;
-	max-height: 30em;
-	overflow: auto;
-	border-radius: 2px;
 }
 #manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
 	padding: 8px 0;
@@ -535,8 +514,8 @@ pre.file_content {
 .move_links {
 	padding: 0 13px 0 0;
 }
-#manage_boards .button_submit, #manage_boards .button {
-	margin: 0 8px;
+#manage_boards .button {
+	margin: 0 8px 0 0;
 }
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
@@ -559,28 +538,6 @@ pre.file_content {
 }
 dl.right dt {
 	padding-right: 10px;
-}
-
-/* Styles for the manage maintenance section. */
-#manage_maintenance div.windowbg, #manage_maintenance div.windowbg2 {
-	background: none;
-	padding: 0 0 12px 0;
-	margin: 0;
-}
-#manage_maintenance p {
-	margin: -5px 0 0 0;
-	padding: 0 0 10px 0;
-	max-width: 70em;
-}
-#manage_maintenance p .button_submit{
-	margin: 10px 10px 0px 10px;
-}
-/* Stop the submit buttons running away on wide screens.*/
-#manage_maintenance form {
-	max-width: 80em;
-}
-#manage_maintenance .settings {
-	margin: 16px 0 0 0;
 }
 
 /* Styles for the question and answers */
@@ -802,6 +759,10 @@ h3.grid_header {
 	border-bottom: none;
 	border-radius: 0;
 }
-#admincenter, .action_admin .button_submit {
-	margin: 5px 0 0 0;
+#manage_boards .button_submit, .action_admin .button_submit, .action_admin .button_link {
+	margin: 5px 8px 0 0 !important;
+	padding: 2px 4px;
+}
+#taskpad .button_submit, #admincenter, #admin_form_wrapper {
+	margin: 5px 0 5px 0;
 }

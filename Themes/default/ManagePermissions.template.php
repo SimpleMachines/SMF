@@ -303,7 +303,7 @@ function template_by_board()
 			$alternate = !$alternate;
 
 			echo '
-					<li class="flow_hidden' ,' windowbg', $alternate ? '' : '2','">
+					<li class="flow_hidden">
 						<span class="perm_board floatleft">
 							<a href="', $scripturl, '?action=admin;area=manageboards;sa=board;boardid=', $board['id'], ';rid=permissions;', $context['session_var'], '=', $context['session_id'], '">', str_repeat('-', $board['child_level']), ' ', $board['name'], '</a>
 						</span>
@@ -764,7 +764,6 @@ function template_postmod_permissions()
 									<dt>', $txt['permissions_post_moderation_enable'], '</dt>
 									<dd><input type="checkbox" name="postmod_active"', !empty($modSettings['postmod_active']) ? ' checked' : '', '></dd>
 								</dl>
-								<hr class="hrcolor clear">
 							</div>';
 
 	// If we're not active, there's a bunch of stuff we don't need to show.

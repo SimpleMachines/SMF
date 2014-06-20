@@ -497,11 +497,11 @@ function template_admin_register()
 	echo '
 	<div id="admincenter">
 		<div id="admin_form_wrapper">
-			<form id="postForm" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">
+			<form id="postForm" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '" name="postForm">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['admin_browse_register_new'], '</h3>
 				</div>
-				<div id="register_screen">';
+				<div id="register_screen" class="windowbg2">';
 
 	if (!empty($context['registration_done']))
 		echo '
@@ -675,45 +675,47 @@ function template_edit_reserved_words()
 	<div class="infobox">', $txt['settings_saved'], '</div>';
 
 	echo '
-		<form id="admin_form_wrapper" class="windowbg2" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_reserved_set'], '</h3>
 			</div>
-			<h4>', $txt['admin_reserved_line'], '</h4>
-			<p class="reserved_names">
-				<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
-			</p>
-			<dl class="settings">
-				<dt>
-					<label for="matchword">', $txt['admin_match_whole'], '</label>
-				</dt>
-				<dd>
-					<input type="checkbox" name="matchword" id="matchword" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_word'] ? ' checked' : '', ' class="input_check">
-				</dd>
-				<dt>
-					<label for="matchcase">', $txt['admin_match_case'], '</label>
-				</dt>
-				<dd>
-					<input type="checkbox" name="matchcase" id="matchcase" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_case'] ? ' checked' : '', ' class="input_check">
-				</dd>
-				<dt>
-					<label for="matchuser">', $txt['admin_check_user'], '</label>
-				</dt>
-				<dd>
-					<input type="checkbox" name="matchuser" id="matchuser" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_user'] ? ' checked' : '', ' class="input_check">
-				</dd>
-				<dt>
-					<label for="matchname">', $txt['admin_check_display'], '</label>
-				</dt>
-				<dd>
-					<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_name'] ? ' checked' : '', ' class="input_check">
-				</dd>
-			</dl>
-			<div class="flow_auto" >
-				<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit">
-				<input type="hidden" name="sa" value="reservednames">
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">
+			<div class="windowbg2">
+				<h4>', $txt['admin_reserved_line'], '</h4>
+				<p class="reserved_names">
+					<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", $context['reserved_words']), '</textarea>
+				</p>
+				<dl class="settings">
+					<dt>
+						<label for="matchword">', $txt['admin_match_whole'], '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="matchword" id="matchword" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_word'] ? ' checked' : '', ' class="input_check">
+					</dd>
+					<dt>
+						<label for="matchcase">', $txt['admin_match_case'], '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="matchcase" id="matchcase" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_case'] ? ' checked' : '', ' class="input_check">
+					</dd>
+					<dt>
+						<label for="matchuser">', $txt['admin_check_user'], '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="matchuser" id="matchuser" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_user'] ? ' checked' : '', ' class="input_check">
+					</dd>
+					<dt>
+						<label for="matchname">', $txt['admin_check_display'], '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_name'] ? ' checked' : '', ' class="input_check">
+					</dd>
+				</dl>
+				<div class="flow_auto" >
+					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit">
+					<input type="hidden" name="sa" value="reservednames">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="', $context['admin-regr_token_var'], '" value="', $context['admin-regr_token'], '">
+				</div>
 			</div>
 		</form>';
 }
