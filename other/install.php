@@ -1112,7 +1112,7 @@ function DatabasePopulation()
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
-	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+	$type = ($db_type == 'mysqli') ? 'mysql' : ($db_type == 'sqlite3') ? 'sqlite' : $db_type;
 	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
