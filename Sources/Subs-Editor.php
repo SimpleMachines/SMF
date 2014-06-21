@@ -1714,19 +1714,17 @@ function create_control_richedit($editorOptions)
 			$tagsRow = array();
 			foreach ($tagRow as $tag)
 			{
-			 if (!empty($tag))
-			 {
-					if (empty($context['disabled_tags'][$tag['code']]))
-					{
-						$tagsRow[] = $tag['code'];
-						if (isset($tag['image']))
-							$bbcodes_styles .= '
+				if ((!empty($tag['code'])) && empty($context['disabled_tags'][$tag['code']]))
+				{
+					$tagsRow[] = $tag['code'];
+					if (isset($tag['image']))
+						$bbcodes_styles .= '
 			.sceditor-button-' . $tag['code'] . ' div {
 				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
 			}';
-						if (isset($tag['before']))
-						{
-							$context['bbcodes_handlers'] = '
+					if (isset($tag['before']))
+					{
+						$context['bbcodes_handlers'] .= '
 				$.sceditor.command.set(
 					' . javaScriptEscape($tag['code']) . ', {
 					exec: function () {
@@ -1735,8 +1733,8 @@ function create_control_richedit($editorOptions)
 					txtExec: [' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . '],
 					tooltip: ' . javaScriptEscape($tag['description']) . '
 				});';
-						}
 					}
+
 				}
 				else
 				{
