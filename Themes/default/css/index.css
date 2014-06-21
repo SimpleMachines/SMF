@@ -1832,7 +1832,7 @@ ul#smfFadeScroller li {
 }
 p.whoisviewing {
 	font-size: 0.9em;
-	padding: 0 2px;
+	padding: 2px 0 2px 5px;
 }
 .lastpost span.last_post {
 	float: right;
@@ -2825,59 +2825,6 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	padding: 0;
 }
 
-/* Styles for generic tables.
-------------------------------------------------------- */
-.topic_table table {
-	width: 100%;
-}
-.topic_table .icon2 {
-	text-align: center;
-}
-.topic_table .icon2 div {
-	position: relative;
-	width: 40px;
-	margin: auto;
-}
-.topic_table .icon2 img.posted {
-	position: absolute;
-	z-index: 5;
-	right: 4px;
-	bottom: -3px;
-}
-.topic_table .stats {
-	text-align: center;
-	line-height: 1.5em;
-}
-.topic_table table thead {
-	border-bottom: 1px solid #fff;
-}
-/* the subject column */
-.topic_table td {
-	font-size: 1em;
-}
-.topic_table td.subject p, .topic_table td.stats {
-	font-size: 0.9em;
-	padding: 0;
-	margin: 0;
-}
-.topic_table td.lastpost {
-	font-size: 0.9em;
-	line-height: 1.5em;
-	padding: 4px;
-}
-
-/* Space those icons out a bit */
-.topic_table .icons span {
-	margin: 2px 0 0 5px;
-}
-/* Nobody wants them to stand out much. */
-.topic_table td.lockedbg {
-	background: #e7eaef no-repeat 98% 4px;
-}
-.topic_table td.lockedbg2 {
-	background: #e7eaef no-repeat 98% 4px;
-}
-
 .errorfile_table {
 	background: #f0f4f7;
 	border-spacing: 3px;
@@ -3523,9 +3470,6 @@ dl.addrules dt.floatleft {
 
 /* Styles for the search results page.
 ------------------------------------------------- */
-.topic_table td blockquote, .topic_table td .quoteheader {
-	margin: 6px;
-}
 .search_results_posts {
 	overflow: hidden;
 }
@@ -3726,7 +3670,7 @@ dl.addrules dt.floatleft {
 }
 
 .generic_list_wrapper, .action_profile  #permissions,
-#profileview, #messageindex, #recent .core_posts, #recent .topic_table,
+#profileview, #recent .core_posts,
 .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
@@ -4035,6 +3979,9 @@ div.lastpost p {
 	margin-top: 3px;
 	padding: 0;
 }
+#messageindex .stats, #recent .stats {
+	text-align: center;
+}
 #topic_header input {
 	margin-top: 5px !important;
 }
@@ -4051,10 +3998,13 @@ div.lastpost p {
 	overflow: hidden;
 	height: 3.5em;
 }
+#topic_container .icons span {
+	margin: 2px 0 0 5px;
+}
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.info .icons, #messageindex .stats p, .lastpost p {
+.info .icons, #messageindex .stats p, .lastpost p, #unread .stats p, #unreadreplies .stats p {
 	margin-top: 5px;
 	border: none;
 }
@@ -4146,4 +4096,7 @@ p.information  img {
 #messageindex .information, #topic_container .info {
 	border-radius: 0;
 	margin: 0;
+}
+#topic_icons .information {
+	border-top: 1px solid #ddd;
 }

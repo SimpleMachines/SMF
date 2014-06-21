@@ -22,7 +22,7 @@ function template_main()
 			<div class="cat_bar">
 				<h4 class="catbg">', $txt['who_title'], '</h4>
 			</div>
-			<div class="topic_table" id="mlist">
+			<div id="mlist">
 				<div class="pagesection">
 					<div class="pagelinks floatleft">', $context['page_index'], '</div>';
 	echo '

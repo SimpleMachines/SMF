@@ -135,7 +135,7 @@ function template_main()
 	<form action="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" class="clear" name="quickModForm" id="quickModForm">';
 
 		echo '
-		<div class="tborder topic_table" id="messageindex">';
+		<div id="messageindex">';
 		if (!empty($settings['display_who_viewing']))
 		{
 		echo '
