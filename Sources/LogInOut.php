@@ -88,7 +88,11 @@ function Login()
 function Login2()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $modSettings, $context, $sc, $sourcedir;
+	global $cookiename, $modSettings, $context, $sc, $sourcedir, $maintenance;
+
+	// Check to ensure we're forcing SSL for authentication
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		fatal_lang_error('login_ssl_required');
 
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
