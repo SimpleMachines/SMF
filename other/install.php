@@ -1271,7 +1271,7 @@ function DatabasePopulation()
 	}
 
 	// Are we enabling SSL?
-	if (!empty($_POSt['force_ssl']))
+	if (!empty($_POST['force_ssl']))
 	{
 		$smcFunc['db_insert']('',
 			$db_prefix . 'settings',
