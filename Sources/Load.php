@@ -266,7 +266,7 @@ function reloadSettings()
 function loadUserSettings()
 {
 	global $modSettings, $user_settings, $sourcedir, $smcFunc;
-	global $cookiename, $user_info, $language, $context;
+	global $cookiename, $user_info, $language, $context, $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 	// Check first the integration, then the cookie, and last the session.
 	if (count($integration_ids = call_integration_hook('integrate_verify_user')) > 0)
@@ -316,6 +316,9 @@ function loadUserSettings()
 			);
 			$user_settings = $smcFunc['db_fetch_assoc']($request);
 			$smcFunc['db_free_result']($request);
+
+			if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($user_settings['avatar'], 'http://') !== false)
+				$user_settings['avatar'] = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($user_settings['avatar']) . '&hash=' . md5($user_settings['avatar'] . $image_proxy_secret);
 
 			if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2)
 				cache_put_data('user_settings-' . $id_member, $user_settings, 60);
@@ -939,6 +942,7 @@ function loadPermissions()
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
 	global $user_profile, $modSettings, $board_info, $smcFunc, $context;
+	global $image_proxy_enabled, $image_proxy_secret, $boardurl;
 
 	// Can't just look for no users :P.
 	if (empty($users))
@@ -1022,6 +1026,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		$new_loaded_ids = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			// Take care of proxying avatar if required, do this here for maximum reach
+			if ($image_proxy_enabled && !empty($row['avatar']) && stripos($row['avatar'], 'http://') !== false)
+				$row['avatar'] = $boardurl . '/proxy.php?request=' . urlencode($row['avatar']) . '&hash=' . md5($row['avatar'] . $image_proxy_secret);
+
 			$new_loaded_ids[] = $row['id_member'];
 			$loaded_ids[] = $row['id_member'];
 			$row['options'] = array();
@@ -1398,7 +1406,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 {
 	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
-	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board;
+	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board, $image_proxy_enabled;
 
 	// The theme was specified by parameter.
 	if (!empty($id_theme))
@@ -1441,6 +1449,10 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$id_theme = (int) $id_theme;
 
 	$member = empty($user_info['id']) ? -1 : $user_info['id'];
+
+	// Disable image proxy if we don't have SSL enabled
+	if (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] < 2)
+		$image_proxy_enabled = false;
 
 	if (!empty($modSettings['cache_enable']) && $modSettings['cache_enable'] >= 2 && ($temp = cache_get_data('theme_settings-' . $id_theme . ':' . $member, 60)) != null && time() - 60 > $modSettings['settings_updated'])
 	{
