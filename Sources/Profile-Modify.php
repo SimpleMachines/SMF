@@ -1910,6 +1910,7 @@ function alert_configuration($memID)
 	);
 
 	loadThemeOptions($memID);
+	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');

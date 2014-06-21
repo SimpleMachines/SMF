@@ -1764,8 +1764,8 @@ function template_alert_configuration()
 			<table class="table_grid" style="width: 100%">
 				<tr>
 					<td></td>
-					<td align="center">', $txt['receive_alert'], '</td>
-					<td align="center">', $txt['receive_mail'], '</td>
+					<td align="center">', $txt['receive_alert'], ' (<a onclick="toggleAlerts()">', $txt['toggle_all'], '</a>)</td>
+					<td align="center">', $txt['receive_mail'], ' (<a onclick="toggleMail()">', $txt['toggle_all'], '</a>)</td>
 				</tr>';
 	$use_bg2 = true;
 
