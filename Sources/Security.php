@@ -99,7 +99,7 @@ function validateSession($type = 'admin')
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl;
+	global $user_info, $txt, $context, $scripturl, $modSettings;
 
 	// Luckily, this person isn't a guest.
 	if (isset($user_info['is_guest']) && !$user_info['is_guest'])

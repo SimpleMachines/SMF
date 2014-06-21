@@ -1005,6 +1005,8 @@ function ForumSettings()
 			'cachedir' => addslashes(dirname(__FILE__)) . '/cache',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
+			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 8),
+			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 		);
 
 		// Must save!
@@ -1266,6 +1268,21 @@ function DatabasePopulation()
 					array('variable')
 				);
 		}
+	}
+
+	// Are we enabling SSL?
+	if (!empty($_POST['force_ssl']))
+	{
+		$smcFunc['db_insert']('',
+			$db_prefix . 'settings',
+			array(
+				'variable' => 'string-255', 'value' => 'string-65534',
+			),
+			array(
+				'force_ssl', 2,
+			),
+			array('variable')
+		);
 	}
 
 	// As of PHP 5.1, setting a timezone is required.
@@ -2597,6 +2614,15 @@ function template_forum_settings()
 					<label for="stats_check">', $txt['install_settings_stats_title'], '</label>
 					<br />
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_stats_info'], '</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">', $txt['force_ssl'], ':</td>
+				<td>
+					<input type="checkbox" name="force_ssl" id="force_ssl" class="input_check" />&nbsp;
+					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
+					<br />
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['force_ssl_info'], '</div>
 				</td>
 			</tr>
 		</table>

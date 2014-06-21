@@ -222,10 +222,14 @@ function Register($reg_errors = array())
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $smcFunc;
+	global $smcFun, $maintenancec;
 
 	checkSession();
 	validateToken('register');
+
+	// Check to ensure we're forcing SSL for authentication
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		fatal_lang_error('register_ssl_required');
 
 	// Start collecting together any errors.
 	$reg_errors = array();

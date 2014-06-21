@@ -141,6 +141,26 @@ $cache_memcached = '';
  */
 $cachedir = dirname(__FILE__) . '/cache';
 
+########## Image Proxy ##########
+# This is done entirely in Settings.php to avoid loading the DB while serving the images
+/**
+ * Whether the proxy is enabled or not
+ * @var bool
+ */
+$image_proxy_enabled = true;
+
+/**
+ * Secret key to be used by the proxy
+ * @var string
+ */
+$image_proxy_secret = 'smfisawesome';
+
+/**
+ * Maximum file size (in KB) for indiviudal files
+ * @var int
+ */
+$image_proxy_maxsize = 5192;
+
 ########## Directories/Files ##########
 # Note: These directories do not have to be changed unless you move things.
 /**

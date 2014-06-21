@@ -1283,9 +1283,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="{alt}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
 						$data = 'http://' . $data;
+
+					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
+						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1295,10 +1300,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
+					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
+
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
 						$data = 'http://' . $data;
 
+					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
+						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
 			),

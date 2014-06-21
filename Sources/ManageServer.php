@@ -160,6 +160,11 @@ function ModifyGeneralSettings($return_config = false)
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
+		'',
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl'),
+		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
+		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
+		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -183,6 +188,19 @@ function ModifyGeneralSettings($return_config = false)
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);
+
+	// Some javascript for SSL
+	addInlineJavascript('
+$(function()
+{
+	$("#force_ssl").change(function()
+	{
+		var mode = $(this).val() == 2 ? false : true;
+		$("#image_proxy_enabled").prop("disabled", mode);
+		$("#image_proxy_secret").prop("disabled", mode);
+		$("#image_proxy_maxsize").prop("disabled", mode);
+	}).change();
+});');
 }
 
 /**
@@ -916,15 +934,17 @@ function saveSettings(&$config_vars)
 		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
 		'boarddir', 'sourcedir',
 		'cachedir', 'cache_accelerator', 'cache_memcached',
+		'image_proxy_secret',
 	);
 
 	// All the numeric variables.
 	$config_ints = array(
 		'cache_enable',
+		'image_proxy_maxsize',
 	);
 
 	// All the checkboxes
-	$config_bools = array('db_persist', 'db_error_send', 'maintenance');
+	$config_bools = array('db_persist', 'db_error_send', 'maintenance', 'image_proxy_enabled');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();

@@ -256,4 +256,7 @@ $txt['ftp_path_help'] = 'Your FTP path is the path you see when you log in to yo
 $txt['ftp_path_help_close'] = 'Close';
 $txt['ftp_connect'] = 'Connect';
 
+$txt['force_ssl'] = 'Enable SSL';
+$txt['force_ssl_label'] = 'Force SSL throughout the forum';
+$txt['force_ssl_info'] = '<b>Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible</b>';
 ?>
