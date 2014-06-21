@@ -1204,7 +1204,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 		}
 
 		// Did it change?
-		if (!isset($user_profile[$memID]['options'][$row['col_name']]) || $user_profile[$memID]['options'][$row['col_name']] != $value)
+		if (!isset($user_profile[$memID]['options'][$row['col_name']]) || $user_profile[$memID]['options'][$row['col_name']] !== $value)
 		{
 			$log_changes[] = array(
 				'action' => 'customfield_' . $row['col_name'],

@@ -1261,8 +1261,7 @@ img.sort, .sort {
 	margin: 5px 0 5px 0;
 }
 .button {
-	float: left;
-	display: block;
+	display: inline-block;
 	text-transform: uppercase;
 	cursor: pointer;
 	border: 1px solid #ddd;
