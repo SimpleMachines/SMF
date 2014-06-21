@@ -281,12 +281,8 @@ form#ic_login ul li {
 
 /* Styles for the message (topic) index.
 ---------------------------------------------------- */
-.table_frame .table_list td.icon, .table_frame .table_list td.info, .table_frame .table_list td.stats {
-	border-right: none;
-	border-left: 2px solid white;
-}
-.lastpost img {
-	float: left;
+div.icon, div.info, div.stats, div.lastpost {
+	float: right !important;
 }
 
 #message_index_jump_to label {
