@@ -201,7 +201,7 @@ function logLastDatabaseError()
  */
 function displayDebug()
 {
-	global $context, $scripturl, $boarddir, $sourcedir, $modSettings;
+	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
 	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
@@ -221,7 +221,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)'));
+		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)', $cachedir => '(Cache)', $settings['actual_theme_dir'] => '(Current Theme)'));
 	}
 
 	$warnings = 0;
