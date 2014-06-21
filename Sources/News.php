@@ -559,7 +559,7 @@ function getXmlMembers($xml_format)
  */
 function getXmlNews($xml_format)
 {
-	global $scripturl, $modSettings, $board;
+	global $scripturl, $modSettings, $board, $user_info;
 	global $query_this_board, $smcFunc, $context;
 
 	/* Find the latest posts that:
