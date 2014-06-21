@@ -1396,7 +1396,7 @@ function isBrowser($browser)
  */
 function loadTheme($id_theme = 0, $initialize = true)
 {
-	global $user_info, $user_settings, $board_info, $boarddir;
+	global $user_info, $user_settings, $board_info, $boarddir, $maintenance;
 	global $txt, $boardurl, $scripturl, $mbname, $modSettings;
 	global $context, $settings, $options, $sourcedir, $ssi_theme, $smcFunc, $language, $board;
 
@@ -1519,6 +1519,11 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	if (!$initialize)
 		return;
+
+	// Check to see if we're forcing SSL
+	if (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 && empty($maintenance) &&
+		(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off') && SMF != 'SSI')
+		redirectexit(strtr($_SERVER['REQUEST_URL'], array('http://' => 'https://')));
 
 	// Check to see if they're accessing it from the wrong place.
 	if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME']))
