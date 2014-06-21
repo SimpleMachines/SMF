@@ -139,6 +139,7 @@ $txt['delFirstPost'] = 'You are not allowed to delete the first post in a topic.
 $txt['parent_error'] = 'Unable to create board!';
 $txt['login_cookie_error'] = 'You were unable to login.  Please check your cookie settings.';
 $txt['login_ssl_required'] = 'You can only login via HTTPS';
+$txt['register_ssl_required'] = 'You can only register via HTTPS';
 $txt['incorrect_answer'] = 'Sorry, but you did not answer your question correctly.  Please click back to try again, or click back twice to use the default method of obtaining your password.';
 $txt['no_mods'] = 'No moderators found!';
 $txt['parent_not_found'] = 'Board structure corrupt: unable to find parent board';

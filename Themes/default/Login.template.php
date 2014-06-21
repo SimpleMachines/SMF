@@ -23,7 +23,7 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
+				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
@@ -95,7 +95,7 @@ function template_kick_guest()
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
+	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
@@ -166,7 +166,7 @@ function template_maintenance()
 
 	// Display the administrator's message at the top.
 	echo '
-<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
+<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
 	<div class="tborder login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
@@ -202,11 +202,11 @@ function template_maintenance()
 // This is for the security stuff - makes administrators login every so often.
 function template_admin_login()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
+<form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
