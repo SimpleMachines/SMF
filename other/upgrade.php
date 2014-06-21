@@ -2086,6 +2086,8 @@ function DeleteUpgrade()
 		exit;
 	}
 
+	updateSettingsFile(array('image_proxy_secret' => substr(sha1(mt_rand()), 0, 8)));
+
 	// Make sure it says we're done.
 	$upcontext['overall_percent'] = 100;
 	if (isset($upcontext['step_progress']))
