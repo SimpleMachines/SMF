@@ -344,7 +344,7 @@ function smf_openID_return()
 			return Register2(true);
 		}
 		else
-			redirectexit('action=register');
+			redirectexit('action=signup');
 	}
 	elseif (isset($_GET['sa']) && $_GET['sa'] == 'revalidate' && $user_settings['openid_uri'] == $openid_uri)
 	{

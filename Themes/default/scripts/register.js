@@ -226,7 +226,7 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 
 		// Request a search on that username.
 		checkName = curUsername.php_to8bit().php_urlencode();
-		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=register;sa=usernamecheck;xml;username=' + checkName, checkUsernameCallback);
+		getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=signup;sa=usernamecheck;xml;username=' + checkName, checkUsernameCallback);
 
 		return true;
 	}

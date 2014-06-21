@@ -29,7 +29,7 @@ $txt['additional_information'] = 'Additional Information';
 $txt['warning'] = 'Warning!';
 $txt['only_members_can_access'] = 'Only registered members are allowed to access this section.';
 $txt['login_below'] = 'Please login below.';
-$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">register an account</a> with %2$s';
+$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">sign up for an account</a> with %2$s';
 
 // Use numeric entities in the below two strings.
 $txt['may_change_in_profile'] = 'You may change it after you login by going to the profile page, or by visiting this page after you login:';
@@ -37,17 +37,17 @@ $txt['your_username_is'] = 'Your username is: ';
 
 $txt['login_hash_error'] = 'Password security has recently been upgraded.  Please enter your password again.';
 
-$txt['ban_register_prohibited'] = 'Sorry, you are not allowed to register on this forum.';
+$txt['ban_register_prohibited'] = 'Sorry, you are not allowed to sign up on this forum.';
 
 $txt['activate_account'] = 'Account activation';
 $txt['activate_success'] = 'Your account has been successfully activated. You can now proceed to login.';
 $txt['activate_not_completed1'] = 'Your email address needs to be validated before you can login.';
 $txt['activate_not_completed2'] = 'Need another activation email?';
-$txt['activate_after_registration'] = 'Thank you for registering. You will receive an email soon with a link to activate your account.  If you don\'t receive an email after some time, check your spam folder.';
+$txt['activate_after_registration'] = 'Thank you for signing up. You will receive an email soon with a link to activate your account.  If you don\'t receive an email after some time, check your spam folder.';
 $txt['invalid_userid'] = 'User does not exist';
 $txt['invalid_activation_code'] = 'Invalid activation code';
 $txt['invalid_activation_username'] = 'Username or email';
-$txt['invalid_activation_new'] = 'If you registered with the wrong email address, type a new one and your password here.';
+$txt['invalid_activation_new'] = 'If you signed up with the wrong email address, type a new one and your password here.';
 $txt['invalid_activation_new_email'] = 'New email address';
 $txt['invalid_activation_password'] = 'Old password';
 $txt['invalid_activation_resend'] = 'Resend activation code';
@@ -69,10 +69,10 @@ $txt['change_password_new'] = 'have been changed and your password reset. Below 
 $txt['in_maintain_mode'] = 'This board is in Maintenance Mode.';
 
 // These two are used as a javascript alert; please use international characters directly, not as entities.
-$txt['register_agree'] = 'Please read and accept the agreement before registering.';
+$txt['register_agree'] = 'Please read and accept the agreement before signing up.';
 $txt['register_passwords_differ_js'] = 'The two passwords you entered are not the same!';
 
-$txt['approval_after_registration'] = 'Thank you for registering. The admin must approve your registration before you may begin to use your account, you will receive an email shortly advising you of the admins decision.';
+$txt['approval_after_registration'] = 'Thank you for signing up. The admin must approve your registration before you may begin to use your account, you will receive an email shortly advising you of the admins decision.';
 
 $txt['admin_settings_desc'] = 'Here you can change a variety of settings related to registration of new members.';
 
@@ -115,7 +115,7 @@ $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
 $txt['coppa_title'] = 'Age Restricted Forum';
-$txt['coppa_after_registration'] = 'Thank you for registering with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
+$txt['coppa_after_registration'] = 'Thank you for signing up with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
 	to obtain your parent or guardian\'s permission before you may begin to use your account.  To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form In New Window';
 $txt['coppa_form_link_download'] = 'Download Form as Text File';
