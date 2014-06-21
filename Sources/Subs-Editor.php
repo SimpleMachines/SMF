@@ -1650,7 +1650,7 @@ function create_control_richedit($editorOptions)
 			),
 		);
 
-		$disabled_AltTags = array(
+		$disabled_editor_tags = array(
 			'b' => 'bold',
 			'i' => 'italic',
 			'u' => 'underline',
@@ -1695,7 +1695,7 @@ function create_control_richedit($editorOptions)
 				$context['disabled_tags']['orderedlist'] = true;
 			}
 
-			foreach ($disabled_AltTags as $thisTag => $tagNameBBC)
+			foreach ($disabled_editor_tags as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
 
