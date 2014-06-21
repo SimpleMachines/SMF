@@ -95,7 +95,7 @@ function Register($reg_errors = array())
 
 	// Add the register chain to the link tree.
 	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=register',
+		'url' => $scripturl . '?action=signup',
 		'name' => $txt['register'],
 	);
 
@@ -254,7 +254,7 @@ function Register2($verifiedOpenID = false)
 
 		// Make sure they came from *somewhere*, have a session.
 		if (!isset($_SESSION['old_url']))
-			redirectexit('action=register');
+			redirectexit('action=signup');
 
 		// If we don't require an agreement, we need a extra check for coppa.
 		if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
@@ -268,7 +268,7 @@ function Register2($verifiedOpenID = false)
 
 		// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
 		if (empty($_SESSION['register']['timenow']) || empty($_SESSION['register']['limit']))
-			redirectexit('action=register');
+			redirectexit('action=signup');
 		// Failing that, check the time on it.
 		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
 		{

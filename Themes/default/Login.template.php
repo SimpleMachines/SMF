@@ -108,7 +108,7 @@ function template_kick_guest()
 
 
 	if ($context['can_register'])
-		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=register', $context['forum_name_html_safe']);
+		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
 	else
 		echo $txt['login_below'];
 

@@ -3879,9 +3879,9 @@ function setupMenuContext()
 					),
 				),
 			),
-			'register' => array(
+			'signup' => array(
 				'title' => $txt['register'],
-				'href' => $scripturl . '?action=register',
+				'href' => $scripturl . '?action=signup',
 				'show' => $user_info['is_guest'] && $context['can_register'],
 				'sub_buttons' => array(
 				),
