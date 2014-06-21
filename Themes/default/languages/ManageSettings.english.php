@@ -89,6 +89,13 @@ $txt['who_enabled'] = 'Enable who\'s online list';
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
+$txt['image_proxy_enabled'] = 'Enable Image Proxy';
+$txt['image_proxy_secret'] = 'Image Proxy Secret';
+$txt['image_proxy_maxsize'] = 'Maximum file size of images to cache (in KB)';
+$txt['force_ssl'] = 'Forum SSL mode';
+$txt['force_ssl_off'] = 'Disable SSL';
+$txt['force_ssl_auth'] = 'Enable SSL for Authentication (Login and Register)';
+$txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 
 // Like settings.
 $txt['enable_likes'] = 'Enable likes';

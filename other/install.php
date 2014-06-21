@@ -835,6 +835,7 @@ function DatabaseSettings()
 			'db_prefix' => $db_prefix,
 			// The cookiename is special; we want it to be the same if it ever needs to be reinstalled with the same info.
 			'cookiename' => 'SMFCookie' . abs(crc32($_POST['db_name'] . preg_replace('~[^A-Za-z0-9_$]~', '', $_POST['db_prefix'])) % 1000),
+			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 8),
 		);
 
 		// Only set the port if we're not using the default
