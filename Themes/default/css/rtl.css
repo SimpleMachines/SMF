@@ -147,6 +147,11 @@ table.table_list a.collapse {
 .dropmenu ul ul a:focus {
 	margin-right: 0;
 }
+/* Cancel those for hover and/or js access. */
+.dropmenu ul li:hover a:focus, .dropmenu ul li a:focus {
+	margin-right: 0;
+	width: auto;
+}
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2.2em 15em 0 0;
@@ -161,11 +166,7 @@ table.table_list a.collapse {
 }
 /* Reposition as visible on hover. */
 .dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
-	right: 14.5em;
-}
-/* Reposition as visible on hover. */
-.dropmenu li li:hover ul, .dropmenu li li.sfhover ul {
-	right: 14.5em;
+	right: 0;
 }
 /* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
 .dropmenu li li.subsections a:after {
