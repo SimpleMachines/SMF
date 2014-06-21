@@ -233,7 +233,7 @@ function smf_main()
 			return 'InMaintenance';
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'openidreturn', 'signup', 'signup2'))))
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'openidreturn'))))
 		return 'KickGuest';
 	elseif (empty($_REQUEST['action']))
 	{
@@ -314,6 +314,8 @@ function smf_main()
 		'quickmod' => array('MessageIndex.php', 'QuickModeration'),
 		'quickmod2' => array('Display.php', 'QuickInTopicModeration'),
 		'recent' => array('Recent.php', 'RecentPosts'),
+		'register' => array('Register.php', 'Register'),
+		'register2' => array('Register.php', 'Register2'),
 		'reminder' => array('Reminder.php', 'RemindMe'),
 		'removepoll' => array('Poll.php', 'RemovePoll'),
 		'removetopic2' => array('RemoveTopic.php', 'RemoveTopic2'),
@@ -323,8 +325,6 @@ function smf_main()
 		'search' => array('Search.php', 'PlushSearch1'),
 		'search2' => array('Search.php', 'PlushSearch2'),
 		'sendactivation' => array('Register.php', 'SendActivation'),
-		'signup' => array('Register.php', 'Register'),
-		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
 		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
