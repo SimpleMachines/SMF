@@ -608,7 +608,7 @@ SET id_theme = 0;
 /******************************************************************************/
 --- Membergroup icons changes
 /******************************************************************************/
----# Checking for "core" and removing it if necessary...
+---# Check the current saved names for icons and change them to the new name.
 ---{
 $request = $smcFunc['db_query']('', '
 	SELECT icons
@@ -658,6 +658,7 @@ foreach ($toChange as $change)
 	FROM {db_prefix}membergroups',
 	array()
 );
+---}
 ---#
 
 /******************************************************************************/
