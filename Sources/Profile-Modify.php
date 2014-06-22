@@ -2853,7 +2853,7 @@ function profileLoadAvatarData()
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
-	elseif (stristr($cur_profile['avatar'], $modSettings['gravatar_url'])  && $context['member']['avatar']['allow_gravatar'])
+	elseif (stristr($cur_profile['avatar'], 'gravatar://www.gravatar.com/avatar/')  && $context['member']['avatar']['allow_gravatar'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
@@ -3232,7 +3232,7 @@ function profileSaveAvatarData(&$value)
 			$profile_vars['avatar'] = '';
 	}
 	elseif ($value == 'gravatar' && allowedTo('profile_gravatar_avatar'))
-		$profile_vars['avatar'] = $modSettings['gravatar_url'] . md5(strtolower(trim($cur_profile['email_address'])));
+		$profile_vars['avatar'] = 'gravatar://www.gravatar.com/avatar/' . md5(strtolower(trim($cur_profile['email_address'])));
 	else
 		$profile_vars['avatar'] = '';
 

@@ -2878,7 +2878,7 @@ function template_profile_avatar_select()
 		echo '
 								<div id="avatar_external">
 									<div class="smalltext">', $txt['avatar_by_url'], '</div>', !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
-									<input type="text" name="userpicpersonal" size="45" value="', (!stristr($context['member']['avatar']['external'], $modSettings['gravatar_url']) ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text" />
+									<input type="text" name="userpicpersonal" size="45" value="', (!stristr($context['member']['avatar']['external'], 'gravatar://www.gravatar.com/avatar/') ? $context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);" class="input_text" />
 								</div>';
 	}
 
@@ -2891,12 +2891,12 @@ function template_profile_avatar_select()
 									', ($context['member']['avatar']['id_attach'] > 0 ? '<br><img src="' . $context['member']['avatar']['href'] . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt=""><input type="hidden" name="id_attach" value="' . $context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 	}
-	
+
 	// if the user is able to use Gravatar avatars show then the image preview
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 	{
 		echo '					<div id="avatar_gravatar">
-									<img src="' . (!empty($context['member']['avatar']['href']) ? $context['member']['avatar']['href'] : str_replace('gravatar://', 'http://', $modSettings['gravatar_url']) . md5(strtolower(trim($context['member']['email'])))) . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" />
+									<img src="http://www.gravatar.com/avatar/' . md5(strtolower(trim($context['member']['email']))) . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" />
 								</div>';
 	}
 
