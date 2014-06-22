@@ -606,6 +606,59 @@ SET id_theme = 0;
 ---#
 
 /******************************************************************************/
+--- Membergroup icons changes
+/******************************************************************************/
+$request = $smcFunc['db_query']('', '
+	SELECT icons
+	FROM {db_prefix}membergroups',
+	array()
+);
+$toMove = array();
+$toChange = array();
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	if (strpos($row['icons'], 'star.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('star.gif', 'icon.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'starmod.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('starmod.gif', 'iconmod.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'staradmin.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('staradmin.gif', 'iconadmin.png', $row['icons']),
+		);
+
+	else
+		$toMove[] = $row['icons'];
+}
+$smcFunc['db_free_result']($request);
+
+foreach ($toChange as $change)
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}membergroups
+		SET icons = {string:new}
+		WHERE icons = {string:old}',
+		array(
+			'new' => $change['new'],
+			'old' => $change['old'],
+		)
+	);
+
+	$request = $smcFunc['db_query']('', '
+	SELECT icons
+	FROM {db_prefix}membergroups',
+	array()
+);
+
+
+/******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
 ---# Checking for "core" and removing it if necessary...
