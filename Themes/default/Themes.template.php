@@ -342,7 +342,7 @@ function template_set_options()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_options_title'], ' - ', $context['theme_settings']['name'], '</h3>
 			</div>
-			<div class="information">
+			<div class="information winfo">
 				', $context['theme_options_reset'] ? $txt['themeadmin_reset_options_info'] : $txt['theme_options_defaults'], '
 			</div>
 			<div class="windowbg2">';

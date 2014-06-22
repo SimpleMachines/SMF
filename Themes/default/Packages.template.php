@@ -686,7 +686,6 @@ function template_servers()
 						<input type="file" name="package" size="38" class="input_file">
 					</dd>
 				</dl>
-				<hr class="hrcolor">
 				<input type="submit" value="' . $txt['package_upload'] . '" class="button_submit">
 				<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 			</form>
