@@ -261,9 +261,22 @@ function ViewSubscriptions()
 		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
-			'function' => function () use ($context)
+			'function' => function ($start, $items_per_page) use ($context)
 			{
-				return $context['subscriptions'];
+				$subscriptions = array();
+				$counter = 0;
+				$start++;
+
+				foreach ($context['subscriptions'] as $data)
+				{
+					if (++$counter < $start)
+						continue;
+					elseif ($counter == $start + $items_per_page)
+						break;
+
+					$subscriptions[] = $data;
+				}
+				return $subscriptions;
 			},
 		),
 		'get_count' => array(
