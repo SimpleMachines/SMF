@@ -583,9 +583,6 @@ div#admin_menu {
 }
 /* Styles for generic tables.
 ------------------------------------------------------- */
-.topic_table td.lastpost {
-	background: none;
-}
 #info_center .cat_bar, .table_grid tr.catbg th {
 	text-align: right;
 }
