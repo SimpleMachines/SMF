@@ -20,7 +20,7 @@ $txt['top_topics_views'] = 'Top 10 Topics (by Views)';
 $txt['yearly_summary'] = 'Yearly Summary';
 $txt['smf_stats_14'] = 'Most Online';
 $txt['top_starters'] = 'Top Topic Starters';
-$txt['most_time_online'] = 'Most Time Online';
+$txt['top_time_online'] = 'Most Time Online';
 $txt['stats_more_detailed'] = 'more detailed &raquo;';
 
 $txt['average_members'] = 'Average registrations per day';

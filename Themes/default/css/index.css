@@ -3300,16 +3300,16 @@ dl {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	margin: 2px 6px -1px 3px;
 }
-.stats_icon.general, .stats_icon.boards {
+.stats_icon.general, .stats_icon.boards, .stats_icon.topics_views {
 	background-position: 0 -48px;
 }
 .stats_icon.posters {
 	background-position: -16px -48px;
 }
-.stats_icon.replies {
+.stats_icon.replies, .stats_icon.topics_replies {
 	background-position: -32px -48px;
 }
-.stats_icon.history {
+.stats_icon.history, .stats_icon.time_online {
 	background-position: -48px -48px;
 }
 .stats_icon.views {
