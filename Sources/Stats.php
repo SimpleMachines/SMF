@@ -205,14 +205,14 @@ function DisplayStats()
 			'no_posts' => 0,
 		)
 	);
-	$context['top_posters'] = array();
+	$context['stats_blocks']['posters'] = array();
 	$max_num_posts = 1;
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
-		$context['top_posters'][] = array(
+		$context['stats_blocks']['posters'][] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
-			'num_posts' => $row_members['posts'],
+			'num' => $row_members['posts'],
 			'href' => $scripturl . '?action=profile;u=' . $row_members['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_members['id_member'] . '">' . $row_members['real_name'] . '</a>'
 		);
@@ -222,10 +222,10 @@ function DisplayStats()
 	}
 	$smcFunc['db_free_result']($members_result);
 
-	foreach ($context['top_posters'] as $i => $poster)
+	foreach ($context['stats_blocks']['posters'] as $i => $poster)
 	{
-		$context['top_posters'][$i]['post_percent'] = round(($poster['num_posts'] * 100) / $max_num_posts);
-		$context['top_posters'][$i]['num_posts'] = comma_format($context['top_posters'][$i]['num_posts']);
+		$context['stats_blocks']['posters'][$i]['percent'] = round(($poster['num'] * 100) / $max_num_posts);
+		$context['stats_blocks']['posters'][$i]['num'] = comma_format($context['stats_blocks']['posters'][$i]['num']);
 	}
 
 	// Board top 10.
@@ -242,14 +242,14 @@ function DisplayStats()
 			'blank_redirect' => '',
 		)
 	);
-	$context['top_boards'] = array();
+	$context['stats_blocks']['boards'] = array();
 	$max_num_posts = 1;
 	while ($row_board = $smcFunc['db_fetch_assoc']($boards_result))
 	{
-		$context['top_boards'][] = array(
+		$context['stats_blocks']['boards'][] = array(
 			'id' => $row_board['id_board'],
 			'name' => $row_board['name'],
-			'num_posts' => $row_board['num_posts'],
+			'num' => $row_board['num_posts'],
 			'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
 			'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['name'] . '</a>'
 		);
@@ -259,10 +259,10 @@ function DisplayStats()
 	}
 	$smcFunc['db_free_result']($boards_result);
 
-	foreach ($context['top_boards'] as $i => $board)
+	foreach ($context['stats_blocks']['boards'] as $i => $board)
 	{
-		$context['top_boards'][$i]['post_percent'] = round(($board['num_posts'] * 100) / $max_num_posts);
-		$context['top_boards'][$i]['num_posts'] = comma_format($context['top_boards'][$i]['num_posts']);
+		$context['stats_blocks']['boards'][$i]['percent'] = round(($board['num'] * 100) / $max_num_posts);
+		$context['stats_blocks']['boards'][$i]['num'] = comma_format($context['stats_blocks']['boards'][$i]['num']);
 	}
 
 	// Are you on a larger forum?  If so, let's try to limit the number of topics we search through.
@@ -306,13 +306,13 @@ function DisplayStats()
 			'is_approved' => 1,
 		)
 	);
-	$context['top_topics_replies'] = array();
+	$context['stats_blocks']['topics_replies'] = array();
 	$max_num_replies = 1;
 	while ($row_topic_reply = $smcFunc['db_fetch_assoc']($topic_reply_result))
 	{
 		censorText($row_topic_reply['subject']);
 
-		$context['top_topics_replies'][] = array(
+		$context['stats_blocks']['topics_replies'][] = array(
 			'id' => $row_topic_reply['id_topic'],
 			'board' => array(
 				'id' => $row_topic_reply['id_board'],
@@ -321,7 +321,7 @@ function DisplayStats()
 				'link' => '<a href="' . $scripturl . '?board=' . $row_topic_reply['id_board'] . '.0">' . $row_topic_reply['name'] . '</a>'
 			),
 			'subject' => $row_topic_reply['subject'],
-			'num_replies' => $row_topic_reply['num_replies'],
+			'num' => $row_topic_reply['num_replies'],
 			'href' => $scripturl . '?topic=' . $row_topic_reply['id_topic'] . '.0',
 			'link' => '<a href="' . $scripturl . '?topic=' . $row_topic_reply['id_topic'] . '.0">' . $row_topic_reply['subject'] . '</a>'
 		);
@@ -331,10 +331,10 @@ function DisplayStats()
 	}
 	$smcFunc['db_free_result']($topic_reply_result);
 
-	foreach ($context['top_topics_replies'] as $i => $topic)
+	foreach ($context['stats_blocks']['topics_replies'] as $i => $topic)
 	{
-		$context['top_topics_replies'][$i]['post_percent'] = round(($topic['num_replies'] * 100) / $max_num_replies);
-		$context['top_topics_replies'][$i]['num_replies'] = comma_format($context['top_topics_replies'][$i]['num_replies']);
+		$context['stats_blocks']['topics_replies'][$i]['percent'] = round(($topic['num'] * 100) / $max_num_replies);
+		$context['stats_blocks']['topics_replies'][$i]['num'] = comma_format($context['stats_blocks']['topics_replies'][$i]['num']);
 	}
 
 	// Large forums may need a bit more prodding...
@@ -376,13 +376,13 @@ function DisplayStats()
 			'is_approved' => 1,
 		)
 	);
-	$context['top_topics_views'] = array();
-	$max_num_views = 1;
+	$context['stats_blocks']['topics_views'] = array();
+	$max_num = 1;
 	while ($row_topic_views = $smcFunc['db_fetch_assoc']($topic_view_result))
 	{
 		censorText($row_topic_views['subject']);
 
-		$context['top_topics_views'][] = array(
+		$context['stats_blocks']['topics_views'][] = array(
 			'id' => $row_topic_views['id_topic'],
 			'board' => array(
 				'id' => $row_topic_views['id_board'],
@@ -391,20 +391,20 @@ function DisplayStats()
 				'link' => '<a href="' . $scripturl . '?board=' . $row_topic_views['id_board'] . '.0">' . $row_topic_views['name'] . '</a>'
 			),
 			'subject' => $row_topic_views['subject'],
-			'num_views' => $row_topic_views['num_views'],
+			'num' => $row_topic_views['num_views'],
 			'href' => $scripturl . '?topic=' . $row_topic_views['id_topic'] . '.0',
 			'link' => '<a href="' . $scripturl . '?topic=' . $row_topic_views['id_topic'] . '.0">' . $row_topic_views['subject'] . '</a>'
 		);
 
-		if ($max_num_views < $row_topic_views['num_views'])
-			$max_num_views = $row_topic_views['num_views'];
+		if ($max_num < $row_topic_views['num_views'])
+			$max_num = $row_topic_views['num_views'];
 	}
 	$smcFunc['db_free_result']($topic_view_result);
 
-	foreach ($context['top_topics_views'] as $i => $topic)
+	foreach ($context['stats_blocks']['topics_views'] as $i => $topic)
 	{
-		$context['top_topics_views'][$i]['post_percent'] = round(($topic['num_views'] * 100) / $max_num_views);
-		$context['top_topics_views'][$i]['num_views'] = comma_format($context['top_topics_views'][$i]['num_views']);
+		$context['stats_blocks']['topics_views'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
+		$context['stats_blocks']['topics_views'][$i]['num'] = comma_format($context['stats_blocks']['topics_views'][$i]['num']);
 	}
 
 	// Try to cache this when possible, because it's a little unavoidably slow.
@@ -444,27 +444,27 @@ function DisplayStats()
 			'top_topic_posters' => implode(',', array_keys($members)),
 		)
 	);
-	$context['top_starters'] = array();
-	$max_num_topics = 1;
+	$context['stats_blocks']['starters'] = array();
+	$max_num = 1;
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
-		$context['top_starters'][] = array(
+		$context['stats_blocks']['starters'][] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
-			'num_topics' => $members[$row_members['id_member']],
+			'num' => $members[$row_members['id_member']],
 			'href' => $scripturl . '?action=profile;u=' . $row_members['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_members['id_member'] . '">' . $row_members['real_name'] . '</a>'
 		);
 
-		if ($max_num_topics < $members[$row_members['id_member']])
-			$max_num_topics = $members[$row_members['id_member']];
+		if ($max_num < $members[$row_members['id_member']])
+			$max_num = $members[$row_members['id_member']];
 	}
 	$smcFunc['db_free_result']($members_result);
 
-	foreach ($context['top_starters'] as $i => $topic)
+	foreach ($context['stats_blocks']['starters'] as $i => $topic)
 	{
-		$context['top_starters'][$i]['post_percent'] = round(($topic['num_topics'] * 100) / $max_num_topics);
-		$context['top_starters'][$i]['num_topics'] = comma_format($context['top_starters'][$i]['num_topics']);
+		$context['stats_blocks']['starters'][$i]['percent'] = round(($topic['num'] * 100) / $max_num);
+		$context['stats_blocks']['starters'][$i]['num'] = comma_format($context['stats_blocks']['starters'][$i]['num']);
 	}
 
 	// Time online top 10.
@@ -479,13 +479,13 @@ function DisplayStats()
 			'member_list_cached' => $temp,
 		)
 	);
-	$context['top_time_online'] = array();
+	$context['stats_blocks']['time_online'] = array();
 	$temp2 = array();
 	$max_time_online = 1;
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
 		$temp2[] = (int) $row_members['id_member'];
-		if (count($context['top_time_online']) >= 10)
+		if (count($context['stats_blocks']['time_online']) >= 10)
 			continue;
 
 		// Figure out the days, hours and minutes.
@@ -500,10 +500,10 @@ function DisplayStats()
 			$timelogged .= $timeHours . $txt['totalTimeLogged6'];
 		$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . $txt['totalTimeLogged7'];
 
-		$context['top_time_online'][] = array(
+		$context['stats_blocks']['time_online'][] = array(
 			'id' => $row_members['id_member'],
 			'name' => $row_members['real_name'],
-			'time_online' => $timelogged,
+			'num' => $timelogged,
 			'seconds_online' => $row_members['total_time_logged_in'],
 			'href' => $scripturl . '?action=profile;u=' . $row_members['id_member'],
 			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_members['id_member'] . '">' . $row_members['real_name'] . '</a>'
@@ -514,8 +514,8 @@ function DisplayStats()
 	}
 	$smcFunc['db_free_result']($members_result);
 
-	foreach ($context['top_time_online'] as $i => $member)
-		$context['top_time_online'][$i]['time_percent'] = round(($member['seconds_online'] * 100) / $max_time_online);
+	foreach ($context['stats_blocks']['time_online'] as $i => $member)
+		$context['stats_blocks']['time_online'][$i]['percent'] = round(($member['seconds_online'] * 100) / $max_time_online);
 
 	// Cache the ones we found for a bit, just so we don't have to look again.
 	if ($temp !== $temp2)

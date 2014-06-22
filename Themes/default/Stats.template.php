@@ -67,10 +67,10 @@ function template_main()
 		echo '
 				<dt><b>', $txt['gender_stats'], ':</b></dt>
 				<dd>';
-					
+
 		foreach ($context['gender'] as $g => $n)
 			echo $g, ': ', $n, '<br>';
-			
+
 		echo '
 				</dd>';
 	}
@@ -81,199 +81,47 @@ function template_main()
 				<dd>', $context['average_hits'], '</dd>';
 
 	echo '
-			</dl>
+			</dl>';
+
+	foreach ($context['stats_blocks'] as $name => $block)
+	{
+		echo '
 			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="stats_icon posters"></span>', $txt['top_posters'], '
+						<span class="stats_icon ', $name, '"></span>', $txt['top_' . $name], '
 					</h4>
 				</div>
 					<dl class="stats">';
 
-	foreach ($context['top_posters'] as $poster)
-	{
-		echo '
+		foreach ($block as $item)
+		{
+			echo '
 						<dt>
-							', $poster['link'], '
+							', $item['link'], '
 						</dt>
 						<dd class="statsbar">';
 
-		if (!empty($poster['post_percent']))
-			echo '
-							<div class="bar" style="width: ', $poster['post_percent'] + 4, 'px;">
-								<div style="width: ', $poster['post_percent'], 'px;"></div>
+			if (!empty($item['percent']))
+				echo '
+							<div class="bar" style="width: ', $item['percent'] + 4, 'px;">
+								<div style="width: ', $item['percent'], 'px;"></div>
 							</div>';
-		else
-			echo '
+			else
+				echo '
 							<div class="bar empty"></div>';
 
-		echo '
-							<span class="righttext">', $poster['num_posts'], '</span>
+			echo '
+							<span class="righttext">', $item['num'], '</span>
 						</dd>';
+		}
+
+		echo '
+					</dl>
+			</div>';
 	}
 
 	echo '
-					</dl>
-			</div>
-			<div class="half_content">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span class="stats_icon boards"></span>', $txt['top_boards'], '
-					</h4>
-				</div>
-					<dl class="stats">';
-
-	foreach ($context['top_boards'] as $board)
-	{
-		echo '
-						<dt>
-							', $board['link'], '
-						</dt>
-						<dd class="statsbar">';
-
-		if (!empty($board['post_percent']))
-			echo '
-							<div class="bar" style="width: ', $board['post_percent'] + 4, 'px;">
-								<div style="width: ', $board['post_percent'], 'px;"></div>
-							</div>';
-		else
-			echo '
-							<div class="bar empty"></div>';
-
-		echo '
-							<span class="righttext">', $board['num_posts'], '</span>
-						</dd>';
-	}
-
-	echo '
-					</dl>
-			</div>
-			<div class="half_content">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span class="stats_icon replies"></span>', $txt['top_topics_replies'], '
-					</h4>
-				</div>
-					<dl class="stats">';
-
-	foreach ($context['top_topics_replies'] as $topic)
-	{
-		echo '
-						<dt>
-							', $topic['link'], '
-						</dt>
-						<dd class="statsbar">';
-		if (!empty($topic['post_percent']))
-			echo '
-							<div class="bar" style="width: ', $topic['post_percent'] + 4, 'px;">
-								<div style="width: ', $topic['post_percent'], 'px;"></div>
-							</div>';
-		else
-			echo '
-							<div class="bar empty"></div>';
-
-		echo '
-							<span class="righttext">' . $topic['num_replies'] . '</span>
-						</dd>';
-	}
-	echo '
-					</dl>
-			</div>
-
-			<div class="half_content">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span class="stats_icon views"></span>', $txt['top_topics_views'], '
-					</h4>
-				</div>
-					<dl class="stats">';
-
-	foreach ($context['top_topics_views'] as $topic)
-	{
-		echo '
-					<dt>', $topic['link'], '</dt>
-					<dd class="statsbar">';
-
-		if (!empty($topic['post_percent']))
-			echo '
-						<div class="bar" style="width: ', $topic['post_percent'] + 4, 'px;">
-							<div style="width: ', $topic['post_percent'], 'px;"></div>
-						</div>';
-		else
-			echo '
-							<div class="bar empty"></div>';
-
-		echo '
-						<span class="righttext">' . $topic['num_views'] . '</span>
-					</dd>';
-	}
-
-	echo '
-					</dl>
-			</div>
-			<div class="half_content">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span class="stats_icon starters"></span>', $txt['top_starters'], '
-					</h4>
-				</div>
-					<dl class="stats">';
-
-	foreach ($context['top_starters'] as $poster)
-	{
-		echo '
-						<dt>
-							', $poster['link'], '
-						</dt>
-						<dd class="statsbar">';
-
-		if (!empty($poster['post_percent']))
-			echo '
-							<div class="bar" style="width: ', $poster['post_percent'] + 4, 'px;">
-								<div style="width: ', $poster['post_percent'], 'px;"></div>
-							</div>';
-
-		echo '
-							<span class="righttext">', $poster['num_topics'], '</span>
-						</dd>';
-	}
-
-	echo '
-					</dl>
-			</div>
-			<div class="half_content">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span class="stats_icon history"></span>', $txt['most_time_online'], '
-					</h4>
-				</div>
-					<dl class="stats">';
-
-	foreach ($context['top_time_online'] as $poster)
-	{
-		echo '
-						<dt>
-							', $poster['link'], '
-						</dt>
-						<dd class="statsbar">';
-
-		if (!empty($poster['time_percent']))
-			echo '
-							<div class="bar" style="width: ', $poster['time_percent'] + 4, 'px;">
-								<div style="width: ', $poster['time_percent'], 'px;"></div>
-							</div>';
-		else
-			echo '
-								<div class="bar empty"></div>';
-
-		echo '
-							<span>', $poster['time_online'], '</span>
-						</dd>';
-	}
-
-	echo '
-					</dl>
-			</div>
 		</div>
 		<br class="clear">
 		<div class="cat_bar">
