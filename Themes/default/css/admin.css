@@ -1,54 +1,4 @@
-/* Experimental code to hide header content in admin. Will not be used in deafult.
-/* Not checked since main theme was rewritten for the new look. Beware.
-/* Commenting out the entire block sets admin back to the default header.
-------------------------------------------------------- */
-/*
-body.action_admin #header {
-	padding: 2px 2px 0 2px;
-}
-body.action_admin #header .frame {
-	padding: 0 0 50px 0;
-	background:  url(../images/theme/bars.png) 0 -560px repeat-x;
-}
-body.action_admin #top_section, body.action_admin #upper_section {
-	display: none;
-}
-body.action_admin #upper_wrap {
-	background: none;
-	padding: 4px 8px 0 8px;
-}
-body.action_admin #main_content_section {
-	margin: -45px 0 0 0;
-}
-body.action_admin .navigate_section ul {
-	padding: 5px 8px;
-
-	border: 1px solid #b8b8b8;
-	border-radius: 5px;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-body.action_admin .navigate_section ul li.unread_links {
-	display: none;
-}
-body.action_admin .navigate_section ul li a {
-	font-weight: bold;
-}*/
-/* End experimental header hiding stuffz. */
-
-
-/* Common admin center classes.
-------------------------------------------------------- */
-/* @todo
-/* The CSS targeting for all this gets a bit convoluted and requires a good clean up.
-/* It's left over from when I started theming admin independently over a Curve forum.
-/* Can be simplified quite a lot before production builds. */
-/* Special styling for admin descriptions. */
-/* I'll return here laterz */
+/* Start with most common */
 .action_admin .generic_list {
 	overflow: auto;
 }
@@ -57,24 +7,9 @@ body.action_admin .navigate_section ul li a {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 	box-shadow: none;
+	background: #F8F8F8;
 }
 
-/* A general admin wrapper class. */
-div.quick_tasks, #groupForm, #view_group {
-	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ddd;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
-	overflow: auto;
-}
-div.quick_tasks {
-	margin: -8px 0 0 0;
-}
-#view_group .table_grid {
-	margin: 4px 0 8px 0;
-}
 .action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
 	border-radius: 0;
 	border-top: 2px solid #ff9400;
@@ -279,46 +214,6 @@ fieldset.admin_group .inactive {
 	margin: 6px 0;
 }
 
-/* Links to handy sections of admin.
-----------------------------------*/
-/* The <li>'s here have been set to a height in em with hidden overflow.
-/* Yes, this will clip the blurb when using very large font sizes on a narrowish screen.
-/* However, more than enough content is still available for clarity,
-/* and the advantage is that a clean layout is always maintained.
-/* The <li>'s could be set to auto overflow instead, but that just clutters things up with scrollbars.
-/* Scrollbars here look worse, take up space, and don't really add anything useful in this context. */
-div.quick_tasks {
-	border-radius: 0 0 7px 7px;
-	border-top: none;
-	box-shadow: none;
-	padding: 0 0 16px 0;
-}
-#quick_tasks {
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #fff;
-}
-#quick_tasks  li {
-	list-style: none;
-	padding: 10px 6px 10px 6px;
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #bbb;
-	float: left;
-	width: 50%;
-	height: 6em;
-	overflow: hidden;
-}
-#quick_tasks  li a  {
-	line-height: 1.6em;
-}
-.home_image {
-	float: left;
-	margin: 2px 10px;
-}
-#quick_tasks  li span {
-	display: block;
-	margin: 0 0 0 70px;
-}
-
 /* Styles for the support and credits page.
 /* Hey, people might actually want to put their names on it now!
 /* Only a couple of trivial markup hacks that wont break any mods or themes.
@@ -335,7 +230,6 @@ div.quick_tasks {
 #support_credits img.icon {
 	vertical-align: middle;
 }
-
 #latestSupport{
 	padding: 0 25px 15px 25px;
 }
