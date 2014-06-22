@@ -849,7 +849,7 @@ div.cat_bar {
 /* a general table class */
 table.table_grid {
 	border-collapse: collapse;
-	margin-top: 1px;
+	margin: 1px 0 5px 0;
 	width: 100%;
 }
 table.table_grid td {

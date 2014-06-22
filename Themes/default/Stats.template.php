@@ -83,10 +83,13 @@ function template_main()
 	echo '
 			</dl>';
 
+	// Clear fix (for blocks)
+	$clear_class = false;
 	foreach ($context['stats_blocks'] as $name => $block)
 	{
+		$clear_class = !$clear_class;
 		echo '
-			<div class="half_content">
+			<div class="half_content ', $clear_class ? 'clear_left' : 'clear_right', '">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="stats_icon ', $name, '"></span>', $txt['top_' . $name], '

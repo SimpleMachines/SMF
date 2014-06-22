@@ -754,13 +754,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 	padding: 0;
 	margin: 0 1.5em 1em 0;
 }
-#quick_tasks li {
-	float: right;
-	list-style-type: none;
-}
-.home_image {
-	float: right;
-}
 /* common admin classes */
 .additional_row input {
 	margin-left: 0;
