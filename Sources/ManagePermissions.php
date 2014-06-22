@@ -1138,6 +1138,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_displayed_name',
 		'profile_upload_avatar',
 		'profile_remote_avatar',
+		'profile_gravatar_avatar',
 		'profile_remove_own',
 		'report_user',
 	));
@@ -1480,6 +1481,7 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
+			'profile_gravatar_avatar' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
@@ -2235,6 +2237,7 @@ function loadIllegalGuestPermissions()
 		'profile_title',
 		'profile_upload_avatar',
 		'profile_warning',
+		'profile_gravatar_avatar',
 		'remove',
 		'report_any',
 		'report_user',
