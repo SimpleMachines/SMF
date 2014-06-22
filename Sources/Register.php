@@ -222,7 +222,7 @@ function Register($reg_errors = array())
 function Register2($verifiedOpenID = false)
 {
 	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $smcFun, $maintenancec;
+	global $smcFunc, $maintenancec;
 
 	checkSession();
 	validateToken('register');
