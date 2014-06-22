@@ -653,14 +653,16 @@ foreach ($toChange as $change)
 		)
 	);
 
-	$request = $smcFunc['db_query']('', '
-	SELECT icons
-	FROM {db_prefix}membergroups',
-	array()
-);
+// Attempt to move any custom uploaded icons.
+foreach ($toMove as $move)
+{
+	// Get the actual image.
+	$image = explode('#', $move);
+	$image = $image[1];
+	@rename($modSettings['theme_dir'] . '/images/'. $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
+}
 ---}
 ---#
-
 /******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
