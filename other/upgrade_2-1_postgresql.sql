@@ -1247,6 +1247,7 @@ $request = upgrade_query("
 		$inserts[] = "($row[id_group], 'profile_forum_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_other_own', $row[add_deny])";
 		$inserts[] = "($row[id_group], 'profile_signature_own', $row[add_deny])";
+		$inserts[] = "($row[id_group], 'profile_gravatar_avatar', $row[add_deny])";
 	}
 
 	$smcFunc['db_free_result']($request);
