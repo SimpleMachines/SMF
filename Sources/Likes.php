@@ -388,7 +388,7 @@ class Likes
 		// Any callbacks?
 		elseif (!empty($this->_validLikes['callback']))
 		{
-			$call = call_helper($this->_validLikes['callback']);
+			$call = call_helper($this->_validLikes['callback'], true);
 			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
