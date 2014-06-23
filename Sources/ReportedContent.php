@@ -57,7 +57,7 @@ function ReportedContent()
 	if ($context['report_type'] == 'members' || $user_info['mod_cache']['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
 
-	$sub_actions = array(
+	$subActions = array(
 		'show' => 'ShowReports',
 		'closed' => 'ShowClosedReports',
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
@@ -67,17 +67,17 @@ function ReportedContent()
 	);
 
 	// Go ahead and add your own sub-actions.
-	call_integration_hook('integrate_reported_' . $context['report_type'], array(&$sub_actions));
+	call_integration_hook('integrate_reported_' . $context['report_type'], array(&$subActions));
 
 	// By default we call the open sub-action.
-	if (isset($_REQUEST['sa']) && isset($sub_actions[$_REQUEST['sa']]))
+	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$context['sub_action'] = $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_REQUEST['sa']), ENT_QUOTES);
 
 	else
 		$context['sub_action'] = 'show';
 
 	// Hi Ho Silver Away!
-	$sub_actions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
