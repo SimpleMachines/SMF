@@ -2003,6 +2003,11 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_blurb', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarEnabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarOverride', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarAllowExtraEmail', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarMaxRating', 'PG');
 COMMIT;
 
 # --------------------------------------------------------
