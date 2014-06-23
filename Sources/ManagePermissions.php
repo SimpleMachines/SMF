@@ -1581,7 +1581,7 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_attachment';
 	}
 
-	// Hide Likes/Mentions permissions... Antes
+	// Hide Likes/Mentions permissions...
 	if (empty($modSettings['enable_likes']))
 	{
 		$hiddenPermissions[] = 'likes_view';
