@@ -332,6 +332,8 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			);
 
 			updateSettings(array('last_mod_report_action' => time()));
+
+			require_once($sourcedir . '/Subs-ReportedContent.php');
 			recountOpenReports('posts');
 
 			// Topics that were recycled don't need to be deleted, so subtract them.
