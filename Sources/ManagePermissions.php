@@ -1480,6 +1480,7 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
+			'report_user' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
@@ -1579,6 +1580,17 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'view_attachments';
 		$hiddenPermissions[] = 'post_unapproved_attachments';
 		$hiddenPermissions[] = 'post_attachment';
+	}
+
+	// Hide Likes/Mentions permissions...
+	if (empty($modSettings['enable_likes']))
+	{
+		$hiddenPermissions[] = 'likes_view';
+		$hiddenPermissions[] = 'likes_like';
+	}
+	if (empty($modSettings['enable_mentions']))
+	{
+		$hiddenPermissions[] = 'mention';
 	}
 
 	// Provide a practical way to modify permissions.

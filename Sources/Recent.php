@@ -246,7 +246,7 @@ function RecentPosts()
 		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
 		$query_these_boards_params = $query_parameters;
 		unset($query_these_boards_params['max_id_msg']);
-		
+
 		$get_num_posts = $smcFunc['db_query']('', '
 			SELECT IFNULL(SUM(num_posts), 0)
 			FROM {db_prefix}boards AS b
@@ -704,7 +704,7 @@ function UnreadTopics()
 	// This part is the same for each query.
 	$select_clause = '
 				ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
-				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,
+				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
 				ml.poster_time AS last_poster_time, IFNULL(mems.real_name, ms.poster_name) AS first_poster_name,
 				IFNULL(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
 				ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
@@ -1342,7 +1342,47 @@ function UnreadTopics()
 				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['bname'] . '</a>'
 			)
 		);
-
+		if (!empty($settings['avatars_on_indexes']))
+		{
+			if (!empty($modSettings['gravatarOverride']))
+			{
+				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
+					$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+				else
+					$image = get_gravatar_url($row['email_address']);
+			}
+			else
+			{
+				// So it's stored in the member table?
+				if (!empty($row['avatar']))
+				{
+					if (stristr($row['avatar'], 'gravatar://'))
+					{
+						if ($row['avatar'] == 'gravatar://')
+							$image = get_gravatar_url($row['email_address']);
+						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+							$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+					}
+					else
+						$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
+				}
+				// Right... no avatar...
+				else
+					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+						'name' => '',
+						'image' => '',
+						'href' => '',
+						'url' => '',
+					);
+			}
+			if (!empty($image))
+				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+					'name' => $row['avatar'],
+					'image' => '<img class="avatar" src="' . $image . '" />',
+					'href' => $image,
+					'url' => $image,
+				);
+		}
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}
 	$smcFunc['db_free_result']($request);

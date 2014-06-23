@@ -344,7 +344,7 @@ function ModifyProfile($post_errors = array())
 					'icon' => 'warning.png',
 					'permission' => array(
 						'own' => array(),
-						'any' => array('moderate_forum', 'report_user'),
+						'any' => array('report_user'),
 					),
 				),
 				'issuewarning' => array(

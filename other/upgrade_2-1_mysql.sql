@@ -606,6 +606,64 @@ SET id_theme = 0;
 ---#
 
 /******************************************************************************/
+--- Membergroup icons changes
+/******************************************************************************/
+---# Check the current saved names for icons and change them to the new name.
+---{
+$request = $smcFunc['db_query']('', '
+	SELECT icons
+	FROM {db_prefix}membergroups',
+	array()
+);
+$toMove = array();
+$toChange = array();
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	if (strpos($row['icons'], 'star.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('star.gif', 'icon.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'starmod.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('starmod.gif', 'iconmod.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'staradmin.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('staradmin.gif', 'iconadmin.png', $row['icons']),
+		);
+
+	else
+		$toMove[] = $row['icons'];
+}
+$smcFunc['db_free_result']($request);
+
+foreach ($toChange as $change)
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}membergroups
+		SET icons = {string:new}
+		WHERE icons = {string:old}',
+		array(
+			'new' => $change['new'],
+			'old' => $change['old'],
+		)
+	);
+
+// Attempt to move any custom uploaded icons.
+foreach ($toMove as $move)
+{
+	// Get the actual image.
+	$image = explode('#', $move);
+	$image = $image[1];
+	@rename($modSettings['theme_dir'] . '/images/'. $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
+}
+---}
+---#
+/******************************************************************************/
 --- Cleaning up after old themes...
 /******************************************************************************/
 ---# Checking for "core" and removing it if necessary...
@@ -670,7 +728,7 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 ---#
 
 ---# Add an order and show on mlist value to each existing cust profile field.
@@ -1427,6 +1485,28 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 			array(
 				array('mail_limit', '5'),
 				array('mail_quantity', '5'),
+			),
+			array('variable')
+		);
+	}
+---}
+---#
+
+/******************************************************************************/
+--- Adding gravatar settings
+/******************************************************************************/
+---#
+---{
+	if (empty($modSettings['gravatarEnabled']))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string'),
+			array(
+				array('gravatarEnabled', '1'),
+				array('gravatarOverride', '0'),
+				array('gravatarAllowExtraEmail', '1'),
+				array('gravatarMaxRating', 'PG'),
 			),
 			array('variable')
 		);
