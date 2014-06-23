@@ -1436,6 +1436,28 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
+--- Adding gravatar settings
+/******************************************************************************/
+---#
+---{
+	if (empty($modSettings['gravatarEnabled']))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string'),
+			array(
+				array('gravatarEnabled', '1'),
+				array('gravatarOverride', '0'),
+				array('gravatarAllowExtraEmail', '1'),
+				array('gravatarMaxRating', 'PG'),
+			),
+			array('variable')
+		);
+	}
+---}
+---#
+
+/******************************************************************************/
 --- Cleaning up old email settings
 /******************************************************************************/
 ---# Removing the "send_email_to_members" permission
