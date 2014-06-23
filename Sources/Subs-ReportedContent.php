@@ -371,7 +371,7 @@ function recountOpenReports($type)
 	$smcFunc['db_free_result']($request);
 
 	$arr = ($type == 'members' ? 'member_reports' : 'reports');
-	$_SESSION['rc'] = array_merge($_SESSION['rc'],
+	$_SESSION['rc'] = array_merge(!empty($_SESSION['rc']) ? $_SESSION['rc'] : array(),
 		array(
 			'id' => $user_info['id'],
 			'time' => time(),

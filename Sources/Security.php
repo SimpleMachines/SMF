@@ -488,7 +488,7 @@ function banPermissions()
 		$context['open_mod_reports'] = 0;
 
 	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
-		$contexct['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		$context['open_member_reports'] = !empty($_SESSION['rc']['member_reports']) ? $_SESSION['rc']['member_reports'] : 0;
 	elseif (allowedTo('moderate_forum'))
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');
