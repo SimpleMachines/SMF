@@ -325,22 +325,20 @@ function MessageIndex()
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member, ' . (!empty($settings['avatars_on_indexes']) ? 'meml.avatar,' : '') . '
+				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
 				IFNULL(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
 				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
-				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys' . (!empty($settings['avatars_on_indexes']) ? ',
-				IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type' : '') . '
+				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
-				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . (!empty($settings['avatars_on_indexes']) ? '
-				LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = ml.id_member)' : '') . '
+				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
 			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
 			ORDER BY ' . ($pre_query ? 'FIND_IN_SET(t.id_topic, {string:find_set_topics})' : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
@@ -500,12 +498,46 @@ function MessageIndex()
 				'unapproved_posts' => $row['unapproved_posts'],
 			);
 			if (!empty($settings['avatars_on_indexes']))
-				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-					'name' => $row['avatar'],
-					'image' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) . '" alt="" />' : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') || stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? '<img class="avatar" src="' . (!stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? $row['avatar'] : str_replace('gravatar://', 'http://', $row['avatar'])) . '" alt="" />' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row['avatar']) . '" alt="" />'),
-					'href' => $row['avatar'] == '' ? ($row['id_attach'] > 0 ? (empty($row['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row['filename']) : '') : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') || stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? (!stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? $row['avatar'] : str_replace('gravatar://', 'http://', $row['avatar'])) : $modSettings['avatar_url'] . '/' . $row['avatar']),
-					'url' => $row['avatar'] == '' ? '' : (stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') || stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? (!stristr($row['avatar'], 'gravatar://www.gravatar.com/avatar/') ? $row['avatar'] : str_replace('gravatar://', 'http://', $row['avatar'])) : $modSettings['avatar_url'] . '/' . $row['avatar'])
-				);
+			{
+				if (!empty($modSettings['gravatarOverride']))
+				{
+					if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
+						$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+					else
+						$image = get_gravatar_url($row['email_address']);
+				}
+				else
+				{
+					// So it's stored in the member table?
+					if (!empty($row['avatar']))
+					{
+						if (stristr($row['avatar'], 'gravatar://'))
+						{
+							if ($row['avatar'] == 'gravatar://')
+								$image = get_gravatar_url($row['email_address']);
+							elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+								$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+						}
+						else
+							$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
+					}
+					// Right... no avatar...
+					else
+						$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+							'name' => '',
+							'image' => '',
+							'href' => '',
+							'url' => '',
+						);
+				}
+				if (!empty($image))
+					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+						'name' => $row['avatar'],
+						'image' => '<img class="avatar" src="' . $image . '" />',
+						'href' => $image,
+						'url' => $image,
+					);
+			}
 		}
 		$smcFunc['db_free_result']($result);
 

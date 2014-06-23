@@ -2924,19 +2924,17 @@ function setupThemeContext($forceload = false)
 		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
-		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0 || stristr($user_info['avatar']['url'], 'gravatar://www.gravatar.com/avatar/'))
+		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
+			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
+		// Gravatar?
+		elseif (substr($user_info['avatar']['url'], 0, 11) == 'gravatar://')
 		{
-			$context['user']['avatar']['href'] = stristr($user_info['avatar']['url'], 'gravatar://www.gravatar.com/avatar/') ? str_replace('gravatar://', 'http://', $user_info['avatar']['url']) : $user_info['avatar']['url'];
-
-			if (($modSettings['avatar_action_too_large'] == 'option_html_resize' || $modSettings['avatar_action_too_large'] == 'option_js_resize') && strpos($user_info['avatar']['url'], 'gravatar://') !== 0)
-			{
-				if (!empty($modSettings['avatar_max_width_external']))
-					$context['user']['avatar']['width'] = $modSettings['avatar_max_width_external'];
-				if (!empty($modSettings['avatar_max_height_external']))
-					$context['user']['avatar']['height'] = $modSettings['avatar_max_height_external'];
-			}
+			if ($user_info['avatar']['url'] === 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']))
+				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
+			else
+				$context['user']['avatar']['href'] = get_gravatar_url(substr($user_info['avatar']['url'], 11));
 		}
-		// Otherwise we assume it's server stored?
+		// Otherwise we assume it's server stored.
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
 
@@ -4505,6 +4503,39 @@ function entity_fix__callback($matches)
 		return '';
 	else
 		return '&#' . $num . ';';
+}
+
+/**
+-* Return a Gravatar URL based on the supplied email address, the global maximum rating, and maximum sizes as set in the admin panel.
+-*
+-* @todo Add the default URL support once we have one.
+-*/
+function get_gravatar_url($email_address)
+{
+	global $modSettings, $smcFunc;
+	static $url_params = null;
+
+	if ($url_params === null)
+	{
+		$ratings = array('G', 'PG', 'R', 'X');
+		$defaults = array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank');
+		$url_params = array();
+		if (!empty($modSettings['gravatarMaxRating']) && in_array($modSettings['gravatarMaxRating'], $ratings))
+			$url_params[] = 'rating=' . $modSettings['gravatarMaxRating'];
+		if (!empty($modSettings['gravatarDefault']) && in_array($modSettings['gravatarDefault'], $defaults ))
+			$url_params[] = 'default=' . $modSettings['gravatarDefault'];
+		if (!empty($modSettings['avatar_max_width_external']))
+			$size_string = (int) $modSettings['avatar_max_width_external'];
+		if (!empty($modSettings['avatar_max_height_external']) && !empty($size_string))
+			if ((int) $modSettings['avatar_max_height_external'] < $size_string)
+				$size_string = $modSettings['avatar_max_height_external'];
+
+		if (!empty($size_string))
+			$url_params[] = 's=' . $size_string;
+	}
+	$http_method = !empty($modSettings['force_ssl']) ? 'https://secure' : 'http://www';
+
+	return $http_method . '.gravatar.com/avatar/' . md5($smcFunc['strtolower']($email_address)) . '?' . implode('&', $url_params);
 }
 
 ?>

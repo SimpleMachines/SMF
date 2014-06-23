@@ -2824,12 +2824,10 @@ function profileLoadAvatarData()
 	$context['member']['avatar'] += array(
 		'custom' => stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://') ? $cur_profile['avatar'] : 'http://',
 		'selection' => $cur_profile['avatar'] == '' || (stristr($cur_profile['avatar'], 'http://') || stristr($cur_profile['avatar'], 'https://')) ? '' : $cur_profile['avatar'],
-		'id_attach' => $cur_profile['id_attach'],
-		'filename' => $cur_profile['filename'],
-		'allow_server_stored' => allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
-		'allow_upload' => allowedTo('profile_upload_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
-		'allow_external' => allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
-		'allow_gravatar' => allowedTo('profile_gravatar_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any')),
+		'allow_server_stored' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
+		'allow_upload' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_upload_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
+		'allow_external' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
+		'allow_gravatar' => !empty($modSettings['gravatarEnabled']),
 	);
 
 	if ($cur_profile['avatar'] == '' && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
@@ -2853,14 +2851,14 @@ function profileLoadAvatarData()
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
-	elseif (stristr($cur_profile['avatar'], 'gravatar://www.gravatar.com/avatar/')  && $context['member']['avatar']['allow_gravatar'])
+	elseif (stristr($cur_profile['avatar'], 'gravatar://')  && $context['member']['avatar']['allow_gravatar'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
 			'server_pic' => 'blank.png',
-			'external' => $cur_profile['avatar']
+			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11),
 		);
-		$context['member']['avatar']['href'] = str_replace('gravatar://', 'http://', $context['member']['avatar']['external']);
+		$context['member']['avatar']['href'] = get_gravatar_url($context['member']['avatar']['external']);
 	}
 	else
 		$context['member']['avatar'] += array(
@@ -3050,6 +3048,17 @@ function profileSaveAvatarData(&$value)
 		$cur_profile['id_attach'] = 0;
 		$cur_profile['attachment_type'] = 0;
 		$cur_profile['filename'] = '';
+
+		// Get rid of their old avatar. (if uploaded.)
+		removeAttachments(array('id_member' => $memID));
+	}
+	elseif ($value == 'gravatar' && !empty($modSettings['gravatarEnabled']))
+	{
+		// One wasn't specified, or it's not allowed to use extra email addresses, or it's not a valid one, reset to default Gravatar.
+		if (empty($_POST['gravatarEmail']) || empty($modSettings['gravatarAllowExtraEmail']) || !filter_var($_POST['gravatarEmail'], FILTER_VALIDATE_EMAIL))
+			$profile_vars['avatar'] = 'gravatar://';
+		else
+			$profile_vars['avatar'] = 'gravatar://' . ($_POST['gravatarEmail'] != $cur_profile['email_address'] ? $_POST['gravatarEmail'] : '');
 
 		// Get rid of their old avatar. (if uploaded.)
 		removeAttachments(array('id_member' => $memID));

@@ -31,6 +31,9 @@ $txt['latest_posts'] = 'Latest posts of: ';
 $txt['additional_info'] = 'Additional Information';
 $txt['avatar_by_url'] = 'Specify your own avatar by URL. (e.g.: <em>http://www.mypage.com/mypic.png</em>)';
 $txt['my_own_pic'] = 'Specify avatar by URL';
+$txt['use_gravatar'] = 'Use my Gravatar';
+$txt['gravatar_alternateEmail'] = 'Normally, the Gravatar used will be based on your regular email address but if you wish to use the Gravatar from a different email account to your regular forum account (say, the Gravatar from your blog\'s email account), you can enter that email address here.';
+$txt['gravatar_noAlternateEmail'] = 'The Gravatar displayed will be the one based on your account\'s email address.';
 $txt['date_format'] = 'The format here will be used to show dates throughout this forum.';
 $txt['time_format'] = 'Time Format';
 $txt['display_name_desc'] = 'This is the displayed name that people will see.';
@@ -49,7 +52,6 @@ $txt['max_sig_characters'] = 'Max characters: %1$d; characters remaining: ';
 $txt['send_member_pm'] = 'Send this member a personal message';
 $txt['hidden'] = 'hidden';
 $txt['current_time'] = 'Current forum time';
-$txt['choice_gravatar'] = "Gravatar avatar";
 
 $txt['skype_username'] = 'Your Skype Username.';
 

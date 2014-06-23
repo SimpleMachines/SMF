@@ -2830,7 +2830,7 @@ function template_profile_avatar_select()
 								', !empty($context['member']['avatar']['allow_server_stored']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choose_avatar_gallery'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_external']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['my_own_pic'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_upload']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['avatar_will_upload'] . '</label><br />' : '', '
-								', !empty($context['member']['avatar']['allow_gravatar']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"'. ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choice_gravatar'] . '</label>' : '', '
+								', !empty($context['member']['avatar']['allow_gravatar']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"'. ($context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_gravatar"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['use_gravatar'] . '</label>' : '', '
 							</dt>
 							<dd>';
 
@@ -2895,8 +2895,26 @@ function template_profile_avatar_select()
 	// if the user is able to use Gravatar avatars show then the image preview
 	if (!empty($context['member']['avatar']['allow_gravatar']))
 	{
-		echo '					<div id="avatar_gravatar">
-									<img src="http://www.gravatar.com/avatar/' . md5(strtolower(trim($context['member']['email']))) . (strpos($context['member']['avatar']['href'], '?') === false ? '?' : '&amp;') . 'time=' . time() . '" alt="" />
+		echo '
+								<div id="avatar_gravatar">
+									<img src="' . $context['member']['avatar']['href'] . '" alt="" />';
+
+		if (empty($modSettings['gravatarAllowExtraEmail']))
+			echo '
+									<div class="smalltext">', $txt['gravatar_noAlternateEmail'], '</div>';
+		else
+		{
+			// Depending on other stuff, the stored value here might have some odd things in it from other areas.
+			if ($context['member']['avatar']['external'] == $context['member']['email'])
+				$textbox_value = '';
+			else
+				$textbox_value = $context['member']['avatar']['external'];
+
+			echo '
+									<div class="smalltext">', $txt['gravatar_alternateEmail'], '</div>
+									<input type="text" name="gravatarEmail" size="45" value="', $textbox_value, '" class="input_text" />';
+		}
+		echo '
 								</div>';
 	}
 
