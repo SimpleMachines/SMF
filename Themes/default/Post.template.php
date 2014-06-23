@@ -70,7 +70,7 @@ function template_main()
 			<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
+						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
 				<div class="windowbg">
@@ -124,10 +124,10 @@ function template_main()
 
 	if (!empty($modSettings['drafts_post_enabled']))
 		echo '
-				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
-					', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
-				</div>';
+					<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+						sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
+						', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
+					</div>';
 
 	// The post header... important stuff
 	echo '
@@ -548,6 +548,7 @@ function template_main()
 	echo '
 					</span>
 				</div>
+			</div>
 			<br class="clear">';
 
 	// Assuming this isn't a new topic pass across the last message id.
@@ -559,8 +560,7 @@ function template_main()
 			<input type="hidden" name="additional_options" id="additional_options" value="', $context['show_additional_options'] ? '1' : '0', '">
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">
-		</form>
-	</div>';
+		</form>';
 
 	echo '
 		<script><!-- // --><![CDATA[';
@@ -862,7 +862,6 @@ function template_main()
 
 		echo '
 		</div>
-	</div>
 		<script><!-- // --><![CDATA[
 			var aIgnoreToggles = new Array();';
 
