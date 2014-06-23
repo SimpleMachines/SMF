@@ -129,7 +129,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 		// Auto increment is special
 		if (!empty($column['auto']))
 		{
-			$table_query .= "\n" . $column['name'] . ' integer PRIMARY KEY,';
+			$table_query .= "\n" . $column['name'] . ' integer PRIMARY KEY AUTOINCREMENT,';
 			$done_primary = true;
 			continue;
 		}
@@ -666,7 +666,7 @@ function smf_db_alter_table($table_name, $columns)
 
 	// Drop the temp table.
 	$smcFunc['db_query']('', '
-		DROP TABLE {raw:temp_table_name}',
+		DROP TABLE IF EXISTS {raw:temp_table_name}',
 		array(
 			'temp_table_name' => $table_name . '_tmp',
 			'db_error_skip' => true,

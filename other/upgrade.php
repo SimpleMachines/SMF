@@ -49,6 +49,12 @@ $databases = array(
 		'version_check' => 'return 1;',
 		'always_has_db' => true,
 	),
+	'sqlite3' => array(
+		'name' => 'SQLite3',
+		'version' => '1',
+		'version_check' => 'return 1;',
+		'always_has_db' => true,
+	),
 );
 
 // General options for the script.
@@ -2766,6 +2772,9 @@ function upgrade_query($string, $unbuffered = false)
 		elseif (strpos(trim($string), 'INSERT ') !== false)
 		{
 			if (strpos($db_error_message, 'duplicate') !== false)
+				return true;
+			// SQLite
+			if (strpos($db_error_message, 'not unique') !== false)
 				return true;
 		}
 	}
