@@ -1581,6 +1581,17 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_attachment';
 	}
 
+	// Hide Likes/Mentions permissions... Antes
+	if (empty($modSettings['enable_likes']))
+	{
+		$hiddenPermissions[] = 'likes_view';
+		$hiddenPermissions[] = 'likes_like';
+	}
+	if (empty($modSettings['enable_mentions']))
+	{
+		$hiddenPermissions[] = 'mention';
+	}
+
 	// Provide a practical way to modify permissions.
 	call_integration_hook('integrate_load_permissions', array(&$permissionGroups, &$permissionList, &$leftPermissionGroups, &$hiddenPermissions, &$relabelPermissions));
 
