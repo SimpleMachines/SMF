@@ -477,7 +477,7 @@ function banPermissions()
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (isset($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
 		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
@@ -487,8 +487,8 @@ function banPermissions()
 	else
 		$context['open_mod_reports'] = 0;
 
-	if (isset($_SESSION['rmc']) && $_SESSION['rmc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rmc']['id'] == $user_info['id'])
-		$contexct['open_member_reports'] = $_SESSION['rmc']['reports'];
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+		$contexct['open_member_reports'] = $_SESSION['rc']['member_reports'];
 	elseif (allowedTo('moderate_forum'))
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');

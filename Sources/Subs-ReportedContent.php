@@ -370,11 +370,13 @@ function recountOpenReports($type)
 	list ($open_reports) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$_SESSION['rc'] = array(
-		'id' => $user_info['id'],
-		'time' => time(),
-		'reports' => $open_reports,
-	);
+	$arr = ($type == 'members' ? 'member_reports' : 'reports');
+	$_SESSION['rc'] = array_merge($_SESSION['rc'],
+		array(
+			'id' => $user_info['id'],
+			'time' => time(),
+			$arr => $open_reports,
+		));
 
 	return $open_reports;
 }
