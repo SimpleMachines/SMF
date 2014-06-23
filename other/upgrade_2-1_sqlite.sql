@@ -492,7 +492,7 @@ VALUES
 /******************************************************************************/
 ---# Adding the new table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-  id_task integer primary key,
+  id_task integer primary key AUTOINCREMENT,
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
   task_data text NOT NULL,
@@ -663,10 +663,9 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 			'default' => 0,
 			'type' => 'int',
 			'auto' => false
-		)
+		),
 	)
 ));
----}
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
@@ -675,6 +674,7 @@ INSERT OR IGNORE INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('enable_unwatch', 0);
+---}
 ---#
 
 ---# Fixing column name change...
@@ -945,7 +945,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 ---# Dropping old fields
 ---{
 	$smcFunc['db_alter_table']('{db_prefix}membmers', array('drop' => array('icq', 'aim', 'yim', 'msn', 'location', 'gender')));
-}
+---}
 ---#
 
 ---# Create the displayFields setting
@@ -989,8 +989,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	icon varchar(16) NOT NULL default 'xx',
 	locked smallint NOT NULL default '0',
 	is_sticky smallint NOT NULL default '0',
-	to_list varchar(255) NOT NULL default '',
-	PRIMARY KEY (id_draft)
+	to_list varchar(255) NOT NULL default ''
 );
 CREATE UNIQUE INDEX IF NOT EXISTS {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 ---#
@@ -1072,9 +1071,8 @@ CREATE INDEX IF NOT EXISTS {$db_prefix}user_likes_liker ON {$db_prefix}user_like
 ---#
 
 ---# Adding count to the messages table.
----{
-	$smcFunc['db_add_column']('{db_prefix}messages', array('name' => 'likes', 'type' => 'smallint', 'null' => false, 'default' => 0));
-}
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN likes smallint NOT NULL default '0';
 ---#
 
 /******************************************************************************/
@@ -1086,7 +1084,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
-  time`int NOT NULL default 0,
+  time int NOT NULL default 0,
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
@@ -1242,19 +1240,13 @@ $smcFunc['db_insert']('',
 /******************************************************************************/
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question integer PRIMARY KEY AUTOINCREMENT,
+  id_question integer unsigned NOT NULL PRIMARY KEY AUTOINCREMENT,
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS lngfile ON {$db_prefix}qanda (lngfile);
----#
-
----# Fixing id_question column
----{
-	$smcFunc['db_change_column']('{db_prefix}qanda', 'id_question', array('name' => 'id_question', 'type' => 'integer', 'primary' => true, 'auto' => true));
----}
+CREATE INDEX IF NOT EXISTS {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile);
 ---#
 
 ---# Moving questions and answers to the new table
@@ -1350,7 +1342,7 @@ $request = upgrade_query("
 		foreach ($inserts as $insert)
 		{
 			upgrade_query("
-				INSERT OR IGNORE INTO {$db_prefix}permissions
+				INSERT INTO {$db_prefix}permissions
 					(id_group, permission, add_deny)
 				VALUES
 					" . $insert);
@@ -1384,7 +1376,7 @@ $request = upgrade_query("
 		foreach ($inserts as $insert)
 		{
 			upgrade_query("
-				INSERT OR IGNORE INTO {$db_prefix}permissions
+				INSERT INTO {$db_prefix}permissions
 					(id_group, permission, add_deny)
 				VALUES
 					" . $insert);
@@ -1413,9 +1405,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 ---#
 
 ---# Adding "in_inbox" column to pm_recipients
----{
-	$smcFunc['db_add_column']('{db_prefix}pm_recipients', array('name' => 'in_inbox', 'type' => 'tinyint', 'size' => 3, 'null' => false, 'default' => 1));
----}
+ALTER TABLE {$db_prefix}pm_recipients
+ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 ---#
 
 ---# Moving label info to new tables and updating rules...
@@ -1582,9 +1573,8 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 --- Adding support for edit reasons
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
----{
-	$smcFunc['db_add_column']('{db_prefix}messages', array('name' => 'modified_reason', 'type' => 'varchar', 'size' => 255, 'null' => false, 'default' => ''));
----}
+ALTER TABLE {$db_prefix}messages
+ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
