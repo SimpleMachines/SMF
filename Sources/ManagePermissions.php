@@ -2235,7 +2235,6 @@ function loadIllegalGuestPermissions()
 		'profile_title',
 		'profile_upload_avatar',
 		'profile_warning',
-		'profile_gravatar_avatar',
 		'remove',
 		'report_any',
 		'report_user',
