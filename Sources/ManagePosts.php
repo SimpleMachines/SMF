@@ -305,7 +305,6 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'show_profile_buttons'),
 			array('check', 'show_user_images'),
 			array('check', 'show_blurb'),
-			array('check', 'show_gender'),
 			array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
 		'',
 			// First & Last message preview lengths
