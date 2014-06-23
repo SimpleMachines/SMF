@@ -52,8 +52,9 @@ function SplitTopics()
 	// ?action=splittopics;sa=LETSBREAKIT won't work, sorry.
 	if (empty($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
 		SplitIndex();
+
 	else
-		$subActions[$_REQUEST['sa']]();
+		call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -908,7 +909,7 @@ function MergeIndex()
 			'not_redirection' => true,
 			'selected_board' => $context['target_board'],
 		);
-	
+
 		// Only include these boards in the list (0 means you're an admin')
 		if (!in_array(0, $merge_boards))
 			$options['included_boards'] = $merge_boards;
