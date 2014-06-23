@@ -972,8 +972,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
-			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
+			IFNULL(lo.log_time, 0) AS is_online, mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
@@ -982,7 +981,6 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
 	$select_tables = '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
-			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)
 			LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
 
@@ -1127,8 +1125,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 function loadMemberContext($user, $display_custom_fields = false)
 {
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
-	global $context, $modSettings, $settings;
-	global $smcFunc;
+	global $context, $modSettings, $settings, $smcFunc;
 	static $dataLoaded = array();
 
 	// If this person's data is already loaded, skip it.
@@ -1194,12 +1191,6 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'signature' => $profile['signature'],
 			'real_posts' => $profile['posts'],
 			'posts' => $profile['posts'] > 500000 ? $txt['geek'] : comma_format($profile['posts']),
-			'avatar' => array(
-				'name' => $profile['avatar'],
-				'image' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) . '" alt="">' : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? '<img class="avatar" src="' . $profile['avatar'] . '" alt="">' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($profile['avatar']) . '" alt="">'),
-				'href' => $profile['avatar'] == '' ? ($profile['id_attach'] > 0 ? (empty($profile['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $profile['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $profile['filename']) : '') : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar']),
-				'url' => $profile['avatar'] == '' ? '' : (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'])
-			),
 			'last_login' => empty($profile['last_login']) ? $txt['never'] : timeformat($profile['last_login']),
 			'last_login_timestamp' => empty($profile['last_login']) ? 0 : forum_time(0, $profile['last_login']),
 			'ip' => $smcFunc['htmlspecialchars']($profile['member_ip']),
@@ -1228,6 +1219,49 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
 		);
+
+	// If the set isn't minimal then load their avatar as ell.
+	if ($context['loadMemberContext_set'] != 'minimal')
+	{
+		if (!empty($modSettings['gravatarOverride']))
+		{
+			if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($profile['avatar']) && stristr($profile['avatar'], 'gravatar://'))
+				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
+			else
+				$image = get_gravatar_url($profile['email_address']);
+		}
+		else
+		{
+			// So it's stored in the member table?
+			if (!empty($profile['avatar']))
+			{
+				if (stristr($profile['avatar'], 'gravatar://'))
+				{
+					if ($profile['avatar'] == 'gravatar://')
+						$image = get_gravatar_url($profile['email_address']);
+					elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+						$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
+				}
+				else
+					$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+			}
+			// Right... no avatar...
+			else
+				$memberContext[$user]['avatar'] = array(
+					'name' => '',
+					'image' => '',
+					'href' => '',
+					'url' => '',
+				);
+		}
+		if (!empty($image))
+			$memberContext[$user]['avatar'] = array(
+				'name' => $profile['avatar'],
+				'image' => '<img class="avatar" src="' . $image . '" />',
+				'href' => $image,
+				'url' => $image,
+			);
+	}
 
 	// Are we also loading the members custom fields into context?
 	if ($display_custom_fields && !empty($modSettings['displayFields']))
