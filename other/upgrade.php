@@ -2773,6 +2773,9 @@ function upgrade_query($string, $unbuffered = false)
 		{
 			if (strpos($db_error_message, 'duplicate') !== false)
 				return true;
+			// SQLite
+			if (strpos($db_error_message, 'not unique') !== false)
+				return true;
 		}
 	}
 
