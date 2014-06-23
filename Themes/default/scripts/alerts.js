@@ -1,4 +1,4 @@
-var pingTime = 60000;
+var pingTime = 10000;
 
 var updateAlerts = function ()
 {
@@ -8,11 +8,14 @@ var updateAlerts = function ()
     if (typeof localStorage != 'undefined')
     {
         unreadAlerts = localStorage.getItem('alertsCounter');
+        
+        if (unreadAlerts !== parseInt(unreadAlerts))
+            return true;
 
-        if (!$('.amt:first').is(':visible'))
-            $('#alerts_menu_top').append('<span class="amt">0</span>');
-
-        $('.amt:first').text(unreadAlerts);
+        if ($('.amt:first').is(':visible'))
+            $('.amt:first').text(unreadAlerts);
+        else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+            $('#alerts_menu_top').append(' <span class="amt">' + unreadAlerts + '</span>');
 
         if (localStorage.getItem('alertsPoll') != null && (+(new Date()) - localStorage.getItem('alertsPoll')) < pingTime)
         {
@@ -32,15 +35,18 @@ var updateAlerts = function ()
         if (alerts.length == 0)
             return true;
 
-        if (unreadAlerts == 0)
-            $('#alerts_menu_top').append('<span class="amt">0</span>');
-
         unreadAlerts += alerts.length;
+        
+        if (unreadAlerts !== parseInt(unreadAlerts))
+            return true;
 
         if (typeof localStorage != 'undefined')
             localStorage.setItem('alertsCounter', unreadAlerts);
-
-        $('.amt:first').text(unreadAlerts);
+        
+        if ($('.amt:first').is(':visible'))
+            $('.amt:first').text(unreadAlerts);
+        else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)
+            $('#alerts_menu_top').append('<span class="amt">' + unreadAlerts + '</span>');
 
         $.each(alerts, function(index, item)
         {
