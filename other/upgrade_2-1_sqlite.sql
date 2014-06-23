@@ -6,15 +6,15 @@
 
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
-	id_login integer NOT NULL auto_increment,
+	id_login integer PRIMARY KEY AUTOINCREMENT,
 	id_member integer NOT NULL,
 	time integer NOT NULL,
 	ip varchar(255) NOT NULL default '',
-	ip2 varchar(255) NOT NULL default '',
-	PRIMARY KEY id_login(id_login)
-	KEY id_member (id_member)
-	KEY time (time)
+	ip2 varchar(255) NOT NULL default ''
 );
+
+CREATE INDEX IF NOT EXISTS {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
+CREATE INDEX IF NOT EXISTS {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 ---#
 
 ---# Copying the current package backup setting...
@@ -87,20 +87,20 @@ DROP TABLE IF EXISTS {$db_prefix}collapsed_categories;
 ---#
 
 ---# Adding new "topic_move_any" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1');
 ---#
 
 ---# Adding new "browser_cache" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
 ---# Enable BBC on Editor and collapse object
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
 ---# Enable some settings we ripped from Theme settings
 ---{
@@ -309,27 +309,39 @@ if (!empty($attachs))
 /******************************************************************************/
 
 ---# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 smallint(255) unsigned NOT NULL DEFAULT '0';
+---{
+	$def = array(
+		'type' => 'smallint',
+		'size' => 255,
+		'null' => false,
+		'default' => 0
+	);
+
+	for ($i = 5; $i < 9; $i++)
+	{
+		$column_data = array_merge(array('name' => 'ip_low_' . $i), $def);
+		$smcFunc['db_add_column']('{db_prefix}ban_items', $column_data, array(), '', 'skip');
+		
+		$column_data = array_merge(array('name' => 'ip_high_' . $i), $def);
+		$smcFunc['db_add_column']('{db_prefix}ban_items', $column_data, array(), '', 'skip');
+	}
+---}
 ---#
 
 ---# Changing existing columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
+---{
+	$changes = array(
+		'type' => 'smallint',
+		'size' => '255',
+		'default' => 0
+	);
+
+	for ($i = 1; $i < 5; $i++)
+	{
+		$smcFunc['db_change_column']('{db_prefix}ban_items', 'ip_low_' . $i, $changes);
+		$smcFunc['db_change_column']('{db_prefix}ban_items', 'ip_high_' . $i, $changes);
+	}	
+---}
 ---#
 
 /******************************************************************************/
@@ -337,12 +349,42 @@ CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
 /******************************************************************************/
 
 ---# Adding new columns to log_group_requests
-ALTER TABLE {$db_prefix}log_group_requests
-ADD COLUMN status smallint unsigned NOT NULL default '0',
-ADD COLUMN id_member_acted int unsigned NOT NULL default '0',
-ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
-ADD COLUMN time_acted int unsigned NOT NULL default '0',
-ADD COLUMN act_reason text NOT NULL;
+---{
+	$columns = array(
+		'status' => array(
+			'name' => 'status',
+			'type' => 'smallint',
+			'null' => false,
+			'default' => 0
+		),
+		'id_member_started' => array(
+			'name' => 'id_member_acted',
+			'type' => 'int',
+			'null' => false,
+			'default' => 0
+		),
+		'member_name_acted' => array(
+			'name' => 'member_name_started',
+			'type' => 'varchar',
+			'size' => 255,
+			'null' => false,
+			'default' => ''
+		),
+		'time_acted' => array(
+			'name' => 'time_acted',
+			'type' => 'int',
+			'null' => false,
+			'default' => 0 
+		),
+		'act_reason' => array(
+			'name' => 'act_reason',
+			'type' => 'text',
+			'null' => false
+		)
+	);
+
+	$smcFunc['db_alter_table']('{db_prefix}log_group_requests', array('add' => $columns));
+---}
 ---#
 
 ---# Adjusting the indexes for log_group_requests
@@ -354,22 +396,47 @@ CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_r
 --- Adding support for <credits> tag in package manager
 /******************************************************************************/
 ---# Adding new columns to log_packages ..
-ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
+---{
+$smcFunc['db_alter_table']('{db_prefix}log_packages', array(
+	'add' => array(
+		'credits' => array(
+			'name' => 'credits',
+			'null' => false,
+			'type' => 'varchar',
+			'size' => 255,
+			'auto' => false
+		)
+	)
+));
+---}
 ---#
 
 /******************************************************************************/
 --- Adding more space for session ids
 /******************************************************************************/
 ---# Altering the session_id columns...
-ALTER TABLE {$db_prefix}log_online
-CHANGE `session` `session` varchar(64) NOT NULL DEFAULT '';
+---{
+	$column = array(
+		'type' => 'varchar',
+		'size' => 64,
+		'null' => false,
+		'default' => ''
+	);
 
-ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` char(64) NOT NULL default '                                                                ';
+	// First we update it here...
+	$smcFunc['db_change_column']('{db_prefix}log_online', 'session', $column);
 
-ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` char(64) NOT NULL;
+	// Now we update the definition slightly
+	$column['type'] = 'char';
+	$column['default'] = '                                                                ';
+
+	// And change it here
+	$smcFunc['db_change_column']('{db_prefix}log_errors', 'session', $column);
+
+	// No default this time
+	unset($column['default']);
+	$smcFunc['db_change_column']('{db_prefix}sessions', 'session_id', $column);
+---}
 ---#
 
 /******************************************************************************/
@@ -406,15 +473,15 @@ $smcFunc['db_alter_table']('{db_prefix}topics', array(
 --- Adding new scheduled tasks
 /******************************************************************************/
 ---# Adding new scheduled tasks
-INSERT INTO {$db_prefix}scheduled_tasks
+INSERT OR IGNORE INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
-INSERT INTO {$db_prefix}scheduled_tasks
+INSERT OR IGNORE INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
-INSERT INTO {$db_prefix}scheduled_tasks
+INSERT OR IGNORE INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 240, 1, 'd', 0, 'remove_old_drafts');
@@ -429,8 +496,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
   task_data text NOT NULL,
-  claimed_time int NOT NULL default '0',
-  PRIMARY KEY (id_task)
+  claimed_time int NOT NULL default '0'
 );
 ---#
 
@@ -445,7 +511,7 @@ $smcFunc['db_alter_table']('{db_prefix}boards', array(
 			'name' => 'deny_member_groups',
 			'null' => false,
 			'default' => '',
-			'type' => varchar,
+			'type' => 'varchar',
 			'size' => 255,
 			'auto' => false,
 		),
@@ -519,7 +585,7 @@ if (!empty($member_groups))
 /******************************************************************************/
 ---# Adding new columns to categories...
 ---{
-$smcFunc['db_alter_table']('{db_prefix}log_topics', array(
+$smcFunc['db_alter_table']('{db_prefix}categories', array(
 	'add' => array(
 		'description' => array(
 			'name' => 'description',
@@ -540,7 +606,7 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 $smcFunc['db_alter_table']('{db_prefix}members', array(
 	'add' => array(
 		'alerts' => array(
-			'name' => 'ualerts',
+			'name' => 'alerts',
 			'null' => false,
 			'default' => 0,
 			'type' => 'int',
@@ -562,12 +628,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
   content_id int unsigned NOT NULL default '0',
   content_action varchar(255) NOT NULL default '',
   is_read int unsigned NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert)
+  extra text NOT NULL
 );
 
-CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
-CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
+CREATE INDEX IF NOT EXISTS {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
+CREATE INDEX IF NOT EXISTS {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 ---#
 
 ---# Adding alert preferences.
@@ -578,11 +643,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
   PRIMARY KEY (id_member, alert_pref)
 );
 
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
-INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
+INSERT OR IGNORE INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
+INSERT OR IGNORE INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_register', 1);
+INSERT OR IGNORE INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
+INSERT OR IGNORE INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
+INSERT OR IGNORE INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 ---#
 
 /******************************************************************************/
@@ -597,19 +662,19 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 			'null' => false,
 			'default' => 0,
 			'type' => 'int',
-			'auto' => false,
-		),
+			'auto' => false
+		)
 	)
 ));
+---}
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
 
-INSERT INTO {$db_prefix}settings
+INSERT OR IGNORE INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('enable_unwatch', 0);
----}
 ---#
 
 ---# Fixing column name change...
@@ -633,9 +698,14 @@ $smcFunc['db_alter_table']('{db_prefix}log_topics', array(
 /******************************************************************************/
 ---# Altering the membergroup stars to icons
 ---{
-upgrade_query("
-	ALTER TABLE {$db_prefix}membergroups
-	CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT ''");
+	$stars = array(
+		'name' => 'icons',
+		'type' => 'varchar',
+		'size' => 255,
+		'null' => false,
+		'default' => ''
+	);
+	$smcFunc['db_change_column']('{db_prefix}membergroups', 'stars', $stars);
 ---}
 ---#
 
@@ -646,7 +716,7 @@ WHERE value LIKE 'SMF Default Theme%';
 ---#
 
 ---# Adding the enableThemes setting.
-INSERT INTO {$db_prefix}settings
+INSERT OR IGNORE INTO {$db_prefix}settings
 	(variable, value)
 VALUES
 	('enableThemes', '1');
@@ -720,12 +790,22 @@ ADD COLUMN show_mlist smallint NOT NULL default '0';
 ---#
 
 ---# Insert fields
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 ---#
 
@@ -804,13 +884,9 @@ if (@$modSettings['smfVersion'] < '2.1')
 ---#
 
 ---# Dropping old fields
-ALTER TABLE `{$db_prefix}members`
-  DROP `icq`,
-  DROP `aim`,
-  DROP `yim`,
-  DROP `msn`,
-  DROP `location`,
-  DROP `gender`;
+---{
+	$smcFunc['db_alter_table']('{db_prefix}membmers', array('drop' => array('icq', 'aim', 'yim', 'msn', 'location', 'gender')));
+}
 ---#
 
 ---# Create the displayFields setting
@@ -841,7 +917,7 @@ ALTER TABLE `{$db_prefix}members`
 /******************************************************************************/
 ---# Creating drafts table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-	id_draft int unsigned NOT NULL auto_increment,
+	id_draft integer PRIMARY KEY AUTOINCREMENT,
 	id_topic int unsigned NOT NULL default '0',
 	id_board smallint unsigned NOT NULL default '0',
 	id_reply int unsigned NOT NULL default '0',
@@ -857,7 +933,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
 	to_list varchar(255) NOT NULL default '',
 	PRIMARY KEY (id_draft)
 );
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+CREATE UNIQUE INDEX IF NOT EXISTS {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 ---#
 
 ---# Adding draft permissions...
@@ -914,10 +990,10 @@ if (@$modSettings['smfVersion'] < '2.1')
 	}
 }
 ---}
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
+INSERT OR IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
+INSERT OR IGNORE INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
 ---#
 
 /******************************************************************************/
@@ -932,13 +1008,14 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
   PRIMARY KEY (content_id, content_type, id_member)
 );
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX IF NOT EXISTS {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
+CREATE INDEX IF NOT EXISTS {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 ---#
 
 ---# Adding count to the messages table.
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes smallint NOT NULL default '0';
+---{
+	$smcFunc['db_add_column']('{db_prefix}messages', array('name' => 'likes', 'type' => 'smallint', 'null' => false, 'default' => 0));
+}
 ---#
 
 /******************************************************************************/
@@ -950,12 +1027,12 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
+  time`int NOT NULL default 0,
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
-CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
-CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
+CREATE INDEX IF NOT EXISTS {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
+CREATE INDEX IF NOT EXISTS {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
 ---#
 
 /******************************************************************************/
@@ -1106,13 +1183,19 @@ $smcFunc['db_insert']('',
 /******************************************************************************/
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question smallint(5) unsigned NOT NULL auto_increment,
+  id_question integer PRIMARY KEY AUTOINCREMENT,
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
-  answers text NOT NULL,
-  PRIMARY KEY (id_question),
-  KEY lngfile (lngfile)
+  answers text NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS lngfile ON {$db_prefix}qanda (lngfile);
+---#
+
+---# Fixing id_question column
+---{
+	$smcFunc['db_change_column']('{db_prefix}qanda', 'id_question', array('name' => 'id_question', 'type' => 'integer', 'primary' => true, 'auto' => true));
+---}
 ---#
 
 ---# Moving questions and answers to the new table
@@ -1208,7 +1291,7 @@ $request = upgrade_query("
 		foreach ($inserts as $insert)
 		{
 			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
+				INSERT OR IGNORE INTO {$db_prefix}permissions
 					(id_group, permission, add_deny)
 				VALUES
 					" . $insert);
@@ -1242,7 +1325,7 @@ $request = upgrade_query("
 		foreach ($inserts as $insert)
 		{
 			upgrade_query("
-				INSERT INTO {$db_prefix}permissions
+				INSERT OR IGNORE INTO {$db_prefix}permissions
 					(id_group, permission, add_deny)
 				VALUES
 					" . $insert);
@@ -1258,7 +1341,7 @@ $request = upgrade_query("
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
   id_label integer primary key,
   id_member int NOT NULL default '0',
-  name varchar(30) NOT NULL default '',
+  name varchar(30) NOT NULL default ''
 );
 ---#
 
@@ -1271,8 +1354,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
 ---#
 
 ---# Adding "in_inbox" column to pm_recipients
-ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
+---{
+	$smcFunc['db_add_column']('{db_prefix}pm_recipients', array('name' => 'in_inbox', 'type' => 'tinyint', 'size' => 3, 'null' => false, 'default' => 1));
+---}
 ---#
 
 ---# Moving label info to new tables and updating rules...
@@ -1439,8 +1523,9 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 --- Adding support for edit reasons
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
-ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+---{
+	$smcFunc['db_add_column']('{db_prefix}messages', array('name' => 'modified_reason', 'type' => 'varchar', 'size' => 255, 'null' => false, 'default' => ''));
+---}
 ---#
 
 /******************************************************************************/

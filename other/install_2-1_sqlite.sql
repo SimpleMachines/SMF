@@ -2,11 +2,11 @@
 #### Install script for SQLite/SQLite3
 
 #
-# Table structure for table `admin_info_files`
+# Table structure for table admin_info_files
 #
 
 CREATE TABLE {$db_prefix}admin_info_files (
-  id_file integer primary key,
+  id_file integer PRIMARY KEY AUTOINCREMENT,
   filename varchar(255) NOT NULL,
   path varchar(255) NOT NULL,
   parameters varchar(255) NOT NULL,
@@ -15,13 +15,13 @@ CREATE TABLE {$db_prefix}admin_info_files (
 );
 
 #
-# Indexes for table `admin_info_files`
+# Indexes for table admin_info_files
 #
 
 CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename);
 
 #
-# Dumping data for table `admin_info_files`
+# Dumping data for table admin_info_files
 #
 
 BEGIN TRANSACTION;
@@ -35,7 +35,7 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `approval_queue`
+# Table structure for table approval_queue
 #
 
 CREATE TABLE {$db_prefix}approval_queue (
@@ -45,11 +45,11 @@ CREATE TABLE {$db_prefix}approval_queue (
 );
 
 #
-# Table structure for table `attachments`
+# Table structure for table attachments
 #
 
 CREATE TABLE {$db_prefix}attachments (
-  id_attach integer primary key,
+  id_attach integer PRIMARY KEY AUTOINCREMENT,
   id_thumb int NOT NULL default '0',
   id_msg int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -67,7 +67,7 @@ CREATE TABLE {$db_prefix}attachments (
 );
 
 #
-# Indexes for table `attachments`
+# Indexes for table attachments
 #
 
 CREATE UNIQUE INDEX {$db_prefix}attachments_id_member ON {$db_prefix}attachments (id_member, id_attach);
@@ -75,11 +75,11 @@ CREATE INDEX {$db_prefix}attachments_id_msg ON {$db_prefix}attachments (id_msg);
 CREATE INDEX {$db_prefix}attachments_attachment_type ON {$db_prefix}attachments (attachment_type);
 
 #
-# Table structure for table `background_tasks`
+# Table structure for table background_tasks
 #
 
 CREATE TABLE {$db_prefix}background_tasks (
-  id_task integer primary key,
+  id_task integer primary key AUTOINCREMENT,
   task_file varchar(255) NOT NULL default '',
   task_class varchar(255) NOT NULL default '',
   task_data text NOT NULL,
@@ -87,11 +87,11 @@ CREATE TABLE {$db_prefix}background_tasks (
 );
 
 #
-# Table structure for table `ban_groups`
+# Table structure for table ban_groups
 #
 
 CREATE TABLE {$db_prefix}ban_groups (
-  id_ban_group integer primary key,
+  id_ban_group integer primary key AUTOINCREMENT,
   name varchar(20) NOT NULL default '',
   ban_time int NOT NULL default '0',
   expire_time int,
@@ -104,11 +104,11 @@ CREATE TABLE {$db_prefix}ban_groups (
 );
 
 #
-# Table structure for table `ban_items`
+# Table structure for table ban_items
 #
 
 CREATE TABLE {$db_prefix}ban_items (
-  id_ban integer primary key,
+  id_ban integer primary key AUTOINCREMENT,
   id_ban_group smallint NOT NULL default '0',
   ip_low1 smallint NOT NULL default '0',
   ip_high1 smallint NOT NULL default '0',
@@ -133,13 +133,13 @@ CREATE TABLE {$db_prefix}ban_items (
 );
 
 #
-# Indexes for table `ban_items`
+# Indexes for table ban_items
 #
 
 CREATE INDEX {$db_prefix}ban_items_id_ban_group ON {$db_prefix}ban_items (id_ban_group);
 
 #
-# Table structure for table `board_permissions`
+# Table structure for table board_permissions
 #
 
 CREATE TABLE {$db_prefix}board_permissions (
@@ -151,7 +151,7 @@ CREATE TABLE {$db_prefix}board_permissions (
 );
 
 #
-# Dumping data for table `board_permissions`
+# Dumping data for table board_permissions
 #
 
 BEGIN TRANSACTION;
@@ -468,11 +468,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `boards`
+# Table structure for table boards
 #
 
 CREATE TABLE {$db_prefix}boards (
-  id_board integer primary key,
+  id_board integer primary key AUTOINCREMENT,
   id_cat smallint NOT NULL default '0',
   child_level smallint NOT NULL default '0',
   id_parent smallint NOT NULL default '0',
@@ -495,7 +495,7 @@ CREATE TABLE {$db_prefix}boards (
 );
 
 #
-# Indexes for table `boards`
+# Indexes for table boards
 #
 
 CREATE UNIQUE INDEX {$db_prefix}boards_categories ON {$db_prefix}boards (id_cat, id_board);
@@ -504,7 +504,7 @@ CREATE INDEX {$db_prefix}boards_id_msg_updated ON {$db_prefix}boards (id_msg_upd
 CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups);
 
 #
-# Dumping data for table `boards`
+# Dumping data for table boards
 #
 
 INSERT INTO {$db_prefix}boards
@@ -513,11 +513,11 @@ VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 
 # --------------------------------------------------------
 
 #
-# Table structure for table `calendar`
+# Table structure for table calendar
 #
 
 CREATE TABLE {$db_prefix}calendar (
-  id_event integer primary key,
+  id_event integer primary key AUTOINCREMENT,
   start_date date NOT NULL default '0001-01-01',
   end_date date NOT NULL default '0001-01-01',
   id_board smallint NOT NULL default '0',
@@ -527,7 +527,7 @@ CREATE TABLE {$db_prefix}calendar (
 );
 
 #
-# Indexes for table `calendar`
+# Indexes for table calendar
 #
 
 CREATE INDEX {$db_prefix}calendar_start_date ON {$db_prefix}calendar (start_date);
@@ -535,23 +535,23 @@ CREATE INDEX {$db_prefix}calendar_end_date ON {$db_prefix}calendar (end_date);
 CREATE INDEX {$db_prefix}calendar_topic ON {$db_prefix}calendar (id_topic, id_member);
 
 #
-# Table structure for table `calendar_holidays`
+# Table structure for table calendar_holidays
 #
 
 CREATE TABLE {$db_prefix}calendar_holidays (
-  id_holiday integer primary key,
+  id_holiday integer primary key AUTOINCREMENT,
   event_date date NOT NULL default '0001-01-01',
   title varchar(255) NOT NULL default ''
 );
 
 #
-# Indexes for table `calendar_holidays`
+# Indexes for table calendar_holidays
 #
 
 CREATE INDEX {$db_prefix}calendar_holidays_event_date ON {$db_prefix}calendar_holidays (event_date);
 
 #
-# Dumping data for table `calendar_holidays`
+# Dumping data for table calendar_holidays
 #
 
 BEGIN TRANSACTION;
@@ -673,11 +673,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `categories`
+# Table structure for table categories
 #
 
 CREATE TABLE {$db_prefix}categories (
-  id_cat integer primary key,
+  id_cat integer PRIMARY KEY AUTOINCREMENT,
   cat_order smallint NOT NULL default '0',
   name varchar(255) NOT NULL,
   description text NOT NULL,
@@ -685,7 +685,7 @@ CREATE TABLE {$db_prefix}categories (
 );
 
 #
-# Dumping data for table `categories`
+# Dumping data for table categories
 #
 
 INSERT INTO {$db_prefix}categories
@@ -693,11 +693,11 @@ VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
-# Table structure for table `custom_fields`
+# Table structure for table custom_fields
 #
 
 CREATE TABLE {$db_prefix}custom_fields (
-  id_field integer primary key,
+  id_field integer PRIMARY KEY AUTOINCREMENT,
   col_name varchar(12) NOT NULL default '',
   field_name varchar(40) NOT NULL default '',
   field_desc varchar(255) NOT NULL,
@@ -720,38 +720,38 @@ CREATE TABLE {$db_prefix}custom_fields (
 );
 
 #
-# Indexes for table `custom_fields`
+# Indexes for table custom_fields
 #
 
 CREATE UNIQUE INDEX {$db_prefix}custom_fields_col_name ON {$db_prefix}custom_fields (col_name);
 
 
 #
-# Dumping data for table `custom_fields`
+# Dumping data for table custom_fields
 #
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
 
 #
-# Table structure for table `group_moderators`
+# Table structure for table group_moderators
 #
 
 CREATE TABLE {$db_prefix}group_moderators (
@@ -761,11 +761,11 @@ CREATE TABLE {$db_prefix}group_moderators (
 );
 
 #
-# Table structure for table `log_actions`
+# Table structure for table log_actions
 #
 
 CREATE TABLE {$db_prefix}log_actions (
-  id_action integer primary key,
+  id_action integer PRIMARY KEY AUTOINCREMENT,
   id_log smallint NOT NULL default '1',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -778,7 +778,7 @@ CREATE TABLE {$db_prefix}log_actions (
 );
 
 #
-# Indexes for table `log_actions`
+# Indexes for table log_actions
 #
 
 CREATE INDEX {$db_prefix}log_actions_log_time ON {$db_prefix}log_actions (log_time);
@@ -789,11 +789,11 @@ CREATE INDEX {$db_prefix}log_actions_id_log ON {$db_prefix}log_actions (id_log);
 CREATE INDEX {$db_prefix}log_actions_id_topic_id_log {$db_prefix}log_actions (id_topic, id_log);
 
 #
-# Table structure for table `log_activity`
+# Table structure for table log_activity
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-  date date NOT NULL default '0001-01-01' primary key,
+  date date NOT NULL default '0001-01-01' PRIMARY KEY,
   hits int NOT NULL default '0',
   topics smallint NOT NULL default '0',
   posts smallint NOT NULL default '0',
@@ -802,11 +802,11 @@ CREATE TABLE {$db_prefix}log_activity (
 );
 
 #
-# Table structure for table `log_banned`
+# Table structure for table log_banned
 #
 
 CREATE TABLE {$db_prefix}log_banned (
-  id_ban_log integer primary key,
+  id_ban_log integer PRIMARY KEY AUTOINCREMENT,
   id_member int NOT NULL default '0',
   ip char(16) NOT NULL default '                ',
   email varchar(255) NOT NULL,
@@ -814,13 +814,13 @@ CREATE TABLE {$db_prefix}log_banned (
 );
 
 #
-# Indexes for table `log_banned`
+# Indexes for table log_banned
 #
 
 CREATE INDEX {$db_prefix}log_banned_log_time ON {$db_prefix}log_banned (log_time);
 
 #
-# Table structure for table `log_boards`
+# Table structure for table log_boards
 #
 
 CREATE TABLE {$db_prefix}log_boards (
@@ -831,11 +831,11 @@ CREATE TABLE {$db_prefix}log_boards (
 );
 
 #
-# Table structure for table `log_comments`
+# Table structure for table log_comments
 #
 
 CREATE TABLE {$db_prefix}log_comments (
-  id_comment integer primary key,
+  id_comment integer PRIMARY KEY AUTOINCREMENT,
   id_member int NOT NULL default '0',
   member_name varchar(80) NOT NULL default '',
   comment_type varchar(8) NOT NULL default 'warning',
@@ -848,7 +848,7 @@ CREATE TABLE {$db_prefix}log_comments (
 );
 
 #
-# Indexes for table `log_comments`
+# Indexes for table log_comments
 #
 
 CREATE INDEX {$db_prefix}log_comments_id_recipient ON {$db_prefix}log_comments (id_recipient);
@@ -856,7 +856,7 @@ CREATE INDEX {$db_prefix}log_comments_log_time ON {$db_prefix}log_comments (log_
 CREATE INDEX {$db_prefix}log_comments_comment_type ON {$db_prefix}log_comments (comment_type);
 
 #
-# Table structure for table `log_digest`
+# Table structure for table log_digest
 #
 
 CREATE TABLE {$db_prefix}log_digest (
@@ -868,11 +868,11 @@ CREATE TABLE {$db_prefix}log_digest (
 );
 
 #
-# Table structure for table `log_errors`
+# Table structure for table log_errors
 #
 
 CREATE TABLE {$db_prefix}log_errors (
-  id_error integer primary key,
+  id_error integer PRIMARY KEY AUTOINCREMENT,
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
   ip char(16) NOT NULL default '                ',
@@ -885,7 +885,7 @@ CREATE TABLE {$db_prefix}log_errors (
 );
 
 #
-# Indexes for table `log_errors`
+# Indexes for table log_errors
 #
 
 CREATE INDEX {$db_prefix}log_errors_log_time ON {$db_prefix}log_errors (log_time);
@@ -893,7 +893,7 @@ CREATE INDEX {$db_prefix}log_errors_id_member ON {$db_prefix}log_errors (id_memb
 CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 
 #
-# Table structure for table `log_floodcontrol`
+# Table structure for table log_floodcontrol
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
@@ -904,11 +904,11 @@ CREATE TABLE {$db_prefix}log_floodcontrol (
 );
 
 #
-# Table structure for table `log_group_requests`
+# Table structure for table log_group_requests
 #
 
 CREATE TABLE {$db_prefix}log_group_requests (
-  id_request integer primary key,
+  id_request integer PRIMARY KEY AUTOINCREMENT,
   id_member int NOT NULL default '0',
   id_group smallint NOT NULL default '0',
   time_applied int NOT NULL default '0',
@@ -921,13 +921,13 @@ CREATE TABLE {$db_prefix}log_group_requests (
 );
 
 #
-# Indexes for table `log_group_requests`
+# Indexes for table log_group_requests
 #
 
 CREATE INDEX {$db_prefix}log_group_requests_id_member ON {$db_prefix}log_group_requests (id_member, id_group);
 
 #
-# Table structure for table `log_mark_read`
+# Table structure for table log_mark_read
 #
 
 CREATE TABLE {$db_prefix}log_mark_read (
@@ -938,17 +938,17 @@ CREATE TABLE {$db_prefix}log_mark_read (
 );
 
 #
-# Table structure for table `log_member_notices`
+# Table structure for table log_member_notices
 #
 
 CREATE TABLE {$db_prefix}log_member_notices (
-  id_notice integer primary key,
+  id_notice integer PRIMARY KEY AUTOINCREMENT,
   subject varchar(255) NOT NULL,
   body text NOT NULL
 );
 
 #
-# Table structure for table `log_notify`
+# Table structure for table log_notify
 #
 
 CREATE TABLE {$db_prefix}log_notify (
@@ -960,17 +960,17 @@ CREATE TABLE {$db_prefix}log_notify (
 );
 
 #
-# Indexes for table `log_notify`
+# Indexes for table log_notify
 #
 
 CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic, id_member);
 
 #
-# Table structure for table `log_online`
+# Table structure for table log_online
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(64) NOT NULL default '' primary key,
+  session varchar(64) NOT NULL default '' PRIMARY KEY,
   log_time int(10) NOT NULL default '0',
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
@@ -979,18 +979,18 @@ CREATE TABLE {$db_prefix}log_online (
 );
 
 #
-# Indexes for table `log_online`
+# Indexes for table log_online
 #
 
 CREATE INDEX {$db_prefix}log_online_log_time ON {$db_prefix}log_online (log_time);
 CREATE INDEX {$db_prefix}log_online_id_member ON {$db_prefix}log_online (id_member);
 
 #
-# Table structure for table `log_packages`
+# Table structure for table log_packages
 #
 
 CREATE TABLE {$db_prefix}log_packages (
-  id_install integer primary key,
+  id_install integer PRIMARY KEY AUTOINCREMENT,
   filename varchar(255) NOT NULL,
   package_id varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
@@ -1009,13 +1009,13 @@ CREATE TABLE {$db_prefix}log_packages (
 );
 
 #
-# Indexes for table `log_packages`
+# Indexes for table log_packages
 #
 
 CREATE INDEX {$db_prefix}log_packages_filename ON {$db_prefix}log_packages (filename);
 
 #
-# Table structure for table `log_polls`
+# Table structure for table log_polls
 #
 
 CREATE TABLE {$db_prefix}log_polls (
@@ -1025,17 +1025,17 @@ CREATE TABLE {$db_prefix}log_polls (
 );
 
 #
-# Indexes for table `log_polls`
+# Indexes for table log_polls
 #
 
 CREATE INDEX {$db_prefix}log_polls_id_poll ON {$db_prefix}log_polls (id_poll, id_member, id_choice);
 
 #
-# Table structure for table `log_reported`
+# Table structure for table log_reported
 #
 
 CREATE TABLE {$db_prefix}log_reported (
-  id_report integer primary key,
+  id_report integer PRIMARY KEY AUTOINCREMENT,
   id_msg int NOT NULL default '0',
   id_topic int NOT NULL default '0',
   id_board smallint NOT NULL default '0',
@@ -1051,7 +1051,7 @@ CREATE TABLE {$db_prefix}log_reported (
 );
 
 #
-# Indexes for table `log_reported`
+# Indexes for table log_reported
 #
 
 CREATE INDEX {$db_prefix}log_reported_id_member ON {$db_prefix}log_reported (id_member);
@@ -1061,11 +1061,11 @@ CREATE INDEX {$db_prefix}log_reported_time_started ON {$db_prefix}log_reported (
 CREATE INDEX {$db_prefix}log_reported_id_msg ON {$db_prefix}log_reported (id_msg);
 
 #
-# Table structure for table `log_reported_comments`
+# Table structure for table log_reported_comments
 #
 
 CREATE TABLE {$db_prefix}log_reported_comments (
-  id_comment integer primary key,
+  id_comment integer PRIMARY KEY AUTOINCREMENT,
   id_report int NOT NULL default '0',
   id_member int NOT NULL,
   membername varchar(255) NOT NULL,
@@ -1075,7 +1075,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
 );
 
 #
-# Indexes for table `log_reported_comments`
+# Indexes for table log_reported_comments
 #
 
 CREATE INDEX {$db_prefix}log_reported_comments_id_report ON {$db_prefix}log_reported_comments (id_report);
@@ -1083,18 +1083,18 @@ CREATE INDEX {$db_prefix}log_reported_comments_id_member ON {$db_prefix}log_repo
 CREATE INDEX {$db_prefix}log_reported_comments_time_sent ON {$db_prefix}log_reported_comments (time_sent);
 
 #
-# Table structure for table `log_scheduled_tasks`
+# Table structure for table log_scheduled_tasks
 #
 
 CREATE TABLE {$db_prefix}log_scheduled_tasks (
-  id_log integer primary key,
+  id_log integer PRIMARY KEY AUTOINCREMENT,
   id_task smallint NOT NULL default '0',
   time_run int NOT NULL default '0',
   time_taken float NOT NULL default '0'
 );
 
 #
-# Table structure for table `log_search_messages`
+# Table structure for table log_search_messages
 #
 
 CREATE TABLE {$db_prefix}log_search_messages (
@@ -1104,7 +1104,7 @@ CREATE TABLE {$db_prefix}log_search_messages (
 );
 
 #
-# Table structure for table `log_search_results`
+# Table structure for table log_search_results
 #
 
 CREATE TABLE {$db_prefix}log_search_results (
@@ -1117,7 +1117,7 @@ CREATE TABLE {$db_prefix}log_search_results (
 );
 
 #
-# Table structure for table `log_search_subjects`
+# Table structure for table log_search_subjects
 #
 
 CREATE TABLE {$db_prefix}log_search_subjects (
@@ -1127,13 +1127,13 @@ CREATE TABLE {$db_prefix}log_search_subjects (
 );
 
 #
-# Indexes for table `log_search_subjects`
+# Indexes for table log_search_subjects
 #
 
 CREATE INDEX {$db_prefix}log_search_subjects_id_topic ON {$db_prefix}log_search_subjects (id_topic);
 
 #
-# Table structure for table `log_search_topics`
+# Table structure for table log_search_topics
 #
 
 CREATE TABLE {$db_prefix}log_search_topics (
@@ -1143,11 +1143,11 @@ CREATE TABLE {$db_prefix}log_search_topics (
 );
 
 #
-# Table structure for table `log_spider_hits`
+# Table structure for table log_spider_hits
 #
 
 CREATE TABLE {$db_prefix}log_spider_hits (
-	id_hit integer primary key,
+  id_hit integer PRIMARY KEY AUTOINCREMENT,
   id_spider smallint NOT NULL default '0',
   log_time int NOT NULL default '0',
   url varchar(255) NOT NULL,
@@ -1155,7 +1155,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 );
 
 #
-# Indexes for table `log_spider_hits`
+# Indexes for table log_spider_hits
 #
 
 CREATE INDEX {$db_prefix}log_spider_hits_id_spider ON {$db_prefix}log_spider_hits (id_spider);
@@ -1163,7 +1163,7 @@ CREATE INDEX {$db_prefix}log_spider_hits_log_time ON {$db_prefix}log_spider_hits
 CREATE INDEX {$db_prefix}log_spider_hits_processed ON {$db_prefix}log_spider_hits (processed);
 
 #
-# Table structure for table `log_spider_stats`
+# Table structure for table log_spider_stats
 #
 
 CREATE TABLE {$db_prefix}log_spider_stats (
@@ -1175,11 +1175,11 @@ CREATE TABLE {$db_prefix}log_spider_stats (
 );
 
 #
-# Table structure for table `log_subscribed`
+# Table structure for table log_subscribed
 #
 
 CREATE TABLE {$db_prefix}log_subscribed (
-  id_sublog integer primary key,
+  id_sublog integer PRIMARY KEY AUTOINCREMENT,
   id_subscribe smallint unsigned NOT NULL default '0',
   id_member int NOT NULL default '0',
   old_id_group int NOT NULL default '0',
@@ -1193,7 +1193,7 @@ CREATE TABLE {$db_prefix}log_subscribed (
 );
 
 #
-# Indexes for table `log_subscribed`
+# Indexes for table log_subscribed
 #
 
 CREATE INDEX {$db_prefix}log_subscribed_id_subscribe ON {$db_prefix}log_subscribed (id_subscribe, id_member);
@@ -1204,7 +1204,7 @@ CREATE INDEX {$db_prefix}log_subscribed_status ON {$db_prefix}log_subscribed (st
 CREATE INDEX {$db_prefix}log_subscribed_id_member ON {$db_prefix}log_subscribed (id_member);
 
 #
-# Table structure for table `log_topics`
+# Table structure for table log_topics
 #
 
 CREATE TABLE {$db_prefix}log_topics (
@@ -1216,17 +1216,17 @@ CREATE TABLE {$db_prefix}log_topics (
 );
 
 #
-# Indexes for table `log_topics`
+# Indexes for table log_topics
 #
 
 CREATE INDEX {$db_prefix}log_topics_id_topic ON {$db_prefix}log_topics (id_topic);
 
 #
-# Table structure for table `mail_queue`
+# Table structure for table mail_queue
 #
 
 CREATE TABLE {$db_prefix}mail_queue (
-  id_mail integer primary key,
+  id_mail integer PRIMARY KEY AUTOINCREMENT,
   time_sent int NOT NULL default '0',
   recipient varchar(255) NOT NULL,
   body text NOT NULL,
@@ -1238,18 +1238,18 @@ CREATE TABLE {$db_prefix}mail_queue (
 );
 
 #
-# Indexes for table `mail_queue`
+# Indexes for table mail_queue
 #
 
 CREATE INDEX {$db_prefix}mail_queue_time_sent ON {$db_prefix}mail_queue (time_sent);
 CREATE INDEX {$db_prefix}mail_queue_mail_priority ON {$db_prefix}mail_queue (priority, id_mail);
 
 #
-# Table structure for table `membergroups`
+# Table structure for table membergroups
 #
 
 CREATE TABLE {$db_prefix}membergroups (
-  id_group integer primary key,
+  id_group integer PRIMARY KEY AUTOINCREMENT,
   group_name varchar(80) NOT NULL default '',
   description text NOT NULL,
   online_color varchar(20) NOT NULL default '',
@@ -1262,13 +1262,13 @@ CREATE TABLE {$db_prefix}membergroups (
 );
 
 #
-# Indexes for table `membergroups`
+# Indexes for table membergroups
 #
 
 CREATE INDEX {$db_prefix}membergroups_min_posts ON {$db_prefix}membergroups (min_posts);
 
 #
-# Dumping data for table `membergroups`
+# Dumping data for table membergroups
 #
 
 BEGIN TRANSACTION;
@@ -1285,11 +1285,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `members`
+# Table structure for table members
 #
 
 CREATE TABLE {$db_prefix}members (
-  id_member integer primary key,
+  id_member integer PRIMARY KEY AUTOINCREMENT,
   member_name varchar(80) NOT NULL default '',
   date_registered int NOT NULL default '0',
   posts int NOT NULL default '0',
@@ -1344,7 +1344,7 @@ CREATE TABLE {$db_prefix}members (
 );
 
 #
-# Indexes for table `members`
+# Indexes for table members
 #
 
 CREATE INDEX {$db_prefix}members_member_name ON {$db_prefix}members (member_name);
@@ -1363,11 +1363,11 @@ CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
 
 
 #
-# Table structure for table `member_logins`
+# Table structure for table member_logins
 #
 
 CREATE TABLE {$db_prefix}member_logins (
-  id_login integer primary key,
+  id_login integer PRIMARY KEY AUTOINCREMENT,
   id_member int NOT NULL default '0',
   time int(10) NOT NULL default '0',
   ip varchar(255) NOT NULL default '0',
@@ -1375,17 +1375,17 @@ CREATE TABLE {$db_prefix}member_logins (
 );
 
 #
-# Indexes for table `member_logins`
+# Indexes for table member_logins
 #
 CREATE INDEX {$db_prefix}member_logins_id_member ON {$db_prefix}member_logins (id_member);
 CREATE INDEX {$db_prefix}member_logins_time ON {$db_prefix}member_logins (time);
 
 #
-# Table structure for table `message_icons`
+# Table structure for table message_icons
 #
 
 CREATE TABLE {$db_prefix}message_icons (
-  id_icon integer primary key,
+  id_icon integer PRIMARY KEY AUTOINCREMENT,
   title varchar(80) NOT NULL default '',
   filename varchar(80) NOT NULL default '',
   id_board smallint NOT NULL default '0',
@@ -1393,13 +1393,13 @@ CREATE TABLE {$db_prefix}message_icons (
 );
 
 #
-# Indexes for table `message_icons`
+# Indexes for table message_icons
 #
 
 CREATE INDEX {$db_prefix}message_icons_id_board ON {$db_prefix}message_icons (id_board);
 
 #
-# Dumping data for table `message_icons`
+# Dumping data for table message_icons
 #
 
 # // !!! i18n
@@ -1422,11 +1422,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `messages`
+# Table structure for table messages
 #
 
 CREATE TABLE {$db_prefix}messages (
-  id_msg integer primary key,
+  id_msg integer PRIMARY KEY AUTOINCREMENT,
   id_topic int NOT NULL default '0',
   id_board smallint NOT NULL default '0',
   poster_time int NOT NULL default '0',
@@ -1447,7 +1447,7 @@ CREATE TABLE {$db_prefix}messages (
 );
 
 #
-# Indexes for table `messages`
+# Indexes for table messages
 #
 
 CREATE UNIQUE INDEX {$db_prefix}messages_topic ON {$db_prefix}messages (id_topic, id_msg);
@@ -1462,7 +1462,7 @@ CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_memb
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 #
-# Dumping data for table `messages`
+# Dumping data for table messages
 #
 
 INSERT INTO {$db_prefix}messages
@@ -1471,7 +1471,7 @@ VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machine
 # --------------------------------------------------------
 
 #
-# Table structure for table `moderators`
+# Table structure for table moderators
 #
 
 CREATE TABLE {$db_prefix}moderators (
@@ -1481,7 +1481,7 @@ CREATE TABLE {$db_prefix}moderators (
 );
 
 #
-# Table structure for table `moderator_groups`
+# Table structure for table moderator_groups
 #
 
 CREATE TABLE {$db_prefix}moderator_groups (
@@ -1491,7 +1491,7 @@ CREATE TABLE {$db_prefix}moderator_groups (
 );
 
 #
-# Table structure for table `openid_assoc`
+# Table structure for table openid_assoc
 #
 
 CREATE TABLE {$db_prefix}openid_assoc (
@@ -1505,23 +1505,23 @@ CREATE TABLE {$db_prefix}openid_assoc (
 );
 
 #
-# Indexes for table `openid_assoc`
+# Indexes for table openid_assoc
 #
 
 CREATE INDEX {$db_prefix}openid_assoc_expires ON {$db_prefix}openid_assoc (expires);
 
 #
-# Table structure for table `package_servers`
+# Table structure for table package_servers
 #
 
 CREATE TABLE {$db_prefix}package_servers (
-  id_server integer primary key,
+  id_server integer PRIMARY KEY AUTOINCREMENT,
   name varchar(255) NOT NULL,
   url varchar(255) NOT NULL
 );
 
 #
-# Dumping data for table `package_servers`
+# Dumping data for table package_servers
 #
 
 INSERT INTO {$db_prefix}package_servers
@@ -1530,16 +1530,16 @@ VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.or
 # --------------------------------------------------------
 
 #
-# Table structure for table `permission_profiles`
+# Table structure for table permission_profiles
 #
 
 CREATE TABLE {$db_prefix}permission_profiles (
-  id_profile integer primary key,
+  id_profile integer PRIMARY KEY AUTOINCREMENT,
   profile_name varchar(255) NOT NULL
 );
 
 #
-# Dumping data for table `permission_profiles`
+# Dumping data for table permission_profiles
 #
 
 BEGIN TRANSACTION;
@@ -1552,7 +1552,7 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `permissions`
+# Table structure for table permissions
 #
 
 CREATE TABLE {$db_prefix}permissions (
@@ -1563,7 +1563,7 @@ CREATE TABLE {$db_prefix}permissions (
 );
 
 #
-# Dumping data for table `permissions`
+# Dumping data for table permissions
 #
 
 BEGIN TRANSACTION;
@@ -1623,11 +1623,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `personal_messages`
+# Table structure for table personal_messages
 #
 
 CREATE TABLE {$db_prefix}personal_messages (
-  id_pm integer primary key,
+  id_pm integer PRIMARY KEY AUTOINCREMENT,
   id_pm_head int NOT NULL default '0',
   id_member_from int NOT NULL default '0',
   deleted_by_sender smallint NOT NULL default '0',
@@ -1638,7 +1638,7 @@ CREATE TABLE {$db_prefix}personal_messages (
 );
 
 #
-# Indexes for table `personal_messages`
+# Indexes for table personal_messages
 #
 
 CREATE INDEX {$db_prefix}personal_messages_id_member ON {$db_prefix}personal_messages (id_member_from, deleted_by_sender);
@@ -1646,17 +1646,17 @@ CREATE INDEX {$db_prefix}personal_messages_msgtime ON {$db_prefix}personal_messa
 CREATE INDEX {$db_prefix}personal_messages_id_pm_head ON {$db_prefix}personal_messages (id_pm_head);
 
 #
-# Table structure for table `pm_labels`
+# Table structure for table pm_labels
 #
 
 CREATE TABLE {$db_prefix}pm_labels (
-  id_label integer primary key,
+  id_label integer PRIMARY KEY AUTOINCREMENT,
   id_member int NOT NULL default '0',
   name varchar(30) NOT NULL
 );
 
 #
-# Table structure for table `pm_labeled_messages`
+# Table structure for table pm_labeled_messages
 #
 
 CREATE TABLE {$db_prefix}pm_labeled_messages (
@@ -1666,7 +1666,7 @@ CREATE TABLE {$db_prefix}pm_labeled_messages (
 );
 
 #
-# Table structure for table `pm_recipients`
+# Table structure for table pm_recipients
 #
 
 CREATE TABLE {$db_prefix}pm_recipients (
@@ -1681,17 +1681,17 @@ CREATE TABLE {$db_prefix}pm_recipients (
 );
 
 #
-# Indexes for table `pm_recipients`
+# Indexes for table pm_recipients
 #
 
 CREATE UNIQUE INDEX {$db_prefix}pm_recipients_id_member ON {$db_prefix}pm_recipients (id_member, deleted, id_pm);
 
 #
-# Table structure for table `pm_rules`
+# Table structure for table pm_rules
 #
 
 CREATE TABLE {$db_prefix}pm_rules (
-  id_rule integer primary key,
+  id_rule integer PRIMARY KEY AUTOINCREMENT,
   id_member integer NOT NULL default '0',
   rule_name varchar(60) NOT NULL,
   criteria text NOT NULL,
@@ -1701,18 +1701,18 @@ CREATE TABLE {$db_prefix}pm_rules (
 );
 
 #
-# Indexes for table `pm_rules`
+# Indexes for table pm_rules
 #
 
 CREATE INDEX {$db_prefix}pm_rules_id_member ON {$db_prefix}pm_rules (id_member);
 CREATE INDEX {$db_prefix}pm_rules_delete_pm ON {$db_prefix}pm_rules (delete_pm);
 
 #
-# Table structure for table `polls`
+# Table structure for table polls
 #
 
 CREATE TABLE {$db_prefix}polls (
-  id_poll integer primary key,
+  id_poll integer PRIMARY KEY AUTOINCREMENT,
   question varchar(255) NOT NULL,
   voting_locked smallint NOT NULL default '0',
   max_votes smallint NOT NULL default '1',
@@ -1727,7 +1727,7 @@ CREATE TABLE {$db_prefix}polls (
 );
 
 #
-# Table structure for table `poll_choices`
+# Table structure for table poll_choices
 #
 
 CREATE TABLE {$db_prefix}poll_choices (
@@ -1739,28 +1739,28 @@ CREATE TABLE {$db_prefix}poll_choices (
 );
 
 #
-# Table structure for table `qanda`
+# Table structure for table qanda
 #
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question integer primary key,
+  id_question integer PRIMARY KEY AUTOINCREMENT,
   lngfile varchar(255) NOT NULL default '',
   question varchar(255) NOT NULL default '',
   answers text NOT NULL
 );
 
 #
-# Indexes for table `qanda`
+# Indexes for table qanda
 #
 
 CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile);
 
 #
-# Table structure for table `scheduled_tasks`
+# Table structure for table scheduled_tasks
 #
 
 CREATE TABLE {$db_prefix}scheduled_tasks (
-  id_task integer primary key,
+  id_task integer PRIMARY KEY AUTOINCREMENT,
   next_time int NOT NULL default '0',
   time_offset int NOT NULL default '0',
   time_regularity smallint NOT NULL default '0',
@@ -1770,7 +1770,7 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
 );
 
 #
-# Indexes for table `scheduled_tasks`
+# Indexes for table scheduled_tasks
 #
 
 CREATE INDEX {$db_prefix}scheduled_tasks_next_time ON {$db_prefix}scheduled_tasks (next_time);
@@ -1778,7 +1778,7 @@ CREATE INDEX {$db_prefix}scheduled_tasks_disabled ON {$db_prefix}scheduled_tasks
 CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task);
 
 #
-# Dumping data for table `scheduled_tasks`
+# Dumping data for table scheduled_tasks
 #
 
 BEGIN TRANSACTION;
@@ -1798,7 +1798,7 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `settings`
+# Table structure for table settings
 #
 
 CREATE TABLE {$db_prefix}settings (
@@ -1807,7 +1807,7 @@ CREATE TABLE {$db_prefix}settings (
 );
 
 #
-# Dumping data for table `settings`
+# Dumping data for table settings
 #
 
 BEGIN TRANSACTION;
@@ -2008,7 +2008,7 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `sessions`
+# Table structure for table sessions
 #
 
 CREATE TABLE {$db_prefix}sessions (
@@ -2018,11 +2018,11 @@ CREATE TABLE {$db_prefix}sessions (
 );
 
 #
-# Table structure for table `smileys`
+# Table structure for table smileys
 #
 
 CREATE TABLE {$db_prefix}smileys (
-  id_smiley integer primary key,
+  id_smiley integer PRIMARY KEY AUTOINCREMENT,
   code varchar(30) NOT NULL default '',
   filename varchar(48) NOT NULL default '',
   description varchar(80) NOT NULL default '',
@@ -2032,7 +2032,7 @@ CREATE TABLE {$db_prefix}smileys (
 );
 
 #
-# Dumping data for table `smileys`
+# Dumping data for table smileys
 #
 
 BEGIN TRANSACTION;
@@ -2063,18 +2063,18 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `spiders`
+# Table structure for table spiders
 #
 
 CREATE TABLE {$db_prefix}spiders (
-  id_spider integer primary key,
+  id_spider integer PRIMARY KEY AUTOINCREMENT,
   spider_name varchar(255) NOT NULL,
   user_agent varchar(255) NOT NULL,
   ip_info varchar(255) NOT NULL
 );
 
 #
-# Dumping data for table `spiders`
+# Dumping data for table spiders
 #
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (1, 'Google', 'googlebot', '');
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (2, 'Yahoo!', 'slurp', '');
@@ -2098,11 +2098,11 @@ INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VA
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '');
 
 #
-# Table structure for table `subscriptions`
+# Table structure for table subscriptions
 #
 
 CREATE TABLE {$db_prefix}subscriptions(
-  id_subscribe integer primary key,
+  id_subscribe integer PRIMARY KEY AUTOINCREMENT,
   name varchar(60) NOT NULL,
   description varchar(255) NOT NULL,
   cost text NOT NULL,
@@ -2117,13 +2117,13 @@ CREATE TABLE {$db_prefix}subscriptions(
 );
 
 #
-# Indexes for table `subscriptions`
+# Indexes for table subscriptions
 #
 
 CREATE INDEX {$db_prefix}subscriptions_active ON {$db_prefix}subscriptions (active);
 
 #
-# Table structure for table `themes`
+# Table structure for table themes
 #
 
 CREATE TABLE {$db_prefix}themes (
@@ -2135,13 +2135,13 @@ CREATE TABLE {$db_prefix}themes (
 );
 
 #
-# Indexes for table `themes`
+# Indexes for table themes
 #
 
 CREATE INDEX {$db_prefix}themes_id_member ON {$db_prefix}themes (id_member);
 
 #
-# Dumping data for table `themes`
+# Dumping data for table themes
 #
 
 BEGIN TRANSACTION;
@@ -2166,11 +2166,11 @@ COMMIT;
 # --------------------------------------------------------
 
 #
-# Table structure for table `topics`
+# Table structure for table topics
 #
 
 CREATE TABLE {$db_prefix}topics (
-  id_topic integer primary key,
+  id_topic integer PRIMARY KEY AUTOINCREMENT,
   is_sticky smallint NOT NULL default '0',
   id_board smallint NOT NULL default '0',
   id_first_msg int NOT NULL default '0',
@@ -2190,7 +2190,7 @@ CREATE TABLE {$db_prefix}topics (
 );
 
 #
-# Indexes for table `topics`
+# Indexes for table topics
 #
 
 CREATE UNIQUE INDEX {$db_prefix}topics_last_message ON {$db_prefix}topics (id_last_msg, id_board);
@@ -2204,7 +2204,7 @@ CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_bo
 CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);
 
 #
-# Dumping data for table `topics`
+# Dumping data for table topics
 #
 
 INSERT INTO {$db_prefix}topics
@@ -2213,11 +2213,11 @@ VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_alerts`
+# Table structure for table user_alerts
 #
 
 CREATE TABLE {$db_prefix}user_alerts (
-  id_alert int primary key,
+  id_alert int PRIMARY KEY AUTOINCREMENT,
   alert_time int unsigned NOT NULL default '0',
   id_member int unsigned NOT NULL default '0',
   id_member_started int unsigned NOT NULL default '0',
@@ -2230,14 +2230,14 @@ CREATE TABLE {$db_prefix}user_alerts (
 );
 
 #
-# Indexes for table `user_alerts`
+# Indexes for table user_alerts
 #
 
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
 CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
 
 #
-# Table structure for table `user_alerts_prefs`
+# Table structure for table user_alerts_prefs
 #
 
 CREATE TABLE {$db_prefix}user_alerts_prefs (
@@ -2248,7 +2248,7 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 );
 
 #
-# Dumping data for table `user_alerts_prefs`
+# Dumping data for table user_alerts_prefs
 #
 
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
@@ -2259,11 +2259,11 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 # --------------------------------------------------------
 
 #
-# Table structure for table `user_drafts`
+# Table structure for table user_drafts
 #
 
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int primary key,
+  id_draft int PRIMARY KEY AUTOINCREMENT,
   id_topic int unsigned NOT NULL default '0',
   id_board smallint unsigned NOT NULL default '0',
   id_reply int unsigned NOT NULL default '0',
@@ -2280,13 +2280,13 @@ CREATE TABLE {$db_prefix}user_drafts (
 );
 
 #
-# Indexes for table `user_drafts`
+# Indexes for table user_drafts
 #
 
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 
 #
-# Table structure for table `user_likes`
+# Table structure for table user_likes
 #
 
 CREATE TABLE {$db_prefix}user_likes (
@@ -2298,26 +2298,26 @@ CREATE TABLE {$db_prefix}user_likes (
 );
 
 #
-# Indexes for table `user_likes`
+# Indexes for table user_likes
 #
 
 CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
 CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 
 #
-# Table structure for `mentions`
+# Table structure for mentions
 #
 CREATE TABLE {$db_prefix}mentions (
   content_id int NOT NULL default '0',
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
+  time int NOT NULL default 0,
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
 #
-# Indexes for table `mentions`
+# Indexes for table mentions
 #
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
 CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
