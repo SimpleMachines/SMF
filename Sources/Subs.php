@@ -4506,10 +4506,17 @@ function entity_fix__callback($matches)
 }
 
 /**
--* Return a Gravatar URL based on the supplied email address, the global maximum rating, and maximum sizes as set in the admin panel.
--*
--* @todo Add the default URL support once we have one.
--*/
+ * Return a Gravatar URL based on
+ * - the supplied email address,
+ * - the global maximum rating,
+ * - the global default fallback,
+ * - maximum sizes as set in the admin panel.
+ *
+ * It is SSL aware, and caches most of the parameters.
+ *
+ * @param string $email_address
+ * @return string
+ */
 function get_gravatar_url($email_address)
 {
 	global $modSettings, $smcFunc;
