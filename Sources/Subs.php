@@ -2722,7 +2722,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 			foreach ($buffers as $function)
 			{
 				$function = trim($function);
-				$call = call_hook_helper($function);
+				$call = call_helper($function);
 
 				// Is it valid?
 				if (is_callable($call))
@@ -4099,12 +4099,12 @@ function call_integration_hook($hook, $parameters = array())
 				}
 			}
 
-			$call = call_hook_helper($func);
+			$call = call_helper($func);
 		}
 
 		// Figuring out what to do.
 		else
-			$call = call_hook_helper($function);
+			$call = call_helper($function);
 
 		// Is it valid?
 		if (!empty($call) && is_callable($call))
@@ -4236,7 +4236,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
  * @param boolean $return If true, the function will not call the function/method but instead will return the formated string.
  * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
  */
-function call_hook_helper($string, $return = false)
+function call_helper($string, $return = false)
 {
 	global $context, $db_show_debug;
 

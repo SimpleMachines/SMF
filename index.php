@@ -243,7 +243,7 @@ function smf_main()
 			$defaultActions = call_integration_hook('integrate_default_action');
 			foreach ($defaultActions as $defaultAction)
 			{
-				$call = call_hook_helper($defaultAction);
+				$call = call_helper($defaultAction);
 				if (!empty($call) && is_callable($call))
 					return $call;
 			}
@@ -363,7 +363,7 @@ function smf_main()
 		$fallbackActions = call_integration_hook('integrate_fallback_action');
 		foreach ($fallbackActions as $fallbackAction)
 		{
-			$call = call_hook_helper($fallbackAction);
+			$call = call_helper($fallbackAction);
 			if (!empty($call) && is_callable($call))
 				return $call;
 		}
@@ -377,7 +377,7 @@ function smf_main()
 	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 
 	// Do the right thing.
-	return call_hook_helper($actionArray[$_REQUEST['action']][1]);
+	return call_helper($actionArray[$_REQUEST['action']][1]);
 }
 
 ?>

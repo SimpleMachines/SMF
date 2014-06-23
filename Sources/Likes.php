@@ -61,7 +61,7 @@ class Likes
 	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid URL to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
-	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_hook_helper(); so the same format for your function/method can be applied here.
+	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
 	 */
 	protected $_validLikes = array(
@@ -388,7 +388,7 @@ class Likes
 		// Any callbacks?
 		elseif (!empty($this->_validLikes['callback']))
 		{
-			$call = call_hook_helper($this->_validLikes['callback']);
+			$call = call_helper($this->_validLikes['callback']);
 			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
