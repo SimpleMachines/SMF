@@ -41,7 +41,7 @@ class custom_search extends search_api
 	 * What databases support the custom index?
 	 * @var type
 	 */
-	protected $supported_databases = array('mysql', 'mysqli', 'postgresql', 'sqlite');
+	protected $supported_databases = array('mysql', 'mysqli', 'postgresql');
 
 	/**
 	 * constructor function
