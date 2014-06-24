@@ -52,8 +52,6 @@ function ManageCalendar()
 		$default = 'settings';
 	}
 
-	call_integration_hook('integrate_manage_calendar', array(&$subActions));
-
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
 	// Set up the two tabs here...
@@ -72,7 +70,9 @@ function ManageCalendar()
 			),
 		);
 
-	$subActions[$_REQUEST['sa']]();
+	call_integration_hook('integrate_manage_calendar', array(&$subActions));
+
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
