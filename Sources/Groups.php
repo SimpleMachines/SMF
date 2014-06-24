@@ -62,7 +62,7 @@ function Groups()
 	call_integration_hook('integrate_Groups_subActions', array(&$subActions));
 
 	// Call the actual function.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
