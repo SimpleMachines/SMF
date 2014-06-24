@@ -36,7 +36,7 @@ function ShowHelp()
 	call_integration_hook('integrate_ShowHelp_subActions', array(&$subActions));
 
 	$sa = isset($_GET['sa'], $subActions[$_GET['sa']]) ? $_GET['sa'] : 'index';
-	$subActions[$sa]();
+	call_helper($subActions[$sa]);
 }
 
 function HelpIndex()
