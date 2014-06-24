@@ -34,7 +34,7 @@ if (!isset($modSettings['allow_no_censored']))
 {
 	$request = upgrade_query("
 		SELECT value
-		FROM {$db_prefix}settings
+		FROM {$db_prefix}themes
 		WHERE variable='allow_no_censored'
 		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
@@ -834,6 +834,8 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 			WHERE id_theme = $id_theme");
 	}
 }
+---}
+---#
 
 /******************************************************************************/
 --- Messenger fields
@@ -1080,7 +1082,7 @@ ADD COLUMN likes smallint NOT NULL default '0';
 /******************************************************************************/
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
+  content_id int NOT NULL default 0,
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
@@ -1089,7 +1091,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 );
 
 CREATE INDEX IF NOT EXISTS {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
-CREATE INDEX IF NOT EXISTS {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
+CREATE INDEX IF NOT EXISTS {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
 ---#
 
 /******************************************************************************/

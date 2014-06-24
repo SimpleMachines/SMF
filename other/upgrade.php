@@ -2768,6 +2768,9 @@ function upgrade_query($string, $unbuffered = false)
 			// SQLite
 			if (strpos($db_error_message, 'missing') !== false)
 				return true;
+			// SQLite3
+			if (strpos($db_error_message, 'duplicate') !== false)
+				return true;
 		}
 		elseif (strpos(trim($string), 'INSERT ') !== false)
 		{
