@@ -682,7 +682,7 @@ function template_inline_permissions()
 	// This looks really weird, but it keeps things nested properly...
 	echo '
 											<fieldset id="', $context['current_permission'], '">
-												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;">', $txt['avatar_select_permission'], '</a></legend>';
+												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', $txt['avatar_select_permission'], '</a></legend>';
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
 												<ul class="permission_groups">';
@@ -737,7 +737,7 @@ function template_inline_permissions()
 	echo '
 											</fieldset>
 
-											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;">[ ', $txt['avatar_select_permission'], ' ]</a>
+											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', $txt['avatar_select_permission'], '</a>
 
 											<script><!-- // --><![CDATA[
 												document.getElementById("', $context['current_permission'], '").style.display = "none";

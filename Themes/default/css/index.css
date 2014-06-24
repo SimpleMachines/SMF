@@ -448,15 +448,17 @@ a img {
 }
 
 /* Those collapse and expand icons are wonderful.  */
-.toggle_up, .toggle_down, .go_up, .go_down {
+.toggle_up:before, .toggle_down:before {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
 	background: url(../images/toggle.png) no-repeat 0 0;
 	text-indent: -100em;
 	overflow: hidden;
+	content: '';
+	vertical-align: middle;
 }
-.toggle_down, .go_down {
+.toggle_down:before {
 	background-position: 0 -17px;
 }
 /* And the sort up/down icons too. */
