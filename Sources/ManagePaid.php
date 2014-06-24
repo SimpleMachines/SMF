@@ -45,8 +45,6 @@ function ManagePaidSubscriptions()
 			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
 		);
 
-	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
-
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
 
@@ -71,8 +69,10 @@ function ManagePaidSubscriptions()
 			),
 		);
 
+	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
