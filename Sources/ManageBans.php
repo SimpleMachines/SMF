@@ -44,8 +44,6 @@ function Ban()
 		'log' => 'BanLog',
 	);
 
-	call_integration_hook('integrate_manage_bans', array(&$subActions));
-
 	// Default the sub-action to 'view ban list'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
 
@@ -82,8 +80,10 @@ function Ban()
 		),
 	);
 
+	call_integration_hook('integrate_manage_bans', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
