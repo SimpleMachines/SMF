@@ -97,7 +97,7 @@ function ThemesMain()
 	}
 
 	// CRUD $subActions as needed.
-	call_integration_hook('integrate_ThemesMain_subActions', array(&$subActions));
+	call_integration_hook('integrate_manage_themes', array(&$subActions));
 
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
