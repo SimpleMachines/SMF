@@ -72,7 +72,7 @@ class browser_detector
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
-		
+
 		// IE11 seems to be fine by itself without being lumped into the "is_ie" category
 		$this->isIe11();
 
@@ -121,7 +121,7 @@ class browser_detector
 			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 		return $this->_browsers['is_ie'];
 	}
-	
+
 	/**
 	* Determine if the browser is IE11 or not
 	* @return boolean true if the browser is IE11 otherwise false
