@@ -32,6 +32,9 @@ function ShowHelp()
 		'rules' => 'HelpRules',
 	);
 
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_ShowHelp_subActions', array(&$subActions));
+
 	$sa = isset($_GET['sa'], $subActions[$_GET['sa']]) ? $_GET['sa'] : 'index';
 	$subActions[$sa]();
 }
