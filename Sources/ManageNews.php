@@ -70,7 +70,7 @@ function ManageNews()
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
