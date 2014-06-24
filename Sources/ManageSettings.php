@@ -63,8 +63,6 @@ function ModifyFeatureSettings()
 		'mentions' => 'ModifyMentionsSettings',
 	);
 
-	call_integration_hook('integrate_modify_features', array(&$subActions));
-
 	loadGeneralSettingParameters($subActions, 'basic');
 
 	// Load up all the tabs...
@@ -93,8 +91,10 @@ function ModifyFeatureSettings()
 		),
 	);
 
+	call_integration_hook('integrate_modify_features', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
