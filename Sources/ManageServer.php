@@ -103,8 +103,6 @@ function ModifySettings()
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
 
-	call_integration_hook('integrate_server_settings', array(&$subActions));
-
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -124,8 +122,10 @@ function ModifySettings()
 		$context['settings_not_writable'] = $settings_not_writable;
 	}
 
+	call_integration_hook('integrate_server_settings', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
