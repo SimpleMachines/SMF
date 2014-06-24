@@ -111,11 +111,11 @@ function ManageMaintenance()
 	$context['sub_template'] = !empty($subActions[$subAction]['template']) ? $subActions[$subAction]['template'] : '';
 
 	// Finally fall through to what we are doing.
-	$subActions[$subAction]['function']();
+	call_helper($subActions[$subAction]['function']);
 
 	// Any special activity?
 	if (isset($activity))
-		$subActions[$subAction]['activities'][$activity]();
+		call_helper($subActions[$subAction]['activities'][$activity]);
 
 	//converted to UTF-8? show a small maintenance info
 	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
