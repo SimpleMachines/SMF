@@ -129,7 +129,7 @@ function ViewMembers()
 		unset($context['tabs']['approve']);
 	}
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
