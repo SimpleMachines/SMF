@@ -43,18 +43,6 @@ $databases = array(
 		'version_check' => '$version = pg_version(); return $version[\'client\'];',
 		'always_has_db' => true,
 	),
-	'sqlite' => array(
-		'name' => 'SQLite',
-		'version' => '1',
-		'version_check' => 'return 1;',
-		'always_has_db' => true,
-	),
-	'sqlite3' => array(
-		'name' => 'SQLite3',
-		'version' => '1',
-		'version_check' => 'return 1;',
-		'always_has_db' => true,
-	),
 );
 
 // General options for the script.
@@ -909,7 +897,7 @@ function initialize_inputs()
 	{
 		@unlink(__FILE__);
 
-		$type = ($db_type == 'mysqli' ? 'mysql' : ($db_type == 'sqlite3' ? 'sqlite' : $db_type));
+		$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 		// And the extra little files ;).
 		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
@@ -979,7 +967,7 @@ function WelcomeLogin()
 
 	$upcontext['sub_template'] = 'welcome_message';
 
-	$type = ($db_type == 'mysqli' ? 'mysql' : ($db_type == 'sqlite3' ? 'sqlite' : $db_type));
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
@@ -1593,7 +1581,7 @@ function DatabaseChanges()
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = 'Database Changes';
 
-	$type = ($db_type == 'mysqli' ? 'mysql' : ($db_type == 'sqlite3' ? 'sqlite' : $db_type));
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// All possible files.
 	// Name, <version, insert_on_complete
@@ -2765,19 +2753,10 @@ function upgrade_query($string, $unbuffered = false)
 		{
 			if (strpos($db_error_message, 'exist') !== false)
 				return true;
-			// SQLite
-			if (strpos($db_error_message, 'missing') !== false)
-				return true;
-			// SQLite3
-			if (strpos($db_error_message, 'duplicate') !== false)
-				return true;
 		}
 		elseif (strpos(trim($string), 'INSERT ') !== false)
 		{
 			if (strpos($db_error_message, 'duplicate') !== false)
-				return true;
-			// SQLite
-			if (strpos($db_error_message, 'not unique') !== false)
 				return true;
 		}
 	}
