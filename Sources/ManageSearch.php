@@ -48,8 +48,6 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
-	call_integration_hook('integrate_manage_search', array(&$subActions));
-
 	// Default the sub-action to 'edit search settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
 
@@ -73,8 +71,10 @@ function ManageSearch()
 		),
 	);
 
+	call_integration_hook('integrate_manage_search', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
