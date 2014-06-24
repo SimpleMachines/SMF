@@ -236,7 +236,7 @@ function ModerationMain($dont_call = false)
 		if (isset($mod_include_data['file']))
 			require_once($sourcedir . '/' . $mod_include_data['file']);
 
-		$mod_include_data['function']();
+		call_helper($mod_include_data['function']);
 	}
 }
 
