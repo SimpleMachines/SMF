@@ -72,9 +72,6 @@ function ThemesMain()
 		'copy' => 'CopyTemplate',
 	);
 
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_ThemesMain_subActions', array(&$subActions));
-
 	// @todo Layout Settings?  huh?
 	if (!empty($context['admin_menu_name']))
 	{
@@ -99,11 +96,15 @@ function ThemesMain()
 		);
 	}
 
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_ThemesMain_subActions', array(&$subActions));
+
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
-		$subActions[$_GET['sa']]();
+		call_helper($subActions[$_GET['sa']]);
+
 	else
-		$subActions['admin']();
+		call_helper($subActions['admin']);
 }
 
 /**
