@@ -40,8 +40,6 @@ function ModifyMembergroups()
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
-
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_membergroups') ? 'index' : 'settings');
 
@@ -63,8 +61,10 @@ function ModifyMembergroups()
 		'description' => $txt['membergroups_description'],
 	);
 
+	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
+
 	// Call the right function.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
