@@ -315,7 +315,7 @@ function getBoardIndex($boardIndexOptions)
 			time, timestamp (a number that represents the time.), id (of the post), topic (topic id.),
 			link, href, subject, start (where they should go for the first unread post.),
 			and member. (which has id, name, link, href, username in it.) */
-			$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['avatar']['image'], $this_last_post['link'], $this_last_post['time']);
+			$this_last_post['last_post_message'] = sprintf($txt['last_post_message'], $this_last_post['member']['link'], $this_last_post['link'], $this_last_post['time']);
 		}
 		else
 		{
