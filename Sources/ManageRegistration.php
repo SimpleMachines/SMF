@@ -41,8 +41,6 @@ function RegCenter()
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_registrations', array(&$subActions));
-
 	// Work out which to call...
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
 
@@ -74,8 +72,10 @@ function RegCenter()
 		)
 	);
 
+	call_integration_hook('integrate_manage_registrations', array(&$subActions));
+
 	// Finally, get around to calling the function...
-	$subActions[$context['sub_action']][0]();
+	call_helper($subActions[$context['sub_action']][0]);
 }
 
 /**
