@@ -77,7 +77,9 @@ function PackageGet()
 		),
 	);
 
-	$subActions[$context['sub_action']]();
+	call_integration_hook('integrate_package_get', array(&$subActions));
+
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**

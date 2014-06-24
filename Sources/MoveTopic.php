@@ -63,10 +63,10 @@ function MoveTopic()
 		else
 			isAllowedTo('move_any');
 	}
-	
+
 	$context['move_any'] = $user_info['is_admin'] || $modSettings['topic_move_any'];
 	$boards = array();
-	
+
 	if (!$context['move_any'])
 	{
 		$boards = array_diff(boardsAllowedTo('post_new'), array($board));
