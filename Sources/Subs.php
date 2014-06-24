@@ -1214,7 +1214,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'font',
 				'type' => 'unparsed_equals',
-				'test' => '[A-Za-z0-9_,\-\s]+?\]',
+				'test' => '[A-Za-z0-9_,\-\s\']+?\]',
 				'before' => '<span style="font-family: $1;" class="bbc_font">',
 				'after' => '</span>',
 			),
