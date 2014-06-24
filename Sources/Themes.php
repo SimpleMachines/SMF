@@ -72,7 +72,10 @@ function ThemesMain()
 		'copy' => 'CopyTemplate',
 	);
 
-	// @todo Layout Settings?
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_ThemesMain_subActions', array(&$subActions));
+
+	// @todo Layout Settings?  huh?
 	if (!empty($context['admin_menu_name']))
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
