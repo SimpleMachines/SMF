@@ -133,6 +133,9 @@ body#chrome  #quick_search .button_submit {
 	line-height: 1.7em;
 	border-bottom: double #ccc;
 }
+.search_results li:last-child {
+	border: none;
+}
 .search_results li a strong {
 	color: #346;
 }

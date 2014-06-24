@@ -1269,7 +1269,7 @@ function template_admin_search_results()
 			else
 			{
 				echo '
-							<li class="windowbg2">
+							<li>
 								<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', isset($txt['admin_search_section_' . $result['type']]) ? $txt['admin_search_section_' . $result['type']] : $result['type'] , ']';
 
 				if ($result['help'])
