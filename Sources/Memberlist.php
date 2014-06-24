@@ -149,9 +149,10 @@ function Memberlist()
 
 	// Jump to the sub action.
 	if (isset($subActions[$context['listing_by']]))
-		$subActions[$context['listing_by']][1]();
+		call_helper($subActions[$context['listing_by']][1]);
+
 	else
-		$subActions['all'][1]();
+		call_helper($subActions['all'][1]);
 }
 
 /**
