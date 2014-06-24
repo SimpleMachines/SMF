@@ -290,7 +290,7 @@ $txt['registration_not_activated'] = 'Sorry, this account has not yet been activ
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
 $txt['additional_membergroups'] = 'Additional Membergroups';
-$txt['additional_membergroups_show'] = '[ show additional groups ]';
+$txt['additional_membergroups_show'] = 'show additional groups';
 $txt['no_primary_membergroup'] = '(no primary membergroup)';
 $txt['deadmin_confirm'] = 'Are you sure you wish to irrevocably remove your admin status?';
 
