@@ -310,7 +310,7 @@ function template_results()
 
 			echo '
 			<div class="search_results_posts">
-			<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+			<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
 				<div class="flow_auto">';
 
 			foreach ($topic['matches'] as $message)

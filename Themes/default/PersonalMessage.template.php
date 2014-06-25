@@ -1878,7 +1878,7 @@ function template_showPMDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="windowbg2 centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -1888,7 +1888,7 @@ function template_showPMDrafts()
 		{
 			echo '
 			<div class="topic">
-				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong>', $draft['subject'], '</strong>&nbsp;';
@@ -1913,7 +1913,7 @@ function template_showPMDrafts()
 
 	// Show page numbers.
 	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
+		<div class="pagesection">
 			<span>', $context['page_index'], '</span>
 		</div>';
 }
