@@ -1306,7 +1306,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 		}
 	}
 
-	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $display_custom_fields));
+	call_integration_hook('integrate_member_context', array(&$memberContext[$user], $user, $display_custom_fields));
 	return true;
 }
 
