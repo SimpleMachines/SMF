@@ -523,22 +523,16 @@ function loadProfileFields($force_reload = false)
 				return true;
 			},
 		),
-		'time_offset' => array(
-			'type' => 'callback',
-			'callback_func' => 'timeoffset_modify',
+		'timezone' => array(
+			'type' => 'select',
+			'options' => smf_list_timezones(),
 			'permission' => 'profile_extra',
-			'preload' => function () use (&$context, $cur_profile)
+			'label' => $txt['timezone'],
+			'input_validate' => function ($value)
 			{
-				$context['member']['time_offset'] = $cur_profile['time_offset'];
-				return true;
-			},
-			'input_validate' => function (&$value)
-			{
-				// Validate the time_offset...
-				$value = (float) strtr($value, ',', '.');
-
-				if ($value < -23.5 || $value > 23.5)
-					return 'bad_offset';
+				$tz = smf_list_timezones();
+				if (!isset($tz[$value]))
+					return 'bad_timezone';
 
 				return true;
 			},
@@ -1768,7 +1762,7 @@ function theme($memID)
 	setupProfileContext(
 		array(
 			'id_theme', 'smiley_set', 'hr',
-			'time_format', 'time_offset', 'hr',
+			'time_format', 'timezone', 'hr',
 			'theme_settings',
 		)
 	);

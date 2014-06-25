@@ -318,6 +318,7 @@ $txt['error_no_search_daemon'] = 'Unable to access the search daemon';
 
 $txt['profile_errors_occurred'] = 'The following errors occurred when trying to save your profile';
 $txt['profile_error_bad_offset'] = 'The time offset is out of range';
+$txt['profile_error_bad_timezone'] = 'The timezone specified is invalid';
 $txt['profile_error_no_name'] = 'The name field was left blank';
 $txt['profile_error_digits_only'] = 'The \'number of posts\' box can only contain digits.';
 $txt['profile_error_name_taken'] = 'The selected username/display name has already been taken';
