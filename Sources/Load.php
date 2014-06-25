@@ -412,6 +412,25 @@ function loadUserSettings()
 
 		// This is a logged in user, so definitely not a spider.
 		$user_info['possibly_robot'] = false;
+
+		// Figure out the new time offset.
+		if (!empty($user_settings['timezone']))
+		{
+			if (!empty($user_settings['time_offset']))
+			{
+				// !!! Compatibility.
+				$user_info['time_offset'] = $user_settings['time_offset'];
+			}
+			else
+			{
+				// Get the offsets from UTC for the server, then for the user.
+				$tz_system = new DateTimeZone(@date_default_timezone_get());
+				$tz_user = new DateTimeZone($user_settings['timezone']);
+				$time_system = new DateTime('now', $tz_system);
+				$time_user = new DateTime('now', $tz_user);
+				$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+			}
+		}
 	}
 	// If the user is a guest, initialize all the critical user settings.
 	else
@@ -444,6 +463,9 @@ function loadUserSettings()
 			$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
 			$user_info['possibly_robot'] = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') === false && strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false) || strpos($ci_user_agent, 'googlebot') !== false || strpos($ci_user_agent, 'slurp') !== false || strpos($ci_user_agent, 'crawl') !== false || strpos($ci_user_agent, 'msnbot') !== false;
 		}
+
+		// We don't know the offset...
+		$user_info['time_offset'] = 0;
 	}
 
 	// Set up the $user_info array.
@@ -462,7 +484,6 @@ function loadUserSettings()
 		'ip2' => $_SERVER['BAN_CHECK_IP'],
 		'posts' => empty($user_settings['posts']) ? 0 : $user_settings['posts'],
 		'time_format' => empty($user_settings['time_format']) ? $modSettings['time_format'] : $user_settings['time_format'],
-		'time_offset' => empty($user_settings['time_offset']) ? 0 : $user_settings['time_offset'],
 		'avatar' => array(
 			'url' => isset($user_settings['avatar']) ? $user_settings['avatar'] : '',
 			'filename' => empty($user_settings['filename']) ? '' : $user_settings['filename'],

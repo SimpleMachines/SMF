@@ -543,6 +543,12 @@ function loadProfileFields($force_reload = false)
 				return true;
 			},
 		),
+		'timezone' => array(
+			'type' => 'select',
+			'options' => smf_list_timezones(),
+			'permission' => 'profile_extra',
+			'label' => $txt['time_zone'],
+		),
 		'usertitle' => array(
 			'type' => 'text',
 			'label' => $txt['custom_title'],
@@ -1768,7 +1774,7 @@ function theme($memID)
 	setupProfileContext(
 		array(
 			'id_theme', 'smiley_set', 'hr',
-			'time_format', 'time_offset', 'hr',
+			'time_format', 'timezone', 'hr',
 			'theme_settings',
 		)
 	);
