@@ -705,7 +705,7 @@ function template_main()
 						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
 							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
 
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \'"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
 
 	if ($context['can_quote'])
 		echo '
@@ -828,7 +828,7 @@ function template_main()
 				$ignored_posts[] = $ignoring = $post['id'];
 
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
 				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '

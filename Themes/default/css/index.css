@@ -886,7 +886,7 @@ img.sort, .sort {
 .roundframe {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 	margin: 10px 0 0 0;
-	padding: 9px;
+	padding: 12px 16px;
 	background: #F8F8F8;
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
@@ -1436,7 +1436,7 @@ img.sort, .sort {
 	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
 	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
-/* h3 HD Icons */
+/* Icons (converted from img to css) */
 h3.search_hd {
 	background: url(../images/buttons/search_hd.png) 4px no-repeat;
 	padding: 8px 35px 6px;
@@ -1444,6 +1444,10 @@ h3.search_hd {
 h3.profile_hd {
 	background: url(../images/icons/profile_hd.png) 15px no-repeat;
 	padding: 8px 0 8px 50px;
+}
+.xx {
+	background: url(../images/post/xx.png) 2px no-repeat;
+	padding: 25px 6px 25px 18px;
 }
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
 /*	just to save a little bit of code. Will wait for Opera detection on body tag. */
@@ -2191,7 +2195,7 @@ ul.quickbuttons li a.notify_button {
 	padding: 0 4px 0 22px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 4px -238px;
+	background: url(../images/theme/quickbuttons.png) no-repeat 2px -238px;
 }
 ul.quickbuttons li a.warn_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -270px;
@@ -3672,9 +3676,7 @@ dl.addrules dt.floatleft {
 	background: #f0f4f7;
 }
 
-.generic_list_wrapper, .action_profile  #permissions,
-#profileview, #recent .core_posts,
-.windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+.generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -3725,25 +3727,6 @@ dl.addrules dt.floatleft {
 div#editlang_desc {
 	margin-bottom: 8px;
 }
-
-/* Some caution required here, as Post.template.php topic summary shares #recent with recent posts. */
-#recent .core_posts {
-	padding: 8px 0;
-}
-#recent .core_posts span {
-	font-weight: normal;
-}
-#recent .quickbuttons {
-	margin-top: -2px;
-}
-/* Will find a less verbose way of handling this. */
-.action_recent #recent .core_posts, .action_profile #recent .core_posts {
-	padding: 8px 12px;
-}
-.action_recent #recent .quickbuttons {
-	margin-top: 8px;
-}
-/* @todo Some odd inheritance glitch here with font-size. Check it out. */
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
@@ -4102,4 +4085,8 @@ p.information  img {
 }
 #topic_icons .information {
 	border-top: 1px solid #ddd;
+}
+.topic {
+	clear: both;
+	padding: 3px 0 0 0;
 }

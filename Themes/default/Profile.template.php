@@ -152,7 +152,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="flow_auto">
+	<div id="profileview" class="roundframe flow_auto">
 		<div id="basicinfo">
 			<div class="username">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
@@ -480,7 +480,7 @@ function template_showPosts()
 	// Show more page numbers.
 	if (!empty($context['page_index']))
 		echo '
-		<div class="pagesection" style="margin-bottom: 0;">
+		<div class="pagesection">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 }
@@ -582,7 +582,7 @@ function template_showDrafts()
 
 	// Show page numbers.
 	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
+		<div class="pagesection">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 }
@@ -1108,7 +1108,7 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
-	<div id="profileview">
+	<div id="profileview" class="roundframe">
 		<div id="generalstats">
 			<dl class="stats">
 				<dt>', $txt['statPanel_total_time_online'], ':</dt>

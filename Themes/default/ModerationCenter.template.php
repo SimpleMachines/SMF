@@ -261,7 +261,7 @@ function template_unapproved_posts()
 	{
 		echo '
 		<div class="topic clear">
-			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', ' core_posts">
+			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
 				<div class="counter">', $item['counter'], '</div>
 				<div class="topic_details">
 					<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
