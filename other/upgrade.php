@@ -1065,7 +1065,7 @@ function upCleanRequest()
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type;
+	global $txt, $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type;
 	global $modSettings, $sourcedir, $smcFunc, $upcontext;
 
 	// Do the non-SSI stuff...
@@ -1084,14 +1084,14 @@ function loadEssentialData()
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	$smcFunc['strtolower'] = $db_character_set != 'utf8'  ? 'strtolower' :
-		function($string) use ($sourcedir)
-		{
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		create_function('$string', '
+			global $sourcedir;
+			if (function_exists(\'mb_strtolower\'))
+				return mb_strtolower($string, \'UTF-8\');
+			require_once($sourcedir . \'/Subs-Charset.php\');
 			return utf8_strtolower($string);
-		};
+		');
 
 	// Check we don't need some compatibility.
 	if (@version_compare(PHP_VERSION, '5.1', '<='))
