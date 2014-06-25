@@ -1515,6 +1515,13 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
+--- Adding timezone support
+/******************************************************************************/
+---# Adding the "timezone" column to the members table
+ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+---#
+
+/******************************************************************************/
 --- Cleaning up old email settings
 /******************************************************************************/
 ---# Removing the "send_email_to_members" permission

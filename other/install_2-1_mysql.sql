@@ -1238,6 +1238,7 @@ CREATE TABLE {$db_prefix}members (
   warning tinyint(4) NOT NULL default '0',
   passwd_flood varchar(12) NOT NULL default '',
   pm_receive_from tinyint(4) unsigned NOT NULL default '1',
+  timezone varchar(80) NOT NULL DEFAULT 'UTC',
   PRIMARY KEY (id_member),
   KEY member_name (member_name),
   KEY real_name (real_name),
