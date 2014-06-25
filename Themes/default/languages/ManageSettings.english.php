@@ -295,6 +295,7 @@ $txt['custom_edit_delete_sure'] = 'Are you sure you wish to delete this field - 
 
 $txt['standard_profile_title'] = 'Standard Profile Fields';
 $txt['standard_profile_field'] = 'Field';
+$txt['standard_profile_field_timezone'] = 'Timezone';
 
 $txt['languages_lang_name'] = 'Language Name';
 $txt['languages_locale'] = 'Locale';

@@ -1361,7 +1361,7 @@ function template_edit_options()
 				{
 					// Is this some code to generate the options?
 					if (!is_array($field['options']))
-						$field['options'] = eval($field['options']);
+						$field['options'] = $field['options']();
 					// Assuming we now have some!
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
@@ -1764,8 +1764,8 @@ function template_alert_configuration()
 			<table class="table_grid" style="width: 100%">
 				<tr>
 					<td></td>
-					<td align="center">', $txt['receive_alert'], ' (<a onclick="toggleAlerts()">', $txt['toggle_all'], '</a>)</td>
-					<td align="center">', $txt['receive_mail'], ' (<a onclick="toggleMail()">', $txt['toggle_all'], '</a>)</td>
+					<td align="center">', $txt['receive_alert'], '</td>
+					<td align="center">', $txt['receive_mail'], '</td>
 				</tr>';
 	$use_bg2 = true;
 
@@ -2728,7 +2728,7 @@ function template_profile_group_manage()
 									<label for="additional_groups-', $member_group['id'], '"><input type="checkbox" name="additional_groups[]" value="', $member_group['id'], '" id="additional_groups-', $member_group['id'], '"', $member_group['is_additional'] ? ' checked' : '', ' class="input_check"> ', $member_group['name'], '</label><br>';
 		echo '
 								</span>
-								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down"> ', $txt['additional_membergroups_show'], '</a>
+								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down">', $txt['additional_membergroups_show'], '</a>
 								<script><!-- // --><![CDATA[
 									document.getElementById("additional_groupsList").style.display = "none";
 									document.getElementById("additional_groupsLink").style.display = "";
@@ -3001,21 +3001,6 @@ function template_profile_timeformat_modify()
 	echo '
 								</select><br>
 								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30" class="input_text">
-							</dd>';
-}
-
-// Time offset?
-function template_profile_timeoffset_modify()
-{
-	global $txt, $context;
-
-	echo '
-							<dt>
-								<strong', (isset($context['modify_error']['bad_offset']) ? ' class="error"' : ''), '><label for="time_offset">', $txt['time_offset'], ':</label></strong><br>
-								<span class="smalltext">', $txt['personal_time_offset'], '</span>
-							</dt>
-							<dd>
-								<span class="floatleft"><input type="number" name="time_offset" id="time_offset" size="5" maxlength="5" value="', $context['member']['time_offset'], '" class="input_text" step="0.1" min="-24" max="24"> ', $txt['hours'], '</span> <a href="javascript:void(0);" class="button" onclick="currentDate = new Date(', $context['current_forum_time_js'], '); document.getElementById(\'time_offset\').value = autoDetectTimeOffset(currentDate); return false;">', $txt['timeoffset_autodetect'], '</a><br><br>', $txt['current_time'], ': <em>', $context['current_forum_time'], '</em>
 							</dd>';
 }
 

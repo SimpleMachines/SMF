@@ -628,6 +628,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'ignore_boards' => '',
 		'smiley_set' => '',
 		'openid_uri' => (!empty($regOptions['openid']) ? $regOptions['openid'] : ''),
+		'timezone' => !empty($regOptions['timezone']) ? $regOptions['timezone'] : 'UTC',
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?
