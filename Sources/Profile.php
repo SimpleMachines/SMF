@@ -757,7 +757,7 @@ function ModifyProfile($post_errors = array())
 
 	// A static one or more likely, a plain good old function.
 	else
-		$call = $profile_include_data['function'];
+		$call = call_helper($profile_include_data['function'], true);
 
 	// Is it valid?
 	if (is_callable($call))

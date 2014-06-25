@@ -21,25 +21,19 @@ function XMLhttpMain()
 {
 	loadTemplate('Xml');
 
-	$sub_actions = array(
-		'jumpto' => array(
-			'function' => 'GetJumpTo',
-		),
-		'messageicons' => array(
-			'function' => 'ListMessageIcons',
-		),
-		'previews' => array(
-			'function' => 'RetrievePreview',
-		),
+	$subActions = array(
+		'jumpto' =>  'GetJumpTo',
+		'messageicons' => 'ListMessageIcons',
+		'previews' => 'RetrievePreview',
 	);
 
-	// Easy adding of sub actions
- 	call_integration_hook('integrate_xmlhttp', array(&$sub_actions));
+	// Easy adding of sub actions.
+	call_integration_hook('integrate_XMLhttpMain_subActions', array(&$subActions));
 
-	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
+	if (!isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
 
-	$sub_actions[$_REQUEST['sa']]['function']();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**

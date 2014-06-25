@@ -58,8 +58,11 @@ function Groups()
 		);
 	}
 
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_manage_groups', array(&$subActions));
+
 	// Call the actual function.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**

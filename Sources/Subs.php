@@ -2722,7 +2722,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 			foreach ($buffers as $function)
 			{
 				$function = trim($function);
-				$call = call_hook_helper($function);
+				$call = call_helper($function, true);
 
 				// Is it valid?
 				if (is_callable($call))
@@ -4107,12 +4107,12 @@ function call_integration_hook($hook, $parameters = array())
 				}
 			}
 
-			$call = call_hook_helper($func);
+			$call = call_helper($func, true);
 		}
 
 		// Figuring out what to do.
 		else
-			$call = call_hook_helper($function);
+			$call = call_helper($function, true);
 
 		// Is it valid?
 		if (!empty($call) && is_callable($call))
@@ -4240,16 +4240,20 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
  * Prepare and returns a callable depending on the type of method/function found.
  *
- * @param string $string The string containing a function name
+ * @param string $string The string containing a function name or a static call.
+ * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
  * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
  */
-function call_hook_helper($string)
+function call_helper($string, $return = false)
 {
 	global $context, $db_show_debug;
 
 	// Really?
 	if (empty($string))
 		return false;
+
+	// The soon to be populated var.
+	$func = false;
 
 	// Found a method.
 	if (strpos($string, '::') !== false)
@@ -4277,17 +4281,31 @@ function call_hook_helper($string)
 				}
 			}
 
-			return array($context['instances'][$class], $method);
+			$func = array($context['instances'][$class], $method);
 		}
 
 		// Right then. This is a call to a static method.
 		else
-			return array($class, $method);
+			$func = array($class, $method);
 	}
 
 	// Nope! just a plain regular function.
 	else
-		return $string;
+		$func = $string;
+
+	// What are we gonna do about it?
+	if ($return)
+		return $func;
+
+	// If this is a plain function, avoid the heat of calling call_user_func().
+	else
+	{
+		if (is_array($func))
+			call_user_func($func);
+
+		else
+			$func();
+	}
 }
 
 /**

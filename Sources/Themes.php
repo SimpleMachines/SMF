@@ -72,7 +72,7 @@ function ThemesMain()
 		'copy' => 'CopyTemplate',
 	);
 
-	// @todo Layout Settings?
+	// @todo Layout Settings?  huh?
 	if (!empty($context['admin_menu_name']))
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -96,11 +96,15 @@ function ThemesMain()
 		);
 	}
 
+	// CRUD $subActions as needed.
+	call_integration_hook('integrate_manage_themes', array(&$subActions));
+
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
-		$subActions[$_GET['sa']]();
+		call_helper($subActions[$_GET['sa']]);
+
 	else
-		$subActions['admin']();
+		call_helper($subActions['admin']);
 }
 
 /**

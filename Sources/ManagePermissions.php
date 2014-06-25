@@ -44,8 +44,6 @@ function ModifyPermissions()
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_permissions', array(&$subActions));
-
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
 
@@ -73,7 +71,9 @@ function ModifyPermissions()
 		),
 	);
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**

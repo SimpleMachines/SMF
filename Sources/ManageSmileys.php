@@ -42,8 +42,6 @@ function ManageSmileys()
 		'install' => 'InstallSmileySet'
 	);
 
-	call_integration_hook('integrate_manage_smileys', array(&$subActions));
-
 	// If customized smileys is disabled don't show the setting page
 	if (empty($modSettings['smiley_enable']))
 	{
@@ -102,8 +100,10 @@ function ManageSmileys()
 		$context[$context['admin_menu_name']]['tab_data']['tabs']['setorder']['disabled'] = true;
 	}
 
+	call_integration_hook('integrate_manage_smileys', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**

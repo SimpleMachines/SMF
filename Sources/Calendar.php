@@ -47,7 +47,7 @@ function CalendarMain()
 	);
 
 	if (isset($_GET['sa']) && isset($subActions[$_GET['sa']]) && !WIRELESS)
-		return $subActions[$_GET['sa']]();
+		return call_helper($subActions[$_GET['sa']]);
 
 	// You can't do anything if the calendar is off.
 	if (empty($modSettings['cal_enabled']))

@@ -39,8 +39,6 @@ function ManagePostSettings()
 		'drafts' => 'ModifyDraftSettings',
 	);
 
-	call_integration_hook('integrate_manage_posts', array(&$subActions));
-
 	// Default the sub-action to 'posts'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'posts';
 
@@ -67,8 +65,10 @@ function ManagePostSettings()
 		),
 	);
 
+	call_integration_hook('integrate_manage_posts', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -189,14 +189,14 @@ function ModifyPostSettings($return_config = false)
 	if (function_exists('pspell_new'))
 		$can_spell_check = true;
 	elseif (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv')))
-		$can_spell_check = true;			
+		$can_spell_check = true;
 
 	// All the settings...
 	$config_vars = array(
 			// Simple post options...
 			array('check', 'removeNestedQuotes'),
 			array('check', 'enableEmbeddedFlash', 'subtext' => $txt['enableEmbeddedFlash_warning']),
-			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed) 
+			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed)
 			array('check', 'enableSpellChecking', 'subtext' => ($can_spell_check ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
 			array('check', 'disable_wysiwyg'),
 		'',

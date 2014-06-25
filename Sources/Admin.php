@@ -509,7 +509,7 @@ function AdminMain()
 
 	// A static one or more likely, a plain good old function.
 	else
-		$call = $admin_include_data['function'];
+		$call = call_helper($admin_include_data['function'], true);
 
 	// Is it valid?
 	if (is_callable($call))

@@ -42,7 +42,9 @@ function PostModerationMain()
 	if (!isset($_REQUEST['sa']) || !isset($subactions[$_REQUEST['sa']]))
 		$_REQUEST['sa'] = 'replies';
 
-	$subactions[$_REQUEST['sa']]();
+	call_integration_hook('integrate_post_moderation', array(&$subActions));
+
+	call_helper($subactions[$_REQUEST['sa']]);
 }
 
 /**

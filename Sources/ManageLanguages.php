@@ -42,8 +42,6 @@ function ManageLanguages()
 		'editlang' => 'ModifyLanguage',
 	);
 
-	call_integration_hook('integrate_manage_languages', array(&$subActions));
-
 	// By default we're managing languages.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'edit';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -54,8 +52,10 @@ function ManageLanguages()
 		'description' => $txt['language_description'],
 	);
 
+	call_integration_hook('integrate_manage_languages', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**

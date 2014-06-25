@@ -89,8 +89,10 @@ function Packages()
 	if ($context['sub_action'] == 'browse')
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 
+	call_integration_hook('integrate_manage_packages', array(&$subActions));
+
 	// Call the function we're handing control to.
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**

@@ -39,7 +39,8 @@ function RemindMe()
 
 	// Any subaction?  If none, fall through to the main template, which will ask for one.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
-		$subActions[$_REQUEST['sa']]();
+		call_helper($subActions[$_REQUEST['sa']]);
+
 	// Creating a one time token.
 	else
 		createToken('remind');

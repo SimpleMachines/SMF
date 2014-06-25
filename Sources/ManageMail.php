@@ -43,8 +43,6 @@ function ManageMail()
 		'settings' => 'ModifyMailSettings',
 	);
 
-	call_integration_hook('integrate_manage_mail', array(&$subActions));
-
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -56,8 +54,10 @@ function ManageMail()
 		'description' => $txt['mailqueue_desc'],
 	);
 
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**

@@ -72,7 +72,7 @@ function ManageAttachments()
 	);
 
 	// Finally fall through to what we are doing.
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
