@@ -377,11 +377,11 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader" class="title_bar title_top">
-						<h4 class="titlebg">
-							<span id="postMoreExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
-						</h4>
-					</div>
+					<div id="postAdditionalOptionsHeader">
+						<strong><a href="#" id="postMoreExpandLink"> ', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+					</div>';
+
+	echo '
 					<div id="postAdditionalOptions">';
 
 	// Display the check boxes for all the standard options - if they are available to the user!
@@ -768,7 +768,7 @@ function template_main()
 				],
 				aSwapImages: [
 					{
-						sId: \'postMoreExpand\',
+						sId: \'postMoreExpandLink\',
 						altExpanded: \'-\',
 						altCollapsed: \'+\'
 					}

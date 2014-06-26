@@ -2446,13 +2446,11 @@ ul.post_options li {
 	width: 49%;
 	float: left;
 }
+#postAdditionalOptionsHeader {
+	margin-top: 0.5em;
+}
 #postAdditionalOptions {
-	background: #fdfdfd;
-	border: 1px solid #aaa;
-	border-left: 1px solid #bbb;
-	border-top: none;
 	overflow: hidden;
-	border-radius: 0 0 4px 4px;
 }
 #postMoreOptions, #postAttachment, #postAttachment2 {
 	border-top: 1px solid #ddd;
