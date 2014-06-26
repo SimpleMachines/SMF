@@ -1615,31 +1615,3 @@ function updateAuthMethod()
 		document.getElementById("auth_pass_div").style.display = "none";
 	}
 }
-
-$(document).ready(function() {
-	if (smf_member_id > 0)
-		$('div.boardindex_table div.cat_bar').each(function(index, el)
-		{
-			var catid = el.id.replace('category_', '');
-			new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
-				aSwappableContainers: [
-					'category_' + catid + '_boards'
-				],
-				aSwapImages: [
-					{
-						sId: 'category_' + catid + '_upshrink',
-						msgExpanded: '',
-						msgCollapsed: ''
-					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: true,
-					sOptionName: 'collapse_category_' + catid,
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id
-				}
-			});
-		});
-});
