@@ -1696,8 +1696,11 @@ ul li.greeting {
 	width: 25px;
 	float: right;
 }
-#bot img{
-	padding: 4px;
+span.go_up {
+	background: url(../images/toggle.png) no-repeat;
+	height: 17px;
+	width: 17px;
+	display: inline-block
 }
 
 /* Some of the lovely icons we might need.
