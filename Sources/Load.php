@@ -416,20 +416,17 @@ function loadUserSettings()
 		// Figure out the new time offset.
 		if (!empty($user_settings['timezone']))
 		{
-			if (!empty($user_settings['time_offset']))
-			{
-				// !!! Compatibility.
-				$user_info['time_offset'] = $user_settings['time_offset'];
-			}
-			else
-			{
-				// Get the offsets from UTC for the server, then for the user.
-				$tz_system = new DateTimeZone(@date_default_timezone_get());
-				$tz_user = new DateTimeZone($user_settings['timezone']);
-				$time_system = new DateTime('now', $tz_system);
-				$time_user = new DateTime('now', $tz_user);
-				$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
-			}
+			// Get the offsets from UTC for the server, then for the user.
+			$tz_system = new DateTimeZone(@date_default_timezone_get());
+			$tz_user = new DateTimeZone($user_settings['timezone']);
+			$time_system = new DateTime('now', $tz_system);
+			$time_user = new DateTime('now', $tz_user);
+			$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
+		}
+		elseif (!empty($user_settings['time_offset']))
+		{
+			// !!! Compatibility.
+			$user_info['time_offset'] = $user_settings['time_offset'];
 		}
 	}
 	// If the user is a guest, initialize all the critical user settings.

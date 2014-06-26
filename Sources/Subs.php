@@ -4078,7 +4078,7 @@ function call_integration_hook($hook, $parameters = array())
 		// Did we find a file to load?
 		if (strpos($function, '|') !== false)
 		{
-			list($file, $func) = explode('|', $function);
+			list ($file, $func) = explode('|', $function);
 
 			// Match the wildcards to their regular vars.
 			if (empty($settings['theme_dir']))
@@ -4122,7 +4122,7 @@ function call_integration_hook($hook, $parameters = array())
 		elseif (!empty($func) && !empty($absPath))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['hook_fail_call_to'], $func , $absPath), 'general');
+			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
 		}
 		elseif (!empty($function) && !empty($absPath))
 		{
@@ -4161,7 +4161,7 @@ function add_integration_function($hook, $function, $file = '', $object = false,
 				'variable' => $hook,
 			)
 		);
-		list($current_functions) = $smcFunc['db_fetch_row']($request);
+		list ($current_functions) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($current_functions))
@@ -4202,7 +4202,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $function . '|' . $file .($object ? '#' : '') : $function;
+	$integration_call = (!empty($file)) ? $file . '|' . $function .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
@@ -4213,7 +4213,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 			'variable' => $hook,
 		)
 	);
-	list($current_functions) = $smcFunc['db_fetch_row']($request);
+	list ($current_functions) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($current_functions))
@@ -4258,7 +4258,7 @@ function call_helper($string, $return = false)
 	// Found a method.
 	if (strpos($string, '::') !== false)
 	{
-		list($class, $method) = explode('::', $string);
+		list ($class, $method) = explode('::', $string);
 
 		// Check if a new object will be created.
 		if (strpos($method, '#') !== false)
