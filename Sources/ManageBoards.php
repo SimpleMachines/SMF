@@ -842,7 +842,7 @@ function EditBoardSettings($return_config = false)
 	require_once($sourcedir . '/Subs-Boards.php');
 	sortBoards($recycle_boards);
 
-	$recycle_boards = array_merge(array(''), $recycle_boards);
+        $recycle_boards = array('') + $recycle_boards;
 
 	// Here and the board settings...
 	$config_vars = array(
