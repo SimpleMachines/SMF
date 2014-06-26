@@ -28,8 +28,8 @@ function getServerVersions($checkFor)
 
 	$versions = array();
 
-	// Is GD available?  If it is, we should show version information for it too.
-	if (in_array('gd', $checkFor) && function_exists('gd_info'))
+	// We should show version information for itGD2.
+	if (in_array('gd', $checkFor))
 	{
 		$temp = gd_info();
 		$versions['gd'] = array('title' => $txt['support_versions_gd'], 'version' => $temp['GD Version']);

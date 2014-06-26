@@ -1661,7 +1661,7 @@ function create_control_richedit($editorOptions)
 			'sub' => 'subscript',
 			'hr' => 'horizontalrule',
 		);
-		
+
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is ketp for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
@@ -1694,7 +1694,7 @@ function create_control_richedit($editorOptions)
 				$context['disabled_tags']['bulletlist'] = true;
 				$context['disabled_tags']['orderedlist'] = true;
 			}
-			
+
 			foreach ($disabled_editor_tags as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
@@ -1929,8 +1929,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		if (!empty($verificationOptions['override_visual']) || (!empty($modSettings['visual_verification_type']) && !isset($verificationOptions['override_visual'])))
 			loadJavascriptFile('captcha.js', array('default_theme' => true));
 
-		$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
-
 		// Skip I, J, L, O, Q, S and Z.
 		$context['standard_captcha_range'] = array_merge(range('A', 'H'), array('K', 'M', 'N', 'P', 'R'), range('T', 'Y'));
 	}
@@ -1957,7 +1955,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'] && !WIRELESS)
 		$context['insert_after_template'] .= '
 			<script><!-- // --><![CDATA[
-				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
+				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", 1);
 			// ]]></script>';
 
 	// Is there actually going to be anything?
@@ -2357,7 +2355,7 @@ function AutoSuggest_Search_SMFVersions()
 	// Just in case we don't have ANYthing.
 	if (empty($versions))
 		$versions = array('SMF 2.0');
-	
+
 
 	foreach ($versions as $id => $version)
 		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)
