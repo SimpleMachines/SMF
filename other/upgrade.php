@@ -922,7 +922,6 @@ function initialize_inputs()
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
 		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/sha1.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
