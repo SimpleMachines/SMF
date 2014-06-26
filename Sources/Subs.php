@@ -4202,7 +4202,7 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $function . '|' . $file .($object ? '#' : '') : $function;
+	$integration_call = (!empty($file)) ? $file . '|' . $function .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
