@@ -1439,13 +1439,12 @@ function ShowCustomProfiles()
 					{
 						$placement = array(
 							'standard',
-							'withicons',
-							'abovesignature',
-							'belowsignature',
+							'with_icons',
+							'above_signature',
+							'below_signature',
 							'below_avatar',
 							'above_name',
 							'bottom',
-							'hidden',
 						);
 						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
 					},
