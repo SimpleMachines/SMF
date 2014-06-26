@@ -959,6 +959,12 @@ function initialize_inputs()
 	$_GET['substep'] = (int) @$_GET['substep'];
 }
 
+// This checks whether GD2 is available.
+function checkGD2()
+{
+	return function_exists('imagecreatetruecolor');
+}
+
 // Step 0 - Let's welcome them in and ask them to login!
 function WelcomeLogin()
 {
