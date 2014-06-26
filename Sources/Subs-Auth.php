@@ -203,7 +203,6 @@ function adminLogin($type = 'admin')
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Validate what type of session check this is.
 	$types = array();
