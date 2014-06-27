@@ -144,15 +144,20 @@ function template_control_richedit_buttons($editor_id)
 		<span class="smalltext">
 			', $context['shortcuts_text'], '
 		</span>';
-		
+
 	$tempTab = $context['tabindex'];
-	if (!empty($context['drafts_pm_save'])) $tempTab++;
-	if (!empty($context['drafts_save'])) $tempTab++;
-	if ($editor_context['preview_type']) $tempTab++;
-	if ($context['show_spellchecking']) $tempTab++;
+	if (!empty($context['drafts_pm_save']))
+		$tempTab++;
+	elseif (!empty($context['drafts_save']))
+		$tempTab++;
+	elseif ($editor_context['preview_type'])
+		$tempTab++;
+	elseif ($context['show_spellchecking'])
+		$tempTab++;
+
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
-	
+
 	if (!empty($context['drafts_pm_save']))
 	{
 		// The PM draft save button
@@ -181,7 +186,7 @@ function template_control_richedit_buttons($editor_id)
 			});
 		// ]]></script>';
 	}
-	
+
 	if (!empty($context['drafts_save']))
 	{
 		// Show the save draft button
@@ -222,7 +227,7 @@ function template_control_richedit_buttons($editor_id)
 	if ($context['show_spellchecking'])
 		echo '
 		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tabTemp, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit">';
-		
+
 }
 
 // What's this, verification?!
