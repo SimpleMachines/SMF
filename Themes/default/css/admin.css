@@ -371,21 +371,24 @@ pre.file_content {
 	padding: 0;
 	background: none;
 }
-#manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
+#manage_boards li.windowbg, #manage_boards li.windowbg2 {
 	padding: 8px 0;
 	margin: 0;
 	border-radius: 0;
 	border: 1px solid #ddd;
 	border-bottom: none;
 }
-#manage_boards li:first-child {
+#manage_boards li.windowbg:first-child, #manage_boards li.windowbg2:first-child {
 	border-top: none;
 }
-#manage_boards li:last-child {
+#manage_boards li.windowbg:last-child, #manage_boards li.windowbg2:last-child {
 	border-bottom: 1px solid #ddd;
 }
-#manage_boards li:hover {
+#manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
 	background: #D0E7F8;
+}
+.toggle_up:before, .toggle_down:before {
+	margin: -5px 0 0 0;
 }
 #manage_boards li img {
 	vertical-align: middle;

@@ -313,7 +313,7 @@ function template_body_below()
 
 	// There is now a global "Go to top" link at the right.
 		echo '
-			<a href="#top_section" id="bot"><span class="go_up"></span></a>
+			<a href="#top_section" id="bot" title="', $txt['go_up'], '"><span class="go_up"></span></a>
 			<ul class="floatright">
 				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> | <a href="', $scripturl, '?action=help;sa=rules">', $txt['terms_and_rules'], '</a></li>
 			</ul>
