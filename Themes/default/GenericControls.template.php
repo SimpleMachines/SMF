@@ -160,8 +160,8 @@ function template_control_richedit_buttons($editor_id)
 		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="',  --$tabTemp, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
 		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
 
-		// Load in the PM autosaver if its enabled and the user wants to use it
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+		// Load in the PM autosaver if it's enabled
+		if (!empty($context['drafts_autosave']))
 			echo '
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
@@ -189,8 +189,8 @@ function template_control_richedit_buttons($editor_id)
 		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tabTemp, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit">
 		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
 
-		// Start an instance of the auto saver if its enabled
-		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+		// Start an instance of the auto saver if it's enabled
+		if (!empty($context['drafts_autosave']))
 			echo '
 		<br>
 		<span class="righttext padding" style="display: block">
