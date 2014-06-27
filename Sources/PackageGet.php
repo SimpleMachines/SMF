@@ -288,7 +288,7 @@ function PackageGBrowse()
 
 	// Use the package list's name if it exists.
 	if ($listing->exists('list-title'))
-		$name = $listing->fetch('list-title');
+		$name = $smcFunc['htmlspecialchars']($listing->fetch('list-title'));
 
 	// Pick the correct template.
 	$context['sub_template'] = 'package_list';
@@ -310,7 +310,7 @@ function PackageGBrowse()
 	if ($listing->exists('default-author'))
 	{
 		$default_author = $smcFunc['htmlspecialchars']($listing->fetch('default-author'));
-		if ($listing->exists('default-author/@email'))
+		if ($listing->exists('default-author/@email') && filter_var($thisPackage->fetch('default-author/@email')], FILTER_VALIDATE_EMAIL))
 			$default_email = $smcFunc['htmlspecialchars']($listing->fetch('default-author/@email'));
 	}
 
@@ -427,7 +427,7 @@ function PackageGBrowse()
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email'))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email')], FILTER_VALIDATE_EMAIL))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;
@@ -457,7 +457,7 @@ function PackageGBrowse()
 						$package['author']['website']['name'] = $default_website;
 
 					if ($thisPackage->exists('website') && $thisPackage->fetch('website') != '')
-						$authorhompage = $thisPackage->fetch('website');
+						$authorhompage = $smcFunc['htmlspecialchars']($thisPackage->fetch('website'));
 					else
 						$authorhompage = $default_website;
 
