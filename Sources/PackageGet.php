@@ -438,11 +438,7 @@ function PackageGBrowse()
 						$package['author']['name'] = $default_author;
 
 					if (!empty($package['author']['email']))
-					{
-						// Only put the "mailto:" if it looks like a valid email address.  Some may wish to put a link to an SMF IM Form or other web mail form.
-						$package['author']['href'] = preg_match('~^[\w\.\-]+@[\w][\w\-\.]+[\w]$~', $package['author']['email']) != 0 ? 'mailto:' . $package['author']['email'] : $package['author']['email'];
-						$package['author']['link'] = '<a href="' . $package['author']['href'] . '">' . $package['author']['name'] . '</a>';
-					}
+						$package['author']['link'] = '<a href="mailto:' . $package['author']['email'] . '">' . $package['author']['name'] . '</a>';
 				}
 
 				if ($thisPackage->exists('website') || isset($default_website))
@@ -461,19 +457,8 @@ function PackageGBrowse()
 					else
 						$authorhompage = $default_website;
 
-					if (stripos($authorhompage, 'a href') === false)
-					{
-						$package['author']['website']['href'] = $authorhompage;
-						$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
-					}
-					else
-					{
-						if (preg_match('/a href="(.+?)"/', $authorhompage, $match) == 1)
-							$package['author']['website']['href'] = $match[1];
-						else
-							$package['author']['website']['href'] = '';
-						$package['author']['website']['link'] = $authorhompage;
-					}
+					$package['author']['website']['href'] = $authorhompage;
+					$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
 				}
 				else
 				{
