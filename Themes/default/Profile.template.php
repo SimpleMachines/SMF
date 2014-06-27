@@ -152,7 +152,7 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="flow_auto">
+	<div id="profileview" class="roundframe flow_auto">
 		<div id="basicinfo">
 			<div class="username">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
@@ -480,7 +480,7 @@ function template_showPosts()
 	// Show more page numbers.
 	if (!empty($context['page_index']))
 		echo '
-		<div class="pagesection" style="margin-bottom: 0;">
+		<div class="pagesection">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 }
@@ -582,7 +582,7 @@ function template_showDrafts()
 
 	// Show page numbers.
 	echo '
-		<div class="pagesection" style="margin-bottom: 0;">
+		<div class="pagesection">
 			<div class="pagelinks">', $context['page_index'], '</div>
 		</div>';
 }
@@ -1108,7 +1108,7 @@ function template_statPanel()
 
 	// First, show a few text statistics such as post/topic count.
 	echo '
-	<div id="profileview">
+	<div id="profileview" class="roundframe">
 		<div id="generalstats">
 			<dl class="stats">
 				<dt>', $txt['statPanel_total_time_online'], ':</dt>
@@ -1249,8 +1249,10 @@ function template_edit_options()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	// The main header!
+        // because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
 	echo '
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
+			<div style="position:absolute; top:-100px;"><input type="text" id="autocompleteFake[Name]" style="" /><input type="password" id="autocompleteFake[Password]" style=""/></div>
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
 
@@ -1361,7 +1363,7 @@ function template_edit_options()
 				{
 					// Is this some code to generate the options?
 					if (!is_array($field['options']))
-						$field['options'] = eval($field['options']);
+						$field['options'] = $field['options']();
 					// Assuming we now have some!
 					if (is_array($field['options']))
 						foreach ($field['options'] as $value => $name)
@@ -1764,8 +1766,8 @@ function template_alert_configuration()
 			<table class="table_grid" style="width: 100%">
 				<tr>
 					<td></td>
-					<td align="center">', $txt['receive_alert'], ' (<a onclick="toggleAlerts()">', $txt['toggle_all'], '</a>)</td>
-					<td align="center">', $txt['receive_mail'], ' (<a onclick="toggleMail()">', $txt['toggle_all'], '</a>)</td>
+					<td align="center">', $txt['receive_alert'], '</td>
+					<td align="center">', $txt['receive_mail'], '</td>
 				</tr>';
 	$use_bg2 = true;
 
@@ -2728,7 +2730,7 @@ function template_profile_group_manage()
 									<label for="additional_groups-', $member_group['id'], '"><input type="checkbox" name="additional_groups[]" value="', $member_group['id'], '" id="additional_groups-', $member_group['id'], '"', $member_group['is_additional'] ? ' checked' : '', ' class="input_check"> ', $member_group['name'], '</label><br>';
 		echo '
 								</span>
-								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down"> ', $txt['additional_membergroups_show'], '</a>
+								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down">', $txt['additional_membergroups_show'], '</a>
 								<script><!-- // --><![CDATA[
 									document.getElementById("additional_groupsList").style.display = "none";
 									document.getElementById("additional_groupsLink").style.display = "";
@@ -3001,21 +3003,6 @@ function template_profile_timeformat_modify()
 	echo '
 								</select><br>
 								<input type="text" name="time_format" id="time_format" value="', $context['member']['time_format'], '" size="30" class="input_text">
-							</dd>';
-}
-
-// Time offset?
-function template_profile_timeoffset_modify()
-{
-	global $txt, $context;
-
-	echo '
-							<dt>
-								<strong', (isset($context['modify_error']['bad_offset']) ? ' class="error"' : ''), '><label for="time_offset">', $txt['time_offset'], ':</label></strong><br>
-								<span class="smalltext">', $txt['personal_time_offset'], '</span>
-							</dt>
-							<dd>
-								<span class="floatleft"><input type="number" name="time_offset" id="time_offset" size="5" maxlength="5" value="', $context['member']['time_offset'], '" class="input_text" step="0.1" min="-24" max="24"> ', $txt['hours'], '</span> <a href="javascript:void(0);" class="button" onclick="currentDate = new Date(', $context['current_forum_time_js'], '); document.getElementById(\'time_offset\').value = autoDetectTimeOffset(currentDate); return false;">', $txt['timeoffset_autodetect'], '</a><br><br>', $txt['current_time'], ': <em>', $context['current_forum_time'], '</em>
 							</dd>';
 }
 
