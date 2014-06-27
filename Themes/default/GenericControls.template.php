@@ -143,46 +143,25 @@ function template_control_richedit_buttons($editor_id)
 		<span class="smalltext">
 			', $context['shortcuts_text'], '
 		</span>';
-
+		
 	$tempTab = $context['tabindex'];
-	if (!empty($context['drafts_pm_save']))
-		$tempTab++;
-	elseif (!empty($context['drafts_save']))
-		$tempTab++;
-	elseif ($editor_context['preview_type'])
-		$tempTab++;
-	elseif ($context['show_spellchecking'])
-		$tempTab++;
-
+	if (!empty($context['drafts_pm_save'])) $tempTab++;
+	if (!empty($context['drafts_save'])) $tempTab++;
+	if ($editor_context['preview_type']) $tempTab++;
+	if ($context['show_spellchecking']) $tempTab++;
 	$tempTab++;
 	$context['tabindex'] = $tempTab;
 
 	if (!empty($context['drafts_pm_save']))
+	{
+		// The PM draft save button
 		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="',  --$tempTab, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tabTemp, '" onclick="submitThisOnce(this);" accesskey="d" class="button_submit">
 		<input type="hidden" id="id_pm_draft" name="id_pm_draft" value="', empty($context['id_pm_draft']) ? 0 : $context['id_pm_draft'], '">';
 
-	if (!empty($context['drafts_save']))
-		echo '
-		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tempTab, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit">
-		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
-
-
-	if ($editor_context['preview_type'])
-		echo '
-		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tempTab, '" onclick="', $editor_context['preview_type'] == 2 ? 'return event.ctrlKey || previewPost();' : 'return submitThisOnce(this);', '" accesskey="p" class="button_submit">';
-
-
-	echo '
-		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">';
-
-	if ($context['show_spellchecking'])
-		echo '
-		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tempTab, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit">';
-
-	// Load in the PM autosaver if it's enabled
-	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))
-		echo '
+		// Load in the PM autosaver if its enabled and the user wants to use it
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
+			echo '
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
@@ -200,10 +179,19 @@ function template_control_richedit_buttons($editor_id)
 				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
 			});
 		// ]]></script>';
+	}
 
-	// Start an instance of the auto saver if its enabled
-	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
+	if (!empty($context['drafts_save']))
+	{
+		// Show the save draft button
 		echo '
+		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tabTemp, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit">
+		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
+
+		// Start an instance of the auto saver if its enabled
+		if (!empty($context['drafts_autosave']))
+			echo '
+		<br>
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span>
 			<span id="draft_lastautosave" ></span>
@@ -220,6 +208,20 @@ function template_control_richedit_buttons($editor_id)
 				iFreq: ', $context['drafts_autosave_frequency'], '
 			});
 		// ]]></script>';
+	}
+
+	if ($context['show_spellchecking'])
+		echo '
+		<input type="button" value="', $txt['spell_check'], '" tabindex="', --$tabTemp, '" onclick="oEditorHandle_', $editor_id, '.spellCheckStart();" class="button_submit">';
+
+	if ($editor_context['preview_type'])
+		echo '
+		<input type="submit" name="preview" value="', isset($editor_context['labels']['preview_button']) ? $editor_context['labels']['preview_button'] : $txt['preview'], '" tabindex="', --$tabTemp, '" onclick="', $editor_context['preview_type'] == 2 ? 'return event.ctrlKey || previewPost();' : 'return submitThisOnce(this);', '" accesskey="p" class="button_submit">';
+
+		
+	echo '
+		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" tabindex="', --$tabTemp, '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">';
+
 }
 
 // What's this, verification?!
