@@ -310,7 +310,7 @@ function PackageGBrowse()
 	if ($listing->exists('default-author'))
 	{
 		$default_author = $smcFunc['htmlspecialchars']($listing->fetch('default-author'));
-		if ($listing->exists('default-author/@email') && filter_var($thisPackage->fetch('default-author/@email')], FILTER_VALIDATE_EMAIL))
+		if ($listing->exists('default-author/@email') && filter_var($thisPackage->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL))
 			$default_email = $smcFunc['htmlspecialchars']($listing->fetch('default-author/@email'));
 	}
 
@@ -427,7 +427,7 @@ function PackageGBrowse()
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email')], FILTER_VALIDATE_EMAIL))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;
