@@ -1119,8 +1119,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		foreach ($temp_mods as $id)
 		{
 			// By popular demand, don't show admins or global moderators as moderators.
-			if ($user_profile[$id]['id_group'] != 1 && $user_profile[$id]['id_group'] != 2)
-				$user_profile[$id]['member_group'] = $row['member_group'];
+			if ($user_profile[$id]['id_group'] == 1 || $user_profile[$id]['id_group'] == 2)
+				continue;
+
+			$user_profile[$id]['member_group'] = $row['member_group'];
 
 			// If the Moderator group has no color or icons, but their group does... don't overwrite.
 			if (!empty($row['icons']))
