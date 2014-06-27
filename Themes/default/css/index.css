@@ -2173,7 +2173,7 @@ ul.quickbuttons li a.modifybutton {
 }
 ul.quickbuttons li a.remove_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
-	padding: 0px 2px 0px 20px;
+	padding: 0 2px 0 25px;
 }
 ul.quickbuttons li a.modify_button {
 	background: url(../images/theme/quickbuttons.png) no-repeat 2px -59px;
@@ -2853,12 +2853,14 @@ tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
 	display: inline-block;
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 }
+/* You wait here till the sprite gets renew */
 .generic_icons.user_on {
 	background-position: 0 0;
 }
 .generic_icons.user_off {
 	background-position: 0 -16px;
 }
+/* from here */
 .generic_icons.gender_Female {
 	background-position: -16px 0;
 }
@@ -4094,4 +4096,27 @@ p.information  img {
 .topic {
 	clear: both;
 	padding: 3px 0 0 0;
+}
+.on, .off {
+	width: 14px;
+	height: 14px;
+	border-radius: 12px;
+	border: 1px solid none;
+	position: absolute;
+	margin: 4px 0 0 0;
+}
+.on {
+	background: #99FF66;
+}
+.off {
+	background: grey;
+}
+#userstatus .smalltext {
+	margin: 0 0 0 20px;
+}
+.pm_icon, #personal_messages .poster h4 a {
+	margin: 0 15px 0 0 !important;
+}
+#personal_messages .poster span {
+	margin: 3px 0 0 -15px;
 }

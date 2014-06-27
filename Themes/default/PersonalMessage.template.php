@@ -224,7 +224,7 @@ function template_folder()
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
 			echo '
-				<img src="', $message['member']['online']['image_href'], '" alt="', $message['member']['online']['text'], '">';
+				<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>';
 	
 		// Show a link to the member's profile (but only if the sender isn't a guest).
 				echo '
