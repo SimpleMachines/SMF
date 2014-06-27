@@ -194,7 +194,7 @@ function template_control_richedit_buttons($editor_id)
 		<input type="submit" name="save_draft" value="', $txt['draft_save'], '" tabindex="', --$tabTemp, '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" class="button_submit">
 		<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
 
-		// Start an instance of the auto saver if it's enabled
+		// Start an instance of the auto saver if its enabled
 		if (!empty($context['drafts_autosave']))
 			echo '
 		<br>
