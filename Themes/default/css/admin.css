@@ -387,9 +387,6 @@ pre.file_content {
 #manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
 	background: #D0E7F8;
 }
-.toggle_up:before, .toggle_down:before {
-	margin: -5px 0 0 0;
-}
 #manage_boards li img {
 	vertical-align: middle;
 	padding: 0 6px 3px 6px;
