@@ -503,12 +503,27 @@ function PackageGBrowse()
 			{
 				$installs = $packageInfo['xml']->set('install');
 				foreach ($installs as $install)
+				{
 					if (!$install->exists('@for') || matchPackageVersion($the_version, $install->fetch('@for')))
 					{
 						// Okay, this one is good to go.
 						$context['package_list'][$ps_id]['items'][$i]['can_install'] = true;
 						break;
 					}
+
+					// no install found for this version, lets see if one exists for another
+					if ($context['package_list'][$ps_id]['items'][$i]['can_install'] === false && $install->exists('@for'))
+					{
+						$reset = true;
+
+						// Get the highest install version that is available from the package
+						foreach ($installs as $install)
+						{
+							$context['package_list'][$ps_id]['items'][$i]['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset, $the_version);
+							$reset = false;
+						}
+					}
+				}
 			}
 		}
 	}
