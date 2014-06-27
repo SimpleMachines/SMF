@@ -1763,13 +1763,6 @@ function create_control_richedit($editorOptions)
 									return \'' . preg_replace(array('~\$1~', '~\$2~', '~\$3~'), array('\' + content + \'', '\' + attributes[0] + \'', '\' + attributes[1] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \',\' + attributes[1] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
 								else
 									return \'' . preg_replace(array('~\$1~', '~\$2~'), array('\' + content + \'', '\' + attributes[0] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
-						},
-						format: function($element, content) {
-							var element = $element[0];
-							if (element === "undefined")
-								return \'' . $tag['before'] . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] : '') . '\';
-
-							return \'' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + elemement + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] : '') . '\';
 						}
 					}
 				);';
