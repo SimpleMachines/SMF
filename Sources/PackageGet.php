@@ -288,7 +288,7 @@ function PackageGBrowse()
 
 	// Use the package list's name if it exists.
 	if ($listing->exists('list-title'))
-		$name = $listing->fetch('list-title');
+		$name = $smcFunc['htmlspecialchars']($listing->fetch('list-title'));
 
 	// Pick the correct template.
 	$context['sub_template'] = 'package_list';
@@ -310,7 +310,7 @@ function PackageGBrowse()
 	if ($listing->exists('default-author'))
 	{
 		$default_author = $smcFunc['htmlspecialchars']($listing->fetch('default-author'));
-		if ($listing->exists('default-author/@email'))
+		if ($listing->exists('default-author/@email') && filter_var($thisPackage->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL))
 			$default_email = $smcFunc['htmlspecialchars']($listing->fetch('default-author/@email'));
 	}
 
@@ -427,7 +427,7 @@ function PackageGBrowse()
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email'))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;
@@ -438,11 +438,7 @@ function PackageGBrowse()
 						$package['author']['name'] = $default_author;
 
 					if (!empty($package['author']['email']))
-					{
-						// Only put the "mailto:" if it looks like a valid email address.  Some may wish to put a link to an SMF IM Form or other web mail form.
-						$package['author']['href'] = preg_match('~^[\w\.\-]+@[\w][\w\-\.]+[\w]$~', $package['author']['email']) != 0 ? 'mailto:' . $package['author']['email'] : $package['author']['email'];
-						$package['author']['link'] = '<a href="' . $package['author']['href'] . '">' . $package['author']['name'] . '</a>';
-					}
+						$package['author']['link'] = '<a href="mailto:' . $package['author']['email'] . '">' . $package['author']['name'] . '</a>';
 				}
 
 				if ($thisPackage->exists('website') || isset($default_website))
@@ -457,23 +453,12 @@ function PackageGBrowse()
 						$package['author']['website']['name'] = $default_website;
 
 					if ($thisPackage->exists('website') && $thisPackage->fetch('website') != '')
-						$authorhompage = $thisPackage->fetch('website');
+						$authorhompage = $smcFunc['htmlspecialchars']($thisPackage->fetch('website'));
 					else
 						$authorhompage = $default_website;
 
-					if (stripos($authorhompage, 'a href') === false)
-					{
-						$package['author']['website']['href'] = $authorhompage;
-						$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
-					}
-					else
-					{
-						if (preg_match('/a href="(.+?)"/', $authorhompage, $match) == 1)
-							$package['author']['website']['href'] = $match[1];
-						else
-							$package['author']['website']['href'] = '';
-						$package['author']['website']['link'] = $authorhompage;
-					}
+					$package['author']['website']['href'] = $authorhompage;
+					$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
 				}
 				else
 				{

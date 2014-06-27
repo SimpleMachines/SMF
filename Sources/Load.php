@@ -172,8 +172,8 @@ function reloadSettings()
 		} : 'ucwords',
 	);
 
-	// Setting the timezone is a requirement for some functions in PHP >= 5.1.
-	if (isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
+	// Setting the timezone is a requirement for some functions.
+	if (isset($modSettings['default_timezone']))
 		date_default_timezone_set($modSettings['default_timezone']);
 
 	// Check the load averages?
@@ -423,10 +423,10 @@ function loadUserSettings()
 			$time_user = new DateTime('now', $tz_user);
 			$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
-		elseif (!empty($user_settings['time_offset']))
+		else
 		{
 			// !!! Compatibility.
-			$user_info['time_offset'] = $user_settings['time_offset'];
+			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 :$user_settings['time_offset'];
 		}
 	}
 	// If the user is a guest, initialize all the critical user settings.
@@ -1119,8 +1119,10 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		foreach ($temp_mods as $id)
 		{
 			// By popular demand, don't show admins or global moderators as moderators.
-			if ($user_profile[$id]['id_group'] != 1 && $user_profile[$id]['id_group'] != 2)
-				$user_profile[$id]['member_group'] = $row['member_group'];
+			if ($user_profile[$id]['id_group'] == 1 || $user_profile[$id]['id_group'] == 2)
+				continue;
+
+			$user_profile[$id]['member_group'] = $row['member_group'];
 
 			// If the Moderator group has no color or icons, but their group does... don't overwrite.
 			if (!empty($row['icons']))
