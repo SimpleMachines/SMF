@@ -423,10 +423,10 @@ function loadUserSettings()
 			$time_user = new DateTime('now', $tz_user);
 			$user_info['time_offset'] = ($tz_user->getOffset($time_user) - $tz_system->getOffset($time_system)) / 3600;
 		}
-		elseif (!empty($user_settings['time_offset']))
+		else
 		{
 			// !!! Compatibility.
-			$user_info['time_offset'] = $user_settings['time_offset'];
+			$user_info['time_offset'] = empty($user_settings['time_offset']) ? 0 :$user_settings['time_offset'];
 		}
 	}
 	// If the user is a guest, initialize all the critical user settings.
