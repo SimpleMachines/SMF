@@ -1252,7 +1252,7 @@ function template_edit_options()
         // because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
 	echo '
 		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
-			<input type="text" id="autocompleteFakeName" style="display:none" /><input type="password" id="autocompleteFakePassword" style="display:none"/>
+			<div style="position:absolute; top:-100px;"><input type="text" id="autocompleteFake[Name]"/><input type="password" id="autocompleteFake[Password]"/></div>
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
 
