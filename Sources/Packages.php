@@ -569,7 +569,7 @@ function PackageInstallTest()
 				);
 				$installed = ($smcFunc['db_num_rows']($request) !== 0);
 				if ($installed)
-					list($version) = $smcFunc['db_fetch_row']($request);
+					list ($version) = $smcFunc['db_fetch_row']($request);
 				$smcFunc['db_free_result']($request);
 
 				// do a version level check (if requested) in the most basic way
@@ -652,10 +652,13 @@ function PackageInstallTest()
 		if (empty($thisAction))
 			continue;
 
-		if ($context['uninstalling'])
-			$file = in_array($action['type'], array('remove-dir', 'remove-file')) ? $action['filename'] : $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
-		else
-			$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
+		if (!in_array($action['type'], array('hook', 'credits')))
+		{
+			if ($context['uninstalling'])
+				$file = in_array($action['type'], array('remove-dir', 'remove-file')) ? $action['filename'] : $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
+			else
+				$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
+		}
 
 		if (isset($action['filename']) && !file_exists($file))
 		{
