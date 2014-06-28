@@ -1733,10 +1733,9 @@ function create_control_richedit($editorOptions)
 					tooltip: ' . javaScriptEscape($tag['description']) . '
 				});';
 
-					if ((!empty($tag['html']) && !empty($tag['before'])))
+					if (!empty($tag['html']) && !empty($tag['before']))
 					{
 						preg_match('~=(.*?)]~', $tag['before'], $attrs);
-
 						$context['bbcodes_handlers'] .= '
 				$.sceditor.plugins.bbcode.bbcode.set(
 					' . javaScriptEscape($tag['code']) . ',
@@ -1757,7 +1756,6 @@ function create_control_richedit($editorOptions)
 									return \'' . preg_replace('~\$1~', '\' + content + \'', '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . $tag['before'] . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
 
 								var attributes = attrs.defaultattr.split(",");
-								var checkSourceMode = true;
 
 								if (attributes.length === 2)
 									return \'' . preg_replace(array('~\$1~', '~\$2~', '~\$3~'), array('\' + content + \'', '\' + attributes[0] + \'', '\' + attributes[1] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \',\' + attributes[1] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
