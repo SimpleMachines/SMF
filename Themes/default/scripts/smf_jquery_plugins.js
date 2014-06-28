@@ -49,7 +49,7 @@
 			var iPosy = 0;
 			
 			if (!event)
-				let event = window.event;
+				event = window.event;
 				
 			if (event.pageX || event.pageY)
 			{
