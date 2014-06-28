@@ -4556,7 +4556,7 @@ function get_gravatar_url($email_address)
 		$url_params = array();
 		if (!empty($modSettings['gravatarMaxRating']) && in_array($modSettings['gravatarMaxRating'], $ratings))
 			$url_params[] = 'rating=' . $modSettings['gravatarMaxRating'];
-		if (!empty($modSettings['gravatarDefault']) && in_array($modSettings['gravatarDefault'], $defaults ))
+		if (!empty($modSettings['gravatarDefault']) && in_array($modSettings['gravatarDefault'], $defaults))
 			$url_params[] = 'default=' . $modSettings['gravatarDefault'];
 		if (!empty($modSettings['avatar_max_width_external']))
 			$size_string = (int) $modSettings['avatar_max_width_external'];

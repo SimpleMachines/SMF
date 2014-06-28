@@ -990,7 +990,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			IFNULL(lo.log_time, 0) AS is_online, mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
+			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
+			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
 			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
@@ -999,6 +1000,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
 	$select_tables = '
 			LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
+			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = mem.id_member)
 			LEFT JOIN {db_prefix}membergroups AS pg ON (pg.id_group = mem.id_post_group)
 			LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = mem.id_group)';
 
@@ -1262,6 +1264,8 @@ function loadMemberContext($user, $display_custom_fields = false)
 				else
 					$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
 			}
+			elseif (!empty($profile['filename']))
+				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
 			// Right... no avatar...
 			else
 				$memberContext[$user]['avatar'] = array(
@@ -1769,10 +1773,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$simpleSubActions = array(
 		'popup',
 	);
-
-	define('SIMPLE_ACTION', 0);
-
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
+	define('SIMPLE_ACTION', in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions));
 
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
@@ -1789,11 +1791,10 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['template_layers'] = array();
 	}
 	// These actions don't require the index template at all.
-	elseif (in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions))
+	elseif (SIMPLE_ACTION)
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
-		define('SIMPLE_ACTION', 1);
 	}
 	else
 	{

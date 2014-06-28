@@ -315,6 +315,30 @@ function ManageAvatarSettings($return_config = false)
 			array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
 			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
 			array('text', 'custom_avatar_url', 40),
+		// Grvatars?
+		array('title', 'gravatar_settings'),
+			array('check', 'gravatarEnabled'),
+			array('check', 'gravatarOverride'),
+			array('check', 'gravatarAllowExtraEmail'),
+		'',
+			array('select', 'gravatarMaxRating',
+				array(
+					'G' => $txt['gravatar_maxG'],
+					'PG' => $txt['gravatar_maxPG'],
+					'R' => $txt['gravatar_maxR'],
+					'X' => $txt['gravatar_maxX'],
+				),
+			),
+			array('select', 'gravatarDefault',
+				array(
+					'mm' => $txt['gravatar_mm'],
+					'identicon' => $txt['gravatar_identicon'],
+					'monsterid' => $txt['gravatar_monsterid'],
+					'wavatar' => $txt['gravatar_wavatar'],
+					'retro' => $txt['gravatar_retro'],
+					'blank' => $txt['gravatar_blank'],
+				),
+			),
 	);
 
 	call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));

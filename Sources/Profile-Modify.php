@@ -2825,7 +2825,7 @@ function profileLoadAvatarData()
 		'allow_gravatar' => !empty($modSettings['gravatarEnabled']),
 	);
 
-	if ($cur_profile['avatar'] == '' && !empty($cur_profile['id_attach']) && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
+	if ($cur_profile['avatar'] == '' && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'upload',
