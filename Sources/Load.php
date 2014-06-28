@@ -1769,10 +1769,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$simpleSubActions = array(
 		'popup',
 	);
-
-	define('SIMPLE_ACTION', 0);
-
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
+	define('SIMPLE_ACTION', in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions));
 
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
@@ -1789,11 +1787,10 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['template_layers'] = array();
 	}
 	// These actions don't require the index template at all.
-	elseif (in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions))
+	elseif (SIMPLE_ACTION)
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
-		define('SIMPLE_ACTION', 1);
 	}
 	else
 	{
