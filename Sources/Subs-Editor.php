@@ -1748,6 +1748,7 @@ function create_control_richedit($editorOptions)
 						' . (!empty($tag['after']) && !empty($tag['allow_children']) ? 'allowedChildren: [' . javaScriptEscape(implode("', '", $tag['allow_children'])) . '],' : '') . '
 						skipLastLineBreak: true,
 						breakEnd: false,
+						allowsEmpty: true,
 						quoteType: $.sceditor.BBCodeParser.QuoteType.auto,
 						isSelfClosing: ' . (!empty($tag['after']) ? 'false' : 'true') . ',
 						isInline: ' . (!empty($tag['block_lvl']) ? 'false' : 'true') . ',
