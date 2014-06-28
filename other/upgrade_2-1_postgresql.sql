@@ -146,6 +146,16 @@ $custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custo
 if (!is_writable($custom_av_dir))
 	@chmod($custom_av_dir, 0777);
 
+// If we already are using a custom dir, delete the predefined one.
+if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
+{
+	// Borrow custom_avatars index.php file.
+	@rename($GLOBALS['boarddir'] .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+
+	// Attempt to delete the directory.
+	@rmdir($GLOBALS['boarddir'] .'/custom_avatar');
+}
+
 $request = upgrade_query("
 	SELECT MAX(id_attach)
 	FROM {$db_prefix}attachments");
