@@ -4580,7 +4580,8 @@ function get_gravatar_url($email_address)
 function smf_list_timezones()
 {
 	return array(
-		'',
+		'' => '(Forum Default)',
+		'UTC' => '[UTC] UTC',
 		'Pacific/Midway' => '[UTC-11:00] American Samoa',
 		'Pacific/Apia' => '[UTC-11:00] Apia, Samoa',
 		'Pacific/Honolulu' => '[UTC-10:00] Hawaii',
