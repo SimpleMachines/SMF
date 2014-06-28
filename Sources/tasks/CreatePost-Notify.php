@@ -317,6 +317,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		{
 			if (!empty($prefs[$id]['msg_mention']))
 				$done_members[] = $id;
+			else
+				continue;
 
 			// Alerts' emails are always instant
 			if ($prefs[$id]['msg_mention'] & 0x02)
