@@ -645,7 +645,7 @@ function ModBlockReportedMembers()
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
 				'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
+				'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
 			),
 			'comments' => array(),
 			'num_reports' => $row['num_reports'],
