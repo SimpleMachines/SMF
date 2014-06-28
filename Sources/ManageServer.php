@@ -951,7 +951,7 @@ function saveSettings(&$config_vars)
 	// Figure out which config vars we're saving here...
 	foreach ($config_vars as $var)
 	{
-		if (!is_array($var) || $var[2] != 'file')
+		if (!is_array($var) || $var[2] != 'file' || !isset($_POST[$var[0]]))
 			continue;
 
 		$config_var = $var[0];
