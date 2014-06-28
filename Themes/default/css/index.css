@@ -4120,3 +4120,9 @@ p.information  img {
 #personal_messages .poster span {
 	margin: 3px 0 0 -15px;
 }
+#mlist span.on, #mlist span.off {
+	margin: -5px 0 0 10px;
+}
+#whoFilter span.on, #whoFilter span.off {
+	margin: 3px 0 0 -5px !important;
+}
