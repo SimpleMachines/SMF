@@ -188,7 +188,7 @@ class Mentions
 		$depth = 0;
 		foreach ($string as $k => $char)
 		{
-			if ($char == static::$char && ($k == 0 || trim($char[$k - 1]) == ''))
+			if ($char == static::$char && ($k == 0 || trim($string[$k - 1]) == ''))
 			{
 				$depth++;
 				$matches[] = array();
