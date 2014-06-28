@@ -175,6 +175,138 @@ function template_watched_users()
 	// ]]></script>';
 }
 
+function template_reported_posts_block()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span id="reported_posts_toggle" class="', !empty($context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
+			</h3>
+		</div>
+		<div class="windowbg" id="reported_posts_panel">
+			<div class="modbox">
+				<ul class="reset">';
+
+		foreach ($context['reported_posts'] as $post)
+			echo '
+					<li>
+						<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link'], count($post['comments'])), '</span>
+					</li>';
+
+		// Don't have any watched users right now?
+		if (empty($context['reported_posts']))
+			echo '
+					<li>
+						<strong class="smalltext">', $txt['mc_recent_reports_none'], '</strong>
+					</li>';
+
+		echo '
+				</ul>
+			</div>
+		</div>
+
+	<script><!-- // --><![CDATA[
+		var oWatchedUsersToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'reported_posts_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'reported_posts_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'reported_posts_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_recent_reports']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_reports']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcrp\'
+			}
+		});
+	// ]]></script>';
+}
+
+function template_reported_users_block()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span id="reported_users_toggle" class="', !empty($context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
+				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
+			</h3>
+		</div>
+		<div class="windowbg" id="reported_users_panel">
+			<div class="modbox">
+				<ul class="reset">';
+
+		foreach ($context['reported_users'] as $user)
+			echo '
+					<li>
+						<span class="smalltext">', sprintf($txt['mc_user_report'], $user['user']['link'], count($user['comments'])), '</span>
+					</li>';
+
+		// Don't have any watched users right now?
+		if (empty($context['reported_users']))
+			echo '
+					<li>
+						<strong class="smalltext">', $txt['mc_reported_users_none'], '</strong>
+					</li>';
+
+		echo '
+				</ul>
+			</div>
+		</div>
+
+	<script><!-- // --><![CDATA[
+		var oWatchedUsersToggle = new smc_Toggle({
+			bToggleEnabled: true,
+			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
+			aSwappableContainers: [
+				\'reported_users_panel\'
+			],
+			aSwapImages: [
+				{
+					sId: \'reported_users_toggle\',
+					altExpanded: ', JavaScriptEscape($txt['hide']), ',
+					altCollapsed: ', JavaScriptEscape($txt['show']), '
+				}
+			],
+			aSwapLinks: [
+				{
+					sId: \'reported_users_link\',
+					msgExpanded: ', JavaScriptEscape($txt['mc_recent_user_reports']), ',
+					msgCollapsed: ', JavaScriptEscape($txt['mc_recent_user_reports']), '
+				}
+			],
+			oThemeOptions: {
+				bUseThemeSettings: true,
+				sOptionName: \'admin_preferences\',
+				sSessionVar: smf_session_var,
+				sSessionId: smf_session_id,
+				sThemeId: \'1\',
+				sAdditionalVars: \';admin_key=mcur\'
+			}
+		});
+	// ]]></script>';
+}
+
 // Little section for making... notes.
 function template_notes()
 {

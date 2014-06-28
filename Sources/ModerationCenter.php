@@ -527,6 +527,7 @@ function ModBlockReportedPosts()
 			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			'report_href' => $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'],
+			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
