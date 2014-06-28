@@ -995,8 +995,14 @@ function saveSettings(&$config_vars)
 		if (!is_array($config_var) || $config_var[2] == 'file')
 			continue;
 
+		$new_setting = array($config_var[3], $config_var[0]);
+
+		// Select options need carried over, too.
+		if (isset($config_var[4]))
+			$new_setting[] = $config_var[4];
+
 		// Rewrite the definition a bit.
-		$new_settings[] = array($config_var[3], $config_var[0]);
+		$new_settings[] = $new_setting;
 	}
 
 	// Save the new database-based settings, if any.
