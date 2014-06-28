@@ -4115,7 +4115,7 @@ function call_integration_hook($hook, $parameters = array())
 			$call = call_helper($function, true);
 
 		// Is it valid?
-		if (!empty($call) && is_callable($call))
+		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
