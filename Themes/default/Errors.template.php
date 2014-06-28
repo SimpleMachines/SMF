@@ -21,7 +21,15 @@ function template_fatal_error()
 {
 	global $context, $txt;
 
-	echo '
+	if (SIMPLE_ACTION)
+		echo '
+		<strong>
+			', $context['error_title'], '
+		</strong><br>
+		<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>';
+	else
+	{
+		echo '
 	<div id="fatal_error">
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -34,11 +42,12 @@ function template_fatal_error()
 	</div>
 	<br class="clear">';
 
-	// Show a back button (using javascript.)
-	echo '
+		// Show a back button (using javascript.)
+		echo '
 	<div class="centertext">
 		<a class="button_link" style="float:none" href="javascript:document.location=document.referrer">', $txt['back'], '</a>
 	</div>';
+	}
 }
 
 function template_error_log()

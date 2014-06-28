@@ -1119,10 +1119,8 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		foreach ($temp_mods as $id)
 		{
 			// By popular demand, don't show admins or global moderators as moderators.
-			if ($user_profile[$id]['id_group'] == 1 || $user_profile[$id]['id_group'] == 2)
-				continue;
-
-			$user_profile[$id]['member_group'] = $row['member_group'];
+			if ($user_profile[$id]['id_group'] != 1 && $user_profile[$id]['id_group'] != 2)
+				$user_profile[$id]['member_group'] = $row['member_group'];
 
 			// If the Moderator group has no color or icons, but their group does... don't overwrite.
 			if (!empty($row['icons']))
@@ -1754,6 +1752,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	if (!isset($txt))
 		$txt = array();
+
 	$simpleActions = array(
 		'findmember',
 		'helpadmin',
@@ -1761,6 +1760,19 @@ function loadTheme($id_theme = 0, $initialize = true)
 		'quotefast',
 		'spellcheck',
 	);
+
+	$simpleAreas = array(
+		'popup',
+		'alerts_popup',
+	);
+
+	$simpleSubActions = array(
+		'popup',
+	);
+
+	define('SIMPLE_ACTION', 0);
+
+	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
 
 	// Wireless mode?  Load up the wireless stuff.
 	if (WIRELESS)
@@ -1777,10 +1789,11 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$context['template_layers'] = array();
 	}
 	// These actions don't require the index template at all.
-	elseif (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], $simpleActions))
+	elseif (in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions))
 	{
 		loadLanguage('index+Modifications');
 		$context['template_layers'] = array();
+		define('SIMPLE_ACTION', 1);
 	}
 	else
 	{
