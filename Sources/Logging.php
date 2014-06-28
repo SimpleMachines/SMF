@@ -476,6 +476,7 @@ function logActions($logs)
 			if ($smcFunc['db_num_rows']($request) > 0)
 			{
 				require_once($sourcedir . '/ModerationCenter.php');
+				require_once($sourcedir . '/Subs-ReportedContent.php');
 				updateSettings(array('last_mod_report_action' => time()));
 				recountOpenReports('posts');
 			}
