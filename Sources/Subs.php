@@ -4567,7 +4567,7 @@ function get_gravatar_url($email_address)
 		if (!empty($size_string))
 			$url_params[] = 's=' . $size_string;
 	}
-	$http_method = !empty($modSettings['force_ssl']) ? 'https://secure' : 'http://www';
+	$http_method = !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 ? 'https://secure' : 'http://www';
 
 	return $http_method . '.gravatar.com/avatar/' . md5($smcFunc['strtolower']($email_address)) . '?' . implode('&', $url_params);
 }
@@ -4580,7 +4580,8 @@ function get_gravatar_url($email_address)
 function smf_list_timezones()
 {
 	return array(
-		'',
+		'' => '(Forum Default)',
+		'UTC' => '[UTC] UTC',
 		'Pacific/Midway' => '[UTC-11:00] American Samoa',
 		'Pacific/Apia' => '[UTC-11:00] Apia, Samoa',
 		'Pacific/Honolulu' => '[UTC-10:00] Hawaii',

@@ -2213,6 +2213,8 @@ function list_integration_hooks()
 		}
 	}
 
+	createToken('admin-hook', 'request');
+
 	$list_options = array(
 		'id' => 'list_integration_hooks',
 		'title' => $txt['hooks_title_list'],
@@ -2306,8 +2308,6 @@ function list_integration_hooks()
 			),
 		),
 	);
-
-	createToken('admin-hook', 'request');
 
 	$list_options['columns']['remove'] = array(
 		'header' => array(
