@@ -226,7 +226,6 @@ function template_main()
 				</div>
 				<div id="quickReplyOptions">
 					<div class="roundframe">
-						<p class="smalltext lefttext">', $txt['quick_reply_desc'], '</p>
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
 						!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
 						', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
@@ -254,29 +253,7 @@ function template_main()
 			echo '
 							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br>';
 
-		// Using the full editor
-		if (empty($options['use_editor_quick_reply']))
-		{
-			echo '
-							<div class="quickReplyContent">
-								<textarea cols="600" rows="7" name="message" tabindex="', $context['tabindex']++, '"></textarea>
-							</div>';
-		}
-		else
-		{
-			// Show the actual posting area...
-			if ($context['show_bbc'])
-			{
-				echo '
-							<div id="bbcBox_message"></div>';
-			}
-
-			// What about smileys?
-			if (!empty($context['smileys']['postform']) || !empty($context['smileys']['popup']))
-				echo '
-							<div id="smileyBox_message"></div>';
-
-			echo '
+		echo '
 							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
 							<script><!-- // --><![CDATA[
 								function insertQuoteFast(messageid)
@@ -296,10 +273,7 @@ function template_main()
 
 									ajax_indicator(false);
 								}
-							// ]]></script>';
-
-		}
-		echo '
+							// ]]></script>
 							<div class="padding">
 								<input type="submit" name="post" value="', $txt['post'], '" onclick="return submitThisOnce(this);" accesskey="s" tabindex="', $context['tabindex']++, '" class="button_submit">
 								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit">';
@@ -362,7 +336,7 @@ function template_main()
 						sClassCollapsed: "toggle_up",
 						sClassExpanded: "toggle_down",
 						sJumpAnchor: "quickreply",
-						bIsFull: ', !empty($options['use_editor_quick_reply']) ? 'true' : 'false', '
+						bIsFull: true
 					});';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])

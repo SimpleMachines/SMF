@@ -1674,13 +1674,6 @@ function template_profile_theme_settings()
 
 	echo '
 							<dt>
-								<label for="use_editor_quick_reply">', $txt['use_editor_quick_reply'], '</label>
-							</dt>
-							<dd>
-								<input type="hidden" name="default_options[use_editor_quick_reply]" value="0">
-								<input type="checkbox" name="default_options[use_editor_quick_reply]" id="use_editor_quick_reply" value="1"', !empty($context['member']['options']['use_editor_quick_reply']) ? ' checked' : '', ' class="input_check">
-							</dd>
-							<dt>
 								<label for="display_quick_mod">', $txt['display_quick_mod'], ':</label>
 							</dt>
 							<dd>
