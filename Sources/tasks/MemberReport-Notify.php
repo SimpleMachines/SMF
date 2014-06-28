@@ -114,7 +114,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 				$replacements = array(
 					'MEMBERNAME' => $this->_details['user_name'],
 					'REPORTERNAME' => $this->_details['sender_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['member_id'],
+					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['user_id'],
 					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
 					'COMMENT' => $this->_details['comment'],
 				);
