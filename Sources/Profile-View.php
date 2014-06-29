@@ -1385,7 +1385,9 @@ function tracking($memID)
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['tracking_area']][0];
 	$call = call_helper($subActions[$context['tracking_area']][0], true);
-	call_user_func($call, $memID);
+
+	if (!empty($call))
+		call_user_func($call, $memID);
 }
 
 /**
