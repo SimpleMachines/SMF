@@ -128,7 +128,7 @@ function ModifyModSettings()
 	);
 
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
