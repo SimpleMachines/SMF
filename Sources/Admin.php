@@ -959,7 +959,7 @@ function AdminLogs()
 	);
 
 	require_once($sourcedir . '/' . $log_functions[$subActions][0]);
-	$log_functions[$subActions][1]);
+	call_helper($log_functions[$subActions][1]);
 }
 
 /**
