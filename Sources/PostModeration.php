@@ -31,7 +31,7 @@ function PostModerationMain()
 	require_once($sourcedir . '/ModerationCenter.php');
 
 	// Allowed sub-actions, you know the drill by now!
-	$subactions = array(
+	$subActions = array(
 		'approve' => 'ApproveMessage',
 		'attachments' => 'UnapprovedAttachments',
 		'replies' => 'UnapprovedPosts',
@@ -39,12 +39,12 @@ function PostModerationMain()
 	);
 
 	// Pick something valid...
-	if (!isset($_REQUEST['sa']) || !isset($subactions[$_REQUEST['sa']]))
+	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
 		$_REQUEST['sa'] = 'replies';
 
 	call_integration_hook('integrate_post_moderation', array(&$subActions));
 
-	call_helper($subactions[$_REQUEST['sa']]);
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**

@@ -900,17 +900,17 @@ function ModerateGroups()
 	loadTemplate('ModerationCenter');
 
 	// Setup the subactions...
-	$subactions = array(
+	$subActions = array(
 		'requests' => 'GroupRequests',
 		'view' => 'ViewGroups',
 	);
 
-	if (!isset($_GET['sa']) || !isset($subactions[$_GET['sa']]))
+	if (!isset($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'view';
 	$context['sub_action'] = $_GET['sa'];
 
 	// Call the relevant function.
-	$subactions[$context['sub_action']]();
+	$subActions[$context['sub_action']]();
 }
 
 /**

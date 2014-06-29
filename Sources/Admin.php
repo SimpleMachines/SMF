@@ -656,13 +656,13 @@ function AdminSearch()
 	isAllowedTo('admin_forum');
 
 	// What can we search for?
-	$subactions = array(
+	$subActions = array(
 		'internal' => 'AdminSearchInternal',
 		'online' => 'AdminSearchOM',
 		'member' => 'AdminSearchMember',
 	);
 
-	$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
+	$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subActions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	$context['search_term'] = isset($_REQUEST['search_term']) ? $smcFunc['htmlspecialchars']($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 	$context['sub_template'] = 'admin_search_results';
@@ -681,7 +681,7 @@ function AdminSearch()
 	if (trim($context['search_term']) == '')
 		$context['search_results'] = array();
 	else
-		call_helper($subactions[$context['search_type']]);
+		call_helper($subActions[$context['search_type']]);
 }
 
 /**
