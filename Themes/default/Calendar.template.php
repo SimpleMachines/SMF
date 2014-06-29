@@ -34,7 +34,7 @@ function template_main()
 	if (isset($_GET['viewweek']))
 	{
 		echo '
-			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
+			<div id="main_grid">
 				', template_show_week_grid('main'), '
 			</div>
 		';
@@ -42,7 +42,7 @@ function template_main()
 	else
 	{
 		echo '
-			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
+			<div id="main_grid">
 				', template_show_month_grid('main'), '
 			</div>
 		';

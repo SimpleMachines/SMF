@@ -164,7 +164,7 @@ function template_main()
 	if (!empty($settings['display_who_viewing']))
 	{
 		echo '
-				<p id="whoisviewing">';
+				<div class="information">';
 
 		// Show just numbers...?
 		if ($settings['display_who_viewing'] == 1)
@@ -175,7 +175,7 @@ function template_main()
 
 		// Now show how many guests are here too.
 		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_topic'], '
-				</p>';
+				</div>';
 	}
 
 	echo '
@@ -212,7 +212,7 @@ function template_main()
 
 	// Show the jumpto box, or actually...let Javascript do it.
 	echo '
-			<div class="plainbox" id="display_jump_to">&nbsp;</div>';
+			<div id="display_jump_to">&nbsp;</div>';
 
 	if ($context['can_reply'])
 	{

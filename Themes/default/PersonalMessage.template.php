@@ -1887,7 +1887,6 @@ function template_showPMDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-			<div class="topic">
 				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
@@ -1906,8 +1905,7 @@ function template_showPMDrafts()
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;id_draft=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '"  class="modifybutton"><span>', $txt['draft_edit'], '</span></a></li>
 						<li><a href="', $scripturl, '?action=pm;sa=showpmdrafts;delete=', $draft['id_draft'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['draft_remove'], '?\');" class="remove_button"><span>', $txt['draft_delete'], '</span></a></li>
 					</ul>
-				</div>
-			</div>';
+				</div>';
 		}
 	}
 

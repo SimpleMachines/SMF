@@ -19,7 +19,7 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['page_title'], '</h3>
 		</div>
-		<div class="roundframe title_top">
+		<div class="roundframe">
 			<div class="title_bar">
 				<h4 class="titlebg">
 					<span class="stats_icon general"></span>', $txt['general_stats'], '
@@ -131,8 +131,7 @@ function template_main()
 			<h3 class="catbg">
 				<span class="stats_icon history"></span>', $txt['forum_history'], '
 			</h3>
-		</div>
-		<div class="roundframe title_top">';
+		</div>';
 
 	if (!empty($context['yearly']))
 	{
@@ -219,7 +218,6 @@ function template_main()
 		echo '
 			</tbody>
 		</table>
-		</div>
 	</div>
 	<script><!-- // --><![CDATA[
 		var oStatsCenter = new smf_StatsCenter({

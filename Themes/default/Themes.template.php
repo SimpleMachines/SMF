@@ -695,7 +695,7 @@ function template_pick()
 				</h3>
 			</div>
 			<div class="', $theme['selected'] ? 'windowbg' : 'windowbg2', '">
-				<div class="flow_hidden content">
+				<div class="flow_hidden">
 					<div class="floatright"><a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';theme=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', $txt['theme_preview'], '"><img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding"></a></div>
 					<p>', $theme['description'], '</p>';
 

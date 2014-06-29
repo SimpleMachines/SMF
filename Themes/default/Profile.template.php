@@ -190,23 +190,19 @@ function template_summary()
 	echo '
 			</span>';
 
-	echo '
-			<p id="infolinks">';
-
 	if (!$context['user']['is_owner'] && $context['can_send_pm'])
 		echo '
-				<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '" class="infolinks">', $txt['profile_sendpm_short'], '</a>';
+			<a href="', $scripturl, '?action=pm;sa=send;u=', $context['id_member'], '" class="infolinks">', $txt['profile_sendpm_short'], '</a>';
 
 	echo '
-				<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '" class="infolinks">', $txt['showPosts'], '</a>';
+			<a href="', $scripturl, '?action=profile;area=showposts;u=', $context['id_member'], '" class="infolinks">', $txt['showPosts'], '</a>';
 
 	if ($context['user']['is_owner'] && !empty($modSettings['drafts_post_enabled']))
 		echo '
-				<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '" class="infolinks">', $txt['drafts_show'], '</a>';
+			<a href="', $scripturl, '?action=profile;area=showdrafts;u=', $context['id_member'], '" class="infolinks">', $txt['drafts_show'], '</a>';
 
 	echo '
-				<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>
-			</p>';
+			<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>';
 
 	echo '
 		</div>
@@ -498,7 +494,7 @@ function template_showAlerts()
 
 	if (empty($context['alerts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="tborder windowbg2 centertext">
 			', $txt['alerts_none'], '
 		</div>';
 	else
@@ -510,15 +506,11 @@ function template_showAlerts()
 			$alt = !$alt;
 
 			echo '
-			<div class="topic">
 				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
 					<div class="counter">', $counter++, '</div>
 					<div class="topic_details">', $alert['time'], '</div>
-					<div class="list_posts">
-						', $alert['text'], '
-					</div>
-				</div>
-			</div>';
+					<div class="list_posts">', $alert['text'], '</div>
+				</div>';
 		}
 	}
 }
@@ -550,7 +542,6 @@ function template_showDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-			<div class="topic">
 				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
@@ -569,7 +560,6 @@ function template_showDrafts()
 					<div class="list_posts">
 						', $draft['body'], '
 					</div>
-				</div>
 				<div class="floatright">
 					<ul class="reset smalltext quickbuttons">
 						<li><a href="', $scripturl, '?action=post;', (empty($draft['topic']['id']) ? 'board=' . $draft['board']['id'] : 'topic=' . $draft['topic']['id']), '.0;id_draft=', $draft['id_draft'], '" class="reply_button"><span>', $txt['draft_edit'], '</span></a></li>
@@ -2046,7 +2036,7 @@ function template_groupMembership()
 			prevDiv = document.getElementById(box);
 			prevClass = prevDiv.className;
 
-			prevDiv.className = "highlight2";
+			prevDiv.className = "windowbg";
 		}';
 		if (isset($context['groups']['member'][$context['primary_group']]))
 			echo '
