@@ -910,7 +910,7 @@ function ModerateGroups()
 	$context['sub_action'] = $_GET['sa'];
 
 	// Call the relevant function.
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
