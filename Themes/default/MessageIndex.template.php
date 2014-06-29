@@ -139,7 +139,7 @@ function template_main()
 		if (!empty($settings['display_who_viewing']))
 		{
 		echo '
-			<p class="whoisviewing">';
+			<div class="information">';
 			if ($settings['display_who_viewing'] == 1)
 				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
 		else
@@ -147,7 +147,7 @@ function template_main()
 			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
 
 		echo '
-			</p>';
+			</div>';
 		}
 	echo '
 		<div class="title_bar" id="topic_header">';

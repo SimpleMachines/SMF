@@ -90,7 +90,7 @@ function template_select()
 				<div class="pagesection">
 					<span id="pageindex_not_selected">', $context['not_selected']['page_index'], '</span>
 				</div>
-				<ul id="messages_not_selected" class="split_messages smalltext reset">';
+				<ul id="messages_not_selected" class="split_messages smalltext">';
 
 	foreach ($context['not_selected']['messages'] as $message)
 		echo '
@@ -119,7 +119,7 @@ function template_select()
 				<div class="pagesection">
 					<span id="pageindex_selected">', $context['selected']['page_index'], '</span>
 				</div>
-				<ul id="messages_selected" class="split_messages smalltext reset">';
+				<ul id="messages_selected" class="split_messages smalltext">';
 
 	if (!empty($context['selected']['messages']))
 		foreach ($context['selected']['messages'] as $message)

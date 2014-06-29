@@ -73,10 +73,8 @@ function template_main()
 						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
-				<div class="windowbg">
-					<div class="post" id="preview_body">
-						', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
-					</div>
+				<div id="preview_body" class="windowbg">
+					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div><br>';
 
@@ -651,7 +649,7 @@ function template_main()
 					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
 
 				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
-				document.getElementById(\'preview_body\').className = \'post\';
+				document.getElementById(\'preview_body\').className = \'windowbg\';
 
 				// Show a list of errors (if any).
 				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];

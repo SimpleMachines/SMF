@@ -153,7 +153,7 @@ function template_manual()
 				<h3 class="catbg">', $txt['manual_smf_user_help'], '</h3>
 			</div>
 			<div id="help_container">
-				<div id="helpmain" class="windowbg2 content">
+				<div id="helpmain" class="windowbg2">
 					<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
 					<p>', $txt['manual_introduction'], '</p>
 					<ul>';

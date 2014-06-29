@@ -664,3 +664,6 @@ h3.config_hd {
 	background: url(../images/icons/config_hd.png) no-repeat 12px;
 	padding: 8px 0 8px 45px;
 }
+.full_width {
+	width: 100%;
+}
