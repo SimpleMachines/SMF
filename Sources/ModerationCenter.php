@@ -1385,7 +1385,7 @@ function ViewWarnings()
 	);
 
 	// Call the right function.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
