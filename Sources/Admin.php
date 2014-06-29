@@ -681,7 +681,7 @@ function AdminSearch()
 	if (trim($context['search_term']) == '')
 		$context['search_results'] = array();
 	else
-		$subactions[$context['search_type']]();
+		call_helper($subactions[$context['search_type']]);
 }
 
 /**
