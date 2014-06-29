@@ -2721,11 +2721,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		if (!empty($buffers))
 			foreach ($buffers as $function)
 			{
-				$function = trim($function);
 				$call = call_helper($function, true);
 
 				// Is it valid?
-				if (is_callable($call))
+				if (!empty($call))
 					ob_start($call);
 			}
 
