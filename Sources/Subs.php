@@ -4253,7 +4253,7 @@ function call_helper($string, $return = false)
 		return false;
 
 	// Stay vitaminized my friends...
-	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string)):
+	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
 
 	// The soon to be populated var.
 	$func = false;
