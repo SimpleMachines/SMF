@@ -818,8 +818,9 @@ function MergeTopics()
 	// ?action=mergetopics;sa=LETSBREAKIT won't work, sorry.
 	if (empty($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
 		MergeIndex();
+
 	else
-		$subActions[$_REQUEST['sa']]();
+		call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
