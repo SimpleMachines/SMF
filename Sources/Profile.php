@@ -855,6 +855,9 @@ function profile_popup($memID)
 function alerts_popup($memID)
 {
 	global $context, $scripturl, $txt, $sourcedir, $db_show_debug, $cur_profile;
+	
+	// Load the Alerts language file.
+	loadLanguage('Alerts');
 
 	// We do not want to output debug information here.
 	$db_show_debug = false;
