@@ -675,66 +675,6 @@ dl.settings dt a img {
 	vertical-align: top;
 }
 
-/* Styles for rounded headers.
-------------------------------------------------------- */
-h3.catbg, h4.catbg {
-	overflow: hidden;
-	font-size: 1.1em;
-	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	line-height: 1.5em;
-	padding: 8px;
-}
-.cat_bar .desc
-{
-	font-size: 10px;
-	line-height: 1.5em;
-	font-weight: normal;
-	margin: -8px 0 4px 12px;
-}
-h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg {
-	color: #fff;
-}
-h3.catbg a:hover, h4.catbg a:hover {
-	color: #fff;
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
-	text-decoration: none;
-}
-h3.catbg .icon {
-	vertical-align: middle;
-	margin: 0 5px 0 0;
-}
-h4.catbg a.toggle img {
-	vertical-align: middle;
-	margin: 0 5px 0 5px;
-}
-h4.catbg, h3.catbg {
-	color: #FFF;
-	background: none;
-}
-
-/* Box-sizing for these should be useful. */
-div.cat_bar {
-	background: #557ea0;
-	border-bottom: 1px solid #777;
-	padding: 0;
-	border-radius: 6px 6px 0 0;
-	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-	margin-bottom: 1px;
-}
-.cat_bar h3 {
-	padding: 8px 12px 6px 12px;
-}
-
-/* Upshrinks in cat and title bars. */
-#upshrinkHeaderIC p.pminfo {
-	margin: 0;
-	padding: 6px;
-}
-
-
 /* a general table class */
 table.table_grid {
 	border-collapse: collapse;
@@ -1601,67 +1541,6 @@ span.go_up {
 	display: inline-block;
 }
 
-/* the page navigation area */
-.childboards {
-	margin-bottom: 2px;
-}
-#childboards h3 {
-	padding-bottom: 0;
-}
-#description_board {
-	padding: 8px 10px 8px 10px;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-}
-.lastpost span.last_post {
-	float: right;
-	margin: 4px;
-}
-select.qaction {
-	padding: 0;
-}
-#quick_actions {
-	padding-right: 4px;
-	margin-top: 5px;
-}
-.qaction_cell .button_submit {
-	margin: 2px 4px 0 4px;
-}
-#topic_icons {
-	margin-top: 10px;
-	float: left;
-	width: 100%;
-}
-#topic_icons p {
-	line-height: 2em;
-}
-#topic_icons p.floatleft {
-	padding: 0 12px 2px 0;
-}
-/* Just to correct Fred there without requiring an extra image. Should make a new Fred with clear padding. */
-#topic_icons p.floatleft img:first-child {
-	padding: 0 2px;
-}
-#message_index_jump_to_select {
-	font-size: 1em;
-	padding: 2px;
-}
-#message_index_jump_to .button_submit {
-	padding: 4px 6px 2px 6px;
-}
-
-/* Styles for the display template (topic view).
----------------------------------------------------- */
-/* Events */
-.linked_events {
-	padding: 12px 0;
-}
-.edit_event {
-	margin: 0 10px;
-	vertical-align: top;
-}
-
-
 /* The quick buttons */
 div.quickbuttons_wrap {
 	padding: 2px 0;
@@ -1896,24 +1775,6 @@ ul.quickbuttons li > ul > li {
 	margin: 0;
 }
 
-/* Separator of posts. More useful in the print stylesheet. */
-#forumposts .post_separator {
-	display: none;
-}
-
-/* Basic stuff for the bottom of Display.template.php. */
-#moderationbuttons {
-	float: left;
-}
-#moderationbuttons_strip {
-	float: left;
-	margin: 4px 0 4px -4px;
-}
-#moderationbuttons ul li {
-	padding: 0 6px 4px 0;
-	margin: 0;
-}
-
 /* The jump to box */
 #display_jump_to {
 	padding: 11px 5px 5px 0;
@@ -1972,44 +1833,6 @@ ul.quickbuttons li > ul > li {
 	margin: 0 12px 0 0;
 }
 
-/* Styles for edit poll section.
----------------------------------------------------- */
-
-#edit_poll {
-	overflow: hidden;
-}
-#edit_poll fieldset {
-	padding: 6px;
-	clear: both;
-	overflow: hidden;
-}
-#edit_poll fieldset input {
-	margin-left: 7.5em;
-}
-#edit_poll ul.poll_main li {
-	padding-left: 12px;
-}
-#edit_poll ul.poll_main input {
-	margin-left: 12px;
-}
-#edit_poll ul.poll_main, dl.poll_options {
-	overflow: hidden;
-	padding: 0 0 8px 8px;
-}
-#edit_poll ul.poll_main li {
-	margin: 2px 0;
-}
-#edit_poll dl.poll_options dt {
-	width: 33%;
-	padding: 0 0 0 12px;
-}
-#edit_poll dl.poll_options dd {
-	width: 65%;
-}
-#edit_poll dl.poll_options dd input {
-	margin-left: 0;
-}
-
 /* Styles for the recent messages section.
 ---------------------------------------------------- */
 
@@ -2024,9 +1847,7 @@ ul.quickbuttons li > ul > li {
 	clear: both;
 }
 
-/* Styles for the move topic section.
----------------------------------------------------- */
-
+/* Styles for the move topic section. */
 #move_topic dl {
 	margin-bottom: 0;
 }
@@ -2044,30 +1865,7 @@ ul.quickbuttons li > ul > li {
 div.move_topic fieldset {
 	padding: 6px;
 }
-
-/* Styles for the send topic section.
----------------------------------------------------- */
-
-fieldset.send_topic {
-	border: none;
-	padding: 6px;
-}
-dl.send_topic {
-	margin-bottom: 0;
-}
-dl.send_mail dt {
-	width: 35%;
-}
-dl.send_mail dd {
-	width: 64%;
-}
-
-/* Styles for the report topic/user section.
----------------------------------------------------- */
-
-#report_form dl {
-	margin-bottom: 0;
-}
+/* Styles for the report topic/user section. */
 #report_form dl.settings dt {
 	width: 20%;
 }
@@ -2077,26 +1875,14 @@ dl.send_mail dd {
 #report_comment {
 	width: 70%;
 }
-
-/* Styles for the split topic section.
----------------------------------------------------- */
-
+/* Styles for the split topic section. */
 div#selected, div#not_selected {
 	width: 49%;
-}
-ul.split_messages li.windowbg, ul.split_messages li.windowbg2 {
-	margin: 1px;
 }
 ul.split_messages li a.split_icon {
 	padding: 0 6px;
 }
-ul.split_messages div.post {
-	padding: 12px 0 0 0;
-	border-top: 1px solid #fff;
-}
-
-/* Styles for the merge topic section.
----------------------------------------------------- */
+/* Styles for the merge topic section. */
 ul.merge_topics li {
 	list-style-type: none;
 }
@@ -2231,7 +2017,7 @@ dl.register_form dd {
 	vertical-align: middle;
 }
 
-tr.windowbg td, tr.windowbg2 td, tr.highlight2 td, .table_grid tr td {
+tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	padding: 4px 8px;
 }
 #credits p {
@@ -3122,7 +2908,7 @@ div#editlang_desc {
 .topic_details .smalltext {
 	font-size: 0.9em;
 }
-.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol, .table_grid tr.highlight2 td.centercol {
+.table_grid tr.windowbg2 td.centercol, .table_grid tr.windowbg td.centercol {
 	text-align: center;
 }
 tr.windowbg, tr.windowbg2 {
@@ -3404,6 +3190,48 @@ span.postby {
 	margin-top: 5px;
 	border: none;
 }
+/* Start with description and other things */
+#description_board {
+	padding: 8px 10px 8px 10px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.lastpost span.last_post {
+	float: right;
+	margin: 4px;
+}
+select.qaction {
+	padding: 0;
+}
+#quick_actions {
+	padding-right: 4px;
+	margin-top: 5px;
+}
+.qaction_cell .button_submit {
+	margin: 2px 4px 0 4px;
+}
+#topic_icons {
+	margin-top: 10px;
+	float: left;
+	width: 100%;
+}
+#topic_icons p {
+	line-height: 2em;
+}
+#topic_icons p.floatleft {
+	padding: 0 12px 2px 0;
+}
+/* Just to correct Fred there without requiring an extra image. Should make a new Fred with clear padding. */
+#topic_icons p.floatleft img:first-child {
+	padding: 0 2px;
+}
+#message_index_jump_to_select {
+	font-size: 1em;
+	padding: 2px;
+}
+#message_index_jump_to .button_submit {
+	padding: 4px 6px 2px 6px;
+}
 
 /* Display */
 /* Poll question */
@@ -3491,7 +3319,41 @@ div#pollmoderation {
 	float: right;
 	width: 100%;
 }
-
+/* Styles for edit poll section. */
+#edit_poll {
+	overflow: hidden;
+}
+#edit_poll fieldset {
+	padding: 6px;
+	clear: both;
+	overflow: hidden;
+}
+#edit_poll fieldset input {
+	margin-left: 7.5em;
+}
+#edit_poll ul.poll_main li {
+	padding-left: 12px;
+}
+#edit_poll ul.poll_main input {
+	margin-left: 12px;
+}
+#edit_poll ul.poll_main, dl.poll_options {
+	overflow: hidden;
+	padding: 0 0 8px 8px;
+}
+#edit_poll ul.poll_main li {
+	margin: 2px 0;
+}
+#edit_poll dl.poll_options dt {
+	width: 33%;
+	padding: 0 0 0 12px;
+}
+#edit_poll dl.poll_options dd {
+	width: 65%;
+}
+#edit_poll dl.poll_options dd input {
+	margin-left: 0;
+}
 /* On to the posts */
 #forumposts {
 	clear: both;
@@ -3570,9 +3432,6 @@ div#pollmoderation {
 .poster img {
 	vertical-align: middle;
 }
-
-/* End nifty new flyout. */
-
 .postarea, .moderatorbar {
 	margin: 0 0 0 175px;
 }
@@ -3641,6 +3500,10 @@ img.smiley {
 .attachments hr {
 	clear: both;
 	margin: 12px 0;
+}
+/* Separator of posts. More useful in the print stylesheet. */
+#forumposts .post_separator {
+	display: none;
 }
 /* Next and previous topic links */
 .nextlinks {
@@ -3796,8 +3659,78 @@ ul.post_options li {
 	content: "";
 	display: block;
 }
+/* Events */
+.linked_events {
+	padding: 12px 0;
+}
+.edit_event {
+	margin: 0 10px;
+	vertical-align: top;
+}
+/* ModerationButtons */
+#moderationbuttons {
+	float: left;
+}
+#moderationbuttons_strip {
+	float: left;
+	margin: 4px 0 4px -4px;
+}
+#moderationbuttons ul li {
+	padding: 0 6px 4px 0;
+	margin: 0;
+}
 
 /* General Classes */
+/* Cat_bar / catbg */
+div.cat_bar {
+	background: #557ea0;
+	border-bottom: 1px solid #777;
+	padding: 0;
+	border-radius: 6px 6px 0 0;
+	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
+	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	margin-bottom: 1px;
+}
+.cat_bar h3 {
+	padding: 8px 12px 6px 12px;
+}
+/* Styles for rounded headers. */
+h3.catbg, h4.catbg {
+	overflow: hidden;
+	font-size: 1.1em;
+	font-family: "Tahoma", sans-serif;
+	font-weight: bold;
+	line-height: 1.5em;
+	padding: 8px;
+}
+.cat_bar .desc
+{
+	font-size: 10px;
+	line-height: 1.5em;
+	font-weight: normal;
+	margin: -8px 0 4px 12px;
+}
+h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg {
+	color: #fff;
+}
+h3.catbg a:hover, h4.catbg a:hover {
+	color: #fff;
+	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
+	text-decoration: none;
+}
+h3.catbg .icon {
+	vertical-align: middle;
+	margin: 0 5px 0 0;
+}
+h4.catbg a.toggle img {
+	vertical-align: middle;
+	margin: 0 5px 0 5px;
+}
+h4.catbg, h3.catbg {
+	color: #FFF;
+	background: none;
+}
 /* Roundframe */
 .roundframe {
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
