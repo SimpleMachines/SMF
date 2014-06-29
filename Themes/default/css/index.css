@@ -3368,6 +3368,7 @@ span.postby {
 	font-weight: bold;
 	font-size: 1em;
 	margin-top: 3px;
+	margin-bottom: 0;
 	padding: 0;
 }
 #messageindex .stats, #recent .stats {
