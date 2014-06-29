@@ -1281,7 +1281,8 @@ function editBuddyIgnoreLists($memID)
 
 	// Pass on to the actual function.
 	$context['sub_template'] = $subActions[$context['list_area']][0];
-	$subActions[$context['list_area']][0]($memID);
+	$call = call_helper($subActions[$context['list_area']][0], true);
+	call_user_func($call, $memID);
 }
 
 /**
