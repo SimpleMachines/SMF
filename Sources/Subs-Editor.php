@@ -1754,14 +1754,14 @@ function create_control_richedit($editorOptions)
 						isInline: ' . (!empty($tag['block_lvl']) ? 'false' : 'true') . ',
 						html: 	function(token, attrs, content) {
 								if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-									return \'' . preg_replace('~\$1~', '\' + content + \'', '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . $tag['before'] . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+									return \'' . preg_replace('~\$1~', '\' + content + \'', '<div class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span class="editor">' . $tag['before'] . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
 
 								var attributes = attrs.defaultattr.split(",");
 
 								if (attributes.length === 2)
-									return \'' . preg_replace(array('~\$1~', '~\$2~', '~\$3~'), array('\' + content + \'', '\' + attributes[0] + \'', '\' + attributes[1] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \',\' + attributes[1] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+									return \'' . preg_replace(array('~\$1~', '~\$2~', '~\$3~'), array('\' + content + \'', '\' + attributes[0] + \'', '\' + attributes[1] + \''), '<div class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span class="editor">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \',\' + attributes[1] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
 								else
-									return \'' . preg_replace(array('~\$1~', '~\$2~'), array('\' + content + \'', '\' + attributes[0] + \''), '<div style="display:inline;" class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span style="display: none;visibility: hidden;">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
+									return \'' . preg_replace(array('~\$1~', '~\$2~'), array('\' + content + \'', '\' + attributes[0] + \''), '<div class="sceditor-ignore">' . $tag['html'] . '</div>') . '<span class="editor">' . str_replace((!empty($attrs[1]) ? $attrs[1] : ''), '\' + attributes[0] + \'', $tag['before']) . '\' + content + \'' . (isset($tag['after']) ? $tag['after'] . '</span>' : '</span>') . '\';
 						}
 					}
 				);';
