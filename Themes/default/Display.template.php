@@ -245,15 +245,22 @@ function template_main()
 		// Guests just need more.
 		if ($context['user']['is_guest'])
 			echo '
-							<strong>', $txt['name'], ':</strong> <input type="text" name="guestname" value="', $context['name'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '">
-							<strong>', $txt['email'], ':</strong> <input type="text" name="email" value="', $context['email'], '" size="25" class="input_text" tabindex="', $context['tabindex']++, '"><br>';
-
-		// Is visual verification enabled?
-		if ($context['require_verification'])
-			echo '
-							<strong>', $txt['verification'], ':</strong>', template_control_verification($context['visual_verification_id'], 'quick_reply'), '<br>';
+							<dl id="post_header">
+								<dt>
+									', $txt['name'], ':
+								</dt>
+								<dd>
+									<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+								</dd>
+								<dt>
+									', $txt['email'], ':
+								</dt>
+								<dd>
+									<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
+								</dd>';
 
 		echo '
+							</dl>
 							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
 							<script><!-- // --><![CDATA[
 								function insertQuoteFast(messageid)
@@ -269,34 +276,28 @@ function template_main()
 									var text = \'\';
 									for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 										text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-									oEditorHandle_', $context['post_box_name'], '.insertText(text, false, true);
+									$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 
 									ajax_indicator(false);
 								}
-							// ]]></script>
-							<div class="padding">';
-							
-		if ($context['drafts_save'])
-			echo '
-								<input type="submit" name="save_draft" value="', $txt['draft_save'], '" onclick="return confirm(' . JavaScriptEscape($txt['draft_save_note']) . ') && submitThisOnce(this);" accesskey="d" tabindex="', $context['tabindex']++, '" class="button_submit">
-								<input type="hidden" id="id_draft" name="id_draft" value="', empty($context['id_draft']) ? 0 : $context['id_draft'], '">';
-								
-		if ($context['show_spellchecking'])
-			echo '
-								<input type="button" value="', $txt['spell_check'], '" onclick="spellCheck(\'postmodify\', \'message\');" tabindex="', $context['tabindex']++, '" class="button_submit">';
-								
+							// ]]></script>';
+
+	// Is visual verification enabled?
+	if ($context['require_verification'])
+	{
 		echo '
-								<input type="submit" name="preview" value="', $txt['preview'], '" onclick="return submitThisOnce(this);" accesskey="p" tabindex="', $context['tabindex']++, '" class="button_submit">
-								<input type="submit" name="post" value="', $txt['post'], '" onclick="return submitThisOnce(this);" accesskey="s" tabindex="', $context['tabindex']++, '" class="button_submit">';
+					<div class="post_verification">
+						<strong>', $txt['verification'], ':</strong>
+						', template_control_verification($context['visual_verification_id'], 'all'), '
+					</div>';
+	}
 
-
-
-		if (!empty($context['drafts_autosave']))
-			echo '
-								<div class="clear righttext padding"><span id="throbber" style="display:none"><img src="' . $settings['images_url'] . '/loading_sm.gif" alt="" class="centericon">&nbsp;</span><span id="draft_lastautosave" ></span></div>';
-
+	// Finally, the submit buttons.
+	echo '
+					<br class="clear_right">
+					<span id="post_confirm_buttons">
+						', template_control_richedit_buttons($context['post_box_name']);
 		echo '
-							</div>
 						</form>
 					</div>
 				</div>

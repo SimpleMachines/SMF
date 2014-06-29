@@ -1163,8 +1163,8 @@ function Display()
 		// add height and width for the editor
 		'height' => '250px',
 		'width' => '100%',
-		// We do XML preview here.
-		'preview_type' => 0,
+		// We do HTML preview here.
+		'preview_type' => 1,
 		// This is required
 		'required' => true,
 	);
