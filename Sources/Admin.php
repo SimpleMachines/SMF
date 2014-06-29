@@ -512,7 +512,7 @@ function AdminMain()
 		$call = call_helper($admin_include_data['function'], true);
 
 	// Is it valid?
-	if (is_callable($call))
+	if (!empty($call))
 		call_user_func($call);
 }
 
