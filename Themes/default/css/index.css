@@ -3077,10 +3077,6 @@ div.lastpost p {
 p.moderators {
 	font-size: 0.9em;
 	font-weight: bold;
-	font-size: 1em;
-	margin-top: 3px;
-	margin-bottom: 0;
-	padding: 0;
 }
 span.postby {
 	width: 100%;
@@ -3745,9 +3741,6 @@ h4.catbg, h3.catbg {
 .roundframe dl, .roundframe dt, .roundframe p {
 	margin: 0;
 }
-.roundframe p {
-	padding: 6px;
-}
 /* TitleBar & SubBar */
 .title_bar {
 	border-right: 1px solid #ddd;
@@ -3880,17 +3873,17 @@ p.information  img {
 .off {
 	background: grey;
 }
+.pm_icon {
+	margin: 0 0 0 20px !important;
+}
 #userstatus .smalltext {
 	margin: 0 0 0 20px;
 }
-.pm_icon, #personal_messages .poster h4 a {
-	margin: 0 15px 0 0 !important;
-}
-#personal_messages .poster span {
-	margin: 3px 0 0 -15px;
-}
 #mlist span.on, #mlist span.off {
 	margin: -5px 0 0 10px;
+}
+#mlist .pm_icon {
+	margin: 0 !important;
 }
 #whoFilter span.on, #whoFilter span.off {
 	margin: 3px 0 0 -5px !important;
