@@ -2953,6 +2953,15 @@ div#manage_boards dl dd textarea[name=desc] {
 	min-width: 95%;
 	float: left;
 }
+#groups .windowbg, #groups .windowbg2 {
+	box-shadow: none;
+	border-radius: 0;
+	border-top: 0;
+	margin: 0;
+}
+#groups .padding {
+	margin: 0 0 25px 0;
+}
 
 /* BoardIndex */
 /* Newsfader */
