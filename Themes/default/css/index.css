@@ -3891,7 +3891,10 @@ p.information  img {
 #mlist span.on, #mlist span.off {
 	margin: -5px 0 0 10px;
 }
-#mlist .pm_icon {
+#edit_buddies .on, #edit_buddies .off {
+	margin: -8px 0 0 15px;
+}
+#mlist .pm_icon, #edit_buddies .pm_icon {
 	margin: 0 !important;
 }
 #whoFilter span.on, #whoFilter span.off {

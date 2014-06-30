@@ -629,7 +629,7 @@ function template_editBuddies()
 			echo '
 				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 					<td>', $buddy['link'], '</td>
-					<td align="center"><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
+					<td><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
 
 			if ($buddy['show_email'])
 				echo '
@@ -656,27 +656,25 @@ function template_editBuddies()
 	// Add a new buddy?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder roundframe">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['buddy_add'], '</h3>
-			</div>
-			<dl class="settings">
-				<dt>
-					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-				</dt>
-				<dd>
-					<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
-					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
-				</dd>
-			</dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['buddy_add'], '</h3>
+		</div>
+		<dl class="settings windowbg">
+			<dt>
+				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+			</dt>
+			<dd>
+				<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
+				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
+			</dd>
+		</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
 			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		</div>
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
 	<script><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
@@ -757,27 +755,25 @@ function template_editIgnoreList()
 	// Add to the ignore list?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder roundframe">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['ignore_add'], '</h3>
-			</div>
-			<dl class="settings">
-				<dt>
-					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-				</dt>
-				<dd>
-					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
-				</dd>
-			</dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['ignore_add'], '</h3>
+		</div>
+		<dl class="settings windowbg">
+			<dt>
+				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+			</dt>
+			<dd>
+				<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
+			</dd>
+		</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
-			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
+		<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
-		</div>
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
 	</form>
 	<script><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
