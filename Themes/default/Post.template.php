@@ -114,9 +114,10 @@ function template_main()
 					</p>';
 	}
 
-	// If it's locked, show a message to warn the replyer.
+	// If it's locked, show a message to warn the replier.
+	if (!empty($context['locked']))
 	echo '
-					<p class="information"', $context['locked'] ? '' : ' style="display: none"', ' id="lock_warning">
+					<p class="errorbox">
 						', $txt['topic_locked_no_reply'], '
 					</p>';
 
@@ -660,9 +661,6 @@ function template_main()
 				document.getElementById(\'errors\').className = errors.getAttribute(\'serious\') == 1 ? \'errorbox\' : \'noticebox\';
 				document.getElementById(\'error_serious\').style.display = numErrors == 0 ? \'none\' : \'\';
 				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
-
-				// Show a warning if the topic has been locked.
-				document.getElementById(\'lock_warning\').style.display = errors.getAttribute(\'topic_locked\') == 1 ? \'\' : \'none\';
 
 				// Adjust the color of captions if the given data is erroneous.
 				var captions = errors.getElementsByTagName(\'caption\');
