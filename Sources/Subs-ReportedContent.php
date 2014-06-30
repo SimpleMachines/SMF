@@ -347,7 +347,7 @@ function getReports($closed = 0)
  */
 function recountOpenReports($type)
 {
-	global $user_info, $smcFunc, $context;
+	global $user_info, $smcFunc;
 
 	if ($type == 'members')
 		$bq = '';

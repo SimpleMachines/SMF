@@ -32,7 +32,7 @@ if (!defined('SMF'))
 function Post($post_errors = array())
 {
 	global $txt, $scripturl, $topic, $modSettings, $board;
-	global $user_info, $sc, $board_info, $context, $settings;
+	global $user_info, $context, $settings;
 	global $sourcedir, $smcFunc, $language;
 
 	loadLanguage('Post');
@@ -2164,7 +2164,7 @@ function AnnouncementSelectMembergroup()
 function AnnouncementSend()
 {
 	global $topic, $board, $board_info, $context, $modSettings;
-	global $language, $scripturl, $txt, $sourcedir, $smcFunc;
+	global $language, $scripturl, $sourcedir, $smcFunc;
 
 	checkSession();
 
@@ -2350,7 +2350,7 @@ function getTopic()
  */
 function QuoteFast()
 {
-	global $modSettings, $user_info, $txt, $context;
+	global $modSettings, $user_info, $context;
 	global $sourcedir, $smcFunc;
 
 	loadLanguage('Post');

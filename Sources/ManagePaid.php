@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePaidSubscriptions()
 {
-	global $context, $txt, $scripturl, $sourcedir, $smcFunc, $modSettings;
+	global $context, $txt, $modSettings;
 
 	// Load the required language and template.
 	loadLanguage('ManagePaid');
@@ -245,7 +245,7 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir, $scripturl;
+	global $context, $txt, $modSettings, $sourcedir, $scripturl;
 
 	// Not made the settings yet?
 	if (empty($modSettings['paid_currency_symbol']))

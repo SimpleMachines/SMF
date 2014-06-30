@@ -22,7 +22,7 @@ if (!defined('SMF'))
  */
 function ManageMaintenance()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	// You absolutely must be an admin by here!
 	isAllowedTo('admin_forum');
@@ -130,7 +130,7 @@ function ManageMaintenance()
  */
 function MaintainDatabase()
 {
-	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt, $maintenance;
+	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
 	$context['convert_utf8'] = ($db_type == 'mysql' || $db_type == 'mysqli') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
@@ -346,7 +346,7 @@ function Destroy()
  */
 function ConvertUtf8()
 {
-	global $scripturl, $context, $txt, $language, $db_character_set;
+	global $context, $txt, $language, $db_character_set;
 	global $modSettings, $user_info, $sourcedir, $smcFunc, $db_prefix;
 
 	// Show me your badge!
@@ -720,8 +720,8 @@ function ConvertUtf8()
  */
 function ConvertMsgBody()
 {
-	global $scripturl, $context, $txt, $language, $db_character_set, $db_type;
-	global $modSettings, $sourcedir, $smcFunc, $time_start;
+	global $scripturl, $context, $txt, $db_type;
+	global $modSettings, $smcFunc, $time_start;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -1067,7 +1067,7 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $db_type, $db_name, $db_prefix, $txt, $context, $scripturl, $sourcedir, $smcFunc;
+	global $db_prefix, $txt, $context, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -1134,7 +1134,7 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir;
+	global $txt, $context, $modSettings, $sourcedir;
 	global $time_start, $smcFunc;
 
 	isAllowedTo('admin_forum');
@@ -1807,7 +1807,7 @@ function MaintainPurgeInactiveMembers()
  */
 function MaintainRemoveOldPosts()
 {
-	global $sourcedir, $context, $txt;
+	global $sourcedir;
 
 	validateToken('admin-maint');
 

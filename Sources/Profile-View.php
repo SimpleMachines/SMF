@@ -351,7 +351,7 @@ function fetch_alerts($memID, $all = false, $counter = 0)
  */
 function showAlerts($memID)
 {
-	global $txt, $sourcedir, $context;
+	global $context;
 
 	$context['alerts'] = fetch_alerts($memID, true);
 }
@@ -705,8 +705,8 @@ function showPosts($memID)
  */
 function showAttachments($memID)
 {
-	global $txt, $scripturl, $modSettings, $board;
-	global $context, $user_profile, $sourcedir, $smcFunc;
+	global $txt, $scripturl, $modSettings;
+	global $sourcedir;
 
 	// OBEY permissions!
 	$boardsAllowed = boardsAllowedTo('view_attachments');
@@ -929,7 +929,7 @@ function list_getNumAttachments($boardsAllowed, $memID)
  */
 function showUnwatched($memID)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $board, $context, $sourcedir, $smcFunc;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
 	if ($user_info['id'] != $memID || !$modSettings['enable_unwatch'])
@@ -1334,7 +1334,7 @@ function statPanel($memID)
  */
 function tracking($memID)
 {
-	global $sourcedir, $context, $txt, $scripturl, $modSettings, $user_profile;
+	global $context, $txt, $modSettings, $user_profile;
 
 	$subActions = array(
 		'activity' => array('trackActivity', $txt['trackActivity'], 'moderate_forum'),
@@ -1712,7 +1712,7 @@ function list_getIPMessageCount($where, $where_vars = array())
  */
 function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $txt, $scripturl;
+	global $smcFunc, $scripturl;
 
 	// Get all the messages fitting this where clause.
 	// @todo SLOW This query is using a filesort.
@@ -2148,7 +2148,7 @@ function list_getLoginCount($where, $where_vars = array())
  */
 function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = array())
 {
-	global $smcFunc, $txt, $scripturl;
+	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT time, ip, ip2
@@ -2557,7 +2557,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
  */
 function showPermissions($memID)
 {
-	global $scripturl, $txt, $board, $modSettings;
+	global $txt, $board;
 	global $user_profile, $context, $sourcedir, $smcFunc;
 
 	// Verify if the user has sufficient permissions.

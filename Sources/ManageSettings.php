@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {
-	global $context, $txt, $sourcedir;
+	global $context, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -48,7 +48,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $scripturl, $settings;
+	global $context, $txt, $settings;
 
 	$context['page_title'] = $txt['modSettings_title'];
 
@@ -102,7 +102,7 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	$context['page_title'] = $txt['admin_modifications'];
 
@@ -139,7 +139,7 @@ function ModifyModSettings()
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc, $modSettings;
+	global $txt, $scripturl, $context, $modSettings;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -239,7 +239,7 @@ function ModifyBasicSettings($return_config = false)
  */
 function ModifyBBCSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $helptxt, $scripturl, $sourcedir;
+	global $context, $txt, $modSettings, $scripturl, $sourcedir;
 
 	$config_vars = array(
 			// Main tweaks
@@ -305,7 +305,7 @@ function ModifyBBCSettings($return_config = false)
  */
 function ModifyLayoutSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc;
+	global $txt, $scripturl, $context;
 
 	$config_vars = array(
 			// Pagination stuff.
@@ -354,7 +354,7 @@ function ModifyLayoutSettings($return_config = false)
  */
 function ModifyLikesSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context;
 
 	$config_vars = array(
 		array('check', 'enable_likes'),
@@ -392,7 +392,7 @@ function ModifyLikesSettings($return_config = false)
  */
 function ModifyMentionsSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context;
 
 	$config_vars = array(
 		array('check', 'enable_mentions'),
@@ -428,7 +428,7 @@ function ModifyMentionsSettings($return_config = false)
  */
 function ModifyWarningSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc, $modSettings, $sourcedir;
+	global $txt, $scripturl, $context, $modSettings, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -543,7 +543,7 @@ function ModifyWarningSettings($return_config = false)
  */
 function ModifyAntispamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language, $sourcedir;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc, $language, $sourcedir;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
@@ -845,7 +845,7 @@ function ModifyAntispamSettings($return_config = false)
  */
 function ModifySignatureSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sig_start, $smcFunc, $helptxt, $scripturl;
+	global $context, $txt, $modSettings, $sig_start, $smcFunc, $scripturl;
 
 	$config_vars = array(
 			// Are signatures even enabled?
@@ -1220,7 +1220,7 @@ function pauseSignatureApplySettings()
  */
 function ShowCustomProfiles()
 {
-	global $txt, $scripturl, $context, $sc, $smcFunc;
+	global $txt, $scripturl, $context;
 	global $sourcedir;
 
 	$context['page_title'] = $txt['custom_profile_title'];
@@ -1566,7 +1566,7 @@ function list_getProfileFieldSize()
  */
 function EditCustomProfiles()
 {
-	global $txt, $scripturl, $context, $sc, $smcFunc;
+	global $txt, $scripturl, $context, $smcFunc;
 
 	// Sort out the context!
 	$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
@@ -2037,7 +2037,7 @@ function custFieldsMaxOrder()
  */
 function ModifyLogSettings($return_config = false)
 {
-	global $txt, $scripturl, $sourcedir, $context, $sc, $modSettings;
+	global $txt, $scripturl, $sourcedir, $context, $modSettings;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
@@ -2154,7 +2154,7 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sc;
+	global $txt, $scripturl, $context;
 
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!

@@ -221,8 +221,8 @@ function Register($reg_errors = array())
  */
 function Register2($verifiedOpenID = false)
 {
-	global $scripturl, $txt, $modSettings, $context, $sourcedir;
-	global $smcFunc, $maintenancec;
+	global $txt, $modSettings, $context, $sourcedir;
+	global $smcFunc, $maintenance;
 
 	checkSession();
 	validateToken('register');
@@ -857,7 +857,7 @@ function VerificationCode()
  */
 function RegisterCheckUsername()
 {
-	global $sourcedir, $smcFunc, $context, $txt;
+	global $sourcedir, $context;
 
 	// This is XML!
 	loadTemplate('Xml');

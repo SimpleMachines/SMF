@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function validateSession($type = 'admin')
 {
-	global $modSettings, $sourcedir, $user_info, $sc, $user_settings;
+	global $modSettings, $sourcedir, $user_info, $user_settings;
 
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
@@ -99,7 +99,7 @@ function validateSession($type = 'admin')
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl, $modSettings;
+	global $user_info, $txt, $context, $scripturl;
 
 	// Luckily, this person isn't a guest.
 	if (isset($user_info['is_guest']) && !$user_info['is_guest'])

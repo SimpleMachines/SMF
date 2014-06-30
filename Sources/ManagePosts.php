@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePostSettings()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Make sure you can be here.
 	isAllowedTo('admin_forum');

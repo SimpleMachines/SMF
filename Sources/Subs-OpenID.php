@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function smf_openID_validate($openid_uri, $return = false, $save_fields = array(), $return_action = null)
 {
-	global $sourcedir, $scripturl, $boardurl, $modSettings;
+	global $scripturl, $modSettings;
 
 	$openid_url = smf_openID_canonize($openid_uri);
 
@@ -151,7 +151,7 @@ function smf_openID_getAssociation($server, $handle = null, $no_delete = false)
  */
 function smf_openID_makeAssociation($server)
 {
-	global $smcFunc, $modSettings, $p;
+	global $smcFunc, $p;
 
 	$parameters = array(
 		'openid.mode=associate',
@@ -237,7 +237,7 @@ function smf_openID_removeAssociation($handle)
 
 function smf_openID_return()
 {
-	global $smcFunc, $user_profile, $sourcedir, $modSettings, $context, $sc, $user_settings;
+	global $smcFunc, $sourcedir, $modSettings, $context, $user_settings;
 
 	// Is OpenID even enabled?
 	if (empty($modSettings['enableOpenID']))

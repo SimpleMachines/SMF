@@ -131,7 +131,7 @@ function SplitIndex()
  */
 function SplitExecute()
 {
-	global $txt, $board, $topic, $context, $smcFunc;
+	global $txt, $topic, $context, $smcFunc;
 
 	// Check the session to make sure they meant to do this.
 	checkSession();
@@ -465,7 +465,7 @@ function SplitSelectTopics()
  */
 function SplitSelectionExecute()
 {
-	global $txt, $board, $topic, $context;
+	global $txt, $topic, $context;
 
 	// Make sure the session id was passed with post.
 	checkSession();
@@ -500,7 +500,7 @@ function SplitSelectionExecute()
  */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
-	global $topic, $board, $smcFunc, $txt, $sourcedir;
+	global $smcFunc, $txt, $sourcedir;
 
 	// Nothing to split?
 	if (empty($splitMessages))
@@ -832,7 +832,7 @@ function MergeTopics()
 function MergeIndex()
 {
 	global $txt, $board, $context, $smcFunc, $sourcedir;
-	global $scripturl, $topic, $modSettings;
+	global $scripturl, $modSettings;
 
 	if (!isset($_GET['from']))
 		fatal_lang_error('no_access', false);

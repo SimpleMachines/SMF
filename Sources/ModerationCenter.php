@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $sourcedir, $options, $smcFunc;
+	global $txt, $context, $scripturl, $modSettings, $user_info, $sourcedir, $options;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset($context['admin_area']))
@@ -245,7 +245,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $scripturl, $user_settings, $options;
+	global $txt, $context, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
@@ -598,7 +598,7 @@ function ModBlockGroupRequests()
  */
 function ModBlockReportedMembers()
 {
-	global $context, $user_info, $scripturl, $smcFunc;
+	global $context, $scripturl, $smcFunc;
 
 	// Got the info already?
 	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
@@ -661,7 +661,7 @@ function ModBlockReportedMembers()
  */
 function ReportedMembers()
 {
-	global $txt, $context, $scripturl, $user_info, $smcFunc;
+	global $txt, $context, $scripturl, $smcFunc;
 
 	loadTemplate('ModerationCenter');
 
@@ -890,7 +890,7 @@ function ReportedMembers()
  */
 function ModerateGroups()
 {
-	global $txt, $context, $scripturl, $user_info;
+	global $context, $user_info;
 
 	// You need to be allowed to moderate groups...
 	if ($user_info['mod_cache']['gq'] == '0=1')
@@ -949,7 +949,7 @@ function ShowNotice()
  */
 function ViewWatchedUsers()
 {
-	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
+	global $modSettings, $context, $txt, $scripturl, $sourcedir;
 
 	// Some important context!
 	$context['page_title'] = $txt['mc_watched_users_title'];
@@ -1188,7 +1188,7 @@ function list_getWatchedUserCount($approve_query)
  */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
-	global $smcFunc, $txt, $scripturl, $modSettings, $user_info, $context;
+	global $smcFunc, $txt, $modSettings, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, last_login, posts, warning
@@ -1588,7 +1588,7 @@ function list_getWarningCount()
  */
 function list_getWarnings($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl;
+	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name_col,
@@ -1805,7 +1805,7 @@ function list_getWarningTemplateCount()
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl, $user_info;
+	global $smcFunc, $scripturl, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT lc.id_comment, IFNULL(mem.id_member, 0) AS id_member,
@@ -1991,7 +1991,7 @@ function ModifyWarningTemplate()
  */
 function ModerationSettings()
 {
-	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $user_settings, $user_info;
+	global $context, $txt, $user_info;
 
 	// Some useful context stuff.
 	loadTemplate('ModerationCenter');

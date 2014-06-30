@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageLanguages()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	loadTemplate('ManageLanguages');
 	loadLanguage('ManageSettings');
@@ -65,7 +65,7 @@ function ManageLanguages()
  */
 function AddLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $smcFunc, $scripturl;
+	global $context, $sourcedir, $txt, $smcFunc;
 
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))
@@ -562,7 +562,7 @@ function DownloadLanguage()
 function ModifyLanguages()
 {
 	global $txt, $context, $scripturl;
-	global $smcFunc, $sourcedir, $language, $boarddir, $forum_version;
+	global $sourcedir, $language, $boarddir;
 
 	// Setting a new default?
 	if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
@@ -777,7 +777,7 @@ function list_getLanguages()
  */
 function ModifyLanguageSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $boarddir, $settings, $smcFunc, $sourcedir;
+	global $scripturl, $context, $txt, $boarddir, $sourcedir;
 
 	// We'll want to save them someday.
 	require_once $sourcedir . '/ManageServer.php';

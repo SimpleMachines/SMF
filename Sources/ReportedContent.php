@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ReportedContent()
 {
-	global $txt, $context, $scripturl, $user_info, $smcFunc;
+	global $txt, $context, $user_info, $smcFunc;
 	global $sourcedir;
 
 	// First order of business - what are these reports about?
@@ -197,8 +197,7 @@ function ShowClosedReports()
  */
 function ReportDetails()
 {
-	global $user_info, $context, $sourcedir, $scripturl, $txt;
-	global $smcFunc;
+	global $context, $sourcedir, $scripturl, $txt;
 
 	$report = array();
 	$reportComments = array();
