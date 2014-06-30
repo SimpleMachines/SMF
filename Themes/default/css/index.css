@@ -3882,24 +3882,19 @@ p.information  img {
 .off {
 	background: grey;
 }
-.pm_icon {
-	margin: 0 0 0 20px !important;
+#whoFilter span.on, #whoFilter span.off {
+	margin: 3px 0 0 -5px !important;
 }
-#userstatus .smalltext {
-	margin: 0 0 0 20px;
-}
-#mlist span.on, #mlist span.off {
+#mlist span.on, #mlist span.off, #edit_buddies .on, #edit_buddies .off {
 	margin: -5px 0 0 10px;
-}
-#edit_buddies .on, #edit_buddies .off {
-	margin: -8px 0 0 15px;
 }
 #mlist .pm_icon, #edit_buddies .pm_icon {
 	margin: 0 !important;
 }
-#whoFilter span.on, #whoFilter span.off {
-	margin: 3px 0 0 -5px !important;
+#userstatus .smalltext, .pm_icon {
+	margin: 0 0 0 20px !important;
 }
+
 /* Styles for print media. */
 @media print {
 	#headerarea
