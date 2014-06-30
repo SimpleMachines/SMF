@@ -157,6 +157,10 @@ function template_show_list($list_id = null)
 			echo '
 			<input type="hidden" name="', $name, '" value="', $value, '">';
 
+		if (isset($cur_list['form']['token']))
+			echo '
+			<input type="hidden" name="', $context[$cur_list['form']['token'] . '_token_var'], '" value="', $context[$cur_list['form']['token'] . '_token'], '">';
+
 		echo '
 		</div>
 	</form>';
