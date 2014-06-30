@@ -922,7 +922,7 @@ function AdminLogs()
 
 	call_integration_hook('integrate_manage_logs', array(&$log_functions));
 
-	$subActions = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
+	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	// If it's not got a sa set it must have come here for first time, pretend error log should be reversed.
 	if (!isset($_REQUEST['sa']))
 		$_REQUEST['desc'] = true;
@@ -958,8 +958,8 @@ function AdminLogs()
 		),
 	);
 
-	require_once($sourcedir . '/' . $log_functions[$subActions][0]);
-	call_helper($log_functions[$subActions][1]);
+	require_once($sourcedir . '/' . $log_functions[$subAction][0]);
+	call_helper($log_functions[$subAction][1]);
 }
 
 /**
