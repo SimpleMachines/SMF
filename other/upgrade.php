@@ -960,7 +960,7 @@ function initialize_inputs()
 function WelcomeLogin()
 {
 	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
-	global $smcFunc, $db_type, $databases, $boardurl;
+	global $smcFunc, $db_type, $databases, $txt, $boardurl;
 
 	$upcontext['sub_template'] = 'welcome_message';
 
