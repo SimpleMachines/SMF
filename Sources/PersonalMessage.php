@@ -220,7 +220,7 @@ function MessageMain()
 	{
 		if (!isset($_REQUEST['xml']) && $_REQUEST['sa'] != 'popup')
 			messageIndexBar($_REQUEST['sa']);
-		$subActions[$_REQUEST['sa']]();
+		call_helper($subActions[$_REQUEST['sa']]);
 	}
 }
 

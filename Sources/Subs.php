@@ -2721,11 +2721,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		if (!empty($buffers))
 			foreach ($buffers as $function)
 			{
-				$function = trim($function);
 				$call = call_helper($function, true);
 
 				// Is it valid?
-				if (is_callable($call))
+				if (!empty($call))
 					ob_start($call);
 			}
 
@@ -4238,19 +4237,23 @@ function remove_integration_function($hook, $function, $file = '', $object = fal
 /**
  * Receives a string and tries to figure it out if its a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
+ * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
  *
  * @param string $string The string containing a function name or a static call.
  * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
- * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
+ * @return string|array|boolean Either a string or an array that contains a callable function name or an array with a class and method to call. Boolean false if the given string cannot produce a callable var.
  */
 function call_helper($string, $return = false)
 {
-	global $context, $db_show_debug;
+	global $context, $smcFunc, $txt, $db_show_debug;
 
 	// Really?
 	if (empty($string))
 		return false;
+
+	// Stay vitaminized my friends...
+	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
 
 	// The soon to be populated var.
 	$func = false;
@@ -4293,18 +4296,32 @@ function call_helper($string, $return = false)
 	else
 		$func = $string;
 
-	// What are we gonna do about it?
-	if ($return)
-		return $func;
+	// Right, we got what we need, time to do some checks.
+	if (!is_callable($func, false, $callable_name))
+	{
+		loadLanguage('Errors');
+		log_error(sprintf($txt['subAction_fail'], $callable_name), 'general');
 
-	// If this is a plain function, avoid the heat of calling call_user_func().
+		// Gotta tell everybody.
+		return false;
+	}
+
+	// Everything went better than expected.
 	else
 	{
-		if (is_array($func))
-			call_user_func($func);
+		// What are we gonna do about it?
+		if ($return)
+			return $func;
 
+		// If this is a plain function, avoid the heat of calling call_user_func().
 		else
-			$func();
+		{
+			if (is_array($func))
+				call_user_func($func);
+
+			else
+				$func();
+		}
 	}
 }
 
