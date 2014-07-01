@@ -629,7 +629,7 @@ function template_editBuddies()
 			echo '
 				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 					<td>', $buddy['link'], '</td>
-					<td align="center"><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
+					<td><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
 
 			if ($buddy['show_email'])
 				echo '
@@ -656,27 +656,25 @@ function template_editBuddies()
 	// Add a new buddy?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder roundframe">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['buddy_add'], '</h3>
-			</div>
-			<dl class="settings">
-				<dt>
-					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-				</dt>
-				<dd>
-					<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
-					<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
-				</dd>
-			</dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['buddy_add'], '</h3>
+		</div>
+		<dl class="settings windowbg">
+			<dt>
+				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+			</dt>
+			<dd>
+				<input type="text" name="new_buddy" id="new_buddy" size="30" class="input_text">
+				<input type="submit" value="', $txt['buddy_add_button'], '" class="button_submit floatnone">
+			</dd>
+		</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
 			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-		</div>
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
 	<script><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
@@ -757,27 +755,25 @@ function template_editIgnoreList()
 	// Add to the ignore list?
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder roundframe">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['ignore_add'], '</h3>
-			</div>
-			<dl class="settings">
-				<dt>
-					<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
-				</dt>
-				<dd>
-					<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
-				</dd>
-			</dl>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['ignore_add'], '</h3>
+		</div>
+		<dl class="settings windowbg">
+			<dt>
+				<label for="new_buddy"><strong>', $txt['who_member'], ':</strong></label>
+			</dt>
+			<dd>
+				<input type="text" name="new_ignore" id="new_ignore" size="25" class="input_text">
+			</dd>
+		</dl>';
 
 	if (!empty($context['token_check']))
 		echo '
-			<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
+		<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	echo '
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
-		</div>
+		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+		<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
 	</form>
 	<script><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
@@ -1906,6 +1902,9 @@ function template_groupMembership()
 				', $context['update_message'], '.
 			</div>';
 
+	echo '
+		<div id="groups">';
+
 	// Requesting membership to a group?
 	if (!empty($context['group_request']))
 	{
@@ -1927,46 +1926,32 @@ function template_groupMembership()
 	else
 	{
 		echo '
-			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
-				<thead>
-					<tr class="title_bar">
-						<th class="first_th" scope="col" ', $context['can_edit_primary'] ? ' colspan="2"' : '', '>', $txt['current_membergroups'], '</th>
-						<th class="last_th" scope="col"></th>
-					</tr>
-				</thead>
-				<tbody>';
+			<div class="title_bar">
+				<h3 class="titlebg">', $txt['current_membergroups'], '</h3>
+			</div>';
 
 		$alternate = true;
 		foreach ($context['groups']['member'] as $group)
 		{
 			echo '
-					<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
+					<div class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
 
 				if ($context['can_edit_primary'])
 					echo '
-						<td width="4%">
-							<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', ' class="input_radio">
-						</td>';
+						<input type="radio" name="primary" id="primary_', $group['id'], '" value="', $group['id'], '"', $group['is_primary'] ? ' checked' : '', ' onclick="highlightSelected(\'primdiv_' . $group['id'] . '\');"', $group['can_be_primary'] ? '' : ' disabled', ' class="input_radio">';
 
 				echo '
-						<td>
-							<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>
-						</td>
-						<td width="15%" class="righttext">';
+						<label for="primary_', $group['id'], '"><strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '</label>';
 
 				// Can they leave their group?
 				if ($group['can_leave'])
 					echo '
-							<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
+						<a href="' . $scripturl . '?action=profile;save;u=' . $context['id_member'] . ';area=groupmembership;' . $context['session_var'] . '=' . $context['session_id'] . ';gid=' . $group['id'] . ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">' . $txt['leave_group'] . '</a>';
+
 				echo '
-						</td>
-					</tr>';
+					</div>';
 			$alternate = !$alternate;
 		}
-
-		echo '
-				</tbody>
-			</table>';
 
 		if ($context['can_edit_primary'])
 			echo '
@@ -1978,48 +1963,31 @@ function template_groupMembership()
 		if (!empty($context['groups']['available']))
 		{
 			echo '
-			<br>
-			<table border="0" cellspacing="0" cellpadding="4" class="table_grid">
-				<thead>
-					<tr class="title_bar">
-						<th class="first_th" scope="col">
-							', $txt['available_groups'], '
-						</th>
-						<th class="last_th" scope="col"></th>
-					</tr>
-				</thead>
-				<tbody>';
+					<div class="title_bar">
+						<h3 class="titlebg">', $txt['available_groups'], '</h3>
+					</div>';
 
 			$alternate = true;
 			foreach ($context['groups']['available'] as $group)
 			{
 				echo '
-					<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
-						<td>
-							<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '
-						</td>
-						<td width="15%" class="lefttext">';
+					<div class="', $alternate ? 'windowbg' : 'windowbg2', '">
+						<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
 				if ($group['type'] == 3)
 					echo '
-							<a href="', $scripturl, '?action=profile;save;u=', $context['id_member'], ';area=groupmembership;', $context['session_var'], '=', $context['session_id'], ';gid=', $group['id'], ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '">', $txt['join_group'], '</a>';
+						<a href="', $scripturl, '?action=profile;save;u=', $context['id_member'], ';area=groupmembership;', $context['session_var'], '=', $context['session_id'], ';gid=', $group['id'], ';', $context[$context['token_check'] . '_token_var'], '=', $context[$context['token_check'] . '_token'], '" class="button floatright">', $txt['join_group'], '</a>';
 				elseif ($group['type'] == 2 && $group['pending'])
 					echo '
-							', $txt['approval_pending'];
+						<span class="floatright">', $txt['approval_pending'],'</span>';
 				elseif ($group['type'] == 2)
 					echo '
-							<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=groupmembership;request=', $group['id'], '">', $txt['request_group'], '</a>';
-
-//				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
+						<a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=groupmembership;request=', $group['id'], '" class="button floatright">', $txt['request_group'], '</a>';
 
 				echo '
-						</td>
-					</tr>';
+					</div>';
 				$alternate = !$alternate;
 			}
-			echo '
-				</tbody>
-			</table>';
 		}
 
 		// Javascript for the selector stuff.
@@ -2044,6 +2012,9 @@ function template_groupMembership()
 		echo '
 	// ]]></script>';
 	}
+
+	echo '
+		</div>';
 
 	if (!empty($context['token_check']))
 		echo '

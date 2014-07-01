@@ -2753,6 +2753,7 @@ dl.addrules dt.floatleft {
 	border-radius: 7px 7px 3px 3px;
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
+	background: #FFFFFF;
 	background-image: -webkit-gradient(
 		linear,
 		left top,
@@ -2952,6 +2953,15 @@ div#manage_boards dl dd textarea[name=desc] {
 .infolinks {
 	min-width: 95%;
 	float: left;
+}
+#groups .windowbg, #groups .windowbg2 {
+	box-shadow: none;
+	border-radius: 0;
+	border-top: 0;
+	margin: 0;
+}
+#groups .padding {
+	margin: 0 0 25px 0;
 }
 
 /* BoardIndex */
@@ -3873,21 +3883,19 @@ p.information  img {
 .off {
 	background: grey;
 }
-.pm_icon {
-	margin: 0 0 0 20px !important;
-}
-#userstatus .smalltext {
-	margin: 0 0 0 20px;
-}
-#mlist span.on, #mlist span.off {
-	margin: -5px 0 0 10px;
-}
-#mlist .pm_icon {
-	margin: 0 !important;
-}
 #whoFilter span.on, #whoFilter span.off {
 	margin: 3px 0 0 -5px !important;
 }
+#mlist span.on, #mlist span.off, #edit_buddies .on, #edit_buddies .off {
+	margin: -5px 0 0 10px;
+}
+#mlist .pm_icon, #edit_buddies .pm_icon {
+	margin: 0 !important;
+}
+#userstatus .smalltext, .pm_icon {
+	margin: 0 0 0 20px !important;
+}
+
 /* Styles for print media. */
 @media print {
 	#headerarea
