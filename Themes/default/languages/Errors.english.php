@@ -428,6 +428,9 @@ $txt['search_api_not_compatible'] = 'The selected search API the forum is using 
 $txt['hook_fail_loading_file'] = 'Hook call: The file at path: %s could not be loaded.';
 $txt['hook_fail_call_to'] = 'Hook call: function "%1$s" in file %2$s could not be called.';
 
+// SubActions failed attempt.
+$txt['subAction_fail'] = 'The callable %s could not be called.';
+
 // Restore topic/posts
 $txt['cannot_restore_first_post'] = 'You cannot restore the first post in a topic.';
 $txt['parent_topic_missing'] = 'The parent topic of the post you are trying to restore has been deleted.';

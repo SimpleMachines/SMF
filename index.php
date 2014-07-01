@@ -244,7 +244,8 @@ function smf_main()
 			foreach ($defaultActions as $defaultAction)
 			{
 				$call = call_helper($defaultAction, true);
-				if (!empty($call) && is_callable($call))
+
+				if (!empty($call))
 					return $call;
 			}
 
@@ -364,7 +365,8 @@ function smf_main()
 		foreach ($fallbackActions as $fallbackAction)
 		{
 			$call = call_helper($fallbackAction, true);
-			if (!empty($call) && is_callable($call))
+
+			if (!empty($call))
 				return $call;
 		}
 

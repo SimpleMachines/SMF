@@ -199,7 +199,10 @@ function ShowXmlFeed()
 		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	if (empty($xml))
 	{
-		$xml = $subActions[$_GET['sa']][0]($xml_format);
+		$call = call_helper($subActions[$_GET['sa']][0], true);
+
+		if (!empty($call))
+			$xml = call_user_func($call, $xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))

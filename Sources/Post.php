@@ -2071,7 +2071,8 @@ function AnnounceTopic()
 	$context['page_title'] = $txt['announce_topic'];
 
 	// Call the function based on the sub-action.
-	$subActions[isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'selectgroup']();
+	$call = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'selectgroup';
+	call_helper($subActions[$call]);
 }
 
 /**

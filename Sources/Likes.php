@@ -389,7 +389,9 @@ class Likes
 		elseif (!empty($this->_validLikes['callback']))
 		{
 			$call = call_helper($this->_validLikes['callback'], true);
-			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
+
+			if (!empty($call))
+				call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.

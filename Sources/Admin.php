@@ -512,7 +512,7 @@ function AdminMain()
 		$call = call_helper($admin_include_data['function'], true);
 
 	// Is it valid?
-	if (is_callable($call))
+	if (!empty($call))
 		call_user_func($call);
 }
 
@@ -656,13 +656,13 @@ function AdminSearch()
 	isAllowedTo('admin_forum');
 
 	// What can we search for?
-	$subactions = array(
+	$subActions = array(
 		'internal' => 'AdminSearchInternal',
 		'online' => 'AdminSearchOM',
 		'member' => 'AdminSearchMember',
 	);
 
-	$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
+	$context['search_type'] = !isset($_REQUEST['search_type']) || !isset($subActions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	$context['search_term'] = isset($_REQUEST['search_term']) ? $smcFunc['htmlspecialchars']($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 	$context['sub_template'] = 'admin_search_results';
@@ -681,7 +681,7 @@ function AdminSearch()
 	if (trim($context['search_term']) == '')
 		$context['search_results'] = array();
 	else
-		$subactions[$context['search_type']]();
+		call_helper($subActions[$context['search_type']]);
 }
 
 /**
@@ -920,9 +920,7 @@ function AdminLogs()
 		'settings' => array('ManageSettings.php', 'ModifyLogSettings'),
 	);
 
-	call_integration_hook('integrate_manage_logs', array(&$log_functions));
-
-	$sub_action = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
+	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	// If it's not got a sa set it must have come here for first time, pretend error log should be reversed.
 	if (!isset($_REQUEST['sa']))
 		$_REQUEST['desc'] = true;
@@ -958,8 +956,10 @@ function AdminLogs()
 		),
 	);
 
-	require_once($sourcedir . '/' . $log_functions[$sub_action][0]);
-	$log_functions[$sub_action][1]();
+	call_integration_hook('integrate_manage_logs', array(&$log_functions));
+
+	require_once($sourcedir . '/' . $log_functions[$subAction][0]);
+	call_helper($log_functions[$subAction][1]);
 }
 
 /**

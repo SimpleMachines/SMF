@@ -760,7 +760,7 @@ function ModifyProfile($post_errors = array())
 		$call = call_helper($profile_include_data['function'], true);
 
 	// Is it valid?
-	if (is_callable($call))
+	if (!empty($call))
 		call_user_func($call, $memID);
 
 	// Set the page title if it's not already set...
