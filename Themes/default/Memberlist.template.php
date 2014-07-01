@@ -142,7 +142,7 @@ function template_main()
 // A page allowing people to search the member list.
 function template_search()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	// Start the submission form for the search!
 	echo '

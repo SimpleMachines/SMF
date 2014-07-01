@@ -291,7 +291,7 @@ function template_create_index_progress()
 
 function template_create_index_done()
 {
-	global $context, $scripturl, $txt;
+	global $scripturl, $txt;
 	echo '
 	<div id="admincenter">
 		<div class="cat_bar">

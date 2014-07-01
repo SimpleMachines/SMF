@@ -333,7 +333,7 @@ function template_imode_messageindex()
 
 function template_imode_display()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<table border="0" cellspacing="0" cellpadding="0">
@@ -745,7 +745,7 @@ function template_imode_error()
 
 function template_imode_profile()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<table border="0" cellspacing="0" cellpadding="0">
@@ -1391,7 +1391,7 @@ function template_wap2_error()
 
 function template_wap2_profile()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<p class="catbg">', $txt['summary'], ' - ', $context['member']['name'], '</p>
@@ -1429,7 +1429,7 @@ function template_wap2_profile()
 
 function template_wap2_ban_edit()
 {
-	global $context, $scripturl, $board, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<form action="', $scripturl, '?action=admin;area=ban;sa=add;wap2" method="post">

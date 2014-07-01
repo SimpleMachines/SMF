@@ -264,7 +264,7 @@ function template_permission_index()
 
 function template_by_board()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -353,7 +353,7 @@ function template_by_board()
 // Edit permission profiles (predefined).
 function template_edit_profiles()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admin_form_wrapper">

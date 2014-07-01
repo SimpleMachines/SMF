@@ -966,7 +966,7 @@ function template_show_settings()
 // Template for showing custom profile fields.
 function template_show_custom_profile()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	if (!empty($context['saved_successful']))
 		echo '

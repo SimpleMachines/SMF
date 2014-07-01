@@ -13,7 +13,7 @@
 // Template for the database maintenance tasks.
 function template_maintain_database()
 {
-	global $context, $txt, $scripturl, $db_type, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	// If maintenance has finished tell the user.
 	if (!empty($context['maintenance_finished']))

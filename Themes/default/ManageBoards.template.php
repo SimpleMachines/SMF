@@ -245,7 +245,7 @@ function template_confirm_category_delete()
 // Below is the template for adding/editing an board on the forum.
 function template_modify_board()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// The main table header.
 	echo '

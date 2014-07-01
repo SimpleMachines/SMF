@@ -17,7 +17,7 @@ function template_boardindex_outer_above()
 
 function template_newsfader()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $settings, $options, $txt;
 
 	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
@@ -78,7 +78,7 @@ function template_newsfader()
 
 function template_main()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">';
@@ -207,7 +207,7 @@ function template_boardindex_outer_below()
 
 function template_info_center()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings;
+	global $context, $options, $txt;
 
 	if (empty($context['info_center']))
 		return;

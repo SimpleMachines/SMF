@@ -13,7 +13,7 @@
 // The main template for the post page.
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings, $counter;
+	global $context, $options, $txt, $scripturl, $modSettings, $counter;
 
 	// Start the javascript... and boy is there a lot.
 	echo '

@@ -228,7 +228,7 @@ function template_download_language()
  */
 function template_modify_language_entries()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">

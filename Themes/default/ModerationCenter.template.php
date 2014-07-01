@@ -12,7 +12,7 @@
 
 function template_moderation_center()
 {
-	global $settings, $context, $txt, $scripturl;
+	global $context;
 
 	// Show moderators notes.
 	template_notes();

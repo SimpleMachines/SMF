@@ -190,7 +190,6 @@ function template_main()
 function template_list_themes()
 {
 	global $context, $scripturl, $txt;
-	global $modSettings;
 
 	// Show a nice confirmation message.
 	if (isset($_GET['done']))
@@ -885,7 +884,7 @@ function template_copy_template()
 
 function template_edit_browse()
 {
-	global $context, $scripturl, $txt;
+	global $context, $txt;
 
 	echo '
 	<div id="admincenter">';

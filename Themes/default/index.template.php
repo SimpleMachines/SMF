@@ -348,7 +348,7 @@ function template_html_below()
  */
 function theme_linktree($force_show = false)
 {
-	global $context, $settings, $shown_linktree, $scripturl, $txt;
+	global $context, $shown_linktree, $scripturl, $txt;
 
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))

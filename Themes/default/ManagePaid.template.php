@@ -195,7 +195,7 @@ function template_modify_subscription()
 
 function template_delete_subscription()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -218,7 +218,7 @@ function template_delete_subscription()
 // Add or edit an existing subscriber.
 function template_modify_user_subscription()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	// Some quickly stolen javascript from Post, could do with being more efficient :)
 	echo '
@@ -523,7 +523,7 @@ function template_user_subscription()
 // The "choose payment" dialog.
 function template_choose_payment()
 {
-	global $context, $txt, $modSettings, $scripturl;
+	global $context, $txt;
 
 	echo '
 	<div id="paid_subscription">
@@ -585,7 +585,7 @@ function template_choose_payment()
 // The "thank you" bit...
 function template_paid_done()
 {
-	global $context, $txt, $modSettings, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="paid_subscription">

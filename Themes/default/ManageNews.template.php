@@ -12,7 +12,7 @@
 
 function template_email_members()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	// Are we done sending the newsletter?
 	if (!empty($context['newsletter_sent']))

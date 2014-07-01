@@ -75,7 +75,7 @@ function template_main()
 
 function template_select()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="split_topics">

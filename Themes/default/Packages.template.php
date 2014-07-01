@@ -16,7 +16,7 @@ function template_main()
 
 function template_view_package()
 {
-	global $context, $settings, $txt, $scripturl, $smcFunc;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<div id="admincenter">
@@ -509,7 +509,7 @@ function template_examine()
 
 function template_browse()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings, $forum_version;
+	global $context, $txt, $scripturl, $modSettings, $forum_version;
 
 	echo '
 	<div id="admincenter">';
@@ -814,7 +814,7 @@ function template_servers()
 
 function template_package_confirm()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -830,7 +830,7 @@ function template_package_confirm()
 
 function template_package_list()
 {
-	global $context, $txt, $scripturl, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	echo '
 	<div id="admincenter">
@@ -1084,7 +1084,7 @@ function template_install_options()
 
 function template_control_chmod()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Nothing to do? Brilliant!
 	if (empty($context['package_ftp']))

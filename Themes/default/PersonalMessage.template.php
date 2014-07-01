@@ -555,7 +555,7 @@ function template_folder()
 // Just list all the personal message subjects - to make templates easier.
 function template_subject_list()
 {
-	global $context, $settings, $modSettings, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl;
 
 	echo '
 	<table class="table_grid">
@@ -670,7 +670,7 @@ function template_subject_list()
 
 function template_search()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
@@ -795,7 +795,7 @@ function template_search()
 
 function template_search_results()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -906,7 +906,7 @@ function template_search_results()
 
 function template_send()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $options, $scripturl, $modSettings, $txt;
 
 	// Show which messages were sent successfully and which failed.
 	if (!empty($context['send_log']))
@@ -1288,7 +1288,7 @@ function template_send()
 // This template asks the user whether they wish to empty out their folder/messages.
 function template_ask_delete()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<div class="cat_bar">
@@ -1858,7 +1858,7 @@ function template_add_rule()
 // Template for showing all the PM drafts of the user.
 function template_showPMDrafts()
 {
-	global $context, $scripturl, $modSettings, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<div class="cat_bar">

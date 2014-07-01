@@ -146,7 +146,7 @@ function template_new_group()
 
 function template_edit_group()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
@@ -499,7 +499,7 @@ function template_add_edit_group_boards_list($collapse = true)
 // Templating for viewing the members of a group.
 function template_group_members()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">
