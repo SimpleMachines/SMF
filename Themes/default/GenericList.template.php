@@ -162,7 +162,6 @@ function template_show_list($list_id = null)
 			<input type="hidden" name="', $context[$cur_list['form']['token'] . '_token_var'], '" value="', $context[$cur_list['form']['token'] . '_token'], '">';
 
 		echo '
-		</div>
 	</form>';
 	}
 
