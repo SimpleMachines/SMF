@@ -369,7 +369,7 @@ function MLAll()
  */
 function MLSearch()
 {
-	global $txt, $scripturl, $context, $user_info, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
 	$context['page_title'] = $txt['mlist_search'];
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');

@@ -624,7 +624,7 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 // Show boards by activity.
 function ssi_topBoards($num_top = 10, $output_method = 'echo')
 {
-	global $context, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
+	global $txt, $scripturl, $user_info, $modSettings, $smcFunc;
 
 	// Find boards with lots of posts.
 	$request = $smcFunc['db_query']('', '
@@ -680,7 +680,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 // Shows the top topics.
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
-	global $txt, $scripturl, $modSettings, $smcFunc, $context;
+	global $txt, $scripturl, $modSettings, $smcFunc;
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
@@ -777,7 +777,7 @@ function ssi_topTopicsViews($num_topics = 10, $output_method = 'echo')
 // Show a link to the latest member:  Please welcome, Someone, out latest member.
 function ssi_latestMember($output_method = 'echo')
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	if ($output_method == 'echo')
 		echo '
@@ -876,8 +876,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $scripturl, $txt;
-	global $modSettings, $smcFunc, $memberContext;
+	global $smcFunc, $memberContext;
 
 	if ($query_where === null)
 		return;
@@ -985,7 +984,7 @@ function ssi_boardStats($output_method = 'echo')
 // Shows a list of online users:  YY Guests, ZZ Users and then a list...
 function ssi_whosOnline($output_method = 'echo')
 {
-	global $user_info, $txt, $sourcedir, $settings, $modSettings;
+	global $user_info, $txt, $sourcedir, $settings;
 
 	require_once($sourcedir . '/Subs-MembersOnline.php');
 	$membersOnlineOptions = array(
@@ -1088,7 +1087,7 @@ function ssi_topPoll($output_method = 'echo')
 // Show the most recently posted poll.
 function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 {
-	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = array_intersect(boardsAllowedTo('poll_view'), boardsAllowedTo('poll_vote'));
 
@@ -1219,7 +1218,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 function ssi_showPoll($topic = null, $output_method = 'echo')
 {
-	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = boardsAllowedTo('poll_view');
 
@@ -1967,7 +1966,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 // Check the passed id_member/password.  If $is_username is true, treats $id as a username.
 function ssi_checkPassword($id = null, $password = null, $is_username = false)
 {
-	global $sourcedir, $smcFunc;
+	global $smcFunc;
 
 	// If $id is null, this was most likely called from a query string and should do nothing.
 	if ($id === null)
@@ -1991,7 +1990,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 // We want to show the recent attachments outside of the forum.
 function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 {
-	global $smcFunc, $context, $modSettings, $scripturl, $txt, $settings;
+	global $smcFunc, $modSettings, $scripturl, $txt, $settings;
 
 	// We want to make sure that we only get attachments for boards that we can see *if* any.
 	$attachments_boards = boardsAllowedTo('view_attachments');

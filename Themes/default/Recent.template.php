@@ -12,7 +12,7 @@
 
 function template_recent()
 {
-	global $context, $settings, $txt, $scripturl;
+	global $context, $txt, $scripturl;
 
 	echo '
 	<div id="recent" class="main_section">

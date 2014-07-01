@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function SearchEngines()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('admin_forum');
 

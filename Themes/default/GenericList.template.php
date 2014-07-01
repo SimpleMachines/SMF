@@ -12,7 +12,7 @@
 
 function template_show_list($list_id = null)
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context;
 
 	// Get a shortcut to the current list.
 	$list_id = $list_id === null ? (!empty($context['default_list']) ? $context['default_list'] : '') : $list_id;

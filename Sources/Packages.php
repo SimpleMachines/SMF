@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function Packages()
 {
-	global $txt, $scripturl, $sourcedir, $context;
+	global $txt, $sourcedir, $context;
 
 	// @todo Remove this!
 	if (isset($_GET['get']) || isset($_GET['pgdownload']))
@@ -1218,7 +1218,7 @@ function PackageInstall()
  */
 function PackageList()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir;
+	global $txt, $scripturl, $context, $sourcedir, $packagesdir;
 
 	require_once($sourcedir . '/Subs-Package.php');
 
@@ -1248,7 +1248,7 @@ function PackageList()
  */
 function ExamineFile()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir, $smcFunc;
+	global $txt, $scripturl, $context, $sourcedir, $packagesdir, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Package.php');
 
@@ -1304,7 +1304,7 @@ function ExamineFile()
  */
 function InstalledList()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	$context['page_title'] .= ' - ' . $txt['installed_packages'];
 	$context['sub_template'] = 'view_installed';
@@ -1318,7 +1318,7 @@ function InstalledList()
  */
 function FlushInstall()
 {
-	global $boarddir, $sourcedir, $packagesdir, $smcFunc;
+	global $sourcedir, $smcFunc;
 
 	// Always check the session.
 	checkSession('get');
@@ -1342,7 +1342,7 @@ function FlushInstall()
  */
 function PackageRemove()
 {
-	global $scripturl, $boarddir, $packagesdir;
+	global $scripturl, $packagesdir;
 
 	// Check it.
 	checkSession('get');
@@ -1374,7 +1374,7 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $boarddir, $scripturl, $context, $forum_version, $sourcedir;
+	global $txt, $scripturl, $context, $forum_version, $sourcedir;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
@@ -1541,7 +1541,7 @@ function PackageBrowse()
  */
 function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 {
-	global $boarddir, $scripturl, $packagesdir, $context, $forum_version;
+	global $scripturl, $packagesdir, $context, $forum_version;
 	static $instmods, $packages;
 
 	// Start things up
@@ -1811,7 +1811,7 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
  */
 function PackageOptions()
 {
-	global $txt, $scripturl, $context, $sourcedir, $modSettings, $smcFunc;
+	global $txt, $context, $modSettings, $smcFunc;
 
 	if (isset($_POST['save']))
 	{
@@ -1855,7 +1855,7 @@ function PackageOptions()
  */
 function ViewOperations()
 {
-	global $context, $txt, $boarddir, $sourcedir, $packagesdir, $smcFunc, $modSettings;
+	global $context, $txt, $sourcedir, $packagesdir, $smcFunc, $modSettings;
 
 	// Can't be in here buddy.
 	isAllowedTo('admin_forum');

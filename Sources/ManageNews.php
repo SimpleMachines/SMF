@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
@@ -434,7 +434,7 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview ()
 {
-	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	global $context, $modSettings, $scripturl, $user_info, $txt;
 	loadLanguage('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
@@ -495,7 +495,7 @@ function prepareMailingForPreview ()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc, $scripturl;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Setup the template!
 	$context['page_title'] = $txt['admin_newsletters'];

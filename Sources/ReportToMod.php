@@ -164,7 +164,7 @@ function ReportToModerator()
  */
 function ReportToModerator2()
 {
-	global $txt, $topic, $user_info, $modSettings, $sourcedir, $context, $smcFunc;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Sorry, no guests allowed... Probably just trying to spam us anyway
 	is_not_guest();

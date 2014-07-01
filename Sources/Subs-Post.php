@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function preparsecode(&$message, $previewing = false)
 {
-	global $user_info, $modSettings, $smcFunc, $context;
+	global $user_info, $modSettings, $context;
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
@@ -539,7 +539,6 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
 	global $webmaster_email, $context, $modSettings, $txt, $scripturl;
-	global $smcFunc;
 
 	// Use sendmail if it's set or if no SMTP server is set.
 	$use_sendmail = empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '';
@@ -717,7 +716,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
  */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
-	global $context, $modSettings, $smcFunc;
+	global $context, $smcFunc;
 
 	static $cur_insert = array();
 	static $cur_insert_len = 0;
@@ -1560,8 +1559,7 @@ function SpellCheck()
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
 {
-	global $txt, $scripturl, $language, $user_info;
-	global $modSettings, $sourcedir, $context, $smcFunc;
+	global $user_info, $smcFunc;
 
 	// Can't do it if there's no topics.
 	if (empty($topics))
@@ -1638,7 +1636,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $txt, $modSettings, $smcFunc, $context, $sourcedir;
+	global $user_info, $txt, $modSettings, $smcFunc, $sourcedir;
 
 	require_once($sourcedir . '/Mentions.php');
 
@@ -2010,7 +2008,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
-	global $user_info, $modSettings, $smcFunc, $context, $sourcedir;
+	global $user_info, $modSettings, $smcFunc, $sourcedir;
 
 	$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
 	$topicOptions['lock_mode'] = isset($topicOptions['lock_mode']) ? $topicOptions['lock_mode'] : null;
@@ -2193,7 +2191,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
  */
 function approvePosts($msgs, $approve = true, $notify = true)
 {
-	global $sourcedir, $smcFunc;
+	global $smcFunc;
 
 	if (!is_array($msgs))
 		$msgs = array($msgs);
@@ -2486,7 +2484,7 @@ function approveTopics($topics, $approve = true)
  */
 function updateLastMessages($setboards, $id_msg = 0)
 {
-	global $board_info, $board, $modSettings, $smcFunc;
+	global $board_info, $board, $smcFunc;
 
 	// Please - let's be sane.
 	if (empty($setboards))
@@ -2624,7 +2622,7 @@ function updateLastMessages($setboards, $id_msg = 0)
  */
 function adminNotify($type, $memberID, $member_name = null)
 {
-	global $txt, $modSettings, $language, $scripturl, $context, $smcFunc;
+	global $smcFunc;
 
 	if ($member_name == null)
 	{

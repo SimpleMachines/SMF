@@ -15,7 +15,7 @@
  */
 function template_registration_agreement()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<form action="', $scripturl, '?action=signup" method="post" accept-charset="', $context['character_set'], '" id="registration">
@@ -48,7 +48,7 @@ function template_registration_agreement()
 // Before registering - get their information.
 function template_registration_form()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 		<script><!-- // --><![CDATA[
@@ -356,7 +356,7 @@ function template_registration_form()
 // After registration... all done ;).
 function template_after()
 {
-	global $context, $txt, $scripturl;
+	global $context;
 
 	// Not much to see here, just a quick... "you're now registered!" or what have you.
 	echo '
@@ -420,7 +420,7 @@ function template_coppa()
 // An easily printable form for giving permission to access the forum for a minor.
 function template_coppa_form()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Show the form (As best we can)
 	echo '
@@ -451,7 +451,7 @@ function template_coppa_form()
 // Show a window containing the spoken verification code.
 function template_verification_sound()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
@@ -492,7 +492,7 @@ function template_verification_sound()
 
 function template_admin_register()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">

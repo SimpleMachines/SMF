@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function ManageSmileys()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('manage_smileys');
 
@@ -187,7 +187,7 @@ function EditSmileySettings($return_config = false)
  */
 function EditSmileySets()
 {
-	global $modSettings, $context, $txt, $boarddir;
+	global $modSettings, $context, $txt;
 	global $smcFunc, $scripturl, $sourcedir;
 
 	// Set the right tab to be selected.
@@ -1241,7 +1241,7 @@ function list_getNumSmileys()
  */
 function EditSmileyOrder()
 {
-	global $context, $txt, $boarddir, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	// Move smileys to another position.
 	if (isset($_REQUEST['reorder']))
@@ -1701,7 +1701,7 @@ function ImportSmileys($smileyPath)
 function EditMessageIcons()
 {
 	global $context, $settings, $txt;
-	global $boarddir, $smcFunc, $scripturl, $sourcedir;
+	global $smcFunc, $scripturl, $sourcedir;
 
 	// Get a list of icons.
 	$context['icons'] = array();

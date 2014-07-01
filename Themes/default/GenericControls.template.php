@@ -135,7 +135,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 function template_control_richedit_buttons($editor_id)
 {
-	global $context, $settings, $options, $txt, $modSettings, $scripturl;
+	global $context, $settings, $txt, $modSettings;
 
 	$editor_context = &$context['controls']['richedit'][$editor_id];
 
@@ -224,7 +224,7 @@ function template_control_richedit_buttons($editor_id)
 // What's this, verification?!
 function template_control_verification($verify_id, $display_type = 'all', $reset = false)
 {
-	global $context, $txt, $modSettings;
+	global $context, $txt;
 
 	$verify_context = &$context['controls']['verification'][$verify_id];
 

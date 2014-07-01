@@ -288,7 +288,7 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
@@ -505,7 +505,7 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $context, $txt, $settings, $modSettings, $smcFunc;
+	global $txt, $settings, $modSettings, $smcFunc;
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
@@ -628,7 +628,7 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	if (isset($_REQUEST['groups']))
 	{
@@ -748,7 +748,7 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $sourcedir, $context, $txt, $smcFunc;
+	global $sourcedir, $txt, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Members.php');
 

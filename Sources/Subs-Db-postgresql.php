@@ -528,10 +528,9 @@ function smf_db_transaction($type = 'commit', $connection = null)
  */
 function smf_db_error($db_string, $connection = null)
 {
-	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $db_connection, $db_last_error, $db_persist;
-	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
-	global $smcFunc;
+	global $txt, $context, $modSettings;
+	global $db_connection;
+	global $db_show_debug;
 
 	// We'll try recovering the file and line number the original db query was called from.
 	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);

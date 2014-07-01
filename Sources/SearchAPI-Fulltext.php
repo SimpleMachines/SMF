@@ -42,7 +42,7 @@ class fulltext_search extends search_api
 	 */
 	public function __construct()
 	{
-		global $smcFunc, $modSettings, $db_type;
+		global $modSettings, $db_type;
 
 		// Is this database supported?
 		if (!in_array($db_type, $this->supported_databases))

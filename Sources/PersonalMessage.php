@@ -231,7 +231,7 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $user_info;
+	global $txt, $context, $scripturl, $sourcedir, $modSettings, $user_info;
 
 	$pm_areas = array(
 		'folders' => array(
@@ -465,7 +465,7 @@ function MessagePopup()
 function MessageFolder()
 {
 	global $txt, $scripturl, $modSettings, $context, $subjects_request;
-	global $messages_request, $user_info, $recipients, $options, $smcFunc, $memberContext, $user_settings;
+	global $messages_request, $user_info, $recipients, $options, $smcFunc, $user_settings;
 
 	// Changing view?
 	if (isset($_GET['view']))
@@ -1015,7 +1015,7 @@ function MessageFolder()
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
-	global $txt, $scripturl, $modSettings, $settings, $context, $messages_request, $memberContext, $recipients, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $messages_request, $memberContext, $recipients, $smcFunc;
 	global $user_info, $subjects_request;
 
 	// Count the current message number....
@@ -1146,7 +1146,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
  */
 function MessageSearch()
 {
-	global $context, $txt, $scripturl, $modSettings, $smcFunc;
+	global $context, $txt, $scripturl, $smcFunc;
 
 	if (isset($_REQUEST['params']))
 	{
@@ -2236,7 +2236,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 function MessagePost2()
 {
 	global $txt, $context, $sourcedir;
-	global $user_info, $modSettings, $scripturl, $smcFunc;
+	global $user_info, $modSettings, $smcFunc;
 
 	isAllowedTo('pm_send');
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -2567,7 +2567,7 @@ function WirelessAddBuddy()
  */
 function MessageActionsApply()
 {
-	global $txt, $context, $user_info, $options, $smcFunc;
+	global $context, $user_info, $options, $smcFunc;
 
 	checkSession('request');
 
@@ -3493,7 +3493,7 @@ function ManageLabels()
  */
 function MessageSettings()
 {
-	global $txt, $user_settings, $user_info, $context, $sourcedir, $smcFunc;
+	global $txt, $user_info, $context, $sourcedir;
 	global $scripturl, $profile_vars, $cur_profile, $user_profile;
 
 	// Need this for the display.
@@ -3564,7 +3564,7 @@ function MessageSettings()
  */
 function ReportMessage()
 {
-	global $txt, $context, $scripturl, $sourcedir;
+	global $txt, $context, $scripturl;
 	global $user_info, $language, $modSettings, $smcFunc;
 
 	// Check that this feature is even enabled!

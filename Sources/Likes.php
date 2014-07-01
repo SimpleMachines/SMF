@@ -113,7 +113,7 @@ class Likes
 	 */
 	public function call()
 	{
-		global $context, $smcFunc;
+		global $context;
 
 		$this->_user = $context['user'];
 
@@ -157,7 +157,7 @@ class Likes
 	 */
 	protected function check()
 	{
-		global $smcFunc, $context, $modSettings;
+		global $smcFunc, $modSettings;
 
 		// This feature is currently disable.
 		if (empty($modSettings['enable_likes']))
@@ -350,7 +350,7 @@ class Likes
 	 */
 	protected function like()
 	{
-		global $context, $smcFunc;
+		global $smcFunc;
 
 		// Safety first!
 		if (empty($this->_type) || empty($this->_content))

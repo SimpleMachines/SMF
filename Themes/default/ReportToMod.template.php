@@ -27,7 +27,7 @@
 
 function template_main()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Want to see your master piece?
 	echo '

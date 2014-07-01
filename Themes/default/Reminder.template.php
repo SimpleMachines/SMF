@@ -84,7 +84,7 @@ function template_sent()
 
 function template_set_password()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 	<br>

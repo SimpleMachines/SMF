@@ -18,7 +18,7 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $language, $modSettings, $user_profile;
+ 		global $sourcedir, $smcFunc, $user_profile;
 
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		require_once($sourcedir . '/Subs-Members.php');

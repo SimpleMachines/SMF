@@ -162,7 +162,7 @@ function template_kick_guest()
 // This is for maintenance mode.
 function template_maintenance()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	// Display the administrator's message at the top.
 	echo '

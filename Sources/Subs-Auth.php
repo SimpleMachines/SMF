@@ -199,7 +199,7 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $context, $scripturl, $txt, $user_info, $user_settings;
+	global $context, $txt, $user_settings;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
@@ -536,7 +536,7 @@ function RequestMembers()
  */
 function resetPassword($memID, $username = null)
 {
-	global $scripturl, $context, $txt, $sourcedir, $modSettings, $smcFunc, $language;
+	global $sourcedir, $modSettings, $smcFunc, $language;
 
 	// Language... and a required file.
 	loadLanguage('Login');

@@ -26,7 +26,7 @@ if (!defined('SMF'))
 
 function ModifyPermissions()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	loadLanguage('ManagePermissions+ManageMembers');
 	loadTemplate('ManagePermissions');
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);

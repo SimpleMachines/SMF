@@ -664,7 +664,7 @@ function SearchMembers()
  */
 function MembersAwaitingActivation()
 {
-	global $txt, $context, $scripturl, $modSettings, $smcFunc;
+	global $txt, $context, $scripturl, $modSettings;
 	global $sourcedir;
 
 	// Not a lot here!
@@ -1009,7 +1009,7 @@ function MembersAwaitingActivation()
  */
 function AdminApprove()
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
+	global $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
 
 	// First, check our session.
 	checkSession();

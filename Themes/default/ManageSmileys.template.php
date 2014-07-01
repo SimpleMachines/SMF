@@ -428,7 +428,7 @@ function template_editicons()
 // Editing an individual message icon
 function template_editicon()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">

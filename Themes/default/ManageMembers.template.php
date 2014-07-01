@@ -215,7 +215,7 @@ function template_search_members()
 
 function template_admin_browse()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context, $scripturl, $txt;
 
 	echo '
 	<div id="admincenter">';
