@@ -158,7 +158,6 @@ function template_show_list($list_id = null)
 			<input type="hidden" name="', $name, '" value="', $value, '">';
 
 		echo '
-		</div>
 	</form>';
 	}
 
