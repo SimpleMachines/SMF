@@ -2753,6 +2753,7 @@ dl.addrules dt.floatleft {
 	border-radius: 7px 7px 3px 3px;
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
+	background: #FFFFFF;
 	background-image: -webkit-gradient(
 		linear,
 		left top,
