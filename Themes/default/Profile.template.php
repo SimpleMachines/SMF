@@ -2866,7 +2866,7 @@ function template_profile_avatar_select()
 
 			echo '
 									<div class="smalltext">', $txt['gravatar_alternateEmail'], '</div>
-									<input type="text" name="gravatarEmail" size="45" value="', $textbox_value, '" class="input_text" />';
+									<input type="text" name="gravatarEmail" id="gravatarEmail" size="45" value="', $textbox_value, '" class="input_text" />';
 		}
 		echo '
 								</div>';
@@ -2912,6 +2912,8 @@ function template_profile_avatar_select()
 												', !empty($context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "none";' : '', '
 												', !empty($context['member']['avatar']['allow_gravatar']) ? 'document.getElementById("avatar_gravatar").style.display = "";' : '', '
+												', ($context['member']['avatar']['external'] == $context['member']['email'] || strstr($context['member']['avatar']['external'], 'http://')) ?
+												'document.getElementById("gravatarEmail").value = "";' : '', '
 												break;
 										}
 									}
