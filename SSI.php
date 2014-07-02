@@ -1180,7 +1180,6 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 	foreach ($options as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
-		$barWide = $bar == 0 ? 1 : floor(($bar * 5) / 3);
 		$return['options'][$i] = array(
 			'id' => 'options-' . ($topPollInstead ? 'top-' : 'recent-') . $i,
 			'percent' => $bar,
@@ -1331,7 +1330,6 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 	foreach ($options as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
-		$barWide = $bar == 0 ? 1 : floor(($bar * 5) / 3);
 		$return['options'][$i] = array(
 			'id' => 'options-' . $i,
 			'percent' => $bar,

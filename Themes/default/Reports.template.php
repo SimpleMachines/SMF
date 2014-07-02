@@ -96,7 +96,7 @@ function template_main()
 			// Now do each column.
 			$column_number = 0;
 
-			foreach ($row as $key => $data)
+			foreach ($row as $data)
 			{
 				// If this is a special separator, skip over!
 				if (!empty($data['separator']) && $column_number == 0)
@@ -187,7 +187,7 @@ function template_print()
 
 			// Now do each column!!
 			$column_number = 0;
-			foreach ($row as $key => $data)
+			foreach ($row as $data)
 			{
 				// If this is a special separator, skip over!
 				if (!empty($data['separator']) && $column_number == 0)

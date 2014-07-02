@@ -1147,7 +1147,7 @@ function RestoreTopic()
 	if (!empty($_REQUEST['topics']))
 	{
 		$topics = explode(',', $_REQUEST['topics']);
-		foreach ($topics as $key => $id)
+		foreach ($topics as $id)
 			$topics_to_restore[] = (int) $id;
 	}
 

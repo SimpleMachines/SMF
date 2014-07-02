@@ -301,7 +301,7 @@ function smf_db_insert_sql($tableName, $new_table = false)
 		// Get the fields in this row...
 		$field_list = array();
 
-		foreach ($row as $key => $item)
+		foreach ($row as $item)
 		{
 			// Try to figure out the type of each field. (NULL, number, or 'string'.)
 			if (!isset($item))

@@ -1140,7 +1140,7 @@ function RepairAttachments()
 
 			$_SESSION['attachments_to_fix'] = array();
 			// @todo No need to do this I think.
-			foreach ($_POST['to_fix'] as $key => $value)
+			foreach ($_POST['to_fix'] as $value)
 				$_SESSION['attachments_to_fix'][] = $value;
 		}
 	}
