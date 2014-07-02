@@ -235,26 +235,6 @@ function checkImageContents($fileName, $extensiveCheck = false)
 }
 
 /**
- * Sets a global $gd2 variable needed by some functions to determine
- * whether the GD2 library is present.
- *
- * @return whether or not GD1 is available.
- */
-function checkGD()
-{
-	global $gd2;
-
-	// Check to see if GD is installed and what version.
-	if (($extensionFunctions = get_extension_funcs('gd')) === false)
-		return false;
-
-	// Also determine if GD2 is installed and store it in a global.
-	$gd2 = in_array('imagecreatetruecolor', $extensionFunctions) && function_exists('imagecreatetruecolor');
-
-	return true;
-}
-
-/**
  * Checks whether the Imagick class is present.
  *
  * @return whether or not Imagick is available.
@@ -269,10 +249,10 @@ function checkImagick()
  *
  * @return whether or not MagickWand is available.
  */
- function checkMagickWand()
- {
- 	return function_exists('newMagickWand');
- }
+function checkMagickWand()
+{
+	return function_exists('newMagickWand');
+}
 
 /**
  * See if we have enough memory to thumbnail an image
@@ -316,10 +296,6 @@ function imageMemoryCheck($sizes)
 function resizeImageFile($source, $destination, $max_width, $max_height, $preferred_format = 0)
 {
 	global $sourcedir;
-
-	// Nothing to do without GD or IM/MW
-	if (!checkGD() && !checkImagick() && !checkMagickWand())
-		return false;
 
 	static $default_formats = array(
 		'1' => 'gif',
@@ -403,7 +379,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  */
 function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0)
 {
-	global $gd2, $modSettings;
+	global $modSettings;
 
 	if (checkImagick() || checkMagickWand())
 	{
@@ -450,7 +426,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 		return !empty($success);
 	}
-	elseif (checkGD())
+	else
 	{
 		$success = false;
 
@@ -488,10 +464,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 					$dst_img = imagecreate($dst_width, $dst_height);
 
 				// Resize it!
-				if ($gd2)
-					imagecopyresampled($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
-				else
-					imagecopyresamplebicubic($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
+				imagecopyresampled($dst_img, $src_img, 0, 0, 0, 0, $dst_width, $dst_height, $src_width, $src_height);
 			}
 			else
 				$dst_img = $src_img;
@@ -514,71 +487,6 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 
 		return $success;
 	}
-	else
-		// Without GD, no image resizing at all.
-		return false;
-}
-
-/**
- * Copy image.
- * Used when imagecopyresample() is not available.
-
- * @param resource $dst_img
- * @param resource $src_img
- * @param int $dst_x
- * @param int $dst_y
- * @param int $src_x
- * @param int $src_y
- * @param int $dst_w
- * @param int $dst_h
- * @param int $src_w
- * @param int $src_h
- */
-function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
-{
-	$palsize = imagecolorstotal($src_img);
-	for ($i = 0; $i < $palsize; $i++)
-	{
-		$colors = imagecolorsforindex($src_img, $i);
-		imagecolorallocate($dst_img, $colors['red'], $colors['green'], $colors['blue']);
-	}
-
-	$scaleX = ($src_w - 1) / $dst_w;
-	$scaleY = ($src_h - 1) / $dst_h;
-
-	$scaleX2 = (int) $scaleX / 2;
-	$scaleY2 = (int) $scaleY / 2;
-
-	for ($j = $src_y; $j < $dst_h; $j++)
-	{
-		$sY = (int) $j * $scaleY;
-		$y13 = $sY + $scaleY2;
-
-		for ($i = $src_x; $i < $dst_w; $i++)
-		{
-			$sX = (int) $i * $scaleX;
-			$x34 = $sX + $scaleX2;
-
-			$color1 = imagecolorsforindex($src_img, imagecolorat($src_img, $sX, $y13));
-			$color2 = imagecolorsforindex($src_img, imagecolorat($src_img, $sX, $sY));
-			$color3 = imagecolorsforindex($src_img, imagecolorat($src_img, $x34, $y13));
-			$color4 = imagecolorsforindex($src_img, imagecolorat($src_img, $x34, $sY));
-
-			$red = ($color1['red'] + $color2['red'] + $color3['red'] + $color4['red']) / 4;
-			$green = ($color1['green'] + $color2['green'] + $color3['green'] + $color4['green']) / 4;
-			$blue = ($color1['blue'] + $color2['blue'] + $color3['blue'] + $color4['blue']) / 4;
-
-			$color = imagecolorresolve($dst_img, $red, $green, $blue);
-			if ($color == -1)
-			{
-				if ($palsize++ < 256)
-					imagecolorallocate($dst_img, $red, $green, $blue);
-				$color = imagecolorclosest($dst_img, $red, $green, $blue);
-			}
-
-			imagesetpixel($dst_img, $i + $dst_x - $src_x, $j + $dst_y - $src_y, $color);
-		}
-	}
 }
 
 if (!function_exists('imagecreatefrombmp'))
@@ -593,8 +501,6 @@ if (!function_exists('imagecreatefrombmp'))
 	 */
 	function imagecreatefrombmp($filename)
 	{
-		global $gd2;
-
 		$fp = fopen($filename, 'rb');
 
 		$errors = error_reporting(0);
@@ -605,10 +511,7 @@ if (!function_exists('imagecreatefrombmp'))
 		if ($header['type'] != 0x4D42)
 			return false;
 
-		if ($gd2)
-			$dst_img = imagecreatetruecolor($info['width'], $info['height']);
-		else
-			$dst_img = imagecreate($info['width'], $info['height']);
+		$dst_img = imagecreatetruecolor($info['width'], $info['height']);
 
 		$palette_size = $header['offset'] - 54;
 		$info['ncolor'] = $palette_size / 4;
@@ -857,13 +760,7 @@ function showCodeImage($code)
 	$ttfont_list = array();
 	$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
 	while ($entry = $font_dir->read())
-	{
-		if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1)
-		{
-			if ($endian ^ (strpos($entry, '_end.gdf') === false))
-				$font_list[] = $entry;
-		}
-		elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
+	{if (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
 			$ttfont_list[] = $entry;
 	}
 
@@ -874,7 +771,7 @@ function showCodeImage($code)
 	if (!$varyFonts)
 	{
 		$font_list = array($font_list[0]);
-		// Try use Screenge if we can - it looks good!
+		// Try use AnonymousPro if we can - it looks good!
 		if (in_array('AnonymousPro.ttf', $ttfont_list))
 			$ttfont_list = array('AnonymousPro.ttf');
 		else
@@ -912,7 +809,7 @@ function showCodeImage($code)
 	}
 
 	// Create an image.
-	$code_image = $gd2 ? imagecreatetruecolor($total_width, $max_height) : imagecreate($total_width, $max_height);
+	$code_image = imagecreatetruecolor($total_width, $max_height);
 
 	// Draw the background.
 	$bg_color = imagecolorallocate($code_image, $background_color[0], $background_color[1], $background_color[2]);
@@ -947,9 +844,6 @@ function showCodeImage($code)
 		$cur_x = 0;
 		foreach ($characters as $char_index => $character)
 		{
-			// Can we use true type fonts?
-			$can_do_ttf = function_exists('imagettftext');
-
 			// How much rotation will we give?
 			if ($rotationType == 'none')
 				$angle = 0;
@@ -981,60 +875,34 @@ function showCodeImage($code)
 			else
 				$char_fg_color = array($foreground_color[0], $foreground_color[1], $foreground_color[2]);
 
-			if (!empty($can_do_ttf))
+			if ($fontSizeRandom)
+				$font_size = mt_rand(17, 19);
+			else
+				$font_size = 18;
+
+			// Work out the sizes - also fix the character width cause TTF not quite so wide!
+			$font_x = $fontHorSpace == 'minus' && $cur_x > 0 ? $cur_x - 3 : $cur_x + 5;
+			$font_y = $max_height - ($fontVerPos == 'vrandom' ? mt_rand(2, 8) : ($fontVerPos == 'random' ? mt_rand(3, 5) : 5));
+
+			// What font face?
+			if (!empty($ttfont_list))
+				$fontface = $settings['default_theme_dir'] . '/fonts/' . $ttfont_list[mt_rand(0, count($ttfont_list) - 1)];
+
+			// What color are we to do it in?
+			$is_reverse = $showReverseChars ? mt_rand(0, 1) : false;
+			$char_color = function_exists('imagecolorallocatealpha') && $fontTrans ? imagecolorallocatealpha($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2], 50) : imagecolorallocate($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]);
+
+			$fontcord = @imagettftext($code_image, $font_size, $angle, $font_x, $font_y, $char_color, $fontface, $character['id']);
+			if (empty($fontcord))
+				$can_do_ttf = false;
+			elseif ($is_reverse)
 			{
-				// GD2 handles font size differently.
-				if ($fontSizeRandom)
-					$font_size = $gd2 ? mt_rand(17, 19) : mt_rand(18, 25);
-				else
-					$font_size = $gd2 ? 18 : 24;
-
-				// Work out the sizes - also fix the character width cause TTF not quite so wide!
-				$font_x = $fontHorSpace == 'minus' && $cur_x > 0 ? $cur_x - 3 : $cur_x + 5;
-				$font_y = $max_height - ($fontVerPos == 'vrandom' ? mt_rand(2, 8) : ($fontVerPos == 'random' ? mt_rand(3, 5) : 5));
-
-				// What font face?
-				if (!empty($ttfont_list))
-					$fontface = $settings['default_theme_dir'] . '/fonts/' . $ttfont_list[mt_rand(0, count($ttfont_list) - 1)];
-
-				// What color are we to do it in?
-				$is_reverse = $showReverseChars ? mt_rand(0, 1) : false;
-				$char_color = function_exists('imagecolorallocatealpha') && $fontTrans ? imagecolorallocatealpha($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2], 50) : imagecolorallocate($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]);
-
-				$fontcord = @imagettftext($code_image, $font_size, $angle, $font_x, $font_y, $char_color, $fontface, $character['id']);
-				if (empty($fontcord))
-					$can_do_ttf = false;
-				elseif ($is_reverse)
-				{
-					imagefilledpolygon($code_image, $fontcord, 4, $fg_color);
-					// Put the character back!
-					imagettftext($code_image, $font_size, $angle, $font_x, $font_y, $randomness_color, $fontface, $character['id']);
-				}
-
-				if ($can_do_ttf)
-					$cur_x = max($fontcord[2], $fontcord[4]) + ($angle == 0 ? 0 : 3);
+				imagefilledpolygon($code_image, $fontcord, 4, $fg_color);
+				// Put the character back!
+				imagettftext($code_image, $font_size, $angle, $font_x, $font_y, $randomness_color, $fontface, $character['id']);
 			}
 
-			if (!$can_do_ttf)
-			{
-				// Rotating the characters a little...
-				if (function_exists('imagerotate'))
-				{
-					$char_image = $gd2 ? imagecreatetruecolor($character['width'], $character['height']) : imagecreate($character['width'], $character['height']);
-					$char_bgcolor = imagecolorallocate($char_image, $background_color[0], $background_color[1], $background_color[2]);
-					imagefilledrectangle($char_image, 0, 0, $character['width'] - 1, $character['height'] - 1, $char_bgcolor);
-					imagechar($char_image, $loaded_fonts[$character['font']], 0, 0, $character['id'], imagecolorallocate($char_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]));
-					$rotated_char = imagerotate($char_image, mt_rand(-100, 100) / 10, $char_bgcolor);
-					imagecopy($code_image, $rotated_char, $cur_x, 0, 0, 0, $character['width'], $character['height']);
-					imagedestroy($rotated_char);
-					imagedestroy($char_image);
-				}
-
-				// Sorry, no rotation available.
-				else
-					imagechar($code_image, $loaded_fonts[$character['font']], $cur_x, floor(($max_height - $character['height']) / 2), $character['id'], imagecolorallocate($code_image, $char_fg_color[0], $char_fg_color[1], $char_fg_color[2]));
-				$cur_x += $character['width'] + $character_spacing;
-			}
+			$cur_x = max($fontcord[2], $fontcord[4]) + ($angle == 0 ? 0 : 3);
 		}
 	}
 	// If disabled just show a cross.
@@ -1108,45 +976,6 @@ function showCodeImage($code)
 
 	// Bail out.
 	imagedestroy($code_image);
-	die();
-}
-
-/**
- * Show a letter for the visual verification code.
- * Alternative function for showCodeImage() in case GD is missing.
- * Includes an image from a random sub directory of default_theme_dir/fonts.
- *
- * @param string $letter
- */
-function showLetterImage($letter)
-{
-	global $settings;
-
-	if (!is_dir($settings['default_theme_dir'] . '/fonts'))
-		return false;
-
-	// Get a list of the available font directories.
-	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
-	$font_list = array();
-	while ($entry = $font_dir->read())
-		if ($entry[0] !== '.' && is_dir($settings['default_theme_dir'] . '/fonts/' . $entry) && file_exists($settings['default_theme_dir'] . '/fonts/' . $entry . '.gdf'))
-			$font_list[] = $entry;
-
-	if (empty($font_list))
-		return false;
-
-	// Pick a random font.
-	$random_font = $font_list[array_rand($font_list)];
-
-	// Check if the given letter exists.
-	if (!file_exists($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png'))
-		return false;
-
-	// Include it!
-	header('Content-type: image/png');
-	include($settings['default_theme_dir'] . '/fonts/' . $random_font . '/' . $letter . '.png');
-
-	// Nothing more to come.
 	die();
 }
 

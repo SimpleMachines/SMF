@@ -549,7 +549,6 @@ function ModifyAntispamSettings($return_config = false)
 	loadLanguage('ManageSettings');
 
 	// Generate a sample registration image.
-	$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 	$context['verification_image_href'] = $scripturl . '?action=verificationcode;rand=' . md5(mt_rand());
 
 	$config_vars = array(
@@ -566,7 +565,7 @@ function ModifyAntispamSettings($return_config = false)
 			// Visual verification.
 			array('title', 'configure_verification_means'),
 			array('desc', 'configure_verification_means_desc'),
-				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext'=> $txt['setting_visual_verification_type_desc'], 'onchange' => $context['use_graphic_library'] ? 'refreshImages();' : ''),
+				'vv' => array('select', 'visual_verification_type', array($txt['setting_image_verification_off'], $txt['setting_image_verification_vsimple'], $txt['setting_image_verification_simple'], $txt['setting_image_verification_medium'], $txt['setting_image_verification_high'], $txt['setting_image_verification_extreme']), 'subtext'=> $txt['setting_visual_verification_type_desc'], 'onchange' => 'refreshImages();',
 			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
 			array('title', 'setup_verification_questions'),
 			array('desc', 'setup_verification_questions_desc'),
@@ -797,20 +796,15 @@ function ModifyAntispamSettings($return_config = false)
 		$_SESSION['visual_verification_code'] .= $character_range[array_rand($character_range)];
 
 	// Some javascript for CAPTCHA.
-	$context['settings_post_javascript'] = '';
-	if ($context['use_graphic_library'])
-		$context['settings_post_javascript'] .= '
+	$context['settings_post_javascript'] = '
 		function refreshImages()
 		{
 			var imageType = document.getElementById(\'visual_verification_type\').value;
 			document.getElementById(\'verification_image\').src = \'' . $context['verification_image_href'] . ';type=\' + imageType;
 		}';
 
-	// Show the image itself, or text saying we can't.
-	if ($context['use_graphic_library'])
-		$config_vars['vv']['postinput'] = '<br><img src="' . $context['verification_image_href'] . ';type=' . (empty($modSettings['visual_verification_type']) ? 0 : $modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
-	else
-		$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . $txt['setting_image_verification_nogd'] . '</span>';
+	// Show the image itself.
+	$config_vars['vv']['postinput'] = '<br><img src="' . $context['verification_image_href'] . ';type=' . (empty($modSettings['visual_verification_type']) ? 0 : $modSettings['visual_verification_type']) . '" alt="' . $txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
 
 	// Hack for PM spam settings.
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);

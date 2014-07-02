@@ -396,18 +396,18 @@ function installExit($fallThrough = false)
 
 			call_user_func('template_' . $incontext['sub_template']);
 		}
-		// @todo REMOVE THIS!!
-		else
-		{
-			if (function_exists('doStep' . $_GET['step']))
-				call_user_func('doStep' . $_GET['step']);
-		}
 		// Show the footer.
 		template_install_below();
 	}
 
 	// Bang - gone!
 	die();
+}
+
+// This checks whether GD2 is available.
+function checkGD2()
+{
+	return function_exists('imagecreatetruecolor');
 }
 
 function Welcome()
@@ -476,6 +476,9 @@ function Welcome()
 	// @todo Move this down later if they don't use database-driven sessions?
 	elseif (@ini_get('session.save_path') == '/tmp' && substr(__FILE__, 1, 2) == ':\\')
 		$error = 'error_session_save_path';
+	// GD2?
+	elseif (!checkGD2())
+		$error = 'error_no_gd_library';
 
 	// Since each of the three messages would look the same, anyway...
 	if (isset($error))
