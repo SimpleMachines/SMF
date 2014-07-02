@@ -644,9 +644,7 @@ function setupProfileContext($fields)
 
 				// Everything has a value!
 				if (!isset($cur_field['value']))
-				{
 					$cur_field['value'] = isset($cur_profile[$field]) ? $cur_profile[$field] : '';
-				}
 
 				// Any input attributes?
 				$cur_field['input_attr'] = !empty($cur_field['input_attr']) ? implode(',', $cur_field['input_attr']) : '';
@@ -2851,7 +2849,7 @@ function profileLoadAvatarData()
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
-	elseif (stristr($cur_profile['avatar'], 'gravatar://')  && $context['member']['avatar']['allow_gravatar'])
+	elseif (stristr($cur_profile['avatar'], 'gravatar://') && $context['member']['avatar']['allow_gravatar'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'gravatar',
@@ -2878,7 +2876,7 @@ function profileLoadAvatarData()
 
 	// Second level selected avatar...
 	$context['avatar_selected'] = substr(strrchr($context['member']['avatar']['server_pic'], '/'), 1);
-	return !empty($context['member']['avatar']['allow_server_stored']) || !empty($context['member']['avatar']['allow_external']) || !empty($context['member']['avatar']['allow_upload']);
+	return !empty($context['member']['avatar']['allow_server_stored']) || !empty($context['member']['avatar']['allow_external']) || !empty($context['member']['avatar']['allow_upload']) || !empty($context['member']['avatar']['allow_gravatar']);
 }
 
 /**

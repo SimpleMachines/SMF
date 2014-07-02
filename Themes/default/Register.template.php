@@ -76,7 +76,7 @@ function template_registration_form()
 
 		// Cycle through each error and display an error message.
 		foreach ($context['registration_errors'] as $error)
-				echo '
+			echo '
 				<li>', $error, '</li>';
 
 		echo '
@@ -476,10 +476,11 @@ function template_verification_sound()
 			</object>';
 	else
 		echo '
-			<object type="audio/x-wav" data="', $context['verification_sound_href'], '">
-				<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
-			</object>';
-
+			<audio src="', $context['verification_sound_href'], '" controls>
+				<object type="audio/x-wav" data="', $context['verification_sound_href'], '">
+					<a href="', $context['verification_sound_href'], '" rel="nofollow">', $context['verification_sound_href'], '</a>
+				</object>
+			</audio>';
 	echo '
 		<br>
 		<a href="', $context['verification_sound_href'], ';sound" rel="nofollow">', $txt['visual_verification_sound_again'], '</a><br>
