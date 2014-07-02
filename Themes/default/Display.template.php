@@ -225,7 +225,8 @@ function template_main()
 					</h3>
 				</div>
 				<div id="quickReplyOptions">
-					<div class="roundframe">
+					<div class="roundframe">', empty($options['use_editor_quick_reply']) ? '
+						<p class="smalltext lefttext">' . $txt['quick_reply_desc'] . '</p>' : '', '
 						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
 						!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
 						', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
