@@ -88,7 +88,7 @@ function Login()
 function Login2()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $modSettings, $context, $sc, $sourcedir, $maintenance;
+	global $cookiename, $modSettings, $context, $sourcedir, $maintenance;
 
 	// Check to ensure we're forcing SSL for authentication
 	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))

@@ -920,7 +920,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Send each email, yea!
 	$failed_emails = array();
-	foreach ($emails as $key => $email)
+	foreach ($emails as $email)
 	{
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{

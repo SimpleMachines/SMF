@@ -371,7 +371,7 @@ class browser_detector
 
 			$context['browser_body_id'] = 'smf';
 			$active = array_reverse(array_keys($this->_browsers, true));
-			foreach ($active as $key => $browser)
+			foreach ($active as $browser)
 			{
 				if (array_key_exists($browser, $browser_priority))
 				{
