@@ -161,10 +161,6 @@ function template_show_list($list_id = null)
 	</form>';
 	}
 
-	else
-		echo '
-		</div>';
-
 	// Tabs at the bottom.  Usually bottom alligned.
 	if (isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'bottom'))
 		template_create_list_menu($cur_list['list_menu'], 'bottom');
