@@ -2867,14 +2867,14 @@ function spell_suggest($dict, $word)
 		if (!$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 before getting suggestions
-			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
+			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
 			$suggestions = enchant_dict_suggest($dict, $word);
 
 			// Go through the suggestions and convert them back to the proper character set
 			foreach($suggestions as $index => $suggestion)
 			{
 				// //TRANSLIT makes it use similar-looking characters for incompatible ones...
-				$suggestions[$index] = iconv('UTF-8', $txt['lang_charset'] . '//TRANSLIT', $suggestion);
+				$suggestions[$index] = iconv('UTF-8', $txt['lang_character_set'] . '//TRANSLIT', $suggestion);
 			}
 
 			return $suggestions;
