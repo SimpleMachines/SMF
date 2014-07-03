@@ -373,18 +373,26 @@ function smf_main()
 			return 'WrapAction';
 		}
 
-		$fallbackActions = call_integration_hook('integrate_fallback_action');
-		foreach ($fallbackActions as $fallbackAction)
+		if (!empty($modSettings['integrate_fallback_action']))
 		{
+			$fallbackAction = explode(',', $modSettings['integrate_fallback_action']);
+
+			// Sorry, only one fallback action is needed.
+			$fallbackAction = $fallbackAction[0];
+
 			$call = call_helper($fallbackAction, true);
 
 			if (!empty($call))
 				return $call;
 		}
 
-		// Fall through to the board index then...
-		require_once($sourcedir . '/BoardIndex.php');
-		return 'BoardIndex';
+		// No fallback action huh? then go to our good old BoardIndex.
+		else
+		{
+			require_once($sourcedir . '/BoardIndex.php');
+
+			return 'BoardIndex';
+		}
 	}
 
 	// Otherwise, it was set - so let's go to that action.
