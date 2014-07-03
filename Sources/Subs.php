@@ -4065,6 +4065,9 @@ function call_integration_hook($hook, $parameters = array())
 	if (empty($modSettings[$hook]))
 		return $results;
 
+	// Define some needed vars.
+	$function = false;
+
 	$functions = explode(',', $modSettings[$hook]);
 	// Loop through each function.
 	foreach ($functions as $function)
@@ -4075,7 +4078,7 @@ function call_integration_hook($hook, $parameters = array())
 		// Did we find a file to load?
 		if (strpos($function, '|') !== false)
 		{
-			list ($file, $func) = explode('|', $function);
+			list ($file, $function) = explode('|', $function);
 
 			// Match the wildcards to their regular vars.
 			if (empty($settings['theme_dir']))
@@ -4104,7 +4107,7 @@ function call_integration_hook($hook, $parameters = array())
 				}
 			}
 
-			$call = call_helper($func, true);
+			$call = call_helper($function, true);
 		}
 
 		// Figuring out what to do.
@@ -4116,11 +4119,6 @@ function call_integration_hook($hook, $parameters = array())
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
-		elseif (!empty($func) && !empty($absPath))
-		{
-			loadLanguage('Errors');
-			log_error(sprintf($txt['hook_fail_call_to'], $func, $absPath), 'general');
-		}
 		elseif (!empty($function) && !empty($absPath))
 		{
 			loadLanguage('Errors');
