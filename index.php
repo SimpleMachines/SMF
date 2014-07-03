@@ -241,7 +241,9 @@ function smf_main()
 		if (empty($board) && empty($topic))
 		{
 			$defaultActions = call_integration_hook('integrate_default_action');
-			foreach ($defaultActions as $defaultAction)
+
+			// Lets work with keys here.
+			foreach ($defaultActions as $defaultAction => $dummy)
 			{
 				$call = call_helper($defaultAction, true);
 
