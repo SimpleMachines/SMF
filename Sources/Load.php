@@ -1846,7 +1846,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('index.css');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('index.responsive.css');
+	loadCSSFile('index.responsive.css', array('force_current' => false, 'validate' => true));
 
 	if ($context['right_to_left'])
 		loadCSSFile('rtl.css');

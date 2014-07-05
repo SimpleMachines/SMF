@@ -1345,7 +1345,7 @@ function InstallFile()
 }
 
 /**
- * Makes a copy form the default theme, assigns a name for it and installs it.
+ * Makes a copy from the default theme, assigns a name for it and installs it.
  *
  * Creates a new .xml file containing all the theme's info.
  * @return array The newly created theme's info.
@@ -1392,7 +1392,7 @@ function InstallCopy()
 	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
 
 	// Copy over the default non-theme files.
-	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
+	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/index.responsive.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
 
 	foreach ($to_copy as $file)
 	{
