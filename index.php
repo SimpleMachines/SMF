@@ -240,25 +240,37 @@ function smf_main()
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
 		{
-			$defaultActions = call_integration_hook('integrate_default_action');
-			foreach ($defaultActions as $defaultAction)
+			$defaultAction = false;
+
+			if (!empty($modSettings['integrate_default_action']))
 			{
+				$defaultAction = explode(',', $modSettings['integrate_default_action']);
+
+				// Sorry, only one default action is needed.
+				$defaultAction = $defaultAction[0];
+
 				$call = call_helper($defaultAction, true);
 
 				if (!empty($call))
 					return $call;
 			}
 
-			require_once($sourcedir . '/BoardIndex.php');
+			// No default action huh? then go to our good old BoardIndex.
+			else
+			{
+				require_once($sourcedir . '/BoardIndex.php');
 
-			return 'BoardIndex';
+				return 'BoardIndex';
+			}
 		}
+
 		// Topic is empty, and action is empty.... MessageIndex!
 		elseif (empty($topic))
 		{
 			require_once($sourcedir . '/MessageIndex.php');
 			return 'MessageIndex';
 		}
+
 		// Board is not empty... topic is not empty... action is empty.. Display!
 		else
 		{
@@ -361,18 +373,26 @@ function smf_main()
 			return 'WrapAction';
 		}
 
-		$fallbackActions = call_integration_hook('integrate_fallback_action');
-		foreach ($fallbackActions as $fallbackAction)
+		if (!empty($modSettings['integrate_fallback_action']))
 		{
+			$fallbackAction = explode(',', $modSettings['integrate_fallback_action']);
+
+			// Sorry, only one fallback action is needed.
+			$fallbackAction = $fallbackAction[0];
+
 			$call = call_helper($fallbackAction, true);
 
 			if (!empty($call))
 				return $call;
 		}
 
-		// Fall through to the board index then...
-		require_once($sourcedir . '/BoardIndex.php');
-		return 'BoardIndex';
+		// No fallback action huh? then go to our good old BoardIndex.
+		else
+		{
+			require_once($sourcedir . '/BoardIndex.php');
+
+			return 'BoardIndex';
+		}
 	}
 
 	// Otherwise, it was set - so let's go to that action.
