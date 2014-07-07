@@ -1167,18 +1167,6 @@ img#smflogo {
 #inner_section {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.5, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 50%);
 }
 #inner_section:after {
 	content:"";
@@ -3686,7 +3674,7 @@ h3.profile_hd {
 .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
 #top_section, #search_form .button_submit, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
-.popup_window {
+.popup_window, #inner_section {
 	background-image: -webkit-gradient(
 		linear,
 		left top,
