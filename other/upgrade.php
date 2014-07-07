@@ -65,7 +65,7 @@ $upcontext['steps'] = array(
 	3 => array(4, 'Database Changes', 'DatabaseChanges', 70),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
-	4 => array(5, 'Delete Upgrade', 'DeleteUpgrade', 1),
+	4 => array(5, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -4687,7 +4687,7 @@ function template_upgrade_complete()
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete this upgrade.php and its data files now.</label> <em>(doesn\'t work on all servers.)</em>
+			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete upgrade.php and its data files now</label> <em>(doesn\'t work on all servers).</em>
 			<script><!-- // --><![CDATA[
 				function doTheDelete(theCheck)
 				{
