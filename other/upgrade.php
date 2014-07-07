@@ -4687,7 +4687,7 @@ function template_upgrade_complete()
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete this upgrade.php and its data files now.</label> <em>(doesn\'t work on all servers.)</em>
+			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete upgrade.php and its data files now</label> <em>(doesn\'t work on all servers).</em>
 			<script><!-- // --><![CDATA[
 				function doTheDelete(theCheck)
 				{
