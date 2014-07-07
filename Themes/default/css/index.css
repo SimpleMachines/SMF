@@ -165,18 +165,6 @@ ul.reset, ul.reset li {
 	border-bottom: 1px solid #aaa;
 	border-radius: 3px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .button_submit:hover, .button_reset:hover, .button_link:hover {
 	color: #af6700;
@@ -184,18 +172,6 @@ ul.reset, ul.reset li {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 a.button_link {
 	color: #000;
@@ -512,18 +488,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	padding: 2px 7px 1px 7px;
 	margin: 5px 8px 0 0;
 	color: #222;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .topbottom:hover {
 	text-decoration: none;
@@ -533,18 +497,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 
 /* Posts and personal messages displayed throughout the forum. */
@@ -916,18 +868,6 @@ img.sort, .sort {
 	border-radius: 4px;
 	box-shadow: 3px 3px 4px rgba(0,0,0,0.3);
 	background: #FFFFFF;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Level 2 link background. */
 .dropmenu li li {
@@ -987,36 +927,12 @@ img.sort, .sort {
 /* Levels 2 and 3 hover effects. */
 .dropmenu li li:hover {
 	border: none;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover {
 	color: #333;
 	text-decoration: none;
 	border: 1px solid #cfcfcf;
 	border-top: 1px solid #d4dee6;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Reposition Level 2 submenu as visible on hover. */
 .dropmenu li ul {
@@ -1077,18 +993,6 @@ img.sort, .sort {
 	font-size: 0.8em;
 	height: 2.2em;
 	line-height: 2.2em;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Keep a consistent size when wrapped in pagesection. */
 .pagesection .button {
@@ -1101,18 +1005,6 @@ img.sort, .sort {
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -1px -2px 4px rgba(255,255,255,0.33) inset;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 /* the active one */
 .button.active {
@@ -1162,18 +1054,6 @@ img.sort, .sort {
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
 	background: #FFFFFF;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 #top_section .frame{
 	clear: both;
@@ -1222,18 +1102,6 @@ img.sort, .sort {
 	padding: 1px 2px;
 	border-radius: 3px;
 	color: #333;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 
 /* @todo In practice it may be better to set a different value for Firefox and Opera only, */
@@ -1245,18 +1113,6 @@ img.sort, .sort {
 #search_form .button_submit:hover {
 	color: #a85400;
 	text-decoration: none;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 /* The logo and slogan. */
 #header {
@@ -1311,18 +1167,6 @@ img#smflogo {
 #inner_section {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.5, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 50%);
 }
 #inner_section:after {
 	content:"";
@@ -1384,18 +1228,6 @@ ul li.greeting {
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
 .navigate_section ul li {
 	float: left;
@@ -1630,18 +1462,6 @@ ul.quickbuttons li.inline_mod_check {
 	color: #222;
 	margin: 3px 19px;
 	overflow: visible;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
@@ -1658,18 +1478,6 @@ ul.quickbuttons li.inline_mod_check {
 	border-bottom: 1px solid #aaa;
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 .quickbuttons li.quick_edit, .quickbuttons li.post_options {
 	line-height: 1.9em;
@@ -1697,18 +1505,6 @@ ul.quickbuttons li.inline_mod_check {
 	border-top: solid 1px #bbb;
 	border-radius: 4px 2px 4px 0;
 	box-shadow: 2px 3px 3px rgba(0,0,0,0.2);
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .quickbuttons li ul {
 	display: none;
@@ -1730,18 +1526,6 @@ ul.quickbuttons li.inline_mod_check {
 	border: 1px solid #cfcfcf;
 	border-top: 1px solid #d4dee6;
 	border-bottom: 1px solid #cbdae6;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 .quickbuttons ul li a, .quickbuttons ul li a:focus {
 	padding: 0 6px 0 26px;
@@ -1757,18 +1541,6 @@ ul.quickbuttons li > ul > li {
 /* Note: The next declarations are for keyboard access with js disabled. */
 .quickbuttons ul li a:focus {
 	margin: 0 -9910px 0 9910px;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Cancel for hover and/or js access. */
 .quickbuttons ul li:hover a:focus, .quickbuttons ul li a:focus {
@@ -2731,8 +2503,7 @@ dl.addrules dt.floatleft {
 }
 
 /* Styles for popup windows */
-.popup_container
-{
+.popup_container {
 	display: none;
 	position: fixed;
 	top: 0;
@@ -2742,8 +2513,7 @@ dl.addrules dt.floatleft {
 	background: rgba(40,64,80,0.5);
 	z-index: 3;
 }
-.popup_window
-{
+.popup_window {
 	position: fixed;
 	width: 480px;
 	z-index: 99;
@@ -2754,28 +2524,14 @@ dl.addrules dt.floatleft {
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
 	background: #FFFFFF;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
-.popup_heading
-{
+.popup_heading {
 	margin: 0;
 	padding: 10px 4px;
 	color: #bf6900;
 	background: none;
 }
-.popup_content
-{
+.popup_content {
 	color: #222;
 	/* @todo Can't really see any reason for pop-up text to be smaller than standard body text.*/
 	/* Perhaps we should just remove the descritpion class from the div in the template. */
@@ -2789,29 +2545,15 @@ dl.addrules dt.floatleft {
 	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
-.popup_heading .hide_popup
-{
+.popup_heading .hide_popup {
 	display: inline-block;
 	width: 16px;
 	height: 16px;
 	background: url(../images/generic_icons.png) no-repeat -96px 0;
 	float: right;
 }
-.popup_heading .icon
-{
+.popup_heading .icon {
 	vertical-align: middle;
 	margin: -4px 4px 0 0;
 }
@@ -3061,18 +2803,6 @@ div.lastpost p {
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
 /* Child boards */
 .children {
@@ -3935,4 +3665,57 @@ h3.profile_hd {
 .xx {
 	background: url(../images/post/xx.png) 2px no-repeat;
 	padding: 25px 6px 25px 18px;
+}
+
+/* Those classes are sharing exact same gradient. */
+/* Background of buttons */
+.button_submit, .button_reset, .button_link, .topbottom,
+.dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
+.dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
+#top_section, #search_form .button_submit, .quickbuttons li,
+.quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
+.popup_window, #inner_section {
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #E2E9F3),
+		color-stop(0.7, #FFFFFF)
+	);
+	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
+}
+/* Well some of them has different gradient effect on hover */
+.button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
+.topbottom:hover,#search_form .button_submit:hover, .quickbuttons li:hover {
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #FFFFFF),
+		color-stop(0.7, #E2E9F3)
+	);
+	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
+	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
+	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
+	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
+	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
+}
+/* If it fits I sits... */
+.navigate_section ul, .popup_content, .up_contain {
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #FFFFFF),
+		color-stop(0.95, #F1F3F5)
+	);
+	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
