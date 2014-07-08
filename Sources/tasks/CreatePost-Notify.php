@@ -203,7 +203,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		foreach ($quotedMembers as $id => $member)
 		{
-			if (in_array($id, $done_members) || $id == $posterOptions['id'])
+			if (!isset($prefs[$id]) || $id == $posterOptions['id'])
 				continue;
 
 			if (!empty($prefs[$id]['msg_quote']))
