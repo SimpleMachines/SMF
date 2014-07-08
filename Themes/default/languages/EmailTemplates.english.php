@@ -1010,6 +1010,23 @@ The message they sent you was:
 {MESSAGE}
 
 Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
+
+/**
+	@additional_params: msg_quote
+		CONTENTSUBJECT: The post subject.
+		QUOTENAME:  The user name for the member creating the quote
+		MEMBERNAME:  The user name for the member being quoted
+		CONTENTLINK:  The post's link
+	@description: A notification email sent to the members who've been quoted in a post
+ */
+$txt['msg_quote_subject'] = 'You have been quoted in the post: {CONTENTSUBJECT}';
+$txt['msg_quote_body'] = 'Hello {MEMBERNAME},
+
+You have been quoted in the post titled "{CONTENTSUBJECT}" by {QUOTENAME}, you can see the post here:
+{CONTENTLINK}
+
+{REGARDS}';
+
 /**
 	@additional_params: msg_mention
 		CONTENTSUBJECT: The post subject.
@@ -1019,9 +1036,9 @@ Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
 	@description: A notification email sent to the members who've been mentioned in a post
  */
 $txt['msg_mention_subject'] = 'You have been mentioned in the post: {CONTENTSUBJECT}';
-$txt['msg_mention_body'] = 'Hello {MENTIONAME},
+$txt['msg_mention_body'] = 'Hello {MENTIONNAME},
 
-You have been mentioned in the post titled "{CONTENTSUBJECT}}" by {MENTIONNAME}, you can see the post here:
+You have been mentioned in the post titled "{CONTENTSUBJECT}" by {MENTIONNAME}, you can see the post here:
 {CONTENTLINK}
 
 {REGARDS}';
@@ -1031,7 +1048,6 @@ You have been mentioned in the post titled "{CONTENTSUBJECT}}" by {MENTIONNAME},
 		REALNAME: The real (display) name of the person receiving the birthday message.
 	@description: A message sent to members on their birthday.
 */
-
 $txtBirthdayEmails['happy_birthday_subject'] = 'Happy birthday from {FORUMNAME}.';
 $txtBirthdayEmails['happy_birthday_body'] = 'Dear {REALNAME},
 

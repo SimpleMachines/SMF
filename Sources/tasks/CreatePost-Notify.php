@@ -203,7 +203,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		foreach ($quotedMembers as $id => $member)
 		{
-			if (in_array($member['id'], $done_members) || $member['id'] == $posterOptions['id'])
+			if (!isset($prefs[$id]) || $id == $posterOptions['id'])
 				continue;
 
 			if (!empty($prefs[$id]['msg_quote']))
@@ -213,7 +213,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			{
 				$replacements = array(
 					'CONTENTSUBJECT' => $msgOptions['subject'],
-					'MENTIONNAME' => $member['mentioned_by']['name'],
+					'QUOTENAME' => $posterOptions['name'],
 					'MEMBERNAME' => $member['real_name'],
 					'CONTENTLINK' => $scripturl . '?msg=' . $msgOptions['id'],
 				);
@@ -286,7 +286,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		// Get the messages
 		$request = $smcFunc['db_query']('', '
-			SELECT m.id_member, mem.email_address, mem.lngfile
+			SELECT m.id_member, mem.email_address, mem.lngfile, mem.real_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE id_msg IN ({array_int:msgs})
