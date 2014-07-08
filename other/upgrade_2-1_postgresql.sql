@@ -807,11 +807,12 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 ('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 ---#
 
----# Add an order and show on mlist value to each existing cust profile field.
+---# Add an order value to each existing cust profile field.
 ---{
 	$ocf = $smcFunc['db_query']('', '
 		SELECT id_field
-		FROM {db_prefix}custom_fields');
+		FROM {db_prefix}custom_fields
+		WHERE field_order = 0');
 
 		// We start counting from 6 because we already have the first 6 fields.
 		$fields_count = 6;
@@ -820,19 +821,15 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 		{
 			++$fields_count;
 
-			if (!empty($row['id_field']))
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}custom_fields
-					SET field_order = {int:field_count}, show_mlist = {int:show_mlist}
-					WHERE id_field = {int:id_field}
-						AND field_order = {int:show_mlist}',
-					array(
-						'field_count' => $fields_count,
-						'show_mlist' => 0,
-						'id_field' => $row['id_field'],
-						'six' => 6,
-					)
-				);
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}custom_fields
+				SET field_order = {int:field_count}
+				WHERE id_field = {int:id_field}',
+				array(
+					'field_count' => $fields_count,
+					'id_field' => $row['id_field'],
+				)
+			);
 		}
 		$smcFunc['db_free_result']($ocf);
 ---}
@@ -892,24 +889,38 @@ ALTER TABLE {$db_prefix}members
 
 ---# Create the displayFields setting
 ---{
-	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
-		FROM {db_prefix}custom_fields',
-		array()
-	);
-
-	$fields = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$fields[] = $row;
-
-	$smcFunc['db_free_result']($request);
-
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('displayFields', serialize($fields)),
-		array('id_theme', 'id_member', 'variable')
-	);
+	if (empty($modSettings['displayFields']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+			FROM {db_prefix}custom_fields',
+			array()
+		);
+	
+		$fields = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$fields[] = array(
+				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
+				'title' => strtr($row['field_name'], array('|' => '', ';' => '')),
+				'type' => $row['field_type'],
+				'order' => $row['field_order'],
+				'bbc' => $row['bbc'] ? '1' : '0',
+				'placement' => !empty($row['placement']) ? $row['placement'] : '0',
+				'enclose' => !empty($row['enclose']) ? $row['enclose'] : '',
+				'mlist' => $row['show_mlist'],
+			);
+		}
+	
+		$smcFunc['db_free_result']($request);
+	
+		$smcFunc['db_insert']('',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('displayFields', serialize($fields)),
+			array('id_theme', 'id_member', 'variable')
+		);
+	}	
 ---}
 ---#
 
