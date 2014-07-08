@@ -36,7 +36,7 @@ class Mentions
 
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
-					mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
+				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_mentioned)
 				INNER JOIN {db_prefix}members AS ment ON (ment.id_member = m.id_member)
@@ -85,7 +85,7 @@ class Mentions
 		call_integration_hook('mention_insert_' . $content_type, array($content_id, &$members));
 
 		foreach ($members as $member)
-			$smcFunc['db_insert']('',
+			$smcFunc['db_insert']('ignore',
 				'{db_prefix}mentions',
 				array('content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'),
 				array((int) $content_id, $content_type, $id_member, $member['id'], time()),
