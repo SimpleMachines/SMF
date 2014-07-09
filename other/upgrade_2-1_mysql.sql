@@ -102,6 +102,11 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts',
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
+
+---# Adding new "defaultMaxListItems" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
+---#
+
 ---# Enable some settings we ripped from Theme settings
 ---{
 	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');

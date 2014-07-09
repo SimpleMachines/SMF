@@ -594,7 +594,7 @@ function ModifyLanguages()
 
 	$listOptions = array(
 		'id' => 'language_list',
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=languages',
 		'title' => $txt['edit_languages'],
 		'get_items' => array(

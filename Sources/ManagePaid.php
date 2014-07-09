@@ -258,7 +258,7 @@ function ViewSubscriptions()
 	$listOptions = array(
 		'id' => 'subscription_list',
 		'title' => $txt['subscriptions'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
 			'function' => function ($start, $items_per_page) use ($context)
@@ -791,7 +791,7 @@ function ViewSubscribedUsers()
 	$listOptions = array(
 		'id' => 'subscribed_users_list',
 		'title' => sprintf($txt['view_users_subscribed'], $row['name']),
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . $context['sub_id'],
 		'default_sort_col' => 'name',
 		'get_items' => array(

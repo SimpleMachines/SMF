@@ -98,7 +98,7 @@ function BrowseMailQueue()
 	$listOptions = array(
 		'id' => 'mail_queue',
 		'title' => $txt['mailqueue_browse'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=mailqueue',
 		'default_sort_col' => 'age',
 		'no_items_label' => $txt['mailqueue_no_items'],
