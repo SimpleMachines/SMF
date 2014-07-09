@@ -392,7 +392,7 @@ function UnapprovedAttachments()
 	$listOptions = array(
 		'id' => 'mc_unapproved_attach',
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_unapproved_attachments_none_found'],
 		'base_href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 		'default_sort_col' => 'attach_name',

@@ -222,7 +222,7 @@ function ViewSpiders()
 	$listOptions = array(
 		'id' => 'spider_list',
 		'title' => $txt['spiders'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -704,7 +704,7 @@ function SpiderLogs()
 
 	$listOptions = array(
 		'id' => 'spider_logs',
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'title' => $txt['spider_logs'],
 		'no_items_label' => $txt['spider_logs_empty'],
 		'base_href' => $context['admin_area'] == 'sengines' ? $scripturl . '?action=admin;area=sengines;sa=logs' : $scripturl . '?action=admin;area=logs;sa=spiderlog',
@@ -955,7 +955,7 @@ function SpiderStats()
 	$listOptions = array(
 		'id' => 'spider_stat_list',
 		'title' => $txt['spider'] . ' ' . $txt['spider_stats'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',
 		'get_items' => array(

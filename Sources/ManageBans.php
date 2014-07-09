@@ -128,7 +128,7 @@ function BanList()
 	$listOptions = array(
 		'id' => 'ban_list',
 		'title' => $txt['ban_title'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
 		'default_sort_dir' => 'desc',
@@ -377,7 +377,7 @@ function BanEdit()
 				'id' => 'ban_items',
 				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxMessages'],
+				'items_per_page' => $modSettings['defaultMaxListItems'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -1743,7 +1743,7 @@ function BanBrowseTriggers()
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
 		'title' => $txt['ban_trigger_browse'],
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
 		'no_items_label' => $txt['ban_no_triggers'],
@@ -2017,7 +2017,7 @@ function BanLog()
 	$listOptions = array(
 		'id' => 'ban_log',
 		'title' => $txt['ban_log'],
-		'items_per_page' => 30,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
