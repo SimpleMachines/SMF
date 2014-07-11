@@ -854,8 +854,8 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $context, $sourcedir, $db_show_debug, $cur_profile;
-	
+	global $context, $sourcedir, $db_show_debug;
+
 	// Load the Alerts language file.
 	loadLanguage('Alerts');
 
@@ -865,12 +865,15 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
+	// How many alerts to Display?
+	$show = 10;
+
 	$context['unread_alerts'] = array();
-	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $show)
 	{
 		// Now fetch me my unread alerts, pronto!
 		require_once($sourcedir . '/Profile-View.php');
-		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+		$context['unread_alerts'] = fetch_alerts($memID, false, $show - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
 	}
 }
 
