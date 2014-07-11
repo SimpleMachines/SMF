@@ -359,6 +359,8 @@ function ModifyLikesSettings($return_config = false)
 
 	$config_vars = array(
 		array('check', 'enable_likes'),
+		array('permissions', 'likes_view'),
+		array('permissions', 'likes_like'),
 	);
 
 	call_integration_hook('integrate_likes_settings', array(&$config_vars));
@@ -397,6 +399,7 @@ function ModifyMentionsSettings($return_config = false)
 
 	$config_vars = array(
 		array('check', 'enable_mentions'),
+		array('permissions', 'mention'),
 	);
 
 	call_integration_hook('integrate_mentions_settings', array(&$config_vars));
