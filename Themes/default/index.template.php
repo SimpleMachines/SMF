@@ -208,18 +208,16 @@ function template_body_above()
 				<input type="search" name="search" value="" class="input_text">&nbsp;';
 
 		// Using the quick search dropdown?
-		if (!empty($modSettings['search_dropdown']))
-		{
-			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
+		$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
 
+		echo '
+			<select name="search_selection">
+				<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
+
+		// Can't limit it to a specific topic if we are not in one
+		if (!empty($context['current_topic']))
 			echo '
-				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
-
-			// Can't limit it to a specific topic if we are not in one
-			if (!empty($context['current_topic']))
-				echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
+				<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
 
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
@@ -228,16 +226,15 @@ function template_body_above()
 			echo '
 					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>
 				</select>';
-		}
 
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '">';
+				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '">';
+				<input type="hidden" name="sd_brd[', $context['current_board'], ']" value="', $context['current_board'], '">';
 
 		echo '
 				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit">
