@@ -524,16 +524,17 @@ function DisplayStats()
 	// Likes.
 	if (!empty($modSettings['enable_likes']))
 	{
-		//Liked messages top 10.
+		// Liked messages top 10.
 		$context['stats_blocks']['liked_messages'] = array();
 		$max_liked_message = 1;
 		$liked_messages = $smcFunc['db_query']('', '
 			SELECT m. id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
 			FROM {db_prefix}messages as m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+			AND b.id_board != {int:recycle_board}' : '') . ')
 			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
-				AND m.id_board != {int:recycle_board}' : '') . '
+				AND t.approved = {int:is_approved}' : '') . '
 			ORDER BY m.likes DESC
 			LIMIT 10',
 			array(
@@ -553,11 +554,58 @@ function DisplayStats()
 				'href' => $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg' . $row_liked_message['id_msg'],
 				'link' => '<a href="' . $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg'. $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
 			);
+
+			if ($max_liked_message < $row_liked_message['likes'])
+				$max_liked_message= $row_liked_message['likes'];
 		}
 		$smcFunc['db_free_result']($liked_messages);
 
 		foreach ($context['stats_blocks']['liked_messages'] as $i => $liked_messages)
 			$context['stats_blocks']['liked_messages'][$i]['percent'] = round(($liked_messages['num'] * 100) / $max_liked_message);
+
+		// Liked users top 10.
+		$context['stats_blocks']['liked_users'] = array();
+		$max_liked_users = 1;
+		$liked_users_count = array();
+		$liked_users = $smcFunc['db_query']('', '
+			SELECT l.id_member, l.content_id, l.content_type, mem.id_member, mem.real_name, mem.posts
+			FROM {db_prefix}user_likes AS l
+				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
+				INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
+			WHERE content_type = {literal:msg}
+				AND mem.posts > {int:no_posts}
+				AND mem.id_member > {int:no_posts}
+			ORDER BY mem.id_member DESC
+			LIMIT 10',
+			array(
+				'no_posts' => 0,
+			)
+		);
+
+		while ($row_liked_users = $smcFunc['db_fetch_assoc']($liked_users))
+		{
+			if (isset($liked_users_count[$row_liked_users['id_member']]))
+				$liked_users_count[$row_liked_users['id_member']]++;
+
+			else
+				$liked_users_count[$row_liked_users['id_member']] = 1;
+
+			$context['stats_blocks']['liked_users'][$row_liked_users['id_member']] = array(
+				'name' => $row_liked_users['real_name'],
+				'id' => $row_liked_users['id_member'],
+				'num' => $liked_users_count[$row_liked_users['id_member']],
+				'href' => $scripturl . '?action=profile;u=' . $row_liked_users['id_member'],
+				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_liked_users['id_member'] . '">' . $row_liked_users['real_name'] . '</a>'
+			);
+
+			if ($max_liked_users < $liked_users_count[$row_liked_users['id_member']])
+				$max_liked_users = $liked_users_count[$row_liked_users['id_member']];
+		}
+
+		$smcFunc['db_free_result']($liked_users);
+
+		foreach ($context['stats_blocks']['liked_users'] as $i => $liked_users)
+			$context['stats_blocks']['liked_users'][$i]['percent'] = round(($liked_users['num'] * 100) / $max_liked_users);
 	}
 
 	// Activity by month.
