@@ -1068,10 +1068,10 @@ function saveDBSettings(&$config_vars)
 		}
 		// Integers!
 		elseif ($var[0] == 'int')
-			$setArray[$var[1]] = (int) $_POST[$var[1]];
+			$setArray[$var[1]] = (int) $_POST[$var[1]] > $var[2] ? $var[2] : (int) $_POST[$var[1]];
 		// Floating point!
 		elseif ($var[0] == 'float')
-			$setArray[$var[1]] = (float) $_POST[$var[1]];
+			$setArray[$var[1]] = (float) $_POST[$var[1]] > $var[2] ? $var[2] : (float) $_POST[$var[1]];
 		// Text!
 		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
