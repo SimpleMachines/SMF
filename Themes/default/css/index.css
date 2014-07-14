@@ -15,7 +15,7 @@ body {
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	padding: 0;
 	margin: 0;
 }
@@ -26,7 +26,7 @@ table {
 	empty-cells: show;
 }
 input, button, select, textarea, textarea.editor {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
 	outline: none !important;
@@ -268,7 +268,7 @@ h3.largetext {
 	padding-bottom: 6px;
 }
 .half_content {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	width: 50%;
 	float: left;
 	display: inline-block;
@@ -692,7 +692,7 @@ img.sort, .sort {
 .dropmenu, #top_info {
 	width: 100%;
 	position: relative;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 #menu_nav {
 	padding: 0 40px 0 0;
@@ -1030,7 +1030,7 @@ img.sort, .sort {
 #header, #header .frame, #top_section, #upper_wrap, #upper_section, #upper_section .user,
 #upper_section .news, .navigate_section, #content_section, #main_content_section,
 #lower_section, #lower_section .frame, #footer_section, #footer_section div.frame {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 /* These divisions wrap the forum sections when a forum width is set. */
@@ -1227,7 +1227,7 @@ ul li.greeting {
 	border: 1px solid #ddd;
 	border-radius: 2px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.08);
-	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 .navigate_section ul li {
 	float: left;
@@ -1532,7 +1532,7 @@ ul.quickbuttons li.inline_mod_check {
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
 ul.quickbuttons li > ul > li {
@@ -2577,7 +2577,6 @@ dl.addrules dt.floatleft {
 .progress_bar div.green_percent {
 	height: 15pt;
 	background-color: #c1ffc1;
-	background-image: -webkit-linear-gradient(top, #c1ffc1, green);
 	background-image: linear-gradient(to bottom, #c1ffc1, green);
 	border-radius: 3px;
 	z-index: 1;
@@ -2585,7 +2584,6 @@ dl.addrules dt.floatleft {
 .progress_bar div.blue_percent {
 	height: 15pt;
 	background-color: #98b8f4;
-	background-image: -webkit-linear-gradient(top, #98b8f4, blue);
 	background-image: linear-gradient(to bottom, #98b8f4, blue);
 	border-radius: 3px;
 	z-index: 1;
@@ -2599,7 +2597,7 @@ dl.addrules dt.floatleft {
 	border-radius: 6px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
-	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 /* Special treatment for #forumposts area */
 #forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
@@ -2656,7 +2654,7 @@ tr.windowbg, tr.windowbg2 {
 }
 #postmodify #message{
 	width: 100%;
-	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 #postmodify .lastedit{
 	font-weight: bold;
@@ -2793,7 +2791,7 @@ div.lastpost p {
 }
 .up_contain {
 	overflow: hidden;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;
@@ -3379,7 +3377,7 @@ ul.post_options li {
 	box-shadow: 0 1px 0 #fff inset;
 	line-height: 1.4em;
 	font-size: 0.9em;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 .under_message {
 	overflow: visible;
@@ -3419,7 +3417,7 @@ div.cat_bar {
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
 	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	margin-bottom: 1px;
 }
 .cat_bar h3 {
@@ -3463,7 +3461,7 @@ h4.catbg, h3.catbg {
 }
 /* Roundframe */
 .roundframe {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 	margin: 10px 0 0 0;
 	padding: 12px 16px;
 	background: #F8F8F8;
@@ -3519,7 +3517,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	border-radius: 0 0 7px 7px;
 	margin: 0;
 	padding: 12px 9px 8px 9px;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 .generic_list_wrapper .information div {
 	background: none;
@@ -3597,7 +3595,6 @@ p.information  img {
 	width: 14px;
 	height: 14px;
 	border-radius: 12px;
-	border: 1px solid none;
 	position: absolute;
 	margin: 4px 0 0 0;
 }
@@ -3669,47 +3666,14 @@ h3.profile_hd {
 #top_section, #search_form .button_submit, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
 .popup_window, #inner_section {
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
 	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
 .topbottom:hover,#search_form .button_submit:hover, .quickbuttons li:hover {
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 /* If it fits I sits... */
 .navigate_section ul, .popup_content, .up_contain {
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
