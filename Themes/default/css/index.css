@@ -1849,12 +1849,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.delete {
 	background-position: -96px 0;
 }
-.generic_icons.current {
-	background-position: -96px -16px;
-}
-.generic_icons.old {
-	background-position: -96px -32px;
-}
 .generic_icons.poll {
 	background-position: -96px -48px;
 }
