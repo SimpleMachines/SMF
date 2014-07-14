@@ -77,7 +77,6 @@ function AdminMain()
 					'subsections' => array(
 						'browse' => array($txt['browse_packages']),
 						'packageget' => array($txt['download_packages'], 'url' => $scripturl . '?action=admin;area=packages;sa=packageget;get'),
-						'installed' => array($txt['installed_packages']),
 						'perms' => array($txt['package_file_perms']),
 						'options' => array($txt['package_settings']),
 					),

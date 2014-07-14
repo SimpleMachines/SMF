@@ -29,7 +29,6 @@ $txt['sql_queries'] = 'SQL Queries';
 $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
-$txt['delete_list'] = 'Delete Mod List';
 $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
 $txt['php_safe_mode'] = 'Sorry, your server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
@@ -67,8 +66,6 @@ $txt['package_description'] = 'Description';
 $txt['file_location'] = 'Location of file';
 
 $txt['package_installed_key'] = 'Installed mods:';
-$txt['package_installed_current'] = 'current version';
-$txt['package_installed_old'] = 'older version';
 $txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found.';
 $txt['package_installed_warning2'] = 'You should uninstall the old version first to avoid problems, or ask the author to create an upgrade from your old version.';
 $txt['package_installed_warning3'] = 'Please remember to always make regular backups of your sources and database before installing mods, especially beta versions.';
