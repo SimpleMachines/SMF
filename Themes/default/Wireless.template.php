@@ -10,6 +10,23 @@
  * @version 2.1 Alpha 1
  */
 
+// Define page index info for wireless templates
+function template_wireless_init()
+{
+	global $settings, $txt;
+
+	// This defines the formatting for the page indexes used throughout the forumm.
+	$settings['page_index'] = array(
+		'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+		'previous_page' => '<span class="previous_page"></span>',
+		'current_page' => '<span class="current_page">[%1$d]</span> ',
+		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+		'next_page' => '<span class="next_page"></span>',
+		'extra_after' => '',
+	);
+}
+
 // This is the header for WAP 1.1 output. You can view it with ?wap in the URL.
 function template_wap_above()
 {
