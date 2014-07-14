@@ -1,0 +1,23 @@
+/* SMF 2.1 - IE8 compatibility stylesheet */
+
+/* Those classes are sharing exact same gradient. */
+/* Background of buttons */
+.button_submit, .button_reset, .button_link, .topbottom,
+.dropmenu li ul, .top_menu, .dropmenu li li:hover, .button,
+.dropmenu li li:hover>a, .dropmenu li li a:focus, .dropmenu li li a:hover,
+#top_section, #search_form .button_submit, .quickbuttons li,
+.quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
+.popup_window, #inner_section {
+	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+}
+
+/* Well some of them has different gradient effect on hover */
+.button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
+.topbottom:hover,#search_form .button_submit:hover, .quickbuttons li:hover {
+	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
+}
+
+/* If it fits I sits... */
+.navigate_section ul, .popup_content, .up_contain {
+	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+}
