@@ -2243,6 +2243,9 @@ dl {
 .stats_icon.starters, .stats_icon.people {
 	background-position: -80px -48px;
 }
+.stats_icon.liked_users, .stats_icon.liked_messages{
+	background: url(../images/generic_icons.png) no-repeat -64px 0;
+}
 dl.stats dt {
 	width: 50%;
 	float: left;
