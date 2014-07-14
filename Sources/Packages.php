@@ -73,9 +73,6 @@ function Packages()
 			'packageget' => array(
 				'description' => $txt['download_packages_desc'],
 			),
-			'installed' => array(
-				'description' => $txt['installed_packages_desc'],
-			),
 			'perms' => array(
 				'description' => $txt['package_file_perms_desc'],
 			),
