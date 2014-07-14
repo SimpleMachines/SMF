@@ -1781,6 +1781,8 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 				unset($context[$permission][$group]);
 		}
 	}
+
+	createToken('admin-mp');
 }
 
 /**
