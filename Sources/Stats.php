@@ -521,6 +521,45 @@ function DisplayStats()
 	if ($temp !== $temp2)
 		cache_put_data('stats_total_time_members', $temp2, 480);
 
+	// Likes.
+	if (!empty($modSettings['enable_likes']))
+	{
+		//Liked messages top 10.
+		$context['stats_blocks']['liked_messages'] = array();
+		$max_liked_message = 1;
+		$liked_messages = $smcFunc['db_query']('', '
+			SELECT m. id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
+			FROM {db_prefix}messages as m
+				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
+			WHERE {query_see_board}' . ($modSettings['postmod_active'] ? '
+				AND t.approved = {int:is_approved}' : '') . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
+				AND m.id_board != {int:recycle_board}' : '') . '
+			ORDER BY m.likes DESC
+			LIMIT 10',
+			array(
+				'recycle_board' => $modSettings['recycle_board'],
+				'is_approved' => 1,
+			)
+		);
+
+		while ($row_liked_message = $smcFunc['db_fetch_assoc']($liked_messages))
+		{
+			censorText($row_liked_message['subject']);
+
+			$context['stats_blocks']['liked_messages'][] = array(
+				'id' => $row_liked_message['id_topic'],
+				'subject' => $row_liked_message['subject'],
+				'num' => $row_liked_message['likes'],
+				'href' => $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg' . $row_liked_message['id_msg'],
+				'link' => '<a href="' . $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg'. $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
+			);
+		}
+		$smcFunc['db_free_result']($liked_messages);
+
+		foreach ($context['stats_blocks']['liked_messages'] as $i => $liked_messages)
+			$context['stats_blocks']['liked_messages'][$i]['percent'] = round(($liked_messages['num'] * 100) / $max_liked_message);
+	}
+
 	// Activity by month.
 	$months_result = $smcFunc['db_query']('', '
 		SELECT
