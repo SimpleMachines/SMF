@@ -902,7 +902,7 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type varchar(8) NOT NULL default 'text',
   field_length smallint NOT NULL default '255',
   field_options text NOT NULL,
-  field_order tinyint(3) NOT NULL default '0',
+  field_order smallint(3) NOT NULL default '0',
   mask varchar(255) NOT NULL,
   show_reg smallint NOT NULL default '0',
   show_display smallint NOT NULL default '0',
@@ -2717,7 +2717,7 @@ CREATE TABLE {$db_prefix}mentions (
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
+  time int NOT NULL default 0,
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
@@ -2725,4 +2725,4 @@ CREATE TABLE {$db_prefix}mentions (
 # Indexes for table `mentions`
 #
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
-CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
+CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
