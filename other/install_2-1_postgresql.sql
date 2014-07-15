@@ -902,7 +902,7 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type varchar(8) NOT NULL default 'text',
   field_length smallint NOT NULL default '255',
   field_options text NOT NULL,
-  field_order smallint(3) NOT NULL default '0',
+  field_order smallint NOT NULL default '0',
   mask varchar(255) NOT NULL,
   show_reg smallint NOT NULL default '0',
   show_display smallint NOT NULL default '0',
@@ -986,7 +986,7 @@ CREATE INDEX {$db_prefix}log_actions_id_member ON {$db_prefix}log_actions (id_me
 CREATE INDEX {$db_prefix}log_actions_id_board ON {$db_prefix}log_actions (id_board);
 CREATE INDEX {$db_prefix}log_actions_id_msg ON {$db_prefix}log_actions (id_msg);
 CREATE INDEX {$db_prefix}log_actions_id_log ON {$db_prefix}log_actions (id_log);
-CREATE INDEX {$db_prefix}log_actions_id_topic_id_log {$db_prefix}log_actions (id_topic, id_log);
+CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
 
 #
 # Table structure for table `log_activity`
