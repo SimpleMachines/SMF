@@ -528,7 +528,7 @@ function DisplayStats()
 		$context['stats_blocks']['liked_messages'] = array();
 		$max_liked_message = 1;
 		$liked_messages = $smcFunc['db_query']('', '
-			SELECT m. id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
+			SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
 			FROM {db_prefix}messages as m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
@@ -556,7 +556,7 @@ function DisplayStats()
 			);
 
 			if ($max_liked_message < $row_liked_message['likes'])
-				$max_liked_message= $row_liked_message['likes'];
+				$max_liked_message = $row_liked_message['likes'];
 		}
 		$smcFunc['db_free_result']($liked_messages);
 
