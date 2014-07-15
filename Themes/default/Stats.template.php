@@ -65,7 +65,7 @@ function template_main()
 	if (!empty($context['gender']))
 	{
 		echo '
-				<dt><b>', $txt['gender_stats'], ':</b></dt>
+				<dt>', $txt['gender_stats'], ':</dt>
 				<dd>';
 
 		foreach ($context['gender'] as $g => $n)

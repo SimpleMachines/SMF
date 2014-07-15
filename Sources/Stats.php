@@ -149,7 +149,7 @@ function DisplayStats()
 	);
 	$context['latest_member'] = &$context['common_stats']['latest_member'];
 
-	// Male vs. female ratio - let's calculate this only every four minutes.
+	// Let's calculate gender stats only every four minutes.
 	$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 	if (!in_array('gender', $disabled_fields))
 	{
