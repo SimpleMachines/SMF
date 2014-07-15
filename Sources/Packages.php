@@ -1722,19 +1722,8 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				{
 					$sort_id['modification']++;
 					$sort_id['mod']++;
-					if ($installed)
-					{
-						if (!empty($context['available_modification'][$packageInfo['id']]))
-						{
-							$packages['modification'][strtolower($packageInfo[$sort]) . '_' . $sort_id['mod']] = $packageInfo['id'];
-							$context['available_modification'][$packageInfo['id']] = array_merge($context['available_modification'][$packageInfo['id']], $packageInfo);
-						}
-					}
-					else
-					{
-						$packages['modification'][strtolower($packageInfo[$sort]) .  '_' . $sort_id['mod']] = md5($package);
-						$context['available_modification'][md5($package)] = $packageInfo;
-					}
+					$packages['modification'][strtolower($packageInfo[$sort]) .  '_' . $sort_id['mod']] = md5($package);
+					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')
