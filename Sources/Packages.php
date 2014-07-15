@@ -1296,44 +1296,6 @@ function ExamineFile()
 }
 
 /**
- * List the installed packages.
- */
-function InstalledList()
-{
-	global $txt, $context;
-
-	$context['page_title'] .= ' - ' . $txt['installed_packages'];
-	$context['sub_template'] = 'view_installed';
-
-	// Load the installed mods and send them to the template.
-	$context['installed_mods'] = loadInstalledPackages();
-}
-
-/**
- * Empty out the installed list.
- */
-function FlushInstall()
-{
-	global $sourcedir, $smcFunc;
-
-	// Always check the session.
-	checkSession('get');
-
-	include_once($sourcedir . '/Subs-Package.php');
-
-	// Set everything as uninstalled.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}log_packages
-		SET install_state = {int:not_installed}',
-		array(
-			'not_installed' => 0,
-		)
-	);
-
-	redirectexit('action=admin;area=packages;sa=installed');
-}
-
-/**
  * Delete a package.
  */
 function PackageRemove()
