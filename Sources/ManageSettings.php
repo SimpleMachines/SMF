@@ -637,7 +637,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="input_text verification_answer">\').insertBefore($(obj).closest("div"));
 		return false;
 	}
-	$("#qa_dt_' . $language . ' a").click();', true);
+	$("#qa_dt_' . strtr($language, array('-utf8' => '')) . ' a").click();', true);
 
 	// Will need the utility functions from here.
 	require_once($sourcedir . '/ManageServer.php');
