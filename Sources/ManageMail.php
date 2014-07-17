@@ -66,7 +66,7 @@ function ManageMail()
 function BrowseMailQueue()
 {
 	global $scripturl, $context, $txt, $smcFunc;
-	global $sourcedir;
+	global $sourcedir, $modSettings;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
