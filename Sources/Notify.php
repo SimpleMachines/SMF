@@ -213,17 +213,17 @@ function TopicUnwatch()
 			if (empty($log))
 			{
 				$insert = true;
-				$log['unwatched'] = $_GET['sa'] == 'on' ? 1 : 0;
-			}
-			else
-			{
-				$insert = false;
 				$log = array(
 					'id_member' => $user_info['id'],
 					'id_topic' => $topic,
 					'id_msg' => 0,
 					'unwatched' => $_GET['sa'] == 'on' ? 1 : 0,
 				);
+			}
+			else
+			{
+				$insert = false;
+				$log['unwatched'] = $_GET['sa'] == 'on' ? 1 : 0;
 			}
 
 			$smcFunc['db_insert']($insert ? 'insert' : 'replace',
