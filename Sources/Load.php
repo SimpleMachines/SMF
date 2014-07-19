@@ -154,12 +154,12 @@ function reloadSettings()
 		} : 'strtoupper',
 		'truncate' => function($string, $length) use ($utf8, $ent_check, $ent_list, &$smcFunc)
 		{
-            $string = $ent_check($string);
-            preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
-            $string = $matches[0];
-            while (strlen($string) > $length)
-                $string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
-            return $string;
+			$string = $ent_check($string);
+			preg_match('~^(' . $ent_list . '|.){' . $smcFunc['strlen'](substr($string, 0, $length)) . '}~'.  ($utf8 ? 'u' : ''), $string, $matches);
+			$string = $matches[0];
+			while (strlen($string) > $length)
+				$string = preg_replace('~(?:' . $ent_list . '|.)$~'.  ($utf8 ? 'u' : ''), '', $string);
+			return $string;
 		},
 		'ucfirst' => $utf8 ? function ($string) use (&$smcFunc)
 		{
@@ -501,7 +501,8 @@ function loadUserSettings()
 		'permissions' => array(),
 	);
 	$user_info['groups'] = array_unique($user_info['groups']);
-	// Make sure that the last item in the ignore boards array is valid.  If the list was too long it could have an ending comma that could cause problems.
+
+	// Make sure that the last item in the ignore boards array is valid. If the list was too long it could have an ending comma that could cause problems.
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
 		unset($user_info['ignoreboards'][$tmp]);
 
@@ -531,6 +532,7 @@ function loadUserSettings()
 	// Otherwise just the groups in $user_info['groups'].
 	else
 		$user_info['query_see_board'] = '((FIND_IN_SET(' . implode(', b.member_groups) != 0 OR FIND_IN_SET(', $user_info['groups']) . ', b.member_groups) != 0)' . (!empty($modSettings['deny_boards_access']) ? ' AND (FIND_IN_SET(' . implode(', b.deny_member_groups) = 0 AND FIND_IN_SET(', $user_info['groups']) . ', b.deny_member_groups) = 0)' : '') . (isset($user_info['mod_cache']) ? ' OR ' . $user_info['mod_cache']['mq'] : '') . ')';
+
 	// Build the list of boards they WANT to see.
 	// This will take the place of query_see_boards in certain spots, so it better include the boards they can see also
 
@@ -2094,7 +2096,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  * What it does:
  * 	- loads the sub template specified by sub_template_name, which must be in an already-loaded template.
  *  - if ?debug is in the query string, shows administrators a marker after every sub template
- *    for debugging purposes.
+ *	for debugging purposes.
  *
  * @todo get rid of reading $_REQUEST directly
  *
@@ -2184,7 +2186,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
- *    default theme if not found in the current theme
+ *	default theme if not found in the current theme
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
@@ -2546,7 +2548,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
  * What this function does:
  *  - it censors the passed string.
  *  - if the theme setting allow_no_censored is on, and the theme option
- *    show_no_censored is enabled, does not censor, unless force is also set.
+ *	show_no_censored is enabled, does not censor, unless force is also set.
  *  - it caches the list of censored words to reduce parsing.
  *
  * @param string &$text The text to censor
@@ -2891,11 +2893,11 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  * - It may "miss" so shouldn't be depended on
  * - Uses the cache engine chosen in the ACP and saved in settings.php
  * - It supports:
- *     Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
- *     memcache: http://www.php.net/memcache
- *     APC: http://www.php.net/apc
- *     Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
- *     Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
+ *	 Xcache: http://xcache.lighttpd.net/wiki/XcacheApi
+ *	 memcache: http://www.php.net/memcache
+ *	 APC: http://www.php.net/apc
+ *	 Zend: http://files.zend.com/help/Zend-Platform/output_cache_functions.htm
+ *	 Zend: http://files.zend.com/help/Zend-Platform/zend_cache_functions.htm
  *
  * @param string $key A key for this value
  * @param mixed $value The data to cache
