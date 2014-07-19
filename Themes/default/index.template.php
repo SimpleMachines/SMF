@@ -201,6 +201,24 @@ function template_body_above()
 				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
 
+	if (!empty($context['languages']))
+	{
+		echo '
+			<form id="languages_form" action="" method="get" class="floatright">
+				<select id="language_select" name="language" onchange="this.form.submit()">';
+
+		foreach ($context['languages'] as $language)
+			echo '
+					<option value="', $language['filename'], '"', isset($context['user']['language']) && $context['user']['language'] == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
+
+		echo '
+				</select>
+				<noscript>
+					<input type="submit" value="', $txt['quick_mod_go'], '" />
+				</noscript>
+			</form>';
+	}
+
 	if ($context['allow_search'])
 	{
 		echo '

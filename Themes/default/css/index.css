@@ -1081,6 +1081,9 @@ img.sort, .sort {
 	font-weight: bold;
 }
 
+#languages_form {
+	padding: 6px 0 0 0;
+}
 #search_form {
 	padding: 4px 0 0 0;
 	text-align: right;
