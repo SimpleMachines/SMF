@@ -155,6 +155,7 @@ $txt['posts_require_captcha_desc'] = '(0 for no limit, moderators are exempt)';
 $txt['search_enable_captcha'] = 'Require verification on all guest searches';
 $txt['setting_guests_require_captcha'] = 'Guests must pass verification when making a post';
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
+$txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language (%1$s) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
 $txt['configure_verification_means'] = 'Configure Verification Methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
