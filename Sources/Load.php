@@ -505,18 +505,25 @@ function loadUserSettings()
 	if (!empty($user_info['ignoreboards']) && empty($user_info['ignoreboards'][$tmp = count($user_info['ignoreboards']) - 1]))
 		unset($user_info['ignoreboards'][$tmp]);
 
-	// Do we have any languages to validate this?
-	if (!empty($modSettings['userLanguage']) && (!empty($_GET['language']) || !empty($_SESSION['language'])))
-		$languages = getLanguages();
-
-	// Allow the user to change their language if its valid.
-	if (!empty($modSettings['userLanguage']) && !empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
+	// Allow the user to change their language.
+	if (!empty($modSettings['userLanguage']))
 	{
-		$user_info['language'] = strtr($_GET['language'], './\\:', '____');
-		$_SESSION['language'] = $user_info['language'];
+		$context['languages'] = $languages = getLanguages();
+
+		// Is it valid?
+		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
+		{
+			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
+
+			// Make it permanent for memmbers.
+			if (!empty($user_info['id']))
+				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
+			else
+				$_SESSION['language'] = $user_info['language'];
+		}
+		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))
+			$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
 	}
-	elseif (!empty($modSettings['userLanguage']) && !empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')]))
-		$user_info['language'] = strtr($_SESSION['language'], './\\:', '____');
 
 	// Just build this here, it makes it easier to change/use - administrators can see all boards.
 	if ($user_info['is_admin'])
