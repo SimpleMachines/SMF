@@ -49,7 +49,6 @@ function Packages()
 		'install2' => 'PackageInstall',
 		'uninstall' => 'PackageInstallTest',
 		'uninstall2' => 'PackageInstall',
-		'installed' => 'PackageBrowse',
 		'options' => 'PackageOptions',
 		'perms' => 'PackagePermissions',
 		'flush' => 'FlushInstall',
@@ -73,9 +72,6 @@ function Packages()
 			),
 			'packageget' => array(
 				'description' => $txt['download_packages_desc'],
-			),
-			'installed' => array(
-				'description' => $txt['installed_packages_desc'],
 			),
 			'perms' => array(
 				'description' => $txt['package_file_perms_desc'],
@@ -1300,44 +1296,6 @@ function ExamineFile()
 }
 
 /**
- * List the installed packages.
- */
-function InstalledList()
-{
-	global $txt, $context;
-
-	$context['page_title'] .= ' - ' . $txt['installed_packages'];
-	$context['sub_template'] = 'view_installed';
-
-	// Load the installed mods and send them to the template.
-	$context['installed_mods'] = loadInstalledPackages();
-}
-
-/**
- * Empty out the installed list.
- */
-function FlushInstall()
-{
-	global $sourcedir, $smcFunc;
-
-	// Always check the session.
-	checkSession('get');
-
-	include_once($sourcedir . '/Subs-Package.php');
-
-	// Set everything as uninstalled.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}log_packages
-		SET install_state = {int:not_installed}',
-		array(
-			'not_installed' => 0,
-		)
-	);
-
-	redirectexit('action=admin;area=packages;sa=installed');
-}
-
-/**
  * Delete a package.
  */
 function PackageRemove()
@@ -1378,10 +1336,8 @@ function PackageBrowse()
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
-	$installed = $context['sub_action'] == 'installed' ? true : false;
-
 	$context['forum_version'] = $forum_version;
-	$context['modification_types'] = $installed ? array('modification') : array('modification', 'avatar', 'language', 'unknown');
+	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1390,13 +1346,13 @@ function PackageBrowse()
 		// Use the standard templates for showing this.
 		$listOptions = array(
 			'id' => 'packages_lists_' . $type,
-			'title' => $installed ? $txt['view_and_remove'] : $txt[$type . '_package'],
+			'title' => $txt[$type . '_package'],
 			'no_items_label' => $txt['no_packages'],
 			'get_items' => array(
 				'function' => 'list_getPackages',
-				'params' => array('type' => $type, 'installed' => $installed),
+				'params' => array('type' => $type),
 			),
-			'base_href' => $scripturl . '?action=admin;area=packages;sa=' . $context['sub_action'] . ';type=' . $type,
+			'base_href' => $scripturl . '?action=admin;area=packages;sa=browse;type=' . $type,
 			'default_sort_col' => 'id' . $type,
 			'columns' => array(
 				'id' . $type => array(
@@ -1504,13 +1460,6 @@ function PackageBrowse()
 					),
 				),
 			),
-			'additional_rows' => array(
-				array(
-					'position' => 'bottom_of_list',
-					'value' => ($context['sub_action'] == 'browse' ? '<div class="padding smalltext">' . $txt['package_installed_key'] . '<span class="generic_icons current centericon" style="margin-left: 1ex;"></span> ' . $txt['package_installed_current'] . '<span class="generic_icons old centericon" style="margin-left: 2ex;"></span> ' . $txt['package_installed_old'] . '</div>' :
-					'<a class="button_link" href="' . $scripturl . '?action=admin;area=packages;sa=flush;' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['package_delete_list_warning'] . '\');">' . $txt['delete_list'] . '</a>'),
-				),
-			),
 		);
 
 		createList($listOptions);
@@ -1536,10 +1485,9 @@ function PackageBrowse()
  * @param type $items_per_page
  * @param type $sort
  * @param type $params
- * @param type $installed
  * @return type
  */
-function list_getPackages($start, $items_per_page, $sort, $params, $installed)
+function list_getPackages($start, $items_per_page, $sort, $params)
 {
 	global $scripturl, $packagesdir, $context, $forum_version;
 	static $instmods, $packages;
@@ -1588,25 +1536,6 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 
 		// Get a list of all the ids installed, so the latest packages won't include already installed ones.
 		$context['installed_mods'] = array_keys($installed_mods);
-	}
-
-	if ($installed)
-	{
-		$sort_id = 1;
-		foreach ($instmods as $installed_mod)
-		{
-			$context['available_modification'][$installed_mod['package_id']] = array(
-				'sort_id' => $sort_id++,
-				'can_uninstall' => true,
-				'name' => $installed_mod['name'],
-				'filename' => $installed_mod['filename'],
-				'installed_id' => $installed_mod['id'],
-				'version' => $installed_mod['version'],
-				'time_installed' => $installed_mod['time_installed'],
-				'is_installed' => true,
-				'is_current' => true,
-			);
-		}
 	}
 
 	if (empty($packages))
@@ -1755,19 +1684,8 @@ function list_getPackages($start, $items_per_page, $sort, $params, $installed)
 				{
 					$sort_id['modification']++;
 					$sort_id['mod']++;
-					if ($installed)
-					{
-						if (!empty($context['available_modification'][$packageInfo['id']]))
-						{
-							$packages['modification'][strtolower($packageInfo[$sort]) . '_' . $sort_id['mod']] = $packageInfo['id'];
-							$context['available_modification'][$packageInfo['id']] = array_merge($context['available_modification'][$packageInfo['id']], $packageInfo);
-						}
-					}
-					else
-					{
-						$packages['modification'][strtolower($packageInfo[$sort]) .  '_' . $sort_id['mod']] = md5($package);
-						$context['available_modification'][md5($package)] = $packageInfo;
-					}
+					$packages['modification'][strtolower($packageInfo[$sort]) .  '_' . $sort_id['mod']] = md5($package);
+					$context['available_modification'][md5($package)] = $packageInfo;
 				}
 				// Avatar package.
 				elseif ($packageInfo['type'] == 'avatar')

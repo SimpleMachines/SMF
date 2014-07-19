@@ -110,7 +110,7 @@ function Post($post_errors = array())
 
 			// By default the reply will be approved...
 			$context['becomes_approved'] = true;
-			if ($id_member_poster != $user_info['id'])
+			if ($id_member_poster != $user_info['id'] || $user_info['is_guest'])
 			{
 				if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 					$context['becomes_approved'] = false;
@@ -119,7 +119,7 @@ function Post($post_errors = array())
 			}
 			elseif (!allowedTo('post_reply_any'))
 			{
-				if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own'))
+				if ($modSettings['postmod_active'] && ((allowedTo('post_unapproved_replies_own') && !allowedTo('post_reply_own')) || allowedTo('post_unapproved_replies_any')))
 					$context['becomes_approved'] = false;
 				else
 					isAllowedTo('post_reply_own');

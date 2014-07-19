@@ -512,11 +512,7 @@ function template_browse()
 	global $context, $txt, $scripturl, $modSettings, $forum_version;
 
 	echo '
-	<div id="admincenter">';
-
-	if ($context['sub_action'] == 'browse')
-	{
-		echo '
+	<div id="admincenter">
 		<div id="update_section"></div>
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
@@ -533,19 +529,19 @@ function template_browse()
 				window.smfForum_sessionid = smf_session_id;
 				window.smfForum_sessionvar = smf_session_var;';
 
-		// Make a list of already installed mods so nothing is listed twice ;).
-		echo '
+	// Make a list of already installed mods so nothing is listed twice ;).
+	echo '
 				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 				window.smfVersion = "', $context['forum_version'], '";
 			// ]]></script>
 			<div id="yourVersion" style="display:none">', $context['forum_version'], '</div>';
 
-		if (empty($modSettings['disable_smf_js']))
-			echo '
+	if (empty($modSettings['disable_smf_js']))
+		echo '
 			<script src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
-		// This sets the announcements and current versions themselves ;).
-		echo '
+	// This sets the announcements and current versions themselves ;).
+	echo '
 			<script><!-- // --><![CDATA[
 				var oAdminIndex = new smf_AdminIndex({
 					sSelf: \'oAdminCenter\',
@@ -568,9 +564,8 @@ function template_browse()
 				});
 			// ]]></script>';
 
-		echo '
+	echo '
 		</div>';
-	}
 
 	$mods_available = false;
 	foreach ($context['modification_types'] as $type)
@@ -584,14 +579,14 @@ function template_browse()
 
 	if (!$mods_available)
 		echo '
-		<div class="descbox">', $context['sub_action'] == 'browse' ? $txt['no_packages'] : $txt['no_mods_installed'], '</div>';
+		<div class="descbox">', $txt['no_packages'], '</div>';
 	else
 		echo '
 		<br>';
 
 	// the advanced (emulation) box, collapsed by default
 	echo '
-		<form action="', $scripturl, '?action=admin;area=packages;sa=', $context['sub_action'], '" method="get">
+		<form action="', $scripturl, '?action=admin;area=packages;sa=browse" method="get">
 			<div id="advanced_box" >
 				<div class="cat_bar">
 					<h3 class="catbg">
@@ -621,7 +616,7 @@ function template_browse()
 			</div>
 			<input type="hidden" name="action" value="admin">
 			<input type="hidden" name="area" value="packages">
-			<input type="hidden" name="sa" value="', $context['sub_action'], '">
+			<input type="hidden" name="sa" value="browse">
 		</form>';
 
 	echo '
@@ -894,14 +889,7 @@ function template_package_list()
 				{
 					// 1. Some mod [ Download ].
 					echo '
-						<strong><span id="ps_img_', $i, '_pkg_', $id, '" class="toggle_up" alt="*" style="display: none;"></span> ', $package['can_install'] || !empty($package['can_emulate_install']) ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'];
-
-					// Mark as installed and current?
-					if ($package['is_installed'] && !$package['is_newer'])
-						echo '<span class="generic_icons ', $package['is_current'] ? 'current' : 'old', ' centericon" style="margin-left: 2ex;" title="', $package['is_current'] ? $txt['package_installed_current'] : $txt['package_installed_old'], '"></span>';
-
-					echo '
-						</strong>
+						<strong><span id="ps_img_', $i, '_pkg_', $id, '" class="toggle_up" alt="*" style="display: none;"></span> ', $package['can_install'] || !empty($package['can_emulate_install']) ? '<strong>' . $package['name'] . '</strong> <a href="' . $package['download']['href'] . '">[ ' . $txt['download'] . ' ]</a>': $package['name'], '</strong>
 						<ul id="package_section_', $i, '_pkg_', $id, '" class="package_section">';
 
 					// Show the mod type?

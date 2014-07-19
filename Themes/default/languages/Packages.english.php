@@ -29,7 +29,6 @@ $txt['sql_queries'] = 'SQL Queries';
 $txt['no_mods_installed'] = 'No mods currently installed';
 $txt['browse_installed'] = 'Browse installed mods';
 $txt['uninstall'] = 'Uninstall';
-$txt['delete_list'] = 'Delete Mod List';
 $txt['package_delete_list_warning'] = 'Are you sure you wish to clear the installed modification list?';
 $txt['php_safe_mode'] = 'Sorry, your server currently has PHP set to run in SAFE MODE.  This feature is not compatible with SAFE MODE.';
 $txt['lets_try_anyway'] = 'Let me try anyway.';
@@ -37,7 +36,6 @@ $txt['lets_try_anyway'] = 'Let me try anyway.';
 $txt['could_not_package_backup'] = 'A backup could not be made before making changes. No changes have been made at this time as a result (either change the permissions so Packages/backup can be written to, or turn off backups - not recommended)';
 
 $txt['package_manager_desc'] = 'From this easy to use interface, you can download and install modifications for use on your forum.';
-$txt['installed_packages_desc'] = 'You can use the interface below to view those packages currently installed on the forum, and remove the ones you no longer require.';
 $txt['download_packages_desc'] = 'From this section you can choose to either download new packages from package servers, or upload a package file directly to the forum.';
 
 $txt['create_package'] = 'Create a new Package';
@@ -67,8 +65,6 @@ $txt['package_description'] = 'Description';
 $txt['file_location'] = 'Location of file';
 
 $txt['package_installed_key'] = 'Installed mods:';
-$txt['package_installed_current'] = 'current version';
-$txt['package_installed_old'] = 'older version';
 $txt['package_installed_warning1'] = 'This package is already installed, and no upgrade was found.';
 $txt['package_installed_warning2'] = 'You should uninstall the old version first to avoid problems, or ask the author to create an upgrade from your old version.';
 $txt['package_installed_warning3'] = 'Please remember to always make regular backups of your sources and database before installing mods, especially beta versions.';
