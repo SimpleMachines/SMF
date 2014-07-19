@@ -567,29 +567,29 @@ function DisplayStats()
 		$context['stats_blocks']['liked_users'] = array();
 		$max_liked_users = 1;
 		$liked_users = $smcFunc['db_query']('', '
-			SELECT l.id_member, l.content_id, l.content_type, COUNT(mem.id_member) AS count, mem.id_member AS liked_user, mem.real_name, mem.posts
+			SELECT m.id_member AS liked_user, COUNT(l.content_id) AS count, mem.real_name
 			FROM {db_prefix}user_likes AS l
 				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
 				INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 			WHERE content_type = {literal:msg}
-				AND mem.posts > {int:no_posts}
-				AND mem.id_member > {int:no_posts}
-			GROUP BY mem.id_member
+				AND m.id_member > {int:zero}
+			GROUP BY m.id_member
 			ORDER BY count DESC
 			LIMIT 10',
 			array(
 				'no_posts' => 0,
+				'zero' => 0,
 			)
 		);
 
 		while ($row_liked_users = $smcFunc['db_fetch_assoc']($liked_users))
 		{
 			$context['stats_blocks']['liked_users'][] = array(
-				'name' => $row_liked_users['real_name'],
 				'id' => $row_liked_users['liked_user'],
 				'num' => $row_liked_users['count'],
 				'href' => $scripturl . '?action=profile;u=' . $row_liked_users['liked_user'],
-				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_liked_users['liked_user'] . '">' . $row_liked_users['real_name'] . '</a>'
+				'name' => $row_liked_users['real_name'],
+				'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row_liked_users['liked_user'] . '">' . $row_liked_users['real_name'] . '</a>',
 			);
 
 			if ($max_liked_users < $row_liked_users['count'])
