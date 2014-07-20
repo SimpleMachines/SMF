@@ -19,6 +19,7 @@ $txt['who_show_all'] = 'Everyone';
 $txt['who_no_online_spiders'] = 'There are currently no spiders online.';
 $txt['who_no_online_guests'] = 'There are currently no guests online.';
 $txt['who_no_online_members'] = 'There are currently no members online.';
+$txt['who_guest_login'] = 'User has been taken to the login page.';
 
 $txt['whospider_login'] = 'Viewing the login page.';
 $txt['whospider_register'] = 'Viewing the registration page.';

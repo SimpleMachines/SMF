@@ -290,6 +290,7 @@ function determineActions($urls, $preferred_prefix = false)
 		'viewErrorLog' => array('admin_forum'),
 		'viewmembers' => array('moderate_forum'),
 	);
+	call_integration_hook('who_allowed', array(&$allowedActions));
 
 	if (!is_array($urls))
 		$url_list = array(array($urls, $user_info['id']));
@@ -417,6 +418,19 @@ function determineActions($urls, $preferred_prefix = false)
 				$data[$k] = $txt['who_unknown'];
 		}
 
+		if (isset($actions['error']))
+		{
+			if (isset($txt[$actions['error']]))
+				$error_message = str_replace('"', '&quot;', empty($actions['who_error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['who_error_params']));
+			elseif ($actions['error'] == 'guest_login')
+				$error_message = str_replace('"', '&quot;', $txt['who_guest_login']);
+			else
+				$error_message = str_replace('"', '&quot;', $actions['error']);
+
+			if (!empty($error_message))
+				$data[$k] .= ' <span class="generic_icons error" title="' . $error_message . '"></span>';
+		}
+
 		// Maybe the action is integrated into another system?
 		if (count($integrate_actions = call_integration_hook('integrate_whos_online', array($actions))) > 0)
 		{
@@ -506,6 +520,8 @@ function determineActions($urls, $preferred_prefix = false)
 		}
 		$smcFunc['db_free_result']($result);
 	}
+
+	call_integration_hook('whos_online_after', array(&$urls, &$data));
 
 	if (!is_array($urls))
 		return isset($data[0]) ? $data[0] : false;
