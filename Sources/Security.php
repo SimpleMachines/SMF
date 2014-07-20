@@ -99,16 +99,15 @@ function validateSession($type = 'admin')
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl;
+	global $user_info, $txt, $context, $scripturl, $modSettings;
 
 	// Luckily, this person isn't a guest.
-	if (isset($user_info['is_guest']) && !$user_info['is_guest'])
+	if (!$user_info['is_guest'])
 		return;
 
-	// People always worry when they see people doing things they aren't actually doing...
-	$_GET['action'] = '';
-	$_GET['board'] = '';
-	$_GET['topic'] = '';
+	// Log what they were trying to do didn't work)
+	if (!empty($modSettings['who_enabled']))
+		$_GET['error'] = 'guest_login';
 	writeLog(true);
 
 	// Just die.
@@ -350,7 +349,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 		Logout(true, false);
-		
+
 		// You banned, sucka!
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
 

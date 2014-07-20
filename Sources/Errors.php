@@ -129,6 +129,7 @@ function fatal_error($error, $log = 'general')
 	if (empty($txt))
 		die($error);
 
+	log_error_online($error, false);
 	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
@@ -179,6 +180,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
+	log_error_online($error, true, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 
@@ -456,6 +458,55 @@ function set_fatal_error_headers()
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 3600');
+}
+
+
+/**
+ * Small utility function for fatal error pages.
+ * Used by fatal_error(), fatal_lang_error()
+ *
+ * @param string $error The error
+ * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ */
+function log_error_online($error, $sprintf = array())
+{
+	global $smcFunc, $user_info, $modSettings;
+
+	// Don't bother if Who's Online is disabled.
+	if (empty($modSettings['who_enabled']))
+		return;
+
+	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+
+	// First, we have to get the online log, because we need to break apart the serialized string.
+	$request = $smcFunc['db_query']('', '
+		SELECT url
+		FROM {db_prefix}log_online
+		WHERE session = {string:session}',
+		array(
+			'session' => $session_id,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		list ($url) = $smcFunc['db_fetch_row']($request);
+		$url = unserialize($url);
+		$url['error'] = $error;
+
+		if (!empty($sprintf))
+			$url['error_params'] = $sprintf;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_online
+			SET url = {string:url}
+			WHERE session = {string:session}',
+			array(
+				'url' => serialize($url),
+				'session' => $session_id,
+			)
+		);
+	}
+	$smcFunc['db_free_result']($request);
 }
 
 ?>
