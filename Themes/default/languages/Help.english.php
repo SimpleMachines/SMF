@@ -12,15 +12,15 @@ $helptxt['manage_boards'] = '
 	site that offered information on &quot;Sports&quot; and &quot;Cars&quot; and &quot;Music&quot;, these
 	would be the top-level Categories you\'d create. Under each of these
 	categories you\'d likely want to create &quot;Boards&quot; for topics within each. It\'s a simple hierarchy, with this structure: <br>
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Sports</strong>
 			&nbsp;- A &quot;category&quot;
-			<ul>
+			<ul class="normallist">
 				<li>
 					<strong>Baseball</strong>
 					&nbsp;- A board under the category of &quot;Sports&quot;
-					<ul>
+					<ul class="normallist">
 						<li>
 							<strong>Stats</strong>
 							&nbsp;- A sub-board under the board of &quot;Baseball&quot;
@@ -40,7 +40,7 @@ $helptxt['manage_boards'] = '
 	to delete the board entirely.';
 
 $helptxt['edit_news'] = '
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>News</strong><br>
 			On this page it allows you to set the text for news items displayed on the Board Index page.
@@ -57,7 +57,7 @@ $helptxt['edit_news'] = '
 	</ul>';
 
 $helptxt['view_members'] = '
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>View all Members</strong><br>
 			View all members in the board. You are presented with a hyperlinked list of member names. You may click
@@ -129,7 +129,7 @@ $helptxt['live_news'] = '<strong>Live announcements</strong><br>
 $helptxt['registrations'] = '<strong>Registration Management</strong><br>
 	This page contains all the functions that could be necessary to manage new registrations on the forum. It contains up to four
 	pages which are visible depending on your forum settings. These are:<br><br>
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Register new member</strong><br>
 			From this page you can choose to register accounts for new members on their behalf. This can be useful in forums where registration is closed
@@ -203,7 +203,7 @@ $helptxt['serversettings'] = '<strong>Server Settings</strong><br>
 	important configuration items such as mail settings and caching. Think carefully whenever editing these settings as an error may
 	render the forum inaccessible';
 $helptxt['manage_files'] = '
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Browse Files</strong><br>
 			Browse through all the attachments, avatars and thumbnails stored by SMF.<br><br>
@@ -232,7 +232,7 @@ $helptxt['titlesEnable'] = 'Switching Custom Titles on will allow members with t
 $helptxt['onlineEnable'] = 'This will show an image to indicate whether the member is online or offline';
 $helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot; instead of the date.<br><br>
 		<strong>Examples:</strong><br><br>
-		<ul>
+		<ul class="normallist">
 			<li>
 			<strong>Disabled</strong><br>
 			October 3, 2009 at 12:59:18 am</li>
@@ -285,7 +285,7 @@ $helptxt['attachmentThumbWidth'] = 'Only used with the &quot;Resize images when 
 $helptxt['attachmentThumbHeight'] = 'Only used with the &quot;Resize images when showing under posts&quot; setting the maximum height to resize attachments down from.  They will be resized proportionally.';
 $helptxt['attachmentDirFileLimit'] = 'Max number of files per directory';
 $helptxt['attachmentEnable'] = 'This setting enables you to configure how attachments can be made.<br><br>
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Disable all attachments</strong><br>
 			All attachments are disabled. Existing attachments are not deleted, but they are hidden from view (even administrators cannot see them). New attachments cannot be made either, regardless of permissions.<br><br>
@@ -333,7 +333,7 @@ $helptxt['default_timezone'] = 'The server time zone tells PHP where your server
 $helptxt['spamWaitTime'] = 'Here you can select the amount of time that must pass between postings. This can be used to stop people from "spamming" your forum by limiting how often they can post.';
 
 $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tags:
-	<ul>
+	<ul class="normallist">
 		<li>&lt;b&gt;, &lt;u&gt;, &lt;i&gt;, &lt;s&gt;, &lt;em&gt;, &lt;ins&gt;, &lt;del&gt;</li>
 		<li>&lt;a href=&quot;&quot;&gt;</li>
 		<li>&lt;img src=&quot;&quot; alt=&quot;&quot; /&gt;</li>
@@ -383,7 +383,7 @@ $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the W
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
 $helptxt['customoptions'] = 'This defines the options that a user may choose from a drop down list. There are a few key points to note in this page:
-	<ul>
+	<ul class="normallist">
 		<li><strong>Default setting:</strong> Whichever check box has the &quot;radio button&quot; next to it selected will be the default selection for the user when they enter their profile.</li>
 		<li><strong>Removing Options:</strong> To remove an option simply empty the text box for that option - all users with that selected will have their option cleared.</li>
 		<li><strong>Reordering Options:</strong> You can reorder the options by moving text around between the boxes. However - an important note - you must make sure you do <strong>not</strong> change the text when reordering options as otherwise user data will be lost.</li>
@@ -413,7 +413,7 @@ $helptxt['pm_posts_per_hour'] = 'This will limit the number of personal messages
 $helptxt['default_personal_text'] = 'Sets the default text a new user will have as their &quot;personal text.&quot; This setting is not available when personal text is disabled, or when users can set personal text on registration for themselves.';
 
 $helptxt['registration_method'] = 'This setting determines what method of registration is used for people wishing to join your forum. You can select from:<br><br>
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Registration Disabled</strong><br>
 				Disables the registration process, which means that no new members can register to join your forum.<br>
@@ -438,7 +438,7 @@ $helptxt['send_validation_onChange'] = 'When this setting is checked all members
 $helptxt['send_welcomeEmail'] = 'When this setting is enabled all new members will be sent an email welcoming them to your community';
 $helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member\'s accounts.
 	Its possible settings are:
-	<ul>
+	<ul class="normallist">
 		<li><strong>Low:</strong> The password must be at least four characters long.</li>
 		<li><strong>Medium:</strong> The password must be at least eight characters long, and can not be part of a user\'s name or email address.</li>
 		<li><strong>High:</strong> As for medium, except the password must also contain a mixture of upper and lower case letters, and at least one number.</li>
@@ -449,7 +449,7 @@ $helptxt['coppaAge'] = 'The value specified in this box will determine the minim
 	On registration they will be prompted to confirm whether they are over this age, and if not will either have their application rejected or suspended awaiting parental approval - dependant on the type of restriction chosen.
 	If a value of 0 is chosen for this setting then all other age restriction settings shall be ignored.';
 $helptxt['coppaType'] = 'If age restrictions are enabled, then this setting will define  what happens when a user below the minimum age attempts to register with your forum. There are two possible choices:
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Reject Their Registration:</strong><br>
 				Any new member below the minimum age will have their registration rejected immediately.<br>
@@ -479,7 +479,7 @@ $helptxt['membergroup_regular_members'] = 'The Regular Members are all members t
 $helptxt['membergroup_administrator'] = 'The administrator can, per definition, do anything and see any board. There are no permission settings for the administrator.';
 $helptxt['membergroup_moderator'] = 'The Moderator membergroup is a special membergroup. Permissions and settings assigned to this group apply to moderators but only <em>on the boards they moderate</em>. Outside these boards they\'re just like any other member. Note that permissions for this group also apply to any group assigned to moderate a board.';
 $helptxt['membergroups'] = 'In SMF there are two types of groups that your members can be part of. These are:
-	<ul>
+	<ul class="normallist">
 		<li><strong>Regular Groups:</strong> A regular group is a group which members are not automatically placed. To assign a member to be in a group simply go to their profile and click &quot;Account Settings&quot;. From here you can assign them any number of regular groups to which they will be part.</li>
 		<li><strong>Post Groups:</strong> Unlike regular groups post based groups cannot be assigned. Instead, members are automatically assigned to a post based group when they reach the minimum number of posts required to be in that group.</li>
 	</ul>';
@@ -515,7 +515,7 @@ $helptxt['whytwoip'] = 'SMF uses various methods to detect user IP addresses. Us
 $helptxt['ban_cannot_post'] = 'The \'cannot post\' restriction turns the forum into read-only mode for the banned user. The user cannot create new topics, or reply to existing ones, send personal messages or vote in polls. The banned user can however still read personal messages and topics.<br><br>A warning message is shown to the users that are banned this way.';
 
 $helptxt['posts_and_topics'] = '
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Post Settings</strong><br>
 			Modify the settings related to the posting of messages and the way messages are shown. You can also enable the spell check here.
@@ -538,7 +538,7 @@ Agressive - As for &quot;Moderate&quot; but logs data about each page visited.';
 
 $helptxt['spider_group'] = 'By selecting a restrictive group, when a guest is detected as a search crawler it will automatically be assigned any &quot;deny&quot; deny permissions of this group in addition to the normal permissions of a guest. You can use this to provide lesser access to a search engine than you would a normal guest. You might for example wish to create a new group called &quot;Spiders&quot; and select that here. You could then deny permission for that group to view profiles to stop spiders indexing your members profiles.<br>Note: Spider detection is not perfect and can be simulated by users so this feature is not guaranteed to restrict content only to those search engines you have added.';
 $helptxt['show_spider_online'] = 'This setting allows you to select whether spiders should be listed in the &quot;Who\'s Online&quot; list on the board index and &quot;Who\'s Online&quot; page. The options are:
-	<ul>
+	<ul class="normallist">
 		<li>
 			<strong>Not at All</strong><br>
 			Spiders will simply appear as guests to all users.
@@ -566,7 +566,7 @@ $helptxt['postmod'] = 'This page allows members of the moderation team (with suf
 $helptxt['field_show_enclosed'] = 'Encloses the user input between some text or html.  This will allow you to add more instant message providers, images or an embed etc. For example:<br><br>
 		&lt;a href="http://website.com/{INPUT}"&gt;&lt;img src="{DEFAULT_IMAGES_URL}/icon.png" alt="{INPUT}" /&gt;&lt;/a&gt;<br><br>
 		Note that you can use the following variables:<br>
-		<ul>
+		<ul class="normallist">
 			<li>{INPUT} - The input specified by the user.</li>
 			<li>{SCRIPTURL} - Web address of forum.</li>
 			<li>{IMAGES_URL} - Url to images directory in the users current theme.</li>
