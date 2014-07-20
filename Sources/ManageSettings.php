@@ -613,6 +613,14 @@ function ModifyAntispamSettings($return_config = false)
 		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
 
+	if (empty($context['qa_by_lang'][strtr($language, array('-utf8' => ''))]) && !empty($context['question_answers']))
+	{
+		if (empty($context['settings_insert_above']))
+			$context['settings_insert_above'] = '';
+
+		$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf($txt['question_not_defined'], $context['languages'][$language]['name']) . '</div>';
+	}
+
 	// Thirdly, push some JavaScript for the form to make it work.
 	addInlineJavascript('
 	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
