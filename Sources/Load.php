@@ -509,7 +509,10 @@ function loadUserSettings()
 	// Allow the user to change their language.
 	if (!empty($modSettings['userLanguage']))
 	{
-		$context['languages'] = $languages = getLanguages();
+		$languages = getLanguages();
+
+		if (count($context['languages']) == 1)
+			unset($context['languages']);
 
 		// Is it valid?
 		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
