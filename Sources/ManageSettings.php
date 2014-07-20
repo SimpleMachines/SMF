@@ -132,7 +132,7 @@ function ModifyModSettings()
 }
 
 /**
- * Config array for chaning the basic forum settings
+ * Config array for changing the basic forum settings
  * Accessed  from ?action=admin;area=featuresettings;sa=basic;
  *
  * @param $return_config
@@ -348,7 +348,7 @@ function ModifyLayoutSettings($return_config = false)
 }
 
 /**
- * Config array for chanigng like settings
+ * Config array for changing like settings
  * Accessed  from ?action=admin;area=featuresettings;sa=likes;
  *
  * @param $return_config

@@ -22,6 +22,8 @@ $txt['smf_stats_14'] = 'Most Online';
 $txt['top_starters'] = 'Top Topic Starters';
 $txt['top_time_online'] = 'Most Time Online';
 $txt['stats_more_detailed'] = 'more detailed &raquo;';
+$txt['top_liked_messages'] = 'Top liked messages';
+$txt['top_liked_users'] = 'Top liked users';
 
 $txt['average_members'] = 'Average registrations per day';
 $txt['average_posts'] = 'Average posts per day';
