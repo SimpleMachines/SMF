@@ -2,10 +2,15 @@
 .action_admin .generic_list {
 	overflow: auto;
 }
-#admin_content .windowbg, #admin_content .windowbg2 {
-	margin: 0 0 5px 0;
+#admin_content .windowbg {
+	margin: 5px 0 5px 0;
+	box-shadow: none;
+	background: #F8F8F8;
+}
+#admin_content .windowbg2 {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+	margin: 0 0 5px 0;
 	box-shadow: none;
 	background: #F8F8F8;
 }
@@ -31,7 +36,7 @@
 	padding: 4px 2px;
 }
 .windowbg.nopadding {
-	margin: 4px 0 0 0;
+	margin: 0 !important;
 	padding: 0;
 }
 .windowbg ol {
@@ -366,7 +371,7 @@ pre.file_content {
 #manage_boards {
 	overflow: auto;
 }
-.roundframe .windowbg {
+.roundframe .windowbg, .roundframe .windowbg2 {
 	border: 0;
 	padding: 0;
 	background: none;
@@ -648,10 +653,6 @@ h3.grid_header {
 
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
-}
-.winfo {
-	border-bottom: none;
-	border-radius: 0;
 }
 #manage_boards .button_submit, .action_admin .button_submit, .action_admin .button_link {
 	margin: 5px 8px 0 0 !important;

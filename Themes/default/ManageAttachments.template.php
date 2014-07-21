@@ -40,7 +40,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_stats'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<dl class="settings">
 				<dt><strong>', $txt['attachment_total'], ':</strong></dt><dd>', $context['num_attachments'], '</dd>
 				<dt><strong>', $txt['attachment_manager_total_avatars'], ':</strong></dt><dd>', $context['num_avatars'], '</dd>
@@ -56,7 +56,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_integrity_check'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
 				<hr class="hrcolor">
@@ -67,7 +67,7 @@ function template_maintenance()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['attachment_pruning'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<form action="', $scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', $context['character_set'], '" onsubmit="return confirm(\'', $txt['attachment_pruning_warning'], '\');" style="margin: 0 0 2ex 0;">
 				', $txt['attachment_remove_old'], ' <input type="number" name="age" value="25" size="4" class="input_text"> ', $txt['days_word'], '<br>
 				', $txt['attachment_pruning_message'], ': <input type="text" name="notice" value="', $txt['attachment_delete_admin'], '" size="40" class="input_text"><br>
@@ -108,7 +108,7 @@ function template_maintenance()
 			<div class="noticebox">', $context['results'], '</div>';
 
 	echo '
-			<div class="windowbg">
+			<div class="windowbg2">
 				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['attachment_transfer_desc'], '</p>
 					<hr class="hrcolor">

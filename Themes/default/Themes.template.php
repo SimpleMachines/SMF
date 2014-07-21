@@ -111,7 +111,7 @@ function template_main()
 				', $txt['theme_adding_title'], '
 			</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			', $txt['theme_adding'], '
 		</div>';
 
@@ -134,7 +134,7 @@ function template_main()
 					', $txt['theme_install_file'], '
 				</h3>
 			</div>
-			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=file" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=file" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" class="windowbg2">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-t-file_token_var'], '" value="', $context['admin-t-file_token'], '">
 				<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file">
@@ -149,7 +149,7 @@ function template_main()
 					', $txt['theme_install_new'], '
 				</h3>
 			</div>
-			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=copy" method="post" accept-charset="', $context['character_set'], '" class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=copy" method="post" accept-charset="', $context['character_set'], '" class="windowbg2">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-t-copy_token_var'], '" value="', $context['admin-t-copy_token'], '">
 				<input type="text" name="copy" id="copy" value="', $context['new_theme_name'], '" size="40" class="input_text">
@@ -165,7 +165,7 @@ function template_main()
 					', $txt['theme_install_dir'], '
 				</h3>
 			</div>
-			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=dir" method="post" accept-charset="', $context['character_set'], '" class="windowbg">
+			<form action="', $scripturl, '?action=admin;area=theme;sa=install;do=dir" method="post" accept-charset="', $context['character_set'], '" class="windowbg2">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-t-dir_token_var'], '" value="', $context['admin-t-dir_token'], '">
 				<input type="text" name="theme_dir" id="theme_dir" value="', $context['new_theme_dir'], '" size="40" style="width: 40%;" class="input_text">
@@ -245,7 +245,7 @@ function template_list_themes()
 			echo '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings themes_list">
 					<dt>', $txt['themeadmin_list_theme_dir'], ':</dt>
 					<dd', $theme['valid_path'] ? '' : ' class="error"', '>', $theme['theme_dir'], $theme['valid_path'] ? '' : ' ' . $txt['themeadmin_list_invalid'], '</dd>
@@ -261,7 +261,7 @@ function template_list_themes()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['themeadmin_list_reset'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<label for="reset_dir">', $txt['themeadmin_list_reset_dir'], '</label>:
@@ -310,7 +310,7 @@ function template_reset_list()
 			<div class="cat_bar">
 				<h3 class="catbg">', $theme['name'], '</h3>
 			</div>
-			<div class="windowbg', $alternate ? '' : '2','">
+			<div class="windowbg2">
 				<ul class="reset">
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
@@ -341,7 +341,7 @@ function template_set_options()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['theme_options_title'], ' - ', $context['theme_settings']['name'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information">
 				', $context['theme_options_reset'] ? $txt['themeadmin_reset_options_info'] : $txt['theme_options_defaults'], '
 			</div>
 			<div class="windowbg2">';
@@ -467,7 +467,7 @@ function template_set_settings()
 					', $txt['theme_edit'], '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<ul class="reset">
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;filename=index.template.php">', $txt['theme_edit_index'], '</a>
@@ -555,7 +555,7 @@ function template_set_settings()
 					', $txt['theme_options'], '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings flow_auto">';
 
 	foreach ($context['settings'] as $setting)
@@ -828,7 +828,7 @@ function template_edit_list()
 				<em>(' . $theme['version'] . ')</em>' : '', '
 			</h3>
 		</div>
-		<div class="windowbg', $alternate ? '' : '2','">
+		<div class="windowbg2">
 			<ul class="reset">
 				<li><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit">', $txt['themeadmin_edit_browse'], '</a></li>', $theme['can_edit_style'] ? '
 				<li><a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=css">' . $txt['themeadmin_edit_style'] . '</a></li>' : '', '

@@ -25,7 +25,7 @@ function template_email_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_newsletters'], '</h3>
 			</div>
-			<div class="information winfo">
+			<div class="information">
 				', $txt['admin_news_select_recipients'], '
 			</div>
 			<div class="windowbg">

@@ -46,7 +46,7 @@ function template_group_requests_block()
 				<a href="', $scripturl, '?action=groups;sa=requests" id="group_requests_link">', $txt['mc_group_requests'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg" id="group_requests_panel">
+		<div class="windowbg2" id="group_requests_panel">
 			<div class="modbox">
 				<ul class="reset">';
 
@@ -112,7 +112,7 @@ function template_watched_users()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', $txt['mc_watched_users'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg" id="watched_users_panel">
+		<div class="windowbg2" id="watched_users_panel">
 			<div class="modbox">
 				<ul class="reset">';
 
@@ -178,7 +178,7 @@ function template_reported_posts_block()
 				<a href="', $scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', $txt['mc_recent_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg" id="reported_posts_panel">
+		<div class="windowbg2" id="reported_posts_panel">
 			<div class="modbox">
 				<ul class="reset">';
 
@@ -244,7 +244,7 @@ function template_reported_users_block()
 				<a href="', $scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', $txt['mc_recent_user_reports'], '</a>
 			</h3>
 		</div>
-		<div class="windowbg" id="reported_users_panel">
+		<div class="windowbg2" id="reported_users_panel">
 			<div class="modbox">
 				<ul class="reset">';
 
@@ -319,7 +319,7 @@ function template_notes()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['mc_notes'], '</h3>
 				</div>
-				<div class="windowbg">
+				<div class="windowbg2">
 					<div class="modbox">';
 
 		if (!empty($context['notes']))
@@ -384,31 +384,29 @@ function template_unapproved_posts()
 	foreach ($context['unapproved_items'] as $item)
 	{
 		echo '
-		<div class="topic clear">
-			<div class="', $item['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
-				<div class="counter">', $item['counter'], '</div>
-				<div class="topic_details">
-					<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
-					<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
-				</div>
-				<div class="list_posts">
-					<div class="post">', $item['body'], '</div>
-				</div>
-				<span class="floatright">
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
-
-			if ($item['can_delete'])
-				echo '
-				', $context['menu_separator'], '
-					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
-
-			if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
-				echo '
-					<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check"> ';
-
-			echo '
-				</span>
+		<div class="windowbg clear">
+			<div class="counter">', $item['counter'], '</div>
+			<div class="topic_details">
+				<h5><strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong></h5>
+				<span class="smalltext"><strong>', $txt['mc_unapproved_by'], ' ', $item['poster']['link'], ' ', $txt['on'], ':</strong> ', $item['time'], '</span>
 			</div>
+			<div class="list_posts">
+				<div class="post">', $item['body'], '</div>
+			</div>
+			<span class="floatright">
+				<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';approve=', $item['id'], '">', $approve_button, '</a>';
+
+		if ($item['can_delete'])
+			echo '
+			', $context['menu_separator'], '
+				<a href="', $scripturl, '?action=moderate;area=postmod;sa=', $context['current_view'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], ';delete=', $item['id'], '">', $remove_button, '</a>';
+
+		if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1)
+			echo '
+				<input type="checkbox" name="item[]" value="', $item['id'], '" checked class="input_check"> ';
+
+		echo '
+			</span>
 		</div>';
 	}
 
@@ -485,7 +483,7 @@ function template_moderation_settings()
 	{
 		echo '
 		<form action="', $scripturl, '?action=moderate;area=settings" method="post" accept-charset="', $context['character_set'], '">
-			<div class="windowbg2">
+			<div class="windowbg">
 				<dl class="settings">
 					<dt>
 						<strong><label for="mod_notify_approval">', $txt['mc_prefs_notify_approval'], '</label>:</strong>
@@ -494,7 +492,6 @@ function template_moderation_settings()
 						<input type="checkbox" id="mod_notify_approval" name="mod_notify_approval"', $context['mod_settings']['notify_approval'] ? ' checked' : '', ' class="input_check">
 					</dd>
 				</dl>
-				<hr class="hrcolor">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['mod-set_token_var'], '" value="', $context['mod-set_token'], '">
 				<input type="submit" name="save" value="', $txt['save'], '" class="button_submit">
@@ -503,7 +500,7 @@ function template_moderation_settings()
 	}
 	else
 		echo '
-		<div class="windowbg2">
+		<div class="windowbg">
 			<div class="centertext">', $txt['mc_no_settings'], '</div>
 		</div>';
 		

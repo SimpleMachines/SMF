@@ -108,7 +108,7 @@ function template_permission_index()
 					<a href="#" id="permissions_panel_link">', $txt['permissions_advanced_options'], '</a>
 				</h3>
 			</div>
-			<div id="permissions_panel_advanced" class="windowbg">
+			<div id="permissions_panel_advanced" class="windowbg2">
 				<fieldset>
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings admin_permissions">
@@ -287,13 +287,13 @@ function template_by_board()
 	foreach ($context['categories'] as $category)
 	{
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">', $category['name'], '</h3>
+			<div class="sub_bar">
+				<h3 class="subbg">', $category['name'], '</h3>
 			</div>';
 
 		if (!empty($category['boards']))
 			echo '
-			<div class="windowbg">
+			<div class="windowbg2">
 				<ul class="perm_boards flow_hidden">';
 
 		$alternate = false;
@@ -417,7 +417,7 @@ function template_edit_profiles()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_profile_new'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['permissions_profile_name'], ':</strong>

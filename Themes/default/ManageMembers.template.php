@@ -24,7 +24,7 @@ function template_search_members()
 				</h3>
 			</div>
 			<input type="hidden" name="sa" value="query">
-			<div class="windowbg">
+			<div class="windowbg2">
 				<div class="flow_hidden">
 					<div class="msearch_details floatleft">
 						<dl class="settings right">

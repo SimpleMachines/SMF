@@ -3511,7 +3511,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	border: 1px solid #ddd;
 	border-top: none;
 	border-radius: 0 0 7px 7px;
-	margin: 0;
+	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
 	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
 }
