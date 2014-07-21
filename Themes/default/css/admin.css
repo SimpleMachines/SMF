@@ -168,18 +168,6 @@ body#chrome  #quick_search .button_submit {
 	border-radius: 0;
 	height: 12em;
 	overflow: auto;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.5, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 50%);
 }
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;

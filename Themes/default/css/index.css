@@ -2580,7 +2580,6 @@ dl.addrules dt.floatleft {
 .progress_bar div.green_percent {
 	height: 15pt;
 	background-color: #c1ffc1;
-	background-image: -webkit-linear-gradient(top, #c1ffc1, green);
 	background-image: linear-gradient(to bottom, #c1ffc1, green);
 	border-radius: 3px;
 	z-index: 1;
@@ -2588,7 +2587,6 @@ dl.addrules dt.floatleft {
 .progress_bar div.blue_percent {
 	height: 15pt;
 	background-color: #98b8f4;
-	background-image: -webkit-linear-gradient(top, #98b8f4, blue);
 	background-image: linear-gradient(to bottom, #98b8f4, blue);
 	border-radius: 3px;
 	z-index: 1;
@@ -3663,50 +3661,17 @@ h3.profile_hd {
 #top_section, #search_form .button_submit, .quickbuttons li,
 .quickbuttons li ul, .quickbuttons li ul li:hover, .quickbuttons ul li a:focus,
 .popup_window, #inner_section {
-	background: #FFFFFF;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.7, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 70%);
+	background: #FFFFFF; /* fallback for some browsers */
 	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 70%);
 }
 /* Well some of them has different gradient effect on hover */
 .button:hover, .button_submit:hover, .button_reset:hover, .button_link:hover,
 .topbottom:hover,#search_form .button_submit:hover, .quickbuttons li:hover {
 	background: #FFFFFF;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.7, #E2E9F3)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #E2E9F3 70%);
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E9F3 70%);
 }
 /* If it fits I sits... */
 .navigate_section ul, .popup_content, .up_contain {
-	background: #FFFFFF; /* fallback for some browsers */
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #FFFFFF),
-		color-stop(0.95, #F1F3F5)
-	);
-	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
-	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F1F3F5 95%);
+	background: #FFFFFF;
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
