@@ -63,7 +63,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+			<table class="table_grid clear" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
