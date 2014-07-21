@@ -52,7 +52,7 @@ $helptxt['edit_news'] = '
 		</li>
 		<li>
 			<strong>Settings</strong><br>
-				This page contains a few settings that relate to news and newsletters, including selecting what groups can edit forum news or send newsletters. There is also an setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each news post from a news feed.
+				This page contains a few settings that relate to news and newsletters, including selecting which groups can edit forum news or send newsletters. There is also a setting to configure whether you want news feeds enabled on the forum, as well as a setting to configure the length (how many characters are displayed) for each news post from a news feed.
 		</li>
 	</ul>';
 
@@ -85,7 +85,7 @@ $helptxt['view_members'] = '
 $helptxt['ban_members'] = '<strong>Ban Members</strong><br>
 	SMF provides the ability to &quot;ban&quot; users, which can be a useful course of action against users that have 
 	violated the trust of the forum	by spamming or trolling, etc. This allows you to exclude users that are detrimental 
-	to your forum. As an admin,	when you view posts made on your forum, you can see each the IP address that the user had at the time of posting. 
+	to your forum. As an admin, when you view posts made on your forum, you can see the IP address that the user had at the time of posting. 
 	In the ban list, you simply type that IP address in, save, and they can no longer post from that location.<br>You can also
 	ban people through their email address.';
 
@@ -168,12 +168,12 @@ $helptxt['warning_enable'] = '<strong>User Warning System</strong><br>
 $helptxt['warning_watch'] = 'This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member. Any member who is being &quot;watched&quot; will appear in the watched members list in the moderation center.';
 $helptxt['warning_moderate'] = 'Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum community. This will override any local board permissions which may exist related to post moderation.';
 $helptxt['warning_mute'] = 'If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.';
-$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This will
-			can be used to limit what a moderator can do in a small period of time. This setting can be disabled by setting to a value of zero. Note that
+$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This 
+			can be used to limit what a moderator can do in a small period of time. This can be disabled by setting it to a value of zero. Note that
 			any members with administrator permissions are not affected by this value.';
 
 $helptxt['error_log'] = '<strong>Error Log</strong><br>
-	The error log tracks logs every serious error encountered by users of your forum. It lists all of these errors by date which can be sorted
+	The error log tracks every serious error encountered by users of your forum. It lists all of these errors by date, which can be sorted
 	by clicking the black arrow next to each date. Additionally you can filter the errors by clicking the picture next to each error statistic. This
 	allows you to filter, for example, by member. When a filter is active the only results that will be displayed will be those that match that filter.';
 $helptxt['theme_settings'] = '<strong>Theme Settings</strong><br>
@@ -181,7 +181,7 @@ $helptxt['theme_settings'] = '<strong>Theme Settings</strong><br>
 	also options that affect the layout of a theme on your forum. Most themes will have a variety of user configurable settings, allowing you to adapt a theme
 	to suit your individual forum needs.';
 $helptxt['smileys'] = '<strong>Smiley Center</strong><br>
-	Here you can add and remove smileys, and smiley sets. If a smiley is present in one set, it should be in all sets - otherwise, it might
+	Here you can add and remove smileys, and smiley sets. If a smiley is present in one set, it should be present in all sets - otherwise, it might
 	get confusing for your users using different sets.<br><br>
 
 	You are also able to edit message icons from here, if you have them enabled on the settings page.';
