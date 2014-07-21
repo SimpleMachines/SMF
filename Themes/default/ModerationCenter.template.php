@@ -21,7 +21,6 @@ function template_moderation_center()
 	echo '
 	<div id="modcenter">';
 
-	$alternate = true;
 	// Show all the blocks they want to see.
 	foreach ($context['mod_blocks'] as $block)
 	{
@@ -29,17 +28,10 @@ function template_moderation_center()
 
 		echo '
 		<div class="half_content">', function_exists($block_function) ? $block_function() : '', '</div>';
-
-		if (!$alternate)
-			echo '
-		<br class="clear">';
-
-		$alternate = !$alternate;
 	}
 
 	echo '
-	</div>
-	<br class="clear">';
+	</div>';
 }
 
 // Show all the group requests the user can see.

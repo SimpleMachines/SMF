@@ -554,7 +554,7 @@ function template_group_members()
 
 			<br>
 			<div class="cat_bar">
-				<h4 class="catbg">', $txt['membergroups_members_group_members'], '</h4>
+				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
 			</div>
 			<br>
 			<div class="pagesection">', $context['page_index'], '</div>

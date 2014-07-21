@@ -2690,8 +2690,7 @@ div#manage_boards dl dd textarea[name=desc] {
 
 /* Profile > This needed for responsive (get rid of <br>) */
 .infolinks {
-	min-width: 95%;
-	float: left;
+	display: block;
 }
 #groups .windowbg, #groups .windowbg2 {
 	box-shadow: none;
@@ -3429,14 +3428,6 @@ div.cat_bar {
 	padding: 8px 12px 6px 12px;
 }
 /* Styles for rounded headers. */
-h3.catbg, h4.catbg {
-	overflow: hidden;
-	font-size: 1.1em;
-	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	line-height: 1.5em;
-	padding: 8px;
-}
 .cat_bar .desc
 {
 	font-size: 10px;
@@ -3444,25 +3435,25 @@ h3.catbg, h4.catbg {
 	font-weight: normal;
 	margin: -8px 0 4px 12px;
 }
-h3.catbg a:link, h3.catbg a:visited, h4.catbg a:link, h4.catbg a:visited, h3.catbg {
+h3.catbg {
+	overflow: hidden;
+	font-size: 1.1em;
+	font-family: "Tahoma", sans-serif;
+	font-weight: bold;
+	line-height: 1.5em;
+	padding: 8px;
+	background: none;
+}
+h3.catbg, h3.catbg a:link, h3.catbg a:visited, h3.catbg a:hover {
 	color: #fff;
 }
-h3.catbg a:hover, h4.catbg a:hover {
-	color: #fff;
+h3.catbg a:hover {
 	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
 	text-decoration: none;
 }
 h3.catbg .icon {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
-}
-h4.catbg a.toggle img {
-	vertical-align: middle;
-	margin: 0 5px 0 5px;
-}
-h4.catbg, h3.catbg {
-	color: #FFF;
-	background: none;
 }
 /* Roundframe */
 .roundframe {

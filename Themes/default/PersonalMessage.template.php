@@ -218,7 +218,7 @@ function template_folder()
 			echo '
 	<div class="', $window_class, '">
 		<div class="poster">
-					<h4>
+					<h3>
 						<a id="msg', $message['id'], '"></a>';
 						
 		// Show online and offline buttons?
@@ -231,7 +231,7 @@ function template_folder()
 					', $message['member']['link'], '';
 
 		echo '
-					</h4>';
+					</h3>';
 					
 		echo '
 								<ul>';
@@ -737,9 +737,9 @@ function template_search()
 		<fieldset class="labels">
 			<div class="roundframe">
 				<div class="cat_bar">
-					<h4 class="catbg">
+					<h3 class="catbg">
 						<span id="advanced_panel_toggle" class="toggle_up floatright" style="display: none;"></span><a href="#" id="advanced_panel_link">', $txt['pm_search_choose_label'], '</a>
-					</h4>
+					</h3>
 				</div>
 				<div id="advanced_panel_div">
 					<ul id="searchLabelsExpand" class="reset">';
@@ -1071,9 +1071,9 @@ function template_send()
 		echo '
 			<br>
 			<div id="postDraftOptionsHeader" class="cat_bar">
-				<h4 class="catbg">
+				<h3 class="catbg">
 					<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', $txt['draft_load'], '</a></strong>
-				</h4>
+				</h3>
 			</div>
 			<div id="postDraftOptions" class="load_drafts padding">
 				<dl class="settings">
