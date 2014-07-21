@@ -139,10 +139,6 @@ function issueWarning($memID)
 			$issueErrors[] = 'warning_no_reason';
 		$_POST['warn_reason'] = $smcFunc['htmlspecialchars']($_POST['warn_reason']);
 
-		// If the value hasn't changed it's either no JS or a real no change (Which this will pass)
-		if ($_POST['warning_level'] == 'SAME')
-			$_POST['warning_level'] = $_POST['warning_level_nojs'];
-
 		$_POST['warning_level'] = (int) $_POST['warning_level'];
 		$_POST['warning_level'] = max(0, min(100, $_POST['warning_level']));
 		if ($_POST['warning_level'] < $context['min_allowed'])
@@ -252,7 +248,6 @@ function issueWarning($memID)
 			'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
 			'body_preview' => $warning_body,
 		);
-// 		print_r($context['warning_data']);die();
 	}
 
 	if (!empty($issueErrors))
@@ -604,7 +599,7 @@ function deleteAccount2($memID)
 			);
 
 			$polls_to_update = array();
-			
+
 			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
 			{
 				$polls_to_update[] = $row['id_poll'];

@@ -2187,98 +2187,6 @@ function template_issueWarning()
 
 	echo '
 	<script><!-- // --><![CDATA[
-		function setWarningBarPos(curEvent, isMove, changeAmount)
-		{
-			barWidth = ', $context['warningBarWidth'], ';
-
-			// Are we passing the amount to change it by?
-			if (changeAmount)
-			{
-				if (document.getElementById(\'warning_level\').value == \'SAME\')
-					percent = ', $context['member']['warning'], ' + changeAmount;
-				else
-					percent = parseInt(document.getElementById(\'warning_level\').value) + changeAmount;
-			}
-			// If not then it\'s a mouse thing.
-			else
-			{
-				if (!curEvent)
-					var curEvent = window.event;
-
-				// If it\'s a movement check the button state first!
-				if (isMove)
-				{
-					if (!curEvent.button || curEvent.button != 1)
-						return false
-				}
-
-				// Get the position of the container.
-				contain = document.getElementById(\'warning_contain\');
-				position = 0;
-				while (contain != null)
-				{
-					position += contain.offsetLeft;
-					contain = contain.offsetParent;
-				}
-
-				// Where is the mouse?
-				if (curEvent.pageX)
-				{
-					mouse = curEvent.pageX;
-				}
-				else
-				{
-					mouse = curEvent.clientX;
-					mouse += document.documentElement.scrollLeft != "undefined" ? document.documentElement.scrollLeft : document.body.scrollLeft;
-				}
-
-				// Is this within bounds?
-				if (mouse < position || mouse > position + barWidth)
-					return;
-
-				percent = Math.round(((mouse - position) / barWidth) * 100);
-
-				// Round percent to the nearest 5 - by kinda cheating!
-				percent = Math.round(percent / 5) * 5;
-			}
-
-			// What are the limits?
-			minLimit = ', $context['min_allowed'], ';
-			maxLimit = ', $context['max_allowed'], ';
-
-			percent = Math.max(percent, minLimit);
-			percent = Math.min(percent, maxLimit);
-
-			size = barWidth * (percent/100);
-
-			setInnerHTML(document.getElementById(\'warning_text\'), percent + "%");
-			document.getElementById(\'warning_text\').innerHTML = percent + "%";
-			document.getElementById(\'warning_level\').value = percent;
-			document.getElementById(\'warning_progress\').style.width = size + "px";
-
-			// Get the right color.
-			color = "black"';
-
-	foreach ($context['colors'] as $limit => $color)
-		echo '
-			if (percent >= ', $limit, ')
-				color = "', $color, '";';
-
-	echo '
-			document.getElementById(\'warning_progress\').style.backgroundColor = color;
-
-			// Also set the right effect.
-			effectText = "";';
-
-	foreach ($context['level_effects'] as $limit => $text)
-		echo '
-			if (percent >= ', $limit, ')
-				effectText = "', $text, '";';
-
-	echo '
-			setInnerHTML(document.getElementById(\'cur_level_div\'), effectText);
-		}
-
 		// Disable notification boxes as required.
 		function modifyWarnNotify()
 		{
@@ -2288,11 +2196,6 @@ function template_issueWarning()
 			document.getElementById(\'warn_temp\').disabled = disable;
 			document.getElementById(\'new_template_link\').style.display = disable ? \'none\' : \'\';
 			document.getElementById(\'preview_button\').style.display = disable ? \'none\' : \'\';
-		}
-
-		function changeWarnLevel(amount)
-		{
-			setWarningBarPos(false, false, amount);
 		}
 
 		// Warn template.
@@ -2312,6 +2215,19 @@ function template_issueWarning()
 	echo '
 		}
 
+		function updateSlider(slideAmount)
+		{
+			// Also set the right effect.
+			effectText = "";';
+
+	foreach ($context['level_effects'] as $limit => $text)
+		echo '
+			if (slideAmount >= ', $limit, ')
+				effectText = "', $text, '";';
+
+	echo '
+			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'$ (\' + effectText + \')\');
+		}
 	// ]]></script>';
 
 	echo '
@@ -2351,29 +2267,8 @@ function template_issueWarning()
 	echo '
 				</dt>
 				<dd>
-					<div id="warndiv1" style="display: none;">
-						<div>
-							<span class="floatleft" style="padding: 0 0.5em"><a href="#" onclick="changeWarnLevel(-5); return false;">[-]</a></span>
-							<div class="floatleft" id="warning_contain" style="font-size: 8pt; height: 12pt; width: ', $context['warningBarWidth'], 'px; border: 1px solid black; background-color: white; padding: 1px; position: relative;" onmousedown="setWarningBarPos(event, true);" onmousemove="setWarningBarPos(event, true);" onclick="setWarningBarPos(event);">
-								<div id="warning_text" style="padding-top: 1pt; width: 100%; z-index: 2; color: black; position: absolute; text-align: center; font-weight: bold;">', $context['member']['warning'], '%</div>
-								<div id="warning_progress" style="width: ', $context['member']['warning'], '%; height: 12pt; z-index: 1; background-color: ', $context['current_color'], ';">&nbsp;</div>
-							</div>
-							<span class="floatleft" style="padding: 0 0.5em"><a href="#" onclick="changeWarnLevel(5); return false;">[+]</a></span>
-							<div class="clear_left">', $txt['profile_warning_impact'], ': <span id="cur_level_div">', $context['level_effects'][$context['current_level']], '</span></div>
-						</div>
-						<input type="hidden" name="warning_level" id="warning_level" value="SAME">
-					</div>
-					<div id="warndiv2">
-						<input type="text" name="warning_level_nojs" size="6" maxlength="4" value="', $context['member']['warning'], '" class="input_text">&nbsp;', $txt['profile_warning_max'], '
-						<div class="smalltext">', $txt['profile_warning_impact'], ':<br>';
-	// For non-javascript give a better list.
-	foreach ($context['level_effects'] as $limit => $effect)
-		echo '
-						', sprintf($txt['profile_warning_effect_text'], $limit, $effect), '<br>';
-
-	echo '
-						</div>
-					</div>
+					0% <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', $context['member']['warning'], '" onchange="updateSlider(this.value)" /> 100%
+					<div class="clear_left">', $txt['profile_warning_impact'], ': <span id="cur_level_div">', $context['member']['warning'], '% (', $context['level_effects'][$context['current_level']], ')</span></div>
 				</dd>';
 
 	if (!$context['user']['is_owner'])
