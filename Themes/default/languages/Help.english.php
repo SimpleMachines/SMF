@@ -43,7 +43,7 @@ $helptxt['edit_news'] = '
 	<ul class="normallist">
 		<li>
 			<strong>News</strong><br>
-			On this page it allows you to set the text for news items displayed on the Board Index page.
+			This page allows you to set the text for news items displayed on the Board Index page.
 			Add any item you want (e.g., &quot;Don\'t miss the conference this Tuesday&quot;). Each news item is displayed randomly and should be placed in a separate box.
 		</li>
 		<li>
