@@ -244,6 +244,7 @@ $txt['permissionhelp_likes_like'] = 'This permission allows an user to like any 
 
 $txt['permissiongroup_mentions'] = 'Mentions';
 $txt['permissionname_mention'] = 'Mention others via @name';
+$txt['permissionhelp_mention'] = 'This permission allows a user to mention other users by @name. For example, user Jack could be mentioned using @Jack by a user when given this permission.';
 
 $txt['permissiongroup_poll'] = 'Polls';
 $txt['permissionname_poll_view'] = 'View polls';
