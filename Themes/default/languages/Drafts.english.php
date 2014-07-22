@@ -27,7 +27,7 @@ $txt['draft_save_warning'] = 'Please note that all drafts will be automatically 
 
 // Admin options
 $txt['drafts_autosave_enabled'] = 'Enable automatic saving of drafts';
-$txt['drafts_autosave_enabled_subnote'] = 'This will automatically save user drafts in the background on a given frequency.  The user must also have the proper permissions';
+$txt['drafts_autosave_enabled_subnote'] = 'This will automatically save user drafts in the background on a given frequency. The user must also have the proper permissions';
 $txt['drafts_show_saved_enabled'] = 'Enable the selection of drafts from the posting screen';
 $txt['drafts_show_saved_enabled_subnote'] = 'This will allow the user to select and load appropriate drafts from the posting screen. The user must also have the proper permissions';
 $txt['drafts_keep_days'] = 'Maximum number of days to keep a draft';
