@@ -4027,17 +4027,7 @@ function setupMenuContext()
  */
 function smf_seed_generator()
 {
-	global $modSettings;
-
-	// Never existed?
-	if (empty($modSettings['rand_seed']))
-	{
-		$modSettings['rand_seed'] = microtime() * 1000000;
-		updateSettings(array('rand_seed' => $modSettings['rand_seed']));
-	}
-
-	// Change the seed.
-	updateSettings(array('rand_seed' => mt_rand()));
+	updateSettings(array('rand_seed' => microtime() * 1000000));
 }
 
 /**
