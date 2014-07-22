@@ -1624,6 +1624,7 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
   time_unit varchar(1) NOT NULL default 'h',
   disabled tinyint(3) NOT NULL default '0',
   task varchar(24) NOT NULL default '',
+  callable varchar(60) NOT NULL default '',
   PRIMARY KEY (id_task),
   KEY next_time (next_time),
   KEY disabled (disabled),
