@@ -410,6 +410,13 @@ ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0';
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
+---# Adding a new column "callable" to scheduled_tasks table
+---{
+ALTER TABLE {$db_prefix}scheduled_tasks
+ADD COLUMN callable varchar(60) NOT NULL default '';
+---}
+---#
+
 ---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
