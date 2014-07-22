@@ -378,7 +378,14 @@ smc_PopupMenu.prototype.open = function (sItem)
 	if (!this.opt.menus[sItem].loaded)
 	{
 		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
-		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl);
+		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl, function() {
+			if ($(this).hasClass('scrollable'))
+				$(this).customScrollbar({
+					skin: "default-skin",
+					hScroll: false,
+					updateOnWindowResize: true
+				});
+		});
 		this.opt.menus[sItem].loaded = true;
 	}
 

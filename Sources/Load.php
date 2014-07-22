@@ -1860,7 +1860,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('index.css');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('index.responsive.css', array('force_current' => false, 'validate' => true));
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true));
 
 	if ($context['right_to_left'])
 		loadCSSFile('rtl.css');
@@ -1930,6 +1930,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
+	loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
+	loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');

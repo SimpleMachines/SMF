@@ -551,8 +551,8 @@ function DisplayStats()
 				'id' => $row_liked_message['id_topic'],
 				'subject' => $row_liked_message['subject'],
 				'num' => $row_liked_message['likes'],
-				'href' => $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg' . $row_liked_message['id_msg'],
-				'link' => '<a href="' . $scripturl . '?topic=' . $row_liked_message['id_topic'] . '.msg'. $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
+				'href' => $scripturl . '?msg=' . $row_liked_message['id_msg'],
+				'link' => '<a href="' . $scripturl . '?msg=' . $row_liked_message['id_msg'] .'">' . $row_liked_message['subject'] . '</a>'
 			);
 
 			if ($max_liked_message < $row_liked_message['likes'])
