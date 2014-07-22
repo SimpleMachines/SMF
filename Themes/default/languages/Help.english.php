@@ -225,7 +225,7 @@ $helptxt['allow_guestAccess'] = 'Unchecking this box will stop guests from doing
 $helptxt['userLanguage'] = 'Turning this setting on will allow users to select which language file they use. It will not affect the
 		default selection.';
 $helptxt['trackStats'] = 'Stats:<br>This will allow users to see the latest posts and the most popular topics on your forum.
-		It will also show several statistics, like the most members online, new members and new topics.<hr>
+		It will also show several statistics, like the most members online, new members, and new topics.<hr>
 		Page views:<br>Adds another column to the stats page with the number of pageviews on your forum.';
 $helptxt['titlesEnable'] = 'Switching Custom Titles on will allow members with the relevant permission to create a special title for themselves.
 		This will be shown underneath the name.<br><em>For example:</em><br>Jeff<br>Cool Guy';
@@ -262,7 +262,7 @@ $helptxt['enableErrorLogging'] = 'This will log any errors, like a failed login,
 $helptxt['enableErrorQueryLogging'] = 'This will include the full query sent to the database in the error log. It requires error logging to be turned on.<br><br><strong>Note:  This will affect the ability to filter the error log by the error message.</strong>';
 $helptxt['log_ban_hits'] = 'If enabled, every time a banned user tries to access the site, this will be logged in the error log. If you do not care whether, or how often, banned users attempt to access the site, you can turn this off for a performance boost.';
 $helptxt['allow_disableAnnounce'] = 'This will allow users to opt out of notification of topics you announce by checking the &quot;announce topic&quot; checkbox when posting.';
-$helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
+$helptxt['disallow_sendBody'] = 'This setting removes the option to receive the text of replies, posts, and personal messages in notification emails.<br><br>Often, members will reply to the notification email, which in most cases means the webmaster receives the reply.';
 $helptxt['jquery_source'] = 'This will determine the source used to load the jQuery Library.  <em>Auto</em> will use the CDN first and if not available fall back to the local source.  <em>Local</em> will only use the local source. <em>CDN</em> will only load it from Google CDN network';
 $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the number of pages.<br><em>Example:</em>
 		&quot;3&quot; to display: 1 ... 4 [5] 6 ... 9 <br>
@@ -270,7 +270,7 @@ $helptxt['compactTopicPagesEnable'] = 'This will just show a selection of the nu
 $helptxt['timeLoadPageEnable'] = 'This will show the time in seconds SMF took to create the page at the bottom of the board.';
 $helptxt['removeNestedQuotes'] = 'This will strip nested quotes from a post when citing the post in question via a quote link.';
 $helptxt['max_image_width'] = 'This allows you to set a maximum size for posted pictures. Pictures smaller than the maximum will not be affected. This also determines how attached images are displayed when a thumbnail is clicked on.';
-$helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP.  PHP doesn\'t support using authentication with SMTP (which many hosts now require) so if you want that you should select SMTP.  Please note that SMTP can be slower, and some servers will not accept usernames and passwords.<br><br>You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
+$helptxt['mail_type'] = 'This setting allows you to choose either PHP\'s default settings, or to override those settings with SMTP.  PHP doesn\'t support using authentication with SMTP (which many hosts now require), so if you want that you should select SMTP.  Please note that SMTP can be slower, and some servers will not accept usernames and passwords.<br><br>You don\'t need to fill in the SMTP settings if this is set to PHP\'s default.';
 $helptxt['attachment_manager_settings'] = 'Attachments are files that members can upload and attach to a post. Different sites may use these in different ways, which you can configure here.';
 $helptxt['attachmentCheckExtensions'] = 'For some communities, you may wish to limit the types of files that users can upload by checking the extension: e.g. myphoto.jpg has an extension of jpg.';
 $helptxt['attachmentExtensions'] = 'If "check attachment\'s extension" above is ticked, these are the extensions that will be permitted for new attachments.';
@@ -301,7 +301,7 @@ $helptxt['attachmentEnable'] = 'This setting enables you to configure how attach
 	</ul>';
 $helptxt['attachment_image_paranoid'] = 'Selecting this setting will enable very strict security checks on image attachments. <strong>Warning!</strong> These extensive checks can fail on valid images too. It is strongly recommended to only use this setting together with image re-encoding, in order to have SMF try to resample the images which fail the security checks: if successful, they will be sanitized and uploaded. Otherwise, if image re-encoding is not enabled, all attachments failing checks will be rejected.';
 $helptxt['attachment_image_reencode'] = 'Selecting this setting will enable trying to re-encode the uploaded image attachments. Image re-encoding offers better security. Note however that image re-encoding also renders all animated images static. <br> This feature is only possible if the GD module is installed on your server.';
-$helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br>Checking this setting, the system will estimate the required memory and will then request that amount.  If successful, only then will it attempt to create the thumbnail.<br>This will result in fewer white page errors but may result in fewer thumbnails being created.  Leaving this unchecked the system will always try to create the thumbnail (with a fixed amount of memory).  This may result in more white page errors.';
+$helptxt['attachment_thumb_memory'] = 'The larger the source image (size & width x height), the higher the memory requirements are for the system to successfully create a thumbnail image.<br>Checking this setting, the system will estimate the required memory and will then request that amount.  If successful, only then will it attempt to create the thumbnail.<br>This will result in fewer white page errors but may result in fewer thumbnails being created. Leaving this unchecked will always cause the system to try to create the thumbnail (with a fixed amount of memory).  This may result in more white page errors.';
 $helptxt['attachmentRecodeLineEndings'] = 'The script will re-code line endings according to your server.';
 $helptxt['automanage_attachments'] = 'By default, SMF puts new attachments into a single folder. For most sites this is not a problem, but as a site grows it can be useful to have multiple folders to store attachments in.<br><br>This setting allows you to set whether you manage these folders yourself (e.g. creating a second folder and moving to it when you are ready) or whether you let SMF do it, based on criteria, such as when the current directory reaches a given size, or breaking down folders by years or even months on very busy sites.';
 $helptxt['use_subdirectories_for_attachments'] = 'Create new directories.';
@@ -327,7 +327,7 @@ $helptxt['localCookies'] = 'SMF uses cookies to store login information on the c
 	Globally stored cookies are less secure when used on a shared webserver (like Tripod).<hr>
 	Local cookies don\'t work outside the forum directory so, if your forum is stored at www.myserver.com/forum, pages like www.myserver.com/index.php cannot access the account information.<br><br>
 	Global cookies are especially recommended when using SSI.php but work well for most sites on their own domain.';
-$helptxt['enableBBC'] = 'Selecting this setting will allow your members to use Bulletin Board Code (BBC) throughout the forum, allowing users to format their posts with images, type formatting and more.';
+$helptxt['enableBBC'] = 'Selecting this setting will allow your members to use Bulletin Board Code (BBC) throughout the forum, allowing users to format their posts with images, type formatting, and more.';
 $helptxt['time_offset'] = 'Not all forum administrators want their forum to use the same time zone as the server upon which it is hosted. Use this setting to specify the time difference (in hours) between the server time and the time to be used for the forum. Negative and decimal values are permitted.';
 $helptxt['default_timezone'] = 'The server time zone tells PHP where your server is located. You should ensure that this is set correctly, preferably to the country/city in which the server is located. You can find out more information on the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">PHP Site</a>.';
 $helptxt['spamWaitTime'] = 'Here you can select the amount of time that must pass between postings. This can be used to stop people from "spamming" your forum by limiting how often they can post.';
@@ -382,7 +382,7 @@ $helptxt['enableSpellChecking'] = 'Enable spell checking. You MUST have the pspe
 $helptxt['disable_wysiwyg'] = 'This setting disallows all users from using the WYSIWYG (&quot;What You See Is What You Get&quot;) editor on the post page.';
 $helptxt['lastActive'] = 'Set the number of minutes to show people are active in X number of minutes on the board index. Default is 15 minutes.';
 
-$helptxt['customoptions'] = 'This defines the options that a user may choose from a drop down list. There are a few key points to note in this page:
+$helptxt['customoptions'] = 'This defines the options that a user may choose from a drop down list. There are a few key points to note on this page:
 	<ul class="normallist">
 		<li><strong>Default setting:</strong> Whichever check box has the &quot;radio button&quot; next to it selected will be the default selection for the user when they enter their profile.</li>
 		<li><strong>Removing Options:</strong> To remove an option simply empty the text box for that option - all users with that selected will have their option cleared.</li>
@@ -425,7 +425,7 @@ $helptxt['registration_method'] = 'This setting determines what method of regist
 				When this setting is enabled any members registering with the forum will have an activation link emailed to them which they must click before they can become full members.<br>
 		</li><li>
 			<strong>Admin Approval</strong><br>
-				This setting will make it so all new members registering to your forum will need to be approved by the admin before they become members.
+				This setting will make it so all new members registering on your forum will need to be approved by the admin before they become members.
 		</li>
 	</ul>';
 $helptxt['register_openid'] = '<strong>Authenticate with OpenID</strong><br>
@@ -440,7 +440,7 @@ $helptxt['password_strength'] = 'This setting determines the strength required f
 	Its possible settings are:
 	<ul class="normallist">
 		<li><strong>Low:</strong> The password must be at least four characters long.</li>
-		<li><strong>Medium:</strong> The password must be at least eight characters long, and can not be part of a user\'s name or email address.</li>
+		<li><strong>Medium:</strong> The password must be at least eight characters long, and cannot be part of a user\'s name or email address.</li>
 		<li><strong>High:</strong> As for medium, except the password must also contain a mixture of upper and lower case letters, and at least one number.</li>
 	</ul>';
 $helptxt['enable_password_conversion'] = 'By enabling this setting, SMF will attempt to detect passwords stored in other formats and convert them to the format SMF uses.  Typically this is used for forums converted to SMF, but may have other uses as well. Disabling this prevents a user from logging in using their password after a conversion and they would need to reset their password.';
@@ -448,7 +448,7 @@ $helptxt['enable_password_conversion'] = 'By enabling this setting, SMF will att
 $helptxt['coppaAge'] = 'The value specified in this box will determine the minimum age that new members must be in order to be granted immediate access to the forums.
 	On registration they will be prompted to confirm whether they are over this age, and if not will either have their application rejected or suspended awaiting parental approval - dependant on the type of restriction chosen.
 	If a value of 0 is chosen for this setting then all other age restriction settings shall be ignored.';
-$helptxt['coppaType'] = 'If age restrictions are enabled, then this setting will define  what happens when a user below the minimum age attempts to register with your forum. There are two possible choices:
+$helptxt['coppaType'] = 'If age restrictions are enabled, then this setting will define what happens when a user below the minimum age attempts to register with your forum. There are two possible choices:
 	<ul class="normallist">
 		<li>
 			<strong>Reject Their Registration:</strong><br>
