@@ -4287,10 +4287,10 @@ function call_helper($string, $return = false)
 		else
 		{
 			if (is_array($func))
-				return call_user_func($func);
+				call_user_func($func);
 
 			else
-				return $func();
+				$func();
 		}
 	}
 }
