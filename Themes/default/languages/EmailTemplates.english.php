@@ -4,8 +4,8 @@
 // Since all of these strings are being used in emails, numeric entities should be used.
 
 // Do not translate anything that is between {}, they are used as replacement variables and MUST remain exactly how they are.
-//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it.  You may
-//   translate the description of the variable.  Do not translate @description:, however you may translate the rest of that line.
+//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it. You may
+//   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
 
@@ -48,7 +48,7 @@ $txt['resend_pending_message_body'] = 'Hello {REALNAME}, your registration reque
 
 The username you registered with was {USERNAME}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
 
 {REGARDS}';
 
@@ -148,7 +148,7 @@ Regrettably, your application to join {FORUMNAME} has been rejected.
 $txt['admin_approve_delete_subject'] = 'Account Deleted';
 $txt['admin_approve_delete_body'] = '{USERNAME},
 
-Your account on {FORUMNAME} has been deleted.  This may be because you never activated your account, in which case you should be able to register again.
+Your account on {FORUMNAME} has been deleted. This may be because you never activated your account, in which case you should be able to register again.
 
 {REGARDS}';
 
@@ -347,7 +347,7 @@ To edit your subscriptions visit the following URL:
 	@description:
 */
 $txt['activate_reactivate_subject'] = 'Welcome back to {FORUMNAME}';
-$txt['activate_reactivate_body'] = 'In order to re-validate your email address, your account has been deactivated.  Click the following link to activate it again:
+$txt['activate_reactivate_body'] = 'In order to re-validate your email address, your account has been deactivated. Click the following link to activate it again:
 {ACTIVATIONLINK}
 
 Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} and use the code "{ACTIVATIONCODE}".
@@ -639,7 +639,7 @@ $txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at 
 
 The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
 
 {REGARDS}';
 
@@ -658,7 +658,7 @@ The username you registered with was {USERNAME}.
 You have chosen to authenticate using the following OpenID identity:
 {OPENID}
 
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
 
 {REGARDS}';
 
@@ -1051,13 +1051,13 @@ You have been mentioned in the post titled "{CONTENTSUBJECT}" by {MENTIONNAME}, 
 $txtBirthdayEmails['happy_birthday_subject'] = 'Happy birthday from {FORUMNAME}.';
 $txtBirthdayEmails['happy_birthday_body'] = 'Dear {REALNAME},
 
-We here at {FORUMNAME} would like to wish you a happy birthday.  May this day and the year to follow be full of joy.
+We here at {FORUMNAME} would like to wish you a happy birthday. May this day and the year to follow be full of joy.
 
 {REGARDS}';
 $txtBirthdayEmails['happy_birthday_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=2676">Thantos</a>';
 
 $txtBirthdayEmails['karlbenson1_subject'] = 'On your Birthday...';
-$txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card.  We could have sent you some flowers or a cake.
+$txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card. We could have sent you some flowers or a cake.
 
 But we didn\'t.
 
@@ -1086,7 +1086,7 @@ $txtBirthdayEmails['nite0859_author'] = '<a href="http://www.simplemachines.org/
 $txtBirthdayEmails['zwaldowski_subject'] = 'Birthday Wishes to {REALNAME}';
 $txtBirthdayEmails['zwaldowski_body'] = 'Dear {REALNAME},
 
-Another year in your life has passed.  We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.
+Another year in your life has passed. We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.
 
 {REGARDS}';
 $txtBirthdayEmails['zwaldowski_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=72038">zwaldowski</a>';

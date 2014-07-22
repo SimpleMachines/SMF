@@ -98,7 +98,7 @@ $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
 $txt['poll_results_after'] = 'Only show the results after the poll has expired.';
 $txt['poll_max_votes'] = 'Maximum votes per user';
 $txt['poll_do_change_vote'] = 'Allow users to change vote';
-$txt['poll_too_many_votes'] = 'You selected too many options.  For this poll, you may only select %1$s options.';
+$txt['poll_too_many_votes'] = 'You selected too many options. For this poll, you may only select %1$s options.';
 $txt['poll_add_option'] = 'Add Option';
 $txt['poll_guest_vote'] = 'Allow guests to vote';
 
@@ -184,8 +184,8 @@ $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allo
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
-$txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
-$txt['attachments_no_create'] = 'Unable to create a new attachment directory.  Your attachment or avatar cannot be saved.';
+$txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment or avatar cannot be saved.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
 
 ?>

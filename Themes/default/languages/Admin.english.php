@@ -23,7 +23,7 @@ $txt['admin_modifications'] = 'Modification Settings';
 $txt['admin_server_settings'] = 'Server Settings';
 $txt['admin_reserved_set'] = 'Set reserved names';
 $txt['admin_reserved_line'] = 'One reserved word per line.';
-$txt['admin_basic_settings'] = 'This page allows you to change the basic settings for your forum.  Be very careful with these settings, as they may render the forum dysfunctional.';
+$txt['admin_basic_settings'] = 'This page allows you to change the basic settings for your forum. Be very careful with these settings, as they may render the forum dysfunctional.';
 $txt['admin_maintain'] = 'Enable Maintenance Mode';
 $txt['admin_title'] = 'Forum Title';
 $txt['cookie_name'] = 'Cookie name';
@@ -48,7 +48,7 @@ $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair All boards and topics';
-$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s"> symbols for more information on the related functions.';
+$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s"> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
@@ -132,9 +132,9 @@ $txt['unknown'] = 'unknown';
 $txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
 
 $txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
-$txt['email_as_html'] = 'Send in HTML format.  (with this you can put normal HTML in the email.)';
+$txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br /&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
@@ -223,7 +223,7 @@ $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
 $txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
-$txt['maintain_no_errors'] = 'Congratulations, no errors were found.  Thanks for checking.';
+$txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
@@ -252,7 +252,7 @@ $txt['default_language'] = 'Default forum language';
 $txt['maintenance_subject'] = 'Subject for display';
 $txt['maintenance_message'] = 'Message for display';
 
-$txt['errlog_desc'] = 'The error log tracks every error encountered by your forum.  To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
+$txt['errlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
 $txt['errlog_no_entries'] = 'There are currently no error log entries.';
 
 $txt['theme_settings'] = 'Theme Settings';
@@ -610,7 +610,7 @@ $txt['disableCustomPerPage'] = 'Disable user defined topic/message count per pag
 $txt['enablePreviousNext'] = 'Enable previous/next topic links';
 
 $txt['not_done_title'] = 'Not done yet';
-$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused.  It should automatically continue in a few seconds.  If it doesn\'t, please click continue below.';
+$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused. It should automatically continue in a few seconds. If it doesn\'t, please click continue below.';
 $txt['not_done_continue'] = 'Continue';
 
 $txt['general_settings'] = 'General';
