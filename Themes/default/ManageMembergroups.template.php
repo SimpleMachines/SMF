@@ -27,7 +27,7 @@ function template_new_group()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_new_group'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<label for="group_name_input"><strong>', $txt['membergroups_group_name'], ':</strong></label>
@@ -507,7 +507,7 @@ function template_group_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['name'], ':</strong>
@@ -554,7 +554,7 @@ function template_group_members()
 
 			<br>
 			<div class="cat_bar">
-				<h4 class="catbg">', $txt['membergroups_members_group_members'], '</h4>
+				<h3 class="catbg">', $txt['membergroups_members_group_members'], '</h3>
 			</div>
 			<br>
 			<div class="pagesection">', $context['page_index'], '</div>
@@ -633,7 +633,7 @@ function template_group_members()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['membergroups_members_add_title'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong><label for="toAdd">', $txt['membergroups_members_add_desc'], ':</label></strong>

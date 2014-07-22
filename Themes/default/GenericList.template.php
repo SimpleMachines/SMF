@@ -51,9 +51,6 @@ function template_show_list($list_id = null)
 
 	if ((!empty($cur_list['items_per_page']) && !empty($cur_list['page_index'])) || isset($cur_list['additional_rows']['above_column_headers']))
 	{
-		echo '
-			<div class="flow_auto">';
-
 		// Show the page index (if this list doesn't intend to show all items).
 		if (!empty($cur_list['items_per_page']) && !empty($cur_list['page_index']))
 			echo '
@@ -66,7 +63,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+			<table class="table_grid clear" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);

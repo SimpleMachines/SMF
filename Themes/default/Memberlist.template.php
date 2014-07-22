@@ -22,13 +22,13 @@ function template_main()
 			<div class="pagelinks floatleft">', $context['page_index'], '</div>
 		</div>
 		<div class="cat_bar">
-			<h4 class="catbg">
+			<h3 class="catbg">
 				<span class="floatleft">', $txt['members_list'], '</span>';
 		if (!isset($context['old_search']))
 				echo '
 				<span class="floatright">', $context['letter_links'], '</span>';
 		echo '
-			</h4>
+			</h3>
 		</div>';
 
 	echo '

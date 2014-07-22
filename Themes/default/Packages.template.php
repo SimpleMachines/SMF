@@ -594,7 +594,7 @@ function template_browse()
 						<a href="#" id="advanced_panel_link">', $txt['package_advanced_button'], '</a>
 					</h3>
 				</div>
-				<div id="advanced_panel_div" class="windowbg">
+				<div id="advanced_panel_div" class="windowbg2">
 					<p>
 						', $txt['package_emulate_desc'], '
 					</p>
@@ -671,7 +671,7 @@ function template_servers()
 		<div class="cat_bar">
 			<h3 class="catbg">' . $txt['package_upload_title'] . '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<form action="' . $scripturl . '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', $context['character_set'], '" enctype="multipart/form-data" style="margin-bottom: 0;">
 				<dl class="settings">
 					<dt>
@@ -1024,7 +1024,7 @@ function template_install_options()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['package_install_options'], '</h3>
 		</div>
-		<div class="information winfo">
+		<div class="information">
 			', $txt['package_install_options_ftp_why'], '
 		</div>
 

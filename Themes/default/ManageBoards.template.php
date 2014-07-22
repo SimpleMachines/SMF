@@ -49,7 +49,7 @@ function template_main()
 		// Boards table header.
 		echo '
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="windowbg">
+			<div class="windowbg2">
 				<ul id="category_', $category['id'], '" class="reset nolist">';
 
 		if (!empty($category['move_link']))
@@ -120,7 +120,7 @@ function template_modify_category()
 						', isset($context['category']['is_new']) ? $txt['mboards_new_cat_name'] : $txt['catEdit'], '
 					</h3>
 				</div>
-				<div class="windowbg">
+				<div class="windowbg2">
 					<dl class="settings">';
 
 	// If this isn't the only category, let the user choose where this category should be positioned down the board index.

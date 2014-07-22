@@ -2,10 +2,15 @@
 .action_admin .generic_list {
 	overflow: auto;
 }
-#admin_content .windowbg, #admin_content .windowbg2 {
-	margin: 0 0 5px 0;
+#admin_content .windowbg {
+	margin: 5px 0 5px 0;
+	box-shadow: none;
+	background: #F8F8F8;
+}
+#admin_content .windowbg2 {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+	margin: 0 0 5px 0;
 	box-shadow: none;
 	background: #F8F8F8;
 }
@@ -31,7 +36,7 @@
 	padding: 4px 2px;
 }
 .windowbg.nopadding {
-	margin: 4px 0 0 0;
+	margin: 0 !important;
 	padding: 0;
 }
 .windowbg ol {
@@ -149,7 +154,7 @@ body#chrome  #quick_search .button_submit {
 /* Live news from smorg and support information. */
 #live_news, #supportVersionsTable {
 	width: 70%;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 #supportVersionsTable {
 	width: 30%;
@@ -163,18 +168,6 @@ body#chrome  #quick_search .button_submit {
 	border-radius: 0;
 	height: 12em;
 	overflow: auto;
-	background-image: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		color-stop(0, #E2E9F3),
-		color-stop(0.5, #FFFFFF)
-	);
-	background-image: -o-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -moz-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -webkit-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: -ms-linear-gradient(bottom, #E2E9F3 0%, #FFFFFF 50%);
-	background-image: linear-gradient(to bottom, #E2E9F3 0%, #FFFFFF 50%);
 }
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
@@ -366,7 +359,7 @@ pre.file_content {
 #manage_boards {
 	overflow: auto;
 }
-.roundframe .windowbg {
+.roundframe .windowbg, .roundframe .windowbg2 {
 	border: 0;
 	padding: 0;
 	background: none;
@@ -613,7 +606,7 @@ h3.grid_header {
 	line-height: 160%;
 }
 #error_log td div {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 #error_log td.checkbox_column {
 	width: 15px;
@@ -648,10 +641,6 @@ h3.grid_header {
 
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
-}
-.winfo {
-	border-bottom: none;
-	border-radius: 0;
 }
 #manage_boards .button_submit, .action_admin .button_submit, .action_admin .button_link {
 	margin: 5px 8px 0 0 !important;

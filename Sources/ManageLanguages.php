@@ -561,7 +561,7 @@ function DownloadLanguage()
  */
 function ModifyLanguages()
 {
-	global $txt, $context, $scripturl;
+	global $txt, $context, $scripturl, $modSettings;
 	global $sourcedir, $language, $boarddir;
 
 	// Setting a new default?

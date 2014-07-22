@@ -74,11 +74,10 @@ function template_admin()
 							</div>
 						</div>';
 
-	$use_bg2 = true;
 	foreach ($context[$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
 		echo '
-						<fieldset id="group_', $area_id, '" class="', $use_bg2 ? 'windowbg2' : 'windowbg', ' admin_group">
+						<fieldset id="group_', $area_id, '" class="windowbg admin_group">
 							<legend>', $area['title'], '</legend>';
 
 		foreach ($area['areas'] as $item_id => $item)
@@ -94,7 +93,6 @@ function template_admin()
 
 		echo '
 						</fieldset>';
-		$use_bg2 = !$use_bg2;
 	}
 
 	echo '
@@ -591,7 +589,7 @@ function template_edit_censored()
 									', $txt['censor_test'], '
 								</h3>
 							</div>
-							<div class="windowbg">
+							<div class="windowbg2">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty($context['censor_test']) ? '' : $context['censor_test'], '" class="input_text">
 									<input type="submit" value="', $txt['censor_test_save'], '" class="button_submit">
@@ -694,7 +692,7 @@ function template_show_settings()
 	// Have we got a message to display?
 	if (!empty($context['settings_message']))
 		echo '
-							<div class="information winfo">', $context['settings_message'], '</div>';
+							<div class="information">', $context['settings_message'], '</div>';
 
 	// Now actually loop through all the variables.
 	$is_open = false;
@@ -727,7 +725,7 @@ function template_show_settings()
 			else
 			{
 				echo '
-							<p class="information winfo">
+							<p class="information">
 								', $config_var['label'], '
 							</p>';
 			}

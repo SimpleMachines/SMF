@@ -20,7 +20,7 @@ function template_main()
 	<div class="main_section" id="whos_online">
 		<form action="', $scripturl, '?action=who" method="post" id="whoFilter" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
-				<h4 class="catbg">', $txt['who_title'], '</h4>
+				<h3 class="catbg">', $txt['who_title'], '</h3>
 			</div>
 			<div id="mlist">
 				<div class="pagesection">

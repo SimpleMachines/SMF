@@ -98,7 +98,7 @@ function Ban()
 function BanList()
 {
 	global $txt, $context, $scripturl;
-	global $user_info, $sourcedir;
+	global $user_info, $sourcedir, $modSettings;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -1995,7 +1995,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $sourcedir, $txt;
+	global $scripturl, $context, $sourcedir, $txt, $modSettings;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
