@@ -593,7 +593,7 @@ function template_editBuddies()
 	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="stats_icon people icon"></span>', $txt['editBuddies'], '
+				<span class="generic_icons people icon"></span> ', $txt['editBuddies'], '
 			</h3>
 		</div>
 		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
@@ -1115,7 +1115,7 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<span class="stats_icon history"></span>', $txt['statPanel_activityTime'], '
+					<span class="generic_icons history"></span> ', $txt['statPanel_activityTime'], '
 				</h3>
 			</div>';
 
@@ -1158,7 +1158,7 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="stats_icon replies"></span>', $txt['statPanel_topBoards'], '
+						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoards'], '
 					</h3>
 				</div>';
 
@@ -1193,7 +1193,7 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="stats_icon replies"></span>', $txt['statPanel_topBoardsActivity'], '
+						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoardsActivity'], '
 					</h3>
 				</div>';
 
@@ -2930,14 +2930,14 @@ function template_authentication_method()
 							</dt>
 							<dd>
 								<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '" class="input_password">
-								<span id="smf_autov_pwmain_div" style="display: none;"><span id="smf_autov_pwmain_img" class="field_icons invalid centericon"></span></span>
+								<span id="smf_autov_pwmain_div" style="display: none;"><span id="smf_autov_pwmain_img" class="generic_icons invalid centericon"></span></span>
 							</dd>
 							<dt>
 								<em>', $txt['verify_pass'], ':</em>
 							</dt>
 							<dd>
 								<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password">
-								<span id="smf_autov_pwverify_div" style="display: none;"><span id="smf_autov_pwverify_img" class="field_icons valid"></span></span>
+								<span id="smf_autov_pwverify_div" style="display: none;"><span id="smf_autov_pwverify_img" class="generic_icons valid"></span></span>
 							</dd>
 						</dl>
 					</dd>

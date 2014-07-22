@@ -434,7 +434,7 @@ smc_Popup.prototype.show = function ()
 		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
-	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="generic_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
@@ -446,7 +446,7 @@ smc_Popup.prototype.show = function ()
 		if ($('#' + popup_instance.popup_id).has(e.target).length === 0)
 			popup_instance.hide();
 	}).keyup(function(e){
-		if(e.keyCode == 27)
+		if (e.keyCode == 27)
 			popup_instance.hide();
 	});
 	$('#' + this.popup_id).find('.hide_popup').click(function (){ return popup_instance.hide(); });
