@@ -25,7 +25,6 @@ ul, ol {
 ul.normallist{
 	list-style-type: disc;
 	padding: 0 0 0 15px;
-    text-align: left
 }
 table {
 	empty-cells: show;
@@ -394,19 +393,6 @@ a img {
 }
 .toggle_down:before {
 	background-position: 0 -17px;
-}
-
-/* And the sort up/down icons too. */
-.sort_up, .sort_down {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -80px 0;
-	text-indent: -100em;
-	overflow: hidden;
-}
-.sort_down {
-	background-position: -80px -16px;
 }
 
 /* Generally, those [?] icons. This makes your cursor a help icon. */
@@ -1327,30 +1313,6 @@ span.go_up {
 	display: inline-block
 }
 
-/* Some of the lovely icons we might need.
-------------------------------------------------------- */
-.pm_icons {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat 0 -64px;
-}
-.pm_icons.inbox {
-	background-position: 0 -64px;
-}
-.pm_icons.switch {
-	background-position: -16px -64px;
-}
-.pm_icons.replied {
-	background-position: -32px -64px;
-}
-.pm_icons.im_on {
-	background-position: -48px -64px;
-}
-.pm_icons.im_off {
-	background-position: -64px -64px;
-}
-
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
@@ -1709,22 +1671,6 @@ fieldset.merge_options {
 	text-align: center;
 }
 
-.field_icons {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat 0 -32px;
-}
-.field_icons.valid {
-	background-position: 0 -32px;
-}
-.field_icons.check {
-	background-position: -16px -32px;
-}
-.field_icons.invalid {
-	background-position: -32px -32px;
-}
-
 /* Additional register fields */
 dl.register_form {
 	margin: 0;
@@ -1823,50 +1769,110 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	vertical-align: middle;
 }
-.generic_icons.help {
-	background-position: 0 0;
-}
-.generic_icons.error {
-	background-position: 0 -16px;
-}
-.generic_icons.gender_Female {
-	background-position: -16px 0;
-}
-.generic_icons.gender_Male {
-	background-position: -16px -16px;
-}
 .generic_icons.gender_None {
 	background: none;
+}
+/* Top row */
+.generic_icons.gender_Female {
+	background-position: -16px 0;
 }
 .generic_icons.last_post {
 	background-position: -32px 0;
 }
-.generic_icons.www {
-	background-position: -32px -16px;
-}
 .generic_icons.mail {
 	background-position: -48px 0;
 }
-.generic_icons.mail_new {
-	background-position: -48px -16px;
+.generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
+	background-position: -64px 0;
 }
-.generic_icons.delete {
+.generic_icons.sort_up {
+	background-position: -80px 0;
+}
+.generic_icons.delete, .generic_icons.hide_popup {
 	background-position: -96px 0;
-}
-.generic_icons.poll {
-	background-position: -96px -48px;
 }
 .generic_icons.sticky {
 	background-position: -112px 0;
 }
+/* 2nd row */
+.generic_icons.error {
+	background-position: 0 -16px;
+}
+.generic_icons.gender_Male {
+	background-position: -16px -16px;
+}
+.generic_icons.www {
+	background-position: -32px -16px;
+}
+.generic_icons.mail_new {
+	background-position: -48px -16px;
+}
+.generic_icons.unlike {
+	background-position: -64px -16px;
+}
+.generic_icons.sort_down {
+	background-position: -80px -16px;
+}
+.generic_icons.filter {
+	background-position: -96px -16px;
+}
 .generic_icons.lock {
 	background-position: -112px -16px;
+}
+/* 3rd row */
+.generic_icons.valid {
+	background-position: 0 -32px;
+}
+.generic_icons.check {
+	background-position: -16px -32px;
+}
+.generic_icons.invalid {
+	background-position: -32px -32px;
+}
+.generic_icons.watch {
+	background-position: -96px -32px;
 }
 .generic_icons.move {
 	background-position: -112px -32px;
 }
-/* Most of the bottom row is already declared via .pm_icons */
-
+/* 4th row */
+.generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
+	background-position: 0 -48px;
+}
+.generic_icons.posters {
+	background-position: -16px -48px;
+}
+.generic_icons.replies, .generic_icons.topics_replies {
+	background-position: -32px -48px;
+}
+.generic_icons.history, .generic_icons.time_online {
+	background-position: -48px -48px;
+}
+.generic_icons.views {
+	background-position: -64px -48px;
+}
+.generic_icons.starters, .generic_icons.people {
+	background-position: -80px -48px;
+}
+.generic_icons.poll {
+	background-position: -96px -48px;
+}
+/* 5th row */
+.generic_icons.inbox {
+	background-position: 0 -64px;
+}
+.generic_icons.switch {
+	background-position: -16px -64px;
+}
+.generic_icons.replied {
+	background-position: -32px -64px;
+}
+.generic_icons.im_on {
+	background-position: -48px -64px;
+}
+.generic_icons.im_off {
+	background-position: -64px -64px;
+}
 .generic_icons.del_small {
 	background-position: -80px -64px;
 	cursor: pointer;
@@ -1879,12 +1885,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.split_sel {
 	background-position: -112px -64px;
 }
-.generic_icons.watch {
-	background-position: -96px -32px;
-}
-.generic_icons.filter {
-	background-position: -96px -16px;
-}
+/* 6th and final row */
 .generic_icons.warning_mute {
 	background-position: 0px -80px;
 }
@@ -2236,34 +2237,6 @@ dl {
 
 /* Styles for the statistics center.
 ------------------------------------------------- */
-.stats_icon {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat 0 0;
-	margin: 2px 6px -1px 3px;
-}
-.stats_icon.general, .stats_icon.boards, .stats_icon.topics_views {
-	background-position: 0 -48px;
-}
-.stats_icon.posters {
-	background-position: -16px -48px;
-}
-.stats_icon.replies, .stats_icon.topics_replies {
-	background-position: -32px -48px;
-}
-.stats_icon.history, .stats_icon.time_online {
-	background-position: -48px -48px;
-}
-.stats_icon.views {
-	background-position: -64px -48px;
-}
-.stats_icon.starters, .stats_icon.people {
-	background-position: -80px -48px;
-}
-.stats_icon.liked_users, .stats_icon.liked_messages{
-	background: url(../images/generic_icons.png) no-repeat -64px 0;
-}
 dl.stats dt {
 	width: 50%;
 	float: left;
@@ -2567,11 +2540,7 @@ dl.addrules dt.floatleft {
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
 }
-.popup_heading .hide_popup {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	background: url(../images/generic_icons.png) no-repeat -96px 0;
+.generic_icons.hide_popup {
 	float: right;
 }
 .popup_heading .icon {
@@ -3552,17 +3521,6 @@ p.information img {
 }
 #topic_icons .information {
 	border-top: 1px solid #ddd;
-}
-/* While we're doing stuff under the message, time to do some likes stuff. */
-.like_button .like, .like_button .unlike {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -64px 0;
-	margin: 0 2px -1px 0;
-}
-.like_button .unlike {
-	background-position: -64px -16px;
 }
 /* Mentions */
 .atwho-view {
