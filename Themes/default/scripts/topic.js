@@ -337,7 +337,7 @@ QuickModify.prototype.isXmlHttpCapable = function ()
 }
 
 // Function called when a user presses the edit button.
-QuickModify.prototype.modifyMsg = function (iMessageId)
+QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 {
 	if (!this.bXmlHttpCapable)
 		return;
@@ -369,6 +369,9 @@ QuickModify.prototype.modifyMsg = function (iMessageId)
 
 	// At least NOW we're in edit mode
 	this.bInEditMode = true;
+
+	// Keep track of whether we want to show the subject
+	this.opt.bShowSubject = blnShowSubject;
 
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
@@ -516,15 +519,16 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 		this.sMessageBuffer = this.opt.sTemplateBodyNormal.replace(/%body%/, bodyText.replace(/\$/g, '{&dollarfix;$}')).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurMessageDiv, this.sMessageBuffer);
 
-		// Show new subject.
+		// Show new subject, but only if we want to...
 		var oSubject = message.getElementsByTagName('subject')[0];
-		var sSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
+		var sSubjectText = this.opt.bshowSubject ? oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}') : '';
+		var sTopSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		this.sSubjectBuffer = this.opt.sTemplateSubjectNormal.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurSubjectDiv, this.sSubjectBuffer);
 
 		// If this is the first message, also update the topic subject.
 		if (oSubject.getAttribute('is_first') == '1')
-			setInnerHTML(document.getElementById('top_subject'), this.opt.sTemplateTopSubject.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
+			setInnerHTML(document.getElementById('top_subject'), this.opt.sTemplateTopSubject.replace(/%subject%/, sTopSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
 
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
