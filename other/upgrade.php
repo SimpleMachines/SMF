@@ -2784,7 +2784,7 @@ function upgrade_query($string, $unbuffered = false)
 
 			<div style="margin: 2ex;">
 				This query:
-				<blockquote><tt>' . nl2br(htmlspecialchars(trim($string))) . ';</tt></blockquote>
+				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
 				Caused the error:
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
