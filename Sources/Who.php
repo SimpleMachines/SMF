@@ -541,7 +541,7 @@ function Credits($in_admin = false)
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
 
-	if($in_admin)
+	if ($in_admin)
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['support_credits_title'],
@@ -584,6 +584,9 @@ function Credits($in_admin = false)
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
+						'Jessica Gonz&aacute;lez',
+						'John &quot;live627&quot; Rayes',
+						'Shitiz &quot;Dragooon&quot; Garg',
 					),
 				),
 				array(
@@ -617,7 +620,6 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Gary M. Gadsdon',
 						// Customizers
-						'Jessica Gonz&aacute;lez',
 						'Kays',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Ricky.',
@@ -742,9 +744,9 @@ function Credits($in_admin = false)
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
-			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> |&copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> |&copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> |&copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 		),
 	);
 
