@@ -3016,13 +3016,13 @@ h4#pollquestion {
 #poll_options dl.options .percentage {
 	display: block;
 	float: right;
-	margin: 0;
+	margin: -2px;
 	padding: 0 2px;
 	position: absolute;
 	right: 0;
 	top: 0;
 	z-index: 2;
-	background: #fff;
+	background: none;
 	white-space: pre;
 }
 
