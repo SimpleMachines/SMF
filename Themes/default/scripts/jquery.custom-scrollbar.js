@@ -643,7 +643,7 @@
 				if (arg)
 					return $el.height(arg);
 				else
-					return $el.height();
+					return parseInt($el.css("height")) || 0;
 			},
 
 			minSize: function ($el) {
