@@ -363,7 +363,7 @@ template_ssi_above();
 			<div class="ssi_preview" id="ssi_fetchPosts">
 				<h2>Show Single Post</h2>
 				<p>Fetches a post with a particular IDs. By default will only show if you have permission to the see
-				the board in question. This can be overriden by passing the 2nd parameter as <tt>true</tt>.</p>
+				the board in question. This can be overriden by passing the 2nd parameter as <pre>true</pre>.</p>
 
 				<h3>Code</h3>
 				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php ssi_fetchPosts($postIDs, $isOverride); ?&gt;</code>

@@ -663,7 +663,7 @@ function template_servers()
 	if (!empty($context['package_ftp']['error']))
 			echo '
 					<div class="errorbox">
-						<tt>', $context['package_ftp']['error'], '</tt>
+						<pre>', $context['package_ftp']['error'], '</pre>
 					</div>';
 
 	echo '
