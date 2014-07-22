@@ -179,7 +179,7 @@ function template_body_above()
 			echo '
 				<li>
 					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
-					<div id="pm_menu" class="top_menu"></div>
+					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
 		}
 
@@ -187,7 +187,7 @@ function template_body_above()
 		echo '
 				<li>
 					<a href="', $scripturl, '?action=alerts"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
-					<div id="alerts_menu" class="top_menu"></div>
+					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
 		// And now we're done.

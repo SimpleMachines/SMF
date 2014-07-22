@@ -799,6 +799,9 @@ img.sort, .sort {
 #profile_menu .profile_user_links li img {
 	margin-bottom: -1px;
 }
+#pm_menu, #alerts_menu {
+	max-height: 30em;
+}
 #pm_menu .pm_unread, #alerts_menu .alerts_unread {
 	margin-top: 2px;
 	padding-top: 3px;
