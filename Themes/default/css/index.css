@@ -47,7 +47,7 @@ input, button, select {
 select {
 	padding: 2px;
 }
-select option  {
+select option {
 	padding: 0 4px;
 }
 input:hover, textarea:hover, button:hover, select:hover {
@@ -151,7 +151,7 @@ ul.reset, ul.reset li {
 }
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
-#frmLogin input.button_submit, #guest_form  input.button_submit, #calendar_navigation input.button_submit {
+#frmLogin input.button_submit, #guest_form input.button_submit, #calendar_navigation input.button_submit {
 	float: none;
 	margin-left: inherit;
 }
@@ -375,7 +375,7 @@ a img {
 	border: 0;
 }
 
-/* Those collapse and expand icons are wonderful.  */
+/* Those collapse and expand icons are wonderful. */
 .toggle_up:before, .toggle_down:before {
 	width: 17px;
 	height: 17px;
@@ -404,7 +404,7 @@ a img {
 	background-position: -80px -16px;
 }
 
-/* Generally, those [?] icons.  This makes your cursor a help icon. */
+/* Generally, those [?] icons. This makes your cursor a help icon. */
 .help {
 	cursor: help;
 }
@@ -650,7 +650,7 @@ img.sort, .sort {
 }
 
 /* table_grid styles for Profile > Show Permissions. */
-#permissions table.table_grid  td {
+#permissions table.table_grid td {
 	padding: 5px 10px;
 	cursor: default;
 }
@@ -825,7 +825,7 @@ img.sort, .sort {
 #pm_menu .unread, #alerts_menu .unread {
 	border-bottom: 1px solid #ddd;
 }
-#pm_menu .unread:hover, #alerts_menu .unread:hover  {
+#pm_menu .unread:hover, #alerts_menu .unread:hover {
 	background: #eee;
 }
 #pm_menu .unread:last-of-type, #alerts_menu .unread:last-of-type {
@@ -849,7 +849,7 @@ img.sort, .sort {
 	background: #597b9f url(../images/selected_open.png) no-repeat 96% 60%;
 }
 #menu_nav li.subsections>a.active:hover, #menu_nav li.subsections:hover>a.active, #menu_nav li.subsections>a.active:focus,
-#admin_menu .dropmenu>li.subsections>a.active:hover, #admin_menu  .dropmenu>li.subsections:hover>a.active, #admin_menu  .dropmenu>li.subsections>a.active:focus {
+#admin_menu .dropmenu>li.subsections>a.active:hover, #admin_menu .dropmenu>li.subsections:hover>a.active, #admin_menu .dropmenu>li.subsections>a.active:focus {
 	background: orange url(../images/selected_open.png) no-repeat 96% 60%;
 }
 */
@@ -1813,15 +1813,14 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	height: 16px;
 	display: inline-block;
 	background: url(../images/generic_icons.png) no-repeat 0 0;
+	vertical-align: middle;
 }
-/* You wait here till the sprite gets renew */
-.generic_icons.user_on {
+.generic_icons.help {
 	background-position: 0 0;
 }
-.generic_icons.user_off {
+.generic_icons.error {
 	background-position: 0 -16px;
 }
-/* from here */
 .generic_icons.gender_Female {
 	background-position: -16px 0;
 }
@@ -1873,12 +1872,18 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -112px -64px;
 }
 .generic_icons.watch {
-	background-position: 0px -80px;
+	background-position: -96px -32px;
 }
 .generic_icons.filter {
+	background-position: -96px -16px;
+}
+.generic_icons.warning_mute {
+	background-position: 0px -80px;
+}
+.generic_icons.warning_moderate {
 	background-position: -16px -80px;
 }
-.generic_icons.error {
+.generic_icons.warning_watch {
 	background-position: -32px -80px;
 }
 
@@ -1889,13 +1894,25 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 80%;
 	margin: auto;
 }
-.errorbox  {
-	background: #fee url(../images/warning_mute.png) 10px 50% no-repeat;
-	text-align: left;
-	border-top: 2px solid #c34;
-	border-bottom: 2px solid #c34;
+.errorbox:before, .noticebox:before, .infobox:before, .descbox:before {
+	width: 16px;
+	height: 16px;
+	background: url(../images/generic_icons.png) no-repeat 0px -80px;
+	left: 10px;
+	content: '';
+	position: absolute;
+	top: 50%;
+	margin-top: -8px;
+}
+.errorbox, .noticebox, .infobox, .descbox {
 	padding: 7px 10px 7px 35px;
 	margin-bottom: 12px;
+	position: relative;
+}
+.errorbox {
+	background-color: #fee;
+	border-top: 2px solid #c34;
+	border-bottom: 2px solid #c34;
 }
 .errorbox h3 {
 	padding: 0;
@@ -1920,26 +1937,25 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* Styles for info boxes
 ------------------------------------------------- */
 
-.noticebox  {
+.noticebox:before {
+	background-position: -16px -80px;
+}
+.infobox:before {
+	background-position: -32px -80px;
+}
+.noticebox {
 	color: #666;
-	background: #fff6ca url(../images/warning_moderate.png) 10px 50% no-repeat;
-	text-align: left;
+	background: #fff6ca;
 	border-top: 1px solid #ffd324;
 	border-bottom: 1px solid #ffd324;
-	padding: 7px 10px 7px 35px;
-	margin-bottom: 12px;
 }
-.infobox  {
+.infobox {
 	color: #222;
-	background: #cfc url(../images/warning_watch.png) 8px 50% no-repeat;
-	text-align: left;
+	background: #cfc;
 	border-top: 1px solid green;
 	border-bottom: 1px solid green;
-	padding: 7px 10px 7px 35px;
-	margin-bottom: 12px;
 }
-.descbox  {
-	text-align: left;
+.descbox {
 	padding: 7px 10px 7px 10px;
 	border: 1px solid #c5c5c5;
 	margin: 6px 0;
@@ -2846,7 +2862,7 @@ span.postby {
 #ic_recentposts tr:first-child td {
 	border-top: none;
 }
-#ic_recentposts  .recentpost strong {
+#ic_recentposts .recentpost strong {
 	width: 40%;
 }
 #ic_recentposts .recentposter {
@@ -3226,7 +3242,7 @@ img.smiley {
 .attachments .floatleft {
 	padding: 0 6px 8px 6px;
 }
-.attachments_top  {
+.attachments_top {
 	margin: 0 auto;
 	text-align: center;
 }
@@ -3372,7 +3388,7 @@ ul.post_options li {
 #smileyBox_message {
 	margin: 6px;
 }
-/* All the signatures used in the forum.  If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
+/* All the signatures used in the forum. If your forum users use Mozilla, Opera, or Safari, you might add max-height here ;). */
 .signature, .attachments, .under_message, .custom_fields_above_signature {
 	width: 100%;
 	overflow: auto;
@@ -3530,7 +3546,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .information a {
 	font-weight: bold;
 }
-p.information  img {
+p.information img {
 	vertical-align: middle;
 }
 #messageindex .information, #topic_container .info {
