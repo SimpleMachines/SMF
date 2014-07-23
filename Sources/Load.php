@@ -81,7 +81,7 @@ function reloadSettings()
 	// Preg_replace space characters depend on the character set in use
 	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
 
-	// global array of anonymous helper functions, used mosly to properly handle multi byte strings
+	// global array of anonymous helper functions, used mostly to properly handle multi byte strings
 	$smcFunc += array(
 		'entity_fix' => function ($string)
 		{
@@ -252,6 +252,12 @@ function reloadSettings()
 	);
 	// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
+
+	// Define a list of icons used across multiple places.
+	$context['stable_icons'] = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
+
+	// Add your own icons.
+	call_integration_hook('integrate_stable_icons');
 }
 
 /**
