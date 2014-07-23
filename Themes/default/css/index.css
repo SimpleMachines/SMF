@@ -1376,45 +1376,45 @@ ul.quickbuttons a:hover {
 	color: #a70;
 }
 ul.quickbuttons li a.quote_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -1px;
+	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
 	padding: 0 2px 0 20px;
 }
 ul.quickbuttons li a.modifybutton {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -59px;
+	background: url(../images/quickbuttons.png) no-repeat 0 -59px;
 	padding: 0 2px 0 20px;
 }
 ul.quickbuttons li a.remove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -29px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -29px;
 	padding: 0 2px 0 25px;
 }
 ul.quickbuttons li a.modify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -59px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -59px;
 }
 ul.quickbuttons li a.approve_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -88px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -88px;
 }
 ul.quickbuttons li a.restore_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -120px;
+	background: url(../images/quickbuttons.png) no-repeat 0 -120px;
 }
 ul.quickbuttons li a.split_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -149px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -149px;
 }
 ul.quickbuttons li a.reply_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
 	padding: 0px 4px 0px 22px;
 }
 ul.quickbuttons li a.reply_all_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 0 -180px;
+	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
 }
 ul.quickbuttons li a.notify_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 1px -210px;
+	background: url(../images/quickbuttons.png) no-repeat 1px -210px;
 	padding: 0 4px 0 22px;
 }
 ul.quickbuttons li a.unapprove_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -238px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -238px;
 }
 ul.quickbuttons li a.warn_button {
-	background: url(../images/theme/quickbuttons.png) no-repeat 2px -270px;
+	background: url(../images/quickbuttons.png) no-repeat 2px -270px;
 }
 ul.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -3016,13 +3016,13 @@ h4#pollquestion {
 #poll_options dl.options .percentage {
 	display: block;
 	float: right;
-	margin: 0;
+	margin: -2px;
 	padding: 0 2px;
 	position: absolute;
 	right: 0;
 	top: 0;
 	z-index: 2;
-	background: #fff;
+	background: none;
 	white-space: pre;
 }
 
