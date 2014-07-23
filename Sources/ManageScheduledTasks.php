@@ -139,11 +139,11 @@ function ScheduledTasks()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// What kind of task are we handling?
-			if (!empty($row['callable']) && in_array($row['callable'], $external_tasks))
+			if (!empty($external_tasks) && !empty($row['callable']) && in_array($row['callable'], $external_tasks))
 				$task_string = $row['callable'];
 
 			// Using the task name huh?
-			elseif (in_array($row['task'], $external_tasks))
+			elseif (!empty($external_tasks) && in_array($row['task'], $external_tasks))
 				$task_string = $row['task'];
 
 			// Default SMF task or old mods?
