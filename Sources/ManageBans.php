@@ -427,7 +427,7 @@ function BanEdit()
 						'data' => array(
 							'function' => function ($ban_item) use ($txt, $context, $scripturl)
 							{
-								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban']['id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
 							},
 							'style' => 'text-align: center;',
 						),
