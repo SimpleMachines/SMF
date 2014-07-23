@@ -539,7 +539,7 @@ a.moderation_link, a.moderation_link:visited {
 }
 
 .openid_login {
-	background: white url(../images/openid.png) no-repeat;
+	background: white url(../images/openid.png) no-repeat 5px 5px;
 	padding-left: 18px;
 }
 
@@ -1769,10 +1769,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	vertical-align: middle;
 }
-.generic_icons.gender_None {
-	background: none;
-}
 /* Top row */
+.generic_icons.help {
+	background-position: 0 0;
+	margin: 0 5px 3px 0;
+}
 .generic_icons.gender_Female {
 	background-position: -16px 0;
 }
@@ -1815,6 +1816,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .generic_icons.filter {
 	background-position: -96px -16px;
+	margin: 0 5px 0 0;
 }
 .generic_icons.lock {
 	background-position: -112px -16px;
@@ -3637,10 +3639,6 @@ p.information img {
 
 /* Icons (converted from img to css) */
 /* Stay here till I find a better place for you guys */
-h3.search_hd {
-	background: url(../images/buttons/search_hd.png) 15px no-repeat;
-	padding: 8px 0 8px 50px;
-}
 h3.profile_hd {
 	background: url(../images/icons/profile_hd.png) 15px no-repeat;
 	padding: 8px 0 8px 50px;

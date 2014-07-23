@@ -17,8 +17,8 @@ function template_main()
 	echo '
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
-			<h3 class="catbg search_hd">
-				', $txt['set_parameters'], '
+			<h3 class="catbg">
+				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
@@ -290,7 +290,7 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">';
 				echo '
 				</span>
-				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon">&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>';
 
@@ -416,7 +416,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="?">&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>
 		<div class="pagesection">

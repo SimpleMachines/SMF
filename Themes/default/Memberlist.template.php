@@ -152,8 +152,8 @@ function template_search()
 				', template_button_strip($context['memberlist_buttons'], 'right'), '
 			</div>
 			<div class="cat_bar">
-				<h3 class="catbg mlist search_hd">
-					', $txt['mlist_search'], '
+				<h3 class="catbg mlist">
+					<span class="generic_icons filter"></span>', $txt['mlist_search'], '
 				</h3>
 			</div>
 			<div id="memberlist_search" class="clear">
