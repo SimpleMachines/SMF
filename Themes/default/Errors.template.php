@@ -60,7 +60,7 @@ function template_error_log()
 	echo '
 			<div class="cat_bar clear_right">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help"></span></a> ', $txt['errlog'], '
+					<a href="', $scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['errlog'], '
 				</h3>
 			</div>
 			<div class="pagesection">
