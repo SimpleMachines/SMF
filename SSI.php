@@ -432,7 +432,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 {
 	global $settings, $scripturl, $txt, $user_info;
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $context;
 
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
 		$exclude_boards = array($modSettings['recycle_board']);
