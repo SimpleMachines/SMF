@@ -132,7 +132,7 @@ function template_main()
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
 						<li>
-							', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"> <img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="" title="' . $txt['modify'] . '" class="edit_event"></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
+							', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify"></span></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
 						</li>';
 
 		echo '
