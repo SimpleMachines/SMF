@@ -21,18 +21,21 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $smcFunc;
+	global $time_start, $smcFunc, $modSettings;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
 		ReduceMailQueue();
 	else
 	{
-		call_integration_hook('integrate_autotask_include');
+		$task_string = '';
+
+		// Any external tasks?
+		$external_tasks = !empty($modSettings['integrate_autotask_include']) ? explode(',', $modSettings['integrate_autotask_include']) : array();
 
 		// Select the next task to do.
 		$request = $smcFunc['db_query']('', '
-			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit
+			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
 				AND next_time <= {int:current_time}
@@ -80,13 +83,29 @@ function AutoTask()
 			);
 			$affected_rows = $smcFunc['db_affected_rows']();
 
+			// What kind of task are we handling?
+			if (!empty($external_tasks) && !empty($row['callable']) && in_array($row['callable'], $external_tasks))
+				$task_string = $row['callable'];
+
+			// Using the task name huh?
+			elseif (!empty($external_tasks) && in_array($row['task'], $external_tasks))
+				$task_string = $row['task'];
+
+			// Default SMF task or old mods?
+			elseif (function_exists('scheduled_' . $row['task']))
+				$task_string = 'scheduled_' . $row['task'];
+
 			// The function must exist or we are wasting our time, plus do some timestamp checking, and database check!
-			if (function_exists('scheduled_' . $row['task']) && (!isset($_GET['ts']) || $_GET['ts'] == $row['next_time']) && $affected_rows)
+			if (!empty($task_string) && (!isset($_GET['ts']) || $_GET['ts'] == $row['next_time']) && $affected_rows)
 			{
 				ignore_user_abort(true);
 
-				// Do the task...
-				$completed = call_user_func('scheduled_' . $row['task']);
+				// Get the callable.
+				$callable_task = call_helper($task_string, true);
+
+				// Perform the task.
+				if (!empty($callable_task))
+					$completed = call_user_func($callable_task);
 
 				// Log that we did it ;)
 				if ($completed)

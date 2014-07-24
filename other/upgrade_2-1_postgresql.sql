@@ -453,19 +453,27 @@ upgrade_query("
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
+---# Adding a new column "callable" to scheduled_tasks table
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}scheduled_tasks
+	ADD COLUMN callable varchar(60) NOT NULL default ''");
+---}
+---#
+
 ---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
+	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '');
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '');
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 240, 1, 'd', 0, 'remove_old_drafts');
+	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 ---#
 
 /******************************************************************************/
@@ -901,7 +909,7 @@ ALTER TABLE {$db_prefix}members
 			FROM {db_prefix}custom_fields',
 			array()
 		);
-	
+
 		$fields = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
@@ -916,16 +924,16 @@ ALTER TABLE {$db_prefix}members
 				'mlist' => $row['show_mlist'],
 			);
 		}
-	
+
 		$smcFunc['db_free_result']($request);
-	
+
 		$smcFunc['db_insert']('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', serialize($fields)),
 			array('id_theme', 'id_member', 'variable')
 		);
-	}	
+	}
 ---}
 ---#
 
