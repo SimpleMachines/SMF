@@ -1274,9 +1274,8 @@ function prepareDisplayContext($reset = false)
 	// $context['icon_sources'] says where each icon should come from - here we set up the ones which will always exist!
 	if (empty($context['icon_sources']))
 	{
-		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 		$context['icon_sources'] = array();
-		foreach ($stable_icons as $icon)
+		foreach ($context['stable_icons'] as $icon)
 			$context['icon_sources'][$icon] = 'images_url';
 	}
 
