@@ -32,7 +32,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
 				$("#', $editor_id, '").sceditor({
-					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
+					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.min.css",
 					emoticonsCompat: true,',
 					!empty($editor_context['locale']) ? '
 					locale: \'' . $editor_context['locale'] . '\',' : '', '
