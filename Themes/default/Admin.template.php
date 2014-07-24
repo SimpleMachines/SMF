@@ -33,7 +33,7 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '"></a> ', $txt['live'], '
+										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['live'], '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
@@ -716,7 +716,7 @@ function template_show_settings()
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics_hd.png" class="icon" alt="' . $txt['help'] . '"></a>' : ''), '
+									', ($config_var['help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
 							</div>';
@@ -778,7 +778,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-							<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqWin(this.href);" class="generic_icons help"></a> ';
+							<a id="setting_', $config_var['name'], '" href="', $scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqWin(this.href);"><span class="generic_icons help" title="', $txt['help'],'></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label for="', $config_var['name'], '">', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . $txt['admin_confirm_password'] . '</em>' : ''), '</span>
@@ -1078,7 +1078,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<a id="field_show_enclosed" href="', $scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>
 											<strong><label for="enclose">', $txt['custom_edit_enclose'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_enclose_desc'], '</span>
 										</dt>
@@ -1123,7 +1123,7 @@ function template_edit_profile_field()
 											<input type="checkbox" name="bbc" id="bbc_dd"', $context['field']['bbc'] ? ' checked' : '', ' class="input_check">
 										</dd>
 										<dt id="options_dt">
-											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<a href="', $scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>
 											<strong><label for="options_dd">', $txt['custom_edit_options'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_options_desc'], '</span>
 										</dt>
@@ -1152,7 +1152,7 @@ function template_edit_profile_field()
 									<legend>', $txt['custom_edit_advanced'], '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
-											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" class="icon" alt="', $txt['help'], '"></a>
+											<a id="custom_mask" href="', $scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>
 											<strong><label for="mask">', $txt['custom_edit_mask'], ':</label></strong><br>
 											<span class="smalltext">', $txt['custom_edit_mask_desc'], '</span>
 										</dt>
@@ -1231,7 +1231,7 @@ function template_admin_search_results()
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit">
 									</form>
 								</object>
-								<img class="icon" src="' . $settings['images_url'] . '/buttons/search.png" alt="">&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
+								<span class="generic_icons filter"></span>&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 							</h3>
 						</div>
 					<div class="windowbg2 generic_list_wrapper">';

@@ -68,7 +68,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg', $alternate ? '2' : '', '">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><img class="icon" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '"></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '&nbsp;<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . $scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '<img class="icon" src="' . $settings['images_url'] . '/blank.png" alt="' . $txt['help'] . '">', '&nbsp;<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
@@ -113,7 +113,7 @@ function template_permission_index()
 					<legend>', $txt['permissions_with_selection'], '</legend>
 					<dl class="settings admin_permissions">
 						<dt>
-							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><img class="icon" src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '"></a>', $txt['permissions_apply_pre_defined'], ':
+							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'],'"></span></a>', $txt['permissions_apply_pre_defined'], ':
 						</dt>
 						<dd>
 							<select name="predefined">
@@ -594,7 +594,7 @@ function template_modify_group_display($type)
 					echo '
 						<tr>
 							<td width="10">
-								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="' . $settings['images_url'] . '/helptopics.png" alt="' . $txt['help'] . '"></a>' : '', '
+								', $permission['show_help'] ? '<a href="' . $scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="'. $txt['help'].'"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">', $permission['name'], '</td><td>';
 

@@ -22,7 +22,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 		<h3 class="catbg">
-			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" class="icon" alt="', $txt['help'], '"></a>
+			<a href="', $scripturl, '?action=helpadmin;help=themes" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>
 			', $txt['themeadmin_title'], '
 		</h3>
 		</div>
@@ -454,7 +454,7 @@ function template_set_settings()
 		<form action="', $scripturl, '?action=admin;area=theme;sa=list;th=', $context['theme_settings']['theme_id'], '" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon"></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
+					<a href="', $scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['theme_settings'], ' - ', $context['theme_settings']['name'], '
 				</h3>
 			</div>
 			<br>';
