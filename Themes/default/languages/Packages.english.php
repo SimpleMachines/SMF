@@ -165,7 +165,6 @@ $txt['package_file_contents'] = 'Contents of file';
 
 $txt['package_upload_title'] = 'Upload a Package';
 $txt['package_upload_select'] = 'Package to Upload';
-$txt['package_upload'] = 'Upload';
 $txt['package_uploaded_success'] = 'Package uploaded successfully';
 $txt['package_uploaded_successfully'] = 'The package has been uploaded successfully';
 
