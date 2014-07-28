@@ -78,6 +78,27 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		if (empty($prefs[$author][$this->_details['content_type'] . '_like']))
 			return true;
 
+		// Don't spam the alerts: if there is an existing unread alert of the
+		// requested type for the target user from the sender, don't make a new one.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_alert
+			FROM {db_prefix}user_alerts
+			WHERE id_member = {int:id_member}
+				AND is_read = 0
+				AND content_type = {string:content_type}
+				AND content_id = {int:content_id}
+				AND content_action = {string:content_action}',
+			array(
+				'id_member' => $author,
+				'content_type' => $this->_details['content_type'],
+				'content_id' => $this->_details['content_id'],
+				'content_action' => 'like',
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) == 0)
+			return true;
+
 		// Issue, update, move on.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_alerts',

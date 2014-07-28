@@ -144,6 +144,12 @@ ul#likes span.avatar {
 ul#likes span.avatar img {
 	max-height: 40px;
 }
+ul#likes li span.description {
+	font-style: italic;
+	opacity: 0.4;
+	padding: 0.4em 0.7em;
+	font-size: 0.9em;
+}
 
 /* I think the reset class can be deprecated. */
 /* Must test interitance thoroughly to be sure. */

@@ -36,7 +36,7 @@ function template_popup()
 					<span class="floatright">', $like_details['time'], '</span>
 					<span class="floatleft">
 						', $like_details['profile']['link_color'], '<br>
-						', $like_details['profile']['group'], '
+						<span class="description">', $like_details['profile']['group'], '</span>
 					</span>
 				</li>';
 	}
@@ -76,7 +76,7 @@ function template_like()
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=', $context['data']['type'], ';js=1;like=' . $context['data']['id_content'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=' . $context['data']['type'] . ';js=1;like=' . $context['data']['id_content'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '

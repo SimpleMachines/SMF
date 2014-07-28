@@ -96,11 +96,17 @@ class Likes
 	 */
 	public function __construct()
 	{
+		global $db_show_debug;
+
 		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
 		$this->_js = isset($_GET['js']) ? true : false;
 		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
 		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
+
+		// We do not want to output debug information here.
+		if ($this->_js)
+			$db_show_debug = false;
 	}
 
 	/**
@@ -282,7 +288,7 @@ class Likes
 	{
 		global $smcFunc;
 
-		// Any last minute changes? Temporary turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
+		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
 		$type = $this->_type;
 		$content = $this->_content;
 		$user = $this->_user;
