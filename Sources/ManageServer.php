@@ -830,9 +830,6 @@ function prepareDBSettingContext(&$config_vars)
 	{
 		require_once($sourcedir . '/ManagePermissions.php');
 		init_inline_permissions($inlinePermissions, isset($context['permissions_excluded']) ? $context['permissions_excluded'] : array());
-
-		// Create the token for the separate inline permission verification
-		createToken('admin-mp');
 	}
 
 	if ($board_list)
