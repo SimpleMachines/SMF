@@ -36,7 +36,7 @@ function template_popup()
 					<span class="floatright">', $like_details['time'], '</span>
 					<span class="floatleft">
 						', $like_details['profile']['link_color'], '<br>
-						', $like_details['profile']['group'], '
+						<span class="description">', $like_details['profile']['group'], '</span>
 					</span>
 				</li>';
 	}
