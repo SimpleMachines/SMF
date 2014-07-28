@@ -837,7 +837,6 @@ function ModifyMembergroup()
 	$context['sub_template'] = 'modify_group';
 	$context['page_title'] = $txt['permissions_modify_group'];
 
-	// Create the token for the separate inline permission verification.
 	createToken('admin-mp');
 }
 
@@ -1783,6 +1782,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 		}
 	}
 
+	// Create the token for the separate inline permission verification.
 	createToken('admin-mp');
 }
 
