@@ -1775,6 +1775,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	vertical-align: middle;
 }
+.generic_icons.gender_None {
+	background: none;
+}
 /* Top row */
 .generic_icons.help {
 	background-position: 0 0;
