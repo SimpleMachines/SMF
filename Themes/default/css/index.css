@@ -1775,6 +1775,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	vertical-align: middle;
 }
+.generic_icons.gender_None {
+	background: none;
+}
 /* Top row */
 .generic_icons.help {
 	background-position: 0 0;
@@ -3652,6 +3655,231 @@ h3.profile_hd {
 .xx {
 	background: url(../images/post/xx.png) 2px no-repeat;
 	padding: 25px 6px 25px 18px;
+}
+
+.topic-icon:before {
+	background: url(../images/icons/topic.png) no-repeat;
+	display: inline-block;
+	content: ' ';
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+.topic-icon-hot_poll:before {
+	background-position: -5px -5px;
+}
+.topic-icon-hot_poll_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -31px -5px;
+}
+.topic-icon-hot_poll_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -61px -5px;
+}
+.topic-icon-hot_poll_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -91px -5px;
+}
+.topic-icon-hot_post:before {
+	background-position: -121px -5px;
+}
+.topic-icon-hot_post_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -147px -5px;
+}
+.topic-icon-hot_post_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -5px -31px;
+}
+.topic-icon-hot_post_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -35px -31px;
+}
+.topic-icon-my_hot_poll:before {
+	background-position: -65px -31px;
+}
+.topic-icon-my_hot_poll_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -91px -31px;
+}
+.topic-icon-my_hot_poll_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -121px -31px;
+}
+.topic-icon-my_hot_poll_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -151px -31px;
+}
+.topic-icon-my_hot_post:before {
+	background-position: -5px -57px;
+}
+.topic-icon-my_hot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -57px;
+}
+.topic-icon-my_hot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -57px;
+}
+.topic-icon-my_hot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -57px;
+}
+.topic-icon-my_normal_poll:before {
+	background-position: -130px -57px;
+}
+.topic-icon-my_normal_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -57px;
+}
+.topic-icon-my_normal_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -5px -83px;
+}
+.topic-icon-my_normal_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -38px -83px;
+}
+.topic-icon-my_normal_post:before {
+	background-position: -71px -83px;
+}
+.topic-icon-my_normal_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -83px;
+}
+.topic-icon-my_normal_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -130px -83px;
+}
+.topic-icon-my_normal_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -163px -83px;
+}
+.topic-icon-my_veryhot_poll:before {
+	background-position: -5px -109px;
+}
+.topic-icon-my_veryhot_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -109px;
+}
+.topic-icon-my_veryhot_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -109px;
+}
+.topic-icon-my_veryhot_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -109px;
+}
+.topic-icon-my_veryhot_post:before {
+	background-position: -130px -109px;
+}
+.topic-icon-my_veryhot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -109px;
+}
+.topic-icon-my_veryhot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -5px -135px;
+}
+.topic-icon-my_veryhot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -38px -135px;
+}
+.topic-icon-normal_poll:before {
+	background-position: -71px -135px;
+}
+.topic-icon-normal_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -135px;
+}
+.topic-icon-normal_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -130px -135px;
+}
+.topic-icon-normal_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -163px -135px;
+}
+.topic-icon-normal_post:before {
+	background-position: -5px -161px;
+}
+.topic-icon-normal_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -161px;
+}
+.topic-icon-normal_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -161px;
+}
+.topic-icon-normal_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -161px;
+}
+.topic-icon-veryhot_poll:before {
+	background-position: -130px -161px;
+}
+.topic-icon-veryhot_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -161px;
+}
+.topic-icon-veryhot_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -177px -5px;
+}
+.topic-icon-veryhot_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -181px -31px;
+}
+.topic-icon-veryhot_post:before {
+	background-position: -189px -57px;
+}
+.topic-icon-veryhot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -196px -83px;
+}
+.topic-icon-veryhot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -189px -109px;
+}
+.topic-icon-veryhot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -196px -135px;
 }
 
 /* Those classes are sharing exact same gradient. */
