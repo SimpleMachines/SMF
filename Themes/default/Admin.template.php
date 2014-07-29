@@ -874,8 +874,11 @@ function template_show_settings()
 					// Extra options for float/int values - how much to decrease/increase by, the min value and the max value
 					// The step - only set if incrementing by something other than 1 for int or 0.1 for float
 					$step = isset($config_var['step']) ? ' step="' . $config_var['step'] . '"' : ($config_var['type'] == 'float' ? ' step="0.1"' : '');
-					// Minimum allowed value for this setting. Most settings are 0
-					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : ($config_var['type'] == 'int' || $config_var['type'] == 'float' ? ' min="0"' : '');
+
+					// Minimum allowed value for this setting. SMF forces a default of 0 if not specified in the settings
+					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : '';
+					
+					// Maximum allowed value for this setting.
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
