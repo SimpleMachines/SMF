@@ -96,8 +96,9 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 			)
 		);
 
-		if ($smcFunc['db_num_rows']($request) == 0)
+		if ($smcFunc['db_num_rows']($request) > 0)
 			return true;
+		$smcFunc['db_free_result']($request);
 
 		// Issue, update, move on.
 		$smcFunc['db_insert']('insert',

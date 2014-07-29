@@ -238,7 +238,10 @@ function loadProfileFields($force_reload = false)
 		),
 		'lngfile' => array(
 			'type' => 'select',
-			'options' => 'return $context[\'profile_languages\'];',
+			'options' => function () use ($context)
+			{
+				return $context['profile_languages'];
+			},
 			'label' => $txt['preferred_language'],
 			'permission' => 'profile_identity',
 			'preload' => 'profileLoadLanguages',
@@ -2673,7 +2676,7 @@ function profileLoadLanguages()
 	$context['profile_languages'] = array();
 
 	// Get our languages!
-	getLanguages(true, true);
+	getLanguages();
 
 	// Setup our languages.
 	foreach ($context['languages'] as $lang)
