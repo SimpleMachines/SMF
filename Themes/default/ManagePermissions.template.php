@@ -776,13 +776,13 @@ function template_postmod_permissions()
 
 		echo '
 							<div class="padding">
-								<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
+								<p class="smalltext floatleft">
 									<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br>
 									<span class="admin-menu-icon post_moderation_allow"> - ', $txt['permissions_post_moderation_allow'], '</span><br>
 									<span class="admin-menu-icon post_moderation_moderate"> - ', $txt['permissions_post_moderation_moderate'], '</span><br>
 									<span class="admin-menu-icon post_moderation_deny"> - ', $txt['permissions_post_moderation_disallow'], '</span>
 								</p>
-								<span class="righttext" style="float: right">
+								<span class="righttext floatright">
 									<br><br><br>
 									', $txt['permissions_post_moderation_select'], ':
 									<select name="pid" onchange="document.forms.postmodForm.submit();">';
