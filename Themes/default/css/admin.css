@@ -209,7 +209,7 @@ fieldset.admin_group .inactive {
 }
 
 /* The icons. */
-#admincenter .admin-menu-icon:before {
+.large-admin-menu-icon:before {
 	background: url(../images/icons/admin_icons_hd.png) no-repeat;
 	margin: 0 auto;
 	display: block;
@@ -217,257 +217,259 @@ fieldset.admin_group .inactive {
 	width: 32px;
 	height: 32px;
 }
-#admincenter .admin-menu-icon.attachment:before {
+.large-admin-menu-icon.attachment:before {
 	background-position: -5px -5px;
 }
-#admincenter .admin-menu-icon.ban:before {
+.large-admin-menu-icon.ban:before {
 	background-position: -47px -5px;
 }
-#admincenter .admin-menu-icon.boards:before {
+.large-admin-menu-icon.boards:before {
 	background-position: -89px -5px;
 }
-#admincenter .admin-menu-icon.calendar:before {
+.large-admin-menu-icon.calendar:before {
 	background-position: -131px -5px;
 }
-#admincenter .admin-menu-icon.current_theme:before {
+.large-admin-menu-icon.current_theme:before {
 	background-position: -173px -5px;
 }
-#admincenter .admin-menu-icon.default:before {
+.large-admin-menu-icon.default:before {
 	background-position: -5px -47px;
 }
-#admincenter .admin-menu-icon.engines:before {
+.large-admin-menu-icon.engines:before {
 	background-position: -47px -47px;
 }
-#admincenter .admin-menu-icon.exit:before {
+.large-admin-menu-icon.exit:before {
 	background-position: -89px -47px;
 }
-#admincenter .admin-menu-icon.features:before {
+.large-admin-menu-icon.features:before {
 	background-position: -131px -47px;
 }
-#admincenter .admin-menu-icon.languages:before {
+.large-admin-menu-icon.languages:before {
 	background-position: -173px -47px;
 }
-#admincenter .admin-menu-icon.logs:before {
+.large-admin-menu-icon.logs:before {
 	background-position: -5px -89px;
 }
-#admincenter .admin-menu-icon.mail:before {
+.large-admin-menu-icon.mail:before {
 	background-position: -47px -89px;
 }
-#admincenter .admin-menu-icon.maintain:before {
+.large-admin-menu-icon.maintain:before {
 	background-position: -89px -89px;
 }
-#admincenter .admin-menu-icon.membergroups:before {
+.large-admin-menu-icon.membergroups:before {
 	background-position: -131px -89px;
 }
-#admincenter .admin-menu-icon.members:before {
+.large-admin-menu-icon.members:before {
 	background-position: -173px -89px;
 }
-#admincenter .admin-menu-icon.modifications:before {
+.large-admin-menu-icon.modifications:before {
 	background-position: -5px -131px;
 }
-#admincenter .admin-menu-icon.news:before {
+.large-admin-menu-icon.news:before {
 	background-position: -47px -131px;
 }
-#admincenter .admin-menu-icon.packages:before {
+.large-admin-menu-icon.packages:before {
 	background-position: -89px -131px;
 }
-#admincenter .admin-menu-icon.paid:before {
+.large-admin-menu-icon.paid:before {
 	background-position: -131px -131px;
 }
-#admincenter .admin-menu-icon.permissions:before {
+.large-admin-menu-icon.permissions:before {
 	background-position: -173px -131px;
 }
-#admincenter .admin-menu-icon.posts:before {
+.large-admin-menu-icon.posts:before {
 	background-position: -5px -173px;
 }
-#admincenter .admin-menu-icon.regcenter:before {
+.large-admin-menu-icon.regcenter:before {
 	background-position: -47px -173px;
 }
-#admincenter .admin-menu-icon.reports:before {
+.large-admin-menu-icon.reports:before {
 	background-position: -89px -173px;
 }
-#admincenter .admin-menu-icon.scheduled:before {
+.large-admin-menu-icon.scheduled:before {
 	background-position: -131px -173px;
 }
-#admincenter .admin-menu-icon.search:before {
+.large-admin-menu-icon.search:before {
 	background-position: -173px -173px;
 }
-#admincenter .admin-menu-icon.security:before {
+.large-admin-menu-icon.security:before {
 	background-position: -215px -5px;
 }
-#admincenter .admin-menu-icon.server:before {
+.large-admin-menu-icon.server:before {
 	background-position: -215px -47px;
 }
-#admincenter .admin-menu-icon.smiley:before {
+.large-admin-menu-icon.smiley:before {
 	background-position: -215px -89px;
 }
-#admincenter .admin-menu-icon.support:before {
+.large-admin-menu-icon.support:before {
 	background-position: -215px -131px;
 }
-#admincenter .admin-menu-icon.themes:before {
+.large-admin-menu-icon.themes:before {
 	background-position: -215px -173px;
 }
-#admincenter .admin-menu-icon.warning:before {
+.large-admin-menu-icon.warning:before {
 	background-position: -5px -215px;
 }
 
 #admin_menu .admin-menu-icon:before {
+	padding-left: 9px;
+}
+.admin-menu-icon:before {
 	width: 16px;
 	height: 16px;
 	background: url(../images/icons/admin_icons.png) no-repeat;
 	vertical-align: middle;
 	display: inline-block;
 	content: '';
-	padding-left: 9px;
 }
-#admin_menu .admin-menu-icon.administration:before {
+.admin-menu-icon.administration:before {
     background-position: -5px -5px;
 }
-#admin_menu .admin-menu-icon.alerts:before {
+.admin-menu-icon.alerts:before {
     background-position: -31px -5px;
 }
-#admin_menu .admin-menu-icon.attachment:before {
+.admin-menu-icon.attachment:before {
     background-position: -57px -5px;
 }
-#admin_menu .admin-menu-icon.ban:before {
+.admin-menu-icon.ban:before {
     background-position: -83px -5px;
 }
-#admin_menu .admin-menu-icon.boards:before {
+.admin-menu-icon.boards:before {
     background-position: -109px -5px;
 }
-#admin_menu .admin-menu-icon.calendar:before {
+.admin-menu-icon.calendar:before {
     background-position: -135px -5px;
 }
-#admin_menu .admin-menu-icon.current_theme:before {
+.admin-menu-icon.current_theme:before {
     background-position: -5px -31px;
 }
-#admin_menu .admin-menu-icon.drafts:before {
+.admin-menu-icon.drafts:before {
     background-position: -31px -31px;
 }
-#admin_menu .admin-menu-icon.engines:before {
+.admin-menu-icon.engines:before {
     background-position: -57px -31px;
 }
-#admin_menu .admin-menu-icon.exit:before {
+.admin-menu-icon.exit:before {
     background-position: -83px -31px;
 }
-#admin_menu .admin-menu-icon.features:before {
+.admin-menu-icon.features:before {
     background-position: -109px -31px;
 }
-#admin_menu .admin-menu-icon.frenemy:before {
+.admin-menu-icon.frenemy:before {
     background-position: -135px -31px;
 }
-#admin_menu .admin-menu-icon.ignore:before {
+.admin-menu-icon.ignore:before {
     width: 16px;
     height: 15px;
     background-position: -5px -57px;
 }
-#admin_menu .admin-menu-icon.languages:before {
+.admin-menu-icon.languages:before {
     background-position: -31px -57px;
 }
-#admin_menu .admin-menu-icon.logs:before {
+.admin-menu-icon.logs:before {
     background-position: -57px -57px;
 }
-#admin_menu .admin-menu-icon.mail:before {
+.admin-menu-icon.mail:before {
     background-position: -83px -57px;
 }
-#admin_menu .admin-menu-icon.maintain:before {
+.admin-menu-icon.maintain:before {
     background-position: -109px -57px;
 }
-#admin_menu .admin-menu-icon.membergroups:before {
+.admin-menu-icon.membergroups:before {
     background-position: -135px -57px;
 }
-#admin_menu .admin-menu-icon.members:before {
+.admin-menu-icon.members:before {
     background-position: -5px -83px;
 }
-#admin_menu .admin-menu-icon.members_delete:before {
+.admin-menu-icon.members_delete:before {
     background-position: -31px -83px;
 }
-#admin_menu .admin-menu-icon.members_request:before {
+.admin-menu-icon.members_request:before {
     background-position: -57px -83px;
 }
-#admin_menu .admin-menu-icon.members_watched:before {
+.admin-menu-icon.members_watched:before {
     background-position: -83px -83px;
 }
-#admin_menu .admin-menu-icon.modifications:before {
+.admin-menu-icon.modifications:before {
     background-position: -109px -83px;
 }
-#admin_menu .admin-menu-icon.news:before {
+.admin-menu-icon.news:before {
     background-position: -135px -83px;
 }
-#admin_menu .admin-menu-icon.openid:before {
+.admin-menu-icon.openid:before {
     background-position: -5px -109px;
 }
-#admin_menu .admin-menu-icon.package_ops:before {
+.admin-menu-icon.package_ops:before {
     background-position: -31px -109px;
 }
-#admin_menu .admin-menu-icon.packages:before {
+.admin-menu-icon.packages:before {
     background-position: -57px -109px;
 }
-#admin_menu .admin-menu-icon.paid:before {
+.admin-menu-icon.paid:before {
     background-position: -83px -109px;
 }
-#admin_menu .admin-menu-icon.permissions:before {
+.admin-menu-icon.permissions:before {
     background-position: -109px -109px;
 }
-#admin_menu .admin-menu-icon.personal_message:before {
+.admin-menu-icon.personal_message:before {
     background-position: -135px -109px;
 }
-#admin_menu .admin-menu-icon.post_moderation_allow:before {
+.admin-menu-icon.post_moderation_allow:before {
     background-position: -5px -135px;
 }
-#admin_menu .admin-menu-icon.post_moderation_attach:before {
+.admin-menu-icon.post_moderation_attach:before {
     background-position: -31px -135px;
 }
-#admin_menu .admin-menu-icon.post_moderation_deny:before {
+.admin-menu-icon.post_moderation_deny:before {
     background-position: -57px -135px;
 }
-#admin_menu .admin-menu-icon.post_moderation_moderate:before {
+.admin-menu-icon.post_moderation_moderate:before {
     background-position: -83px -135px;
 }
-#admin_menu .admin-menu-icon.posts:before {
+.admin-menu-icon.posts:before {
     background-position: -109px -135px;
 }
-#admin_menu .admin-menu-icon.regcenter:before {
+.admin-menu-icon.regcenter:before {
     background-position: -135px -135px;
 }
-#admin_menu .admin-menu-icon.reports:before {
+.admin-menu-icon.reports:before {
     background-position: -161px -5px;
 }
-#admin_menu .admin-menu-icon.scheduled:before {
+.admin-menu-icon.scheduled:before {
     background-position: -161px -31px;
 }
-#admin_menu .admin-menu-icon.search:before {
+.admin-menu-icon.search:before {
     background-position: -161px -57px;
 }
-#admin_menu .admin-menu-icon.security:before {
+.admin-menu-icon.security:before {
     background-position: -161px -83px;
 }
-#admin_menu .admin-menu-icon.server:before {
+.admin-menu-icon.server:before {
     background-position: -161px -109px;
 }
-#admin_menu .admin-menu-icon.smiley:before {
+.admin-menu-icon.smiley:before {
     background-position: -161px -135px;
 }
-#admin_menu .admin-menu-icon.stats:before {
+.admin-menu-icon.stats:before {
     background-position: -5px -161px;
 }
-#admin_menu .admin-menu-icon.subsection:before {
+.admin-menu-icon.subsection:before {
     width: 12px;
     height: 12px;
     background-position: -187px -5px;
 }
-#admin_menu .admin-menu-icon.subsection_rtl:before {
+.admin-menu-icon.subsection_rtl:before {
     width: 12px;
     height: 12px;
     background-position: -187px -27px;
 }
-#admin_menu .admin-menu-icon.support:before {
+.admin-menu-icon.support:before {
     background-position: -31px -161px;
 }
-#admin_menu .admin-menu-icon.themes:before {
+.admin-menu-icon.themes:before {
     background-position: -57px -161px;
 }
-#admin_menu .admin-menu-icon.warning:before {
+.admin-menu-icon.warning:before {
     background-position: -83px -161px;
 }
 
@@ -904,10 +906,6 @@ h3.grid_header {
 
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
-}
-#manage_boards .button_submit, .action_admin .button_submit, .action_admin .button_link {
-	margin: 5px 8px 0 0 !important;
-	padding: 2px 4px;
 }
 #taskpad .button_submit, #admincenter, #admin_form_wrapper {
 	margin: 5px 0 5px 0;
