@@ -1782,6 +1782,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 		}
 	}
 
+	// Create the token for the separate inline permission verification.
 	createToken('admin-mp');
 }
 
