@@ -169,10 +169,10 @@ table.table_list a.collapse {
 	right: 0;
 }
 /* Indicator for additional levels. Best in the anchor so it stays visible on hover. */
-.dropmenu li li.subsections a:after {
-	left: 2px;
+.dropmenu li li.subsections > a:after {
+	content: '\25c4';
 	right: auto;
-	background: url(../images/admin/subsection_rtl.png) no-repeat;
+	left: 2px;
 }
 
 li#collapse_button {

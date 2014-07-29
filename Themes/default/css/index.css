@@ -951,12 +951,10 @@ img.sort, .sort {
 }
 .dropmenu li li.subsections > a:after {
 	position: absolute;
-	top: 0.4em;
+	top: 0.7em;
 	right: 2px;
-	width: 12px;
-	height: 12px;
-	content: "";
-	background: url(../images/admin/subsection.png) no-repeat;
+	font: 83.33%/150% Arial, sans-serif;
+	content: '\25ba';
 }
 /* Highlighting of current section */
 .dropmenu li li a.chosen {
