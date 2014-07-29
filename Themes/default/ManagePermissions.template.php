@@ -778,9 +778,9 @@ function template_postmod_permissions()
 							<div class="padding">
 								<p class="smalltext" style="padding-left: 10px; padding-bottom: 10px; float: left;">
 									<strong>', $txt['permissions_post_moderation_legend'], ':</strong><br>
-									<img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '"> - ', $txt['permissions_post_moderation_allow'], '<br>
-									<img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '"> - ', $txt['permissions_post_moderation_moderate'], '<br>
-									<img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '"> - ', $txt['permissions_post_moderation_disallow'], '
+									<span class="admin-menu-icon post_moderation_allow"> - ', $txt['permissions_post_moderation_allow'], '</span><br>
+									<span class="admin-menu-icon post_moderation_moderate"> - ', $txt['permissions_post_moderation_moderate'], '</span><br>
+									<span class="admin-menu-icon post_moderation_deny"> - ', $txt['permissions_post_moderation_disallow'], '</span>
 								</p>
 								<span class="righttext" style="float: right">
 									<br><br><br>
@@ -823,21 +823,21 @@ function template_postmod_permissions()
 										<th width="30%">
 											', $txt['permissions_post_moderation_group'], '
 										</th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '"></th>';
+										<th align="center"><span class="admin-menu-icon post_moderation_allow"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_moderate"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_deny"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_allow"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_moderate"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_deny"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_allow"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_moderate"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_deny"></span></th>';
 
 		if ($modSettings['attachmentEnable'] == 1)
 			echo '
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_allow.png" alt="', $txt['permissions_post_moderation_allow'], '" title="', $txt['permissions_post_moderation_allow'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_moderate.png" alt="', $txt['permissions_post_moderation_moderate'], '" title="', $txt['permissions_post_moderation_moderate'], '"></th>
-										<th align="center"><img src="', $settings['default_images_url'], '/admin/post_moderation_deny.png" alt="', $txt['permissions_post_moderation_disallow'], '" title="', $txt['permissions_post_moderation_disallow'], '"></th>';
+										<th align="center"><span class="admin-menu-icon post_moderation_allow"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_moderate"></span></th>
+										<th align="center"><span class="admin-menu-icon post_moderation_deny"></span></th>';
 
 		echo '
 									</tr>
