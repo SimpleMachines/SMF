@@ -138,7 +138,7 @@ function template_main()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-t-file_token_var'], '" value="', $context['admin-t-file_token'], '">
 				<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';" class="input_file">
-				<input type="submit" name="save_file" value="' . $txt['save'] . '" class="button_submit">
+				<input type="submit" name="save_file" value="' . $txt['upload'] . '" class="button_submit">
 			</form>';
 
 		// Copied from the default.

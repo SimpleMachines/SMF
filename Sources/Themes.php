@@ -1310,7 +1310,7 @@ function InstallFile()
 		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
 
 	// Get the theme's name.
-	$name = strtok(basename($_FILES['theme_gz']['name']));
+	$name = pathinfo($_FILES['theme_gz']['name'], PATHINFO_FILENAME);
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// Start setting some vars.
