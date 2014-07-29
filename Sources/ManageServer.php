@@ -145,7 +145,7 @@ function ModifyGeneralSettings($return_config = false)
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
-		variable name, description, type (constant), size/possible values, helptext.
+		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 	OR	an empty string for a horizontal rule.
 	OR	a string for a titled section. */
 	$config_vars = array(
@@ -220,7 +220,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
-		variable name, description, type (constant), size/possible values, helptext.
+		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 		OR an empty string for a horizontal rule.
 		OR a string for a titled section. */
 	$config_vars = array(
@@ -600,7 +600,13 @@ function ModifyLoadBalancingSettings($return_config = false)
  *	)
  *
  * the following named keys are also permitted
- * 'disabled' => 'postinput' => 'preinput' =>
+ * 'disabled' => A string of code that will determine whether or not the setting should be disabled
+ * 'postinput' => Text to display after the input field
+ * 'preinput' => Text to display before the input field
+ * 'subtext' => Additional descriptive text to display under the field's label
+ * 'min' => minimum allowed value (for int/float). Defaults to 0 if not set.
+ * 'max' => maximum allowed value (for int/float)
+ * 'step' => how much to increment/decrement the value by (only for int/float - mostly used for float values).
  *
  * @param array $config_vars
  */
@@ -653,6 +659,22 @@ function prepareServerSettingsContext(&$config_vars)
 				'preinput' => !empty($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => !empty($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
+
+			// Handle min/max/step if necessary
+			if ($config_var[3] == 'int' || $config_var[3] == 'float')
+			{
+				// Default to a min of 0 if one isn't set
+				if (isset($config_var['min']))
+					$context['config_vars'][$config_var[0]]['min'] = $config_var['min'];
+				else
+					$context['config_vars'][$config_var[0]]['min'] = 0;
+
+				if (isset($config_var['max']))
+					$context['config_vars'][$config_var[0]]['max'] = $config_var['max'];
+
+				if (isset($config_var['step']))
+					$context['config_vars'][$config_var[0]]['step'] = $config_var['step'];
+			}
 
 			// If this is a select box handle any data.
 			if (!empty($config_var[4]) && is_array($config_var[4]))
@@ -775,6 +797,24 @@ function prepareDBSettingContext(&$config_vars)
 				'preinput' => isset($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => isset($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
+
+			// Handle min/max/step if necessary
+			if ($config_var[0] == 'int' || $config_var[0] == 'float')
+			{
+				log_error(print_r($config_var, true), 'debug');
+				
+				// Default to a min of 0 if one isn't set
+				if (isset($config_var['min']))
+					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
+				else
+					$context['config_vars'][$config_var[1]]['min'] = 0;
+
+				if (isset($config_var['max']))
+					$context['config_vars'][$config_var[1]]['max'] = $config_var['max'];
+
+				if (isset($config_var['step']))
+					$context['config_vars'][$config_var[1]]['step'] = $config_vars['step'];
+			}
 
 			// If this is a select box handle any data.
 			if (!empty($config_var[2]) && is_array($config_var[2]))
@@ -967,6 +1007,14 @@ function saveSettings(&$config_vars)
 		elseif (in_array($config_var, $config_ints))
 		{
 			$new_settings[$config_var] = (int) $_POST[$config_var];
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;
+			$new_settings[$config_var] = max($min, $new_settings[$config_var]);
+
+			// Is there a max value for this as well?
+			if (isset($var['max']))
+				$new_settings[$config_var] = min($var['max'], $new_settings[$config_var]);
 		}
 		elseif (in_array($config_var, $config_bools))
 		{
@@ -999,6 +1047,13 @@ function saveSettings(&$config_vars)
 		// Select options need carried over, too.
 		if (isset($config_var[4]))
 			$new_setting[] = $config_var[4];
+
+		// Include min and max if necessary
+		if (isset($config_var['min']))
+			$new_setting['min'] = $config_var['min'];
+
+		if (isset($config_var['max']))
+			$new_setting['max'] = $config_var['max'];
 
 		// Rewrite the definition a bit.
 		$new_settings[] = $new_setting;
@@ -1068,10 +1123,30 @@ function saveDBSettings(&$config_vars)
 		}
 		// Integers!
 		elseif ($var[0] == 'int')
+		{
 			$setArray[$var[1]] = (int) $_POST[$var[1]];
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;	
+			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
+
+			// Do we have a max value for this as well?
+			if (isset($var['max']))
+				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
+		}
 		// Floating point!
 		elseif ($var[0] == 'float')
+		{
 			$setArray[$var[1]] = (float) $_POST[$var[1]];
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;	
+			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
+
+			// Do we have a max value for this as well?
+			if (isset($var['max']))
+				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
+		}
 		// Text!
 		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
