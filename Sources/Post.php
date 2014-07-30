@@ -1284,7 +1284,7 @@ function Post2()
 
 		// Though the topic should be there, it might have vanished.
 		if (!is_array($topic_info))
-			fatal_lang_error('topic_doesnt_exist');
+			fatal_lang_error('topic_doesnt_exist', 404);
 
 		// Did this topic suddenly move? Just checking...
 		if ($topic_info['id_board'] != $board)

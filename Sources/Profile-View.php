@@ -24,7 +24,7 @@ function summary($memID)
 
 	// Attempt to load the member's profile data.
 	if (!loadMemberContext($memID) || !isset($memberContext[$memID]))
-		fatal_lang_error('not_a_user', false);
+		fatal_lang_error('not_a_user', false, 404);
 
 	// Set up the stuff and load the user.
 	$context += array(

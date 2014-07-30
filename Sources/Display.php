@@ -173,7 +173,7 @@ function Display()
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('not_a_topic', false);
+		fatal_lang_error('not_a_topic', false, 404);
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
