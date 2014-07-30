@@ -120,10 +120,15 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  * It logs the error message if $log is specified.
  * @param string $error The error message
  * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param int $status The HTTP status code associated with this error
  */
-function fatal_error($error, $log = 'general')
+function fatal_error($error, $log = 'general', $status = 500)
 {
 	global $txt;
+
+	// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// We don't have $txt yet, but that's okay...
 	if (empty($txt))
@@ -146,11 +151,16 @@ function fatal_error($error, $log = 'general')
  * @param string $error The error message
  * @param string $log The type of error, or false to not log it
  * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ * @param int $status = false The HTTP status code associated with this error
  */
-function fatal_lang_error($error, $log = 'general', $sprintf = array())
+function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
 	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
+
+	// Send the status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// Try to load a theme if we don't have one.
 	if (empty($context['theme_loaded']) && empty($fatal_error_called))
@@ -507,6 +517,28 @@ function log_error_online($error, $sprintf = array())
 		);
 	}
 	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * Sends an appropriate HTTP status header based on a given status code
+ * @param int $code The status code
+ */
+function send_http_status($code)
+{
+	$statuses = array(
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		410 => 'Gone',
+		500 => 'Internal Server Error',
+		503 => 'Service Unavailable'
+	);
+
+	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+
+	if (!isset($statuses[$code]))
+		header($protocol . ' 500 Internal Server Error');
+	else
+		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
 
 ?>
