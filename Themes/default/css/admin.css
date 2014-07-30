@@ -102,16 +102,11 @@ h3.catbg #quick_search form .button_submit:hover {
 }
 
 /* Browser tweaks. */
+body#chrome #quick_search form .input_text {
+	padding: 2px;
+}
 body#chrome #quick_search form input {
-	padding: 4px 3px;
-	margin-top: -3px;
-}
-body#chrome #quick_search .button_submit, body#ie #quick_search .button_submit, body#opera #quick_search .button_submit {
-	margin: 0 5px;
-	padding: 5px 9px 4px 9px;
-}
-body#chrome  #quick_search .button_submit {
-	margin: -29px 5px 0 5px;
+	float: none;
 }
 
 /* The welcome thingy. */
