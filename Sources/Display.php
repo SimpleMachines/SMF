@@ -1472,13 +1472,11 @@ function Download()
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($filename))
 	{
-		loadLanguage('Errors');
-
 		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
 		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
-		die('404 - ' . $txt['attachment_not_found']);
+		die('File not found.');
 	}
 
 	// If it hasn't been modified since the last time this attachement was retrieved, there's no need to display it again.
