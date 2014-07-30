@@ -194,7 +194,7 @@ function Display()
 				array('id_member', 'id_topic')
 			);
 		}
-		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0');
+		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0', false, true);
 	}
 
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
