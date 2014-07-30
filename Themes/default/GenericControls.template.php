@@ -97,7 +97,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		}
 		else
 			echo ',
-					toolbar: "emoticon",';
+					toolbar: "",';
 
 		echo '
 				});
