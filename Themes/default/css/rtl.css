@@ -74,12 +74,6 @@ div.stats {
 	margin: 0 2x;
 }
 
-/* the subject column */
-td.lastpost {
-	border-left: 1px solid #ddd;
-	border-right: 0px !important;
-}
-
 /* the page navigation area */
 .previous_page {
 	background-position: -113px -33px;
@@ -613,7 +607,7 @@ h3.profile_hd {
 	min-width: 95%;
 	float: right;
 }
-/* Introduce New Title Bar -Islam */
+/* Introduce New Title Bar */
 
 .title_bar {
 
