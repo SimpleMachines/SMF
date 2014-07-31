@@ -801,8 +801,6 @@ function prepareDBSettingContext(&$config_vars)
 			// Handle min/max/step if necessary
 			if ($config_var[0] == 'int' || $config_var[0] == 'float')
 			{
-				log_error(print_r($config_var, true), 'debug');
-				
 				// Default to a min of 0 if one isn't set
 				if (isset($config_var['min']))
 					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
@@ -813,7 +811,7 @@ function prepareDBSettingContext(&$config_vars)
 					$context['config_vars'][$config_var[1]]['max'] = $config_var['max'];
 
 				if (isset($config_var['step']))
-					$context['config_vars'][$config_var[1]]['step'] = $config_vars['step'];
+					$context['config_vars'][$config_var[1]]['step'] = $config_var['step'];
 			}
 
 			// If this is a select box handle any data.
