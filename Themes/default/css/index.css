@@ -1773,6 +1773,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat 0 0;
 	vertical-align: middle;
 }
+.generic_icons.gender_None {
+	background: none;
+}
 /* This is a small fix for dropmenu icons */
 .dropmenu span, #profile_menu span {
 	margin: -1px 5px 0 0;
