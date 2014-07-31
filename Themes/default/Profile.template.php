@@ -2228,7 +2228,7 @@ function template_issueWarning()
 				effectText = "', $text, '";';
 
 	echo '
-			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'$ (\' + effectText + \')\');
+			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'% (\' + effectText + \')\');
 		}
 	// ]]></script>';
 

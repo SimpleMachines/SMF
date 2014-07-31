@@ -199,8 +199,8 @@ if (!function_exists('clean_cache'))
 		closedir($dh);
 
 		// Invalidate cache, to be sure!
-		// ... as long as Load.php can be modified, anyway.
-		@touch($sourcedir . '/' . 'Load.php');
+		// ... as long as index.php can be modified, anyway.
+		@touch($cachedir . '/' . 'index.php');
 		clearstatcache();
 	}
 }

@@ -2279,6 +2279,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 					'board' => $row['id_board'],
 					'poster' => $row['id_member'],
 					'new_topic' => false,
+					'msg' => $row['id_msg'],
 				);
 		}
 
