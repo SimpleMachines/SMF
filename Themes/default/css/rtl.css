@@ -23,15 +23,8 @@
 
 /* This place covers board places (boardindex-messageindex) */
 
-div.icon {
-	float: right;
-}
-div.info {
-	float: right;
-}
-
-div.stats {
-	float: right;
+div.icon, div.info, div.stats, div.lastpost {
+ float: right !important;
 }
 
 /* Colors for warnings */
@@ -155,7 +148,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .dropmenu li li.subsections > a:after {
 	left: 2px;
 	right: auto;
-	background: url(../images/admin/subsection_rtl.png) no-repeat;
+	content: '\25c4';
 }
 
 /*
@@ -460,9 +453,6 @@ div#admin_menu {
 }
 /* Styles for generic tables.
 ------------------------------------------------------- */
-.topic_table td.lastpost {
-	background: none;
-}
 #info_center .cat_bar, .table_grid tr.catbg th {
 	text-align: right;
 }
@@ -691,13 +681,7 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 	padding: 0;
 	margin: 0 1.5em 1em 0;
 }
-#quick_tasks li {
-	float: right;
-	list-style-type: none;
-}
-.home_image {
-	float: right;
-}
+
 /* common admin classes */
 .additional_row input {
 	margin-left: 0;
