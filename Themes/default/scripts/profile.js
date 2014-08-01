@@ -43,6 +43,9 @@ function calcCharLeft()
 {
 	var oldSignature = "", currentSignature = document.forms.creator.signature.value;
 	var currentChars = 0;
+	
+	// If it's already visible at this point, we don't want to hide it...
+	var errorbox_visible = $("#profile_error").is(":visible");
 
 	if (!document.getElementById("signatureLeft"))
 		return;
@@ -60,9 +63,11 @@ function calcCharLeft()
 		else
 			document.getElementById("signatureLeft").className = "";
 
-		if (currentChars > maxLength && !$("#profile_error").is(":visible"))
+		// TODO: This should append to an existing list of errors if possible
+		if (currentChars > maxLength && !errorbox_visible)
 			ajax_getSignaturePreview(false);
-		else if (currentChars <= maxLength && $("#profile_error").is(":visible"))
+		// Only hide it if it wasn't visible before this function was called
+		else if (currentChars <= maxLength && !errorbox_visible)
 		{
 			$("#profile_error").css({display:"none"});
 			$("#profile_error").html('');
@@ -75,6 +80,9 @@ function calcCharLeft()
 function ajax_getSignaturePreview (showPreview)
 {
 	showPreview = (typeof showPreview == 'undefined') ? false : showPreview;
+	// Whether or not the error box was initially shown by this function.
+	// This prevents the function from hiding it if it didn't show it first
+	var errorbox_visible = $("#profile_error").is(":visible");
 	$.ajax({
 		type: "POST",
 		url: smf_scripturl + "?action=xmlhttp;sa=previews;xml",
@@ -91,10 +99,12 @@ function ajax_getSignaturePreview (showPreview)
 				}
 			}
 
+			// TODO: This should check for an existing list and append to that if it finds one...
 			if ($(request).find("error").text() != '')
 			{
-				if (!$("#profile_error").is(":visible"))
+				if (!errorbox_visible)
 					$("#profile_error").css({display: "", position: "fixed", top: 0, left: 0, width: "100%"});
+					
 				var errors = $(request).find('[type="error"]');
 				var errors_html = '<span>' + $(request).find('[type="errors_occurred"]').text() + '</span><ul class="reset">';
 
@@ -104,7 +114,8 @@ function ajax_getSignaturePreview (showPreview)
 				errors_html += '</ul>';
 				$(document).find("#profile_error").html(errors_html);
 			}
-			else
+			// Again, don't hide this if it was already visible
+			else if (!errorbox_visible)
 			{
 				$("#profile_error").css({display:"none"});
 				$("#profile_error").html('');
