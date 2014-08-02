@@ -127,6 +127,8 @@ function createMenu($menuData, $menuOptions = array())
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">&nbsp;&nbsp;';
 						elseif (isset($area['icon']) && file_exists($settings['default_images_url'] . '/images/admin/' . $area['icon']))
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">&nbsp;&nbsp;';
+						elseif (isset($area['icon']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons '.$area['icon'] .'"></span>';
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons '.$area['icon'] .'"></span>';
 
