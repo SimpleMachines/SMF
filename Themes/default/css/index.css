@@ -1776,6 +1776,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.gender_None {
 	background: none;
 }
+/* This is a small fix for dropmenu icons */
+.dropmenu span, #profile_menu span {
+	margin: -1px 5px 0 0;
+}
 /* Top row */
 .generic_icons.help {
 	background-position: 0 0;
@@ -1854,13 +1858,13 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.replies, .generic_icons.topics_replies {
 	background-position: -32px -48px;
 }
-.generic_icons.history, .generic_icons.time_online {
+.generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
 	background-position: -48px -48px;
 }
 .generic_icons.views {
 	background-position: -64px -48px;
 }
-.generic_icons.starters, .generic_icons.people {
+.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups {
 	background-position: -80px -48px;
 }
 .generic_icons.poll {
@@ -1894,7 +1898,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.split_sel {
 	background-position: -112px -64px;
 }
-/* 6th and final row */
+/* 6th row */
 .generic_icons.warning_mute {
 	background-position: 0px -80px;
 }
@@ -1903,6 +1907,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .generic_icons.warning_watch {
 	background-position: -32px -80px;
+}
+.generic_icons.openid {
+	background-position: -48px -80px;
 }
 .generic_icons.calendar_export {
 	background-position: -64px -80px;
@@ -1916,7 +1923,145 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.plus {
 	background-position: -112px -80px;
 }
-
+/* 7th row */
+.generic_icons.warning {
+	background-position: 0 -98px;
+}
+.generic_icons.themes {
+	background-position: -19px -97px;
+}
+.generic_icons.support {
+	background-position: -36px -97px;
+}
+.generic_icons.stats {
+	background-position: -54px -97px;
+}
+.generic_icons.right_arrow {
+	background-position: -72px -102px;
+}
+.generic_icons.left_arrow {
+	background-position: -86px -102px;
+}
+.generic_icons.smiley {
+	background-position: -95px -97px;
+}
+.generic_icons.server {
+	background-position: -112px -97px;
+}
+/* 8th row */
+.generic_icons.security {
+	background-position: 0 -114px;
+}
+.generic_icons.ban {
+	background-position: -18px -113px;
+}
+.generic_icons.boards  {
+	background-position: -35px -113px;
+}
+.generic_icons.regcenter {
+	background-position: -55px -113px;
+}
+.generic_icons.posts {
+	background-position: -74px -112px;
+}
+.generic_icons.post_moderation_moderate {
+	background-position: -92px -113px;
+}
+.generic_icons.post_moderation_deny {
+	background-position: -112px -113px;
+}
+/* 9th row */
+.generic_icons.post_moderation_attach {
+	background-position: -2px -130px;
+}
+.generic_icons.post_moderation_allow {
+	background-position: -18px -130px;
+}
+.generic_icons.personal_message {
+	background-position: -31px -130px;
+}
+.generic_icons.permissions {
+	background-position: -46px -130px;
+	width: 12px;
+}
+.generic_icons.paid {
+	background-position: -59px -130px;
+}
+.generic_icons.packages {
+	background-position: -77px -130px;
+}
+.generic_icons.package_ops {
+	background-position: -92px -130px;
+}
+.generic_icons.reports {
+	background-position: -112px -130px;
+}
+/* 10th row */
+.generic_icons.news {
+	background-position: -2px -149px;
+}
+.generic_icons.modifications {
+	background-position: -22px -148px;
+}
+.generic_icons.maintain {
+	background-position: -39px -148px;
+}
+.generic_icons.administration {
+	background-position: -57px -147px;
+}
+.generic_icons.frenemy {
+	background-position: -74px -147px;
+}
+.generic_icons.attachment {
+	background-position: -94px -148px;
+}
+.generic_icons.languages {
+	background-position: -110px -149px;
+}
+/* 11th row */
+.generic_icons.members_request {
+	background-position: -1px -166px;
+}
+.generic_icons.members_delete {
+	background-position: -20px -165px;
+}
+.generic_icons.members {
+	background-position: -39px -166px;
+}
+.generic_icons.members_watched {
+	background-position: -55px -166px;
+}
+.generic_icons.corefeatures {
+	background-position: -74px -168px;
+}
+.generic_icons.calendar {
+	background-position: -93px -166px;
+}
+.generic_icons.logs {
+	background-position: -110px -165px;
+}
+/* 12th row */
+.generic_icons.search, .generic_icons.engines {
+	background-position: 0 -183px;
+}
+.generic_icons.features {
+	background-position: -22px -184px;
+}
+.generic_icons.exit {
+	background-position: -39px -184px;
+}
+.generic_icons.drafts {
+	background-position: -55px -182px;
+}
+.generic_icons.current_theme {
+	background-position: -73px -183px;
+}
+.generic_icons.change_menu2 {
+	background-position: -94px -185px;
+}
+.generic_icons.change_menu {
+	background-position: -110px -185px;
+}
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
