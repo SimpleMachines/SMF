@@ -834,25 +834,6 @@ img.sort, .sort {
 #pm_menu .details, #alerts_menu .details {
 	max-width: 80%;
 }
-/* This CSS is for adding top level subsection indicators, just in case anyone wants them. */
-/* I'm not that keen on them, but perhaps the commented code should be left as a handy demo. */
-/*
-#menu_nav>li.subsections>a, #admin_menu .dropmenu>li.subsections>a {
-	padding: 0 17px 0 7px;
-	background: url(../images/selected_open.png) no-repeat 96% 60%;
-}
-#menu_nav>li.subsections>a.active, #admin_menu .dropmenu>li.subsections>a.active {
-	background: orange url(../images/selected_open.png) no-repeat 96% 60%;
-}
-#menu_nav>li.subsections>a:hover, #menu_nav>li.subsections:hover>a, #menu_nav>li.subsections>a:focus,
-#admin_menu .dropmenu>li.subsections>a:hover, #admin_menu .dropmenu>li.subsections:hover>a, #admin_menu .dropmenu>li.subsections>a:focus {
-	background: #597b9f url(../images/selected_open.png) no-repeat 96% 60%;
-}
-#menu_nav li.subsections>a.active:hover, #menu_nav li.subsections:hover>a.active, #menu_nav li.subsections>a.active:focus,
-#admin_menu .dropmenu>li.subsections>a.active:hover, #admin_menu .dropmenu>li.subsections:hover>a.active, #admin_menu .dropmenu>li.subsections>a.active:focus {
-	background: orange url(../images/selected_open.png) no-repeat 96% 60%;
-}
-*/
 /* Levels 2 and 3 submenu wrapper. */
 .dropmenu li ul, .top_menu {
 	z-index: 90;
