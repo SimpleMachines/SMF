@@ -806,6 +806,10 @@ function loadBoard()
 	$context['user']['is_mod'] = &$user_info['is_mod'];
 	$context['current_topic'] = $topic;
 	$context['current_board'] = $board;
+	
+	// No posting in redirection boards!
+	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
+		$board_info['error'] == 'post_in_redirect';
 
 	// Hacker... you can't see this topic, I'll tell you that. (but moderators can!)
 	if (!empty($board_info['error']) && (!empty($modSettings['deny_boards_access']) || $board_info['error'] != 'access' || !$user_info['is_mod']))
@@ -831,6 +835,11 @@ function loadBoard()
 			ob_end_clean();
 			header('HTTP/1.1 403 Forbidden');
 			die;
+		}
+		elseif ($board_info['error'] == 'post_in_redirect')
+		{
+			// Slightly different error message here...
+			fatal_lang_error('cannot_post_redirect', false);
 		}
 		elseif ($user_info['is_guest'])
 		{
