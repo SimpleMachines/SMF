@@ -378,7 +378,7 @@ function template_ic_block_stats()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="generic_icons boards"></span> ', $txt['forum_stats'], '</a>
+					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="generic_icons stats"></span> ', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
 			<p class="inline">

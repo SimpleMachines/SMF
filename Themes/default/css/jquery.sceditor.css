@@ -2,25 +2,28 @@
 
 /* SMF buttons styles */
 .sceditor-button-ftp div {
-	background: url('../images/bbc/ftp.png');
+	background: url(../images/bbc/ftp.png);
 	height: 18px;
 	width: 18px;
 }
 .sceditor-button-glow div {
-	background: url('../images/bbc/glow.png');
+	background: url(../images/bbc/glow.png);
 }
 .sceditor-button-shadow div {
-	background: url('../images/bbc/shadow.png');
+	background: url(../images/bbc/shadow.png);
 }
 .sceditor-button-move div {
-	background: url('../images/bbc/move.gif');
+	background: url(../images/bbc/move.gif);
 }
 .sceditor-button-tt div {
-	background: url('../images/bbc/tele.png');
+	background: url(../images/bbc/tele.png);
+}
+.sceditor-button-pre div {
+	background: url(../images/bbc/pre.png);
 }
 /* Fix required for non-SCEditor default icons */
 .sceditor-button-ftp div, .sceditor-button-glow div,
 .sceditor-button-shadow div, .sceditor-button-move div,
-.sceditor-button-tt div {
+.sceditor-button-tt div, .sceditor-button-pre div {
 	margin: 0 0 0 -3px;
 }
