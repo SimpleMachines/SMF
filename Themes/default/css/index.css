@@ -44,6 +44,9 @@ input, button, select, textarea, textarea.editor {
 textarea, textarea.editor {
 	font-size: 1em;
 }
+.sceditor-container textarea, .sceditor-container textarea:focus  {
+	box-shadow: none;
+}
 /* Apply the font only to these elements. */
 input, button, select {
 	font-size: 0.9em;
@@ -1363,6 +1366,10 @@ ul.quickbuttons a:hover {
 ul.quickbuttons li a.quote_button {
 	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
 	padding: 0 2px 0 20px;
+}
+/* Fix for quote on reply box */
+#post_modify {
+	border-radius: 4px;
 }
 ul.quickbuttons li a.modifybutton {
 	background: url(../images/quickbuttons.png) no-repeat 0 -59px;
