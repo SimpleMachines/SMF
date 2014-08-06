@@ -1960,7 +1960,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* 9th row */
 .generic_icons.post_moderation_attach {
-	background-position: -2px -130px;
+	background-position: -1px -130px;
 }
 .generic_icons.post_moderation_allow {
 	background-position: -15px -129px;
