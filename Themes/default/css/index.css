@@ -1963,7 +1963,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -2px -130px;
 }
 .generic_icons.post_moderation_allow {
-	background-position: -18px -130px;
+	background-position: -15px -129px;
+	margin: 0 2px 0 -2px;
 }
 .generic_icons.personal_message {
 	background-position: -31px -130px;
@@ -1971,6 +1972,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.permissions {
 	background-position: -46px -130px;
 	width: 12px;
+	margin: 1px 8px 0 0;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
