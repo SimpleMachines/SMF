@@ -142,15 +142,12 @@ function template_ask()
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext">', $context['account_type'] == 'password' ? $txt['enter_new_password'] : $txt['openid_secret_reminder'], '</p>
+				<p class="smalltext">', $txt['enter_new_password'], '</p>
 				<dl>
 					<dt>', $txt['secret_question'], ':</dt>
 					<dd>', $context['secret_question'], '</dd>
 					<dt>', $txt['secret_answer'], ':</dt>
-					<dd><input type="text" name="secret_answer" size="22" class="input_text"></dd>';
-
-	if ($context['account_type'] == 'password')
-		echo '
+					<dd><input type="text" name="secret_answer" size="22" class="input_text"></dd>
 					<dt>', $txt['choose_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password">
@@ -164,9 +161,7 @@ function template_ask()
 						<span id="smf_autov_pwverify_div" style="display: none;">
 							<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 						</span>
-					</dd>';
-
-	echo '
+					</dd>
 				</dl>
 				<div class="auto_flow">
 					<input type="submit" value="', $txt['save'], '" class="button_submit">
@@ -176,10 +171,7 @@ function template_ask()
 				</div>
 			</div>
 		</div>
-	</form>';
-
-	if ($context['account_type'] == 'password')
-		echo '
+	</form>
 <script><!-- // --><![CDATA[
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",

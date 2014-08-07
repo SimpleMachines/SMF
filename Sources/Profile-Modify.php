@@ -303,7 +303,6 @@ function loadProfileFields($force_reload = false)
 			'subtext' => $txt['password_strength'],
 			'size' => 20,
 			'value' => '',
-			'enabled' => empty($cur_profile['openid_uri']),
 			'permission' => 'profile_password',
 			'save_key' => 'passwd',
 			// Note this will only work if passwrd2 also exists!
@@ -334,7 +333,6 @@ function loadProfileFields($force_reload = false)
 		'passwrd2' => array(
 			'type' => 'password',
 			'label' => ucwords($txt['verify_pass']),
-			'enabled' => empty($cur_profile['openid_uri']),
 			'size' => 20,
 			'value' => '',
 			'permission' => 'profile_password',
@@ -1772,94 +1770,6 @@ function theme($memID)
 			'theme_settings',
 		)
 	);
-}
-
-/**
- * Changing authentication method? Only appropriate for people using OpenID.
- *
- * @param int $memID id_member
- * @param bool $saving = false
- */
-function authentication($memID, $saving = false)
-{
-	global $context, $cur_profile, $sourcedir, $post_errors, $modSettings;
-
-	loadLanguage('Login');
-
-	// We are saving?
-	if ($saving)
-	{
-		// Moving to password passed authentication?
-		if ($_POST['authenticate'] == 'passwd')
-		{
-			// Didn't enter anything?
-			if ($_POST['passwrd1'] == '')
-				$post_errors[] = 'no_password';
-			// Do the two entries for the password even match?
-			elseif (!isset($_POST['passwrd2']) || $_POST['passwrd1'] != $_POST['passwrd2'])
-				$post_errors[] = 'bad_new_password';
-			// Is it valid?
-			else
-			{
-				require_once($sourcedir . '/Subs-Auth.php');
-				$passwordErrors = validatePassword($_POST['passwrd1'], $cur_profile['member_name'], array($cur_profile['real_name'], $cur_profile['email_address']));
-
-				// Were there errors?
-				if ($passwordErrors != null)
-					$post_errors[] = 'password_' . $passwordErrors;
-			}
-
-			if (empty($post_errors))
-			{
-				// Integration?
-				call_integration_hook('integrate_reset_pass', array($cur_profile['member_name'], $cur_profile['member_name'], $_POST['passwrd1']));
-
-				// Go then.
-				$passwd = hash_password($cur_profile['member_name'], un_htmlspecialchars($_POST['passwrd1']));
-
-				// Do the important bits.
-				updateMemberData($memID, array('openid_uri' => '', 'passwd' => $passwd));
-				$cur_profile['passwd'] = $passwd;
-
-				if ($context['user']['is_owner'])
-				{
-					setLoginCookie(60 * $modSettings['cookieTime'], $memID, hash_salt($passwd, $cur_profile['password_salt']));
-					redirectexit('action=profile;area=authentication;updated');
-				}
-				else
-					redirectexit('action=profile;u=' . $memID);
-			}
-
-			return true;
-		}
-		// Not right yet!
-		elseif ($_POST['authenticate'] == 'openid' && !empty($_POST['openid_identifier']))
-		{
-			require_once($sourcedir . '/Subs-OpenID.php');
-			$_POST['openid_identifier'] = smf_openID_canonize($_POST['openid_identifier']);
-
-			if (smf_openid_member_exists($_POST['openid_identifier']))
-				$post_errors[] = 'openid_in_use';
-			elseif (empty($post_errors))
-			{
-				// Authenticate using the new OpenID URI first to make sure they didn't make a mistake.
-				if ($context['user']['is_owner'])
-				{
-					$_SESSION['new_openid_uri'] = $_POST['openid_identifier'];
-
-					smf_openID_validate($_POST['openid_identifier'], false, null, 'change_uri');
-				}
-				else
-					updateMemberData($memID, array('openid_uri' => $_POST['openid_identifier']));
-			}
-		}
-	}
-
-	// Some stuff.
-	$context['member']['openid_uri'] = $cur_profile['openid_uri'];
-	$context['auth_method'] = empty($cur_profile['openid_uri']) ? 'password' : 'openid';
-	$context['sub_template'] = 'authentication_method';
-	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 /**

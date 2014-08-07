@@ -464,21 +464,6 @@ function scheduled_daily_maintenance()
 			)
 		);
 
-	// Regenerate the Diffie-Hellman keys if OpenID is enabled.
-	if (!empty($modSettings['enableOpenID']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		smf_openID_setup_DH(true);
-	}
-	elseif (!empty($modSettings['dh_keys']))
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}settings
-			WHERE variable = {string:dh_keys}',
-			array(
-				'dh_keys' => 'dh_keys',
-			)
-		);
-
 	// Clean up some old login history information.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}member_logins

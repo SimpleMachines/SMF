@@ -298,7 +298,6 @@ function ModifyRegistrationSettings($return_config = false)
 
 	$config_vars = array(
 			array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
-			array('select', 'enableOpenID', array(0 => $txt['enableOpenID_disabled'], 1 => $txt['enableOpenID_enabled'], 2 => $txt['enableOpenID_enabled_login'])),
 			array('check', 'send_welcomeEmail'),
 		'',
 			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),

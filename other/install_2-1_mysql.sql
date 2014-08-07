@@ -1203,7 +1203,6 @@ CREATE TABLE {$db_prefix}members (
   pm_prefs mediumint(8) NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
   passwd varchar(64) NOT NULL default '',
-  openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL default '',
   personal_text varchar(255) NOT NULL default '',
   birthdate date NOT NULL default '0001-01-01',
@@ -1370,21 +1369,6 @@ CREATE TABLE {$db_prefix}moderator_groups (
   id_board smallint(5) unsigned NOT NULL default '0',
   id_group smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
-) ENGINE=MyISAM;
-
-#
-# Table structure for table `openid_assoc`
-#
-
-CREATE TABLE {$db_prefix}openid_assoc (
-  server_url text NOT NULL,
-  handle varchar(255) NOT NULL default '',
-  secret text NOT NULL,
-  issued int(10) NOT NULL default '0',
-  expires int(10) NOT NULL default '0',
-  assoc_type varchar(64) NOT NULL,
-  PRIMARY KEY (server_url(125), handle(125)),
-  KEY expires (expires)
 ) ENGINE=MyISAM;
 
 #

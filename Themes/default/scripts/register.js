@@ -266,44 +266,6 @@ function smfRegister(formID, passwordDifficultyLevel, regTextStrings)
 	}
 }
 
-function updateAuthMethod()
-{
-	// What authentication method is being used?
-	if (!document.getElementById('auth_openid') || !document.getElementById('auth_openid').checked)
-		currentAuthMethod = 'passwd';
-	else
-		currentAuthMethod = 'openid';
-
-	// No openID?
-	if (!document.getElementById('auth_openid'))
-		return true;
-
-	document.getElementById('openid_url').disabled = currentAuthMethod == 'openid' ? false : true;
-	document.getElementById('smf_autov_pwmain_div').disabled = currentAuthMethod == 'passwd' ? false : true;
-	document.getElementById('smf_autov_pwverify_div').disabled = currentAuthMethod == 'passwd' ? false : true;
-	document.getElementById('smf_autov_pwmain_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
-	document.getElementById('smf_autov_pwverify_div').style.display = currentAuthMethod == 'passwd' ? '' : 'none';
-
-	if (currentAuthMethod == 'passwd')
-	{
-		verificationHandle.refreshMainPassword();
-		verificationHandle.refreshVerifyPassword();
-		document.getElementById('openid_url').style.backgroundColor = '';
-		document.getElementById('auth_pass_div').style.display = '';
-		document.getElementById('auth_openid_div').style.display = 'none';
-	}
-	else
-	{
-		document.getElementById('smf_autov_pwmain').style.backgroundColor = '';
-		document.getElementById('smf_autov_pwverify').style.backgroundColor = '';
-		document.getElementById('openid_url').style.backgroundColor = '#FFF0F0';
-		document.getElementById('auth_pass_div').style.display = 'none';
-		document.getElementById('auth_openid_div').style.display = '';
-	}
-
-	return true;
-}
-
 function onCheckChange()
 {
 	if (document.forms.postForm.emailActivate.checked || document.forms.postForm.password.value == '')

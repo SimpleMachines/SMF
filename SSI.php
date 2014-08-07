@@ -1056,18 +1056,8 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 				</tr><tr>
 					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
 					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
-				</tr>';
-
-	// Open ID?
-	if (!empty($modSettings['enableOpenID']))
-		echo '<tr>
-					<td colspan="2" style="text-align :center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
-				</tr><tr>
-					<td style="text-align: right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
-					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17"></td>
-				</tr>';
-
-	echo '<tr>
+				</tr>
+				<tr>
 					<td><input type="hidden" name="cookielength" value="-1"></td>
 					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>

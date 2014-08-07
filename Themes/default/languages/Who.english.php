@@ -41,7 +41,6 @@ $txt['whoall_markasread'] = 'Marking topics read or unread.';
 $txt['whoall_news'] = 'Viewing the news.';
 $txt['whoall_notify'] = 'Changing their notification settings.';
 $txt['whoall_notifyboard'] = 'Changing their notification settings.';
-$txt['whoall_openidreturn'] = 'Logging in using OpenID.';
 $txt['whoall_quickmod'] = 'Moderating a board.';
 $txt['whoall_recent'] = 'Viewing a <a href="' . $scripturl . '?action=recent">list of recent topics</a>.';
 $txt['whoall_reminder'] = 'Requesting a password reminder.';

@@ -76,11 +76,6 @@ $txt['approval_after_registration'] = 'Thank you for signing up. The admin must 
 
 $txt['admin_settings_desc'] = 'Here you can change a variety of settings related to registration of new members.';
 
-$txt['setting_enableOpenID'] = 'Allow users to register using OpenID';
-$txt['enableOpenID_disabled'] = 'No, disable all OpenID use';
-$txt['enableOpenID_enabled'] = 'Enable OpenID for registrations and logins';
-$txt['enableOpenID_enabled_login'] = 'Enable OpenID only for existing users, but not new registrations';
-
 $txt['setting_registration_method'] = 'Method of registration employed for new members';
 $txt['setting_registration_disabled'] = 'Registration Disabled';
 $txt['setting_registration_standard'] = 'Immediate Registration';
@@ -145,10 +140,5 @@ $txt['registration_password_no_match'] = 'Passwords do not match';
 $txt['registration_password_valid'] = 'Password is valid';
 
 $txt['registration_errors_occurred'] = 'The following errors were detected in your registration. Please correct them to continue:';
-
-$txt['authenticate_label'] = 'Authentication Method';
-$txt['authenticate_password'] = 'Password';
-$txt['authenticate_openid'] = 'OpenID';
-$txt['authenticate_openid_url'] = 'OpenID Authentication URL';
 
 ?>

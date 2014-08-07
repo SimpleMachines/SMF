@@ -1693,3 +1693,20 @@ WHERE id_task = '2';
 DELETE FROM {$db_prefix}settings
 WHERE variable = 'autoOptMaxOnline';
 ---#
+
+/******************************************************************************/
+--- Removing OpenID-related things...
+/******************************************************************************/
+---# Removing the openid_uri column in the members table
+ALTER TABLE {$db_prefix}members
+DROP openid_uri;
+---#
+
+---# Dropping the openid_assoc table
+DROP TABLE {$db_prefix}openid_assoc;
+---#
+
+---# Removing related settings
+DELETE FROM {$db_prefix}settings
+WHERE variable='enableOpenID' OR variable='dh_keys';
+---#

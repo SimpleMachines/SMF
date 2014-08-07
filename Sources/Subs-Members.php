@@ -462,15 +462,6 @@ function registerMember(&$regOptions, $return_errors = false)
 			fatal_lang_error('register_only_once', false);
 	}
 
-	// What method of authorization are we going to use?
-	if (empty($regOptions['auth_method']) || !in_array($regOptions['auth_method'], array('password', 'openid')))
-	{
-		if (!empty($regOptions['openid']))
-			$regOptions['auth_method'] = 'openid';
-		else
-			$regOptions['auth_method'] = 'password';
-	}
-
 	// Spaces and other odd characters are evil...
 	$regOptions['username'] = trim(preg_replace('~[\t\n\r \x0B\0' . ($context['utf8'] ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0') . ']+~' . ($context['utf8'] ? 'u' : ''), ' ', $regOptions['username']));
 
@@ -488,23 +479,20 @@ function registerMember(&$regOptions, $return_errors = false)
 		$validation_code = generateValidationCode();
 
 	// If you haven't put in a password generate one.
-	if ($regOptions['interface'] == 'admin' && $regOptions['password'] == '' && $regOptions['auth_method'] == 'password')
+	if ($regOptions['interface'] == 'admin' && $regOptions['password'] == '')
 	{
 		mt_srand(time() + 1277);
 		$regOptions['password'] = generateValidationCode();
 		$regOptions['password_check'] = $regOptions['password'];
 	}
 	// Does the first password match the second?
-	elseif ($regOptions['password'] != $regOptions['password_check'] && $regOptions['auth_method'] == 'password')
+	elseif ($regOptions['password'] != $regOptions['password_check'])
 		$reg_errors[] = array('lang', 'passwords_dont_match');
 
 	// That's kind of easy to guess...
 	if ($regOptions['password'] == '')
 	{
-		if ($regOptions['auth_method'] == 'password')
-			$reg_errors[] = array('lang', 'no_password');
-		else
-			$regOptions['password'] = sha1(mt_rand());
+		$reg_errors[] = array('lang', 'no_password');
 	}
 
 	// Now perform hard password validation as required.
@@ -516,11 +504,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		if ($passwordError != null)
 			$reg_errors[] = array('lang', 'profile_error_password_' . $passwordError);
 	}
-
-	// If they are using an OpenID that hasn't been verified yet error out.
-	// @todo Change this so they can register without having to attempt a login first
-	if ($regOptions['auth_method'] == 'openid' && (empty($_SESSION['openid']['verified']) || $_SESSION['openid']['openid_uri'] != $regOptions['openid']))
-		$reg_errors[] = array('lang', 'openid_not_verified');
 
 	// You may not be allowed to register this email.
 	if (!empty($regOptions['check_email_ban']))
@@ -627,7 +610,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'additional_groups' => '',
 		'ignore_boards' => '',
 		'smiley_set' => '',
-		'openid_uri' => (!empty($regOptions['openid']) ? $regOptions['openid'] : ''),
 		'timezone' => !empty($regOptions['timezone']) ? $regOptions['timezone'] : 'UTC',
 	);
 
@@ -788,9 +770,8 @@ function registerMember(&$regOptions, $return_errors = false)
 				'USERNAME' => $regOptions['username'],
 				'PASSWORD' => $regOptions['password'],
 				'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
-				'OPENID' => !empty($regOptions['openid']) ? $regOptions['openid'] : '',
 			);
-			$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'immediate', $replacements);
+			$emaildata = loadEmailTemplate('register_immediate', $replacements);
 			sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'register', false, 0);
 		}
 
@@ -805,7 +786,6 @@ function registerMember(&$regOptions, $return_errors = false)
 			'USERNAME' => $regOptions['username'],
 			'PASSWORD' => $regOptions['password'],
 			'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
-			'OPENID' => !empty($regOptions['openid']) ? $regOptions['openid'] : '',
 		);
 
 		if ($regOptions['require'] == 'activation')
@@ -819,7 +799,7 @@ function registerMember(&$regOptions, $return_errors = false)
 				'COPPALINK' => $scripturl . '?action=coppa;u=' . $memberID,
 			);
 
-		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
+		$emaildata = loadEmailTemplate('register_' . ($regOptions['require'] == 'activation' ? 'activate' : 'coppa'), $replacements);
 
 		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_' . $regOptions['require'] . $memberID, false, 0);
 	}
@@ -831,10 +811,9 @@ function registerMember(&$regOptions, $return_errors = false)
 			'USERNAME' => $regOptions['username'],
 			'PASSWORD' => $regOptions['password'],
 			'FORGOTPASSWORDLINK' => $scripturl . '?action=reminder',
-			'OPENID' => !empty($regOptions['openid']) ? $regOptions['openid'] : '',
 		);
 
-		$emaildata = loadEmailTemplate('register_' . ($regOptions['auth_method'] == 'openid' ? 'openid_' : '') . 'pending', $replacements);
+		$emaildata = loadEmailTemplate('register_pending', $replacements);
 
 		sendmail($regOptions['email'], $emaildata['subject'], $emaildata['body'], null, 'reg_pending', false, 0);
 
