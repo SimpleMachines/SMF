@@ -43,9 +43,6 @@ function calcCharLeft()
 {
 	var oldSignature = "", currentSignature = document.forms.creator.signature.value;
 	var currentChars = 0;
-	
-	// If it's already visible at this point, we don't want to hide it...
-	var errorbox_visible = $("#profile_error").is(":visible");
 
 	if (!document.getElementById("signatureLeft"))
 		return;
@@ -63,14 +60,24 @@ function calcCharLeft()
 		else
 			document.getElementById("signatureLeft").className = "";
 
-		// TODO: This should append to an existing list of errors if possible
-		if (currentChars > maxLength && !errorbox_visible)
+		if (currentChars > maxLength)
 			ajax_getSignaturePreview(false);
-		// Only hide it if it wasn't visible before this function was called
-		else if (currentChars <= maxLength && !errorbox_visible)
+		// Only hide it if the only errors were signature errors...
+		else if (currentChars <= maxLength)
 		{
-			$("#profile_error").css({display:"none"});
-			$("#profile_error").html('');
+			// Are there any errors to begin with?
+			if ($(document).has("#list_errors"))
+			{
+				// Remove any signature errors
+				$("#list_errors").remove(".sig_error");
+
+				// Don't hide this if other errors remain
+				if (!$("#list_errors").has("li"))
+				{
+					$("#profile_error").css({display:"none"});
+					$("#profile_error").html('');
+				}
+			}
 		}
 	}
 
@@ -80,9 +87,10 @@ function calcCharLeft()
 function ajax_getSignaturePreview (showPreview)
 {
 	showPreview = (typeof showPreview == 'undefined') ? false : showPreview;
-	// Whether or not the error box was initially shown by this function.
-	// This prevents the function from hiding it if it didn't show it first
+
+	// Is the error box already visible?
 	var errorbox_visible = $("#profile_error").is(":visible");
+
 	$.ajax({
 		type: "POST",
 		url: smf_scripturl + "?action=xmlhttp;sa=previews;xml",
@@ -99,26 +107,48 @@ function ajax_getSignaturePreview (showPreview)
 				}
 			}
 
-			// TODO: This should check for an existing list and append to that if it finds one...
 			if ($(request).find("error").text() != '')
 			{
+				// If the box isn't already visible...
+				// 1. Add the initial HTML
+				// 2. Make it visible
 				if (!errorbox_visible)
-					$("#profile_error").css({display: "", position: "fixed", top: 0, left: 0, width: "100%"});
-					
+				{
+					// Build our HTML...
+					var errors_html = '<span>' + $(request).find('[type="errors_occurred"]').text() + '</span><ul id="list_errors"></ul>';
+
+					// Add it to the box...
+					$("#profile_error").html(errors_html);
+
+					// Make it visible
+					$("#profile_error").css({display: ""});
+				}
+				else
+				{
+					// Remove any existing signature-related errors...
+					$("#list_errors").remove(".sig_error");
+				}
+
 				var errors = $(request).find('[type="error"]');
-				var errors_html = '<span>' + $(request).find('[type="errors_occurred"]').text() + '</span><ul class="reset">';
+				var errors_list = '';
 
 				for (var i = 0; i < errors.length; i++)
-					errors_html += '<li>' + $(errors).text() + '</li>';
+					errors_list += '<li class="sig_error">' + $(errors).text() + '</li>';
 
-				errors_html += '</ul>';
-				$(document).find("#profile_error").html(errors_html);
+				$("#list_errors").html(errors_list);
 			}
-			// Again, don't hide this if it was already visible
-			else if (!errorbox_visible)
+			// If there were more errors besides signature-related ones, don't hide it
+			else
 			{
-				$("#profile_error").css({display:"none"});
-				$("#profile_error").html('');
+				// Remove any signature errors first...
+				$("#list_errors").remove(".sig_error");
+
+				// If it still has content, there are other non-signature errors...
+				if (!$("#list_errors").has("li"))
+				{
+					$("#profile_error").css({display:"none"});
+					$("#profile_error").html('');
+				}
 			}
 		return false;
 		},
