@@ -44,6 +44,9 @@ input, button, select, textarea, textarea.editor {
 textarea, textarea.editor {
 	font-size: 1em;
 }
+.sceditor-container textarea, .sceditor-container textarea:focus  {
+	box-shadow: none;
+}
 /* Apply the font only to these elements. */
 input, button, select {
 	font-size: 0.9em;
@@ -1364,6 +1367,10 @@ ul.quickbuttons li a.quote_button {
 	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
 	padding: 0 2px 0 20px;
 }
+/* Fix for quote on reply box */
+#post_modify {
+	border-radius: 4px;
+}
 ul.quickbuttons li a.modifybutton {
 	background: url(../images/quickbuttons.png) no-repeat 0 -59px;
 	padding: 0 2px 0 20px;
@@ -1953,10 +1960,11 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* 9th row */
 .generic_icons.post_moderation_attach {
-	background-position: -2px -130px;
+	background-position: -1px -130px;
 }
 .generic_icons.post_moderation_allow {
-	background-position: -18px -130px;
+	background-position: -15px -129px;
+	margin: 0 2px 0 -2px;
 }
 .generic_icons.personal_message {
 	background-position: -31px -130px;
@@ -1964,6 +1972,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.permissions {
 	background-position: -46px -130px;
 	width: 12px;
+	margin: 1px 8px 0 0;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
