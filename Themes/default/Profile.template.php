@@ -2346,12 +2346,8 @@ function template_issueWarning()
 	// Previous warnings?
 	template_show_list('view_warnings');
 
-	// Do our best to get pretty javascript enabled.
 	echo '
-	<script><!-- // --><![CDATA[
-		document.getElementById(\'warndiv1\').style.display = "";
-		document.getElementById(\'preview_button\').style.display = "none";
-		document.getElementById(\'warndiv2\').style.display = "none";';
+	<script><!-- // --><![CDATA[';
 
 	if (!$context['user']['is_owner'])
 		echo '
