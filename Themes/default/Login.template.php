@@ -42,18 +42,7 @@ function template_login()
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-					</dl>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-					<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-					<dl>
-						<dt>', $txt['openid'], ':</dt>
-						<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a></dd>
 					</dl>
-					<hr>';
-
-	echo '
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
 						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text"></dd>
@@ -124,20 +113,7 @@ function template_kick_guest()
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-				</dl>
-				<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-				<dl>
-					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17"></dd>
-				</dl>
-				<hr>
-				<dl>';
-
-	echo '
+					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
 					<dt>', $txt['mins_logged_in'], ':</dt>
 					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
 					<dt>', $txt['always_logged_in'], ':</dt>

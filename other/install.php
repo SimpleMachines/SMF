@@ -1409,7 +1409,7 @@ function AdminAccount()
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'website_title' => 'string', 'website_url' => 'string',
 					'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
-					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
+					'additional_groups' => 'string', 'ignore_boards' => 'string',
 				),
 				array(
 					stripslashes($_POST['username']), stripslashes($_POST['username']), $_POST['password1'], stripslashes($_POST['email']),
@@ -1418,7 +1418,7 @@ function AdminAccount()
 					$ip, $ip, '', '',
 					'', '',
 					'', '', '',
-					'', '', '',
+					'', '',
 				),
 				array('id_member')
 			);

@@ -121,11 +121,6 @@ function Login2()
 			fatal_lang_error('login_cookie_error', false);
 
 		$user_info['can_mod'] = allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']))));
-		if ($user_info['can_mod'] && isset($user_settings['openid_uri']) && empty($user_settings['openid_uri']))
-		{
-			$_SESSION['moderate_time'] = time();
-			unset($_SESSION['just_registered']);
-		}
 
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
@@ -191,13 +186,6 @@ function Login2()
 		'name' => $txt['login'],
 	);
 
-	if (!empty($_POST['openid_identifier']) && !empty($modSettings['enableOpenID']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		if (($open_id = smf_openID_validate($_POST['openid_identifier'])) !== 'no_data')
-			return $open_id;
-	}
-
 	// You forgot to type your username, dummy!
 	if (!isset($_POST['user']) || $_POST['user'] == '')
 	{
@@ -229,7 +217,7 @@ function Login2()
 	// Load the data up!
 	$request = $smcFunc['db_query']('', '
 		SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			openid_uri, passwd_flood
+			passwd_flood
 		FROM {db_prefix}members
 		WHERE ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(member_name) = LOWER({string:user_name})' : 'member_name = {string:user_name}') . '
 		LIMIT 1',
@@ -243,7 +231,7 @@ function Login2()
 		$smcFunc['db_free_result']($request);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt, openid_uri,
+			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
 			passwd_flood
 			FROM {db_prefix}members
 			WHERE email_address = {string:user_name}
@@ -478,13 +466,6 @@ function DoLogin()
 	// Are you banned?
 	is_not_banned(true);
 
-	// An administrator, set up the login so they don't have to type it again.
-	if ($user_info['is_admin'] && isset($user_settings['openid_uri']) && empty($user_settings['openid_uri']))
-	{
-		$_SESSION['admin_time'] = time();
-		unset($_SESSION['just_registered']);
-	}
-
 	// Don't stick the language or theme after this point.
 	unset($_SESSION['language'], $_SESSION['id_theme']);
 
@@ -560,10 +541,6 @@ function Logout($internal = false, $redirect = true)
 
 	if (isset($_SESSION['pack_ftp']))
 		$_SESSION['pack_ftp'] = null;
-
-	// They cannot be open ID verified any longer.
-	if (isset($_SESSION['openid']))
-		unset($_SESSION['openid']);
 
 	// It won't be first login anymore.
 	unset($_SESSION['first_login']);

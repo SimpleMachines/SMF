@@ -783,7 +783,6 @@ $txt['show_ignore_user_post'] = 'Show me the post.';
 
 $txt['spider'] = 'Spider';
 $txt['spiders'] = 'Spiders';
-$txt['openid'] = 'OpenID';
 
 $txt['downloads'] = 'Downloads';
 $txt['filesize'] = 'Filesize';

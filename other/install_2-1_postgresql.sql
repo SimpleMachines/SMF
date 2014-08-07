@@ -1602,7 +1602,6 @@ CREATE TABLE {$db_prefix}members (
   pm_prefs int NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
   passwd varchar(64) NOT NULL default '',
-  openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL,
   personal_text varchar(255) NOT NULL,
   birthdate date NOT NULL default '0001-01-01',
@@ -1807,26 +1806,6 @@ CREATE TABLE {$db_prefix}moderator_groups (
   id_group smallint NOT NULL default '0',
   PRIMARY KEY (id_board, id_group)
 );
-
-#
-# Table structure for table `openid_assoc`
-#
-
-CREATE TABLE {$db_prefix}openid_assoc (
-  server_url text NOT NULL,
-  handle varchar(255) NOT NULL,
-  secret text NOT NULL,
-  issued int NOT NULL default '0',
-  expires int NOT NULL default '0',
-  assoc_type varchar(64) NOT NULL,
-  PRIMARY KEY (server_url, handle)
-);
-
-#
-# Indexes for table `openid_assoc`
-#
-
-CREATE INDEX {$db_prefix}openid_assoc_expires ON {$db_prefix}openid_assoc (expires);
 
 #
 # Sequence for table `package_servers`

@@ -249,21 +249,6 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_extra_any'),
 					),
 				),
-				'authentication' => array(
-					'label' => $txt['authentication'],
-					'file' => 'Profile-Modify.php',
-					'function' => 'authentication',
-					'icon' => 'openid',
-					'enabled' => !empty($modSettings['enableOpenID']) && ($modSettings['enableOpenID'] == 1 || !empty($cur_profile['openid_uri'])),
-					'sc' => 'post',
-					'token' => 'profile-au%u',
-					'hidden' => empty($modSettings['enableOpenID']) && empty($cur_profile['openid_uri']),
-					'password' => true,
-					'permission' => array(
-						'own' => array('profile_password_any', 'profile_password_own'),
-						'any' => array('profile_password_any'),
-					),
-				),
 				'notification' => array(
 					'label' => $txt['notification'],
 					'file' => 'Profile-Modify.php',
@@ -428,7 +413,7 @@ function ModifyProfile($post_errors = array())
 			else
 				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][$context['user']['is_owner'] ? 'own' : 'any'];
 
-			// Password required - only if not on OpenID.
+			// Password required in most cases
 			if (!empty($area['password']))
 				$context['password_areas'][] = $area_id;
 		}
@@ -571,7 +556,7 @@ function ModifyProfile($post_errors = array())
 
 	// All the subactions that require a user password in order to validate.
 	$check_password = $context['user']['is_owner'] && in_array($profile_include_data['current_area'], $context['password_areas']);
-	$context['require_password'] = $check_password && empty($user_settings['openid_uri']);
+	$context['require_password'] = $check_password;
 
 	// If we're in wireless then we have a cut down template...
 	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
@@ -593,32 +578,23 @@ function ModifyProfile($post_errors = array())
 
 		if ($check_password)
 		{
-			// If we're using OpenID try to revalidate.
-			if (!empty($user_settings['openid_uri']))
-			{
-				require_once($sourcedir . '/Subs-OpenID.php');
-				smf_openID_revalidate();
-			}
-			else
-			{
-				// You didn't even enter a password!
-				if (trim($_POST['oldpasswrd']) == '')
-					$post_errors[] = 'no_password';
+			// You didn't even enter a password!
+			if (trim($_POST['oldpasswrd']) == '')
+				$post_errors[] = 'no_password';
 
-				// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-				$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
+			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
+			$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
 
-				// Does the integration want to check passwords?
-				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
+			// Does the integration want to check passwords?
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
 
-				// Bad password!!!
-				if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
-					$post_errors[] = 'bad_password';
+			// Bad password!!!
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
+				$post_errors[] = 'bad_password';
 
-				// Warn other elements not to jump the gun and do custom changes!
-				if (in_array('bad_password', $post_errors))
-					$context['password_auth_failed'] = true;
-			}
+			// Warn other elements not to jump the gun and do custom changes!
+			if (in_array('bad_password', $post_errors))
+				$context['password_auth_failed'] = true;
 		}
 
 		// Change the IP address in the database.

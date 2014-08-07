@@ -428,11 +428,6 @@ $helptxt['registration_method'] = 'This setting determines what method of regist
 				This setting will make it so all new members registering on your forum will need to be approved by the admin before they become members.
 		</li>
 	</ul>';
-$helptxt['register_openid'] = '<strong>Authenticate with OpenID</strong><br>
-	OpenID is a means of using one username across different websites, to simplify the online experience. To use OpenID you first need to create an OpenID account - a list of providers can be found on the <a href="http://openid.net/" target="_blank">OpenID Official Site</a><br><br>
-	Once you have an OpenID account simply enter your unique identification URL into the OpenID input box and submit. You will then be taken to your provider\'s site to verify your identity before being passed back to this site.<br><br>
-	On your first visit to this site you will be asked to confirm a couple of details before you will be recognized, after which you can login to this site and change your profile settings using just your OpenID.<br><br>
-	For more information please visit the <a href="http://openid.net/" target="_blank">OpenID Official Site</a>';
 
 $helptxt['send_validation_onChange'] = 'When this setting is checked all members who change their email address in their profile will have to reactivate their account from an email sent to that address';
 $helptxt['send_welcomeEmail'] = 'When this setting is enabled all new members will be sent an email welcoming them to your community';
