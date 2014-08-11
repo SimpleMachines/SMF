@@ -2004,8 +2004,6 @@
 			if(!$.sceditor.isWysiwygSupported && base.inSourceMode())
 				return;
 
-			base.blur();
-
 			if(base.inSourceMode())
 				base.setWysiwygEditorValue(base.getSourceEditorValue());
 			else
