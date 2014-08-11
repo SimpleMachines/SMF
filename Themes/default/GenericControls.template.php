@@ -52,7 +52,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 				elseif ($location == 'popup')
 					echo '
-						popup:
+						more:
 						{';
 
 				$numRows = count($smileyRows);
