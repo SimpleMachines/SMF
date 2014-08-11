@@ -131,6 +131,9 @@ function Post($post_errors = array())
 		$context['can_lock'] = allowedTo('lock_any') || ($user_info['id'] == $id_member_poster && allowedTo('lock_own'));
 		$context['can_sticky'] = allowedTo('make_sticky');
 
+		// We don't always want the request vars to override what's in the db...
+		$context['already_locked'] = $locked;
+		$context['already_sticky'] = $sticky;
 		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = isset($_REQUEST['sticky']) ? !empty($_REQUEST['sticky']) : $sticky;
 
@@ -154,7 +157,8 @@ function Post($post_errors = array())
 		// @todo These won't work if you're making an event.
 		$context['can_lock'] = allowedTo(array('lock_any', 'lock_own'));
 		$context['can_sticky'] = allowedTo('make_sticky');
-
+		$context['already_sticky'] = 0;
+		$context['already_locked'] = 0;
 		$context['notify'] = !empty($context['notify']);
 		$context['sticky'] = !empty($_REQUEST['sticky']);
 	}
@@ -977,7 +981,7 @@ function Post($post_errors = array())
 	 * errors are like warnings that let them know that something with
 	 * their post isn't right.
 	 */
-	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject');
+	$minor_errors = array('not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject', 'topic_locked', 'topic_unlocked', 'topic_stickied', 'topic_unstickied');
 
 	call_integration_hook('integrate_post_errors', array(&$post_errors, &$minor_errors));
 
@@ -1338,12 +1342,24 @@ function Post2()
 			}
 			// Hail mighty moderator, (un)lock this topic immediately.
 			else
+			{
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
+
+				// Did someone (un)lock this while you were posting?
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
+					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+			}
 		}
 
 		// So you wanna (un)sticky this...let's see.
 		if (isset($_POST['sticky']) && ($_POST['sticky'] == $topic_info['is_sticky'] || !allowedTo('make_sticky')))
 			unset($_POST['sticky']);
+		elseif (isset($_POST['sticky']))
+		{
+			// Did someone (un)sticky this while you were posting?
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topicinfo['is_sticky']) ? 'un' : '') . 'sticky';
+		}
 
 		// If drafts are enabled, then pass this off
 		if (!empty($modSettings['drafts_post_enabled']) && isset($_POST['save_draft']))
@@ -1441,12 +1457,24 @@ function Post2()
 			}
 			// You must be the moderator.
 			else
+			{
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
+
+				// Did someone (un)lock this while you were posting?
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
+					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked'; 
+			}
 		}
 
 		// Change the sticky status of this topic?
 		if (isset($_POST['sticky']) && (!allowedTo('make_sticky') || $_POST['sticky'] == $topic_info['is_sticky']))
 			unset($_POST['sticky']);
+		elseif (isset($_POST['sticky']))
+		{
+			// Did someone (un)sticky this while you were posting?
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';			
+		}
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
 		{
