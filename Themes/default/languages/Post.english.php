@@ -124,6 +124,11 @@ $txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies ha
 $txt['error_new_reply_reading'] = 'Warning - while you were reading a new reply has been posted. You may wish to review your post.';
 $txt['error_new_replies_reading'] = 'Warning - while you were reading %1$d new replies have been posted. You may wish to review your post.';
 
+$txt['error_topic_locked'] = 'Warning - while you were typing the topic was locked. Please check the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was locked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_stickied'] = 'Warning - while you were typing the topic was stickied. Please check the "Sticky this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_unstickied'] = 'Warning - while you were typing the topic was unstickied. Please uncheck the "Sticky this topic" box under "Attachments and Other Options" below if you do not wish to undo this action.';
+
 $txt['announce_this_topic'] = 'Send an announcement about this topic to the members:';
 $txt['announce_title'] = 'Send an announcement';
 $txt['announce_desc'] = 'This form allows you to send an announcement to the selected membergroups about this topic.';
