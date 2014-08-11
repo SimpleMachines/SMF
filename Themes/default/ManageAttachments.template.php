@@ -59,7 +59,6 @@ function template_maintenance()
 		<div class="windowbg2">
 			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=repair;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['attachment_integrity_check_desc'], '</p>
-				<hr class="hrcolor">
 				<input type="submit" name="repair" value="', $txt['attachment_check_now'], '" class="button_submit">
 				<br class="clear_right">
 			</form>
@@ -111,7 +110,6 @@ function template_maintenance()
 			<div class="windowbg2">
 				<form action="', $scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', $context['character_set'], '">
 					<p>', $txt['attachment_transfer_desc'], '</p>
-					<hr class="hrcolor">
 					<dl class="settings">
 						<dt>', $txt['attachment_transfer_from'], '</dt>
 						<dd><select name="from">
@@ -153,7 +151,6 @@ function template_maintenance()
 						<dd><input type="checkbox" name="empty_it"', $context['checked'] ? ' checked' : '', '></dd>';
 	echo '
 					</dl>
-					<hr class="hrcolor"/>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="submit" onclick="start_progress()" name="transfer" value="', $txt['attachment_transfer_now'], '" class="button_submit">
 					<div id="progress_msg"></div>

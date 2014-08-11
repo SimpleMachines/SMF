@@ -256,7 +256,7 @@ h3.largetext {
 .xlarge_text {
 	font-size: x-large;
 }
-.centertext {
+.centertext, .centercol {
 	margin: 0 auto;
 	text-align: center;
 }

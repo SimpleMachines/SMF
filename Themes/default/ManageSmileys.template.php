@@ -159,7 +159,7 @@ function template_modifysmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_modify_existing'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong>', $txt['smiley_preview'], ': </strong>
@@ -222,7 +222,6 @@ function template_modifysmiley()
 						</select>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit">
 				<input type="submit" name="deletesmiley" value="', $txt['smileys_delete'], '" onclick="return confirm(\'', $txt['smileys_delete_confirm'], '\');" class="button_submit">
 			</div>
@@ -250,7 +249,7 @@ function template_addsmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smileys_add_method'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<ul class="reset">
 					<li>
 						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked class="input_radio"> ', $txt['smileys_add_existing'], '</label>
@@ -330,7 +329,7 @@ function template_addsmiley()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['smiley_new'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong><label for="smiley_code">', $txt['smileys_code'], '</label>: </strong>
@@ -361,7 +360,6 @@ function template_addsmiley()
 						</select>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
 				<input type="submit" name="smiley_save" value="', $txt['smileys_save'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -438,7 +436,7 @@ function template_editicon()
 					', $context['new_icon'] ? $txt['icons_new_icon'] : $txt['icons_edit_icon'], '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">';
 	if (!$context['new_icon'])
 		echo '
@@ -504,7 +502,6 @@ function template_editicon()
 				<input type="hidden" name="icon" value="', $context['icon']['id'], '">';
 
 	echo '
-				<hr class="hrcolor">
 				<input type="submit" name="icons_save" value="', $txt['smileys_save'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
