@@ -1,4 +1,5 @@
-/*! SCEditor | (C) 2011-2013,  Sam Clarke | sceditor.com/license */div.sceditor-grip, .sceditor-button div {
+/*! SCEditor | (C) 2011-2013,  Sam Clarke | sceditor.com/license */
+div.sceditor-grip, .sceditor-button div {
 	background-image: url(../images/editor_icons.png);
 	background-repeat: no-repeat;
 	width: 16px;
@@ -149,6 +150,9 @@ div.sceditor-grip {
 	-moz-background-clip: padding;
 	-webkit-background-clip: padding-box;
 	background-clip: padding-box;
+}
+.sceditor-container {
+	font-weight: normal;
 }
 .sceditor-container, .sceditor-container div, div.sceditor-dropdown, div.sceditor-dropdown div {
 	padding: 0;
