@@ -19,7 +19,7 @@
 			if (!bIsSource)
 				this.toggleSourceMode();
 
-			var current_value = bClear ? text + "\n" : this.getSourceEditorValue(false) + "\n" + text + "\n";
+			var current_value = bClear ? text : this.getSourceEditorValue(false) + text;
 			this.setSourceEditorValue(current_value);
 
 			if (!bIsSource)
