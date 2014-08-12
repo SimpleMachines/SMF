@@ -728,9 +728,18 @@ function Display()
 		// 2. anyone can see them (hide_results == 0), or
 		// 3. you can see them after you voted (hide_results == 1), or
 		// 4. you've waited long enough for the poll to expire. (whether hide_results is 1 or 2.)
-		$context['allow_poll_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && $context['poll']['has_voted']) || $context['poll']['is_expired'];
-		$context['poll']['show_results'] = $context['allow_poll_view'] && (isset($_REQUEST['viewresults']) || isset($_REQUEST['viewResults']));
-		$context['show_view_results_button'] = $context['allow_vote'] && (!$context['allow_poll_view'] || !$context['poll']['show_results'] || !$context['poll']['has_voted']);
+		$context['allow_results_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && $context['poll']['has_voted']) || $context['poll']['is_expired'];
+
+		// Show the results if:
+		// 1. You're allowed to see them (see above), and
+		// 2. $_REQUEST['viewresults'] or $_REQUEST['viewResults'] is set
+		$context['poll']['show_results'] = $context['allow_results_view'] && (isset($_REQUEST['viewresults']) || isset($_REQUEST['viewResults']));
+		
+		// Show the button if:
+		// 1. You can vote in the poll (see above), and
+		// 2. Results are visible to everyone (hidden = 0), and
+		// 3. You aren't already viewing the results
+		$context['show_view_results_button'] = $context['allow_vote'] && $context['allow_results_view'] && !$context['poll']['show_results'];
 
 		// You're allowed to change your vote if:
 		// 1. the poll did not expire, and

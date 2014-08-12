@@ -57,7 +57,7 @@ function template_main()
 						<dt class="', $option['voted_this'] ? ' voted' : '', '">', $option['option'], '</dt>
 						<dd class="statsbar', $option['voted_this'] ? ' voted' : '', '">';
 
-				if ($context['allow_poll_view'])
+				if ($context['allow_results_view'])
 					echo '
 							', $option['bar_ndt'], '
 							<span class="percentage">', $option['votes'], ' (', $option['percent'], '%)</span>';
@@ -69,7 +69,7 @@ function template_main()
 			echo '
 					</dl>';
 
-			if ($context['allow_poll_view'])
+			if ($context['allow_results_view'])
 				echo '
 						<p><strong>', $txt['poll_total_voters'], ':</strong> ', $context['poll']['total_votes'], '</p>';
 		}
