@@ -607,6 +607,9 @@ function DisplayAdminFile()
 	if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename']))
 		fatal_lang_error('no_access', false);
 
+	// Strip off the forum cache part or we won't find it...
+	$_REQUEST['filename'] = str_replace($modSettings['browser_cache'], '', $_REQUEST['filename']);
+
 	$request = $smcFunc['db_query']('', '
 		SELECT data, filetype
 		FROM {db_prefix}admin_info_files
@@ -618,7 +621,7 @@ function DisplayAdminFile()
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']));
+		fatal_lang_error('admin_file_not_found', true, array($_REQUEST['filename']), 404);
 
 	list ($file_data, $filetype) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
