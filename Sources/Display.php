@@ -739,7 +739,7 @@ function Display()
 		// 1. You can vote in the poll (see above), and
 		// 2. Results are visible to everyone (hidden = 0), and
 		// 3. You aren't already viewing the results
-		$context['show_view_results_button'] = $context['allow_vote'] && ($context['allow_results_view'] && !$context['poll']['show_results']);
+		$context['show_view_results_button'] = $context['allow_vote'] && $context['allow_results_view'] && !$context['poll']['show_results'];
 
 		// You're allowed to change your vote if:
 		// 1. the poll did not expire, and
