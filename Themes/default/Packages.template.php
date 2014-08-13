@@ -579,7 +579,7 @@ function template_browse()
 
 	if (!$mods_available)
 		echo '
-		<div class="descbox">', $txt['no_packages'], '</div>';
+		<div class="noticebox">', $txt['no_packages'], '</div>';
 	else
 		echo '
 		<br>';
@@ -1569,7 +1569,7 @@ function template_file_permissions()
 				', $txt['package_file_perms_ftp_details'], ':
 			</p>
 			', template_control_chmod(), '
-			<div class="descbox">', $txt['package_file_perms_ftp_retain'], '</div>';
+			<div class="noticebox">', $txt['package_file_perms_ftp_retain'], '</div>';
 
 	echo '
 			<span id="test_ftp_placeholder_full"></span>
