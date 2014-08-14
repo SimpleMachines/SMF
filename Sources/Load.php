@@ -1945,8 +1945,11 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
-	loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
-	loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
+	if (!$user_info['is_guest'])
+	{
+		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
+		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
+	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
 	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');

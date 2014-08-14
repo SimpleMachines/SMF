@@ -256,7 +256,7 @@ h3.largetext {
 .xlarge_text {
 	font-size: x-large;
 }
-.centertext {
+.centertext, .centercol {
 	margin: 0 auto;
 	text-align: center;
 }
@@ -1080,7 +1080,7 @@ img.sort, .sort {
 	border-top: 1px solid #aaa;
 	box-shadow: -1px -1px 2px rgba(0,0,0,0.07), -3px -3px 6px rgba(255,255,255,0.8) inset;
 }
-#search_form select {
+#search_form select, #language_select {
 	margin: 1px;
 }
 #search_form .button_submit {
@@ -2059,7 +2059,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 80%;
 	margin: auto;
 }
-.errorbox:before, .noticebox:before, .infobox:before, .descbox:before {
+.errorbox:before, .noticebox:before, .infobox:before {
 	width: 16px;
 	height: 16px;
 	background: url(../images/generic_icons.png) no-repeat 0px -80px;
@@ -2069,7 +2069,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	top: 50%;
 	margin-top: -8px;
 }
-.errorbox, .noticebox, .infobox, .descbox {
+.errorbox, .noticebox, .infobox {
 	padding: 7px 10px 7px 35px;
 	margin-bottom: 12px;
 	position: relative;
