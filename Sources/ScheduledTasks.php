@@ -1578,6 +1578,7 @@ function scheduled_paid_subscriptions()
 		)
 	);
 	$subs_reminded = array();
+	$members = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If this is the first one load the important bits.
@@ -1589,7 +1590,16 @@ function scheduled_paid_subscriptions()
 		}
 
 		$subs_reminded[] = $row['id_sublog'];
+		$members[$row['id_member']] = $row;
+	}
+	$smcFunc['db_free_result']($request);
 
+	// Load alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$notifyPrefs = getNotifyPrefs(array_keys($members), 'paidsubs_expiring', true);
+	$alert_rows = array();
+	foreach ($members as $row)
+	{
 		$replacements = array(
 			'PROFILE_LINK' => $scripturl . '?action=profile;area=subscriptions;u=' . $row['id_member'],
 			'REALNAME' => $row['member_name'],
@@ -1600,9 +1610,38 @@ function scheduled_paid_subscriptions()
 		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
+		if ($notifyPrefs[$row['id_member']] & 0x02)
+			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
+
+		if ($notifyPrefs[$row['id_member']] & 0x01)
+		{
+			$alert_rows[] = array(
+				'alert_time' => time(),
+				'id_member' => $row['id_member'],
+				'id_member_started' => $row['id_member'],
+				'member_name' => $row['member_name'],
+				'content_type' => 'paidsubs',
+				'content_id' => $row['id_sublog'],
+				'content_action' => 'expiring',
+				'is_read' => 0,
+				'extra' => serialize(array(
+					'subscription_name' => $row['name'],
+					'end_time' => strip_tags(timeformat($row['end_time'])),
+				)),
+			);
+			updateMemberData($row['id_member'], array('alerts' => '+'));
+		}
 	}
-	$smcFunc['db_free_result']($request);
+
+	// Insert the alerts if any
+	if (!empty($alert_rows))
+		$smcFunc['db_insert']('',
+			'{db_prefix}user_alerts',
+			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
+				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+			$alert_rows,
+			array()
+		);
 
 	// Mark the reminder as sent.
 	if (!empty($subs_reminded))

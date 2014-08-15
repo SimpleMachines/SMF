@@ -1866,6 +1866,9 @@ function alert_configuration($memID)
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
 		),
+		'paidsubs' => array(
+			'paidsubs_expiring' => array('alert' => 'yes', 'email' => 'yes'),
+		),
 	);
 	$group_options = array(
 		'board' => array(
