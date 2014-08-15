@@ -152,6 +152,8 @@ $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
 $txt['alert_member_report'] = 'When another member\'s profile is reported';
 $txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
+$txt['alert_group_paidsubs'] = 'Paid Subscriptions';
+$txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
 $txt['toggle_all'] = 'toggle all';
 
 
