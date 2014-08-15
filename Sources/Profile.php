@@ -710,30 +710,9 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-	// Is this a "real" method?
-	if (isset($profile_include_data['class']) && !empty($profile_include_data['class']) && is_string($profile_include_data['class']))
-	{
-		// Is there an instance already? nope? then create it!
-		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
-		{
-			$context['instances'][$profile_include_data['class']] = new $profile_include_data['class'];
 
-			// Add another one to the list.
-			if ($db_show_debug === true)
-			{
-				if (!isset($context['debug']['instances']))
-					$context['debug']['instances'] = array();
-
-				$context['debug']['instances'][$profile_include_data['class']] = $profile_include_data['class'];
-			}
-		}
-
-		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
-	}
-
-	// A static one or more likely, a plain good old function.
-	else
-		$call = call_helper($profile_include_data['function'], true);
+	// Get the right callable.
+	$call = call_helper($profile_include_data['function'], true);
 
 	// Is it valid?
 	if (!empty($call))

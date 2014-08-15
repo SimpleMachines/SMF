@@ -1661,7 +1661,7 @@ function create_control_richedit($editorOptions)
 			'sub' => 'subscript',
 			'hr' => 'horizontalrule',
 		);
-		
+
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is ketp for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
@@ -1694,7 +1694,7 @@ function create_control_richedit($editorOptions)
 				$context['disabled_tags']['bulletlist'] = true;
 				$context['disabled_tags']['orderedlist'] = true;
 			}
-			
+
 			foreach ($disabled_editor_tags as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
@@ -2013,7 +2013,6 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		$force_refresh = true;
 
 	$verification_errors = array();
-
 	// Start with any testing.
 	if ($do_test)
 	{
@@ -2357,7 +2356,6 @@ function AutoSuggest_Search_SMFVersions()
 	// Just in case we don't have ANYthing.
 	if (empty($versions))
 		$versions = array('SMF 2.0');
-	
 
 	foreach ($versions as $id => $version)
 		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)
