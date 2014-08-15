@@ -1103,7 +1103,7 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 /******************************************************************************/
 ---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
-WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
+WHERE filename IN ('latest-packages.js', 'latest-smileys.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
 ---#
 

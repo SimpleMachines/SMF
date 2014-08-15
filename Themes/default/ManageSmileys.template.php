@@ -19,49 +19,6 @@ function template_editsets()
 	<div id="admincenter">';
 
 	template_show_list('smiley_set_list');
-
-	echo '
-		<br>
-		<div class="cat_bar">
-			<h3 class="catbg">', $txt['smiley_sets_latest'], '</h3>
-		</div>
-		<div class="windowbg2">
-			<div id="smileysLatest">', $txt['smiley_sets_latest_fetch'], '</div>
-		</div>
-	</div>
-	<script><!-- // --><![CDATA[
-		window.smfForum_scripturl = smf_scripturl;
-		window.smfForum_sessionid = smf_session_id;
-		window.smfForum_sessionvar = smf_session_var;
-	// ]]></script>';
-
-	if (empty($modSettings['disable_smf_js']))
-		echo '
-	<script src="', $scripturl, '?action=viewsmfile;filename=latest-smileys.js', $modSettings['browser_cache'] ,'"></script>';
-
-	echo '
-	<script><!-- // --><![CDATA[
-		function smfSetLatestSmileys()
-		{
-			if (typeof(window.smfLatestSmileys) != "undefined")
-				setInnerHTML(document.getElementById("smileysLatest"), window.smfLatestSmileys);';
-
-		if (!empty($context['selected_set']))
-			echo '
-
-			changeSet("', $context['selected_set'], '");';
-		if (!empty($context['selected_smiley']))
-			echo '
-			loadSmiley(', $context['selected_smiley'], ');';
-
-		echo '
-		}';
-
-		echo '
-			smfSetLatestSmileys();';
-
-		echo '
-	// ]]></script>';
 }
 
 // Modifying a smiley set.
