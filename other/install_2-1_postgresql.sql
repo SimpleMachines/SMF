@@ -1613,7 +1613,6 @@ CREATE TABLE {$db_prefix}members (
   signature text NOT NULL,
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL,
-  pm_email_notify smallint NOT NULL default '0',
   usertitle varchar(255) NOT NULL,
   notify_announcements smallint NOT NULL default '1',
   notify_regularity smallint NOT NULL default '1',

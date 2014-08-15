@@ -125,6 +125,7 @@ $txt['receive_alert'] = 'Receive alert';
 $txt['receive_mail'] = 'Receive email';
 $txt['alert_group_board'] = 'Boards and Topics';
 $txt['alert_group_msg'] = 'Posts';
+$txt['alert_opt_pm_notify'] = 'If enabled, e-mail alerts for:';
 $txt['alert_opt_msg_notify_type'] = 'Notify me of:';
 $txt['alert_opt_msg_auto_notify'] = 'Follow topics I reply to.';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
@@ -479,9 +480,8 @@ $txt['subscriptions'] = 'Paid Subscriptions';
 
 $txt['pm_settings_desc'] = 'From this page you can change a variety of personal messaging options, including how messages are displayed and who may send them to you.';
 $txt['email_notify'] = 'Notify by email every time you receive a personal message:';
-$txt['email_notify_never'] = 'Never';
-$txt['email_notify_buddies'] = 'From Buddies Only';
-$txt['email_notify_always'] = 'Always';
+$txt['email_notify_buddies'] = 'Buddies Only';
+$txt['email_notify_all'] = 'All members';
 
 $txt['pm_receive_from'] = 'Receive personal messages from:';
 $txt['pm_receive_from_everyone'] = 'All members';

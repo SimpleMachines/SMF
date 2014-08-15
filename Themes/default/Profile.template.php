@@ -1488,21 +1488,6 @@ function template_profile_pm_settings()
 										</select>
 								</dd>
 								<dt>
-										<label for="pm_email_notify">', $txt['email_notify'], '</label>
-								</dt>
-								<dd>
-										<select name="pm_email_notify" id="pm_email_notify">
-												<option value="0"', empty($context['send_email']) ? ' selected' : '', '>', $txt['email_notify_never'], '</option>
-												<option value="1"', !empty($context['send_email']) && ($context['send_email'] == 1 || (empty($modSettings['enable_buddylist']) && $context['send_email'] > 1)) ? ' selected' : '', '>', $txt['email_notify_always'], '</option>';
-
-	if (!empty($modSettings['enable_buddylist']))
-		echo '
-												<option value="2"', !empty($context['send_email']) && $context['send_email'] > 1 ? ' selected' : '', '>', $txt['email_notify_buddies'], '</option>';
-
-	echo '
-										</select>
-								</dd>
-								<dt>
 										<label for="popup_messages">', $txt['popup_messages'], '</label>
 								</dt>
 								<dd>

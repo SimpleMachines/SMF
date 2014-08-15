@@ -361,7 +361,6 @@ function loadProfileFields($force_reload = false)
 			'preload' => function () use (&$context, $cur_profile)
 			{
 				$context['display_mode'] = $cur_profile['pm_prefs'] & 3;
-				$context['send_email'] = $cur_profile['pm_email_notify'];
 				$context['receive_from'] = !empty($cur_profile['pm_receive_from']) ? $cur_profile['pm_receive_from'] : 0;
 
 				return true;
@@ -371,7 +370,6 @@ function loadProfileFields($force_reload = false)
 				// Simple validate and apply the two "sub settings"
 				$value = max(min($value, 2), 0);
 
-				$cur_profile['pm_email_notify'] = $profile_vars['pm_email_notify'] = max(min((int) $_POST['pm_email_notify'], 2), 0);
 				$cur_profile['pm_receive_from'] = $profile_vars['pm_receive_from'] = max(min((int) $_POST['pm_receive_from'], 4), 0);
 
 				return true;
@@ -1884,6 +1882,12 @@ function alert_configuration($memID)
 				2 => $txt['notify_send_type_everything_own'],
 				3 => $txt['notify_send_type_only_replies'],
 				4 => $txt['notify_send_type_nothing'],
+			)),
+		),
+		'pm' => array(
+			array('select', 'pm_notify', 'label' => 'before', 'opts' => array(
+				1 => $txt['email_notify_all'],
+				2 => $txt['email_notify_buddies'],
 			)),
 		),
 	);

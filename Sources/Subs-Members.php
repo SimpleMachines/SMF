@@ -593,7 +593,6 @@ function registerMember(&$regOptions, $return_errors = false)
 		'validation_code' => $validation_code,
 		'real_name' => $regOptions['username'],
 		'personal_text' => $modSettings['default_personal_text'],
-		'pm_email_notify' => 1,
 		'id_theme' => 0,
 		'id_post_group' => 4,
 		'lngfile' => '',

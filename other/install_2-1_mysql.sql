@@ -1214,7 +1214,6 @@ CREATE TABLE {$db_prefix}members (
   signature text NOT NULL,
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL default '',
-  pm_email_notify tinyint(4) NOT NULL default '0',
   usertitle varchar(255) NOT NULL default '',
   notify_announcements tinyint(4) NOT NULL default '1',
   notify_regularity tinyint(4) NOT NULL default '1',
