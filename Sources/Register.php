@@ -288,7 +288,6 @@ function Register2()
 		'secret_question', 'secret_answer',
 	);
 	$possible_ints = array(
-		'pm_email_notify',
 		'notify_types',
 		'id_theme',
 	);

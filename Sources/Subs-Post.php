@@ -817,7 +817,7 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
-	global $scripturl, $txt, $user_info, $language;
+	global $scripturl, $txt, $user_info, $language, $sourcedir;
 	global $modSettings, $smcFunc;
 
 	// Make sure the PM language file is loaded, we might need something out of it.
@@ -984,10 +984,14 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	if (empty($modSettings['permission_enable_deny']))
 		$disallowed_groups = array();
 
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'));
+
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			member_name, real_name, id_member, email_address, lngfile,
-			pm_email_notify, instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
+			member_name, real_name, id_member, email_address, lngfile
+			instant_messages,' . (allowedTo('moderate_forum') ? ' 0' : '
 			(pm_receive_from = {int:admins_only}' . (empty($modSettings['enable_buddylist']) ? '' : ' OR
 			(pm_receive_from = {int:buddies_only} AND FIND_IN_SET({string:from_id}, buddy_list) = 0) OR
 			(pm_receive_from = {int:not_on_ignore_list} AND FIND_IN_SET({string:from_id}, pm_ignore_list) != 0)') . ')') . ' AS ignored,
@@ -1012,6 +1016,14 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		// Don't do anything for members to be deleted!
 		if (isset($deletes[$row['id_member']]))
 			continue;
+
+		// Load the preferences for this member (if any)
+		$prefs = !empty($notifyPrefs[$row['id_member']]) ? $notifyPrefs[$row['id_member']] : array();
+		$prefs = array_merge(array(
+			'pm_new' => 0,
+			'pm_reply' => 0,
+			'pm_notify' => 0,
+		), $prefs);
 
 		// We need to know this members groups.
 		$groups = explode(',', $row['additional_groups']);
@@ -1061,8 +1073,12 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 		}
 
 		// Send a notification, if enabled - taking the buddy list into account.
-		if (!empty($row['email_address']) && ($row['pm_email_notify'] == 1 || ($row['pm_email_notify'] > 1 && (!empty($modSettings['enable_buddylist']) && $row['is_buddy']))) && $row['is_activated'] == 1)
+		if (!empty($row['email_address'])
+			&& ((empty($pm_head) && $prefs['pm_new'] & 0x02) || (!empty($pm_head) && $prefs['pm_reply'] & 0x02))
+			&& ($prefs['pm_notify'] <= 1 || ($prefs['pm_notify'] > 1 && (!empty($modSettings['enable_buddylist']) && $row['is_buddy']))) && $row['is_activated'] == 1)
+		{
 			$notifications[empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']][] = $row['email_address'];
+		}
 
 		$log['sent'][$row['id_member']] = sprintf(isset($txt['pm_successfully_sent']) ? $txt['pm_successfully_sent'] : '', $row['real_name']);
 	}
