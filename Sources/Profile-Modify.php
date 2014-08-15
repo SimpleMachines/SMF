@@ -1900,7 +1900,15 @@ function alert_configuration($memID)
 	{
 		foreach ($alert_types['calendar'] as $k => $v)
 			$disabled_options[] = $k;
-		unset ($alert_types['calendar']);
+		unset($alert_types['calendar']);
+	}
+
+	// Disable paid subscriptions at group level if they're disabled
+	if (empty($modSettings['paid_enabled']))
+	{
+		foreach ($alert_types['paidsubs'] as $k => $v)
+			$disabled_options[] = $k;
+		unset($alert_types['paidsubs']);
 	}
 
 	// Disable mentions if they're disabled
