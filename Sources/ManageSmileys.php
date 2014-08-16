@@ -206,9 +206,14 @@ function EditSmileySets()
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
 			{
-				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
+				// If this is the set you've marked as default, or the only one remaining, you can't delete it
+				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
 					unset($set_paths[$id], $set_names[$id]);
 			}
+			
+			// Shortcut... array_merge() on a single array resets the numeric keys
+			$set_paths = array_merge($set_paths);
+			$set_names = array_merge($set_names);
 
 			updateSettings(array(
 				'smiley_sets_known' => implode(',', $set_paths),
@@ -450,7 +455,7 @@ function EditSmileySets()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return $rowData['id'] == 0 ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
+						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
 					},
 					'class' => 'centercol',
 				),
