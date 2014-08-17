@@ -879,6 +879,19 @@ img.sort, .sort {
 .top_menu {
 	width: 25em;
 }
+.top_menu .login {
+	width: 100%;
+}
+.top_menu .login dt {
+	text-align: left;
+	width: 55%;
+}
+.top_menu .login dd {
+	width: 43%;
+}
+.top_menu .login input {
+	width: 90%;
+}
 /* Note: The next declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus, .dropmenu ul ul a:focus {
 	margin-left: 9990px;
