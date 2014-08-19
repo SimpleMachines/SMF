@@ -585,7 +585,7 @@ function Credits($in_admin = false)
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
-						'Jessica Gonz&aacute;lez',
+						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
 						'John &quot;live627&quot; Rayes',
 						'Shitiz &quot;Dragooon&quot; Garg',
 						'Matthew &quot;Labradoodle-360&quot; Kerle',
