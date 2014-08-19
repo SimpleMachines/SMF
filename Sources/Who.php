@@ -612,7 +612,7 @@ function Credits($in_admin = false)
 						'Shadow82x',
 						'ѕησω',
 						'ChalkCat',
-						'Krash'
+						'Krash',
 						// Former Support Specialists
 						'CapadY',
 						'gbsothere',
@@ -631,10 +631,10 @@ function Credits($in_admin = false)
 						// Customizers
 						'Kays',
 						'Ricky.',
-						'Jack "akabugeyes" Thorsen'
+						'Jack "akabugeyes" Thorsen',
 						'Colin Schoen',
 						'SA™',
-						'Diego Andrés'
+						'Diego Andrés',
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
 						'Joey &quot;Tyrsson&quot; Smith',
