@@ -558,6 +558,7 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
+						'Kindred',
 						'Michael &quot;Oldiesmann&quot; Eshom',
 					),
 				),
@@ -587,6 +588,7 @@ function Credits($in_admin = false)
 						'Jessica Gonz&aacute;lez',
 						'John &quot;live627&quot; Rayes',
 						'Shitiz &quot;Dragooon&quot; Garg',
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
 					),
 				),
 				array(
@@ -604,6 +606,13 @@ function Credits($in_admin = false)
 						'Old Fossil',
 						'Yoshi',
 						'ziycon',
+						'Justyne',
+						'Storman™',
+						'Margarett',
+						'Shadow82x',
+						'ѕησω',
+						'ChalkCat',
+						'Krash'
 						// Former Support Specialists
 						'CapadY',
 						'gbsothere',
@@ -621,8 +630,11 @@ function Credits($in_admin = false)
 						'Gary M. Gadsdon',
 						// Customizers
 						'Kays',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Ricky.',
+						'Jack "akabugeyes" Thorsen'
+						'Colin Schoen',
+						'SA™',
+						'Diego Andrés'
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
 						'Joey &quot;Tyrsson&quot; Smith',
@@ -636,14 +648,17 @@ function Credits($in_admin = false)
 						// Doc Writers
 						'Graeme Spence',
 						'Joshua &quot;groundup&quot; Dickerson',
+						'Chainy',
+						'Irisado'
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						'Reylana',
 						// Localizers
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
 						'Dr. Deejay',
 						'Relyana',
 					),
