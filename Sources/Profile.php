@@ -524,14 +524,6 @@ function ModifyProfile($post_errors = array())
 	if (isset($profile_include_data['file']))
 		require_once($sourcedir . '/' . $profile_include_data['file']);
 
-	// Make sure that the area function/method does exist!
-	$exists = (isset($profile_include_data['class']) ? 'class' : 'function') .'_exists';
-	if (!isset($profile_include_data['function']) || !$exists(isset($profile_include_data['class']) ? $profile_include_data['class'] : $profile_include_data['function']))
-	{
-		destroyMenu();
-		fatal_lang_error('no_access', false);
-	}
-
 	// Build the link tree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
