@@ -729,11 +729,13 @@ function expandPages(spanNode, baseLink, firstPage, lastPage, perPage)
 	$(spanNode).before(replacement);
 
 	if (oldLastPage)
-		$(spanNode).off().one('click', function () {
-			expandPages(this, baseLink, lastPage, oldLastPage, perPage);
-		});
+		// Access the raw DOM element so the native onclick event can be overridden.
+		spanNode.onclick = function ()
+		{
+			expandPages(spanNode, baseLink, lastPage, oldLastPage, perPage);
+		};
 	else
-		$(spanNode).remove()
+		$(spanNode).remove();
 }
 
 function smc_preCacheImage(sSrc)
