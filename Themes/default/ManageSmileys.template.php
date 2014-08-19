@@ -19,6 +19,9 @@ function template_editsets()
 	<div id="admincenter">';
 
 	template_show_list('smiley_set_list');
+
+	echo '
+	</div>';
 }
 
 // Modifying a smiley set.

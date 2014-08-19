@@ -244,6 +244,20 @@
 	.modbox .floatleft {
 		float: none;
 	}
+	/* Admin */
+	#live_news, #supportVersionsTable {
+		width: 100% !important;
+		padding: 0 !important;
+		margin: 0 0 5px 0;
+	}
+	.admin_group a {
+		width: 50% !important;
+		float: left;
+		margin: 0 0 5px 0;
+	}
+	.action_admin .navigate_section {
+		display: none;
+	}
 }
 
 @media (min-width: 481px) and (max-width: 720px) {
