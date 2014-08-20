@@ -313,7 +313,7 @@ function template_body_above()
 
 function template_body_below()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 			</div>
@@ -330,7 +330,7 @@ function template_body_below()
 		echo '
 			<a href="#top_section" id="bot" title="', $txt['go_up'], '"><span class="go_up"></span></a>
 			<ul class="floatright">
-				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> | <a href="', $scripturl, '?action=help;sa=rules">', $txt['terms_and_rules'], '</a></li>
+				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="'. $scripturl. '?action=help;sa=rules">'. $txt['terms_and_rules']. '</a></li>' : '</li>', '
 			</ul>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
