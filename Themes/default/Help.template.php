@@ -174,7 +174,8 @@ function template_manual()
 function template_terms()
 {
 	global $txt, $context, $modSettings;
-		if (!empty($modSettings['requireAgreement']))
+
+	if (!empty($modSettings['requireAgreement']))
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
