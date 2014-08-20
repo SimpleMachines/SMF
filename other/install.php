@@ -1446,7 +1446,7 @@ function DeleteInstall()
 {
 	global $txt, $incontext;
 	global $smcFunc, $db_character_set, $context;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type;
+	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
