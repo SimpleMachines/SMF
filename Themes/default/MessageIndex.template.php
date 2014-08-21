@@ -26,7 +26,7 @@ function template_main()
 		{
 			echo '
 				<div id="board_', $board['id'], '" class="up_contain">
-					<div class="icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
+					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
@@ -158,13 +158,7 @@ function template_main()
 			echo '
 					<div class="icon">&nbsp;</div>
 					<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
-					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>';
-			// Show a "select all" box for quick moderation?
-			if (empty($context['can_quick_mod']))
-				echo '
-					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
-			else
-				echo '
+					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
 					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
 
 			// Show a "select all" box for quick moderation?
@@ -175,7 +169,7 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<div>&nbsp;</div>';
+					<div class="moderation">&nbsp;</div>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
@@ -302,7 +296,7 @@ function template_main()
 		{
 			echo '
 				<div class="righttext" id="quick_actions">
-					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.quick_mod_jump_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 						<option value="">--------</option>';
 
 			foreach ($context['qmod_actions'] as $qmod_action)
