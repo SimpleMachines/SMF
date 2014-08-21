@@ -1065,6 +1065,12 @@ img.sort, .sort {
 	line-height: 1.3em;
 	width: auto;
 }
+#profile_menu_top > img.avatar {
+	height: 18px;
+	width: 18px;
+	margin-right: 5px;
+	vertical-align: middle;
+}
 /*#top_section ul li {
 	margin-bottom: 2px;
 	margin-right: 7px;

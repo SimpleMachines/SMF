@@ -169,7 +169,7 @@ function template_body_above()
 		echo '
 			<ul class="floatleft" id="top_info">
 				<li>
-					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">', $context['user']['name'], ' &#9660;</a>
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">', $context['user']['avatar']['image'], ' ', $context['user']['name'], ' &#9660;</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
