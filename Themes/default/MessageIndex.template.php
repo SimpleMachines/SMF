@@ -296,7 +296,7 @@ function template_main()
 		{
 			echo '
 				<div class="righttext" id="quick_actions">
-					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.quick_mod_jump_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
+					<select class="qaction" name="qaction"', $context['can_move'] ? ' onchange="this.form.move_to.disabled = (this.options[this.selectedIndex].value != \'move\');"' : '', '>
 						<option value="">--------</option>';
 
 			foreach ($context['qmod_actions'] as $qmod_action)
