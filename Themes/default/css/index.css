@@ -1068,8 +1068,9 @@ img.sort, .sort {
 #profile_menu_top > img.avatar {
 	height: 18px;
 	width: 18px;
-	margin-right: 5px;
-	vertical-align: middle;
+	margin: 2px 5px 0 0;
+	float: left;
+	padding: 0;
 }
 /*#top_section ul li {
 	margin-bottom: 2px;
