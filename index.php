@@ -21,7 +21,7 @@
  */
 
 $forum_version = 'SMF 2.1 Alpha 1';
-$software_year = '2014';
+$software_year = ''.date('Y').'';
 
 // Get everything started up...
 define('SMF', 1);
