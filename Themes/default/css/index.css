@@ -776,9 +776,10 @@ img.sort, .sort {
 	max-width: 50px;
 	max-height: 50px;
 }
-#profile_menu .profile_user_info ol {
+#profile_menu .profile_user_info {
 	float: left;
 	max-width: 70%;
+	margin: 3px 0 5px 10px;
 }
 #profile_menu .profile_username {
 	overflow: hidden;
@@ -1064,6 +1065,13 @@ img.sort, .sort {
 	padding: 5px 9px 4px 9px;
 	line-height: 1.3em;
 	width: auto;
+}
+#profile_menu_top > img.avatar {
+	height: 18px;
+	width: 18px;
+	margin: 2px 5px 0 0;
+	float: left;
+	padding: 0;
 }
 /*#top_section ul li {
 	margin-bottom: 2px;
