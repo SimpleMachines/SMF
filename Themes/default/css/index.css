@@ -776,9 +776,10 @@ img.sort, .sort {
 	max-width: 50px;
 	max-height: 50px;
 }
-#profile_menu .profile_user_info ol {
+#profile_menu .profile_user_info {
 	float: left;
 	max-width: 70%;
+	margin: 3px 0 5px 10px;
 }
 #profile_menu .profile_username {
 	overflow: hidden;
