@@ -332,7 +332,7 @@ function template_body_below()
 	// There is now a global "Go to top" link at the right.
 		echo '
 			<ul class="floatright">
-				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="'. $scripturl. '?action=help;sa=rules">'. $txt['terms_and_rules']. '</a>' : '', ' | <a href="#top_section" title="', $txt['go_up'], '">', $txt['go_up'], ' &#9650;</a></li>
+				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="'. $scripturl. '?action=help;sa=rules">'. $txt['terms_and_rules']. '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
 			</ul>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
