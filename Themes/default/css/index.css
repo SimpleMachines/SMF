@@ -1308,20 +1308,6 @@ ul li.greeting {
 	display: block;
 }
 
-/* Globally accessible "go up" link. */
-#bot {
-	display: block;
-	margin: 0;
-	width: 25px;
-	float: right;
-}
-span.go_up {
-	background: url(../images/toggle.png) no-repeat;
-	height: 17px;
-	width: 17px;
-	display: inline-block
-}
-
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
