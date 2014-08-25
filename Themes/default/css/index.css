@@ -3247,6 +3247,7 @@ div#pollmoderation {
 }
 #forumposts .cat_bar {
 	margin: 0 0 -4px 0;
+	border-radius: 6px;
 }
 /* Topic information */
 #forumposts .catbg img {
@@ -3400,6 +3401,9 @@ img.smiley {
 /* Styles for the quick reply area. */
 #quickreplybox {
 	clear: both;
+}
+#quickreplybox .cat_bar {
+	border-radius: 6px;
 }
 #quickReplyOptions .roundframe {
 	margin: 8px 0 0 0;
