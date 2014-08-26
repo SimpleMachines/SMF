@@ -777,13 +777,13 @@ img.sort, .sort {
 	max-height: 50px;
 }
 #profile_menu .profile_user_info {
-	float: left;
-	max-width: 70%;
+	width: 95%;
 	margin: 3px 0 5px 10px;
 }
 #profile_menu .profile_username {
 	overflow: hidden;
 	font-size: 150%;
+	display: block;
 }
 #profile_menu .profile_user_links ol {
 	margin: 10px;
@@ -3402,9 +3402,11 @@ img.smiley {
 	clear: both;
 }
 #quickReplyOptions .roundframe {
-	margin: 8px 0 0 0;
+	margin: 0;
 	padding: 8px 10% 12px 10%;
 	overflow: auto;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 #quickReplyOptions form textarea {
 	height: 100px;
