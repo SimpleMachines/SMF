@@ -3047,6 +3047,10 @@ span.postby {
 	margin-bottom: 0;
 	padding: 0;
 }
+#topic_header.title_bar {
+	margin: 0px;
+	border-radius: 0;
+}
 #messageindex .stats, #recent .stats {
 	text-align: center;
 }
@@ -3081,6 +3085,7 @@ span.postby {
 	padding: 8px 10px 8px 10px;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
+	border-bottom: 0;
 }
 .lastpost span.last_post {
 	float: right;
