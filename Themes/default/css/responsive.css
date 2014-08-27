@@ -2,8 +2,8 @@
 @media screen and (max-width: 720px) {
 	/* Stuff */
 	.infolinks {
-		margin: 0 7px 0 0;
-		min-width: 50px;
+		display: inline-block;
+		margin: 5px 7px 0 0;
 	}
 	input, select {
 		float: left;
@@ -87,6 +87,8 @@
 	#moderationbuttons_strip a {
 		float: left;
 		width: 40%;
+		max-width: 100px;
+		margin: 0 2px 7px 5px; /* Extra margin for fat fingers like Kindred */
 	}
 	.button.button_strip_mark_unread {
 		display: none;
@@ -105,9 +107,33 @@
 	#creator dd {
 		width: 65%;
 	}
+	#basicinfo, #detailedinfo {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	#basicinfo {
+		margin: 0 0 5px 0; /* For UX */
+	}
 	/* Post Screen */
 	form#postmodify .roundframe {
 		padding: 5px !important;
+	}
+	#post_header input {
+		width: 100%;
+	}
+	#post_confirm_buttons .smalltext {
+		display: none;
+	}
+	.sceditor-container {
+		width: 100% !important;
+	}
+	ul.post_options {
+		padding: 0;
+		margin: 0;
+	}
+	ul.post_options li {
+		margin: 2px 5px 0 0;
+		width: 48%;
 	}
 
 	/* Hide me */
@@ -136,7 +162,7 @@
 		min-height: 285px !important;
 	}
 	.button_submit {
-		min-width: 25%;
+		min-width: 15%;
 		margin: 0 0 0 2px;
 	}
 	h1.forumtitle a, h1.forumtitle {
@@ -148,10 +174,10 @@
 		display: none !important;
 	}
 	#alerts_menu {
-		margin: 0 0 0 -150px;
+		margin: 0 0 0 -175px;
 	}
 	#pm_menu {
-		margin: 0 0 0 -60px;
+		margin: 0 0 0 -85px;
 	}
 	/* BoardIndex */
 	div.icon {
@@ -195,16 +221,13 @@
 
 	/* Post Section */
 	#post_header dd {
-		width: 50% !important;
+		width: 55% !important;
 	}
 	#post_header dt {
 		width: 35% !important;
 	}
-
-	/* Profile */
-	#basicinfo, #detailedinfo {
-		float: none !important;
-		width: 95% !important;
+	img#icons {
+		margin: 0 0 0 5px;
 	}
 
 	/* Stats Center */
@@ -280,11 +303,6 @@
 	}
 	.keyinfo h5 .modified {
 		float: none !important;
-	}
-	/* Profile */
-	#basicinfo, #detailedinfo {
-		float: none !important;
-		width: 95% !important;
 	}
 
 	/* Stats Center */

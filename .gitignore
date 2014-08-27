@@ -11,6 +11,7 @@ Packages/*.tgz
 Packages/*.tar.gz
 Packages/*.zip
 Packages/*/
+attachments/
 /upgrade.php
 
 # Compiled source #
