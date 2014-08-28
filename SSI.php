@@ -50,7 +50,7 @@ $ssi_error_reporting = error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : 
 */
 $ssi_on_error_method = false;
 
-// Don't do john didley if the forum's been shut down competely.
+// Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !== true))
 	die($mmessage);
 
@@ -72,7 +72,7 @@ require_once($sourcedir . '/Subs-Auth.php');
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
-// Initate the database connection and define some database functions to use.
+// Initiate the database connection and define some database functions to use.
 loadDatabase();
 
 // Load installed 'Mods' settings.
@@ -296,7 +296,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 	return ssi_queryPosts($query_where, $query_where_params, $num_recent, 'm.id_msg DESC', $output_method, $limit_body);
 }
 
-// Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overriden.
+// Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overridden.
 function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
 	global $modSettings;
@@ -1585,7 +1585,7 @@ function ssi_todaysEvents($output_method = 'echo')
 	}
 }
 
-// Show all calendar entires for today. (birthdays, holodays, and events.)
+// Show all calendar entires for today. (birthdays, holidays, and events.)
 function ssi_todaysCalendar($output_method = 'echo')
 {
 	global $modSettings, $txt, $scripturl, $user_info;
