@@ -48,7 +48,7 @@ $txt['cant_insert_topic'] = 'Unable to insert topic';
 $txt['already_a_mod'] = 'You have chosen a username of an already existing moderator. Please choose another username';
 $txt['session_timeout'] = 'Your session timed out while posting. Please go back and try again.';
 $txt['session_verify_fail'] = 'Session verification failed. Please try logging out and back in again, and then try again.';
-$txt['verify_url_fail'] = 'Unable to verify referring url. Please go back and try again.';
+$txt['verify_url_fail'] = 'Unable to verify referring URL. Please go back and try again.';
 $txt['token_verify_fail'] = 'Token verification failed. Please go back and try again.';
 $txt['guest_vote_disabled'] = 'Guests cannot vote in this poll.';
 
@@ -105,7 +105,7 @@ $txt['cannot_post_reply_any'] = 'You are not permitted to post replies to topics
 $txt['cannot_post_reply_own'] = 'You are not allowed to post replies even to your own topics in this board.';
 $txt['cannot_post_redirect'] = 'You cannot post in redirection boards.';
 $txt['cannot_profile_remove_own'] = 'Sorry, but you aren\'t allowed to delete your own account.';
-$txt['cannot_profile_remove_any'] = 'You don\'t have the approriate permissions to remove accounts.';
+$txt['cannot_profile_remove_any'] = 'You don\'t have the appropriate permissions to remove accounts.';
 $txt['cannot_profile_extra_any'] = 'You are not permitted to modify profile settings.';
 $txt['cannot_profile_identity_any'] = 'You aren\'t allowed to edit account settings.';
 $txt['cannot_profile_title_any'] = 'You cannot edit people\'s custom titles.';
