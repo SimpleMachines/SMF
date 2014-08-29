@@ -146,7 +146,7 @@ $txt['pm_settings'] = 'Change settings';
 $txt['pm_change_view'] = 'Change view';
 
 $txt['pm_manage_rules'] = 'Manage Rules';
-$txt['pm_manage_rules_desc'] = 'Message rules allow you to automatically sort incoming messages dependant on a set of criteria you define. Below are all the rules you currently have setup. To edit a rule simply click the rule name.';
+$txt['pm_manage_rules_desc'] = 'Message rules allow you to automatically sort incoming messages dependent on a set of criteria you define. Below are all the rules you currently have setup. To edit a rule simply click the rule name.';
 $txt['pm_rules_none'] = 'You have not yet setup any message rules.';
 $txt['pm_rule_title'] = 'Rule';
 $txt['pm_add_rule'] = 'Add new rule';

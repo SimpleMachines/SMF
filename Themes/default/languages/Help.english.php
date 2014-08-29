@@ -33,8 +33,8 @@ $helptxt['manage_boards'] = '
 		</li>
 	</ul>
 	Categories allow you to break down the boards into broad topics (&quot;Cars,
-	Sports&quot;), and the &quot;Boards&quot; under them allow users to post actual topics. 
-	A user interested in Pintos	would post a message under &quot;Cars->Pinto&quot;. 
+	Sports&quot;), and the &quot;Boards&quot; under them allow users to post actual topics.
+	A user interested in Pintos	would post a message under &quot;Cars->Pinto&quot;.
 	Administrative functions for this page are to create new boards
 	under each category, to reorder them (put &quot;Pinto&quot; below &quot;Chevy&quot;), or
 	to delete the board entirely.';
@@ -83,9 +83,9 @@ $helptxt['view_members'] = '
 	</ul>';
 
 $helptxt['ban_members'] = '<strong>Ban Members</strong><br>
-	SMF provides the ability to &quot;ban&quot; users, which can be a useful course of action against users that have 
-	violated the trust of the forum	by spamming or trolling, etc. This allows you to exclude users that are detrimental 
-	to your forum. As an admin, when you view posts made on your forum, you can see the IP address that the user had at the time of posting. 
+	SMF provides the ability to &quot;ban&quot; users, which can be a useful course of action against users that have
+	violated the trust of the forum	by spamming or trolling, etc. This allows you to exclude users that are detrimental
+	to your forum. As an admin, when you view posts made on your forum, you can see the IP address that the user had at the time of posting.
 	In the ban list, you simply type that IP address in, save, and they can no longer post from that location.<br>You can also
 	ban people through their email address.';
 
@@ -154,10 +154,10 @@ $helptxt['registrations'] = '<strong>Registration Management</strong><br>
 	</ul>';
 
 $helptxt['modlog'] = '<strong>Moderation Log</strong><br>
-	This page allows members of the moderation team to track all the moderation actions that the forum moderators have performed. Note that 
+	This page allows members of the moderation team to track all the moderation actions that the forum moderators have performed. Note that
 	clearing the log will be logged to prevent abuse.';
 $helptxt['adminlog'] = '<strong>Administration Log</strong><br>
-	This page allows members of the admin team to track some of the administrative actions that have occurred on the forum. Note that 
+	This page allows members of the admin team to track some of the administrative actions that have occurred on the forum. Note that
 	clearing the log will be logged to prevent abuse.';
 $helptxt['userlog'] = '<strong>Profile Edits Log</strong><br>
 	This page allows members of the admin team to view changes users make to their profiles, and is available from inside a user\'s profile area.';
@@ -168,7 +168,7 @@ $helptxt['warning_enable'] = '<strong>User Warning System</strong><br>
 $helptxt['warning_watch'] = 'This setting defines the percentage warning level a member must reach to automatically assign a &quot;watch&quot; to the member. Any member who is being &quot;watched&quot; will appear in the watched members list in the moderation center.';
 $helptxt['warning_moderate'] = 'Any member passing the value of this setting will find all their posts require moderator approval before they appear to the forum community. This will override any local board permissions which may exist related to post moderation.';
 $helptxt['warning_mute'] = 'If this warning level is passed by a member they will find themselves under a post ban. The member will lose all posting rights.';
-$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This 
+$helptxt['user_limit'] = 'This setting limits the amount of points a moderator may add/remove to any particular member in a twenty four hour period. This
 			can be used to limit what a moderator can do in a small period of time. This can be disabled by setting it to a value of zero. Note that
 			any members with administrator permissions are not affected by this value.';
 
@@ -589,7 +589,7 @@ $helptxt['custom_mask'] = 'The input mask is important for your forum\'s securit
 		$ - End of string.<br>
 		\ - Escapes the next character.<br>
 	</div><br><br>
-	More information and advanced techniques may be found on the internet.';
+	More information and advanced techniques may be found on the Internet.';
 
 $helptxt['topic_move_any'] = 'If checked, users will be allowed to move topics to any board they can see. Otherwise, they will only be able to move them to boards where they can post new topics.';
 
