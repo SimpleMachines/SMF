@@ -75,12 +75,12 @@ function template_main()
 
 		if (!isset($context['disabled_fields']['website']))
 			echo '
-					<td class="centertext">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
+					<td class="centertext website_url">', $member['website']['url'] != '' ? '<a href="' . $member['website']['url'] . '" target="_blank" class="new_win"><span class="generic_icons www" title="' . $member['website']['title'] . '"></span></a>' : '', '</td>';
 
 		// Group and date.
 		echo '
-					<td class="lefttext">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
-					<td class="lefttext">', $member['registered_date'], '</td>';
+					<td class="lefttext reg_group">', empty($member['group']) ? $member['post_group'] : $member['group'], '</td>
+					<td class="lefttext reg_date">', $member['registered_date'], '</td>';
 
 		if (!isset($context['disabled_fields']['posts']))
 		{
