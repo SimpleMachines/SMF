@@ -1332,7 +1332,7 @@ function PackageRemove()
  */
 function PackageBrowse()
 {
-	global $txt, $scripturl, $context, $forum_version, $sourcedir;
+	global $txt, $scripturl, $context, $forum_version, $sourcedir, $smcFunc;
 
 	$context['page_title'] .= ' - ' . $txt['browse_packages'];
 
@@ -1474,6 +1474,26 @@ function PackageBrowse()
 	$context['available_languages'] = array();
 	$context['available_other'] = array();
 	$context['available_all'] = array();
+
+	$get_versions = $smcFunc['db_query']('', '
+		SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}', 
+		array(
+			'versionsfile' => 'latest-versions.txt',
+			'smf' => '/smf/',
+		)
+	);
+
+	$data = $smcFunc['db_fetch_assoc']($get_versions);
+	$smcFunc['db_free_result']($get_versions);
+
+	// Which versions are "safe" for emulating? Strip "SMF" off the list as well...
+	$context['emulation_versions'] = preg_replace('~^SMF ~', '', explode("\r\n", $data['data']));
+
+	// Current SMF version, which is selected by default
+	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
+
+	// Version we're currently emulating, if any
+	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']); 
 }
 
 /**
