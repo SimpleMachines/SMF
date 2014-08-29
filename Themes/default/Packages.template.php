@@ -602,11 +602,21 @@ function template_browse()
 						<dt>
 							<strong>', $txt['package_emulate'], ':</strong><br>
 							<span class="smalltext">
-								<a href="#" onclick="document.getElementById(\'ve\').value = \'', $forum_version, '\';document.getElementsByName(\'version_emulate\')[0].value = \'', $forum_version, '\';return false">', $txt['package_emulate_revert'], '</a>
+								<a href="#" onclick="return revert();">', $txt['package_emulate_revert'], '</a>
 							</span>
 						</dt>
 						<dd>
-							<input type="text" name="version_emulate" id="ve" value="', $context['forum_version'], '" size="25" class="input_text">
+							<a id="revert" name="revert"></a>
+							<select name="version_emulate" id="ve">';
+
+						foreach ($context['emulation_versions'] as $version)
+						{
+							echo '
+								<option value="', $version, '"', ($version == $context['selected_version'] ? ' selected="selected"' : ''), '>', $version, '</option>';
+						}
+
+				echo '
+							</select>
 						</dd>
 					</dl>
 					<div class="righttext padding">
@@ -643,16 +653,14 @@ function template_browse()
 				}
 			]
 		});
-	// ]]></script>
-	<script><!-- // --><![CDATA[
-			var oAddVersionSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddVersionSuggest\',
-			sSessionId: smf_session_id,
-			sSessionVar: smf_session_var,
-			sControlId: \'ve\',
-			sSearchType: \'versions\',
-			bItemList: false
-		});
+		function revert()
+		{
+			var default_version = "', $context['default_version'], '";
+			$("#ve").find("option").filter(function(index) {
+    			return default_version === $(this).text();
+			}).attr("selected", "selected");
+			return false;
+		}
 	// ]]></script>';
 }
 
