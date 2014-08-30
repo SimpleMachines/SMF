@@ -639,6 +639,9 @@ table.table_grid td {
 .title_bar th {
 	padding: 4px 3px 3px 8px;
 }
+.title_bar .sort_down, .title_bar .sort_up {
+	margin: -3px 0 0 2px;
+}
 
 /* GenericList */
 .additional_row {
