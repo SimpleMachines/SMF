@@ -1591,7 +1591,7 @@ function updateActionDef(optNum)
 
 $(function()
 {
-	$('.dropmenu').each(function(index, item)
+	$('.buttonlist > .dropmenu').each(function(index, item)
 	{
 		$(item).prev().click(function(e)
 		{
