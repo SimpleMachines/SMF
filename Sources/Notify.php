@@ -181,23 +181,30 @@ function BoardNotify()
 }
 
 /**
- * Turn off/on unread replies subscription for a topic
+ * Turn off/on unread replies subscription for a topic as well as sets individual topic's alert preferences
  * Must be called with a topic specified in the URL.
- * The sub-action can be 'on', 'off', or nothing for what to do.
+ * The mode can be from 0 to 3
+ * 0 => unwatched, 1 => no alerts/emails, 2 => alerts, 3 => emails/alerts
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=unwatchtopic.
  */
 function TopicUnwatch()
 {
-	global $smcFunc, $user_info, $topic, $modSettings;
+	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir;
 
 	// Let's do something only if the function is enabled
-	if (!$user_info['is_guest'] && $modSettings['enable_unwatch'])
+	if (!$user_info['is_guest'])
 	{
 		checkSession('get');
 
-		if (isset($_GET['sa']))
+		if (isset($_GET['mode']))
 		{
+			$mode = (int) $_GET['mode'];
+			$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
+
+			if (!$modSettings['enable_unwatch'] && empty($mode))
+				$mode = 1;
+
 			$request = $smcFunc['db_query']('', '
 				SELECT id_member, id_topic, id_msg, unwatched
 				FROM {db_prefix}log_topics
@@ -217,13 +224,13 @@ function TopicUnwatch()
 					'id_member' => $user_info['id'],
 					'id_topic' => $topic,
 					'id_msg' => 0,
-					'unwatched' => $_GET['sa'] == 'on' ? 1 : 0,
+					'unwatched' => empty($mode) ? 1 : 0,
 				);
 			}
 			else
 			{
 				$insert = false;
-				$log['unwatched'] = $_GET['sa'] == 'on' ? 1 : 0;
+				$log['unwatched'] = empty($mode) ? 1 : 0;
 			}
 
 			$smcFunc['db_insert']($insert ? 'insert' : 'replace',
@@ -234,6 +241,30 @@ function TopicUnwatch()
 				$log,
 				array('id_member', 'id_topic')
 			);
+
+			require_once($sourcedir . '/Subs-Notify.php');
+			setNotifyPrefs($user_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
+
+			if ($mode > 1)
+			{
+				// Turn notification on.  (note this just blows smoke if it's already on.)
+				$smcFunc['db_insert']('ignore',
+					'{db_prefix}log_notify',
+					array('id_member' => 'int', 'id_topic' => 'int'),
+					array($user_info['id'], $log['id_topic']),
+					array('id_member', 'id_board')
+				);
+			}
+			else
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_notify
+					WHERE id_topic = {int:topic}
+						AND id_member = {int:member}',
+					array(
+						'topic' => $log['id_topic'],
+						'member' => $user_info['id'],
+					));
+
 		}
 	}
 
