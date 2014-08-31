@@ -4051,3 +4051,22 @@ h3.profile_hd {
 	background: #FFFFFF;
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
+
+.dropmenu {
+	background: #ffffff;
+	padding: 0;
+}
+.dropmenu strong {
+	font-size: 1.1em;
+}
+.dropmenu a {
+	display: block;
+	padding: 0.5em;
+}
+.dropmenu a:hover {
+	text-decoration: none;
+	background: #eee;
+}
+.dropmenu span {
+	font-size: 0.9em;
+}

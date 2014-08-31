@@ -507,8 +507,35 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		// @todo this check here doesn't make much sense now (from 2.1 on), it should be moved to where the button array is generated
 		// Kept for backward compatibility
 		if (!isset($value['test']) || !empty($context[$value['test']]))
-			$buttons[] = '
+		{
+			$button = '
 				<a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+
+			if (!empty($value['elements']))
+			{
+				$button .= '
+					<div id="' . $key . '_dropdown" class="top_menu dropmenu">
+						<div class="viewport">
+							<div class="overview">';
+				foreach ($value['elements'] as $element)
+				{
+					if (isset($element['test']) && empty($context[$element['test']]))
+						continue;
+
+					$button .= '
+								<a href="' . $element['url'] . '"><strong>' . $txt[$element['text']] . '</strong>';
+					if (isset($txt[$element['text'] . '_desc']))
+						$button .= '<br /><span>' . $txt[$element['text'] . '_desc'] . '</span>';
+					$button .= '</a>';
+				}
+				$button .= '
+							</div>
+						</div>
+					</div>';
+			}
+
+			$buttons[] = $button;
+		}
 	}
 
 	// No buttons? No button strip either.
