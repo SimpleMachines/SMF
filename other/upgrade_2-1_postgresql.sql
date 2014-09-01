@@ -100,8 +100,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?al
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
----# Enable BBC on Editor and collapse object
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+---# Collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
 
@@ -1166,7 +1165,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc');
 ---#
 
 ---# Cleaning up old theme settings.

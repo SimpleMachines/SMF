@@ -199,6 +199,7 @@ function ModifyPostSettings($return_config = false)
 			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed)
 			array('check', 'enableSpellChecking', 'subtext' => ($can_spell_check ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
 			array('check', 'disable_wysiwyg'),
+			array('check', 'additional_options_collapsable'),
 		'',
 			// Posting limits...
 			array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
@@ -215,10 +216,6 @@ function ModifyPostSettings($return_config = false)
 		'',
 			// First & Last message preview lengths
 			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
-		'',
-			// BBC Enable/Disable & Collapse thing on posts
-			array('check', 'admin_bbc'),
-			array('check', 'additional_options_collapsable'),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
