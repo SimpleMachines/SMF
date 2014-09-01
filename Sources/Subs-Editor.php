@@ -1906,7 +1906,7 @@ function create_control_richedit($editorOptions)
 	}
 
 	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($modSettings['admin_bbc']);
+	$context['show_bbc'] = !empty($modSettings['enableBBC']);
 }
 
 /**

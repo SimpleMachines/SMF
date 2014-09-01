@@ -2338,7 +2338,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_modify', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '1');
