@@ -842,5 +842,5 @@ $txt['notify_topic_3'] = 'Receive Emails and Alerts';
 $txt['notify_topic_0_desc'] = 'You will not receive any emails or alerts for this post and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic.';
 $txt['notify_topic_1_desc'] = 'You will not receive any emails or alerts but only @mentions by other members.';
 $txt['notify_topic_2_desc'] = 'You will receive alerts for this topic.';
-$txt['notify_topic_3_desc'] = 'You will receive alerts as well as alerts for this topic,';
+$txt['notify_topic_3_desc'] = 'You will receive both alerts and e-mails for this topic.';
 ?>
