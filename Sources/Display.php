@@ -185,9 +185,10 @@ function Display()
 	{
 		require_once($sourcedir . '/Subs-Notify.php');
 		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . $context['current_topic']), true);
+		$pref = !empty($prefs[$user_info['id']]) ? $prefs[$user_info['id']] : array();
 		$topicinfo['notify_prefs'] = array(
-			'is_custom' => !empty($prefs[$user_info['id']]) && isset($prefs[$user_info['id']]['topic_notify_' . $topic]),
-			'pref' => !empty($prefs[$user_info['id']]) ? (!empty($prefs[$user_info['id']]['topic_notify_' . $context['current_topic']]) ? $prefs[$user_info['id']]['topic_notify_' . $context['current_topic']] : $prefs[$user_info['id']]['topic_notify']) : 0,
+			'is_custom' => isset($pref['topic_notify_' . $topic]),
+			'pref' => isset($pref['topic_notify_' . $context['current_topic']]) ? $pref['topic_notify_' . $context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
 		);
 	}
 
