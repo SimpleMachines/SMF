@@ -2173,7 +2173,7 @@ function MaintainRecountPosts()
  */
 function list_integration_hooks()
 {
-	global $sourcedir, $scripturl, $context, $txt, $settings;
+	global $sourcedir, $scripturl, $context, $txt;
 
 	$context['filter_url'] = '';
 	$context['current_filter'] = '';
@@ -2277,7 +2277,7 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt, $settings, $scripturl, $context)
+					'function' => function ($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
 						if ($data['can_be_disabled'] && $data['status'] != 'deny')
