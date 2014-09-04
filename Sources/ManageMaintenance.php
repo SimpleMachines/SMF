@@ -2248,10 +2248,13 @@ function list_integration_hooks()
 				'data' => array(
 					'function' => function ($data) use ($txt)
 					{
+						// Show a nice icon to indicate this is instance.
+						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="'. $txt['hooks_field_function_method'] .'"></span> ' : '');
+
 						if (!empty($data['included_file']))
-							return $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'] . (!empty($data['instance']) ? '<br>'. $txt['hooks_field_function_method'] : '');
+							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 						else
-							return $data['real_function'];
+							return $instance . $data['real_function'];
 					},
 				),
 				'sort' =>  array(
@@ -2300,7 +2303,7 @@ function list_integration_hooks()
 				'position' => 'after_title',
 				'value' => $txt['hooks_disable_instructions'] . '<br>
 					' . $txt['hooks_disable_legend'] . ':
-									<ul style="list-style: none;">
+				<ul style="list-style: none;">
 					<li><span class="generic_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
 					<li><span class="generic_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
 					<li><span class="generic_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
