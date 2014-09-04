@@ -78,7 +78,8 @@ function template_html_above()
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
-<head>';
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">';
 
 	// You don't need to manually load index.css, this will be set up for you. You can, of course, add
 	// any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
@@ -98,7 +99,6 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
 	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
