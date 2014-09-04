@@ -122,7 +122,7 @@ function template_main()
 	{
 		echo '
 		<fieldset class="flow_hidden">
-			<div class="roundframe">
+			<div class="roundframe alt">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
