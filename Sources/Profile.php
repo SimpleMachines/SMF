@@ -27,7 +27,7 @@ function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
 	global $modSettings, $memberContext, $profile_vars, $post_errors, $user_settings;
-	global $db_show_debug;
+	global $db_show_debug, $smcFunc;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -70,6 +70,26 @@ function ModifyProfile($post_errors = array())
 	// And we care about what the current user can do, not what the user whose profile it is.
 	if ($user_info['mod_cache']['gq'] != '0=1')
 		$user_info['permissions'][] = 'approve_group_requests';
+
+	// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
+	$context['subs_available'] = false;
+
+	if (!empty($modSettings['paid_enabled']))
+	{
+		$get_active_subs = $smcFunc['db_query']('', '
+			SELECT COUNT(*)
+			FROM {db_prefix}subscriptions
+			WHERE active = {int:active}', array(
+				'active' => 1,
+			)
+		);
+
+		list ($num_subs) = $smcFunc['db_fetch_assoc']($get_active_subs);
+
+		$context['subs_available'] = ($num_subs > 0);
+
+		$smcFunc['db_free_result']($get_active_subs);
+	}
 
 	/* Define all the sections within the profile area!
 		We start by defining the permission required - then SMF takes this and turns it into the relevant context ;)
@@ -359,7 +379,7 @@ function ModifyProfile($post_errors = array())
 					'file' => 'Profile-Actions.php',
 					'function' => 'subscriptions',
 					'icon' => 'paid',
-					'enabled' => !empty($modSettings['paid_enabled']),
+					'enabled' => !empty($modSettings['paid_enabled']) && $context['subs_available'],
 					'permission' => array(
 						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
