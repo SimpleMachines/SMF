@@ -511,13 +511,13 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 			$button = '
 				<a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . '" href="' . (!empty($value['url']) ? $value['url'] : '') . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
 
-			if (!empty($value['elements']))
+			if (!empty($value['sub_buttons']))
 			{
 				$button .= '
 					<div id="' . $key . '_dropdown" class="top_menu dropmenu">
 						<div class="viewport">
 							<div class="overview">';
-				foreach ($value['elements'] as $element)
+				foreach ($value['sub_buttons'] as $element)
 				{
 					if (isset($element['test']) && empty($context[$element['test']]))
 						continue;

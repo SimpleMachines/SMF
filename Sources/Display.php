@@ -1226,7 +1226,7 @@ function Display()
 			'lang' => true,
 			'test' => 'can_set_notify',
 			'text' => 'notify_topic_' . $context['topic_notification_mode'],
-			'elements' => array(
+			'sub_buttons' => array(
 				array(
 					'test' => 'can_unwatch',
 					'text' => 'notify_topic_0',
