@@ -1751,7 +1751,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	padding: 0;
 }
 #credits .windowbg,
-#credits .windowbg2 {
+#credits .windowbg2,
+#admin_login .roundframe {
 	margin: 0 0 10px 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
