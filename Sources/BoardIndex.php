@@ -132,7 +132,7 @@ function BoardIndex()
 	call_integration_hook('integrate_mark_read_button');
 
 	if (!empty($settings['show_newsfader']))
-	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => false), 'smf_fader');
+	loadJavascriptFile('slippry.js');
 }
 
 ?>

@@ -831,6 +831,4 @@ $txt['hide_category'] = 'Hide Category';
 $txt['show_category'] = 'Show Category';
 $txt['hide_infocenter'] = 'Hide Info Center';
 $txt['show_infocenter'] = 'Show Info Center';
-$txt['hide_newsfader'] = 'Hide Newsfader';
-$txt['show_newsfader'] = 'Show Newsfader';
 ?>
