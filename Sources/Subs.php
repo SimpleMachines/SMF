@@ -4205,6 +4205,10 @@ function call_helper($string, $return = false)
 	if (empty($string))
 		return false;
 
+	// Is this a closure?
+	if (is_object($string) && ($string instanceof Closure))
+		return $string;
+
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
 
