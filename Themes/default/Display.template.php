@@ -23,9 +23,32 @@ function template_main()
 			</div>';
 	}
 
+	// Show new topic info here?
+	echo '
+		<div id="display_head">
+			<h2 class="display_title">'. $context['subject']. '', ($context['is_locked']) ? '<span class="generic_icons lock"></span>' : '','', ($context['is_sticky']) ? '<span class="generic_icons sticky"></span>' : '','</h2>
+			<p>',$txt['started_by'],' ', $context['topic_poster_name'],', ', $context['topic_started_time'],'</p>';
+
+	if (!empty($settings['display_who_viewing']))
+	{
+		echo '
+				<p>';
+
+		// Show just numbers...?
+		if ($settings['display_who_viewing'] == 1)
+				echo count($context['view_members']), ' ', count($context['view_members']) == 1 ? $txt['who_member'] : $txt['members'];
+		// Or show the actual people viewing the topic?
+		else
+			echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . ((empty($context['view_num_hidden']) || $context['can_moderate_forum']) ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
+
+		// Now show how many guests are here too.
+		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_topic'], '
+				</p>';
+	}
+
 	// Show the anchor for the top and for the first message. If the first message is new, say so.
 	echo '
-
+		</div>
 			<a id="msg', $context['first_message'], '"></a>', $context['first_new_message'] ? '<a id="new"></a>' : '';
 
 	// Is this topic also a poll?
@@ -35,14 +58,11 @@ function template_main()
 			<div id="poll">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span class="generic_icons poll"></span>', $context['poll']['is_locked'] ? '<span class="generic_icons lock"></span>' : '' ,' ', $txt['poll'], '
+						<span class="generic_icons poll"></span>', $context['poll']['is_locked'] ? '<span class="generic_icons lock"></span>' : '' ,' ', $context['poll']['question'], '
 					</h3>
 				</div>
 				<div class="windowbg">
-					<div id="poll_options">
-						<h4 id="pollquestion">
-							', $context['poll']['question'], '
-						</h4>';
+					<div id="poll_options">';
 
 		// Are they not allowed to vote but allowed to view the options?
 		if ($context['poll']['show_results'] || !$context['allow_vote'])
@@ -122,22 +142,20 @@ function template_main()
 	if (!empty($context['linked_calendar_events']))
 	{
 		echo '
-			<div class="linked_events">
-				<div class="title_bar">
-					<h3 class="titlebg headerpadding">', $txt['calendar_linked_events'], '</h3>
-				</div>
-				<div class="information">
-					<ul class="reset">';
+			<div class="title_bar">
+				<h3 class="titlebg">', $txt['calendar_linked_events'], '</h3>
+			</div>
+			<div class="information">
+				<ul class="reset">';
 
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
-						<li>
-							', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify"></span></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
-						</li>';
+					<li>
+						', ($event['can_edit'] ? '<a href="' . $event['modify_href'] . '"><span class="generic_icons calendar_modify"></span></a> ' : ''), '<strong>', $event['title'], '</strong>: ', $event['start_date'], ($event['start_date'] != $event['end_date'] ? ' - ' . $event['end_date'] : ''), '
+					</li>';
 
 		echo '
-					</ul>
-				</div>
+				</ul>
 			</div>';
 	}
 
@@ -153,29 +171,7 @@ function template_main()
 
 	// Show the topic information - icon, subject, etc.
 	echo '
-			<div id="forumposts">
-				<div class="cat_bar">
-					<h3 class="catbg">
-						<span id="top_subject" class="topic-icon topic-icon-', $context['class'], '">', $txt['topic'], ': ', $context['subject'], '&nbsp;<span>(', $context['num_views_text'], ')</span></span>
-						<span class="nextlinks floatright">', $context['previous_next'], '</span>
-					</h3>
-				</div>';
-	if (!empty($settings['display_who_viewing']))
-	{
-		echo '
-				<div class="information">';
-
-		// Show just numbers...?
-		if ($settings['display_who_viewing'] == 1)
-				echo count($context['view_members']), ' ', count($context['view_members']) == 1 ? $txt['who_member'] : $txt['members'];
-		// Or show the actual people viewing the topic?
-		else
-			echo empty($context['view_members_list']) ? '0 ' . $txt['members'] : implode(', ', $context['view_members_list']) . ((empty($context['view_num_hidden']) || $context['can_moderate_forum']) ? '' : ' (+ ' . $context['view_num_hidden'] . ' ' . $txt['hidden'] . ')');
-
-		// Now show how many guests are here too.
-		echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_topic'], '
-				</div>';
-	}
+			<div id="forumposts">';
 
 	echo '
 				<form action="', $scripturl, '?action=quickmod2;topic=', $context['current_topic'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" name="quickModForm" id="quickModForm" style="margin: 0;" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . $context['session_id'] . '\', \'' . $context['session_var'] . '\') : false">';
@@ -190,6 +186,10 @@ function template_main()
 	echo '
 				</form>
 			</div>';
+
+	// Next - Prev
+	echo '
+		<span class="nextlinks">', $context['previous_next'], '</span>';
 
 	// Show the page index... "Pages: [1]".
 	echo '
