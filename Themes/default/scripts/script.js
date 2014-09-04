@@ -1605,9 +1605,9 @@ $(function()
 				return true;
 			}
 
-			$(item).css('top', $(this).offset().top + $(this).height());
-			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).width(), 0));
 			$(item).css('display', 'block');
+			$(item).css('top', $(this).offset().top + $(this).height());
+			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).outerWidth(), 0));
 			$(item).height($(item).find('div:first').height());
 		});
 		$(document).click(function()
