@@ -2285,7 +2285,7 @@ function list_integration_hooks()
 							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . $data['real_function'] . (!empty($data['included_file']) ? ';includedfile=' . urlencode($data['included_file']) : '') . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . javaScriptEscape($txt['quickmod_confirm']) . ');">';
 							$change_status['after'] = '</a>';
 						}
-						return $change_status['before'] . '<img src="' . $settings['images_url'] . '/admin/post_moderation_' . $data['status'] . '.png" alt="' . $data['img_text'] . '" title="' . $data['img_text'] . '">' . $change_status['after'];
+						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
 				),
