@@ -2173,7 +2173,7 @@ function MaintainRecountPosts()
  */
 function list_integration_hooks()
 {
-	global $sourcedir, $scripturl, $context, $txt, $settings;
+	global $sourcedir, $scripturl, $context, $txt;
 
 	$context['filter_url'] = '';
 	$context['current_filter'] = '';
@@ -2248,10 +2248,13 @@ function list_integration_hooks()
 				'data' => array(
 					'function' => function ($data) use ($txt)
 					{
+						// Show a nice icon to indicate this is instance.
+						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="'. $txt['hooks_field_function_method'] .'"></span> ' : '');
+
 						if (!empty($data['included_file']))
-							return $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'] . (!empty($data['instance']) ? '<br>'. $txt['hooks_field_function_method'] : '');
+							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 						else
-							return $data['real_function'];
+							return $instance . $data['real_function'];
 					},
 				),
 				'sort' =>  array(
@@ -2277,7 +2280,7 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt, $settings, $scripturl, $context)
+					'function' => function ($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
 						if ($data['can_be_disabled'] && $data['status'] != 'deny')
@@ -2300,10 +2303,10 @@ function list_integration_hooks()
 				'position' => 'after_title',
 				'value' => $txt['hooks_disable_instructions'] . '<br>
 					' . $txt['hooks_disable_legend'] . ':
-									<ul style="list-style: none;">
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_allow.png" alt="' . $txt['hooks_active'] . '" title="' . $txt['hooks_active'] . '"> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_moderate.png" alt="' . $txt['hooks_disabled'] . '" title="' . $txt['hooks_disabled'] . '"> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_deny.png" alt="' . $txt['hooks_missing'] . '" title="' . $txt['hooks_missing'] . '"> ' . $txt['hooks_disable_legend_missing'] . '</li>
+				<ul style="list-style: none;">
+					<li><span class="generic_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
+					<li><span class="generic_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
+					<li><span class="generic_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
 				</ul>'
 			),
 		),
