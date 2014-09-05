@@ -31,12 +31,7 @@ function template_newsfader()
 		}
 
 		echo '
-			</ul>
-			<script>
-			jQuery(document).ready(function(){
-				jQuery("#smf_slider").slippry()
-			});
-			</script>';
+			</ul>';
 	}
 }
 
