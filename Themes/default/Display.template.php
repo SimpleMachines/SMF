@@ -26,7 +26,7 @@ function template_main()
 	// Show new topic info here?
 	echo '
 		<div id="display_head">
-			<h2 class="display_title">'. $context['subject']. '', ($context['is_locked']) ? '<span class="generic_icons lock"></span>' : '','', ($context['is_sticky']) ? '<span class="generic_icons sticky"></span>' : '','</h2>
+			<h2 class="display_title">', $context['subject'], ($context['is_locked']) ? '<span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? '<span class="generic_icons sticky"></span>' : '', '</h2>
 			<p>',$txt['started_by'],' ', $context['topic_poster_name'],', ', $context['topic_started_time'],'</p>';
 
 	if (!empty($settings['display_who_viewing']))
