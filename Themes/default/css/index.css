@@ -1750,6 +1750,13 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0;
 	padding: 0;
 }
+#credits .windowbg,
+#credits .windowbg2,
+#admin_login .roundframe {
+	margin: 0 0 10px 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 
 .errorfile_table {
 	background: #f0f4f7;
@@ -2569,18 +2576,35 @@ dl.addrules dt.floatleft {
 #mlist .posts {
 	width: 115px;
 }
-
+#memberlist_search .roundframe {
+	margin: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 /* Styles for the search section.
 ------------------------------------------------- */
-#advanced_search {
-	text-align: center !important;
-	margin: 0;
-}
-
 #searchform fieldset {
 	text-align: left;
 	padding: 0;
 	border: none;
+}
+#searchform .roundframe {
+	border-radius: 0;
+	margin: 0;
+	padding: 32px;
+	overflow: auto;
+}
+#searchform .alt {
+	border-top: 0;
+	border-bottom-left-radius: 7px;
+	border-bottom-right-radius: 7px;
+}
+#searchform p.clear {
+	clear: both;
+}
+#advanced_search {
+	text-align: center !important;
+	margin: 0;
 }
 #advanced_search dl#search_options {
 	margin: 0 auto;
@@ -2601,9 +2625,6 @@ dl.addrules dt.floatleft {
 	padding: 2px;
 	margin: 0 0 0 6px;
 	text-align: left;
-}
-#searchform p.clear {
-	clear: both;
 }
 
 /* Styles for the search results page.
@@ -2792,11 +2813,6 @@ dl.addrules dt.floatleft {
 }
 .generic_list_wrapper table.table_grid {
 	border-bottom: 1px solid #aaa;
-}
-#searchform .roundframe {
-	margin: 8px 0 0 0;
-	padding: 32px;
-	overflow: auto;
 }
 
 div#editlang_desc {
@@ -3108,6 +3124,9 @@ select.qaction {
 	margin-top: 10px;
 	float: left;
 	width: 100%;
+}
+#topic_icons .information {
+	border-radius: 7px;
 }
 #topic_icons p {
 	line-height: 2em;
