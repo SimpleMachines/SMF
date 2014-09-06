@@ -2876,25 +2876,6 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* BoardIndex */
-/* Newsfader */
-#newsfader {
-	margin: 0 0 8px 0;
-}
-#smfFadeScroller {
-	text-align: center;
-	padding: 12px 25px;
-	overflow: auto;
-	color: #444444; /* shouldn't be shorthand style due to a JS bug in IE! */
-}
-ul#smfFadeScroller li {
-	font-weight: bold;
-}
-#smfFadeScrollerCont {
-	margin-top: -1px;
-	border-top: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
 /* This place covers board places (boardindex-messageindex) */
 h3 .collapse {
 	float: right;

@@ -19,60 +19,19 @@ function template_newsfader()
 {
 	global $context, $settings, $options, $txt;
 
-	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
 	{
 		echo '
-			<div id="newsfader">
-				<div class="cat_bar">
-					<h3 class="catbg">
-						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide_newsfader'],'" align="bottom" style="display: none;"></span>
-						', $txt['news'], '
-					</h3>
-				</div>
-				<div class="roundframe rfix" id="smfFadeScrollerCont">
-					<ul class="reset" id="smfFadeScroller">
-						<li>
-							', implode('</li><li>', $context['news_lines']), '
-						</li>
-					</ul>
-				</div>
-			</div>
-			<script><!-- // --><![CDATA[
-				// Create a news fader object.
-				var oNewsFader = new smc_NewsFader({
-					sFaderControlId: \'smfFadeScroller\',
-					sItemTemplate: ', JavaScriptEscape('%1$s'), ',
-					iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
-				});
+			<ul id="smf_slider" class="roundframe">';
 
-				// Create the news fader toggle.
-				var smfNewsFadeToggle = new smc_Toggle({
-					bToggleEnabled: true,
-					bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
-					aSwappableContainers: [
-						\'smfFadeScrollerCont\'
-					],
-					aSwapImages: [
-						{
-							sId: \'newsupshrink\',
-							altExpanded: ', JavaScriptEscape($txt['hide_newsfader']), ',
-							altCollapsed: ', JavaScriptEscape($txt['show_newsfader']), '
-						}
-					],
-					oThemeOptions: {
-						bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
-						sOptionName: \'collapse_news_fader\',
-						sSessionVar: smf_session_var,
-						sSessionId: smf_session_id
-					},
-					oCookieOptions: {
-						bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
-						sCookieName: \'newsupshrink\'
-					}
-				});
-			// ]]></script>
-		';
+		foreach ($context['news_lines'] as $news)
+		{
+			echo '
+				<li>', $news,'</li>';
+		}
+
+		echo '
+			</ul>';
 	}
 }
 
