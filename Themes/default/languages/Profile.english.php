@@ -529,4 +529,5 @@ $txt['outcome_refused'] = 'Refused by %1$s on %2$s';
 $txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
 
 $txt['report_profile'] = 'Report This Member';
+$txt['notification_remove_pref'] = 'Use default preference';
 ?>

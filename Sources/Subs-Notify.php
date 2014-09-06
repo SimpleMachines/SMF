@@ -91,4 +91,28 @@ function setNotifyPrefs($memID, $prefs = array())
 	);
 }
 
+/**
+ * Deletes notification preference
+ *
+ * @param int $memID The user whose preference you're setting
+ * @param array $prefs
+ * @return void
+ */
+function deleteNotifyPrefs($memID, array $prefs)
+{
+	global $smcFunc;
+
+	if (empty($prefs) || empty($memID))
+		return;
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts_prefs
+		WHERE id_member = {int:member}
+			AND alert_pref IN ({array_string:prefs})',
+		array(
+			'member' => $memID,
+			'prefs' => $prefs,
+		)
+	);
+}
 ?>
