@@ -1116,6 +1116,15 @@ function makeNotificationChanges($memID)
 			$prefs[] = 'topic_notify_' . $topic;
 		deleteNotifyPrefs($memID, $prefs);
 	}
+
+	// We are removing board preferences
+	elseif (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards']))
+	{
+		$prefs = array();
+		foreach ($_POST['notify_boards'] as $board)
+			$prefs[] = 'board_notify_' . $board;
+		deleteNotifyPrefs($memID, $prefs);
+	}
 }
 
 /**
@@ -2251,7 +2260,7 @@ function alert_notifications_boards($memID)
 	global $txt, $scripturl, $context, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
-	if (isset($_POST['edit_notify_boards']))
+	if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
 	{
 		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
@@ -2303,6 +2312,20 @@ function alert_notifications_boards($memID)
 					'reverse' => 'name DESC',
 				),
 			),
+			'alert' => array(
+				'header' => array(
+					'value' => $txt['notify_what_how'],
+					'class' => 'lefttext',
+				),
+				'data' => array(
+					'function' => function ($board) use ($txt)
+					{
+						$pref = $board['notify_pref'];
+						$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
+						return $txt['notify_board_' . $mode];
+					},
+				),
+			),
 			'delete' => array(
 				'header' => array(
 					'value' => '<input type="checkbox" class="input_check" onclick="invertAll(this, this.form);">',
@@ -2334,7 +2357,8 @@ function alert_notifications_boards($memID)
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">',
+				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">
+							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
 				'align' => 'right',
 			),
 		),
@@ -2458,7 +2482,11 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
  */
 function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $smcFunc, $scripturl, $user_info, $sourcedir;
+
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs($memID);
+	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
 	$request = $smcFunc['db_query']('', '
 		SELECT b.id_board, b.name, IFNULL(lb.id_msg, 0) AS board_read, b.id_msg_updated
@@ -2480,7 +2508,8 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 			'name' => $row['name'],
 			'href' => $scripturl . '?board=' . $row['id_board'] . '.0',
 			'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['name'] . '</a>',
-			'new' => $row['board_read'] < $row['id_msg_updated']
+			'new' => $row['board_read'] < $row['id_msg_updated'],
+			'notify_pref' => isset($prefs['topic_notify_' . $row['id_topic']]) ? $prefs['topic_notify_' . $row['id_topic']] : (!empty($prefs['topic_notify']) ? $prefs['topic_notify'] : 0),
 		);
 	$smcFunc['db_free_result']($request);
 
