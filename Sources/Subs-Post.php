@@ -1625,7 +1625,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 				),
 				'type' => $type,
 				'members_only' => $members_only,
-			)), time()
+			)), 0
 		);
 	}
 	$smcFunc['db_free_result']($result);
@@ -2004,7 +2004,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'topicOptions' => $topicOptions,
 				'posterOptions' => $posterOptions,
 				'type' => $new_topic ? 'topic' : 'reply',
-			)), time()),
+			)), 0),
 			array('id_task')
 		);
 
@@ -2094,7 +2094,7 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 					'topicOptions' => $topicOptions,
 					'posterOptions' => $posterOptions,
 					'type' => 'edit',
-				)), time()),
+				)), 0),
 				array('id_task')
 			);
 		}
@@ -2403,7 +2403,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 						'name' => $topic['name'],
 					),
 					'type' => $topic['new_topic'] ? 'topic' : 'reply',
-				)), time()
+				)), 0
 			);
 
 		if ($notify)

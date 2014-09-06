@@ -179,6 +179,19 @@ function Display()
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
+	// Get notification preferences
+	$topicinfo['notify_prefs'] = array();
+	if (!empty($user_info['id']))
+	{
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . $context['current_topic']), true);
+		$pref = !empty($prefs[$user_info['id']]) ? $prefs[$user_info['id']] : array();
+		$topicinfo['notify_prefs'] = array(
+			'is_custom' => isset($pref['topic_notify_' . $topic]),
+			'pref' => isset($pref['topic_notify_' . $context['current_topic']]) ? $pref['topic_notify_' . $context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
+		);
+	}
+
 	// Is this a moved topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
 	{
@@ -206,6 +219,9 @@ function Display()
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
 	$context['topic_last_message'] = $topicinfo['id_last_msg'];
 	$context['topic_unwatched'] = isset($topicinfo['unwatched']) ? $topicinfo['unwatched'] : 0;
+	$context['topic_notification'] = !empty($user_info['id']) ? $topicinfo['notify_prefs'] : array();
+	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
+	$context['topic_notification_mode'] = $context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1));
 
 	// Add up unapproved replies to get real number of replies...
 	if ($modSettings['postmod_active'] && allowedTo('approve_posts'))
@@ -1115,6 +1131,7 @@ function Display()
 	$context['can_quote'] = $context['can_reply'] && (empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC'])));
 	$context['can_mark_unread'] = !$user_info['is_guest'];
 	$context['can_unwatch'] = !$user_info['is_guest'] && $modSettings['enable_unwatch'];
+	$context['can_set_notify'] = !$user_info['is_guest'];
 
 	$context['can_print'] = empty($modSettings['disable_print_topic']);
 
@@ -1204,10 +1221,32 @@ function Display()
 	$context['normal_buttons'] = array(
 		'reply' => array('test' => 'can_reply', 'text' => 'reply', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=post;topic=' . $context['current_topic'] . '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'], 'active' => true),
 		'add_poll' => array('test' => 'can_add_poll', 'text' => 'add_poll', 'image' => 'add_poll.png', 'lang' => true, 'url' => $scripturl . '?action=editpoll;add;topic=' . $context['current_topic'] . '.' . $context['start']),
-		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unwatch_topic' : 'watch_topic', 'image' => ($context['is_marked_notify'] ? 'un' : '') . 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_topic'] : $txt['notification_enable_topic']) . '\');"', 'url' => $scripturl . '?action=notify;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'mark_unread' => array('test' => 'can_mark_unread', 'text' => 'mark_unread', 'image' => 'markunread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=topic;t=' . $context['mark_unread_time'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-		'unwatch' => array('test' => 'can_unwatch', 'text' => ($context['topic_unwatched'] ? '' : 'un') . 'watch', 'image' => ($context['topic_unwatched'] ? 'un' : '') . 'watch.png', 'lang' => true, 'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['topic_unwatched'] ? 'off' : 'on') . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'print' => array('test' => 'can_print', 'text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
+		'notify' => array(
+			'lang' => true,
+			'test' => 'can_set_notify',
+			'text' => 'notify_topic_' . $context['topic_notification_mode'],
+			'sub_buttons' => array(
+				array(
+					'test' => 'can_unwatch',
+					'text' => 'notify_topic_0',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=0;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_1',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=1;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_2',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=2;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_3',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+			),
+		),
 	);
 
 	// Build the mod button array

@@ -833,4 +833,20 @@ $txt['hide_infocenter'] = 'Hide Info Center';
 $txt['show_infocenter'] = 'Show Info Center';
 $txt['hide_newsfader'] = 'Hide Newsfader';
 $txt['show_newsfader'] = 'Show Newsfader';
+
+// Notification post control
+$txt['notify_topic_0'] = 'Not Following';
+$txt['notify_topic_1'] = 'No Alerts or Emails';
+$txt['notify_topic_2'] = 'Receive Alerts';
+$txt['notify_topic_3'] = 'Receive Emails and Alerts';
+$txt['notify_topic_0_desc'] = 'You will not receive any emails or alerts for this post and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic.';
+$txt['notify_topic_1_desc'] = 'You will not receive any emails or alerts but only @mentions by other members.';
+$txt['notify_topic_2_desc'] = 'You will receive alerts for this topic.';
+$txt['notify_topic_3_desc'] = 'You will receive both alerts and e-mails for this topic.';
+$txt['notify_board_1'] = 'No Alerts or Emails';
+$txt['notify_board_2'] = 'Receive Alerts';
+$txt['notify_board_3'] = 'Receive Emails and Alerts';
+$txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
+$txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
+$txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
 ?>

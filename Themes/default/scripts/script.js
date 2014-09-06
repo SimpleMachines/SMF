@@ -1588,3 +1588,31 @@ function updateActionDef(optNum)
 		document.getElementById("labdiv" + optNum).style.display = "none";
 	}
 }
+
+$(function()
+{
+	$('.buttonlist > .dropmenu').each(function(index, item)
+	{
+		$(item).prev().click(function(e)
+		{
+			e.stopPropagation();
+			e.preventDefault();
+
+			if ($(item).is(':visible'))
+			{
+				$(item).css('display', 'none');
+
+				return true;
+			}
+
+			$(item).css('display', 'block');
+			$(item).css('top', $(this).offset().top + $(this).height());
+			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).outerWidth(), 0));
+			$(item).height($(item).find('div:first').height());
+		});
+		$(document).click(function()
+		{
+			$(item).css('display', 'none');
+		});
+	});
+})
