@@ -108,7 +108,7 @@ function Notify()
  */
 function BoardNotify()
 {
-	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;
+	global $scripturl, $txt, $board, $user_info, $context, $smcFunc, $sourcedir;
 
 	// Permissions are an important part of anything ;).
 	is_not_guest();
@@ -118,62 +118,35 @@ function BoardNotify()
 		fatal_lang_error('no_board', false);
 
 	// No subaction: find out what to do.
-	if (empty($_GET['sa']))
-	{
-		// We're gonna need the notify template...
-		loadTemplate('Notify');
-
-		// Find out if they have notification set for this board already.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_board = {int:current_board}
-			LIMIT 1',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
-
-		// Set the template variables...
-		$context['board_href'] = $scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
-		$context['sub_template'] = 'notify_board';
-
-		return;
-	}
-	// Turn the board level notification on....
-	elseif ($_GET['sa'] == 'on')
+	if (isset($_GET['mode']))
 	{
 		checkSession('get');
 
-		// Turn notification on.  (note this just blows smoke if it's already on.)
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}log_notify',
-			array('id_member' => 'int', 'id_board' => 'int'),
-			array($user_info['id'], $board),
-			array('id_member', 'id_board')
-		);
-	}
-	// ...or off?
-	else
-	{
-		checkSession('get');
+		$mode = (int) $_GET['mode'];
+		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		// Turn notification off for this board.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
+		require_once($sourcedir . '/Subs-Notify.php');
+		setNotifyPrefs($user_info['id'], array('board_notify_' . $board => $alertPref));
+
+		if ($mode > 1)
+			// Turn notification on.  (note this just blows smoke if it's already on.)
+			$smcFunc['db_insert']('ignore',
+				'{db_prefix}log_notify',
+				array('id_member' => 'int', 'id_board' => 'int'),
+				array($user_info['id'], $board),
+				array('id_member', 'id_board')
+			);
+		else
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}log_notify
+				WHERE id_member = {int:current_member}
 				AND id_board = {int:current_board}',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
+				array(
+					'current_board' => $board,
+					'current_member' => $user_info['id'],
+				)
+			);
+
 	}
 
 	// Back to the board!
