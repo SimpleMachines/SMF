@@ -1750,6 +1750,13 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0;
 	padding: 0;
 }
+#credits .windowbg,
+#credits .windowbg2,
+#admin_login .roundframe {
+	margin: 0 0 10px 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 
 .errorfile_table {
 	background: #f0f4f7;
@@ -2569,18 +2576,35 @@ dl.addrules dt.floatleft {
 #mlist .posts {
 	width: 115px;
 }
-
+#memberlist_search .roundframe {
+	margin: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
 /* Styles for the search section.
 ------------------------------------------------- */
-#advanced_search {
-	text-align: center !important;
-	margin: 0;
-}
-
 #searchform fieldset {
 	text-align: left;
 	padding: 0;
 	border: none;
+}
+#searchform .roundframe {
+	border-radius: 0;
+	margin: 0;
+	padding: 32px;
+	overflow: auto;
+}
+#searchform .alt {
+	border-top: 0;
+	border-bottom-left-radius: 7px;
+	border-bottom-right-radius: 7px;
+}
+#searchform p.clear {
+	clear: both;
+}
+#advanced_search {
+	text-align: center !important;
+	margin: 0;
 }
 #advanced_search dl#search_options {
 	margin: 0 auto;
@@ -2601,9 +2625,6 @@ dl.addrules dt.floatleft {
 	padding: 2px;
 	margin: 0 0 0 6px;
 	text-align: left;
-}
-#searchform p.clear {
-	clear: both;
 }
 
 /* Styles for the search results page.
@@ -2792,11 +2813,6 @@ dl.addrules dt.floatleft {
 }
 .generic_list_wrapper table.table_grid {
 	border-bottom: 1px solid #aaa;
-}
-#searchform .roundframe {
-	margin: 8px 0 0 0;
-	padding: 32px;
-	overflow: auto;
 }
 
 div#editlang_desc {
@@ -3109,6 +3125,9 @@ select.qaction {
 	float: left;
 	width: 100%;
 }
+#topic_icons .information {
+	border-radius: 7px;
+}
 #topic_icons p {
 	line-height: 2em;
 }
@@ -3132,24 +3151,29 @@ select.qaction {
 #poll {
 	overflow: hidden;
 }
-#poll .windowbg {
-	margin: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
+h4#pollquestion {
+	padding: 0 0 6px 25px;
 }
 
 /* Poll vote options */
 #poll_options ul.options {
+	border-top: 1px solid #9999aa;
 	padding: 12px 30px 0 25px;
+	margin: 0 0 12px 0;
 }
 #poll_options div.submitbutton {
+	border-bottom: 1px solid #9999aa;
 	clear: both;
 	padding: 0 0 12px 0;
+	margin: 0 0 12px 0;
 }
 
 /* Poll results */
 #poll_options dl.options {
+	border: solid #9999aa;
+	border-width: 1px 0;
 	padding: 12px 0 12px 25px;
+	margin: 0 0 12px 0;
 	line-height: 1.4em;
 }
 #poll_options dl.options dt {
@@ -3398,8 +3422,7 @@ img.smiley {
 .nextlinks {
 	text-transform: capitalize;
 	display: block;
-	margin-top: 5px;
-	text-align: center;
+	margin: -2px 0;
 }
 /* Styles for the quick reply area. */
 #quickreplybox {
@@ -3552,6 +3575,9 @@ ul.post_options li {
 	display: block;
 }
 /* Events */
+.linked_events {
+	padding: 12px 0;
+}
 .edit_event {
 	margin: 0 10px;
 	vertical-align: top;
@@ -3797,6 +3823,231 @@ h3.profile_hd {
 	padding: 25px 6px 25px 18px;
 }
 
+.topic-icon:before {
+	background: url(../images/icons/topic.png) no-repeat;
+	display: inline-block;
+	content: ' ';
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+.topic-icon-hot_poll:before {
+	background-position: -5px -5px;
+}
+.topic-icon-hot_poll_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -31px -5px;
+}
+.topic-icon-hot_poll_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -61px -5px;
+}
+.topic-icon-hot_poll_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -91px -5px;
+}
+.topic-icon-hot_post:before {
+	background-position: -121px -5px;
+}
+.topic-icon-hot_post_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -147px -5px;
+}
+.topic-icon-hot_post_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -5px -31px;
+}
+.topic-icon-hot_post_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -35px -31px;
+}
+.topic-icon-my_hot_poll:before {
+	background-position: -65px -31px;
+}
+.topic-icon-my_hot_poll_locked:before {
+	width: 20px;
+	height: 16px;
+	background-position: -91px -31px;
+}
+.topic-icon-my_hot_poll_locked_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -121px -31px;
+}
+.topic-icon-my_hot_poll_sticky:before {
+	width: 20px;
+	height: 16px;
+	background-position: -151px -31px;
+}
+.topic-icon-my_hot_post:before {
+	background-position: -5px -57px;
+}
+.topic-icon-my_hot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -57px;
+}
+.topic-icon-my_hot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -57px;
+}
+.topic-icon-my_hot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -57px;
+}
+.topic-icon-my_normal_poll:before {
+	background-position: -130px -57px;
+}
+.topic-icon-my_normal_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -57px;
+}
+.topic-icon-my_normal_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -5px -83px;
+}
+.topic-icon-my_normal_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -38px -83px;
+}
+.topic-icon-my_normal_post:before {
+	background-position: -71px -83px;
+}
+.topic-icon-my_normal_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -83px;
+}
+.topic-icon-my_normal_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -130px -83px;
+}
+.topic-icon-my_normal_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -163px -83px;
+}
+.topic-icon-my_veryhot_poll:before {
+	background-position: -5px -109px;
+}
+.topic-icon-my_veryhot_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -109px;
+}
+.topic-icon-my_veryhot_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -109px;
+}
+.topic-icon-my_veryhot_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -109px;
+}
+.topic-icon-my_veryhot_post:before {
+	background-position: -130px -109px;
+}
+.topic-icon-my_veryhot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -109px;
+}
+.topic-icon-my_veryhot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -5px -135px;
+}
+.topic-icon-my_veryhot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -38px -135px;
+}
+.topic-icon-normal_poll:before {
+	background-position: -71px -135px;
+}
+.topic-icon-normal_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -135px;
+}
+.topic-icon-normal_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -130px -135px;
+}
+.topic-icon-normal_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -163px -135px;
+}
+.topic-icon-normal_post:before {
+	background-position: -5px -161px;
+}
+.topic-icon-normal_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -31px -161px;
+}
+.topic-icon-normal_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -64px -161px;
+}
+.topic-icon-normal_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -97px -161px;
+}
+.topic-icon-veryhot_poll:before {
+	background-position: -130px -161px;
+}
+.topic-icon-veryhot_poll_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -156px -161px;
+}
+.topic-icon-veryhot_poll_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -177px -5px;
+}
+.topic-icon-veryhot_poll_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -181px -31px;
+}
+.topic-icon-veryhot_post:before {
+	background-position: -189px -57px;
+}
+.topic-icon-veryhot_post_locked:before {
+	width: 23px;
+	height: 16px;
+	background-position: -196px -83px;
+}
+.topic-icon-veryhot_post_locked_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -189px -109px;
+}
+.topic-icon-veryhot_post_sticky:before {
+	width: 23px;
+	height: 16px;
+	background-position: -196px -135px;
+}
+
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
 .button_submit, .button_reset, .button_link, .topbottom,
@@ -3818,6 +4069,25 @@ h3.profile_hd {
 .navigate_section ul, .popup_content, .up_contain {
 	background: #FFFFFF;
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
+}
+
+.dropmenu {
+	background: #ffffff;
+	padding: 0;
+}
+.dropmenu strong {
+	font-size: 1.1em;
+}
+.dropmenu a {
+	display: block;
+	padding: 0.5em;
+}
+.dropmenu a:hover {
+	text-decoration: none;
+	background: #eee;
+}
+.dropmenu span {
+	font-size: 0.9em;
 }
 
 /* Some new stuff */
