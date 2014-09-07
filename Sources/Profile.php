@@ -84,7 +84,7 @@ function ModifyProfile($post_errors = array())
 			)
 		);
 
-		list ($num_subs) = $smcFunc['db_fetch_assoc']($get_active_subs);
+		list ($num_subs) = $smcFunc['db_fetch_row']($get_active_subs);
 
 		$context['subs_available'] = ($num_subs > 0);
 
