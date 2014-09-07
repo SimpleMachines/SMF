@@ -1835,8 +1835,6 @@ function alert_configuration($memID)
 	// What options are set?
 	$context['member'] += array(
 		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
-		'notify_send_body' => $user_profile[$memID]['notify_send_body'],
-		'notify_types' => $user_profile[$memID]['notify_types'],
 	);
 
 	loadThemeOptions($memID);
@@ -1895,6 +1893,7 @@ function alert_configuration($memID)
 	$group_options = array(
 		'board' => array(
 			array('check', 'msg_auto_notify', 'label' => 'after'),
+			array('check', 'msg_receive_body', 'label' => 'after'),
 			array('select', 'msg_notify_pref', 'label' => 'before', 'opts' => array(
 				0 => $txt['alert_opt_msg_notify_pref_nothing'],
 				1 => $txt['alert_opt_msg_notify_pref_instant'],

@@ -125,6 +125,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
 			}
 
+			if (!empty($prefs[$member]['msg_receive_body']) && in_array($type, array('topic', 'reply')))
+				$message_type .= '_body';
+
 			if ($pref & 0x02)
 			{
 				$replacements = array(
