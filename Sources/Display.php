@@ -527,11 +527,6 @@ function Display()
 	$context['is_locked'] = $topicinfo['locked'];
 	$context['is_sticky'] = $topicinfo['is_sticky'];
 	$context['is_approved'] = $topicinfo['approved'];
-
-	// @todo Tricks? We don't want to show the poll icon in the topic class here, so pretend it's not one.
-	$context['is_poll'] = false;
-	determineTopicClass($context);
-
 	$context['is_poll'] = $topicinfo['id_poll'] > 0 && $modSettings['pollMode'] == '1' && allowedTo('poll_view');
 
 	// Did this user start the topic or not?

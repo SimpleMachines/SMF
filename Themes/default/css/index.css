@@ -3151,29 +3151,24 @@ select.qaction {
 #poll {
 	overflow: hidden;
 }
-h4#pollquestion {
-	padding: 0 0 6px 25px;
+#poll .windowbg {
+	margin: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 /* Poll vote options */
 #poll_options ul.options {
-	border-top: 1px solid #9999aa;
 	padding: 12px 30px 0 25px;
-	margin: 0 0 12px 0;
 }
 #poll_options div.submitbutton {
-	border-bottom: 1px solid #9999aa;
 	clear: both;
 	padding: 0 0 12px 0;
-	margin: 0 0 12px 0;
 }
 
 /* Poll results */
 #poll_options dl.options {
-	border: solid #9999aa;
-	border-width: 1px 0;
 	padding: 12px 0 12px 25px;
-	margin: 0 0 12px 0;
 	line-height: 1.4em;
 }
 #poll_options dl.options dt {
@@ -3422,7 +3417,8 @@ img.smiley {
 .nextlinks {
 	text-transform: capitalize;
 	display: block;
-	margin: -2px 0;
+	margin-top: 5px;
+	text-align: center;
 }
 /* Styles for the quick reply area. */
 #quickreplybox {
@@ -3575,9 +3571,6 @@ ul.post_options li {
 	display: block;
 }
 /* Events */
-.linked_events {
-	padding: 12px 0;
-}
 .edit_event {
 	margin: 0 10px;
 	vertical-align: top;
@@ -3823,231 +3816,6 @@ h3.profile_hd {
 	padding: 25px 6px 25px 18px;
 }
 
-.topic-icon:before {
-	background: url(../images/icons/topic.png) no-repeat;
-	display: inline-block;
-	content: ' ';
-	width: 16px;
-	height: 16px;
-	vertical-align: middle;
-}
-.topic-icon-hot_poll:before {
-	background-position: -5px -5px;
-}
-.topic-icon-hot_poll_locked:before {
-	width: 20px;
-	height: 16px;
-	background-position: -31px -5px;
-}
-.topic-icon-hot_poll_locked_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -61px -5px;
-}
-.topic-icon-hot_poll_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -91px -5px;
-}
-.topic-icon-hot_post:before {
-	background-position: -121px -5px;
-}
-.topic-icon-hot_post_locked:before {
-	width: 20px;
-	height: 16px;
-	background-position: -147px -5px;
-}
-.topic-icon-hot_post_locked_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -5px -31px;
-}
-.topic-icon-hot_post_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -35px -31px;
-}
-.topic-icon-my_hot_poll:before {
-	background-position: -65px -31px;
-}
-.topic-icon-my_hot_poll_locked:before {
-	width: 20px;
-	height: 16px;
-	background-position: -91px -31px;
-}
-.topic-icon-my_hot_poll_locked_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -121px -31px;
-}
-.topic-icon-my_hot_poll_sticky:before {
-	width: 20px;
-	height: 16px;
-	background-position: -151px -31px;
-}
-.topic-icon-my_hot_post:before {
-	background-position: -5px -57px;
-}
-.topic-icon-my_hot_post_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -31px -57px;
-}
-.topic-icon-my_hot_post_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -64px -57px;
-}
-.topic-icon-my_hot_post_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -97px -57px;
-}
-.topic-icon-my_normal_poll:before {
-	background-position: -130px -57px;
-}
-.topic-icon-my_normal_poll_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -156px -57px;
-}
-.topic-icon-my_normal_poll_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -5px -83px;
-}
-.topic-icon-my_normal_poll_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -38px -83px;
-}
-.topic-icon-my_normal_post:before {
-	background-position: -71px -83px;
-}
-.topic-icon-my_normal_post_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -97px -83px;
-}
-.topic-icon-my_normal_post_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -130px -83px;
-}
-.topic-icon-my_normal_post_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -163px -83px;
-}
-.topic-icon-my_veryhot_poll:before {
-	background-position: -5px -109px;
-}
-.topic-icon-my_veryhot_poll_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -31px -109px;
-}
-.topic-icon-my_veryhot_poll_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -64px -109px;
-}
-.topic-icon-my_veryhot_poll_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -97px -109px;
-}
-.topic-icon-my_veryhot_post:before {
-	background-position: -130px -109px;
-}
-.topic-icon-my_veryhot_post_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -156px -109px;
-}
-.topic-icon-my_veryhot_post_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -5px -135px;
-}
-.topic-icon-my_veryhot_post_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -38px -135px;
-}
-.topic-icon-normal_poll:before {
-	background-position: -71px -135px;
-}
-.topic-icon-normal_poll_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -97px -135px;
-}
-.topic-icon-normal_poll_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -130px -135px;
-}
-.topic-icon-normal_poll_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -163px -135px;
-}
-.topic-icon-normal_post:before {
-	background-position: -5px -161px;
-}
-.topic-icon-normal_post_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -31px -161px;
-}
-.topic-icon-normal_post_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -64px -161px;
-}
-.topic-icon-normal_post_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -97px -161px;
-}
-.topic-icon-veryhot_poll:before {
-	background-position: -130px -161px;
-}
-.topic-icon-veryhot_poll_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -156px -161px;
-}
-.topic-icon-veryhot_poll_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -177px -5px;
-}
-.topic-icon-veryhot_poll_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -181px -31px;
-}
-.topic-icon-veryhot_post:before {
-	background-position: -189px -57px;
-}
-.topic-icon-veryhot_post_locked:before {
-	width: 23px;
-	height: 16px;
-	background-position: -196px -83px;
-}
-.topic-icon-veryhot_post_locked_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -189px -109px;
-}
-.topic-icon-veryhot_post_sticky:before {
-	width: 23px;
-	height: 16px;
-	background-position: -196px -135px;
-}
-
 /* Those classes are sharing exact same gradient. */
 /* Background of buttons */
 .button_submit, .button_reset, .button_link, .topbottom,
@@ -4088,4 +3856,20 @@ h3.profile_hd {
 }
 .dropmenu span {
 	font-size: 0.9em;
+}
+
+/* Some new stuff */
+#display_head {
+	clear: both;
+	margin: 0 0 15px 0;
+}
+#display_head p {
+	color: #CCC;
+}
+#display_head span {
+	margin: -2px 0 0 0;
+}
+.display_title {
+	font-weight: normal;
+	font-size: 26px;
 }

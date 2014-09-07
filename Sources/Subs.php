@@ -2853,28 +2853,6 @@ function url_image_size($url)
 }
 
 /**
- * Sets the class of the current topic based on, normal, sticky, locked, etc
- *
- * @param array &$topic_context
- */
-function determineTopicClass(&$topic_context)
-{
-	// Set topic class depending on locked status and number of replies.
-	$topic_context['class'] = 'normal';
-
-	$topic_context['class'] .= $topic_context['is_poll'] ? '_poll' : '_post';
-
-	if ($topic_context['is_locked'])
-		$topic_context['class'] .= '_locked';
-
-	if ($topic_context['is_sticky'])
-		$topic_context['class'] .= '_sticky';
-
-	// This is so old themes will still work.
-	$topic_context['extended_class'] = &$topic_context['class'];
-}
-
-/**
  * Sets up the basic theme context stuff.
  * @param bool $forceload = false
  */
