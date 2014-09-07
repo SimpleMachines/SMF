@@ -806,7 +806,7 @@ function loadBoard()
 	$context['user']['is_mod'] = &$user_info['is_mod'];
 	$context['current_topic'] = $topic;
 	$context['current_board'] = $board;
-	
+
 	// No posting in redirection boards!
 	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
 		$board_info['error'] == 'post_in_redirect';
@@ -1809,8 +1809,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (WIRELESS)
 	{
 		$context['template_layers'] = array(WIRELESS_PROTOCOL);
-		loadTemplate('Wireless');
 		loadLanguage('Wireless+index+Modifications');
+		loadTemplate('Wireless');
 	}
 	// Output is fully XML, so no need for the index template.
 	elseif (isset($_REQUEST['xml']))
