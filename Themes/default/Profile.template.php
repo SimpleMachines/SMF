@@ -1683,26 +1683,6 @@ function template_alert_configuration()
 						<input type="checkbox" id="notify_announcements" name="notify_announcements"', !empty($context['member']['notify_announcements']) ? ' checked' : '', ' class="input_check">
 					</dd>';
 
-	// More notification options.
-	echo '
-					<dt>
-						<label for="auto_notify">', $txt['auto_notify'], '</label>
-					</dt>
-					<dd>
-						<input type="hidden" name="default_options[auto_notify]" value="0">
-						<input type="checkbox" id="auto_notify" name="default_options[auto_notify]" value="1"', !empty($context['member']['options']['auto_notify']) ? ' checked' : '', ' class="input_check">
-					</dd>';
-
-	if (empty($modSettings['disallow_sendBody']))
-		echo '
-					<dt>
-						<label for="notify_send_body">', $txt['notify_send_body'], '</label>
-					</dt>
-					<dd>
-						<input type="hidden" name="notify_send_body" value="0">
-						<input type="checkbox" id="notify_send_body" name="notify_send_body"', !empty($context['member']['notify_send_body']) ? ' checked' : '', ' class="input_check">
-					</dd>';
-
 	if (!empty($modSettings['enable_ajax_alerts']))
 		echo '
 					<dt>

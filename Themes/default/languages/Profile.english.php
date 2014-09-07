@@ -128,6 +128,7 @@ $txt['alert_group_msg'] = 'Posts';
 $txt['alert_opt_pm_notify'] = 'If enabled, e-mail alerts for:';
 $txt['alert_opt_msg_notify_type'] = 'Notify me of:';
 $txt['alert_opt_msg_auto_notify'] = 'Follow topics I reply to.';
+$txt['alert_opt_msg_receive_body'] = 'Receive message body in e-mails';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
 $txt['alert_opt_msg_notify_pref_nothing'] = 'Nothing, just make a note of it';
 $txt['alert_opt_msg_notify_pref_instant'] = 'Straight away';
