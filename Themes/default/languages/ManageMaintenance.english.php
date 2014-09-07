@@ -223,7 +223,7 @@ $txt['move_type_locked'] = 'Locked topics';
 $txt['move_zero_all'] = 'Enter 0 to move all topics';
 
 $txt['maintain_reattribute_posts'] = 'Reattribute User Posts';
-$txt['reattribute_guest_posts'] = 'Attribute guest posts made with';
+$txt['reattribute_guest_posts'] = 'Attribute posts made with';
 $txt['reattribute_email'] = 'Email address of';
 $txt['reattribute_username'] = 'Username of';
 $txt['reattribute_current_member'] = 'Attribute posts to member';
