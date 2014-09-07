@@ -4206,7 +4206,7 @@ function call_helper($string, $return = false)
 		return false;
 
 	// Is this a closure?
-	if (is_object($string) && ($string instanceof Closure))
+	if ($string instanceof Closure)
 		return $string;
 
 	// Stay vitaminized my friends...
