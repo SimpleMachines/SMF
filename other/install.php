@@ -1445,7 +1445,7 @@ function AdminAccount()
 function DeleteInstall()
 {
 	global $txt, $incontext;
-	global $smcFunc, $db_character_set, $context;
+	global $smcFunc, $db_character_set, $context, $cookiename;
 	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
