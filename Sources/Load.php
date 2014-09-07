@@ -806,7 +806,7 @@ function loadBoard()
 	$context['user']['is_mod'] = &$user_info['is_mod'];
 	$context['current_topic'] = $topic;
 	$context['current_board'] = $board;
-	
+
 	// No posting in redirection boards!
 	if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'post' && !empty($board_info['redirect']))
 		$board_info['error'] == 'post_in_redirect';
@@ -2076,6 +2076,8 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 
 	if ($loaded)
 	{
+		loadLanguage('index');
+
 		// For compatibility reasons, if this is the index template without new functions, include compatible stuff.
 		if (substr($template_name, 0, 5) == 'index' && !function_exists('template_button_strip'))
 			loadTemplate('Compat');
