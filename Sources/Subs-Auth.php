@@ -199,7 +199,7 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $context, $txt, $user_settings;
+	global $context, $txt, $user_settings, $user_info;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
