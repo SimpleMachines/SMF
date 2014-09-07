@@ -3072,6 +3072,11 @@ function cache_get_data($key, $ttl = 120)
 			// Otherwise it's SMF data!
 			if (file_exists($cachedir . '/data_' . $key . '.php') && filesize($cachedir . '/data_' . $key . '.php') > 10)
 			{
+				// Work around Zend's opcode caching (PHP 5.5+), they would cache older files for a couple of seconds
+				// causing newer files to take effect a while later.
+				if (function_exists('opcache_invalidate'))
+					opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
+
 				// php will cache file_exists et all, we can't 100% depend on its results so proceed with caution
 				@include($cachedir . '/data_' . $key . '.php');
 				if (!empty($expired) && isset($value))
