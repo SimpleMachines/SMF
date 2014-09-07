@@ -1809,8 +1809,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (WIRELESS)
 	{
 		$context['template_layers'] = array(WIRELESS_PROTOCOL);
-		loadTemplate('Wireless');
 		loadLanguage('Wireless+index+Modifications');
+		loadTemplate('Wireless');
 	}
 	// Output is fully XML, so no need for the index template.
 	elseif (isset($_REQUEST['xml']))
@@ -2076,8 +2076,6 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 
 	if ($loaded)
 	{
-		loadLanguage('index');
-
 		// For compatibility reasons, if this is the index template without new functions, include compatible stuff.
 		if (substr($template_name, 0, 5) == 'index' && !function_exists('template_button_strip'))
 			loadTemplate('Compat');
