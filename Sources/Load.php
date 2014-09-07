@@ -1295,14 +1295,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 			}
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-			// Right... no avatar...
+			// Right... no avatar...use the default one
 			else
-				$memberContext[$user]['avatar'] = array(
-					'name' => '',
-					'image' => '',
-					'href' => '',
-					'url' => '',
-				);
+				$image = $modSettings['avatar_url'] . '/default.png';
 		}
 		if (!empty($image))
 			$memberContext[$user]['avatar'] = array(
