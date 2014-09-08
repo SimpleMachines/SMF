@@ -1783,7 +1783,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* This is a small fix for dropmenu icons */
 .dropmenu span, #profile_menu span {
-	margin: -1px 5px 0 0;
+	margin: -5px 5px 0 0;
 }
 /* Top row */
 .generic_icons.help {
@@ -1805,7 +1805,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.sort_up {
 	background-position: -80px 0;
 }
-.generic_icons.delete, .generic_icons.hide_popup {
+.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune {
 	background-position: -96px 0;
 }
 .generic_icons.sticky {
@@ -1869,7 +1869,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.views {
 	background-position: -64px -48px;
 }
-.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups {
+.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups, .generic_icons.mlist {
 	background-position: -80px -48px;
 }
 .generic_icons.poll {
@@ -1882,7 +1882,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.switch {
 	background-position: -16px -64px;
 }
-.generic_icons.replied {
+.generic_icons.replied, .generic_icons.send {
 	background-position: -32px -64px;
 }
 .generic_icons.im_on {
@@ -1929,7 +1929,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -112px -80px;
 }
 /* 7th row */
-.generic_icons.warning {
+.generic_icons.warning, .generic_icons.moderate {
 	background-position: 0 -98px;
 }
 .generic_icons.themes {
@@ -2010,10 +2010,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.modifications {
 	background-position: -22px -148px;
 }
-.generic_icons.maintain {
+.generic_icons.maintain, .generic_icons.admin {
 	background-position: -39px -148px;
 }
-.generic_icons.administration {
+.generic_icons.administration, .generic_icons.home {
 	background-position: -57px -147px;
 }
 .generic_icons.frenemy {
@@ -2038,8 +2038,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.members_watched {
 	background-position: -55px -166px;
 }
-.generic_icons.corefeatures {
-	background-position: -74px -168px;
+.generic_icons.corefeatures, .generic_icons.settings, .generic_icons.manrules, .generic_icons.manlabels {
+	background-position: -75px -166px;
 }
 .generic_icons.calendar {
 	background-position: -93px -166px;
@@ -2054,7 +2054,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.features {
 	background-position: -22px -184px;
 }
-.generic_icons.exit {
+.generic_icons.exit, .generic_icons.logout {
 	background-position: -39px -184px;
 }
 .generic_icons.drafts {
@@ -2063,8 +2063,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.current_theme {
 	background-position: -73px -183px;
 }
-.generic_icons.change_menu2 {
+.generic_icons.change_menu2, .generic_icons.sent {
 	background-position: -94px -185px;
+	margin: 5px 5px 0px 0px;
 }
 .generic_icons.change_menu {
 	background-position: -110px -185px;
