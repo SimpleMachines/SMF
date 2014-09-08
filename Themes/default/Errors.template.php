@@ -207,7 +207,7 @@ function template_show_file()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $context['file_data']['file'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta charset="', $context['character_set'], '">
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>

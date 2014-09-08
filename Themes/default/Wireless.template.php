@@ -243,7 +243,7 @@ function template_imode_above()
 	echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD Compact HTML 1.0 Draft//EN">
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />';
+		<meta charset="', $context['character_set'], '" />';
 
 	// Present a canonical url for search engines to prevent duplicate content in their indices.
 	if ($user_info['is_guest'] && !empty($context['canonical_url']))
