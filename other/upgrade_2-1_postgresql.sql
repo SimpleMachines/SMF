@@ -166,7 +166,16 @@ if (!is_writable($custom_av_dir))
 if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
 {
 	// Borrow custom_avatars index.php file.
-	@rename($GLOBALS['boarddir'] .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+	if (!file_exists($custom_av_dir . '/index.php'))
+		@rename($GLOBALS['boarddir'] .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+	else
+		@unlink($GLOBALS['boarddir'] . '/custom_avatar/index.php');
+
+	// Borrow blank.png as well
+	if (!file_exists($custom_av_dir . '/blank.png'))
+		@rename($GLOBALS['boarddir'] . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
+	else
+		@unlink($GLOBALS['boarddir'] . '/custom_avatar/blank.png')
 
 	// Attempt to delete the directory.
 	@rmdir($GLOBALS['boarddir'] .'/custom_avatar');
