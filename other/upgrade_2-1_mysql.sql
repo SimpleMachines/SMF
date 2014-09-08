@@ -156,7 +156,19 @@ $custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custo
 
 // This little fellow has to cooperate...
 if (!is_writable($custom_av_dir))
-	@chmod($custom_av_dir, 0777);
+{
+	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
+	$chmod_values = array(0755, 0775, 0777);
+
+	foreach($chmod_values as $val)
+	{
+		// If it's writable, break out of the loop
+		if (is_writable($custom_av_dir))
+			break;
+		else
+			@chmod($custom_av_dir, $val);
+	}
+}
 
 // If we already are using a custom dir, delete the predefined one.
 if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
