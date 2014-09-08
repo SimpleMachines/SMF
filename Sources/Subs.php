@@ -1432,6 +1432,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'quote',
 				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote'] . '</div></div><blockquote>',
 				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
+				'trim' => 'both',
 				'block_level' => true,
 			),
 			array(
@@ -1441,6 +1442,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				),
 				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': {author}</div></div><blockquote>',
 				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
+				'trim' => 'both',
 				'block_level' => true,
 			),
 			array(
@@ -1448,6 +1450,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'parsed_equals',
 				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': $1</div></div><blockquote>',
 				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
+				'trim' => 'both',
 				'quoted' => 'optional',
 				// Don't allow everything to be embedded with the author name.
 				'parsed_tags_allowed' => array('url', 'iurl', 'ftp'),
@@ -1462,6 +1465,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				),
 				'before' => '<div class="quoteheader"><div class="topslice_quote"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div></div><blockquote>',
 				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
+				'trim' => 'both',
 				'block_level' => true,
 			),
 			array(
@@ -1471,6 +1475,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				),
 				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': {author}</div></div><blockquote>',
 				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
+				'trim' => 'both',
 				'block_level' => true,
 			),
 			array(
