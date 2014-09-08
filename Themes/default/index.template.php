@@ -79,7 +79,7 @@ function template_html_above()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">';
+	<meta charset="', $context['character_set'], '">';
 
 	// You don't need to manually load index.css, this will be set up for you. You can, of course, add
 	// any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
