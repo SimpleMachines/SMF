@@ -647,8 +647,11 @@ SET id_theme = 0;
 ---{
 $request = $smcFunc['db_query']('', '
 	SELECT icons
-	FROM {db_prefix}membergroups',
-	array()
+	FROM {db_prefix}membergroups
+	WHERE icons != {string:blank}',
+	array(
+		'blank' => '',
+	)
 );
 $toMove = array();
 $toChange = array();
@@ -664,6 +667,12 @@ while ($row = $smcFunc['db_fetch_assoc']($request))
 		$toChange[] = array(
 			'old' => $row['icons'],
 			'new' => str_replace('starmod.gif', 'iconmod.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'stargmod.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('stargmod.gif', 'icongmod.png', $row['icons']),
 		);
 
 	elseif (strpos($row['icons'], 'staradmin.gif') !== false)
