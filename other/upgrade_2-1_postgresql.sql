@@ -233,6 +233,10 @@ while (!$is_done)
 		{
 			$oldFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'];
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
+
+			// Make sure it exists...
+			if (!file_exists($oldFile))
+				$oldFile = false;
 		}
 
 		if (!$oldFile)
@@ -742,7 +746,10 @@ foreach ($toMove as $move)
 	// Get the actual image.
 	$image = explode('#', $move);
 	$image = $image[1];
-	@rename($modSettings['theme_dir'] . '/images/'. $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
+
+	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))  
+		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
 ---}
 ---#
@@ -1702,7 +1709,7 @@ DROP openid_uri;
 ---#
 
 ---# Dropping the openid_assoc table
-DROP TABLE {$db_prefix}openid_assoc;
+DROP TABLE IF EXISTS {$db_prefix}openid_assoc;
 ---#
 
 ---# Removing related settings
