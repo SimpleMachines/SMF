@@ -916,8 +916,8 @@ function template_spellcheck()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<title>', $txt['spell_check'], '</title>
 		<meta charset="', $context['character_set'], '">
+		<title>', $txt['spell_check'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style type="text/css">
 			body, td

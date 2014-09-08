@@ -1248,8 +1248,8 @@ function template_view_operations()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<title>', $txt['operation_title'], '</title>
 		<meta charset="', $context['character_set'], '">
+		<title>', $txt['operation_title'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
