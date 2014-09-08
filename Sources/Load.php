@@ -2684,7 +2684,7 @@ function template_include($filename, $once = false)
 	<head>';
 		if (isset($context['character_set']))
 			echo '
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">';
+		<meta charset="', $context['character_set'], '">';
 
 		if (!empty($maintenance) && !allowedTo('admin_forum'))
 			echo '

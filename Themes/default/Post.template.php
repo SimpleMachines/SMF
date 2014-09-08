@@ -916,8 +916,8 @@ function template_spellcheck()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
+		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style type="text/css">
 			body, td
@@ -989,7 +989,7 @@ function template_quotefast()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
