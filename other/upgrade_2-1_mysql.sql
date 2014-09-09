@@ -183,7 +183,7 @@ if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
 	if (!file_exists($custom_av_dir . '/blank.png'))
 		@rename($GLOBALS['boarddir'] . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
 	else
-		@unlink($GLOBALS['boarddir'] . '/custom_avatar/blank.png')
+		@unlink($GLOBALS['boarddir'] . '/custom_avatar/blank.png');
 
 	// Attempt to delete the directory.
 	@rmdir($GLOBALS['boarddir'] .'/custom_avatar');
