@@ -150,7 +150,20 @@ function BoardNotify()
 	}
 
 	// Back to the board!
-	redirectexit('board=' . $board . '.' . $_REQUEST['start']);
+	if (isset($_GET['xml']))
+	{
+		$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array(
+				array(
+					'value' => 0,
+				),
+			),
+		);
+		$context['sub_template'] = 'generic_xml';
+	}
+	else
+		redirectexit('board=' . $board . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -163,7 +176,7 @@ function BoardNotify()
  */
 function TopicUnwatch()
 {
-	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir;
+	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir, $context;
 
 	// Let's do something only if the function is enabled
 	if (!$user_info['is_guest'])
@@ -242,7 +255,20 @@ function TopicUnwatch()
 	}
 
 	// Back to the topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	if (isset($_GET['xml']))
+	{
+		$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array(
+				array(
+					'value' => 0,
+				),
+			),
+		);
+		$context['sub_template'] = 'generic_xml';
+	}
+	else
+		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
 ?>
