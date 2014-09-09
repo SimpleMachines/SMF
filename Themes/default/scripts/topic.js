@@ -172,7 +172,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
 
-	// redo tips if they are on since we just pulled the rug out on this one 
+	// redo tips if they are on since we just pulled the rug out on this one
 	if ($.isFunction($.fn.SMFtooltip));
 		$('.preview').SMFtooltip().smf_tooltip_off;
 
@@ -210,7 +210,7 @@ QuickModifyTopic.prototype.modify_topic_keypress = function (oEvent)
 	}
 }
 
-// A click event to signal the finish of the edit 
+// A click event to signal the finish of the edit
 QuickModifyTopic.prototype.modify_topic_click = function (oEvent)
 {
 	if (this.bInEditMode && !this.bMouseOnDiv)
@@ -790,6 +790,18 @@ $(function() {
 			{
 				ajax_indicator(false);
 			}
+		});
+
+		return false;
+	});
+
+	$('#button_strip_notify').next().find('a').click(function (e) {
+		var $obj = $(this);
+		e.preventDefault();
+		ajax_indicator(true);
+		$.get($obj.attr('href') + ';xml', function () {
+			ajax_indicator(false);
+			$('#button_strip_notify').text($obj.find('strong').text());
 		});
 
 		return false;
