@@ -32,12 +32,12 @@ function template_reported_posts()
 		</div>';
 
 	// Make the buttons.
-	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
-	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'class="centericon"');
-	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
-	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
-	$ban_button = create_button('close.png', 'mc_reportedp_ban', 'mc_reportedp_ban', 'class="centericon"');
-	$delete_button = create_button('delete.png', 'mc_reportedp_delete', 'mc_reportedp_delete', 'class="centericon"');
+	$close_button = create_button('close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+	$details_button = create_button('details', 'mc_reportedp_details', 'mc_reportedp_details');
+	$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+	$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
+	$ban_button = create_button('close', 'mc_reportedp_ban', 'mc_reportedp_ban');
+	$delete_button = create_button('delete', 'mc_reportedp_delete', 'mc_reportedp_delete');
 
 	foreach ($context['reports'] as $report)
 	{
@@ -395,11 +395,11 @@ function template_reported_members()
 		</div>';
 
 	// Make the buttons.
-	$close_button = create_button('close.png', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
-	$details_button = create_button('details.png', 'mc_reportedp_details', 'mc_reportedp_details', 'class="centericon"');
-	$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
-	$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
-	$ban_button = create_button('close.png', 'mc_reportedp_ban', 'mc_reportedp_ban', 'class="centericon"');
+	$close_button = create_button('close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['view_closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+	$details_button = create_button('details', 'mc_reportedp_details', 'mc_reportedp_details');
+	$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+	$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
+	$ban_button = create_button('close', 'mc_reportedp_ban', 'mc_reportedp_ban');
 
 	foreach ($context['reports'] as $report)
 	{
