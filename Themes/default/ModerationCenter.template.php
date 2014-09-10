@@ -366,8 +366,8 @@ function template_unapproved_posts()
 		</div>';
 
 	// Make up some buttons
-	$approve_button = create_button('approve.png', 'approve', 'approve', 'class="centericon"');
-	$remove_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
+	$approve_button = create_button('approve', 'approve', 'approve');
+	$remove_button = create_button('delete', 'remove_message', 'remove');
 
 	// No posts?
 	if (empty($context['unapproved_items']))

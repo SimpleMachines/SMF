@@ -298,10 +298,6 @@ function template_folder()
 				</li>';
 				}
 
-				if ($message['can_report'])
-					echo '
-				<li class="report_link"><a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '">' . $txt['pm_report_to_admin'] . '</a></li>';
-
 		// Show the IP to this user for this post - because you can moderate?
 		if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
 			echo '
@@ -401,6 +397,39 @@ function template_folder()
 
 			echo '
 				</div>
+			</div>
+			<div class="post">
+				<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
+
+			// Are there any custom profile fields for above the signature?
+			if (!empty($message['member']['custom_fields']))
+			{
+				$shown = false;
+				foreach ($message['member']['custom_fields'] as $custom)
+				{
+					if ($custom['placement'] != 2 || empty($custom['value']))
+						continue;
+					if (!$shown)
+					{
+						$shown = true;
+						echo '
+				<div class="custom_fields_above_signature">
+					<ul class="reset nolist">';
+					}
+					echo '
+						<li>', $custom['value'], '</li>';
+				}
+				if ($shown)
+					echo '
+					</ul>
+				</div>';
+			}
+
+			if ($message['can_report'])
+			echo '
+				<a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '" class="floatright">' . $txt['pm_report_to_admin'] . '</a>';
+
+			echo '
 				<ul class="reset smalltext quickbuttons">';
 
 			// Show reply buttons if you have the permission to send PMs.
@@ -431,34 +460,7 @@ function template_folder()
 					<li><input type="checkbox" name="pms[]" id="deletedisplay', $message['id'], '" value="', $message['id'], '" onclick="document.getElementById(\'deletelisting', $message['id'], '\').checked = this.checked;" class="input_check"></li>';
 
 			echo '
-				</ul>
-			</div>
-			<div class="post">
-				<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
-
-			// Are there any custom profile fields for above the signature?
-			if (!empty($message['member']['custom_fields']))
-			{
-				$shown = false;
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 2 || empty($custom['value']))
-						continue;
-					if (!$shown)
-					{
-						$shown = true;
-						echo '
-				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
-					}
-					echo '
-						<li>', $custom['value'], '</li>';
-				}
-				if ($shown)
-					echo '
-					</ul>
-				</div>';
-			}
+				</ul>';
 
 			// Show the member's signature?
 			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
