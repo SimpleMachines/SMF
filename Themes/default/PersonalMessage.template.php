@@ -412,7 +412,7 @@ function template_folder()
 					}
 				}
 			}
-print_r($message['member']);
+
 			// Done with the information about the poster... on to the post itself.
 			echo '
 			</ul>
