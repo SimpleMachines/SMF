@@ -877,7 +877,7 @@ function template_show_settings()
 
 					// Minimum allowed value for this setting. SMF forces a default of 0 if not specified in the settings
 					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : '';
-					
+
 					// Maximum allowed value for this setting.
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 

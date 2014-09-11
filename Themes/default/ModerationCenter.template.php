@@ -478,7 +478,7 @@ function template_moderation_settings()
 
 	echo '
 	<div id="modcenter">';
-	
+
 	if (!empty($context['can_moderate_approvals']))
 	{
 		echo '
@@ -503,7 +503,7 @@ function template_moderation_settings()
 		<div class="windowbg">
 			<div class="centertext">', $txt['mc_no_settings'], '</div>
 		</div>';
-		
+
 	echo '
 	</div>';
 }

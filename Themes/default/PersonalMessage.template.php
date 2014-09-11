@@ -220,19 +220,19 @@ function template_folder()
 		<div class="poster">
 					<h3>
 						<a id="msg', $message['id'], '"></a>';
-						
+
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
 			echo '
 				<span class="' . ($message['member']['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $message['member']['online']['text'] . '"></span>';
-	
+
 		// Show a link to the member's profile (but only if the sender isn't a guest).
 				echo '
 					', $message['member']['link'], '';
 
 		echo '
 					</h3>';
-					
+
 		echo '
 								<ul>';
 
@@ -1917,4 +1917,5 @@ function template_showPMDrafts()
 			<span>', $context['page_index'], '</span>
 		</div>';
 }
+
 ?>

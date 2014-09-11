@@ -425,7 +425,7 @@ function template_set_options()
 						<input type="text"';
 			}
 
-			
+
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', ' class="input_text">';
 		}
 

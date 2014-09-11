@@ -336,7 +336,7 @@ function template_reported_members_block()
 				</ul>
 			</div>
 		</div>
-		
+
 	<script><!-- // --><![CDATA[
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
