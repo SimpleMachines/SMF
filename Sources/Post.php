@@ -1462,7 +1462,7 @@ function Post2()
 
 				// Did someone (un)lock this while you were posting?
 				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked'; 
+					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1473,7 +1473,7 @@ function Post2()
 		{
 			// Did someone (un)sticky this while you were posting?
 			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';			
+				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';
 		}
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))

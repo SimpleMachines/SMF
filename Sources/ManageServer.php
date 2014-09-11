@@ -1125,7 +1125,7 @@ function saveDBSettings(&$config_vars)
 			$setArray[$var[1]] = (int) $_POST[$var[1]];
 
 			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
-			$min = isset($var['min']) ? $var['min'] : 0;	
+			$min = isset($var['min']) ? $var['min'] : 0;
 			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
 
 			// Do we have a max value for this as well?
@@ -1138,7 +1138,7 @@ function saveDBSettings(&$config_vars)
 			$setArray[$var[1]] = (float) $_POST[$var[1]];
 
 			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
-			$min = isset($var['min']) ? $var['min'] : 0;	
+			$min = isset($var['min']) ? $var['min'] : 0;
 			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
 
 			// Do we have a max value for this as well?

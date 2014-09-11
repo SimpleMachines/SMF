@@ -683,4 +683,5 @@ function getCustFieldsMList()
 
 	return $cpf;
 }
+
 ?>

@@ -359,3 +359,4 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		}
 	}
 }
+?>

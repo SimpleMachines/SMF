@@ -421,3 +421,5 @@ class browser_detector
 		);
 	}
 }
+
+?>

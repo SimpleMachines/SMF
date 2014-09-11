@@ -785,4 +785,5 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false
 
 	return strtr($string, $replacements);
 }
+
 ?>

@@ -141,3 +141,4 @@ function showAvatar()
 
 	die();
 }
+?>

@@ -810,4 +810,5 @@ function removeMessages($messages, $messageDetails, $current_view = 'replies')
 		}
 	}
 }
+
 ?>

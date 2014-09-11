@@ -773,7 +773,7 @@ function ReportedMembers()
 
 			// Log the closing of all the reports
 			logActions($logs);
-			
+
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_reported
 				SET closed = {int:is_closed}

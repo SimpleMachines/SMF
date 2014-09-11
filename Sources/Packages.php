@@ -1476,7 +1476,7 @@ function PackageBrowse()
 	$context['available_all'] = array();
 
 	$get_versions = $smcFunc['db_query']('', '
-		SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}', 
+		SELECT data FROM {db_prefix}admin_info_files WHERE filename={string:versionsfile} AND path={string:smf}',
 		array(
 			'versionsfile' => 'latest-versions.txt',
 			'smf' => '/smf/',
@@ -1493,7 +1493,7 @@ function PackageBrowse()
 	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
 
 	// Version we're currently emulating, if any
-	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']); 
+	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
 }
 
 /**

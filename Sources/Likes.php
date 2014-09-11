@@ -676,4 +676,5 @@ function BookOfUnknown()
 
 	obExit(false);
 }
+
 ?>
