@@ -1407,6 +1407,7 @@ ul.quickbuttons li a.reply_button {
 }
 ul.quickbuttons li a.reply_all_button {
 	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
+	padding: 0px 4px 0px 22px;
 }
 ul.quickbuttons li a.notify_button {
 	background: url(../images/quickbuttons.png) no-repeat 1px -210px;
@@ -1775,7 +1776,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat -1px 0;
 	vertical-align: middle;
 }
 .generic_icons.gender_None {
@@ -1791,7 +1792,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0 5px 3px 0;
 }
 .generic_icons.gender_Female {
-	background-position: -16px 0;
+	background-position: -17px 0;
 }
 .generic_icons.last_post {
 	background-position: -32px 0;
@@ -1880,7 +1881,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: 0 -64px;
 }
 .generic_icons.switch {
-	background-position: -16px -64px;
+	background-position: -17px -64px;
 }
 .generic_icons.replied, .generic_icons.send {
 	background-position: -32px -64px;
@@ -1986,10 +1987,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.personal_message {
 	background-position: -31px -130px;
 }
-.generic_icons.permissions {
+.generic_icons.permissions, .generic_icons.signup {
 	background-position: -46px -130px;
 	width: 12px;
-	margin: 1px 8px 0 0;
+	margin: -3px 8px 0 0;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
@@ -2049,13 +2050,13 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* 12th row */
 .generic_icons.search, .generic_icons.engines {
-	background-position: 0 -183px;
+	background-position: 0 -182px;
 }
 .generic_icons.features {
 	background-position: -22px -184px;
 }
 .generic_icons.exit, .generic_icons.logout {
-	background-position: -39px -184px;
+	background-position: -39px -183px;
 }
 .generic_icons.drafts {
 	background-position: -55px -182px;
