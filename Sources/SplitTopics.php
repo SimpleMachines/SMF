@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  *
  * Original module by Mach8 - We'll never forget you.
  */
