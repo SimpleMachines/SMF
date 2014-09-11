@@ -1407,6 +1407,7 @@ ul.quickbuttons li a.reply_button {
 }
 ul.quickbuttons li a.reply_all_button {
 	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
+	padding: 0px 4px 0px 22px;
 }
 ul.quickbuttons li a.notify_button {
 	background: url(../images/quickbuttons.png) no-repeat 1px -210px;
@@ -1775,7 +1776,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat 0 0;
+	background: url(../images/generic_icons.png) no-repeat -1px 0;
 	vertical-align: middle;
 }
 .generic_icons.gender_None {
@@ -1787,17 +1788,17 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* Top row */
 .generic_icons.help {
-	background-position: 0 0;
+	background-position: -1px 0;
 	margin: 0 5px 3px 0;
 }
 .generic_icons.gender_Female {
-	background-position: -16px 0;
+	background-position: -17px 0;
 }
 .generic_icons.last_post {
 	background-position: -32px 0;
 }
 .generic_icons.mail {
-	background-position: -48px 0;
+	background-position: -49px 0;
 }
 .generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
 	background-position: -64px 0;
@@ -1864,7 +1865,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -32px -48px;
 }
 .generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
-	background-position: -48px -48px;
+	background-position: -49px -48px;
 }
 .generic_icons.views {
 	background-position: -64px -48px;
@@ -1880,7 +1881,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: 0 -64px;
 }
 .generic_icons.switch {
-	background-position: -16px -64px;
+	background-position: -17px -64px;
 }
 .generic_icons.replied, .generic_icons.send {
 	background-position: -32px -64px;
@@ -1930,7 +1931,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* 7th row */
 .generic_icons.warning, .generic_icons.moderate {
-	background-position: 0 -98px;
+	background-position: 0 -97px;
 }
 .generic_icons.themes {
 	background-position: -19px -97px;
@@ -1957,7 +1958,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.security {
 	background-position: 0 -114px;
 }
-.generic_icons.ban {
+.generic_icons.ban, .generic_icons.ignore {
 	background-position: -18px -113px;
 }
 .generic_icons.boards  {
@@ -1986,10 +1987,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.personal_message {
 	background-position: -31px -130px;
 }
-.generic_icons.permissions {
+.generic_icons.permissions, .generic_icons.signup {
 	background-position: -46px -130px;
 	width: 12px;
-	margin: 1px 8px 0 0;
+	margin: -3px 8px 0 0;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
@@ -2011,7 +2012,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -22px -148px;
 }
 .generic_icons.maintain, .generic_icons.admin {
-	background-position: -39px -148px;
+	background-position: -39px -147px;
 }
 .generic_icons.administration, .generic_icons.home {
 	background-position: -57px -147px;
@@ -2036,7 +2037,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -39px -166px;
 }
 .generic_icons.members_watched {
-	background-position: -55px -166px;
+	background-position: -55px -165px;
 }
 .generic_icons.corefeatures, .generic_icons.settings, .generic_icons.manrules, .generic_icons.manlabels {
 	background-position: -75px -166px;
@@ -2049,13 +2050,13 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* 12th row */
 .generic_icons.search, .generic_icons.engines {
-	background-position: 0 -183px;
+	background-position: 0 -182px;
 }
 .generic_icons.features {
 	background-position: -22px -184px;
 }
 .generic_icons.exit, .generic_icons.logout {
-	background-position: -39px -184px;
+	background-position: -39px -183px;
 }
 .generic_icons.drafts {
 	background-position: -55px -182px;
@@ -2069,6 +2070,16 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .generic_icons.change_menu {
 	background-position: -110px -185px;
+}
+/* 13th row */
+.generic_icons.approve {
+	background-position: -1px -200px;
+}
+.generic_icons.close {
+	background-position: -19px -200px;
+}
+.generic_icons.details {
+	background-position: -37px -200px;
 }
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
@@ -2121,10 +2132,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 ------------------------------------------------- */
 
 .noticebox:before {
-	background-position: -16px -80px;
+	background-position: -16px -81px;
 }
 .infobox:before {
-	background-position: -32px -80px;
+	background-position: -32px -81px;
 }
 .noticebox {
 	color: #666;
@@ -3865,7 +3876,7 @@ h3.profile_hd {
 	margin: 0 0 15px 0;
 }
 #display_head p {
-	color: #CCC;
+	color: #959595;
 }
 #display_head span {
 	margin: -2px 0 0 0;
@@ -3873,4 +3884,11 @@ h3.profile_hd {
 .display_title {
 	font-weight: normal;
 	font-size: 26px;
+}
+
+#reported_posts .generic_icons {
+	margin: -3px 3px 0 0;
+}
+#modcenter .generic_icons {
+	margin: -3px -3px 0 0;
 }
