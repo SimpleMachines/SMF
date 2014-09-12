@@ -3323,11 +3323,7 @@ div#pollmoderation {
 }
 
 /* The visible stuff below the avatar. */
-.poster>ul>li.icons, .poster li.membergroup, .poster li.title, .poster li.poster_online, .poster li.warning,
-.poster>ul>li.icons:hover, .poster li.membergroup:hover, .poster li.title:hover, .poster li.poster_online:hover, .poster li.warning:hover {
-	font-size: 0.9em;
-	line-height: 1.4em;
-	padding: 0;
+.user_info > li {
 	margin: 3px 0 0 0;
 }
 .poster li.membergroup {
