@@ -1072,7 +1072,7 @@ function saveDBSettings(&$config_vars)
 	global $sourcedir, $smcFunc;
 	static $board_list = null;
 
-	// validateToken('admin-dbsc');
+	validateToken('admin-dbsc');
 
 	$inlinePermissions = array();
 	foreach ($config_vars as $var)
