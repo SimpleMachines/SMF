@@ -3,15 +3,15 @@
 /**
  * This taks handles notifying someone that a new event has been
  * added to the calendar - but only when no topic has been created.
- * 
+ *
  * Simple Machines Forum (SMF)
- * 
+ *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
- * 
- * @version SMF 2.1 Alpha 1
+ *
+ * @version SMF 2.1 Beta 1
  */
 
 class EventNew_Notify_Background extends SMF_BackgroundTask
@@ -91,4 +91,5 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		}
 	}
 }
+
 ?>

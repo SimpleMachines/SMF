@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 /**
@@ -877,7 +877,7 @@ function template_show_settings()
 
 					// Minimum allowed value for this setting. SMF forces a default of 0 if not specified in the settings
 					$min = isset($config_var['min']) ? ' min="' . $config_var['min'] . '"' : '';
-					
+
 					// Maximum allowed value for this setting.
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 

@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -750,7 +750,7 @@ function Display()
 		// 1. You're allowed to see them (see above), and
 		// 2. $_REQUEST['viewresults'] or $_REQUEST['viewResults'] is set
 		$context['poll']['show_results'] = $context['allow_results_view'] && (isset($_REQUEST['viewresults']) || isset($_REQUEST['viewResults']));
-		
+
 		// Show the button if:
 		// 1. You can vote in the poll (see above), and
 		// 2. Results are visible to everyone (hidden = 0), and
@@ -1960,4 +1960,5 @@ function QuickInTopicModeration()
 
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
 }
+
 ?>

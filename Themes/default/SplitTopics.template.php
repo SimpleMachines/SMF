@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 function template_ask()
@@ -269,10 +269,10 @@ function template_merge()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
-			<form action="', $scripturl , '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">				
+			<form action="', $scripturl , '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="title_bar">
 					<h4 class="titlebg">', $txt['target_below'];
-					
+
 		if (isset($context['merge_categories']))
 		{
 			echo ' (', $txt['board'], ':&nbsp;
@@ -297,9 +297,9 @@ function template_merge()
 							</select>
 							<input type="submit" value="', $txt['go'], '" class="">
 						</form>)';
-						
+
 		}
-		
+
 		echo '</h4>
 				</div>
 				<div class="pagesection">
@@ -307,16 +307,16 @@ function template_merge()
 				</div>
 				<div class="windowbg2">
 					<ul class="reset merge_topics">';
-	
+
 		$merge_button = create_button('merge.png', 'merge', '');
-	
+
 		foreach ($context['topics'] as $topic)
 			echo '
 						<li>
 							<a href="', $scripturl, '?action=mergetopics;sa=options;board=', $context['current_board'], '.0;from=', $context['origin_topic'], ';to=', $topic['id'], ';', $context['session_var'], '=', $context['session_id'], '">', $merge_button, '</a>&nbsp;
 							<a href="', $scripturl, '?topic=', $topic['id'], '.0" target="_blank" class="new_win">', $topic['subject'], '</a> ', $txt['started_by'], ' ', $topic['poster']['link'], '
 						</li>';
-	
+
 		echo '
 					</ul>
 					<input type="submit" value="', $txt['merge'], '" class="button_submit">
@@ -324,7 +324,7 @@ function template_merge()
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div><br>
-				
+
 				<div class="title_bar">
 					<h4 class="titlebg">', $txt['target_id'], '</h4>
 				</div>
@@ -337,7 +337,7 @@ function template_merge()
 								<input type="hidden" name="topics[]" value="', $context['origin_topic'], '">
 								<input type="text" name="topics[]" class="input_text">
 								<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-								
+
 						</dd>
 					</dl>
 					<input type="submit" value="', $txt['merge'], '" class="button_submit">

@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -60,7 +60,7 @@ function updateReport($action, $value, $report_id)
 
 	// From now on, lets work with arrays, makes life easier.
 	$report_id = (array) $report_id;
-	
+
 	// Set up the data for the log...
 	$extra = array();
 
@@ -75,7 +75,7 @@ function updateReport($action, $value, $report_id)
 				'id_report' => $report_id,
 			)
 		);
-	
+
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$extra[$row['id_report']] = array(
 				'report' => $row['id_report'],
@@ -83,7 +83,7 @@ function updateReport($action, $value, $report_id)
 				'message' => $row['id_msg'],
 				'topic' => $row['id_topic'],
 			);
-	
+
 		$smcFunc['db_free_result']($request);
 	}
 	else
@@ -220,7 +220,7 @@ function getReports($closed = 0)
 			array(
 				'view_closed' => (int) $closed,
 			)
-		);	
+		);
 	}
 
 	$report_ids = array();
@@ -352,7 +352,7 @@ function recountOpenReports($type)
 	if ($type == 'members')
 		$bq = '';
 	else
-		$bq = '	AND ' . $user_info['mod_cache']['bq'];					
+		$bq = '	AND ' . $user_info['mod_cache']['bq'];
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -409,7 +409,7 @@ function getReportDetails($report_id)
 			array(
 				'id_report' => $report_id,
 			)
-		);		
+		);
 	}
 	else
 	{
@@ -670,5 +670,7 @@ function deleteModComment($comment_id)
 			'comment_id' => $comment_id,
 		)
 	);
+
 }
+
 ?>

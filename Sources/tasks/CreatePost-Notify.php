@@ -9,7 +9,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 class CreatePost_Notify_Background extends SMF_BackgroundTask
@@ -359,3 +359,4 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		}
 	}
 }
+?>

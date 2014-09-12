@@ -10,7 +10,7 @@
  * @copyright 2012 Simple Machines
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -835,4 +835,5 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false
 
 	return strtr($string, $replacements);
 }
+
 ?>

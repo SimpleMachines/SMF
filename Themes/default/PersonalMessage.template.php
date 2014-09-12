@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 
@@ -218,32 +218,32 @@ function template_folder()
 			echo '
 	<div class="', $window_class, '">
 		<div class="poster">
-					<h4>
-						<a id="msg', $message['id'], '"></a>';
+			<h4>
+				<a id="msg', $message['id'], '"></a>';
 
-	// Are there any custom fields above the member name?
-	if (!empty($message['member']['custom_fields']))
-	{
-		$shown = false;
-		foreach ($message['member']['custom_fields'] as $custom)
+		// Are there any custom fields above the member name?
+		if (!empty($message['member']['custom_fields']))
 		{
-			if ($custom['placement'] != 5 || empty($custom['value']))
-				continue;
-			elseif (empty($shown))
+			$shown = false;
+			foreach ($message['member']['custom_fields'] as $custom)
 			{
-				$shown = true;
-				echo '
+				if ($custom['placement'] != 5 || empty($custom['value']))
+					continue;
+				elseif (empty($shown))
+				{
+					$shown = true;
+					echo '
 							<div class="custom_fields_above_member">
 								<ul class="reset nolist">';
-			}
-			echo '
+				}
+				echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-		if ($shown)
-			echo '
+			}
+			if ($shown)
+				echo '
 								</ul>
 							</div>';
-	}
+		}
 
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
@@ -255,10 +255,10 @@ function template_folder()
 					', $message['member']['link'], '';
 
 		echo '
-					</h4>';
+			</h4>';
 
 		echo '
-								<ul class="user_info">';
+			<ul class="user_info">';
 
 			// Show the user's avatar.
 			if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
@@ -1990,4 +1990,5 @@ function template_showPMDrafts()
 			<span>', $context['page_index'], '</span>
 		</div>';
 }
+
 ?>

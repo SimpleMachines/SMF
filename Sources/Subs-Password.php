@@ -277,3 +277,5 @@ namespace PasswordCompat\binary {
 	}
 
 }
+
+?>

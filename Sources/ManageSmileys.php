@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -210,7 +210,7 @@ function EditSmileySets()
 				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
 					unset($set_paths[$id], $set_names[$id]);
 			}
-			
+
 			// Shortcut... array_merge() on a single array resets the numeric keys
 			$set_paths = array_merge($set_paths);
 			$set_names = array_merge($set_names);

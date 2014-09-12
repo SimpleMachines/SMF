@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 function template_reported_posts()
@@ -336,7 +336,7 @@ function template_reported_members_block()
 				</ul>
 			</div>
 		</div>
-		
+
 	<script><!-- // --><![CDATA[
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
