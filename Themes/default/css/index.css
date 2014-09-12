@@ -290,12 +290,18 @@ h3.largetext {
 
 /* BBC */
 /* A quote, perhaps from another post. */
+.bbc_standard_quote:before, .bbc_alternate_quote:before {
+	color: #aaa;
+	font-size: 3em;
+	content: '\275D ';
+	line-height: 0.1em;
+	margin-right: 0.25em;
+	vertical-align: -0.4em;
+}
 .bbc_standard_quote, .bbc_alternate_quote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
 	font-size: 0.9em;
-	text-indent: 12px;
-	background: url(../images/theme/quote.png) 2px 3px no-repeat;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;

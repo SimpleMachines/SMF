@@ -43,6 +43,11 @@ div.icon, div.info, div.stats, div.lastpost {
 .bbc_list {
 	text-align: right;
 }
+/* A quote, perhaps from another post. */
+.bbc_standard_quote:before, .bbc_alternate_quote:before {
+	content: '\275E';
+	margin-left: 0.25em;
+}
 
 /* GenericList */
 .additional_row {
