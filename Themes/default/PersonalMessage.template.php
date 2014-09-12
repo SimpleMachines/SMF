@@ -218,7 +218,7 @@ function template_folder()
 			echo '
 	<div class="', $window_class, '">
 		<div class="poster">
-					<h3>
+					<h4>
 						<a id="msg', $message['id'], '"></a>';
 
 	// Are there any custom fields above the member name?
@@ -255,10 +255,10 @@ function template_folder()
 					', $message['member']['link'], '';
 
 		echo '
-					</h3>';
+					</h4>';
 
 		echo '
-								<ul>';
+								<ul class="user_info">';
 
 			// Show the user's avatar.
 			if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
