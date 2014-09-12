@@ -290,12 +290,22 @@ h3.largetext {
 
 /* BBC */
 /* A quote, perhaps from another post. */
+.bbc_standard_quote:before, .bbc_alternate_quote:before {
+	color: #aaa;
+	font-size: 3em;
+	font-family: Arial, sans-serif;
+	content: '\275D';
+	line-height: 0.1em;
+	margin-right: 0.25em;
+	vertical-align: middle;
+}
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
+	vertical-align: -0.4em;
+}
 .bbc_standard_quote, .bbc_alternate_quote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
 	font-size: 0.9em;
-	text-indent: 12px;
-	background: url(../images/theme/quote.png) 2px 3px no-repeat;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
@@ -3323,11 +3333,7 @@ div#pollmoderation {
 }
 
 /* The visible stuff below the avatar. */
-.poster>ul>li.icons, .poster li.membergroup, .poster li.title, .poster li.poster_online, .poster li.warning,
-.poster>ul>li.icons:hover, .poster li.membergroup:hover, .poster li.title:hover, .poster li.poster_online:hover, .poster li.warning:hover {
-	font-size: 0.9em;
-	line-height: 1.4em;
-	padding: 0;
+.user_info > li {
 	margin: 3px 0 0 0;
 }
 .poster li.membergroup {

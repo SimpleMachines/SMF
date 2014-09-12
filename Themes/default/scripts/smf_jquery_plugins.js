@@ -702,3 +702,6 @@ $(document).ready(function() {
 			});
 		});
 });
+
+// Load slider
+jQuery(document).ready(function(){jQuery("#smf_slider").slippry()});
