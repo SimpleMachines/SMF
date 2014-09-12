@@ -293,9 +293,13 @@ h3.largetext {
 .bbc_standard_quote:before, .bbc_alternate_quote:before {
 	color: #aaa;
 	font-size: 3em;
-	content: '\275D ';
+	font-family: Arial, sans-serif;
+	content: '\275D';
 	line-height: 0.1em;
 	margin-right: 0.25em;
+	vertical-align: middle;
+}
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
 	vertical-align: -0.4em;
 }
 .bbc_standard_quote, .bbc_alternate_quote {
