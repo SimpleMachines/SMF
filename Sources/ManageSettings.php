@@ -382,12 +382,12 @@ function ModifyLikesSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=likes';
 	$context['settings_title'] = $txt['likes'];
-	createToken('admin-dbsc');
+
 	prepareDBSettingContext($config_vars);
 }
 
 /**
- * Config array for changing mention settings
+ * Config array for changing like settings
  * Accessed  from ?action=admin;area=featuresettings;sa=mentions;
  *
  * @param bool $return_config
@@ -421,7 +421,7 @@ function ModifyMentionsSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
 	$context['settings_title'] = $txt['mentions'];
-	createToken('admin-dbsc');
+
 	prepareDBSettingContext($config_vars);
 }
 

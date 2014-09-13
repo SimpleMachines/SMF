@@ -923,6 +923,7 @@ function prepareDBSettingContext(&$config_vars)
 	}
 
 	call_integration_hook('integrate_prepare_db_settings', array(&$config_vars));
+	createToken('admin-dbsc');
 }
 
 /**
