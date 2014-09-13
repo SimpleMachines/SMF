@@ -358,7 +358,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 
 	$config_vars = array(
 			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays'),
+			array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
 		'',
 			array('check', 'securityDisable'),
 			array('check', 'securityDisable_moderate'),
