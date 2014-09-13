@@ -188,14 +188,7 @@ function template_modifysmiley()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="smiley" value="', $context['current_smiley']['id'], '">
 		</form>
-	</div>
-	<script><!-- // --><![CDATA[
-		function updatePreview()
-		{
-			var currentImage = document.getElementById("preview");
-			currentImage.src = "', $modSettings['smileys_url'], '/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
-		}
-	// ]]></script>';
+	</div>';
 }
 
 // Adding a new smiley.
