@@ -106,6 +106,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
 ---#
 
+---# Adding new "loginHistoryDays" setting
+---{
+	if (!isset($modSettings['loginHistoryDays']))
+		$smcFunc['db_insert']('insert', 
+			'{db_prefix}settings', 
+			array('variable' => 'string', 'value' => 'string'), 
+			array('loginHistoryDays', '30'), 
+			array()
+		);
+---}
+---#
+
 ---# Enable some settings we ripped from Theme settings
 ---{
 	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');

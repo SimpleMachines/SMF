@@ -208,7 +208,7 @@ function ModifyProfile($post_errors = array())
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
 						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
 						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty($modSettings['show_group_membership'])),
-						'logins' => array($txt['trackLogins'], 'moderate_forum'),
+						'logins' => array($txt['trackLogins'], 'moderate_forum', 'enabled' => !empty($modSettings['loginHistoryDays'])),
 					),
 					'permission' => array(
 						'own' => array('moderate_forum', 'approve_group_requests'),
