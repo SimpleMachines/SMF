@@ -24,7 +24,8 @@
 	color: #666;
 }
 .action_admin .table_grid .last_th, .action_admin .table_grid td {
-	border-right: 1px solid #ddd;
+	border: 1px solid #ddd;
+	border-top: 0;
 }
 .action_admin .table_grid tr:nth-child(even) {
 	background: #fdfdfd;
@@ -593,8 +594,11 @@ ul.pending_payments li {
 .perm_boards li {
 	list-style-type: none;
 	border: 1px solid #cacdd3;
+	border-top: 0;
 	padding: 0.2em;
-	margin: 1px;
+}
+.perm_boards li:first-child {
+	border-top: 1px solid #cacdd3;
 }
 .perm_groups {
 	background-color: #fff;

@@ -1763,8 +1763,12 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 #credits .windowbg,
 #credits .windowbg2,
-#admin_login .roundframe {
-	margin: 0 0 10px 0;
+#admin_login .roundframe,
+#preview_section .windowbg,
+#post_area .roundframe,
+#memberlist_search .roundframe,
+#poll .windowbg {
+	margin: 0 0 10px 0 !important;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -1811,7 +1815,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -49px 0;
 }
 .generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
-	background-position: -64px 0;
+	background-position: -65px 0;
 }
 .generic_icons.sort_up {
 	background-position: -80px 0;
@@ -1836,7 +1840,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -48px -16px;
 }
 .generic_icons.unlike {
-	background-position: -64px -16px;
+	background-position: -65px -16px;
 }
 .generic_icons.sort_down {
 	background-position: -80px -16px;
@@ -1846,7 +1850,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0 5px 0 0;
 }
 .generic_icons.lock {
-	background-position: -112px -16px;
+	background-position: -113px -16px;
 }
 /* 3rd row */
 .generic_icons.valid {
@@ -1884,7 +1888,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -80px -48px;
 }
 .generic_icons.poll {
-	background-position: -96px -48px;
+	background-position: -97px -48px;
 }
 /* 5th row */
 .generic_icons.inbox {
@@ -2598,11 +2602,6 @@ dl.addrules dt.floatleft {
 #mlist .posts {
 	width: 115px;
 }
-#memberlist_search .roundframe {
-	margin: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
 /* Styles for the search section.
 ------------------------------------------------- */
 #searchform fieldset {
@@ -2898,25 +2897,6 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* BoardIndex */
-/* Newsfader */
-#newsfader {
-	margin: 0 0 8px 0;
-}
-#smfFadeScroller {
-	text-align: center;
-	padding: 12px 25px;
-	overflow: auto;
-	color: #444444; /* shouldn't be shorthand style due to a JS bug in IE! */
-}
-ul#smfFadeScroller li {
-	font-weight: bold;
-}
-#smfFadeScrollerCont {
-	margin-top: -1px;
-	border-top: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
 /* This place covers board places (boardindex-messageindex) */
 h3 .collapse {
 	float: right;
@@ -3172,11 +3152,6 @@ select.qaction {
 /* Poll question */
 #poll {
 	overflow: hidden;
-}
-#poll .windowbg {
-	margin: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
 }
 
 /* Poll vote options */
