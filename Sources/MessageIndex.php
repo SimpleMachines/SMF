@@ -706,7 +706,10 @@ function MessageIndex()
 		$context['board_notification_mode'] = !$context['is_marked_notify'] ? 1 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
 	}
 	else
+	{
 		$context['is_marked_notify'] = false;
+		$context['board_notification_mode'] = 1;
+	}
 
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
