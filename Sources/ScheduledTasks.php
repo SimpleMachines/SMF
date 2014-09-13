@@ -89,7 +89,7 @@ function AutoTask()
 				$task_string = 'scheduled_' . $row['task'];
 
 			// One last resource, the task name.
-			else (!empty($row['task'])
+			else (!empty($row['task']))
 				$task_string = $row['task'];
 
 			// The function must exist or we are wasting our time, plus do some timestamp checking, and database check!
