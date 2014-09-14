@@ -198,9 +198,9 @@ function template_viewmodreport()
 					<span class="floatright">';
 
 		// Make the buttons.
-		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
-		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
-		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
+		$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+		$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
 		echo '
 						<a href="', $scripturl, '?action=moderate;area=reportedposts;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', !$context['report']['ignore'] ,'">', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
@@ -483,9 +483,9 @@ function template_viewmemberreport()
 					<span class="floatright">';
 
 		// Make the buttons.
-		$close_button = create_button('close.png', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', 'class="centericon"');
-		$ignore_button = create_button('ignore.png', 'mc_reportedp_ignore', 'mc_reportedp_ignore', 'class="centericon"');
-		$unignore_button = create_button('ignore.png', 'mc_reportedp_unignore', 'mc_reportedp_unignore', 'class="centericon"');
+		$close_button = create_button('close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close', $context['report']['closed'] ? 'mc_reportedp_open' : 'mc_reportedp_close');
+		$ignore_button = create_button('ignore', 'mc_reportedp_ignore', 'mc_reportedp_ignore');
+		$unignore_button = create_button('ignore', 'mc_reportedp_unignore', 'mc_reportedp_unignore');
 
 		echo '
 						<a href="', $scripturl, '?action=moderate;area=reportedmembers;sa=handle;ignore=', (int) !$context['report']['ignore'], ';rid=', $context['report']['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['mod-report-ignore_token_var'], '=', $context['mod-report-ignore_token'], '" class="report_ignore" data-ignore="', !$context['report']['ignore'] ,'">', $context['report']['ignore'] ? $unignore_button : $ignore_button, '</a>
