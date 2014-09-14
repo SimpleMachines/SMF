@@ -254,15 +254,8 @@ function obExit_cron()
 
 // We would like this to be defined, but we don't want to have to load more stuff than necessary.
 // Thus we declare it here, and any legitimate background task must implement this.
-abstract class SMF_BackgroundTask
+interface SMF_BackgroundTask
 {
-	protected $_details;
-
-	public function __construct($details)
-	{
-		$this->_details = $details;
-	}
-
-	abstract public function execute();
+	public function execute();
 }
 ?>
