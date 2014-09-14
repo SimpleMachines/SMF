@@ -12,7 +12,7 @@
  * @version 2.1 Beta 1
  */
 
-class CreatePost_Notify_Background extends SMF_BackgroundTask
+class CreatePost_Notify_Background implements SMF_BackgroundTask
 {
 	public function execute()
 	{

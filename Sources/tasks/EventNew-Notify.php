@@ -14,7 +14,7 @@
  * @version SMF 2.1 Beta 1
  */
 
-class EventNew_Notify_Background extends SMF_BackgroundTask
+class EventNew_Notify_Background implements SMF_BackgroundTask
 {
 	public function execute()
  	{

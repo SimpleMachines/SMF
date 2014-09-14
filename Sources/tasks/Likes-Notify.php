@@ -13,7 +13,7 @@
  * @version 2.1 Beta 1
  */
 
-class Likes_Notify_Background extends SMF_BackgroundTask
+class Likes_Notify_Background implements SMF_BackgroundTask
 {
 	public function execute()
 	{
