@@ -503,11 +503,13 @@ function template_modify_group()
 	// Draw out the main bits.
 	template_modify_group_display($context['permission_type']);
 
+	echo '
+			</div>';
+
 	// If this is general permissions also show the default profile.
 	if ($context['permission_type'] == 'membergroup')
 	{
 		echo '
-			</div>
 			<br>
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['permissions_board'], '</h3>
