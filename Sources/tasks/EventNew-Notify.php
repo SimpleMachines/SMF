@@ -16,6 +16,11 @@
 
 class EventNew_Notify_Background implements SMF_BackgroundTask
 {
+	public function __construct($details)
+	{
+		$this->_details = $details;
+	}
+
 	public function execute()
  	{
  		global $sourcedir, $smcFunc, $user_profile;
