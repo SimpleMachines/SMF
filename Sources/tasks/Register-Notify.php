@@ -15,6 +15,9 @@
 
 class Register_Notify_Background implements SMF_BackgroundTask
 {
+
+	protected $_details = array();
+
 	public function __construct($details)
 	{
 		$this->_details = $details;
