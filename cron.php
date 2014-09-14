@@ -194,11 +194,16 @@ function perform_task($task_details)
 	}
 
 	// All background tasks need to be classes.
-	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF_BackgroundTask'))
+	elseif (class_exists($task_details['task_class']))
 	{
 		$details = empty($task_details['task_data']) ? array() : unserialize($task_details['task_data']);
 		$bgtask = new $task_details['task_class']($details);
-		return $bgtask->execute();
+
+		if (in_array('SMF_BackgroundTask', class_implements($bgtask)))
+			return $bgtask->execute();
+
+		else
+			return true; // So we clear it from the queue.
 	}
 	else
 	{
