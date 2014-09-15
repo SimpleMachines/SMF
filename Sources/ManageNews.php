@@ -801,7 +801,7 @@ function SendMailing($clean_only = false)
 		foreach ($addressed as $curmem)
 		{
 			$curmem = trim($curmem);
-			if ($curmem != '' && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $curmem) !== 0)
+			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
 				$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}

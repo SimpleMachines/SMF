@@ -210,7 +210,7 @@ function ModifySubscriptionSettings($return_config = false)
 			foreach (explode(',', $_POST['paid_email_to']) as $email)
 			{
 				$email = trim($email);
-				if (!empty($email) && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $email))
+				if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
 					$email_addresses[] = $email;
 				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}

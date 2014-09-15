@@ -1547,7 +1547,7 @@ function Post2()
 			{
 				if (!allowedTo('moderate_forum') && (!isset($_POST['email']) || $_POST['email'] == ''))
 					$post_errors[] = 'no_email';
-				if (!allowedTo('moderate_forum') && preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['email']) == 0)
+				if (!allowedTo('moderate_forum') && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
 					$post_errors[] = 'bad_email';
 			}
 
