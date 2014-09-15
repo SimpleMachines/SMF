@@ -86,7 +86,7 @@ function template_modify_subscription()
 	echo '
 					</dd>
 					<dt>
-						', $txt['paid_mod_reminder'], ':<br><span class="smalltext">', $txt['paid_mod_reminder_desc'], '</span>
+						', $txt['paid_mod_reminder'], ':<br><span class="smalltext">', $txt['paid_mod_reminder_desc'], ' ', $txt['zero_to_disable'], '</span>
 					</dt>
 					<dd>
 						<input type="number" name="reminder" value="', $context['sub']['reminder'], '" size="6" class="input_text">

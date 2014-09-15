@@ -299,7 +299,7 @@ function ModifyMailSettings($return_config = false)
 
 	$config_vars = array(
 			// Mail queue stuff, this rocks ;)
-			array('int', 'mail_limit'),
+			array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
 			array('int', 'mail_quantity'),
 		'',
 			// SMTP stuff.

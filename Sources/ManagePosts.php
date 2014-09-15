@@ -208,14 +208,14 @@ function ModifyPostSettings($return_config = false)
 			// Posting time limits...
 			array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
-			array('int', 'edit_disable_time', 'subtext' => $txt['edit_disable_time_zero'], 'postinput' => $txt['manageposts_minutes']),
+			array('int', 'edit_disable_time', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['manageposts_minutes']),
 		'',
 			// Automagic image resizing.
 			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
 			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -286,7 +286,7 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'enableParticipation'),
 		'',
 			// Pagination etc...
-			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['oldTopicDays_zero']),
+			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['zero_to_disable']),
 			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
 			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
 			array('check', 'disable_print_topic'),
@@ -305,7 +305,7 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
 		'',
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
 			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 

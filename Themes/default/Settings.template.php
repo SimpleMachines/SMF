@@ -175,7 +175,7 @@ function template_settings()
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
-			'description' => $txt['number_recent_posts_desc'],
+			'description' => $txt['zero_to_disable'],
 			'type' => 'number',
 		),
 		array(
