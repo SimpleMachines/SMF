@@ -451,11 +451,11 @@ function ModifyWarningSettings($return_config = false)
 	if (!empty($modSettings['warning_settings']) && $currently_enabled)
 		$config_vars += array(
 			'',
-				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note']),
-				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
-				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
+				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']),
+				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']),
+				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']) . ' ' . $txt['zero_to_disable'],
 				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
-				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
+				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']),
 				array('permissions', 'view_warning'),
 		);
 

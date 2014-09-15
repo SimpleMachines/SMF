@@ -93,7 +93,6 @@ $txt['member_list_bar'] = 'Show members list bar on board index';
 $txt['header_logo_url'] = 'Logo image URL';
 $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
-$txt['number_recent_posts_desc'] = 'To disable the recent posts bar set this value to zero.';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
 $txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="http://custom.simplemachines.org/themes/" target="_blank">http://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';

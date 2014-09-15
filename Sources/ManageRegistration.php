@@ -300,7 +300,7 @@ function ModifyRegistrationSettings($return_config = false)
 			array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
 			array('check', 'send_welcomeEmail'),
 		'',
-			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
+			array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
 			array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 			array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 			array('text', 'coppaFax'),

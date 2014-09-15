@@ -11,7 +11,6 @@ $txt['smtp_username'] = 'SMTP username';
 $txt['smtp_password'] = 'SMTP password';
 
 $txt['mail_limit'] = 'Maximum emails to send per minute';
-$txt['mail_limit_desc'] = '(Set to 0 to disable)';
 $txt['mail_quantity'] = 'Maximum amount of emails to send per page load';
 
 $txt['mailqueue_stats'] = 'Mail queue statistics';

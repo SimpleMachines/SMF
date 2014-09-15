@@ -61,7 +61,7 @@ $txt['admin_newsletter_send'] = 'You can email anyone from this page. The email 
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
-$txt['zero_to_disable'] = '(0 to disable)';
+$txt['zero_to_disable'] = '(Set to 0 to disable.)';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
 $txt['registration_agreement'] = 'Registration Agreement';
@@ -575,10 +575,8 @@ $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
 $txt['edit_disable_time'] = 'Maximum time after posting to allow edit';
-$txt['edit_disable_time_zero'] = '0 to disable';
 $txt['preview_characters'] = 'Maximum length of last/first post preview';
 $txt['preview_characters_units'] = 'characters';
-$txt['preview_characters_zero'] = '0 to disable';
 $txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
 $txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
 $txt['show_user_images'] = 'Show user avatars in message view';
@@ -599,7 +597,6 @@ $txt['bbcTagsToUse_select_all'] = 'Select all tags';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
-$txt['oldTopicDays_zero'] = '0 to disable';
 $txt['defaultMaxTopics'] = 'Number of topics per page in the message index';
 $txt['defaultMaxMessages'] = 'Number of posts per page in a topic page';
 $txt['disable_print_topic'] = 'Disable print topic feature';
