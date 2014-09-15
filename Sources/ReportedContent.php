@@ -473,7 +473,7 @@ function HandleComment()
 			fatal_lang_error('report_action_message_delete_issue');
 
 		// Can you actually do this?
-		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
+		$comment_owner = $user_info['id'] == $comment['id_member'];
 
 		// Nope! sorry.
 		if (!allowedTo('admin_forum') || !$comment_owner)
