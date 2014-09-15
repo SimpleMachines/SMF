@@ -194,11 +194,16 @@ function perform_task($task_details)
 	}
 
 	// All background tasks need to be classes.
-	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF_BackgroundTask'))
+	elseif (class_exists($task_details['task_class']))
 	{
 		$details = empty($task_details['task_data']) ? array() : unserialize($task_details['task_data']);
 		$bgtask = new $task_details['task_class']($details);
-		return $bgtask->execute();
+
+		if (in_array('SMF_BackgroundTask', class_implements($bgtask)))
+			return $bgtask->execute();
+
+		else
+			return true; // So we clear it from the queue.
 	}
 	else
 	{
@@ -254,15 +259,8 @@ function obExit_cron()
 
 // We would like this to be defined, but we don't want to have to load more stuff than necessary.
 // Thus we declare it here, and any legitimate background task must implement this.
-abstract class SMF_BackgroundTask
+interface SMF_BackgroundTask
 {
-	protected $_details;
-
-	public function __construct($details)
-	{
-		$this->_details = $details;
-	}
-
-	abstract public function execute();
+	public function execute();
 }
 ?>

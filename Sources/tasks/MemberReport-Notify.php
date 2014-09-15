@@ -13,8 +13,15 @@
  * @version 2.1 Beta 1
  */
 
-class MemberReport_Notify_Background extends SMF_BackgroundTask
+class MemberReport_Notify_Background implements SMF_BackgroundTask
 {
+	protected $_details = array();
+
+	public function __construct($details)
+	{
+		$this->_details = $details;
+	}
+
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;
