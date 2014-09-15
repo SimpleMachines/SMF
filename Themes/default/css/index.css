@@ -90,6 +90,9 @@ strong {
 	font-weight: bold;
 	color: #444;
 }
+.cat_bar strong {
+	color: #FFF;
+}
 em {
 	font-style: italic;
 }
