@@ -3434,9 +3434,6 @@ img.smiley {
 /* Next and previous topic links */
 .nextlinks {
 	text-transform: capitalize;
-	display: block;
-	margin-top: 5px;
-	text-align: center;
 }
 /* Styles for the quick reply area. */
 #quickreplybox {
@@ -3890,6 +3887,7 @@ h3.profile_hd {
 .display_title {
 	font-weight: normal;
 	font-size: 26px;
+	margin-bottom: 0.25em;
 }
 
 #reported_posts .generic_icons {

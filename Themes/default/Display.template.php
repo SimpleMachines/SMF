@@ -25,9 +25,13 @@ function template_main()
 
 	// Show new topic info here?
 	echo '
-		<div id="display_head">
-			<h2 class="display_title">', $context['subject'], ($context['is_locked']) ? '<span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? '<span class="generic_icons sticky"></span>' : '', '</h2>
+		<div id="display_head" class="information">
+			<h2 class="display_title">', $context['subject'], ($context['is_locked']) ? ' <span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? ' <span class="generic_icons sticky"></span>' : '', '</h2>
 			<p>',$txt['started_by'],' ', $context['topic_poster_name'],', ', $context['topic_started_time'],'</p>';
+
+	// Next - Prev
+	echo '
+		<span class="nextlinks floatright">', $context['previous_next'], '</span>';
 
 	if (!empty($settings['display_who_viewing']))
 	{
@@ -186,10 +190,6 @@ function template_main()
 	echo '
 				</form>
 			</div>';
-
-	// Next - Prev
-	echo '
-		<span class="nextlinks">', $context['previous_next'], '</span>';
 
 	// Show the page index... "Pages: [1]".
 	echo '
