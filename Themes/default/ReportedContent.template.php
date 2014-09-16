@@ -239,19 +239,19 @@ function template_viewmodreport()
 	foreach ($context['report']['mod_comments'] as $comment)
 	{
 		echo '
-					<div class="cat_bar">
-						<h3 class="catbg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';'. $context['session_var'] .'='. $context['session_id'] .'">'. $txt['mc_reportedp_comment_edit'] .'</a> | <a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;'. $context['session_var'] .'='. $context['session_id']. ';'. $context['mod-reportC-delete_token_var'] .'='. $context['mod-reportC-delete_token'] .'" class="deleteModComment">'. $txt['mc_reportedp_comment_delete'] .'</a></span>' : '') ,'</h3>
+					<div class="title_bar">
+						<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<div class="floatright"><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';'. $context['session_var'] .'='. $context['session_id'] .'"  class="button">'. $txt['mc_reportedp_comment_edit'] .'</a><a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid='. $context['report']['id'] .';mid='. $comment['id'] .';delete;'. $context['session_var'] .'='. $context['session_id']. ';'. $context['mod-reportC-delete_token_var'] .'='. $context['mod-reportC-delete_token'] .'"  class="button">'. $txt['mc_reportedp_comment_delete'] .'</a></div>' : '') ,'</h3>
 					</div>';
 
 		echo '
-						<div class="windowbg">
+						<div class="windowbg2">
 							<p>', $comment['message'], '</p>
 						</div>';
 	}
 
 	echo '
-					<div class="title_bar">
-						<h3 class="titlebg">
+					<div class="cat_bar">
+						<h3 class="catbg">
 							<span class="floatleft">
 								', $txt['mc_reportedp_new_comment'], '
 							</span>
