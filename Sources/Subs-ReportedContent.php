@@ -448,7 +448,7 @@ function getReportDetails($report_id)
  */
 function getReportComments($report_id)
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $user_info;
 
 	if (empty($report_id))
 		return false;
@@ -506,7 +506,7 @@ function getReportComments($report_id)
 			'id' => $row['id_comment'],
 			'message' => parse_bbc($row['body']),
 			'time' => timeformat($row['log_time']),
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
+			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) || allowedTo('moderate_forum')),
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['moderator'],
@@ -567,7 +567,7 @@ function getCommentModDetails($comment_id)
  */
 function saveModComment($report_id, $data)
 {
-	global $smcFunc, $user_info;
+	global $smcFunc, $user_info, $context;
 
 	if (empty($data))
 		return false;
