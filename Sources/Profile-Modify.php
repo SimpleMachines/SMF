@@ -238,7 +238,7 @@ function loadProfileFields($force_reload = false)
 		),
 		'lngfile' => array(
 			'type' => 'select',
-			'options' => function () use ($context)
+			'options' => function () use (&$context)
 			{
 				return $context['profile_languages'];
 			},
@@ -247,7 +247,7 @@ function loadProfileFields($force_reload = false)
 			'preload' => 'profileLoadLanguages',
 			'enabled' => !empty($modSettings['userLanguage']),
 			'value' => empty($cur_profile['lngfile']) ? $language : $cur_profile['lngfile'],
-			'input_validate' => function (&$value) use ($context, $cur_profile)
+			'input_validate' => function (&$value) use (&$context, $cur_profile)
 			{
 				// Load the languages.
 				profileLoadLanguages();
