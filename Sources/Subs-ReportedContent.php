@@ -506,7 +506,7 @@ function getReportComments($report_id)
 			'id' => $row['id_comment'],
 			'message' => parse_bbc($row['body']),
 			'time' => timeformat($row['log_time']),
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) || allowedTo('moderate_forum')),
+			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member'])),
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['moderator'],
