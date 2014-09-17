@@ -553,7 +553,7 @@ function getCommentModDetails($comment_id)
 
 	// Add the permission
 	if (!empty($comment))
-		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']) && allowedTo('moderate_forum'));
+		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']));
 
 	return $comment;
 }
