@@ -75,10 +75,16 @@ function template_reported_posts()
 			echo '
 				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add', (!empty($report['author']['id']) ? ';u='. $report['author']['id'] : ';msg='. $report['topic']['id_msg']) ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
 
-		echo '
-				<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
-			</ul>
-		</div>';
+		if (!$context['view_closed'])
+			echo '
+					<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>
+				</ul>
+			</div>';
+			
+		if ($context['view_closed'])
+			echo'
+				</ul>
+			</div>';
 	}
 
 	// Were none found?
@@ -429,11 +435,17 @@ function template_reported_members()
 		if (!$report['closed'] && !empty($context['report_manage_bans']) && !empty($report['user']['id']))
 			echo '
 				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
-
-		echo '
-				<li>', !$context['view_closed'] ? '<input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check">' : '', '</li>
-			</ul>
-		</div>';
+		
+		if (!$context['view_closed'])
+			echo '
+					<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>
+				</ul>
+			</div>';
+			
+		if ($context['view_closed'])
+			echo'
+				</ul>
+			</div>';
 	}
 
 	// Were none found?
