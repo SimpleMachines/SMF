@@ -350,7 +350,7 @@ function ModBlockNotes()
 
 		$_POST['new_note'] = $smcFunc['htmlspecialchars'](trim($_POST['new_note']));
 		// Make sure they actually entered something.
-		if (!empty($_POST['new_note']) && $_POST['new_note'] !== $txt['mc_click_add_note'])
+		if (!empty($_POST['new_note']))
 		{
 			// Insert it into the database then!
 			$smcFunc['db_insert']('',
