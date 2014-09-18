@@ -383,6 +383,27 @@ function ModBlockNotes()
 		checkSession('get');
 		validateToken('mod-modnote-del', 'get');
 
+		// No sneaky stuff now!
+		if (!allowedTo('admin_forum'))
+		{
+			// Is this your note?
+			$get_owner = $smcFunc['db_query']('', '
+				SELECT id_member
+				FROM {db_prefix}log_comments
+				WHERE id_comment = {int:note}
+					AND comment_type = {literal:modnote}',
+				array(
+					'note' => $_GET['delete'],
+				)
+			);
+			
+			list ($note_owner) = $smcFunc['db_fetch_assoc']($get_owner);
+			$smcFunc['db_free_result']($get_owner);
+
+			if ($note_owner != $user_info['id'])
+				fatal_lang_error($txt['mc_notes_delete_own'], false);
+		}
+
 		// Lets delete it.
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_comments
@@ -460,6 +481,7 @@ function ModBlockNotes()
 			'time' => timeformat($note['log_time']),
 			'text' => parse_bbc($note['body']),
 			'delete_href' => $scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . $context['session_var'] . '=' . $context['session_id'],
+			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == $user_info['id'],
 		);
 	}
 
