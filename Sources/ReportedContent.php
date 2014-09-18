@@ -129,7 +129,7 @@ function ShowReports()
 		redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 	}
 
-	// Show a confirmation if the user wants to disregard a report.
+	// Show a confirmation if the user wants to ignore a report.
 	if (!$context['view_closed'])
 		addInlineJavascript('
 	$(\'.delete_message\').on(\'click\', function(){
@@ -174,7 +174,7 @@ function ShowClosedReports()
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
 
-	// Show a confirmation if the user wants to disregard a report.
+	// Show a confirmation if the user wants to ignore a report.
 	addInlineJavascript('
 	$(\'.delete_message\').on(\'click\', function(){
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
@@ -418,7 +418,7 @@ function ReportDetails()
 	createToken('mod-reportC-add');
 	createToken('mod-reportC-delete', 'get');
 
-	// We can "un-disregard" and close a report from here so add their respective tokens.
+	// We can "un-ignore" and close a report from here so add their respective tokens.
 	createToken('mod-report-ignore', 'get');
 	createToken('mod-report-closed', 'get');
 }
@@ -570,7 +570,7 @@ function HandleReport()
 
 	validateToken('mod-report-'. $action, 'get');
 
-	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
+	// Are we ignore or "un-ignore"? "un-ignore" thats a funny word!
 	$value = (int) $_GET[$action];
 
 	// Figuring out.
