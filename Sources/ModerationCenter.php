@@ -526,8 +526,8 @@ function ModBlockReportedPosts()
 			'id' => $row['id_report'],
 			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'report_href' => $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'],
-			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
+			'report_href' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'],
+			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
@@ -1752,7 +1752,7 @@ function ViewWarningTemplates()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit">',
 			),
 			array(

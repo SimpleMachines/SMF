@@ -281,7 +281,7 @@ function ViewModlog()
 					' . $txt['modlog_search'] . ' (' . $txt['modlog_by'] . ': ' . $context['search']['label'] . '):
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
 					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">
-					' . ($context['can_delete'] ? '&nbsp;|
+					' . ($context['can_delete'] ? '&nbsp;
 					<input type="submit" name="remove" value="' . $txt['modlog_remove'] . '" onclick="return confirm(\'' . $txt['modlog_remove_selected_confirm'] . '\');" class="button_submit">
 					<input type="submit" name="removeall" value="' . $txt['modlog_removeall'] . '" onclick="return confirm(\'' . $txt['modlog_remove_all_confirm'] . '\');" class="button_submit">' : ''),
 				'class' => 'floatright',
