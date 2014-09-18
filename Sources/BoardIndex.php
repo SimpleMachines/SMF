@@ -121,7 +121,7 @@ function BoardIndex()
 		$context['membergroups'] = cache_quick_get('membergroup_list', 'Subs-Membergroups.php', 'cache_getMembergroupList', array());
 
 	// And back to normality.
-	$context['page_title'] = sprintf($txt['forum_index'], $context['forum_name']);
+	$context['page_title'] = sprintf($txt['forum_index'], un_htmlspecialchars($context['forum_name']));
 
 	// Mark read button
 	$context['mark_read_button'] = array(

@@ -983,6 +983,10 @@ function saveSettings(&$config_vars)
 	// All the checkboxes
 	$config_bools = array('db_persist', 'db_error_send', 'maintenance', 'image_proxy_enabled');
 
+	// No sneaky stuff...
+	$_POST['mbname'] = $smcFunc['htmlspecialchars']($_POST['mbname']);
+	$_POST['mtitle'] = $smcFunc['htmlspecialchars']($_POST['mmessage']);
+
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
 	// Figure out which config vars we're saving here...
