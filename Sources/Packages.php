@@ -329,6 +329,7 @@ function PackageInstallTest()
 			if (!empty($action['parse_bbc']))
 			{
 				require_once($sourcedir . '/Subs-Post.php');
+				$context[$type] = preg_replace('~\[[/]?html\]~i', '', $context[$type]);
 				preparsecode($context[$type]);
 				$context[$type] = parse_bbc($context[$type]);
 			}
@@ -1165,7 +1166,7 @@ function PackageInstall()
 					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 				),
 				array(
-					$packageInfo['filename'], $packageInfo['name'], $packageInfo['id'], $packageInfo['version'],
+					$packageInfo['filename'], un_htmlspecialchars($packageInfo['name']), $packageInfo['id'], un_htmlspecialchars($packageInfo['version']),
 					$user_info['id'], $user_info['name'], time(),
 					$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
 					0, $db_changes, $credits_tag,
