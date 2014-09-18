@@ -407,10 +407,10 @@ function loadInstalledPackages()
 
 		$installed[] = array(
 			'id' => $row['id_install'],
-			'name' => $row['name'],
+			'name' => $smcFunc['htmlspecialchars']($row['name']),
 			'filename' => $row['filename'],
 			'package_id' => $row['package_id'],
-			'version' => $row['version'],
+			'version' => $smcFunc['htmlspecialchars']($row['version']),
 			'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 		);
 	}
@@ -431,7 +431,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $sourcedir, $packagesdir;
+	global $sourcedir, $packagesdir, $smcFunc;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
@@ -471,8 +471,9 @@ function getPackageInfo($gzfilename)
 	$packageInfo = $packageInfo->path('package-info[0]');
 
 	$package = $packageInfo->to_array();
-	$package = htmlspecialchars__recursive($package);
 	$package['xml'] = $packageInfo;
+	$package['name'] = $smcFunc['htmlspecialchars']($package['name']);
+	$package['version'] = $smcFunc['htmlspecialchars']($package['version']);
 	$package['filename'] = $gzfilename;
 
 	if (!isset($package['type']))
