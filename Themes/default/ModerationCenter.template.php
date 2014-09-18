@@ -185,7 +185,7 @@ function template_reported_posts_block()
 		foreach ($context['reported_posts'] as $post)
 			echo '
 					<li>
-						<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link'], count($post['comments'])), '</span>
+						<span class="smalltext">', sprintf($txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
 					</li>';
 
 		// Don't have any watched users right now?
@@ -251,7 +251,7 @@ function template_reported_users_block()
 		foreach ($context['reported_users'] as $user)
 			echo '
 					<li>
-						<span class="smalltext">', sprintf($txt['mc_user_report'], $user['user']['link'], count($user['comments'])), '</span>
+						<span class="smalltext">', $user['user']['link'], '</span>
 					</li>';
 
 		// Don't have any watched users right now?

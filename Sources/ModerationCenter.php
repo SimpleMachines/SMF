@@ -534,7 +534,6 @@ function ModBlockReportedPosts()
 				'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
 				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
 			),
-			'comments' => array(),
 			'subject' => $row['subject'],
 			'num_reports' => $row['num_reports'],
 		);
@@ -606,7 +605,7 @@ function ModBlockReportedMembers()
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
 
-	if (($reported_posts = cache_get_data('reported_users_' . $cachekey, 90)) === null)
+	if (($reported_users = cache_get_data('reported_users_' . $cachekey, 90)) === null)
 	{
 		// By George, that means we in a position to get the reports, jolly good.
 		$request = $smcFunc['db_query']('', '
@@ -632,7 +631,7 @@ function ModBlockReportedMembers()
 		$smcFunc['db_free_result']($request);
 
 		// Cache it.
-		cache_put_data('reported_users_' . $cachekey, $reported_posts, 90);
+		cache_put_data('reported_users_' . $cachekey, $reported_users, 90);
 	}
 
 	$context['reported_users'] = array();
@@ -648,7 +647,6 @@ function ModBlockReportedMembers()
 				'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
 				'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
 			),
-			'comments' => array(),
 			'num_reports' => $row['num_reports'],
 		);
 	}

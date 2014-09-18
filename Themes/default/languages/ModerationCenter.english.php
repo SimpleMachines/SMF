@@ -32,8 +32,7 @@ $txt['mc_reported_users_none'] = 'There are no pending profile reports.';
 $txt['mc_seen'] = '%1$s last seen %2$s';
 $txt['mc_seen_never'] = '%1$s never seen';
 $txt['mc_groupr_by'] = 'by';
-$txt['mc_post_report'] = '%1$s by %2$s (%3$s comment(s))';
-$txt['mc_user_report'] = '%1$s (%2$s comment(s))';
+$txt['mc_post_report'] = '%1$s by %2$s';
 
 $txt['mc_reported_posts_desc'] = 'Here you can review all the post reports raised by members of the community.';
 $txt['mc_reportedp_active'] = 'Active Reports';
