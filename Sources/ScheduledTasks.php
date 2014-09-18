@@ -1441,11 +1441,11 @@ function scheduled_weekly_maintenance()
 				SELECT id_report
 				FROM {db_prefix}log_reported
 				WHERE time_started < {int:time_started}
-					AND closed = {int:not_closed}
+					AND closed = {int:closed}
 					AND ignore_all = {int:not_ignored}',
 				array(
 					'time_started' => $t,
-					'not_closed' => 0,
+					'closed' => 1,
 					'not_ignored' => 0,
 				)
 			);
