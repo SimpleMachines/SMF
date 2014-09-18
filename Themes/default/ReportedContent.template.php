@@ -77,12 +77,9 @@ function template_reported_posts()
 
 		if (!$context['view_closed'])
 			echo '
-					<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>
-				</ul>
-			</div>';
-			
-		if ($context['view_closed'])
-			echo'
+				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>';
+
+			echo '
 				</ul>
 			</div>';
 	}
@@ -438,12 +435,9 @@ function template_reported_members()
 		
 		if (!$context['view_closed'])
 			echo '
-					<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>
-				</ul>
-			</div>';
-			
-		if ($context['view_closed'])
-			echo'
+				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>';
+
+			echo '
 				</ul>
 			</div>';
 	}
