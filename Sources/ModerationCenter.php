@@ -1754,7 +1754,7 @@ function ViewWarningTemplates()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'below_table_data',
+				'position' => 'bottom_of_list',
 				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit">',
 			),
 			array(
