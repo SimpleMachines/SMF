@@ -445,7 +445,7 @@ function template_user_watch_post_callback($post)
 
 	// We'll have a delete please bob.
 	if (empty($delete_button))
-		$delete_button = create_button('delete.png', 'remove_message', 'remove', 'class="centericon"');
+		$delete_button = create_button('delete', 'remove_message', 'remove', 'class="centericon"');
 
 	$output_html = '
 					<div>
