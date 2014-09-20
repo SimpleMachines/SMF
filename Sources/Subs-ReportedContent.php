@@ -591,12 +591,12 @@ function saveModComment($report_id, $data)
 	{
 		$prefix = 'Member';
 		$data = array(
-		 	'report_id' => $id_report,
-			'user_id' => $user['id_member'],
-			'user_name' => $user_name,
+		 	'report_id' => $report_id,
+			'user_id' => $report['id_user'],
+			'user_name' => $report['user_name'],
 			'sender_id' => $context['user']['id'],
 			'sender_name' => $context['user']['name'],
-			'comment' => $reason,
+			'comment_id' => $last_comment,
 			'time' => time(),
 		);
 	}
