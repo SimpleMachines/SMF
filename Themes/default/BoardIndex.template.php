@@ -32,7 +32,12 @@ function template_newsfader()
 		}
 
 		echo '
-		</ul>';
+		</ul>
+		<script>
+			jQuery("#smf_slider").slippry({
+				speed: ', $settings['newsfader_time'],'
+			});
+		</script>';
 	}
 }
 

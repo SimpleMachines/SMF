@@ -706,6 +706,12 @@ SET value = 'SMF Default Theme - Curve2'
 WHERE value LIKE 'SMF Default Theme%';
 ---#
 
+---# Fader time update
+UPDATE {$db_prefix}themes
+SET value = '500'
+WHERE variable = 'newsfader_time';
+---#
+
 ---# Adding the enableThemes setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
