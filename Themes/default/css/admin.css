@@ -754,3 +754,6 @@ h3.config_hd {
 .full_width {
 	width: 100%;
 }
+#admin_menu .dropmenu {
+	margin: 5px 0 0 0;
+}

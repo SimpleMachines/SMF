@@ -90,6 +90,9 @@ strong {
 	font-weight: bold;
 	color: #444;
 }
+.cat_bar strong {
+	color: #FFF;
+}
 em {
 	font-style: italic;
 }
@@ -295,12 +298,8 @@ h3.largetext {
 	font-size: 3em;
 	font-family: Arial, sans-serif;
 	content: '\275D';
-	line-height: 0.1em;
-	margin-right: 0.25em;
+	margin: -5px 5px 0 -5px;
 	vertical-align: middle;
-}
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
-	vertical-align: -0.4em;
 }
 .bbc_standard_quote, .bbc_alternate_quote {
 	margin: 0 0 8px 0;
@@ -309,7 +308,6 @@ h3.largetext {
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
-	overflow: auto;
 }
 /* Alternate blockquote stylings */
 .bbc_standard_quote {
@@ -1212,7 +1210,6 @@ ul li.greeting {
 #inner_wrap .news {
 	max-width: 50%;
 	float: right;
-	overflow: auto;
 	padding: 0 0 6px 0;
 	font-size: 0.9em;
 }
@@ -1223,8 +1220,7 @@ ul li.greeting {
 
 /* The navigation list (i.e. linktree) */
 .navigate_section {
-	padding: 3px 0;
-	margin: 0 0 6px 0;
+	padding: 3px 0 0 0;
 	float: left;
 	width: 100%;
 }
@@ -1286,7 +1282,7 @@ ul li.greeting {
 	clear: both;
 }
 #main_content_section {
-	padding: 1px 12px 16px 13px;
+	padding: 1px 12px 16px 12px;
 }
 #main_content_section:after {
 	content:"";
@@ -2010,7 +2006,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -59px -130px;
 }
 .generic_icons.packages {
-	background-position: -77px -130px;
+	background-position: -76px -128px;
 }
 .generic_icons.package_ops {
 	background-position: -92px -130px;
@@ -3851,13 +3847,13 @@ h3.profile_hd {
 /* Some new stuff */
 #display_head {
 	clear: both;
-	margin: 0 0 15px 0;
+	margin: -3px 0 15px 0;
 }
 #display_head p {
 	color: #959595;
 }
 #display_head span {
-	margin: -2px 0 0 0;
+	margin: -4px 0 0 0;
 }
 .display_title {
 	font-weight: normal;
