@@ -985,7 +985,7 @@ function saveSettings(&$config_vars)
 
 	// No sneaky stuff...
 	$_POST['mbname'] = $smcFunc['htmlspecialchars']($_POST['mbname']);
-	$_POST['mtitle'] = $smcFunc['htmlspecialchars']($_POST['mmessage']);
+	$_POST['mtitle'] = $smcFunc['htmlspecialchars']($_POST['mtitle']);
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
