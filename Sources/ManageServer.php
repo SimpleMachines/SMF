@@ -108,19 +108,15 @@ function ModifySettings()
 	$context['sub_action'] = $_REQUEST['sa'];
 
 	// Warn the user if there's any relevant information regarding Settings.php.
-	if ($_REQUEST['sa'] != 'cache')
-	{
-		// Warn the user if the backup of Settings.php failed.
-		$settings_not_writable = !is_writable($boarddir . '/Settings.php');
-		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
+	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-		if ($settings_not_writable)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
-		elseif ($settings_backup_fail)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
+	if ($settings_not_writable)
+		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
+	elseif ($settings_backup_fail)
+		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
 
-		$context['settings_not_writable'] = $settings_not_writable;
-	}
+	$context['settings_not_writable'] = $settings_not_writable;
 
 	call_integration_hook('integrate_server_settings', array(&$subActions));
 
@@ -229,9 +225,7 @@ function ModifyDatabaseSettings($return_config = false)
 		array('ssi_db_user', $txt['ssi_db_user'], 'file', 'text', null, 'ssi_db_user'),
 		array('ssi_db_passwd', $txt['ssi_db_passwd'], 'file', 'password'),
 		'',
-		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'),
-		'',
-		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
+		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
@@ -478,7 +472,13 @@ function ModifyCacheSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
-	$context['settings_message'] = $txt['caching_information'];
+	
+	// Changing cache settings won't have any effect if Settings.php is not writeable.
+	$context['save_disabled'] = $context['settings_not_writable'];
+	
+	// Decide what message to show.
+	if (!$context['save_disabled'])
+		$context['settings_message'] = $txt['caching_information'];
 
 	// Prepare the template.
 	createToken('admin-ssc');
