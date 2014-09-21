@@ -937,7 +937,7 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $sourcedir, $context, $cachedir;
+	global $smcFunc, $sourcedir, $context, $cachedir;
 
 	validateToken('admin-ssc');
 
