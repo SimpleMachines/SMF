@@ -1134,6 +1134,10 @@ img.sort, .sort {
 	display: block;
 	clear: both;
 }
+/* Resize the logo if we must, so we do not get an oversized forum. */
+#top > img {
+	max-width: 100%;
+}
 /* The main title. */
 h1.forumtitle {
 	font-size: 1.8em;
