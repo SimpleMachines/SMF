@@ -122,6 +122,10 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .dropmenu li ul ul {
 	margin: -2em 3.1em 0 0;
 }
+/* This is a small fix for dropmenu icons */
+.dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
+	margin: 0 -4px 0 8px;
+}
 
 /* Hiding Level 3 submenu off hover. */
 .dropmenu li:hover ul ul, .dropmenu li ul ul, .dropmenu li:hover ul ul ul, .dropmenu li ul ul ul {
