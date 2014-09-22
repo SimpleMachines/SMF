@@ -1783,6 +1783,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	border-width: 1px 0 1px 1px;
 }
 
+#admin_menu .dropmenu {
+	margin: 5px 0 0 0;
+}
 /* Some lovely generic icons.
 ------------------------------------------------- */
 .generic_icons {
@@ -1797,7 +1800,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
-	margin: 0 8px 0 -4px;
+	margin: -3px 8px 0 0;
 }
 /* Top row */
 .generic_icons.help {
@@ -2003,7 +2006,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.permissions, .generic_icons.signup {
 	background-position: -46px -130px;
 	width: 12px;
-	margin: -3px 8px 0 0;
+	margin: -3px 11px 0 2px;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
@@ -2474,6 +2477,11 @@ dl.stats dd {
 #profileview dd, .nobb, .nobb dd {
 	background: none !important;
 	border: none !important;
+}
+#profileview {
+	margin: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 dl.stats {
 	padding: 5px;
