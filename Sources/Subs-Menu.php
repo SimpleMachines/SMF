@@ -135,7 +135,14 @@ function createMenu($menuData, $menuOptions = array())
 						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '-menu-icon ' . $area['icon_class'];
 						elseif (isset($area['icon']))
+						{
+							if ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['theme_url'] . '/images/admin/big/' . $area['icon'];
+							elseif ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
+
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '-menu-icon ' . str_replace(array('.png', '.gif'), '', $area['icon']);
+						}
 						else
 							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '-menu-icon ' . str_replace(array('.png', '.gif'), '', $area_id);
 
