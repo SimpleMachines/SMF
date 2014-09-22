@@ -205,7 +205,7 @@ fieldset.admin_group .inactive {
 }
 
 /* The icons. */
-.large-admin-menu-icon:before {
+.large_admin_menu_icon {
 	background: url(../images/icons/admin_icons_hd.png) no-repeat  -5px -47px;
 	margin: 0 auto;
 	display: block;
@@ -213,97 +213,97 @@ fieldset.admin_group .inactive {
 	width: 32px;
 	height: 32px;
 }
-.large-admin-menu-icon.attachment:before {
+.large_admin_menu_icon.attachment {
 	background-position: -5px -5px;
 }
-.large-admin-menu-icon.ban:before {
+.large_admin_menu_icon.ban {
 	background-position: -47px -5px;
 }
-.large-admin-menu-icon.boards:before {
+.large_admin_menu_icon.boards {
 	background-position: -89px -5px;
 }
-.large-admin-menu-icon.calendar:before {
+.large_admin_menu_icon.calendar {
 	background-position: -131px -5px;
 }
-.large-admin-menu-icon.current_theme:before {
+.large_admin_menu_icon.current_theme {
 	background-position: -173px -5px;
 }
-.large-admin-menu-icon.default:before {
+.large_admin_menu_icon.default {
 	background-position: -5px -47px;
 }
-.large-admin-menu-icon.engines:before {
+.large_admin_menu_icon.engines {
 	background-position: -47px -47px;
 }
-.large-admin-menu-icon.exit:before {
+.large_admin_menu_icon.exit {
 	background-position: -89px -47px;
 }
-.large-admin-menu-icon.features:before {
+.large_admin_menu_icon.features {
 	background-position: -131px -47px;
 }
-.large-admin-menu-icon.languages:before {
+.large_admin_menu_icon.languages {
 	background-position: -173px -47px;
 }
-.large-admin-menu-icon.logs:before {
+.large_admin_menu_icon.logs {
 	background-position: -5px -89px;
 }
-.large-admin-menu-icon.mail:before {
+.large_admin_menu_icon.mail {
 	background-position: -47px -89px;
 }
-.large-admin-menu-icon.maintain:before {
+.large_admin_menu_icon.maintain {
 	background-position: -89px -89px;
 }
-.large-admin-menu-icon.membergroups:before {
+.large_admin_menu_icon.membergroups {
 	background-position: -131px -89px;
 }
-.large-admin-menu-icon.members:before {
+.large_admin_menu_icon.members {
 	background-position: -173px -89px;
 }
-.large-admin-menu-icon.modifications:before {
+.large_admin_menu_icon.modifications {
 	background-position: -5px -131px;
 }
-.large-admin-menu-icon.news:before {
+.large_admin_menu_icon.news {
 	background-position: -47px -131px;
 }
-.large-admin-menu-icon.packages:before {
+.large_admin_menu_icon.packages {
 	background-position: -89px -131px;
 }
-.large-admin-menu-icon.paid:before {
+.large_admin_menu_icon.paid {
 	background-position: -131px -131px;
 }
-.large-admin-menu-icon.permissions:before {
+.large_admin_menu_icon.permissions {
 	background-position: -173px -131px;
 }
-.large-admin-menu-icon.posts:before {
+.large_admin_menu_icon.posts {
 	background-position: -5px -173px;
 }
-.large-admin-menu-icon.regcenter:before {
+.large_admin_menu_icon.regcenter {
 	background-position: -47px -173px;
 }
-.large-admin-menu-icon.reports:before {
+.large_admin_menu_icon.reports {
 	background-position: -89px -173px;
 }
-.large-admin-menu-icon.scheduled:before {
+.large_admin_menu_icon.scheduled {
 	background-position: -131px -173px;
 }
-.large-admin-menu-icon.search:before {
+.large_admin_menu_icon.search {
 	background-position: -173px -173px;
 }
-.large-admin-menu-icon.security:before {
+.large_admin_menu_icon.security {
 	background-position: -215px -5px;
 }
-.large-admin-menu-icon.server:before {
+.large_admin_menu_icon.server {
 	background-position: -215px -47px;
 }
-.large-admin-menu-icon.smiley:before {
+.large_admin_menu_icon.smiley {
 	background-position: -215px -89px;
 }
-.large-admin-menu-icon.support:before {
+.large_admin_menu_icon.support {
 	background-position: -215px -131px;
 }
-.large-admin-menu-icon.themes:before {
+.large_admin_menu_icon.themes {
 	background-position: -215px -173px;
 }
-.large-admin-menu-icon.warning:before {
+.large_admin_menu_icon.warning {
 	background-position: -5px -215px;
 }
 
