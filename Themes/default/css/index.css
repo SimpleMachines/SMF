@@ -885,7 +885,6 @@ img.sort, .sort {
 }
 .dropmenu li li a>img {
 	vertical-align: middle;
-	margin: 0 0 0 -4px;
 }
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
 .top_menu {
@@ -1797,8 +1796,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: none;
 }
 /* This is a small fix for dropmenu icons */
-.dropmenu span, #profile_menu span {
-	margin: -5px 5px 0 0;
+.dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
+	margin: 0 8px 0 -4px;
 }
 /* Top row */
 .generic_icons.help {

@@ -206,7 +206,7 @@ fieldset.admin_group .inactive {
 
 /* The icons. */
 .large-admin-menu-icon:before {
-	background: url(../images/icons/admin_icons_hd.png) no-repeat;
+	background: url(../images/icons/admin_icons_hd.png) no-repeat  -5px -47px;
 	margin: 0 auto;
 	display: block;
 	content: '';
