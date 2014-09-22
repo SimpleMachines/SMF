@@ -1760,13 +1760,8 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0;
 	padding: 0;
 }
-#credits .windowbg,
-#credits .windowbg2,
-#admin_login .roundframe,
-#preview_section .windowbg,
-#post_area .roundframe,
-#memberlist_search .roundframe,
-#poll .windowbg {
+#credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
+#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe {
 	margin: 0 0 10px 0 !important;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
