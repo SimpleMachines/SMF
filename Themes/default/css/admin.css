@@ -205,6 +205,12 @@ fieldset.admin_group .inactive {
 }
 
 /* The icons. */
+.large-admin-menu-icon-file {
+	margin: 0 auto;
+	display: block;
+	width: 32px;
+	height: 32px;
+}
 .large-admin-menu-icon:before {
 	background: url(../images/icons/admin_icons_hd.png) no-repeat;
 	margin: 0 auto;
