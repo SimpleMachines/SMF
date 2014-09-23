@@ -295,11 +295,18 @@ h3.largetext {
 /* A quote, perhaps from another post. */
 .bbc_standard_quote:before, .bbc_alternate_quote:before {
 	color: #aaa;
-	font-size: 3em;
-	font-family: Arial, sans-serif;
+	font-size: 22px;
 	content: '\275D';
 	margin: -5px 5px 0 -5px;
+}
+/* Remove the difference IE/Opera/Chrome/Firefox etc... */
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
+	font-size: 30px;
+}
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
+#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
 	vertical-align: middle;
+	margin: 0 5px 0 0;
 }
 .bbc_standard_quote, .bbc_alternate_quote {
 	margin: 0 0 8px 0;
