@@ -1684,6 +1684,14 @@ fieldset.merge_options {
 }
 
 /* Additional register fields */
+#registration fieldset {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+#registration .roundframe {
+	border-top: none;
+}
 dl.register_form {
 	margin: 0;
 	clear: right;
@@ -1760,13 +1768,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 0;
 	padding: 0;
 }
-#credits .windowbg,
-#credits .windowbg2,
-#admin_login .roundframe,
-#preview_section .windowbg,
-#post_area .roundframe,
-#memberlist_search .roundframe,
-#poll .windowbg {
+#credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
+#registration .roundframe,
+#admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
+#profileview, #coppa {
 	margin: 0 0 10px 0 !important;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
@@ -1783,6 +1788,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	border-width: 1px 0 1px 1px;
 }
 
+#admin_menu .dropmenu {
+	margin: 5px 0 0 0;
+}
 /* Some lovely generic icons.
 ------------------------------------------------- */
 .generic_icons {
@@ -1797,7 +1805,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
-	margin: 0 8px 0 -4px;
+	margin: -3px 8px 0 0;
 }
 /* Top row */
 .generic_icons.help {
@@ -2003,7 +2011,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.permissions, .generic_icons.signup {
 	background-position: -46px -130px;
 	width: 12px;
-	margin: -3px 8px 0 0;
+	margin: -3px 11px 0 2px;
 }
 .generic_icons.paid {
 	background-position: -59px -130px;
@@ -2878,7 +2886,7 @@ div#manage_boards dl dd textarea[name=desc] {
 
 /* Can i haz this? I think we need Illori here to say "nope" */
 .title_top {
-	margin-top: 10px;
+	margin-top: 10px !important;
 }
 
 /* Profile > This needed for responsive (get rid of <br>) */
