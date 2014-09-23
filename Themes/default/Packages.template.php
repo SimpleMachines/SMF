@@ -939,11 +939,6 @@ function template_package_list()
 
 	echo '
 		</div>
-		<div class="padding smalltext floatleft">
-			', $txt['package_installed_key'], '
-			<span class="generic_icons current centericon" style="margin-left: 1ex;"></span> ', $txt['package_installed_current'], '
-			<span class="generic_icons old centericon" style="margin-left: 2ex;"></span> ', $txt['package_installed_old'], '
-		</div>
 	</div>
 
 		';
