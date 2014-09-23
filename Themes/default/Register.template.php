@@ -90,9 +90,9 @@ function template_registration_form()
 				<h3 class="catbg">', $txt['registration_form'], '</h3>
 			</div>
 			<div class="title_bar title_top">
-				<h4 class="titlebg">', $txt['required_info'], '</h4>
+				<h3 class="titlebg">', $txt['required_info'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="roundframe">
 				<fieldset>
 					<dl class="register_form">
 						<dt><strong><label for="smf_autov_username">', $txt['username'], ':</label></strong></dt>
@@ -157,9 +157,9 @@ function template_registration_form()
 	{
 		echo '
 			<div class="title_bar title_top">
-				<h4 class="titlebg">', $txt['additional_information'], '</h4>
+				<h3 class="titlebg">', $txt['additional_information'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="roundframe">
 				<fieldset>
 					<dl class="register_form" id="custom_group">';
 	}
@@ -273,9 +273,9 @@ function template_registration_form()
 	{
 		echo '
 			<div class="title_bar title_top">
-				<h4 class="titlebg">', $txt['verification'], '</h4>
+				<h3 class="titlebg">', $txt['verification'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="roundframe">
 				<fieldset class="centertext">
 					', template_control_verification($context['visual_verification_id'], 'all'), '
 				</fieldset>
@@ -343,7 +343,7 @@ function template_coppa()
 			<div class="title_bar title_top">
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div id="coppa" class="roundframe">
 				<p>', $context['coppa']['body'], '</p>
 				<p>
 					<span><a href="', $scripturl, '?action=coppa;form;member=', $context['coppa']['id'], '" target="_blank" class="new_win">', $txt['coppa_form_link_popup'], '</a> | <a href="', $scripturl, '?action=coppa;form;dl;member=', $context['coppa']['id'], '">', $txt['coppa_form_link_download'], '</a></span>
