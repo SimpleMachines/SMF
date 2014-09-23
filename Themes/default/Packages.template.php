@@ -840,7 +840,7 @@ function template_package_list()
 		<div class="cat_bar">
 			<h3 class="catbg">' . $context['page_title'] . '</h3>
 		</div>
-		<div class="windowbg">';
+		<div class="windowbg2">';
 
 	// No packages, as yet.
 	if (empty($context['package_list']))
@@ -861,7 +861,9 @@ function template_package_list()
 
 			if (!empty($packageSection['text']))
 				echo '
-					<div class="information">', $packageSection['text'], '</div>';
+					<div class="sub_bar">
+						<h3 class="subbg">', $packageSection['text'], '</h3>
+					</div>';
 
 			echo '
 					<', $context['list_type'], ' id="package_section_', $i, '" class="packages">';
