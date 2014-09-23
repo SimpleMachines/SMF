@@ -87,8 +87,12 @@ function template_admin()
 				continue;
 
 			$url = isset($item['url']) ? $item['url'] : $scripturl . '?action=admin;area=' . $item_id . (!empty($context[$context['admin_menu_name']]['extra_parameters']) ? $context[$context['admin_menu_name']]['extra_parameters'] : '');
-			echo '
-							<a href="', $url, '"><span class="large_', $item['icon_class'], !empty($item['inactive']) ? ' inactive' : '', '"></span>', $item['label'], '</a>';
+			if (!empty($item['icon_file']))
+				echo '
+							<a href="', $url, '" class="admin_group', !empty($item['inactive']) ? ' inactive' : '', '"><img class="large-admin-menu-icon-file" src="', $item['icon_file'], '" alt="">', $item['label'], '</a>';
+			else
+				echo '
+							<a href="', $url, '" class="large-', $item['icon_class'], !empty($item['inactive']) ? ' inactive' : '', '">', $item['label'], '</a>';
 		}
 
 		echo '
