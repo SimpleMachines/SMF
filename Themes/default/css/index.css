@@ -3200,7 +3200,7 @@ select.qaction {
 	max-width: 45em;
 	float: left;
 	margin: 0 0 4px 0;
-	padding: 0 4px 0 0;
+	padding: 0;
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
