@@ -248,14 +248,15 @@ function RecentPosts()
 		unset($query_these_boards_params['max_id_msg']);
 
 		$get_num_posts = $smcFunc['db_query']('', '
-			SELECT IFNULL(SUM(num_posts), 0)
+			SELECT IFNULL(SUM(b.num_posts), 0)
 			FROM {db_prefix}boards AS b
 			WHERE ' . $query_these_boards . '
 				AND b.redirect = {string:empty}',
 			array_merge($query_these_boards_params, array('empty' => ''))
 		);
 
-		$num_posts = min(100, $smcFunc['db_fetch_row']($get_num_posts));
+		list($db_num_posts) = $smcFunc['db_fetch_row']($get_num_posts);
+		$num_posts = min(100, $db_num_posts);
 
 		$smcFunc['db_free_result']($get_num_posts);
 
