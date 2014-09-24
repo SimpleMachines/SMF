@@ -21,8 +21,8 @@ $txt['mc_recent_reports'] = 'Recent Topic Reports';
 $txt['mc_recent_user_reports'] = 'Recent Profile Reports';
 $txt['mc_warnings'] = 'Warnings';
 $txt['mc_notes'] = 'Moderator Notes';
-$txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes'.
 
+$txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes.';
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
 $txt['mc_recent_reports_none'] = 'There are no outstanding reports';
