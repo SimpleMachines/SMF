@@ -3435,12 +3435,6 @@ img.smiley {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-#quickReplyOptions form textarea {
-	height: 100px;
-	width: 635px;
-	max-width: 100%;
-	min-width: 100%;
-}
 #quickReplyExpand {
 	float: right;
 	margin: 2px 2px 0 2px;

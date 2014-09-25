@@ -320,6 +320,9 @@ fieldset.admin_group .inactive {
 /* Nobody ever themes admin anyway. That's why it looked like crap. */
 #support_credits {
 	position: relative;
+	margin: -4px 0 0 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 #credits_logo {
 	position: absolute;
