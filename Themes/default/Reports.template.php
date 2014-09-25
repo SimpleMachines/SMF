@@ -63,8 +63,7 @@ function template_main()
 		template_button_strip($context['report_buttons'], 'right');
 
 	echo '
-		</div>
-		<div class="generic_list_wrapper">';
+		</div>';
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
@@ -135,7 +134,6 @@ function template_main()
 		<br>';
 	}
 	echo '
-		</div>
 	</div>';
 }
 

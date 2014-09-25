@@ -17,15 +17,16 @@ function template_main()
 
 	// Table header.
 	echo '
-	<div id="manage_boards" class="roundframe">
-		<div class="title_bar">
-			<h3 class="titlebg">', $txt['boardsEdit'], '</h3>
-		</div>';
+	<div id="manage_boards">
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['boardsEdit'], '</h3>
+		</div>
+		<div class="windowbg2">';
 
 	if (!empty($context['move_board']))
 		echo '
-		<div class="information">
-			<p>', $context['move_title'], ' [<a href="', $scripturl, '?action=admin;area=manageboards">', $txt['mboards_cancel_moving'], '</a>]', '</p>
+		<div class="noticebox">
+			', $context['move_title'], ' [<a href="', $scripturl, '?action=admin;area=manageboards">', $txt['mboards_cancel_moving'], '</a>]', '
 		</div>';
 
 	// No categories so show a label.
@@ -49,7 +50,6 @@ function template_main()
 		// Boards table header.
 		echo '
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', $context['character_set'], '">
-			<div class="windowbg2">
 				<ul id="category_', $category['id'], '" class="reset nolist">';
 
 		if (!empty($category['move_link']))
@@ -97,11 +97,11 @@ function template_main()
 				</ul>
 				<input type="submit" value="', $txt['mboards_new_board'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-			</div>
 		</form>';
 	}
 
 	echo '
+		</div>
 	</div>';
 }
 
@@ -249,7 +249,7 @@ function template_modify_board()
 
 	// The main table header.
 	echo '
-	<div id="manage_boards" class="roundframe">
+	<div id="manage_boards">
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', $context['character_set'], '">
 			<input type="hidden" name="boardid" value="', $context['board']['id'], '">
 			<div class="cat_bar">
@@ -257,7 +257,7 @@ function template_modify_board()
 					', isset($context['board']['is_new']) ? $txt['mboards_new_board_name'] : $txt['boardsEdit'], '
 				</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">';
 
 	// Option for choosing the category the board lives in.

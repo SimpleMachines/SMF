@@ -113,7 +113,7 @@ function template_maintain_routine()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['maintain_version'], '</h3>
 		</div>
-		<div class="windowbg">
+		<div class="windowbg2">
 			<form action="', $scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="', $context['character_set'], '">
 				<p>', $txt['maintain_version_info'], '
 					<input type="submit" value="', $txt['maintain_run_now'], '" class="button_submit">

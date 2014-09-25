@@ -276,13 +276,14 @@ function template_by_board()
 				', $txt['permissions_boards_desc'], '
 			</div>
 
-			<div class="title_bar title_top">
-				<h3 id="board_permissions" class="titlebg flow_hidden">
+			<div class="cat_bar">
+				<h3 id="board_permissions" class="catbg flow_hidden">
 					<span class="perm_name floatleft">', $txt['board_name'], '</span>
 					<span class="perm_profile floatleft">', $txt['permission_profile'], '</span>';
 					echo '
 				</h3>
-			</div>';
+			</div>
+			<div class="windowbg2">';
 
 	foreach ($context['categories'] as $category)
 	{
@@ -293,7 +294,6 @@ function template_by_board()
 
 		if (!empty($category['boards']))
 			echo '
-			<div class="windowbg2">
 				<ul class="perm_boards flow_hidden">';
 
 		$alternate = false;
@@ -332,8 +332,7 @@ function template_by_board()
 
 		if (!empty($category['boards']))
 			echo '
-				</ul>
-			</div>';
+				</ul>';
 	}
 
 	if ($context['edit_all'])
@@ -346,6 +345,7 @@ function template_by_board()
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-mpb_token_var'], '" value="', $context['admin-mpb_token'], '">
+			</div>
 		</form>
 	</div>';
 }
@@ -439,7 +439,6 @@ function template_edit_profiles()
 						</select>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="', $context['admin-mpp_token_var'], '" value="', $context['admin-mpp_token'], '">
 				<input type="submit" name="create" value="', $txt['permissions_profile_new_create'], '" class="button_submit">
