@@ -4083,7 +4083,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file) && $file !== true) ? ($file . '|' . $function . ($object ? '#' : '')) : $function;
+	$integration_call = (!empty($file) && is_string($file)) ? ($file . '|' . $function . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
