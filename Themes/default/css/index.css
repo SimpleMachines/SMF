@@ -3435,12 +3435,6 @@ img.smiley {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-#quickReplyOptions form textarea {
-	height: 100px;
-	width: 635px;
-	max-width: 100%;
-	min-width: 100%;
-}
 #quickReplyExpand {
 	float: right;
 	margin: 2px 2px 0 2px;
@@ -3666,6 +3660,7 @@ h3.catbg .icon {
 	text-shadow: none;
 	background: none;
 	box-shadow: 0 -1px 0 #999 inset;
+	clear: both;
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	background: none;

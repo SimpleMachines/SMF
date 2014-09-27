@@ -335,10 +335,10 @@ function template_setorder()
 			<div class="cat_bar">
 				<h3 class="catbg">', $location['title'], '</h3>
 			</div>
-			<div class="information">
+			<div class="information winfo">
 				', $location['description'], '
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<strong>', empty($context['move_smiley']) ? $txt['smileys_move_select_smiley'] : $txt['smileys_move_select_destination'], '...</strong><br>';
 		foreach ($location['rows'] as $row)
 		{

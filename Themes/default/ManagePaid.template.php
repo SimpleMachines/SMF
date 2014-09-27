@@ -26,8 +26,8 @@ function template_modify_subscription()
 		echo '
 			<div class="information">
 				<span class="alert">', $txt['paid_mod_edit_note'], '</span>
-			</div>
-			';
+			</div>';
+
 	echo '
 			<div class="windowbg">
 				<dl class="settings">

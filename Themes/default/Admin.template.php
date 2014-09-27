@@ -688,9 +688,7 @@ function template_show_settings()
 	if (isset($context['settings_title']))
 		echo '
 							<div class="cat_bar">
-								<h3 class="catbg">
-									', $context['settings_title'], '
-								</h3>
+								<h3 class="catbg">', $context['settings_title'], '</h3>
 							</div>';
 
 	// Have we got a message to display?
@@ -729,9 +727,9 @@ function template_show_settings()
 			else
 			{
 				echo '
-							<p class="information">
+							<div class="information winfo">
 								', $config_var['label'], '
-							</p>';
+							</div>';
 			}
 
 			continue;
@@ -1015,9 +1013,7 @@ function template_edit_profile_field()
 					<div id="admincenter">
 						<form action="', $scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', $context['fid'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
 							<div id="section_header" class="cat_bar">
-								<h3 class="catbg">
-									', $context['page_title'], '
-								</h3>
+								<h3 class="catbg">', $context['page_title'], '</h3>
 							</div>
 							<div class="windowbg">
 								<fieldset>
