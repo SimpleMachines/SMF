@@ -405,6 +405,8 @@ function loadInstalledPackages()
 
 		$found[] = $row['package_id'];
 
+		$row = htmlspecialchars__recursive($row);
+
 		$installed[] = array(
 			'id' => $row['id_install'],
 			'name' => $smcFunc['htmlspecialchars']($row['name']),
@@ -471,10 +473,19 @@ function getPackageInfo($gzfilename)
 	$packageInfo = $packageInfo->path('package-info[0]');
 
 	$package = $packageInfo->to_array();
+	$package = htmlspecialchars__recursive($package);
 	$package['xml'] = $packageInfo;
-	$package['name'] = $smcFunc['htmlspecialchars']($package['name']);
-	$package['version'] = $smcFunc['htmlspecialchars']($package['version']);
 	$package['filename'] = $gzfilename;
+
+	// Don't want to mess with code...
+	$types = array('install', 'uninstall', 'upgrade');
+	foreach($types as $type)
+	{
+		if (isset($package[$type]['code']))
+		{
+			$package[$type]['code'] = un_htmlspecialchars($package[$type]['code']);
+		}
+	}
 
 	if (!isset($package['type']))
 		$package['type'] = 'modification';

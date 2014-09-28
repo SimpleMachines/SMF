@@ -1155,6 +1155,14 @@ function PackageInstall()
 			// What failed steps?
 			$failed_step_insert = serialize($failed_steps);
 
+			// Un-sanitize things before we insert them...
+			$keys = array('filename', 'name', 'id', 'version');
+			foreach ($keys as $key)
+			{
+				// Yay for variable variables...
+				${"package_$key"} = un_htmlspecialchars($packageInfo[$key]);
+			}
+
 			// Credits tag?
 			$credits_tag = (empty($credits_tag)) ? '' : serialize($credits_tag);
 			$smcFunc['db_insert']('',
@@ -1166,7 +1174,7 @@ function PackageInstall()
 					'member_removed' => 'int', 'db_changes' => 'string', 'credits' => 'string',
 				),
 				array(
-					$packageInfo['filename'], un_htmlspecialchars($packageInfo['name']), $packageInfo['id'], un_htmlspecialchars($packageInfo['version']),
+					$package_filename, $package_name, $package_id, $package_version,
 					$user_info['id'], $user_info['name'], time(),
 					$is_upgrade ? 2 : 1, $failed_step_insert, $themes_installed,
 					0, $db_changes, $credits_tag,

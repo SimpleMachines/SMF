@@ -1199,7 +1199,10 @@ function Post2()
 
 	// Previewing? Go back to start.
 	if (isset($_REQUEST['preview']))
+	{
+		checkSession();
 		return Post();
+	}
 
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
