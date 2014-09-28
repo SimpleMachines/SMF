@@ -572,7 +572,8 @@ function template_edit_agreement()
 		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
-			</div>';
+			</div>
+		</form>';
 
 	// Warning for if the file isn't writable.
 	if (!empty($context['warning']))
