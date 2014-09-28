@@ -285,10 +285,11 @@ h3.largetext {
 }
 .half_content {
 	box-sizing: border-box;
+	margin: 0 -0.25em;
+	padding: 0 0.3%;
 	width: 50%;
-	float: left;
 	display: inline-block;
-	padding: 0 3px;
+	vertical-align: top;
 }
 
 /* BBC */
@@ -3645,9 +3646,6 @@ h3.catbg .icon {
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: hidden;
-}
-.roundframe dl, .roundframe dt, .roundframe p {
-	margin: 0;
 }
 /* TitleBar & SubBar */
 .title_bar {
