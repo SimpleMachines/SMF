@@ -569,11 +569,10 @@ function template_edit_agreement()
 
 	// Just a big box to edit the text file ;).
 	echo '
-		<form id="admin_form_wrapper" action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['registration_agreement'], '</h3>
-			</div>
-		</form>';
+			</div>';
 
 	// Warning for if the file isn't writable.
 	if (!empty($context['warning']))
@@ -604,6 +603,7 @@ function template_edit_agreement()
 						<div class="righttext">
 							<input type="hidden" name="sa" value="agreement">
 							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+							<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
 							<input type="submit" name="change" value="', $txt['admin_agreement_select_language_change'], '" tabindex="', $context['tabindex']++, '" class="button_submit">
 						</div>
 					</form>
@@ -614,21 +614,23 @@ function template_edit_agreement()
 
 	// Show the actual agreement in an oversized text box.
 	echo '
-				<p class="agreement">
-					<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
-				</p>
-				<p>
-					<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check"> ', $txt['admin_agreement'], '.</label>
-				</p>
-				<div class="flow_auto" >
-					<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit">
-					<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '">
-					<input type="hidden" name="sa" value="agreement">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
-				</div>
+				<form action="', $scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', $context['character_set'], '">
+					<p class="agreement">
+						<textarea cols="70" rows="20" name="agreement" id="agreement">', $context['agreement'], '</textarea>
+					</p>
+					<p>
+						<label for="requireAgreement"><input type="checkbox" name="requireAgreement" id="requireAgreement"', $context['require_agreement'] ? ' checked' : '', ' tabindex="', $context['tabindex']++, '" value="1" class="input_check"> ', $txt['admin_agreement'], '.</label>
+					</p>
+					<div class="flow_auto">
+						<input type="submit" value="', $txt['save'], '" tabindex="', $context['tabindex']++, '" class="button_submit">
+						<input type="hidden" name="agree_lang" value="', $context['current_agreement'], '">
+						<input type="hidden" name="sa" value="agreement">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="hidden" name="', $context['admin-rega_token_var'], '" value="', $context['admin-rega_token'], '">
+					</div>
+				</form>
 			</div>
-		</form>';
+		</div>';
 }
 
 function template_edit_reserved_words()
@@ -675,7 +677,7 @@ function template_edit_reserved_words()
 						<input type="checkbox" name="matchname" id="matchname" tabindex="', $context['tabindex']++, '"', $context['reserved_word_options']['match_name'] ? ' checked' : '', ' class="input_check">
 					</dd>
 				</dl>
-				<div class="flow_auto" >
+				<div class="flow_auto">
 					<input type="submit" value="', $txt['save'], '" name="save_reserved_names" tabindex="', $context['tabindex']++, '" style="margin: 1ex;" class="button_submit">
 					<input type="hidden" name="sa" value="reservednames">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
