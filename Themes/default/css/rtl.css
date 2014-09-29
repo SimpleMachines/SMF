@@ -593,12 +593,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 	text-align: right;
 }
 
-.half_content {
-	width: 50%;
-	float: right;
-	padding: 0 3px;
-}
-
 /* Styles for the advanced search section.
 ------------------------------------------------- */
 #searchform fieldset {
