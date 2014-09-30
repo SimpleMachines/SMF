@@ -233,7 +233,7 @@ div.sceditor-dropdown {
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 }
-div.sceditor-dropdown a, div.sceditor-dropdown a: link {
+div.sceditor-dropdown a, div.sceditor-dropdown a:link {
 	color: #333;
 }
 div.sceditor-dropdown form {
@@ -258,7 +258,7 @@ div.sceditor-dropdown input, div.sceditor-dropdown textarea {
 div.sceditor-dropdown textarea {
 	padding: 6px;
 }
-div.sceditor-dropdown input: focus, div.sceditor-dropdown textarea: focus {
+div.sceditor-dropdown input:focus, div.sceditor-dropdown textarea:focus {
 	border-color: #aaa;
 	border-top-color: #666;
 	box-shadow: inset 0 1px 5px rgba(0, 0, 0, .1);
@@ -274,7 +274,7 @@ div.sceditor-dropdown .button {
 	cursor: pointer;
 	margin: .3em 0 0;
 }
-div.sceditor-dropdown .button: hover {
+div.sceditor-dropdown .button:hover {
 	background: #f3f3f3;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, .15);
 }
@@ -301,7 +301,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	font-weight: 700;
 	padding: 6px 0;
 }
-.sceditor-dropdown a: hover {
+.sceditor-dropdown a:hover {
 	background: #eee;
 }
 .sceditor-fontsize-option, .sceditor-font-option, .sceditor-format a {
@@ -324,7 +324,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	width: 10px;
 	overflow: hidden;
 }
-.sceditor-color-option: hover {
+.sceditor-color-option:hover {
 	border: 1px solid #333;
 }
 div.sceditor-toolbar {
@@ -380,15 +380,15 @@ div.sceditor-group {
 .ie7 .sceditor-button div {
 	margin: 5px 0;
 }
-.sceditor-button: hover, .sceditor-button: active, .sceditor-button.active {
+.sceditor-button:hover, .sceditor-button:active, .sceditor-button.active {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .3), inset -1px 0 rgba(0, 0, 0, .3), inset 0 -1px 0 rgba(0, 0, 0, .2);
 }
-.sceditor-button: active {
+.sceditor-button:active {
 	background: #fff;
 	box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .3), inset -1px 0 rgba(0, 0, 0, .3), inset 0 -1px 0 rgba(0, 0, 0, .2), inset 0 0 8px rgba(0, 0, 0, .3);
 }
-.sceditor-button.disabled: hover {
+.sceditor-button.disabled:hover {
 	background: inherit;
 	cursor: default;
 	box-shadow: none;
