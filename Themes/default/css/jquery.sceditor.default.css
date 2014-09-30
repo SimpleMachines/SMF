@@ -21,7 +21,7 @@ table,td {
 	border: 1px dotted #000;
 	empty-cells: show
 }
-code: before {
+code:before {
 	position: absolute;
 	content: 'Code: ';
 	top: -1.35em;
@@ -38,7 +38,7 @@ code {
 .ie6 code, .ie7 code {
 	margin-top: 0
 }
-code,code: before {
+code,code:before {
 	display: block;
 	text-align: left
 }
