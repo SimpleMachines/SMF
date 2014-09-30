@@ -4138,15 +4138,28 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  * Removes the given function from the given hook.
  * Does nothing if the function is not available.
  *
- * @param string $hook
- * @param string $function
- * @param string $file
+ * @param string $hook The complete hook name.
+ * @param string $function Function name, can be a call to a method via Class::method.
+ * @params boolean $permanent Irrelevant for the function itself but need to declare it to match 
+ * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+add_integration_function
+ * @param boolean $object
+ * @see add_integration_function
  */
-function remove_integration_function($hook, $function, $file = '', $object = false)
+function remove_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
 	global $smcFunc, $modSettings;
 
-	$integration_call = (!empty($file)) ? $file . '|' . $function .($object ? '#' : '') : $function;
+	// Any objects?
+	if ($object)
+		$function = $function . '#';
+
+	// Any files  to load?
+	if (!empty($file) && is_string($file))
+		$function = $file . '|' . $function;
+
+	// Get the correct string.
+	$integration_call = $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
