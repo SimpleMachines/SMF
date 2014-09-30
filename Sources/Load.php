@@ -19,8 +19,6 @@ if (!defined('SMF'))
 /**
  * Load the $modSettings array.
  *
- * @todo okay question of the day: why a function for loading settings is called reloadSettings()
- *
  */
 function reloadSettings()
 {
