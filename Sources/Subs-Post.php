@@ -1844,7 +1844,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
 
 		// What if we want to export new topics out to a CMS?
-		call_integration_hook('integrate_create_topic', array($msgOptions, $topicOptions, $posterOptions));
+		call_integration_hook('integrate_create_topic', array(&$msgOptions, &$topicOptions, &$posterOptions));
 	}
 	// The topic already exists, it only needs a little updating.
 	else
