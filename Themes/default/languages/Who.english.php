@@ -116,7 +116,7 @@ $txt['whoallow_viewmembers'] = 'Viewing a list of members.';
 
 $txt['who_topic'] = 'Viewing the topic <a href="' . $scripturl . '?topic=%1$d.0">%2$s</a>.';
 $txt['who_board'] = 'Viewing the board <a href="' . $scripturl . '?board=%1$d.0">%2$s</a>.';
-$txt['who_index'] = 'Viewing the board index of <a href="' . $scripturl . '">' . $context['forum_name'] . '</a>.';
+$txt['who_index'] = 'Viewing the board index of <a href="' . $scripturl . '">' . $context['forum_name_html_safe'] . '</a>.';
 $txt['who_viewprofile'] = 'Viewing <a href="' . $scripturl . '?action=profile;u=%1$d">%2$s</a>\'s profile.';
 $txt['who_viewownprofile'] = 'Viewing <a href="' . $scripturl . '?action=profile;u=%1$d">their own profile</a>.';
 $txt['who_profile'] = 'Editing the profile of <a href="' . $scripturl . '?action=profile;u=%1$d">%2$s</a>.';

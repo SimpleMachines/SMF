@@ -154,7 +154,7 @@ function template_manual()
 			</div>
 			<div id="help_container">
 				<div id="helpmain" class="windowbg2">
-					<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
+					<p>', sprintf($txt['manual_welcome'], $context['forum_name_html_safe']), '</p>
 					<p>', $txt['manual_introduction'], '</p>
 					<ul>';
 
@@ -179,7 +179,7 @@ function template_terms()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', $txt['terms_and_rules'], ' - ', $context['forum_name'], '
+					', $txt['terms_and_rules'], ' - ', $context['forum_name_html_safe'], '
 				</h3>
 			</div>
 			<div class="roundframe">
