@@ -445,20 +445,34 @@ function MLSearch()
 
 		// Search for a name
 		if (in_array('name', $_POST['fields']))
+		{
 			$fields = allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
+			$search_fields[] = 'name';
+		}
 		else
+		{
 			$fields = array();
+			$search_fields = array();
+		}
 
 		// Search for websites.
 		if (in_array('website', $_POST['fields']))
+		{
 			$fields += array(7 => 'website_title', 'website_url');
+			$search_fields[] = 'website';
+		}
 		// Search for groups.
 		if (in_array('group', $_POST['fields']))
+		{
 			$fields += array(9 => 'IFNULL(group_name, {string:blank_string})');
+			$search_fields[] = 'group';
+		}
 		// Search for an email address?
 		if (in_array('email', $_POST['fields']))
 		{
 			$fields += array(2 => allowedTo('moderate_forum') ? 'email_address' : '');
+			$search_fields[] = 'email';
+			$condition = allowedTo('moderate_forum') ? '' : ')';
 		}
 		else
 			$condition = '';
@@ -479,8 +493,13 @@ function MLSearch()
 				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {string:t' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
 				$query_parameters['t' . $row['col_name']] = $row['col_name'];
 				$fields += array($customCount++ => 'IFNULL(t' . $row['col_name'] . '.value, {string:blank_string})');
+				$search_fields[] = $field;
 			}
 		}
+
+		// No search fields? That means you're trying to hack things
+		if (empty($search_fields))
+			fatal_lang_error('invalid_search_string', false);
 
 		$query = $_POST['search'] == '' ? '= {string:blank_string}' : ($smcFunc['db_case_sensitive'] ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
