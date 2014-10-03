@@ -1200,7 +1200,12 @@ function Post2()
 	// Previewing? Go back to start.
 	if (isset($_REQUEST['preview']))
 	{
-		checkSession();
+		if (checkSession('post', '', false) != '')
+		{
+			loadLanguage('Errors');
+			$context['post_errors']['message'][] = $txt['error_session_timeout'];
+			unset ($_POST['preview'], $_REQUEST['xml']); // just in case
+		}
 		return Post();
 	}
 
