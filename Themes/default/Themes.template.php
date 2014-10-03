@@ -1084,7 +1084,14 @@ function template_edit_style()
 				</div>
 			</div>
 			<input type="hidden" name="filename" value="', $context['edit_filename'], '">
-			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
+
+	// Hopefully it exists.
+	if (isset($context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token']))
+		echo '
+			<input type="hidden" name="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token_var'], '" value="', $context['admin-te-' . md5($context['theme_id'] . '-' . $context['edit_filename']) . '_token'], '">';
+
+	echo '
 		</form>
 	</div>';
 }
