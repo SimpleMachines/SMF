@@ -160,8 +160,8 @@ function issueWarning($memID)
 				require_once($sourcedir . '/Subs-Post.php');
 				$from = array(
 					'id' => 0,
-					'name' => $context['forum_name'],
-					'username' => $context['forum_name'],
+					'name' => $context['forum_name_html_safe'],
+					'username' => $context['forum_name_html_safe'],
 				);
 				sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
