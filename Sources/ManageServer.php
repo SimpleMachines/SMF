@@ -558,9 +558,9 @@ function ModifyLoadBalancingSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		// Stupidity is not allowed.
-		foreach ($_POST as $key => $value)
+		foreach ($default_values as $key => $value)
 		{
-			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable')
+			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable' || !in_array($key, array_keys($default_values)))
 				continue;
 			else
 				$_POST[$key] = (float) $value;
