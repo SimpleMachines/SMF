@@ -86,7 +86,7 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $quote_style, $utf8)
+		'htmlspecialchars' => function ($string) use ($ent_check, $quote_style, $utf8, $charset)
 		{
 			return $ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset));
 		},
