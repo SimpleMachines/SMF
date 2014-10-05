@@ -481,7 +481,6 @@ function ModifyCacheSettings($return_config = false)
 		$context['settings_message'] = $txt['caching_information'];
 
 	// Prepare the template.
-	createToken('admin-ssc');
 	prepareServerSettingsContext($config_vars);
 }
 
@@ -581,8 +580,6 @@ function ModifyLoadBalancingSettings($return_config = false)
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	createToken('admin-ssc');
-	createToken('admin-dbsc');
 	prepareDBSettingContext($config_vars);
 }
 
