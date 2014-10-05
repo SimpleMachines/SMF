@@ -481,7 +481,6 @@ function ModifyCacheSettings($return_config = false)
 		$context['settings_message'] = $txt['caching_information'];
 
 	// Prepare the template.
-	createToken('admin-ssc');
 	prepareServerSettingsContext($config_vars);
 }
 
@@ -558,9 +557,9 @@ function ModifyLoadBalancingSettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		// Stupidity is not allowed.
-		foreach ($_POST as $key => $value)
+		foreach ($default_values as $key => $value)
 		{
-			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable')
+			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable' || !in_array($key, array_keys($default_values)))
 				continue;
 			else
 				$_POST[$key] = (float) $value;
@@ -581,8 +580,6 @@ function ModifyLoadBalancingSettings($return_config = false)
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	createToken('admin-ssc');
-	createToken('admin-dbsc');
 	prepareDBSettingContext($config_vars);
 }
 
