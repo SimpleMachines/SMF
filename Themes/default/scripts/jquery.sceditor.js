@@ -452,8 +452,9 @@
 		initEditor = function () {
 			var doc, tabIndex;
 
-			$sourceEditor  = $('<textarea></textarea>').hide();
-			$wysiwygEditor = $('<iframe frameborder="0"></iframe>');
+			// @SMF code: tabindex applied to the editor
+			$sourceEditor = $('<textarea></textarea>').attr('tabindex', $original.attr('tabindex')).hide();
+			$wysiwygEditor = $('<iframe frameborder="0"></iframe>').attr('tabindex', $original.attr('tabindex'));
 
 			if(!options.spellcheck)
 				$sourceEditor.attr('spellcheck', 'false');
