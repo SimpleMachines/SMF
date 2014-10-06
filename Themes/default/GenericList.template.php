@@ -177,7 +177,7 @@ function template_additional_rows($row_position, $cur_list)
 {
 	foreach ($cur_list['additional_rows'][$row_position] as $row)
 		echo '
-			', $row['value'], '';
+			<div class="additional_row', empty($row['class']) ? '' : ' ' . $row['class'], '"', empty($row['style']) ? '' : ' style="' . $row['style'] . '"', '>', $row['value'], '</div>';
 }
 
 function template_create_list_menu($list_menu, $direction = 'top')
