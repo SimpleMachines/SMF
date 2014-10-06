@@ -5985,7 +5985,7 @@
 		 * If to auto focus the editor on page load
 		 * @type {Boolean}
 		 */
-		autofocus: false,
+		autofocus: true,
 
 		/**
 		 * If to auto focus the editor to the end of the content
