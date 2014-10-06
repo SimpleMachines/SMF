@@ -105,7 +105,7 @@ function template_main()
 	{
 		echo '
 	<div class="pagesection">
-		', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft" id="#top">', $txt['go_down'], '</a>
+		', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft" id="#main_content_section">', $txt['go_down'], '</a>
 		<div class="pagelinks floatleft">', $context['page_index'], '</div>
 		', template_button_strip($context['normal_buttons'], 'right'), '
 	</div>';
