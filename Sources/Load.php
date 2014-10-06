@@ -86,7 +86,7 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8)
+		'htmlspecialchars' => function ($string) use ($ent_check, $quote_style, $utf8, $charset)
 		{
 			return $ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset));
 		},
@@ -2502,7 +2502,11 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 	// Either we don't use the cache, or its expired.
 	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
 	{
-		// If we don't have our theme information yet, lets get it.
+		// If we don't have our ucwords function defined yet, let's load the settings data.
+		if (empty($smcFunc['ucwords']))
+			reloadSettings();
+		
+		// If we don't have our theme information yet, let's get it.
 		if (empty($settings['default_theme_dir']))
 			loadTheme(0, false);
 
@@ -2552,7 +2556,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 					unset($context['languages'][$lang['filename']]);
 		}
 
-		// Lets cash in on this deal.
+		// Let's cash in on this deal.
 		if (!empty($modSettings['cache_enable']))
 			cache_put_data('known_languages' . ($favor_utf8 ? '' : '_all'), $context['languages'], !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600);
 	}
