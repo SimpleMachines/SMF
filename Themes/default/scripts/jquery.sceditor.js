@@ -78,7 +78,7 @@
 	 * <p>If createHTML is passed it will use jQuery to create the HTML. The
 	 * same as doing: $(editor.tmpl("html", {params...}));</p>
 	 *
-	 * @param {string} templateName
+	 * @param {string} name
 	 * @param {Object} params
 	 * @param {Boolean} createHTML
 	 * @private
@@ -105,6 +105,12 @@
 	 * @name jQuery.sceditor
 	 */
 	$.sceditor = function (el, options) {
+		var IE_VER = $.sceditor.ie;
+
+		// In IE < 11 a BR at the end of a block level element
+		// causes a double line break.
+		var IE_BR_FIX = IE_VER && IE_VER < 11;
+
 		/**
 		 * Alias of this
 		 * @private
@@ -322,7 +328,10 @@
 			autofocus,
 			emoticonsKeyPress,
 			emoticonsCheckWhitespace,
-			currentStyledBlockNode;
+			currentStyledBlockNode,
+			triggerValueChanged,
+			valueChangedBlur,
+			valueChangedKeyUp;
 
 		/**
 		 * All the commands supported by the editor
@@ -362,8 +371,8 @@
 
 			// Add IE version to the container to allow IE specific CSS
 			// fixes without using CSS hacks or conditional comments
-			if($.sceditor.ie)
-				$editorContainer.addClass('ie ie' + $.sceditor.ie);
+			if(IE_VER)
+				$editorContainer.addClass('ie ie' + IE_VER);
 
 			isRequired = !!$original.attr('required');
 			$original.removeAttr('required');
@@ -371,7 +380,6 @@
 			// create the editor
 			initPlugins();
 			initEmoticons();
-
 			initToolBar();
 			initEditor();
 			initCommands();
@@ -382,6 +390,8 @@
 			// full editing
 			if(!$.sceditor.isWysiwygSupported)
 				base.toggleSourceMode();
+
+			updateActiveButtons();
 
 			var loaded = function() {
 				$(window).unbind('load', loaded);
@@ -395,17 +405,17 @@
 				// Page width might have changed after CSS is loaded so
 				// call handleWindowResize to update any % based dimensions
 				handleWindowResize();
+
+				pluginManager.call('ready');
 			};
 			$(window).load(loaded);
 			if(document.readyState && document.readyState === 'complete')
 				loaded();
-
-			updateActiveButtons();
-			pluginManager.call('ready');
 		};
 
 		initPlugins = function() {
 			var plugins   = options.plugins;
+
 			plugins       = plugins ? plugins.toString().split(',') : [];
 			pluginManager = new $.sceditor.PluginManager(base);
 
@@ -422,16 +432,15 @@
 		initLocale = function() {
 			var lang;
 
-			if($.sceditor.locale[options.locale])
-				locale = $.sceditor.locale[options.locale];
-			else
-			{
-				lang = options.locale.split('-');
+			locale = $.sceditor.locale[options.locale];
 
-				if($.sceditor.locale[lang[0]])
-					locale = $.sceditor.locale[lang[0]];
+			if(!locale)
+			{
+				lang   = options.locale.split('-');
+				locale = $.sceditor.locale[lang[0]];
 			}
 
+			// Locale DateTime format overrides any specified in the options
 			if(locale && locale.dateFormat)
 				options.dateFormat = locale.dateFormat;
 		};
@@ -444,7 +453,7 @@
 			var doc, tabIndex;
 
 			// @SMF code: tabindex applied to the editor
-			$sourceEditor  = $('<textarea></textarea>').attr('tabindex', $original.attr('tabindex')).hide();
+			$sourceEditor = $('<textarea></textarea>').attr('tabindex', $original.attr('tabindex')).hide();
 			$wysiwygEditor = $('<iframe frameborder="0"></iframe>').attr('tabindex', $original.attr('tabindex'));
 
 			if(!options.spellcheck)
@@ -458,8 +467,7 @@
 			wysiwygEditor = $wysiwygEditor[0];
 			sourceEditor  = $sourceEditor[0];
 
-			base.width(options.width || $original.width());
-			base.height(options.height || $original.height());
+			base.dimensions(options.width || $original.width(), options.height || $original.height());
 
 			doc = getWysiwygDoc();
 			doc.open();
@@ -473,16 +481,16 @@
 
 			// Add IE version class to the HTML element so can apply
 			// conditional styling without CSS hacks
-			if($.sceditor.ie)
-				$wysiwygDoc.find('html').addClass('ie ie' + $.sceditor.ie);
+			if(IE_VER)
+				$wysiwygDoc.find('html').addClass('ie ie' + IE_VER);
 
 			// iframe overflow fix for iOS, also fixes an IE issue with the
 			// editor not getting focus when clicking inside
-			if($.sceditor.ios || $.sceditor.ie)
+			if($.sceditor.ios || IE_VER)
 			{
 				$wysiwygBody.height('100%');
 
-				if(!$.sceditor.ie)
+				if(!IE_VER)
 					$wysiwygBody.bind('touchend', base.focus);
 			}
 
@@ -541,19 +549,25 @@
 				.keydown(handleKeyDown)
 				.keydown(handleBackSpace)
 				.keyup(appendNewLine)
+				.bind('blur', valueChangedBlur)
+				.keyup(valueChangedKeyUp)
 				.bind('paste', handlePasteEvt)
-				.bind($.sceditor.ie ? 'selectionchange' : 'keyup focus blur contextmenu mouseup touchend click', checkSelectionChanged)
+				.bind(IE_VER ? 'selectionchange' : 'keyup focus blur contextmenu mouseup touchend click', checkSelectionChanged)
 				.bind('keydown keyup keypress focus blur contextmenu', handleEvent);
 
 			if(options.emoticonsCompat && window.getSelection)
 				$wysiwygBody.keyup(emoticonsCheckWhitespace);
 
-			$sourceEditor.bind('keydown keyup keypress focus blur contextmenu', handleEvent).keydown(handleKeyDown);
+			$sourceEditor
+				.bind('blur', valueChangedBlur)
+				.keyup(valueChangedKeyUp)
+				.bind('keydown keyup keypress focus blur contextmenu', handleEvent)
+				.keydown(handleKeyDown);
 
 			$wysiwygDoc
-				.keypress(handleKeyPress)
 				.mousedown(handleMouseDown)
-				.bind($.sceditor.ie ? 'selectionchange' : 'focus blur contextmenu mouseup click', checkSelectionChanged)
+				.bind('blur', valueChangedBlur)
+				.bind(IE_VER ? 'selectionchange' : 'focus blur contextmenu mouseup click', checkSelectionChanged)
 				.bind('beforedeactivate keyup', saveRange)
 				.keyup(appendNewLine)
 				.focus(function() {
@@ -563,8 +577,7 @@
 			$editorContainer
 				.bind('selectionchanged', checkNodeChanged)
 				.bind('selectionchanged', updateActiveButtons)
-				.bind('selectionchanged', handleEvent)
-				.bind('nodechanged', handleEvent);
+				.bind('selectionchanged valuechanged nodechanged', handleEvent);
 		};
 
 		/**
@@ -572,9 +585,10 @@
 		 * @private
 		 */
 		initToolBar = function () {
-			var	$group, $button,
-				exclude = (options.toolbarExclude || '').split(','),
-				groups  = options.toolbar.split('|');
+			var	$group, $button, shortcutName,
+				commands = base.commands,
+				exclude  = (options.toolbarExclude || '').split(','),
+				groups   = options.toolbar.split('|');
 
 			$toolbar = $('<div class="sceditor-toolbar" unselectable="on">');
 			$.each(groups, function(idx, group) {
@@ -582,33 +596,37 @@
 
 				$.each(group.split(','), function(idx, button) {
 					// The button must be a valid command and not excluded
-					if(!base.commands[button] || $.inArray(button, exclude) > -1)
+					if(!commands[button] || $.inArray(button, exclude) > -1)
 						return;
 
+					shortcutName = commands[button].shortcut ? " (" + commands[button].shortcut + ")" : "";
 					$button = _tmpl('toolbarButton', {
 							name: button,
-							dispName: base._(base.commands[button].tooltip || button)
+							dispName: base._(commands[button].tooltip || button) + shortcutName
 						}, true);
 
-					$button.data('sceditor-txtmode', !!base.commands[button].txtExec);
-					$button.data('sceditor-wysiwygmode', !!base.commands[button].exec);
+					$button.data('sceditor-txtmode', !!commands[button].txtExec);
+					$button.data('sceditor-wysiwygmode', !!commands[button].exec);
 					$button.click(function() {
 						var $this = $(this);
 						if(!$this.hasClass('disabled'))
-							handleCommand($this, base.commands[button]);
+							handleCommand($this, commands[button]);
 
 						updateActiveButtons();
 						return false;
 					});
 
-					if(base.commands[button].tooltip)
-						$button.attr('title', base._(base.commands[button].tooltip));
+					if(commands[button].tooltip)
+						$button.attr('title', base._(commands[button].tooltip));
 
-					if(!base.commands[button].exec)
+					if(!commands[button].exec)
 						$button.addClass('disabled');
 
-					if(base.commands[button].shortcut)
-						base.addShortcut(base.commands[button].shortcut, button);
+					if(commands[button].shortcut){
+						base.addShortcut(commands[button].shortcut, button);
+						// Add the shortcut info to the title
+						$button.attr('title', $button.attr('title') + shortcutName);
+					}
 
 					$group.append($button);
 				});
@@ -693,7 +711,7 @@
 					base.dimensions(newWidth, newHeight);
 
 					// The resize cover will not fill the container in IE6 unless a height is specified.
-					if($.sceditor.ie < 7)
+					if(IE_VER < 7)
 						$editorContainer.height(newHeight);
 				}
 
@@ -734,7 +752,7 @@
 				$(document).bind('touchend mouseup', mouseUpFunc);
 
 				// The resize cover will not fill the container in IE6 unless a height is specified.
-				if($.sceditor.ie < 7)
+				if(IE_VER < 7)
 					$editorContainer.height(startHeight);
 
 				e.preventDefault();
@@ -755,9 +773,6 @@
 
 			$.each(emoticons, function (idx, val) {
 				$.each(val, function (key, url) {
-					// @SMF code: In SMF an empty entry means a new line
-					if (url == '')
-						emoticon = document.createElement('br');
 					// Prefix emoticon root to emoticon urls
 					if(root)
 					{
@@ -1029,7 +1044,7 @@
 		base.dimensions = function(width, height, save) {
 			// IE6 & IE7 add 2 pixels to the source mode textarea height which must be ignored.
 			// Doesn't seem to be any way to fix it with only CSS
-			var ieBorderBox = $.sceditor.ie < 8 || document.documentMode < 8 ? 2 : 0;
+			var ieBorderBox = IE_VER < 8 || document.documentMode < 8 ? 2 : 0;
 
 			// set undefined width/height to boolean false
 			width  = (!width && width !== 0) ? false : width;
@@ -1045,7 +1060,7 @@
 			{
 				if(save !== false)
 					options.width = width;
-
+// This is the problem
 				if(height === false)
 				{
 					height = $editorContainer.height();
@@ -1170,7 +1185,7 @@
 			maximize = !!maximize;
 
 			// IE 6 fix
-			if($.sceditor.ie < 7)
+			if(IE_VER < 7)
 				$('html, body').toggleClass('sceditor-maximize', maximize);
 
 			$editorContainer.toggleClass('sceditor-maximize', maximize);
@@ -1219,6 +1234,10 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.destroy = function () {
+			// Don't destroy if the editor has already been destroyed
+			if(!pluginManager)
+				return;
+
 			pluginManager.destroy();
 
 			rangeHelper   = null;
@@ -1262,12 +1281,13 @@
 		 */
 		base.createDropDown = function (menuItem, dropDownName, content, ieUnselectable) {
 			// first click for create second click for close
-			var	css,
+			var	dropDownCss,
 				onlyclose = $dropdown && $dropdown.is('.sceditor-' + dropDownName);
 
 			base.closeDropDown();
 
-			if (onlyclose) return;
+			if (onlyclose)
+				return;
 
 			// IE needs unselectable attr to stop it from unselecting the text in the editor.
 			// The editor can cope if IE does unselect the text it's just not nice.
@@ -1281,19 +1301,18 @@
 					.attr('unselectable', 'on');
 			}
 
-			css = {
+			dropDownCss = {
 				top: menuItem.offset().top,
 				left: menuItem.offset().left,
 				marginTop: menuItem.outerHeight()
 			};
-
-			$.extend(css, options.dropDownCss);
+			$.extend(dropDownCss, options.dropDownCss);
 
 			$dropdown = $('<div class="sceditor-dropdown sceditor-' + dropDownName + '">')
-				.css(css)
+				.css(dropDownCss)
 				.append(content)
 				.appendTo($('body'))
-				.click(function (e) {
+				.on('click focusin', function (e) {
 					// stop clicks within the dropdown from being handled
 					e.stopPropagation();
 				});
@@ -1314,7 +1333,7 @@
 		 * @private
 		 */
 		handlePasteEvt = function(e) {
-			var	html, handlePaste,
+			var	html, handlePaste, scrollTop,
 				elm             = $wysiwygBody[0],
 				doc             = $wysiwygDoc[0],
 				checkCount      = 0,
@@ -1340,36 +1359,36 @@
 				}
 			}
 
-			while(elm.firstChild)
+			// Save the scroll position so can be restored when contents is restored
+			scrollTop = $wysiwygBody.scrollTop() || $wysiwygDoc.scrollTop();
+
+			while (elm.firstChild)
 				prePasteContent.appendChild(elm.firstChild);
 // try make pastearea contenteditable and redirect to that? Might work.
 // Check the tests if still exist, if not re-0create
 			handlePaste = function (elm, pastearea) {
-				if (elm.childNodes.length > 0)
+				if (elm.childNodes.length > 0 || checkCount > 25)
 				{
-					while(elm.firstChild)
+					while (elm.firstChild)
 						pastearea.appendChild(elm.firstChild);
 
-					while(prePasteContent.firstChild)
+					while (prePasteContent.firstChild)
 						elm.appendChild(prePasteContent.firstChild);
 
-					handlePasteData(elm, pastearea);
+					$wysiwygBody.scrollTop(scrollTop);
+					$wysiwygDoc.scrollTop(scrollTop);
+
+					if (pastearea.childNodes.length > 0)
+						handlePasteData(elm, pastearea);
+					else
+						rangeHelper.restoreRange();
 				}
 				else
 				{
 					// Allow max 25 checks before giving up.
 					// Needed in case an empty string is pasted or
 					// something goes wrong.
-					if(checkCount > 25)
-					{
-						while(prePasteContent.firstChild)
-							elm.appendChild(prePasteContent.firstChild);
-
-						rangeHelper.restoreRange();
-						return;
-					}
-
-					++checkCount;
+					checkCount++;
 					setTimeout(function () {
 						handlePaste(elm, pastearea);
 					}, 20);
@@ -1393,12 +1412,12 @@
 // TODO: Trigger custom paste event to allow filtering (pre and post converstion?)
 			var pasteddata = pastearea.innerHTML;
 
-			if(pluginManager.hasHandler('toSource'))
+			if (pluginManager.hasHandler('toSource'))
 				pasteddata = pluginManager.callOnlyFirst('toSource', pasteddata, $(pastearea));
 
 			pastearea.parentNode.removeChild(pastearea);
 
-			if(pluginManager.hasHandler('toWysiwyg'))
+			if (pluginManager.hasHandler('toWysiwyg'))
 				pasteddata = pluginManager.callOnlyFirst('toWysiwyg', pasteddata, true);
 
 			rangeHelper.restoreRange();
@@ -1414,12 +1433,13 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.closeDropDown = function (focus) {
-			if($dropdown) {
+			if ($dropdown)
+			{
 				$dropdown.unbind().remove();
 				$dropdown = null;
 			}
 
-			if(focus === true)
+			if (focus === true)
 				base.focus();
 		};
 
@@ -1456,36 +1476,40 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.wysiwygEditorInsertHtml = function (html, endHtml, overrideCodeBlocking) {
-			var	scrollTo, $marker,
-				marker = '<span id="sceditor-cursor">&nbsp;</span>';
+			var	$marker, scrollTop, scrollTo,
+				editorHeight = $wysiwygEditor.height();
 
 			base.focus();
 
-// TODO: This code tag should be configurable and should maybe convert the HTML into text
-			// don't apply to code elements
-			if(!overrideCodeBlocking && ($(currentBlockNode).is('code') || $(currentBlockNode).parents('code').length !== 0))
+// TODO: This code tag should be configurable and should maybe convert the HTML into text instead
+			// Don't apply to code elements
+			if (!overrideCodeBlocking && ($(currentBlockNode).is('code') || $(currentBlockNode).parents('code').length !== 0))
 				return;
 
-			if(endHtml)
-				endHtml += marker;
-			else
-				html += marker;
-
+			// Insert the HTML and save the range so the editor can be scrolled to the end
+			// of the selection. Also allow emoticons to be replaced without affecting
+			// the cusrsor position
 			rangeHelper.insertHTML(html, endHtml);
-
-			// Scroll the editor to after the inserted HTML
-			$marker  = $wysiwygBody.find('#sceditor-cursor');
-			scrollTo = ($marker.offset().top + ($marker.outerHeight(true) * 2)) - $wysiwygEditor.height();
-			$marker.remove();
-
-// TODO: check if already in range and don't scroll if it is
-			$wysiwygDoc.scrollTop(scrollTo);
-			$wysiwygBody.scrollTop(scrollTo);
-
 			rangeHelper.saveRange();
 			replaceEmoticons($wysiwygBody[0]);
+
+			// Scroll the editor after the end of the selection
+			$marker   = $wysiwygBody.find('#sceditor-end-marker').show();
+			scrollTop = $wysiwygBody.scrollTop() || $wysiwygDoc.scrollTop();
+			scrollTo  = ($.sceditor.dom.getOffset($marker[0]).top + ($marker.outerHeight(true) * 1.5)) - editorHeight;
+			$marker.hide();
+
+			// Only scroll if marker isn't already visible
+			if (scrollTo > scrollTop || scrollTo + editorHeight < scrollTop)
+			{
+				$wysiwygBody.scrollTop(scrollTo);
+				$wysiwygDoc.scrollTop(scrollTo);
+			}
+
+			triggerValueChanged(false);
 			rangeHelper.restoreRange();
 
+			// Add a new line after the last block element so can always add text after it
 			appendNewLine();
 		};
 
@@ -1519,7 +1543,7 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.insertText = function (text, endText) {
-			if(base.inSourceMode())
+			if (base.inSourceMode())
 				base.sourceEditorInsertText(text, endText);
 			else
 				base.wysiwygEditorInsertText(text, endText);
@@ -1557,7 +1581,8 @@
 			scrollTop = sourceEditor.scrollTop;
 			sourceEditor.focus();
 
-			if(typeof sourceEditor.selectionStart !== 'undefined')
+			// All browsers except IE < 9
+			if (typeof sourceEditor.selectionStart !== 'undefined')
 			{
 				start  = sourceEditor.selectionStart;
 				end    = sourceEditor.selectionEnd;
@@ -1571,7 +1596,8 @@
 				sourceEditor.selectionStart = (start + text.length) - (endText ? endText.length : 0);
 				sourceEditor.selectionEnd = sourceEditor.selectionStart;
 			}
-			else if(typeof document.selection.createRange !== 'undefined')
+			// IE < 9
+			else if (typeof document.selection.createRange !== 'undefined')
 			{
 				range = document.selection.createRange();
 
@@ -1591,6 +1617,8 @@
 
 			sourceEditor.scrollTop = scrollTop;
 			sourceEditor.focus();
+
+			triggerValueChanged();
 		};
 
 		/**
@@ -1604,6 +1632,55 @@
 		 */
 		base.getRangeHelper = function () {
 			return rangeHelper;
+		};
+
+		/**
+		 * Gets the source editors textarea.
+		 *
+		 * This shouldn't be used to insert text
+		 *
+		 * @return {jQuery}
+		 * @function
+		 * @since 1.4.5
+		 * @name sourceEditorCaret
+		 * @memberOf jQuery.sceditor.prototype
+		 */
+		base.sourceEditorCaret = function (position) {
+			var ret = {};
+
+			// All browsers except IE8 and below
+			if(typeof sourceEditor.selectionStart !== 'undefined')
+			{
+				if(position)
+				{
+					sourceEditor.selectionStart = position.start;
+					sourceEditor.selectionEnd   = position.end;
+				}
+				else
+				{
+					ret.start = sourceEditor.selectionStart;
+					ret.end   = sourceEditor.selectionEnd;
+				}
+			}
+			// IE8 and below
+			else
+			{
+				range = document.selection.createRange();
+
+				if(position)
+				{
+					range.moveStart('character', position.start);
+					range.moveEnd('character', position.end);
+					range.select();
+				}
+				else
+				{
+					ret.start = range.Start;
+					ret.end   = range.End;
+				}
+			}
+
+			return position ? this : ret;
 		};
 
 		/**
@@ -1637,17 +1714,17 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.val = function (val, filter) {
-			if(typeof val === "string")
+			if (typeof val === 'string')
 			{
-				if(base.inSourceMode())
-					base.setSourceEditorValue(val);
-				else
+				if (!base.inSourceMode())
 				{
-					if(filter !== false && pluginManager.hasHandler('toWysiwyg'))
+					if (filter !== false && pluginManager.hasHandler('toWysiwyg'))
 						val = pluginManager.callOnlyFirst('toWysiwyg', val);
 
 					base.setWysiwygEditorValue(val);
 				}
+				else
+					base.setSourceEditorValue(val);
 
 				return this;
 			}
@@ -1703,9 +1780,7 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base.insert = function (start, end, filter, convertEmoticons, allowMixed) {
-			if(base.inSourceMode())
-				base.sourceEditorInsertText(start, end);
-			else
+			if(!base.inSourceMode())
 			{
 				// Add the selection between start and end
 				if(end)
@@ -1720,7 +1795,7 @@
 
 					start += html + end;
 				}
-
+// TODO: This filter should allow empty as it's inserting.
 				if(filter !== false && pluginManager.hasHandler('toWysiwyg'))
 					start = pluginManager.callOnlyFirst('toWysiwyg', start, true);
 
@@ -1734,6 +1809,8 @@
 
 				base.wysiwygEditorInsertHtml(start);
 			}
+			else
+				base.sourceEditorInsertText(start, end);
 
 			return this;
 		};
@@ -1755,11 +1832,11 @@
 			var	html, ieBookmark,
 				hasSelection = rangeHelper.hasSelection();
 
-			if(hasSelection)
+			if (hasSelection)
 				rangeHelper.saveRange();
 			// IE <= 8 bookmark the current TextRange position
 			// and restore it after
-			else if(lastRange && lastRange.getBookmark)
+			else if (lastRange && lastRange.getBookmark)
 				ieBookmark = lastRange.getBookmark();
 
 			$.sceditor.dom.fixNesting($wysiwygBody[0]);
@@ -1767,10 +1844,10 @@
 			// filter the HTML and DOM through any plugins
 			html = $wysiwygBody.html();
 
-			if(filter !== false && pluginManager.hasHandler('toSource'))
+			if (filter !== false && pluginManager.hasHandler('toSource'))
 				html = pluginManager.callOnlyFirst('toSource', html, $wysiwygBody);
 
-			if(hasSelection)
+			if (hasSelection)
 			{
 				// remove the last stored range for IE as it no longer applies
 				rangeHelper.restoreRange();
@@ -1846,12 +1923,13 @@
 		 */
 		base.setWysiwygEditorValue = function (value) {
 			if(!value)
-				value = '<p>' + ($.sceditor.ie ? '' : '<br>') + '</p>';
+				value = '<p>' + (IE_VER ? '' : '<br>') + '</p>';
 
 			$wysiwygBody[0].innerHTML = value;
 			replaceEmoticons($wysiwygBody[0]);
 
 			appendNewLine();
+			triggerValueChanged();
 		};
 
 		/**
@@ -1864,6 +1942,8 @@
 		 */
 		base.setSourceEditorValue = function (value) {
 			$sourceEditor.val(value);
+
+			triggerValueChanged();
 		};
 
 		/**
@@ -2004,6 +2084,8 @@
 			if(!$.sceditor.isWysiwygSupported && base.inSourceMode())
 				return;
 
+			base.blur();
+
 			if(base.inSourceMode())
 				base.setWysiwygEditorValue(base.getSourceEditorValue());
 			else
@@ -2071,7 +2153,7 @@
 		 */
 		saveRange = function () {
 			/* this is only needed for IE */
-			if($.sceditor.ie)
+			if(IE_VER)
 				lastRange = rangeHelper.selectedRange();
 		};
 
@@ -2133,7 +2215,7 @@
 
 			// In IE, this is only called on the selectionchanged event so no need to
 			// limit checking as it should always be valid to do.
-			if($.sceditor.ie)
+			if(IE_VER)
 				check();
 			else
 				setTimeout(check, 100);
@@ -2249,8 +2331,11 @@
 		 * @private
 		 */
 		handleKeyPress = function(e) {
-			var	$parentNode,
-				i = keyPressFuncs.length;
+			var	$parentNode, i;
+
+			// FF bug: https://bugzilla.mozilla.org/show_bug.cgi?id=501496
+			if (e.originalEvent.defaultPrevented)
+				return;
 
 			base.closeDropDown();
 
@@ -2273,6 +2358,7 @@
 			if($parentNode.is('code') || $parentNode.parents('code').length !== 0)
 				return;
 
+			i = keyPressFuncs.length;
 			while(i--)
 				keyPressFuncs[i].call(base, e, wysiwygEditor, $sourceEditor);
 		};
@@ -2298,7 +2384,7 @@
 
 				// find the last non-empty text node or line break.
 				if((node.nodeType === 3 && !/^\s*$/.test(node.nodeValue)) || name === 'br' ||
-					($.sceditor.ie && !node.firstChild && !$.sceditor.dom.isInline(node, false)))
+					(IE_BR_FIX && !node.firstChild && !$.sceditor.dom.isInline(node, false)))
 				{
 					// this is the last text or br node, if its in a code or quote tag
 					// then add a newline to the end of the editor
@@ -2306,7 +2392,7 @@
 					{
 						div = $wysiwygBody[0].ownerDocument.createElement('div');
 						div.className = 'sceditor-nlf';
-						div.innerHTML = !$.sceditor.ie ? '<br>' : '';
+						div.innerHTML = !IE_BR_FIX ? '<br>' : '';
 						$wysiwygBody[0].appendChild(div);
 					}
 
@@ -2343,11 +2429,11 @@
 
 			if(!base.maximize())
 			{
-				if(height && height.toString().indexOf("%") > -1)
-					base.height(height);
-
-				if(width && width.toString().indexOf("%") > -1)
-					base.width(width);
+				if((height && height.toString().indexOf("%") > -1) ||
+					(width && width.toString().indexOf("%") > -1))
+				{
+					base.dimensions(width, height);
+				}
 			}
 			else
 				base.dimensions('100%', '100%', false);
@@ -2366,13 +2452,14 @@
 		 * @memberOf jQuery.sceditor.prototype
 		 */
 		base._ = function() {
-			var args = arguments;
+			var	undef,
+				args = arguments;
 
 			if(locale && locale[args[0]])
 				args[0] = locale[args[0]];
 
 			return args[0].replace(/\{(\d+)\}/g, function(str, p1) {
-				return typeof args[p1-0+1] !== 'undefined' ?
+				return args[p1-0+1] !== undef ?
 					args[p1-0+1] :
 					'{' + p1 + '}';
 			});
@@ -2394,7 +2481,7 @@
 			delete clone.type;
 			customEvent = $.Event((e.target === sourceEditor ? 'scesrc' : 'scewys') + e.type, clone);
 
-			$editorContainer.trigger.apply($editorContainer, [customEvent, base]);
+			$editorContainer.trigger(customEvent, base);
 
 			if(customEvent.isDefaultPrevented())
 				e.preventDefault();
@@ -2420,6 +2507,8 @@
 		 *   <li>nodechanged<br>
 		 *       When the current node containing the selection changes in WYSIWYG mode</li>
 		 *   <li>contextmenu</li>
+		 *   <li>selectionchanged</li>
+		 *   <li>valuechanged</li>
 		 * </ul>
 		 * </p>
 		 *
@@ -2438,8 +2527,8 @@
 		 * @since 1.4.1
 		 */
 		base.bind = function(events, handler, excludeWysiwyg, excludeSource) {
+			events = events.split(' ');
 			var i  = events.length;
-			events = events.split(" ");
 
 			while(i--)
 			{
@@ -2452,6 +2541,10 @@
 
 					if(!excludeSource)
 						$editorContainer.bind('scesrc' + events[i], handler);
+
+					// Start sending value changed events
+					if(events[i] === 'valuechanged')
+						triggerValueChanged.hasHandler = true;
 				}
 			}
 
@@ -2473,8 +2566,8 @@
 		 * @see bind
 		 */
 		base.unbind = function(events, handler, excludeWysiwyg, excludeSource) {
+			events = events.split(' ');
 			var i  = events.length;
-			events = events.split(" ");
 
 			while(i--)
 			{
@@ -2659,6 +2752,29 @@
 		};
 
 		/**
+		 * <p>Adds a handler to the value changed event</p>
+		 *
+		 * <p>Happens whenever the current editor value changes.</p>
+		 *
+		 * <p>Whenever anything is inserted, the value changed or
+		 * 1.5 secs after text is typed. If a space is typed it will
+		 * cause the event to be triggered immediately instead of
+		 * after 1.5 seconds</p>
+		 *
+		 * @param  {Function} handler
+		 * @param  {Boolean} excludeWysiwyg If to exclude adding this handler to the WYSIWYG editor
+		 * @param  {Boolean} excludeSource  if to exclude adding this handler to the source editor
+		 * @return {this}
+		 * @function
+		 * @name valueChanged
+		 * @memberOf jQuery.sceditor.prototype
+		 * @since 1.4.5
+		 */
+		base.valueChanged = function(handler, excludeWysiwyg, excludeSource) {
+			return base.bind('valuechanged', handler, excludeWysiwyg, excludeSource);
+		};
+
+		/**
 		 * Emoticons keypress handler
 		 * @private
 		 */
@@ -2711,7 +2827,7 @@
 			var	prev, next, parent, range, previousText, rangeStartContainer,
 				currentBlock = base.currentBlockNode(),
 				rangeStart   = false,
-				noneWsRegex  = /[^\s\xA0\u2002\u2003\u2009]+/;
+				noneWsRegex  = /[^\s\xA0\u2002\u2003\u2009\u00a0]+/;
 
 			currentEmoticons = $.map(currentEmoticons, function(emoticon) {
 				// Ignore emotiocons that have been removed from DOM
@@ -2798,6 +2914,7 @@
 
 					replaceEmoticons($wysiwygBody[0]);
 					currentEmoticons = $wysiwygBody.find('img[data-sceditor-emoticon]');
+					triggerValueChanged(false);
 
 					rangeHelper.restoreRange();
 				}
@@ -2810,6 +2927,8 @@
 
 				currentEmoticons = [];
 				$wysiwygBody.unbind('keypress', emoticonsKeyPress);
+
+				triggerValueChanged();
 			}
 
 			return this;
@@ -2947,7 +3066,7 @@
 			var	node, offset, tmpRange, range, parent;
 
 			// 8 is the backspace key
-			if($.sceditor.ie || options.disableBlockRemove || e.which !== 8 || !(range = rangeHelper.selectedRange()))
+			if(IE_VER || options.disableBlockRemove || e.which !== 8 || !(range = rangeHelper.selectedRange()))
 				return;
 
 			if(!window.getSelection)
@@ -3039,6 +3158,113 @@
 
 			rangeHelper.restoreRange();
 			return this;
+		};
+
+		/**
+		 * Triggers the valueChnaged signal if there is
+		 * a plugin that handles it.
+		 *
+		 * If rangeHelper.saveRange() has already been
+		 * called, then saveRange should be set to false
+		 * to prevent the range being saved twice.
+		 *
+		 * @since 1.4.5
+		 * @param {Boolean} saveRange If to call rangeHelper.saveRange().
+		 * @private
+		 */
+		triggerValueChanged = function(saveRange) {
+			if (!pluginManager.hasHandler('valuechangedEvent') && !triggerValueChanged.hasHandler)
+				return;
+
+			var	currentHtml,
+				sourceMode   = base.sourceMode(),
+				hasSelection = !sourceMode && rangeHelper.hasSelection();
+
+			// Don't need to save the range if sceditor-start-marker is present as the range is already saved
+			saveRange = saveRange !== false && !$wysiwygDoc[0].getElementById('sceditor-start-marker');
+
+			// Clear any current timeout as it's now been triggered
+			if (valueChangedKeyUp.timer)
+			{
+				clearTimeout(valueChangedKeyUp.timer);
+				valueChangedKeyUp.timer = false;
+			}
+
+			if (hasSelection && saveRange)
+				rangeHelper.saveRange();
+
+			currentHtml = $wysiwygBody.html();
+
+			// Only trigger if something has actually changed.
+			if (currentHtml !== triggerValueChanged.lastHtmlValue)
+			{
+				triggerValueChanged.lastHtmlValue = currentHtml;
+
+				$editorContainer.trigger($.Event('valuechanged', {
+					rawValue: sourceMode ? base.val() : currentHtml
+				}));
+			}
+
+			if (hasSelection && saveRange)
+				rangeHelper.removeMarkers();
+		};
+
+		/**
+		 * Should be called whenever there is a blur event
+		 * @private
+		 */
+		valueChangedBlur = function() {
+			if(valueChangedKeyUp.timer)
+				triggerValueChanged();
+		};
+
+		/**
+		 * Should be called whenever there is a keypress event
+		 * @param  {Event} e The keypress event
+		 * @private
+		 */
+		valueChangedKeyUp = function(e) {
+			var which         = e.which,
+				lastChar      = valueChangedKeyUp.lastChar,
+				lastWasSpace  = (lastChar === 13 || lastChar === 32),
+				lastWasDelete = (lastChar === 8 || lastChar === 46);
+
+			valueChangedKeyUp.lastChar = which;
+
+			// 13 = return
+			// 32 = space
+			if(which === 13 || which === 32)
+			{
+				if(!lastWasSpace)
+					triggerValueChanged();
+				else
+					valueChangedKeyUp.triggerNextChar = true;
+			}
+			// 8 = backspace
+			// 46 = del
+			else if(which === 8 || which === 46)
+			{
+				if(!lastWasDelete)
+					triggerValueChanged();
+				else
+					valueChangedKeyUp.triggerNextChar = true;
+			}
+			else if(valueChangedKeyUp.triggerNextChar)
+			{
+				triggerValueChanged();
+				valueChangedKeyUp.triggerNextChar = false;
+			}
+
+			// Clear the previous timeout and set a new one.
+			if(valueChangedKeyUp.timer)
+				clearTimeout(valueChangedKeyUp.timer);
+
+			// Trigger the event 1.5s after the last keypress if space
+			// isn't pressed. This should probably be lowered, will need
+			// to look into what the slowest average Chars Per Min is.
+			valueChangedKeyUp.timer = setTimeout(function() {
+				triggerValueChanged();
+			}, 1500);
 		};
 
 		// run the initializer
@@ -3164,28 +3390,76 @@
 	 * @memberOf jQuery.sceditor
 	 */
 	$.sceditor.regexEscape = function(str) {
-		return str.replace(/[\$\?\[\]\.\*\(\)\|\\]/g, '\\$&');
+		return str.replace(/([\-.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 	};
 
 	/**
 	 * Escapes all HTML entities in a string
 	 *
+	 * If quote is set to true, single and double quotes will also be escaped
+	 *
 	 * @param {String} str
+	 * @param {Boolean} [quote=false]
 	 * @return {String}
 	 * @name escapeEntities
 	 * @memberOf jQuery.sceditor
 	 * @since 1.4.1
 	 */
-	$.sceditor.escapeEntities = function(str) {
+	$.sceditor.escapeEntities = function(str, quote) {
 		if(!str)
 			return str;
 
-		return str.replace(/&/g, '&amp;')
+		str = str.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;')
 			.replace(/ {2}/g, ' &nbsp;')
 			.replace(/\r\n|\r/g, '\n')
 			.replace(/\n/g, '<br>');
+
+		if (quote)
+			str = str.replace(/"/g, '&#34;').replace(/'/g, '&#39;');
+
+		return str;
+	};
+
+	/**
+	 * Escape URI scheme.
+	 *
+	 * Appends the current URL to a url if it has a scheme that is not:
+	 *
+	 * http
+	 * https
+	 * sftp
+	 * ftp
+	 * mailto
+	 * spotify
+	 * skype
+	 * ssh
+	 * teamspeak
+	 * tel
+	 * //
+	 *
+	 * @param  {String} url
+	 * @return {String}
+	 * @name escapeUriScheme
+	 * @memberOf jQuery.sceditor
+	 * @since 1.4.5
+	 */
+	$.sceditor.escapeUriScheme = function(url) {
+		var	path,
+			validSchemes = /^(?:https?|s?ftp|mailto|spotify|skype|ssh|teamspeak|tel):|(?:\/\/)/i,
+			// If there is a : before a / then it has a scheme
+			hasScheme = /^[^\/]*:/i,
+			location = window.location;
+
+		// Has no scheme or a valid scheme
+		if ((!url || !hasScheme.test(url)) || validSchemes.test(url))
+			return url;
+
+		path = location.pathname.split('/');
+		path.pop();
+
+		return location.protocol + '://' + location.host + path.join('/') + '/' + url;
 	};
 
 	/**
@@ -3471,6 +3745,70 @@
 			tooltip: 'Numbered list'
 		},
 		// END_COMMAND
+		// START_COMMAND: Indent
+		indent: {
+			state: function(parents, firstBlock) {
+				// Only works with lists, for now
+				// This is a nested list, so it will always work
+				var	range, startContainerParent, endContainerParent,
+					$firstBlock = $(firstBlock),
+					parentLists = $firstBlock.parents('ul,ol,menu'),
+					parentList  = parentLists.first();
+
+				// in case it's a list with only a single <li>
+				if (parentLists.length > 1 || parentList.children().length > 1)
+					return 0;
+
+				if ($firstBlock.is('ul,ol,menu')) {
+					// if the whole list is selected, then this must be invalidated because the browser will place a <blockquote> there
+					range = this.getRangeHelper().selectedRange();
+					if (window.Range && range instanceof Range) {
+						startContainerParent = range.startContainer.parentNode;
+						endContainerParent   = range.endContainer.parentNode;
+
+						// Select the tag, not the textNode (that's why the parentNode)
+						if (startContainerParent !== startContainerParent.parentNode.firstElementChild ||
+							// work around a bug in FF
+							($(endContainerParent).is('li') && endContainerParent !== endContainerParent.parentNode.lastElementChild)) {
+							return 0;
+						}
+					}
+					// it's IE... As it is impossible to know well when to accept, better safe than sorry
+					else
+						return $firstBlock.is('li,ul,ol,menu') ? 0 : -1;
+				}
+
+				return -1;
+			},
+			exec: function() {
+				var editor = this,
+					$elm   = $(editor.getRangeHelper().getFirstBlockParent());
+
+				editor.focus();
+				// An indent system is quite complicated as there are loads of complications
+				// and issues around how to indent text
+				// As default, let's just stay with indenting the lists, at least, for now.
+				if($elm.parents('ul,ol,menu'))
+					editor.execCommand('indent');
+			},
+			tooltip: 'Add indent'
+		},
+		// END_COMMAND
+		// START_COMMAND: Outdent
+		outdent: {
+			state: function(parents, firstBlock) {
+				return  $(firstBlock).is('ul,ol,menu') || $(firstBlock).parents('ul,ol,menu').length > 0 ? 0 : -1;
+			},
+			exec: function() {
+				var	editor = this,
+					$elm   = $(editor.getRangeHelper().getFirstBlockParent());
+
+				if($elm.parents('ul,ol,menu'))
+					editor.execCommand('outdent');
+			},
+			tooltip: 'Remove one indent'
+		},
+		// END_COMMAND
 
 		// START_COMMAND: Table
 		table: {
@@ -3483,6 +3821,7 @@
 					}, true);
 
 				content.find('.button').click(function (e) {
+					var IE_VER = $.sceditor.ie;
 					var	rows = content.find('#rows').val() - 0,
 						cols = content.find('#cols').val() - 0,
 						html = '<table>';
@@ -3494,7 +3833,7 @@
 						html += '<tr>';
 
 						for (var col=0; col < cols; col++)
-							html += '<td>' + ($.sceditor.ie ? '' : '<br>') + '</td>';
+							html += '<td>' + (IE_VER && IE_VER < 11 ? '' : '<br>') + '</td>';
 
 						html += '</tr>';
 					}
@@ -3620,8 +3959,7 @@
 							if(!description)
 								description = val;
 
-							// @SMF code: otherwise all the urls become iurl
-							editor.wysiwygEditorInsertHtml('<a target="_blank" href="' + val + '">' + description + '</a>');
+							editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
 						}
 						else
 							editor.execCommand('createlink', val);
@@ -3659,6 +3997,7 @@
 		quote: {
 			forceNewLineAfter: ['blockquote'],
 			exec: function (caller, html, author) {
+				var IE_VER = $.sceditor.ie;
 				var	before = '<blockquote>',
 					end    = '</blockquote>';
 
@@ -3672,7 +4011,7 @@
 				}
 				// if not add a newline to the end of the inserted quote
 				else if(this.getRangeHelper().selectedHtml() === '')
-					end = $.sceditor.ie ? '' : '<br>' + end;
+					end = IE_VER && IE_VER < 11 ? '' : '<br>' + end;
 
 				this.wysiwygEditorInsertHtml(before, end);
 			},
@@ -3950,25 +4289,15 @@
 	 * @class rangeHelper
 	 * @name jQuery.sceditor.rangeHelper
 	 */
-	$.sceditor.rangeHelper = function(w, d) {
-		var	win, doc, init, _createMarker, _isOwner,
-			isW3C        = true,
+	$.sceditor.rangeHelper = function (w, d) {
+		var	_createMarker, _isOwner, _prepareHTML,
+			doc          = d || w.contentDocument || w.document,
+			win          = w,
+			isW3C        = !!w.getSelection,
 			startMarker  = 'sceditor-start-marker',
 			endMarker    = 'sceditor-end-marker',
 			characterStr = 'character', // Used to improve minification
 			base         = this;
-
-		/**
-		 * @constructor
-		 * @param Window window
-		 * @param Document document
-		 * @private
-		 */
-		init = function (window, document) {
-			doc   = document || window.contentDocument || window.document;
-			win   = window;
-			isW3C = !!window.getSelection;
-		}(w, d);
 
 		/**
 		 * <p>Inserts HTML into the current range replacing any selected
@@ -3989,11 +4318,11 @@
 			var	node, div,
 				range = base.selectedRange();
 
-			if(endHTML)
-				html += base.selectedHtml() + endHTML;
-
 			if(isW3C)
 			{
+				if(endHTML)
+					html += base.selectedHtml() + endHTML;
+
 				div           = doc.createElement('div');
 				node          = doc.createDocumentFragment();
 				div.innerHTML = html;
@@ -4008,8 +4337,72 @@
 				if(!range)
 					return false;
 
-				range.pasteHTML(html);
+				range.pasteHTML(_prepareHTML(html, endHTML, true));
 			}
+		};
+
+		/**
+		 * Prepares HTML to be inserted by adding a zero width space
+		 * if the last child is empty and adding the range start/end
+		 * markers to the last child.
+		 * @param  {Node|String} node
+		 * @param  {Node|String} endNode
+		 * @param  {Boolean} returnHtml
+		 * @return {Node|String}
+		 * @private
+		 */
+		_prepareHTML = function (node, endNode, returnHtml) {
+			var lastChild, $lastChild, toInsert,
+				div = doc.createElement('div');
+
+			if (typeof node === 'string')
+			{
+				if (endNode)
+					node += base.selectedHtml() + endNode;
+
+				div.innerHTML = node;
+			}
+			else
+			{
+				div.appendChild(node);
+
+				if (endNode)
+				{
+					div.appendChild(range.extractContents());
+					div.appendChild(endNode);
+				}
+			}
+
+			lastChild = div.lastChild;
+			if (!lastChild)
+				return;
+
+			// Clear any current markers
+			base.removeMarkers();
+
+			$lastChild = $(lastChild);
+
+			if ($.sceditor.dom.canHaveChildren(lastChild))
+			{
+				// IE < 8 and Webkit won't allow the cursor to be placed inside and empty
+				// tag, so add a zero width space to it.
+				if (!lastChild.lastChild)
+					$lastChild.append(doc.createTextNode('\u200B'));
+
+				// Append range markers to the child so can restore the range to it
+				$lastChild.append(_createMarker(endMarker)).append(_createMarker(startMarker));
+			}
+			else
+				$lastChild.after(_createMarker(startMarker)).after(_createMarker(endMarker));
+
+			if (returnHtml)
+				return div.innerHTML;
+
+			toInsert = doc.createDocumentFragment();
+			while(div.firstChild)
+				toInsert.appendChild(div.firstChild);
+
+			return toInsert;
 		};
 
 		/**
@@ -4029,33 +4422,24 @@
 		base.insertNode = function(node, endNode) {
 			if(isW3C)
 			{
-				var	selection, selectAfter,
-					toInsert = doc.createDocumentFragment(),
-					range    = base.selectedRange();
+				var	toInsert = _prepareHTML(node, endNode),
+					range    = base.selectedRange(),
+					parent   = range.commonAncestorContainer;
 
-				if(!range)
+				if (!toInsert)
 					return false;
 
-				toInsert.appendChild(node);
-
-				if(endNode)
-				{
-					toInsert.appendChild(range.extractContents());
-					toInsert.appendChild(endNode);
-				}
-
-				selectAfter = toInsert.lastChild;
-
-				// If the last child is undefined then there is nothing to insert so return
-				if(!selectAfter)
-					return;
-
 				range.deleteContents();
-				range.insertNode(toInsert);
 
-				selection = doc.createRange();
-				selection.setStartAfter(selectAfter);
-				base.selectRange(selection);
+				// FF allows <br> to be selected but inserting a node into <br>
+				// will cause it not to be displayed so must insert before the <br>
+				// in FF.
+				if(parent && /^(br|hr)$/i.test(parent.nodeName))
+					parent.parentNode.insertBefore(toInsert, parent);
+				else
+					range.insertNode(toInsert);
+
+				base.restoreRange();
 			}
 			else
 				base.insertHTML(node.outerHTML, endNode?endNode.outerHTML:null);
@@ -4398,8 +4782,6 @@
 				marker.moveToElementText(end);
 				range.setEndPoint('EndToStart', marker);
 				range.moveEnd(characterStr, 0);
-
-				base.selectRange(range);
 			}
 			else
 			{
@@ -4407,10 +4789,9 @@
 
 				range.setStartBefore(start);
 				range.setEndAfter(end);
-
-				base.selectRange(range);
 			}
 
+			base.selectRange(range);
 			base.removeMarkers();
 		};
 
@@ -4715,6 +5096,23 @@
 		blockLevelList: '|body|hr|p|div|h1|h2|h3|h4|h5|h6|address|pre|form|table|tbody|thead|tfoot|th|tr|td|li|ol|ul|blockquote|center|',
 
 		/**
+		 * List of elements that do not allow children separated by bars (|)
+		 *
+		 * @param {Node} node
+		 * @return {bool}
+		 * @since  1.4.5
+		 */
+		canHaveChildren: function (node) {
+			// 1  = Element
+			// 9  = Docuemnt
+			// 11 = Document Fragment
+			if (!/11?|9/.test(node.nodeType))
+				return false;
+
+			return 'hr,br,img,input,meta,link,iframe,'.indexOf(node.nodeName.toLowerCase() + ',') < 0;
+		},
+
+		/**
 		 * Checks if an element is inline
 		 *
 		 * @return {bool}
@@ -4866,11 +5264,16 @@
 						trimStart = sibling.nodeType === 3 ? /[\t\n\r ]$/.test(sibling.nodeValue) : !isInline(sibling);
 					}
 
+					// Strip leading whitespace
 					if(!isInline(node) || !previous || !isInline(previous) || trimStart)
 						nodeValue = nodeValue.replace(/^[\t\n\r ]+/, '');
 
+					// Strip trailing whitespace
 					if(!isInline(node) || !next || !isInline(next))
 						nodeValue = nodeValue.replace(/[\t\n\r ]+$/, '');
+
+					// Clear zero width spaces
+					nodeValue = nodeValue.replace(/\u200B/g, '');
 
 					// Remove empty text nodes
 					if(!nodeValue.length)
@@ -4941,6 +5344,88 @@
 
 				return df;
 			}(commonAncestor));
+		},
+
+		/**
+		 * Gets the offset position of an element
+		 * @param  {HTMLElement} obj
+		 * @return {Object} An object with left and top properties
+		 */
+		getOffset: function(obj) {
+			var	pLeft = 0,
+				pTop = 0;
+
+			while (obj)
+			{
+				pLeft += obj.offsetLeft;
+				pTop  += obj.offsetTop;
+				obj   = obj.offsetParent;
+			}
+
+			return {
+				left: pLeft,
+				top: pTop
+			};
+		},
+
+		/**
+		 * Gets the value of a CSS property from the elements style attribute
+		 * @param  {HTMLElement} elm
+		 * @param  {String} property
+		 * @return {String}
+		 */
+		getStyle: function(elm, property) {
+			var	$elm, direction, propertyCache, styleValue,
+				elmStyle = elm.style;
+
+			if(!elmStyle)
+				return null;
+
+			if (!$.sceditor.dom._propertyCache)
+				$.sceditor.dom._propertyCache = {};
+
+			propertyCache = $.sceditor.dom._propertyCache;
+			if(!propertyCache[property])
+				propertyCache[property] = $.camelCase(property);
+
+			property = propertyCache[property];
+			styleValue = elmStyle[property];
+
+			// Add an exception for text-align
+			if('textAlign' === property)
+			{
+				$elm       = $(elm);
+				direction  = elmStyle.direction;
+				styleValue = styleValue || $elm.css(property);
+
+				if($elm.parent().css(property) === styleValue || $elm.css('display') !== 'block' || $elm.is('hr') || $elm.is('th'))
+					return null;
+
+				// IE changes text-align to the same as the current direction so skip unless overridden by user
+				if(direction && styleValue && ((/right/i.test(styleValue) && direction === 'rtl') || (/left/i.test(styleValue) && direction === 'ltr')))
+					return null;
+			}
+
+			return styleValue;
+		},
+
+		/**
+		 * Tests if an element has a style.
+		 *
+		 * If values are specified it will check that the styles value
+		 * matches one of the valuse
+		 * @param  {HTMLElement} elm
+		 * @param  {String} property
+		 * @param  {String|Array} values
+		 * @return {Boolean}
+		 */
+		hasStyle: function (elm, property, values) {
+			var styleValue = $.sceditor.dom.getStyle(elm, property);
+
+			if (!styleValue)
+				return (!values || styleValue === values || ($.isArray(values) && $.inArray(styleValue, values) > -1));
+
+			return false;
 		}
 	};
 
@@ -5109,7 +5594,7 @@
 		 * @name exists
 		 * @memberOf jQuery.sceditor.PluginManager.prototype
 		 */
-		base.exsists = function(plugin) {
+		base.exists = function(plugin) {
 			if(plugin in $.sceditor.plugins)
 			{
 				plugin = $.sceditor.plugins[plugin];
@@ -5131,7 +5616,7 @@
 		base.isRegistered = function(plugin) {
 			var i = plugins.length;
 
-			if(!base.exsists(plugin))
+			if(!base.exists(plugin))
 				return false;
 
 			while(i--)
@@ -5150,7 +5635,7 @@
 		 * @memberOf jQuery.sceditor.PluginManager.prototype
 		 */
 		base.register = function(plugin) {
-			if(!base.exsists(plugin))
+			if(!base.exists(plugin))
 				return false;
 
 			plugin = new $.sceditor.plugins[plugin]();
@@ -5295,7 +5780,7 @@
 		 * @type {String}
 		 */
 		toolbar:	'bold,italic,underline,strike,subscript,superscript|left,center,right,justify|' +
-				'font,size,color,removeformat|cut,copy,paste,pastetext|bulletlist,orderedlist|' +
+				'font,size,color,removeformat|cut,copy,paste,pastetext|bulletlist,orderedlist,indent,outdent|' +
 				'table|code,quote|horizontalrule,image,email,link,unlink|emoticon,youtube,date,time|' +
 				'ltr,rtl|print,maximize,source',
 
@@ -5329,7 +5814,7 @@
 		 * The locale to use.
 		 * @type {String}
 		 */
-		locale: 'en',
+		locale: $('html').attr('lang') || 'en',
 
 		/**
 		 * The Charset to use
@@ -5500,7 +5985,7 @@
 		 * If to auto focus the editor on page load
 		 * @type {Boolean}
 		 */
-		autofocus: false,
+		autofocus: true,
 
 		/**
 		 * If to auto focus the editor to the end of the content
