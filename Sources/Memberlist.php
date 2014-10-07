@@ -381,13 +381,14 @@ function MLSearch()
 		WHERE active = {int:active}
 			' . (allowedTo('admin_forum') ? '' : ' AND private < {int:private_level}') . '
 			AND can_search = {int:can_search}
-			AND (field_type = {string:field_type_text} OR field_type = {string:field_type_textarea})',
+			AND (field_type = {string:field_type_text} OR field_type = {string:field_type_textarea} OR field_type = {string:field_type_select})',
 		array(
 			'active' => 1,
 			'can_search' => 1,
 			'private_level' => 2,
 			'field_type_text' => 'text',
 			'field_type_textarea' => 'textarea',
+			'field_type_select' => 'select',
 		)
 	);
 	$context['custom_search_fields'] = array();
