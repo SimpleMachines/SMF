@@ -200,27 +200,27 @@ function createMenu($menuData, $menuOptions = array())
 							}
 						}
 					}
-				}
 
-				// Is this the current section?
-				if ($menu_context['current_area'] == $area_id && empty($found_section))
-				{
-					// Only do this once?
-					$found_section = true;
+					// Is this the current section?
+					if ($menu_context['current_area'] == $area_id && empty($found_section))
+					{
+						// Only do this once?
+						$found_section = true;
 
-					// Update the context if required - as we can have areas pretending to be others. ;)
-					$menu_context['current_section'] = $section_id;
-					$menu_context['current_area'] = isset($area['select']) ? $area['select'] : $area_id;
+						// Update the context if required - as we can have areas pretending to be others. ;)
+						$menu_context['current_section'] = $section_id;
+						$menu_context['current_area'] = isset($area['select']) ? $area['select'] : $area_id;
 
-					// This will be the data we return.
-					$include_data = $area;
-				}
-				// Make sure we have something in case it's an invalid area.
-				elseif (empty($found_section) && empty($include_data))
-				{
-					$menu_context['current_section'] = $section_id;
-					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
-					$include_data = $area;
+						// This will be the data we return.
+						$include_data = $area;
+					}
+					// Make sure we have something in case it's an invalid area.
+					elseif (empty($found_section) && empty($include_data))
+					{
+						$menu_context['current_section'] = $section_id;
+						$backup_area = isset($area['select']) ? $area['select'] : $area_id;
+						$include_data = $area;
+					}
 				}
 			}
 		}
@@ -228,6 +228,10 @@ function createMenu($menuData, $menuOptions = array())
 
 	// Should we use a custom base url, or use the default?
 	$menu_context['base_url'] = isset($menuOptions['base_url']) ? $menuOptions['base_url'] : $scripturl . '?action=' . $menu_context['current_action'];
+
+	// If we didn't find the area we were looking for go to a default one.
+	if (isset($backup_area) && empty($found_section))
+		$menu_context['current_area'] = $backup_area;
 
 	// If there are sections quickly goes through all the sections to check if the base menu has an url
 	if (!empty($menu_context['current_section']))
@@ -247,10 +251,6 @@ function createMenu($menuData, $menuOptions = array())
 				}
 			}
 	}
-
-	// If we didn't find the area we were looking for go to a default one.
-	if (isset($backup_area) && empty($found_section))
-		$menu_context['current_area'] = $backup_area;
 
 	// If still no data then return - nothing to show!
 	if (empty($menu_context['sections']))
