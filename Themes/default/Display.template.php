@@ -296,7 +296,8 @@ function template_main()
 	echo '
 					<br class="clear_right">
 					<span id="post_confirm_buttons">
-						', template_control_richedit_buttons($context['post_box_name']);
+						', template_control_richedit_buttons($context['post_box_name']) ,'
+					</span>';
 		echo '
 						</form>
 					</div>
