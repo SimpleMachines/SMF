@@ -2195,12 +2195,10 @@ dl {
 
 /* The basic user info on the left */
 #basicinfo {
-	width: 20%;
-	float: left;
+	clear: both;
 }
 #detailedinfo {
-	width: 79.5%;
-	float: right;
+	width: 100%;
 }
 #basicinfo h4 {
 	font-size: 1.4em;
@@ -2213,9 +2211,15 @@ dl {
 	font-weight: 100;
 	display: block;
 }
+#basicinfo .username {
+	float: left;
+    width: 65%;
+}
 #basicinfo img.avatar {
 	display: block;
-	margin: 10px 0 0 0;
+    margin: 0px;
+    float: right;
+    width: 35%;
 }
 #basicinfo ul {
 	list-style-type: none;
@@ -2253,7 +2257,7 @@ dl {
 }
 #detailedinfo dd, #tracking dd {
 	width: 65%;
-	float: left;
+	float: right;
 	margin: 0 0 3px 0;
 	padding: 0;
 }
@@ -2899,7 +2903,7 @@ div#manage_boards dl dd textarea[name=desc] {
 
 /* Profile > This needed for responsive (get rid of <br>) */
 .infolinks {
-	display: block;
+	display: initial;
 }
 #groups .windowbg, #groups .windowbg2 {
 	box-shadow: none;
