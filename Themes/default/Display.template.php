@@ -295,9 +295,9 @@ function template_main()
 	// Finally, the submit buttons.
 	echo '
 					<br class="clear_right">
-					<div id="post_confirm_buttons">
+					<span id="post_confirm_buttons">
 						', template_control_richedit_buttons($context['post_box_name']) ,'
-					</div>';
+					</span>';
 		echo '
 						</form>
 					</div>
