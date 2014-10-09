@@ -200,27 +200,27 @@ function createMenu($menuData, $menuOptions = array())
 							}
 						}
 					}
+				}
 
-					// Is this the current section?
-					if ($menu_context['current_area'] == $area_id && empty($found_section))
-					{
-						// Only do this once?
-						$found_section = true;
+				// Is this the current section?
+				if ($menu_context['current_area'] == $area_id && empty($found_section))
+				{
+					// Only do this once?
+					$found_section = true;
 
-						// Update the context if required - as we can have areas pretending to be others. ;)
-						$menu_context['current_section'] = $section_id;
-						$menu_context['current_area'] = isset($area['select']) ? $area['select'] : $area_id;
+					// Update the context if required - as we can have areas pretending to be others. ;)
+					$menu_context['current_section'] = $section_id;
+					$menu_context['current_area'] = isset($area['select']) ? $area['select'] : $area_id;
 
-						// This will be the data we return.
-						$include_data = $area;
-					}
-					// Make sure we have something in case it's an invalid area.
-					elseif (empty($found_section) && empty($include_data))
-					{
-						$menu_context['current_section'] = $section_id;
-						$backup_area = isset($area['select']) ? $area['select'] : $area_id;
-						$include_data = $area;
-					}
+					// This will be the data we return.
+					$include_data = $area;
+				}
+				// Make sure we have something in case it's an invalid area.
+				elseif (empty($found_section) && empty($include_data))
+				{
+					$menu_context['current_section'] = $section_id;
+					$backup_area = isset($area['select']) ? $area['select'] : $area_id;
+					$include_data = $area;
 				}
 			}
 		}
