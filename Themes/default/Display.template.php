@@ -257,10 +257,10 @@ function template_main()
 								</dt>
 								<dd>
 									<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
-								</dd>';
+								</dd>
+							</dl>';
 
 		echo '
-							</dl>
 							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
 							<script><!-- // --><![CDATA[
 								function insertQuoteFast(messageid)
