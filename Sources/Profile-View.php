@@ -233,9 +233,6 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
-	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
-
 	if (!empty($senders))
 	{
 		$senders = loadMemberData($senders);
@@ -245,6 +242,9 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
+
+	// Hooks might want to do something snazzy around their own content types - including enforcing permissions if appropriate.
+	call_integration_hook('integrate_fetch_alerts', array(&$alerts));
 
 	// For anything that wants us to check board or topic access, let's do that.
 	$boards = array();
