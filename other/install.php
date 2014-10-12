@@ -2346,7 +2346,7 @@ function template_database_settings()
 	template_warning_divs();
 
 	echo '
-		<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 1em 0;">';
+		<table width="100%" border="0" style="margin: 1em 0;">';
 
 	// More than one database type?
 	if (count($incontext['supported_databases']) > 1)
@@ -2588,7 +2588,7 @@ function template_admin_account()
 	template_warning_divs();
 
 	echo '
-		<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 2em 0;">
+		<table width="100%" border="0" style="margin: 2em 0;">
 			<tr>
 				<td width="18%" valign="top" class="textbox"><label for="username">', $txt['user_settings_username'], ':</label></td>
 				<td>

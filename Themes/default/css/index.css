@@ -2506,6 +2506,9 @@ dl.stats dd span {
 }
 
 /* Forum history table. */
+#stats {
+	width: 100%;
+}
 #stats td, #stats th {
 	width: 15%;
 	padding: 4px;

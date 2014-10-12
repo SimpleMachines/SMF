@@ -3551,7 +3551,7 @@ function template_chmod()
 	<form action="', $upcontext['form_url'], '" method="post">';
 
 	echo '
-		<table width="520" cellspacing="0" cellpadding="0" border="0" align="center" style="margin-bottom: 1ex;">
+		<table width="520" border="0" align="center" style="margin-bottom: 1ex;">
 			<tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
 				<td>
@@ -3993,7 +3993,7 @@ function template_upgrade_options()
 		</div>';
 
 	echo '
-				<table cellpadding="1" cellspacing="0">
+				<table>
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
@@ -4508,7 +4508,7 @@ function template_clean_mods()
 	template_chmod();
 
 	echo '
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="40%"><strong>Modification Name</strong></td>
 				<td width="10%" align="center"><strong>Version</strong></td>
@@ -4553,7 +4553,7 @@ function template_cleanup_done()
 	echo '
 	<h3>SMF has attempted to fix and reinstall mods as required. We recommend you visit the package manager upon completing upgrade to check the status of your modifications.</h3>
 	<form action="', $upcontext['form_url'], '&amp;ssi=1" name="upform" id="upform" method="post">
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="100%"><strong>Actions Completed:</strong></td>
 			</tr>';
@@ -4591,7 +4591,7 @@ function template_upgrade_templates()
 	{
 		echo '
 		The following template files will be updated to ensure they are compatible with this version of SMF. Note that this can only fix a limited number of compatibility issues and in general you should seek out the latest version of these themes/language files.
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="80%"><strong>Area</strong></td>
 				<td width="20%" align="center"><strong>Changes Required</strong></td>

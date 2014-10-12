@@ -480,9 +480,9 @@ function template_user_subscription()
 			<thead>
 				<tr class="title_bar">
 					<th class="first_th" style="width: 30%">', $txt['paid_name'], '</th>
-					<th align="center">', $txt['paid_status'], '</th>
-					<th align="center">', $txt['start_date'], '</th>
-					<th class="last_th" align="center">', $txt['end_date'], '</th>
+					<th>', $txt['paid_status'], '</th>
+					<th>', $txt['start_date'], '</th>
+					<th class="last_th">', $txt['end_date'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -490,7 +490,7 @@ function template_user_subscription()
 	if (empty($context['current']))
 		echo '
 				<tr class="windowbg">
-					<td align="center" colspan="4">
+					<td colspan="4">
 						', $txt['paid_none_yet'], '
 					</td>
 				</tr>';

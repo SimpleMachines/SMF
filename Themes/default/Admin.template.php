@@ -1472,9 +1472,9 @@ function template_php_info()
 					// heading row for the settings section of this categorys settings
 					echo '
 								<tr class="title_bar">
-									<td align="center" width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
-									<td align="center" width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
-									<td align="center" width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+									<td width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
+									<td width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+									<td width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
 								</tr>';
 					$localmaster = false;
 				}

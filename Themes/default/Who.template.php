@@ -39,7 +39,7 @@ function template_main()
 						</noscript>
 					</div>
 				</div>
-				<table class="table_grid" cellspacing="0">
+				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
 							<th scope="col" class="lefttext first_th" width="40%"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=user', $context['sort_direction'] != 'down' && $context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], $context['sort_by'] == 'user' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
@@ -92,7 +92,7 @@ function template_main()
 	{
 		echo '
 						<tr class="windowbg2">
-							<td colspan="3" align="center">
+							<td colspan="3">
 							', $txt['who_no_online_' . ($context['show_by'] == 'guests' || $context['show_by'] == 'spiders' ? $context['show_by'] : 'members')], '
 							</td>
 						</tr>';
