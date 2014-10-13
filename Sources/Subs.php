@@ -793,7 +793,7 @@ function un_htmlspecialchars($string)
 	static $translation = array();
 
 	if (empty($translation))
-		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' ');
+		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES | ENT_HTML5)) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
 }
