@@ -1083,7 +1083,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'blue',
-				'before' => '<span style="color: blue;" class="bbc_color">',
+				'before' => '<span class="bbc_color blue">',
 				'after' => '</span>',
 			),
 			array(
@@ -1251,7 +1251,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'green',
-				'before' => '<span style="color: green;" class="bbc_color">',
+				'before' => '<span class="bbc_color green">',
 				'after' => '</span>',
 			),
 			array(

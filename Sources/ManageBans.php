@@ -206,7 +206,7 @@ function BanList()
 
 						// This ban has already expired.
 						elseif ($rowData['expire_time'] < time())
-							return sprintf('<span style="color: red">%1$s</span>', $txt['ban_expired']);
+							return sprintf('<span class="red">%1$s</span>', $txt['ban_expired']);
 
 						// Still need to wait a few days for this ban to expire.
 						else

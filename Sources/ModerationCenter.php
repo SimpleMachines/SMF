@@ -1565,7 +1565,7 @@ function ViewWarningLog()
 				'value' => '
 					' . $txt['modlog_search'] .':
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">',
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit">',
 				'class' => 'floatright',
 			),
 		),

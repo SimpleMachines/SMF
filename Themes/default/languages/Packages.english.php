@@ -254,7 +254,7 @@ $txt['package_restore_permissions_result'] = 'Result';
 $txt['package_restore_permissions_pre_change'] = '%1$s (%3$s)';
 $txt['package_restore_permissions_post_change'] = '%2$s (%3$s - was %2$s)';
 $txt['package_restore_permissions_action_skipped'] = '<em>Skipped</em>';
-$txt['package_restore_permissions_action_success'] = '<span style="color: green;">Success</span>';
+$txt['package_restore_permissions_action_success'] = '<span class="success">Success</span>';
 $txt['package_restore_permissions_action_failure'] = '<span class="error">Failed</span>';
 $txt['package_restore_permissions_action_done'] = 'SMF has attempted to restore the selected files back to their original permissions, the results can be seen below. If a change failed, or for a more detailed view of file permissions, please see the <a href="%1$s">File Permissions</a> section.';
 
