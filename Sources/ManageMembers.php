@@ -908,7 +908,7 @@ function MembersAwaitingActivation()
 						foreach ($rowData['duplicate_members'] as $member)
 						{
 							if ($member['id'])
-								$member_links[] = '<a href="' . $scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'style="color: red;"' : '') . '>' . $member['name'] . '</a>';
+								$member_links[] = '<a href="' . $scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 							else
 								$member_links[] = $member['name'] . ' (' . $txt['guest'] . ')';
 						}

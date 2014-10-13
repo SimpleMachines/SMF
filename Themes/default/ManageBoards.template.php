@@ -67,7 +67,7 @@ function template_main()
 
 			echo '
 					<li', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $alternate ? '' : '2', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-' . ($context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;">
-						<span class="floatleft"><a', $board['move'] ? ' style="color: red;"' : '', ' href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
+						<span class="floatleft"><a', $board['move'] ? ' class="red"' : '', ' href="', $scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty($modSettings['recycle_board']) && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
 						<span class="floatright">
 							', $context['can_manage_permissions'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" class="button">' . $txt['mboards_permissions'] . '</a>' : '', '
 							<a href="', $scripturl, '?action=admin;area=manageboards;move=', $board['id'], '" class="button">', $txt['mboards_move'], '</a>

@@ -3881,3 +3881,14 @@ h3.profile_hd {
 #modcenter .generic_icons {
 	margin: -3px -3px 0 0;
 }
+
+/* Some colors for generic usage */
+.red {
+	color: red;
+}
+.blue {
+	color: blue;
+}
+.green {
+	color: green;
+}

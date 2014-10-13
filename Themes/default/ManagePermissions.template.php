@@ -85,7 +85,7 @@ function template_permission_index()
 		else
 			echo '
 						<td width="8%"', $group['id'] == 1 ? ' style="font-style: italic;"' : '', '>', $group['num_permissions']['allowed'], '</td>
-						<td width="8%"', $group['id'] == 1 || $group['id'] == -1 ? ' style="font-style: italic;"' : (!empty($group['num_permissions']['denied']) ? ' style="color: red;"' : ''), '>', $group['num_permissions']['denied'], '</td>';
+						<td width="8%"', $group['id'] == 1 || $group['id'] == -1 ? ' style="font-style: italic;"' : (!empty($group['num_permissions']['denied']) ? ' class="red"' : ''), '>', $group['num_permissions']['denied'], '</td>';
 
 		echo '
 						<td>', $group['allow_modify'] ? '<a href="' . $scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty($context['profile']) ? '' : ';pid=' . $context['profile']['id']) . '">' . ($context['can_modify'] ? $txt['permissions_modify'] : $txt['permissions_view']). '</a>' : '', '</td>
@@ -694,7 +694,7 @@ function template_inline_permissions()
 													<dt>
 														<span class="perms"><strong>', $txt['permissions_option_on'], '</strong></span>
 														<span class="perms"><strong>', $txt['permissions_option_off'], '</strong></span>
-														<span class="perms" style="color: red;"><strong>', $txt['permissions_option_deny'], '</strong></span>
+														<span class="perms red"><strong>', $txt['permissions_option_deny'], '</strong></span>
 													</dt>
 													<dd>
 													</dd>';

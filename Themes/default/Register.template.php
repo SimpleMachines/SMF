@@ -139,7 +139,7 @@ function template_registration_form()
 			if ($field['show_reg'] > 1)
 				echo '
 						<dt>
-							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<strong', !empty($field['is_error']) ? ' class="red"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
@@ -181,7 +181,7 @@ function template_registration_form()
 			{
 					echo '
 						<dt>
-							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['label'], ':</strong>';
+							<strong', !empty($field['is_error']) ? ' class="red"' : '', '>', $field['label'], ':</strong>';
 
 				// Does it have any subtext to show?
 				if (!empty($field['subtext']))
@@ -253,7 +253,7 @@ function template_registration_form()
 			if ($field['show_reg'] < 2)
 				echo '
 						<dt>
-							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<strong', !empty($field['is_error']) ? ' class="red"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', $field['input_html'], '</dd>';
@@ -522,7 +522,7 @@ function template_admin_register()
 			if ($field['show_reg'] > 1)
 				echo '
 						<dt>
-							<strong', !empty($field['is_error']) ? ' style="color: red;"' : '', '>', $field['name'], ':</strong>
+							<strong', !empty($field['is_error']) ? ' class="red"' : '', '>', $field['name'], ':</strong>
 							<span class="smalltext">', $field['desc'], '</span>
 						</dt>
 						<dd>', str_replace('name="', 'tabindex="' . $context['tabindex']++ .'" name="', $field['input_html']), '</dd>';
