@@ -738,39 +738,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
 			$today_fmt = '%H:%M' . $s;
 
 		// Same day of the year, same year.... Today!
-		// Else, we may be using relative time and date
-		$rltv_time = $nowtime - $time;
-		$rltv_date = floor($rltv_time / 86400);
-		if (($then['yday'] == $now['yday'] && $then['year'] == $now['year']) ||  ($rltv_time > 0 && $rltv_date == 0))
-		{
-			if ($modSettings['todayMod'] == 3)
-			{
-				// Relative few seconds, Minute(s) and Hour(s)
-				if($rltv_time < 60) return $txt['rltv_seconds'];
-				elseif($rltv_time > 60 && $rltv_time < 120) return $txt['rltv_minute'];
-				elseif($rltv_time > 120 && $rltv_time < 3600) return floor($rltv_time / 60) . $txt['rltv_minutes'];
-				elseif($rltv_time > 3600 && $rltv_time < 7200) return $txt['rltv_hour'];
-				elseif($rltv_time > 7200 && $rltv_time < 86400) return floor($rltv_time / 3600) . $txt['rltv_hours'];
-			}
-			else
-			{
-				// Naah... We use "today" instead
-				$rltv_time = $txt['today'] . timeformat($log_time, $today_fmt, $offset_type);
-				return $rltv_time;
-			}
-		}
-		elseif ($modSettings['todayMod'] == 3 && $rltv_time > 0 && $rltv_date > 0)
-		{
-			// Relative Day(s), Week(s), Month(s) and Year(s)
-			if($rltv_date < 2) return $txt['rltv_day'];
-			elseif($rltv_date > 2 && $rltv_date < 7) return $rltv_date . $txt['rltv_days'];
-			elseif($rltv_date > 6 && $rltv_date < 14) return $txt['rltv_week'];
-			elseif($rltv_date > 13 && $rltv_date < 30) return floor($rltv_date / 7) . $txt['rltv_weeks'];
-			elseif($rltv_date > 29 && $rltv_date < 60) return $txt['rltv_month'];
-			elseif($rltv_date > 59 && $rltv_date < 365) return floor($rltv_date / 31) .  $txt['rltv_months'];
-			elseif($rltv_date > 364 && $rltv_date < 730) return $txt['rltv_year'];
-			elseif($rltv_date > 729 && $rltv_date > 730) return floor($rltv_date / 365) .  $txt['rltv_years'];
-		}
+		if ($then['yday'] == $now['yday'] && $then['year'] == $now['year'])
+			return $txt['today'] . timeformat($log_time, $today_fmt, $offset_type);
 
 		// Day-of-year is one less and same year, or it's the first of the year and that's the last of the year...
 		if ($modSettings['todayMod'] == '2' && (($then['yday'] == $now['yday'] - 1 && $then['year'] == $now['year']) || ($now['yday'] == 0 && $then['year'] == $now['year'] - 1) && $then['mon'] == 12 && $then['mday'] == 31))

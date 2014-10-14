@@ -847,21 +847,4 @@ $txt['notify_board_3'] = 'Receive Emails and Alerts';
 $txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
 $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
-
-// Relative Time & Date
-$txt['rltv'] = 'Relative Time & Date';
-$txt['rltv_years'] = ' years ago';
-$txt['rltv_months'] = ' months ago';
-$txt['rltv_weeks'] = ' weeks ago';
-$txt['rltv_days'] = ' days ago';
-$txt['rltv_hours'] = ' hours ago';
-$txt['rltv_minutes'] = ' minutes ago';
-$txt['rltv_year'] = 'A year ago';
-$txt['rltv_month'] = 'A month ago';
-$txt['rltv_week'] = 'A week ago';
-$txt['rltv_day'] = 'A day ago';
-$txt['rltv_hour'] = 'A hour ago';
-$txt['rltv_minute'] = 'A minute ago';
-$txt['rltv_seconds'] = 'Few seconds ago';
-
 ?>
