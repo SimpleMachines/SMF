@@ -174,7 +174,7 @@ function template_info_center()
 {
 	global $context, $options, $txt;
 
-	if (empty($context['info_center']))
+	if (empty($context['info_center']) || $context['view_info_center'])
 		return;
 
 	// Here's where the "Info Center" starts...
