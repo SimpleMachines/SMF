@@ -62,7 +62,7 @@ SET
 ---# Inserting data into "permissions"...
 INSERT INTO {$db_prefix}permissions
 	(ID_GROUP, permission)
-VALUES (-1, 'search_posts'), (-1, 'calendar_view'), (-1, 'view_stats'), (-1, 'profile_view_any'),
+VALUES (-1, 'search_posts'), (-1, 'calendar_view'), (-1, 'view_stats'), (-1, 'view_info_center'), (-1, 'profile_view_any'),
 	(2, 'calendar_post'), (2, 'calendar_edit_any'), (2, 'calendar_edit_own');
 ---#
 
@@ -1273,6 +1273,7 @@ if ($result === false)
 		'pm_send',
 		'calendar_view',
 		'view_stats',
+		'view_info_center',
 		'who_view',
 		'profile_identity_own',
 		'profile_extra_own',

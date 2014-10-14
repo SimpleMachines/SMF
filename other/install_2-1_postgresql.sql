@@ -1875,6 +1875,7 @@ CREATE TABLE {$db_prefix}permissions (
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'search_posts');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_info_center');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_mlist');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'search_posts');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view');
@@ -1883,6 +1884,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send')
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_info_center');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'who_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_identity_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_password_own');
@@ -1905,6 +1907,7 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send')
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_info_center');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'who_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_identity_own');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_password_own');
