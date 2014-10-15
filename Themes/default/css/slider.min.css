@@ -60,7 +60,7 @@
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(1n){-webkit-animation-name:left-right;-webkit-animation-fill-mode:forwards;-moz-animation-name:left-right;-moz-animation-fill-mode:forwards;-o-animation-name:left-right;-o-animation-fill-mode:forwards;animation-name:left-right;animation-fill-mode:forwards}
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(2n){-webkit-animation-name:right-left;-webkit-animation-fill-mode:forwards;-moz-animation-name:right-left;-moz-animation-fill-mode:forwards;-o-animation-name:right-left;-o-animation-fill-mode:forwards;animation-name:right-left;animation-fill-mode:forwards}
 .sy-slide.sy-active{z-index:3}
-.sy-slide > a{margin:0;padding:0;display:block;width:100%}
+/*.sy-slide > a{margin:0;padding:0;display:block;width:100%}*/
 .sy-slide > a > img{margin:0;padding:0;display:block;width:100%;border:0}
 .sy-caption-wrap{position:absolute;bottom:2em;z-index:12;left:50%}
 .sy-caption-wrap .sy-caption{position:relative;left:-50%;background-color:rgba(0,0,0,0.54);color:#fff;padding:.4em 1em;-webkit-border-radius:1.2em;-moz-border-radius:1.2em;-ms-border-radius:1.2em;-o-border-radius:1.2em;border-radius:1.2em}
