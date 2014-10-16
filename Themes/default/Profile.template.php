@@ -495,7 +495,13 @@ function template_showAlerts()
 			echo '
 				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
 					<div class="counter">', $counter++, '</div>
-					<div class="topic_details">', $alert['time'], '</div>
+					<div class="topic_details">', $alert['time'], '
+						<ul class="floatright smalltext">
+							<li>Delete</li>
+							</li>Mark as read</li>
+							<li>checkboxes</li>
+						</ul>
+					</div>
 					<div class="list_posts">', $alert['text'], '</div>
 				</div>';
 		}
