@@ -369,7 +369,7 @@ function showAlerts($memID)
 			alert_delete($toMark);
 
 		else
-			alert_mark($toMark, $action == 'read' ? 1 : 0);
+			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);
 
 		// Set a nice update message.
 

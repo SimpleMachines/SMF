@@ -2099,11 +2099,11 @@ function alert_markread($memID)
 	updateMemberData($memID, array('alerts' => 0));
 }
 
-function alert_mark($toMark, $read = 0)
+function alert_mark($memID, $toMark, $read = 0)
 {
 	global $smcFunc;
 
-	if (empty($toMark))
+	if (empty($toMark) || empty($memID))
 		return false;
 
 	$toMark = (array) $toMark;
@@ -2123,8 +2123,11 @@ function alert_mark($toMark, $read = 0)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_alert
 		FROM {db_prefix}user_alerts
-		WHERE is_read = 0',
-		array()
+		WHERE id_member = {int:id_member}
+			AND is_read = 0',
+		array(
+			'id_member' => $memID,
+		)
 	);
 
 	$count =  $smcFunc['db_num_rows']($result);
