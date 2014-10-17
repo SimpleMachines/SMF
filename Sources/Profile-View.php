@@ -365,9 +365,11 @@ function showAlerts($memID)
 		$action = !empty($_POST['mark_as']) $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
 
 		// Call it!
-		$call = 'alert_'. $action . '_all';
+		if ($action == 'remove')
+			alert_delete($toMark);
 
-		$call($toMark);
+		else
+			alert_mark($toMark, $action == 'read' ? 1 : 0);
 
 		// Set a nice update message.
 
