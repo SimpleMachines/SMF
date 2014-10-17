@@ -472,10 +472,18 @@ function template_showAlerts()
 {
 	global $context, $txt;
 
+	// Do we have an update message?
+	if (!empty($context['update_message']))
+		echo '
+			<div class="infobox">
+				', $context['update_message'], '.
+			</div>';
+
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $txt['alerts'], ' - ', $context['member']['name'], '
+				', (!empty($context['alerts'])  ? '<span class="floatright">'. $txt['delete'] .' | '. $txt['mark_read_short'] .'</span>' : '') ,'
 			</h3>
 		</div>';
 
@@ -488,21 +496,21 @@ function template_showAlerts()
 	{
 		$alt = false;
 		$counter = 1;
-		foreach ($context['alerts'] as $alert)
+		foreach ($context['alerts'] as $id => $alert)
 		{
 			$alt = !$alt;
 
 			echo '
 				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
 					<div class="counter">', $counter++, '</div>
-					<div class="topic_details">', $alert['time'], '
-						<ul class="floatright smalltext">
-							<li>Delete</li>
-							</li>Mark as read</li>
-							<li>checkboxes</li>
-						</ul>
-					</div>
-					<div class="list_posts">', $alert['text'], '</div>
+					<div class="topic_details floatleft">', $alert['time'], '</div>
+					<ul class="quickbuttons">
+						<li><a>', $txt['delete'] ,'</a></li>
+						<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+						<li><input type="checkbox" name="delete[', $id ,']" value=', $id ,'"></li>
+						<li><input type="checkbox" name="mark[', $id ,']" value=', $id ,'"></li>
+					</ul>
+					<div class="list_posts clear">', $alert['text'], '</div>
 				</div>';
 		}
 	}
