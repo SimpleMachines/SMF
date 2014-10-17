@@ -2107,6 +2107,7 @@ function alert_mark($toMark, $read = 0)
 		return false;
 
 	$toMark = (array) $toMark;
+	$count = 0;
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}user_alerts
@@ -2123,10 +2124,7 @@ function alert_mark($toMark, $read = 0)
 		SELECT id_alert
 		FROM {db_prefix}user_alerts
 		WHERE is_read = 0',
-		array(
-			'id_member' => $memID,
-			'counter' => $counter,
-		)
+		array()
 	);
 
 	$count =  $smcFunc['db_num_rows']($result);
@@ -2134,6 +2132,9 @@ function alert_mark($toMark, $read = 0)
 	$smcFunc['db_free_result']($request);
 
 	updateMemberData($memID, array('alerts' => $count));
+
+	// Might want to know this.
+	return $count;
 }
 
 function alert_delete($toDelete)
