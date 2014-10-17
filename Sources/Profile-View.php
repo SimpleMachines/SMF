@@ -351,11 +351,19 @@ function fetch_alerts($memID, $all = false, $counter = 0)
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc;
+	global $context, $smcFunc, $txt;
 
 	$context['alerts'] = fetch_alerts($memID, true);
+	$toMark = false;
+	$action = '';
 
-	// Saving?
+	if (!empty($_SESSION['update_message']))
+	{
+		$context['update_message'] = $txt['profile_updated_own'];
+		unset($_SESSION['update_message']);
+	}
+
+	// Saving multiple changes?
 	if (isset($_GET['save']) && !empty($_POST['mark']))
 	{
 		// Get the values.
@@ -363,7 +371,18 @@ function showAlerts($memID)
 
 		// Which action?
 		$action = !empty($_POST['mark_as']) $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
+	}
 
+	// A single change.
+	if (!empty($_GET['do']) && !empty($_GET['aid']))
+	{
+		$toMark = (int) $_GET['iad'];
+		$action = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_GET['do']));
+	}
+
+	// Save the changes.
+	if (!empty($toMark) && !empty($action))
+	{
 		// Call it!
 		if ($action == 'remove')
 			alert_delete($toMark);
@@ -372,8 +391,10 @@ function showAlerts($memID)
 			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);
 
 		// Set a nice update message.
+		$_SESSION['update_message'] = true;
 
 		// Redirect.
+		redirectexit('action=profile;area=showalerts;u=' . $memID);
 	}
 }
 
