@@ -508,8 +508,8 @@ function template_showAlerts()
 				<div class="counter">', $counter++, '</div>
 				<div class="topic_details floatleft">', $alert['time'], '</div>
 				<ul class="quickbuttons">
-					<li><a>', $txt['delete'] ,'</a></li>
-					<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
+					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
 					<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
 				</ul>
 				<div class="list_posts clear">', $alert['text'], '</div>

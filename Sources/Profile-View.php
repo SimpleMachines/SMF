@@ -351,7 +351,7 @@ function fetch_alerts($memID, $all = false, $counter = 0)
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc, $txt;
+	global $context, $smcFunc, $txt, $sourcedir;
 
 	$context['alerts'] = fetch_alerts($memID, true);
 	$toMark = false;
@@ -370,7 +370,7 @@ function showAlerts($memID)
 		$toMark = array_map('intval', $_POST['mark']);
 
 		// Which action?
-		$action = !empty($_POST['mark_as']) $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
+		$action = !empty($_POST['mark_as']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
 	}
 
 	// A single change.
@@ -383,6 +383,10 @@ function showAlerts($memID)
 	// Save the changes.
 	if (!empty($toMark) && !empty($action))
 	{
+		checkSession();
+
+		require_once($sourcedir . '/Subs.php');
+
 		// Call it!
 		if ($action == 'remove')
 			alert_delete($toMark);
