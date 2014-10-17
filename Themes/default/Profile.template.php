@@ -470,7 +470,7 @@ function template_showPosts()
 
 function template_showAlerts()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// Do we have an update message?
 	if (!empty($context['update_message']))
@@ -493,6 +493,10 @@ function template_showAlerts()
 		</div>';
 	else
 	{
+		// Start the form.
+		echo '
+		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '">';
+
 		$alt = false;
 		$counter = 1;
 		foreach ($context['alerts'] as $id => $alert)
@@ -500,17 +504,24 @@ function template_showAlerts()
 			$alt = !$alt;
 
 			echo '
-				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
-					<div class="counter">', $counter++, '</div>
-					<div class="topic_details floatleft">', $alert['time'], '</div>
-					<ul class="quickbuttons">
-						<li><a>', $txt['delete'] ,'</a></li>
-						<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-						<li><input type="checkbox" name="mark[', $id ,']" value=', $id ,'"></li>
-					</ul>
-					<div class="list_posts clear">', $alert['text'], '</div>
-				</div>';
+			<div class="', $alt ? 'windowbg' : 'windowbg2', '">
+				<div class="counter">', $counter++, '</div>
+				<div class="topic_details floatleft">', $alert['time'], '</div>
+				<ul class="quickbuttons">
+					<li><a>', $txt['delete'] ,'</a></li>
+					<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+					<li><input type="checkbox" name="mark[', $id ,']" value=', $id ,'"></li>
+				</ul>
+				<div class="list_posts clear">', $alert['text'], '</div>
+			</div>';
 		}
+
+		echo '
+			<div class="roundframe">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="submit" name="req" value="', $txt['submit_request'], '" class="button_submit">
+			</div>
+		</form>';
 	}
 }
 
