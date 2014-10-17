@@ -53,9 +53,9 @@ function template_admin()
 									<div id="version_details" class="padding">
 										<strong>', $txt['support_versions'], ':</strong><br>
 										', $txt['support_versions_forum'], ':
-										<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em><br>
+										<em id="yourVersion">', $context['forum_version'], '</em><br>
 										', $txt['support_versions_current'], ':
-										<em id="smfVersion" style="white-space: nowrap;">??</em><br>
+										<em id="smfVersion">??</em><br>
 										', $context['can_admin'] ? '<a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>';
 
 	// Display all the members who can administrate the forum.
@@ -173,9 +173,9 @@ function template_credits()
 							<div class="padding">
 								<strong>', $txt['support_versions'], ':</strong><br>
 									', $txt['support_versions_forum'], ':
-								<em id="yourVersion" style="white-space: nowrap;">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
+								<em id="yourVersion">', $context['forum_version'], '</em>', $context['can_admin'] ? ' <a href="' . $scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . $txt['version_check_more'] . '</a>' : '', '<br>
 									', $txt['support_versions_current'], ':
-								<em id="smfVersion" style="white-space: nowrap;">??</em><br>';
+								<em id="smfVersion">??</em><br>';
 
 	// Display all the variables we have server information for.
 	foreach ($context['current_versions'] as $version)
@@ -307,16 +307,17 @@ function template_view_versions()
 							</h3>
 						</div>
 						<div class="information">', $txt['version_check_desc'], '</div>
+						<div id="versions">
 							<table class="table_grid">
 								<thead>
-									<tr class="title_bar" align="left">
-										<th class="first_th" scope="col" width="50%">
+									<tr class="title_bar">
+										<th class="half_table">
 											<strong>', $txt['admin_smffile'], '</strong>
 										</th>
-										<th scope="col" width="25%">
+										<th class="quarter_table">
 											<strong>', $txt['dvc_your'], '</strong>
 										</th>
-										<th class="last_th" scope="col" width="25%">
+										<th class="quarter_table">
 											<strong>', $txt['dvc_current'], '</strong>
 										</th>
 									</tr>
@@ -326,13 +327,13 @@ function template_view_versions()
 	// The current version of the core SMF package.
 	echo '
 									<tr>
-										<td class="windowbg">
+										<td class="windowbg half_table">
 											', $txt['admin_smfpackage'], '
 										</td>
-										<td class="windowbg">
+										<td class="windowbg quarter_table">
 											<em id="yourSMF">', $context['forum_version'], '</em>
 										</td>
-										<td class="windowbg">
+										<td class="windowbg quarter_table">
 											<em id="currentSMF">??</em>
 										</td>
 									</tr>';
@@ -340,13 +341,13 @@ function template_view_versions()
 	// Now list all the source file versions, starting with the overall version (if all match!).
 	echo '
 									<tr>
-										<td class="windowbg">
+										<td class="windowbg half_table">
 											<a href="#" id="Sources-link">', $txt['dvc_sources'], '</a>
 										</td>
-										<td class="windowbg">
+										<td class="windowbg quarter_table">
 											<em id="yourSources">??</em>
 										</td>
-										<td class="windowbg">
+										<td class="windowbg quarter_table">
 											<em id="currentSources">??</em>
 										</td>
 									</tr>
@@ -360,13 +361,13 @@ function template_view_versions()
 	foreach ($context['file_versions'] as $filename => $version)
 		echo '
 								<tr>
-									<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+									<td class="windowbg2 half_table">
 										', $filename, '
 									</td>
-									<td class="windowbg2" width="25%">
+									<td class="windowbg2 quarter_table">
 										<em id="yourSources', $filename, '">', $version, '</em>
 									</td>
-									<td class="windowbg2" width="25%">
+									<td class="windowbg2 quarter_table">
 										<em id="currentSources', $filename, '">??</em>
 									</td>
 								</tr>';
@@ -379,13 +380,13 @@ function template_view_versions()
 							<table class="table_grid">
 								<tbody>
 									<tr>
-										<td class="windowbg" width="50%">
+										<td class="windowbg half_table">
 											<a href="#" id="Default-link">', $txt['dvc_default'], '</a>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="yourDefault">??</em>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="currentDefault">??</em>
 										</td>
 									</tr>
@@ -398,13 +399,13 @@ function template_view_versions()
 	foreach ($context['default_template_versions'] as $filename => $version)
 		echo '
 									<tr>
-										<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+										<td class="windowbg2 half_table">
 											', $filename, '
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="yourDefault', $filename, '">', $version, '</em>
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="currentDefault', $filename, '">??</em>
 										</td>
 									</tr>';
@@ -417,13 +418,13 @@ function template_view_versions()
 							<table class="table_grid">
 								<tbody>
 									<tr>
-										<td class="windowbg" width="50%">
+										<td class="windowbg half_table">
 											<a href="#" id="Languages-link">', $txt['dvc_languages'], '</a>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="yourLanguages">??</em>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="currentLanguages">??</em>
 										</td>
 									</tr>
@@ -438,13 +439,13 @@ function template_view_versions()
 		foreach ($files as $filename => $version)
 			echo '
 									<tr>
-										<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+										<td class="windowbg2 half_table">
 											', $filename, '.<em>', $language, '</em>.php
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="your', $filename, '.', $language, '">', $version, '</em>
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="current', $filename, '.', $language, '">??</em>
 										</td>
 									</tr>';
@@ -461,13 +462,13 @@ function template_view_versions()
 							<table class="table_grid">
 								<tbody>
 									<tr>
-										<td class="windowbg" width="50%">
+										<td class="windowbg half_table">
 											<a href="#" id="Templates-link">', $txt['dvc_templates'], '</a>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="yourTemplates">??</em>
 										</td>
-										<td class="windowbg" width="25%">
+										<td class="windowbg quarter_table">
 											<em id="currentTemplates">??</em>
 										</td>
 									</tr>
@@ -480,13 +481,13 @@ function template_view_versions()
 		foreach ($context['template_versions'] as $filename => $version)
 			echo '
 									<tr>
-										<td class="windowbg2" width="50%" style="padding-left: 3ex;">
+										<td class="windowbg2 half_table">
 											', $filename, '
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="yourTemplates', $filename, '">', $version, '</em>
 										</td>
-										<td class="windowbg2" width="25%">
+										<td class="windowbg2 quarter_table">
 											<em id="currentTemplates', $filename, '">??</em>
 										</td>
 									</tr>';
@@ -497,6 +498,7 @@ function template_view_versions()
 	}
 
 	echo '
+						</div>
 						</div>';
 
 	/* Below is the hefty javascript for this. Upon opening the page it checks the current file versions with ones
@@ -546,17 +548,17 @@ function template_edit_censored()
 	// Show text boxes for censoring [bad   ] => [good  ].
 	foreach ($context['censored_words'] as $vulgar => $proper)
 		echo '
-								<div style="margin-top: 1ex;">
+								<div class="block">
 									<input type="text" name="censor_vulgar[]" value="', $vulgar, '" size="30"> =&gt; <input type="text" name="censor_proper[]" value="', $proper, '" size="30">
 								</div>';
 
 	// Now provide a way to censor more words.
 	echo '
-								<div style="margin-top: 1ex;">
+								<div class="block">
 									<input type="text" name="censor_vulgar[]" size="30" class="input_text"> =&gt; <input type="text" name="censor_proper[]" size="30" class="input_text">
 								</div>
-								<div id="moreCensoredWords"></div><div style="margin-top: 1ex; display: none;" id="moreCensoredWords_link">
-									<a class="button_link" style="float: left" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
+								<div id="moreCensoredWords"></div><div class="block" style="display: none;" id="moreCensoredWords_link">
+									<a class="button_link" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
 								<script><!-- // --><![CDATA[
 									document.getElementById("moreCensoredWords_link").style.display = "";
@@ -636,7 +638,7 @@ function template_not_done()
 							</div>';
 
 	echo '
-							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" style="margin: 0;" name="autoSubmit" id="autoSubmit">
+							<form action="', $scripturl, $context['continue_get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 								<input type="submit" name="cont" value="', $txt['not_done_continue'], '" class="button_submit">
 								', $context['continue_post_data'], '
 							</form>
