@@ -524,7 +524,7 @@ function template_showAlerts()
 		</form>';
 	}
 }
-
+ 
 // Template for showing all the drafts of the user.
 function template_showDrafts()
 {
