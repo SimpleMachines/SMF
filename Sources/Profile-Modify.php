@@ -2099,6 +2099,44 @@ function alert_markread($memID)
 	updateMemberData($memID, array('alerts' => 0));
 }
 
+function alert_mark($toMark, $read = 0)
+{
+	global $smcFunc;
+
+	if (empty($toMark))
+		return false;
+
+	$toMark = (array) $toMark;
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts
+		SET is_read = {int:read}
+		WHERE id_alert IN({array_int:toMark})',
+		array(
+			'read' => $read == 1 ? time() : 0,
+			'toMark' => $toMark,
+		)
+	);
+}
+
+function alert_delete($toDelete)
+{
+	global $smcFunc;
+
+	if (empty($toDelete))
+		return false;
+
+	$toDelete = (array) $toDelete;
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts
+		WHERE id_alert IN({array_int:toDelete})',
+		array(
+			'toDelete' => $toDelete,
+		)
+	);
+}
+
 function alert_notifications_topics($memID)
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir;
