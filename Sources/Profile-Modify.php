@@ -2117,6 +2117,23 @@ function alert_mark($toMark, $read = 0)
 			'toMark' => $toMark,
 		)
 	);
+
+	// Gotta know how many unread alerts are left.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_alert
+		FROM {db_prefix}user_alerts
+		WHERE is_read = 0',
+		array(
+			'id_member' => $memID,
+			'counter' => $counter,
+		)
+	);
+
+	$count =  $smcFunc['db_num_rows']($result);
+
+	$smcFunc['db_free_result']($request);
+
+	updateMemberData($memID, array('alerts' => $count));
 }
 
 function alert_delete($toDelete)
