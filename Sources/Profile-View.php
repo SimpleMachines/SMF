@@ -351,9 +351,28 @@ function fetch_alerts($memID, $all = false, $counter = 0)
  */
 function showAlerts($memID)
 {
-	global $context;
+	global $context, $smcFunc;
 
 	$context['alerts'] = fetch_alerts($memID, true);
+
+	// Saving?
+	if (isset($_GET['save']) && !empty($_POST['mark']))
+	{
+		// Get the values.
+		$toMark = array_map('intval', $_POST['mark']);
+
+		// Which action?
+		$action = !empty($_POST['mark_as']) $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
+
+		// Call it!
+		$call = 'alert_'. $action . '_all';
+
+		$call($toMark);
+
+		// Set a nice update message.
+
+		// Redirect.
+	}
 }
 
 /**

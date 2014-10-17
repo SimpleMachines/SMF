@@ -510,21 +510,26 @@ function template_showAlerts()
 				<ul class="quickbuttons">
 					<li><a>', $txt['delete'] ,'</a></li>
 					<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-					<li><input type="checkbox" name="mark[', $id ,']" value=', $id ,'"></li>
+					<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
 				</ul>
 				<div class="list_posts clear">', $alert['text'], '</div>
 			</div>';
 		}
 
 		echo '
-			<div class="roundframe">
+			<div class="roundframe"><div class="floatright">
+				<select name="mark_as">
+					<option value="read">', $txt['quick_mod_markread'] ,'</option>
+					<option value="unread">', $txt['quick_mod_markunread'] ,'</option>
+					<option value="remove">', $txt['quick_mod_remove'] ,'</option>
+				</select>
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="submit" name="req" value="', $txt['submit_request'], '" class="button_submit">
-			</div>
+				<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" class="button_submit">
+			</div></div>
 		</form>';
 	}
 }
- 
+
 // Template for showing all the drafts of the user.
 function template_showDrafts()
 {
