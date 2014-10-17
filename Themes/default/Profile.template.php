@@ -483,7 +483,6 @@ function template_showAlerts()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', $txt['alerts'], ' - ', $context['member']['name'], '
-				', (!empty($context['alerts'])  ? '<span class="floatright">'. $txt['delete'] .' | '. $txt['mark_read_short'] .'</span>' : '') ,'
 			</h3>
 		</div>';
 
@@ -507,7 +506,6 @@ function template_showAlerts()
 					<ul class="quickbuttons">
 						<li><a>', $txt['delete'] ,'</a></li>
 						<li><a>', ($alert['is_read'] ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-						<li><input type="checkbox" name="delete[', $id ,']" value=', $id ,'"></li>
 						<li><input type="checkbox" name="mark[', $id ,']" value=', $id ,'"></li>
 					</ul>
 					<div class="list_posts clear">', $alert['text'], '</div>
