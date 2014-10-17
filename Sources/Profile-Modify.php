@@ -2130,7 +2130,7 @@ function alert_mark($memID, $toMark, $read = 0)
 		)
 	);
 
-	$count =  $smcFunc['db_num_rows']($result);
+	$count =  $smcFunc['db_num_rows']($request);
 
 	$smcFunc['db_free_result']($request);
 

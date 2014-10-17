@@ -376,16 +376,16 @@ function showAlerts($memID)
 	// A single change.
 	if (!empty($_GET['do']) && !empty($_GET['aid']))
 	{
-		$toMark = (int) $_GET['iad'];
+		$toMark = (int) $_GET['aid'];
 		$action = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_GET['do']));
 	}
 
 	// Save the changes.
 	if (!empty($toMark) && !empty($action))
 	{
-		checkSession();
+		checkSession('request');
 
-		require_once($sourcedir . '/Subs.php');
+		require_once($sourcedir . '/Profile-Modify.php');
 
 		// Call it!
 		if ($action == 'remove')
