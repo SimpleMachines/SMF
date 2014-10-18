@@ -495,7 +495,7 @@ function template_showAlerts()
 	{
 		// Start the form.
 		echo '
-		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '">';
+		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
 
 		$alt = false;
 		$counter = 1;
@@ -505,7 +505,6 @@ function template_showAlerts()
 
 			echo '
 			<div class="', $alt ? 'windowbg' : 'windowbg2', '">
-				<div class="counter">', $counter++, '</div>
 				<div class="topic_details floatleft">', $alert['time'], '</div>
 				<ul class="quickbuttons">
 					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
@@ -522,6 +521,7 @@ function template_showAlerts()
 					', $context['pagination'] ,'
 				</div>
 				<div class="floatright">
+					', $txt['check_all'] ,': <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', $txt['quick_mod_markread'] ,'</option>
 						<option value="unread">', $txt['quick_mod_markunread'] ,'</option>

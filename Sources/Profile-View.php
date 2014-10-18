@@ -367,6 +367,21 @@ function showAlerts($memID)
 
 	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
 
+	// Set some JavaScript for checking all alerts at once.
+	addInlineJavascript('
+	$(function(){
+		$(\'#select_all\').on(\'change\', function() {
+			var checkboxes = $(\'#mark_all\').find(\':checkbox\');
+			console.log(checkboxes);
+			if($(this).prop(\'checked\')) {
+				checkboxes.prop(\'checked\', true);
+			}
+			else {
+				checkboxes.prop(\'checked\', false);
+			}
+		});
+	});', true);
+
 	if (!empty($_SESSION['update_message']))
 	{
 		$context['update_message'] = $txt['profile_updated_own'];
