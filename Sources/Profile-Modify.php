@@ -2099,6 +2099,15 @@ function alert_markread($memID)
 	updateMemberData($memID, array('alerts' => 0));
 }
 
+/**
+ * alert_mark
+ *
+ * Marks a group of alerts as un/read
+ * @param int $memID the user ID.
+ * @param array|integer $toMark Either a single integer or an array of IDs. The function will convert single integers to arrays for better handling.
+ * @param integer $read To mark as read or unread, 1 for read, 0 or any other value different than 1 for unread.
+ * @return integer the new amount of unread alerts.
+ */
 function alert_mark($memID, $toMark, $read = 0)
 {
 	global $smcFunc;
@@ -2128,6 +2137,12 @@ function alert_mark($memID, $toMark, $read = 0)
 	return $count;
 }
 
+/**
+ * alert_delete
+ *
+ * Deletes a single or a group of alerts by ID
+ * @param int|array Either a single ID or an arrays of IDs. the Function will convert integers into an array for better handling.
+ */
 function alert_delete($toDelete)
 {
 	global $smcFunc;
@@ -2146,6 +2161,14 @@ function alert_delete($toDelete)
 	);
 }
 
+/**
+ * alert_count
+ *
+ * Counts all alerts an user have or the unread ones.
+ * @param int $memID the user ID.
+ * @param boolean $unread true if you want to count only the unread alerts.
+ * @return integer the amount of requested alerts.
+ */
 function alert_count($memID, $unread = false)
 {
 	global $smcFunc;

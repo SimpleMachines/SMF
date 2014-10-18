@@ -358,13 +358,17 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
+	// Prepare the paginaiton vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count =  alert_count($memID);
+
+	// Get the alerts.
 	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
 	$toMark = false;
 	$action = '';
 
+	// Create the pagination.
 	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
 
 	// Set some JavaScript for checking all alerts at once.
@@ -382,6 +386,7 @@ function showAlerts($memID)
 		});
 	});', true);
 
+	// Set a nice message.
 	if (!empty($_SESSION['update_message']))
 	{
 		$context['update_message'] = $txt['profile_updated_own'];
