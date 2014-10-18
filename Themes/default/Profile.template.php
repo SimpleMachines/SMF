@@ -517,15 +517,20 @@ function template_showAlerts()
 		}
 
 		echo '
-			<div class="roundframe"><div class="floatright">
-				<select name="mark_as">
-					<option value="read">', $txt['quick_mod_markread'] ,'</option>
-					<option value="unread">', $txt['quick_mod_markunread'] ,'</option>
-					<option value="remove">', $txt['quick_mod_remove'] ,'</option>
-				</select>
-				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" class="button_submit">
-			</div></div>
+			<div class="roundframe">
+				<div class="floatleft">
+					', $context['pagination'] ,'
+				</div>
+				<div class="floatright">
+					<select name="mark_as">
+						<option value="read">', $txt['quick_mod_markread'] ,'</option>
+						<option value="unread">', $txt['quick_mod_markunread'] ,'</option>
+						<option value="remove">', $txt['quick_mod_remove'] ,'</option>
+					</select>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" class="button_submit">
+				</div>
+			</div>
 		</form>';
 	}
 }

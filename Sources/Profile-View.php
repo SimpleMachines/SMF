@@ -214,7 +214,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 			AND is_read = 0' : '') . '
 		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
 		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
-		LIMIT {int:start}, {int:maxindex}' : ''),
+		LIMIT {int:start}, {int:maxIndex}' : ''),
 		array(
 			'id_member' => $memID,
 			'counter' => $counter,
@@ -354,11 +354,18 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
  */
 function showAlerts($memID)
 {
-	global $context, $smcFunc, $txt, $sourcedir;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl;
 
-	$context['alerts'] = fetch_alerts($memID, true);
+	require_once($sourcedir . '/Profile-Modify.php');
+
+	$maxIndex = 10;
+	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$count =  alert_count($memID);
+	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
 	$toMark = false;
 	$action = '';
+
+	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
 
 	if (!empty($_SESSION['update_message']))
 	{
@@ -387,8 +394,6 @@ function showAlerts($memID)
 	if (!empty($toMark) && !empty($action))
 	{
 		checkSession('request');
-
-		require_once($sourcedir . '/Profile-Modify.php');
 
 		// Call it!
 		if ($action == 'remove')
