@@ -472,14 +472,14 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	cursor: pointer;
 }
 .previous_page {
-	background: url(../images/generic_icons.png) no-repeat -113px -49px;
+	background: url(../images/generic_icons.png) no-repeat -114px -49px;
 	width: 14px;
 	height: 13px;
 	display: inline-block;
 	margin: 0 0 -1px 0;
 }
 .next_page {
-	background: url(../images/generic_icons.png) no-repeat -113px -33px;
+	background: url(../images/generic_icons.png) no-repeat -114px -33px;
 	width: 14px;
 	height: 13px;
 	display: inline-block;

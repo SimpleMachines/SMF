@@ -158,7 +158,7 @@
 
 	/* This is general */
 	.popup_window {
-		width: 310px !important;
+		width: 93% !important;
 		min-height: 285px !important;
 	}
 	.button_submit {
@@ -191,7 +191,7 @@
 		display: block;
 	}
 	#main_content_section .pagesection {
-		margin: 0;
+		margin: 5px 0;
 		padding: 0;
 	}
 	#main_content_section .buttonlist {
@@ -199,7 +199,6 @@
 		padding: 0;
 		display: block;
 		clear: both;
-		float: none;
 	}
 	#main_content_section .button {
 		padding: 0 6px;
@@ -392,5 +391,36 @@
 	#messageindex .lastpost {
 		width: 20% !important;
 		margin: 3px 0 0 5px;
+	}
+}
+
+/* iPhone Tests */
+@media (max-width: 320px) {
+	#pm_menu {
+		margin: 0 0 0 -60px;
+	}
+	#alerts_menu {
+		margin: 0 0 0 -150px;
+	}
+	#notify_dropdown {
+		margin: 5px 0 0 2px;
+	}
+	.dropmenu li {
+		width: 50%;
+	}
+	.dropmenu li a {
+		width: 65%;
+	}
+	.dropmenu ul li a {
+		width: auto !important;
+	}
+	/* Poll tests */
+	/* 0.o beta inside beta!! I feel like I'm playing dota2 test only if you know what I mean... */
+	#poll_options dl.options {
+		padding: 0;
+	}
+	#poll_options dl.options dt,
+	#poll_options dl.options dd {
+		width: 100%;
 	}
 }
