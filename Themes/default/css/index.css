@@ -1293,7 +1293,7 @@ ul li.greeting {
 	clear: both;
 }
 #main_content_section {
-	padding: 1px 12px 16px 12px;
+	padding: 5px 12px 16px 12px;
 }
 #main_content_section:after {
 	content:"";
@@ -1779,7 +1779,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 #credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
 #registration .roundframe,
 #admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
-#profileview, #coppa {
+#profileview, #coppa, #fatal_error .windowbg {
 	margin: 0 0 10px 0 !important;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
