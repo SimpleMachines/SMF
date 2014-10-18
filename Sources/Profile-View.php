@@ -376,7 +376,6 @@ function showAlerts($memID)
 	$(function(){
 		$(\'#select_all\').on(\'change\', function() {
 			var checkboxes = $(\'#mark_all\').find(\':checkbox\');
-			console.log(checkboxes);
 			if($(this).prop(\'checked\')) {
 				checkboxes.prop(\'checked\', true);
 			}
