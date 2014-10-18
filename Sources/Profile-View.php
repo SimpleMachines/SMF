@@ -200,7 +200,7 @@ function summary($memID)
  * @param bool $all Fetch all, or only fetch unread.
  * @param int $counter
  */
-function fetch_alerts($memID, $all = false, $counter = 0)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
@@ -212,11 +212,14 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
 		WHERE ua.id_member = {int:id_member}' . (!$all ? '
 			AND is_read = 0' : '') . '
-		ORDER BY id_alert DESC' . (!empty($counter) ? '
-		LIMIT {int:counter}' : ''),
+		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
+		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
+		LIMIT {int:start}, {int:maxindex}' : ''),
 		array(
 			'id_member' => $memID,
 			'counter' => $counter,
+			'start' => !empty($pagination['start']) ? $pagination['start'] : 0,
+			'maxIndex' => !empty($pagination['maxIndex']) ? $pagination['maxIndex'] : 0,
 		)
 	);
 

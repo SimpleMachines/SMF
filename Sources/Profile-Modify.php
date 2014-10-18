@@ -2120,19 +2120,7 @@ function alert_mark($memID, $toMark, $read = 0)
 	);
 
 	// Gotta know how many unread alerts are left.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_alert
-		FROM {db_prefix}user_alerts
-		WHERE id_member = {int:id_member}
-			AND is_read = 0',
-		array(
-			'id_member' => $memID,
-		)
-	);
-
-	$count =  $smcFunc['db_num_rows']($request);
-
-	$smcFunc['db_free_result']($request);
+	$count =  alert_count($memID, true);
 
 	updateMemberData($memID, array('alerts' => $count));
 
@@ -2156,6 +2144,32 @@ function alert_delete($toDelete)
 			'toDelete' => $toDelete,
 		)
 	);
+}
+
+function alert_count($memID, $unread = false)
+{
+	global $smcFunc;
+
+	if (empty($memID))
+		return false;
+
+	$count = 0;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_alert
+		FROM {db_prefix}user_alerts
+		WHERE id_member = {int:id_member}
+			'.($unread ? '
+			AND is_read = 0' : ''),
+		array(
+			'id_member' => $memID,
+		)
+	);
+
+	$count =  $smcFunc['db_num_rows']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $count;
 }
 
 function alert_notifications_topics($memID)
