@@ -55,8 +55,9 @@ function BoardIndex()
 	);
 	$context['categories'] = getBoardIndex($boardIndexOptions);
 
-	// Now set up for the info center.
+	// Now set up for the info center and its permission.
 	$context['info_center'] = array();
+	$context['view_info_center'] = !allowedTo('view_info_center');
 
 	// Retrieve the latest posts if the theme settings require it.
 	if (!empty($settings['number_recent_posts']))

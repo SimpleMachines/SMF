@@ -1450,6 +1450,7 @@ function loadAllPermissions()
 		'membergroup' => array(
 			'view_stats' => array(false, 'general'),
 			'view_mlist' => array(false, 'general'),
+			'view_info_center' => array(false, 'general'),
 			'who_view' => array(false, 'general'),
 			'search_posts' => array(false, 'general'),
 			'pm_read' => array(false, 'pm'),
