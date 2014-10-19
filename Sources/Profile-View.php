@@ -349,7 +349,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 /**
  * Shows all alerts for this user
  *
- * @param int $memID
+ * @param int $memID The current User profile.
  * @return void
  */
 function showAlerts($memID)
@@ -358,7 +358,7 @@ function showAlerts($memID)
 
 	require_once($sourcedir . '/Profile-Modify.php');
 
-	// Prepare the paginaiton vars.
+	// Prepare the pagination vars.
 	$maxIndex = 10;
 	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
 	$count =  alert_count($memID);
