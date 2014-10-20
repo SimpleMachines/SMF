@@ -3482,6 +3482,26 @@ function makeFilesWritable(&$files)
 	return false;
 }
 
+quickFileWritable(&$file)
+{
+	if (is_writable($file))
+		return true;
+
+	@chmod($file, 0755);
+
+	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
+	$chmod_values = array(0755, 0775, 0777);
+
+	foreach($chmod_values as $val)
+	{
+		// If it's writable, break out of the loop
+		if (is_writable($file))
+			break;
+		else
+			@chmod($file, $val);
+	}
+}
+
 /******************************************************************************
 ******************* Templates are below this point ****************************
 ******************************************************************************/
