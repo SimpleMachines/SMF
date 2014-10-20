@@ -3478,7 +3478,7 @@ function makeFilesWritable(&$files)
 	return false;
 }
 
-quickFileWritable(&$file)
+function quickFileWritable(&$file)
 {
 	if (is_writable($file))
 		return true;
