@@ -1014,8 +1014,7 @@ function WelcomeLogin()
 	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl .'/custom_avatar';
 
 	// This little fellow has to cooperate...
-	if (!is_writable($custom_av_dir))
-		@chmod($custom_av_dir, 0777);
+	quickFileWritable($custom_av_dir);
 
 	// Are we good now?
 	if(!is_writable($custom_av_dir))
@@ -3211,14 +3210,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Some files have not yet been updated properly.');
 
 	// Make sure Settings.php is writable.
-	if (!is_writable($boarddir . '/Settings.php'))
-		@chmod($boarddir . '/Settings.php', 0777);
+		quickFileWritable($boarddir . '/Settings.php');
 	if (!is_writable($boarddir . '/Settings.php'))
 		print_error('Error: Unable to obtain write access to "Settings.php".', true);
 
-	// Make sure Settings.php is writable.
-	if (!is_writable($boarddir . '/Settings_bak.php'))
-		@chmod($boarddir . '/Settings_bak.php', 0777);
+	// Make sure Settings_bak.php is writable.
+		quickFileWritable($boarddir . '/Settings_bak.php');
 	if (!is_writable($boarddir . '/Settings_bak.php'))
 		print_error('Error: Unable to obtain write access to "Settings_bak.php".');
 
@@ -3232,8 +3229,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	}
 
 	// Make sure Themes is writable.
-	if (!is_writable($modSettings['theme_dir']))
-		@chmod($modSettings['theme_dir'], 0777);
+	quickFileWritable($modSettings['theme_dir']);
 
 	if (!is_writable($modSettings['theme_dir']) && !isset($modSettings['smfVersion']))
 		print_error('Error: Unable to obtain write access to "Themes".');
@@ -3243,8 +3239,8 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!file_exists($cachedir_temp))
 		@mkdir($cachedir_temp);
 
-	if (!is_writable($cachedir_temp))
-		@chmod($cachedir_temp, 0777);
+	// Make sure the cache temp dir is writable.
+	quickFileWritable($cachedir_temp);
 
 	if (!is_writable($cachedir_temp))
 		print_error('Error: Unable to obtain write access to "cache".', true);
