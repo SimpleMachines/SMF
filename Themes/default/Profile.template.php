@@ -616,7 +616,7 @@ function template_editBuddies()
 				<span class="generic_icons people icon"></span> ', $txt['editBuddies'], '
 			</h3>
 		</div>
-		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table class="table_grid">
 			<tr class="title_bar">
 				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
@@ -637,7 +637,7 @@ function template_editBuddies()
 	if (empty($context['buddies']))
 		echo '
 			<tr class="windowbg2">
-				<td colspan="10" align="center"><strong>', $txt['no_buddies'], '</strong></td>
+				<td colspan="10"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
 		// Now loop through each buddy showing info on each.
@@ -653,7 +653,7 @@ function template_editBuddies()
 
 			if ($buddy['show_email'])
 				echo '
-					<td align="center"><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
+					<td><a href="mailto:' . $buddy['email'] . '" rel="nofollow"><span class="generic_icons mail icon" title="' . $txt['email'] . ' ' . $buddy['name'] . '"></span></a></td>';
 
 			// Show the custom profile fields for this user.
 			if (!empty($context['custom_pf']))
@@ -662,7 +662,7 @@ function template_editBuddies()
 						<td class="lefttext">', $buddy['options'][$key], '</td>';
 
 			echo '
-					<td align="center"><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
+					<td><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
 				</tr>';
 
 			$alternate = !$alternate;
@@ -729,7 +729,7 @@ function template_editIgnoreList()
 				', $txt['editIgnoreList'], '
 			</h3>
 		</div>
-		<table border="0" cellspacing="1" cellpadding="4" class="table_grid" align="center">
+		<table class="table_grid">
 			<tr class="title_bar">
 				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
@@ -746,7 +746,7 @@ function template_editIgnoreList()
 	if (empty($context['ignore_list']))
 		echo '
 			<tr class="windowbg2">
-				<td colspan="8" align="center"><strong>', $txt['no_ignore'], '</strong></td>
+				<td colspan="8"><strong>', $txt['no_ignore'], '</strong></td>
 			</tr>';
 
 	// Now loop through each buddy showing info on each.
@@ -921,7 +921,7 @@ function template_trackIP()
 	else
 	{
 		echo '
-		<table class="table_grid" cellspacing="0">
+		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
@@ -999,7 +999,7 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['general']))
 		{
 			echo '
-					<table class="table_grid" cellspacing="0">
+					<table class="table_grid">
 						<thead>
 							<tr class="title_bar">
 								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
@@ -1063,7 +1063,7 @@ function template_showPermissions()
 		if (!empty($context['member']['permissions']['board']))
 		{
 			echo '
-				<table class="table_grid" cellspacing="0">
+				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
 							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
@@ -1737,8 +1737,8 @@ function template_alert_configuration()
 			<table class="table_grid" style="width: 100%">
 				<tr>
 					<td></td>
-					<td align="center">', $txt['receive_alert'], '</td>
-					<td align="center">', $txt['receive_mail'], '</td>
+					<td>', $txt['receive_alert'], '</td>
+					<td>', $txt['receive_mail'], '</td>
 				</tr>';
 	$use_bg2 = true;
 

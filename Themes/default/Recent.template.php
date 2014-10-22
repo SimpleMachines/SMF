@@ -191,7 +191,7 @@ function template_unread()
 
 			if ($context['showCheckboxes'])
 				echo '
-						<div class="moderation" valign="middle" align="center">
+						<div class="moderation">
 							<input type="checkbox" name="topics[]" value="', $topic['id'], '" class="input_check">
 						</div>';
 

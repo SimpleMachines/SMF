@@ -636,7 +636,7 @@ function template_subject_list()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th align="center" width="4%" class="centercol first_th">
+			<th width="4%" class="centercol first_th">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"> <span class="generic_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 			</th>
 			<th class="lefttext" width="22%">
@@ -665,7 +665,7 @@ function template_subject_list()
 	{
 		echo '
 		<tr class="', $next_alternate ? 'windowbg' : 'windowbg2', '">
-			<td align="center" width="4%">
+			<td width="4%">
 			<script><!-- // --><![CDATA[
 				currentLabels[', $message['id'], '] = {';
 
@@ -949,7 +949,7 @@ function template_search_results()
 		{
 			// @todo No context at all of the search?
 			echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" valign="top">
+			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
 				<td>', $message['time'], '</td>
 				<td>', $message['link'], '</td>
 				<td>', $message['member']['link'], '</td>
@@ -1433,7 +1433,7 @@ function template_labels()
 	if (count($context['labels']) < 2)
 		echo '
 			<tr class="windowbg2">
-				<td colspan="2" align="center">', $txt['pm_labels_no_exist'], '</td>
+				<td colspan="2">', $txt['pm_labels_no_exist'], '</td>
 			</tr>';
 	else
 	{
@@ -1448,7 +1448,7 @@ function template_labels()
 				<td>
 					<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30" class="input_text">
 				</td>
-				<td width="4%" align="center"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
+				<td width="4%"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
 			</tr>';
 
 			$alternate = !$alternate;
@@ -1589,7 +1589,7 @@ function template_rules()
 	if (empty($context['rules']))
 		echo '
 			<tr class="windowbg2">
-				<td colspan="2" align="center">
+				<td colspan="2">
 					', $txt['pm_rules_none'], '
 				</td>
 			</tr>';
@@ -1602,7 +1602,7 @@ function template_rules()
 				<td>
 					<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=', $rule['id'], '">', $rule['name'], '</a>
 				</td>
-				<td width="4%" align="center">
+				<td width="4%">
 					<input type="checkbox" name="delrule[', $rule['id'], ']" class="input_check">
 				</td>
 			</tr>';

@@ -359,7 +359,7 @@ function template_merge_extra_options()
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" class="first_th" align="center" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" class="first_th" width="10px">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
@@ -370,7 +370,7 @@ function template_merge_extra_options()
 		foreach ($context['topics'] as $topic)
 			echo '
 					<tr class="windowbg2">
-						<td align="center">
+						<td>
 							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>
 						<td>
@@ -384,7 +384,7 @@ function template_merge_extra_options()
 							' . $topic['updated']['link'] . '<br>
 							<span class="smalltext">', $topic['updated']['time'], '</span>
 						</td>
-						<td align="center">
+						<td>
 							<input type="checkbox" class="input_check" name="notifications[]" value="' . $topic['id'] . '" checked>
 						</td>
 					</tr>';

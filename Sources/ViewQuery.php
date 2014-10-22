@@ -146,14 +146,14 @@ function ViewQuery()
 			if ($result === false)
 			{
 				echo '
-		<table border="1" cellpadding="4" cellspacing="0" style="empty-cells: show; font-family: serif; margin-bottom: 2ex;">
+		<table>
 			<tr><td>', $smcFunc['db_error']($db_connection), '</td></tr>
 		</table>';
 				continue;
 			}
 
 			echo '
-		<table border="1" rules="all" cellpadding="4" cellspacing="0" style="empty-cells: show; font-family: serif; margin-bottom: 2ex;">';
+		<table>';
 
 			$row = $smcFunc['db_fetch_assoc']($result);
 

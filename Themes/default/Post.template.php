@@ -960,7 +960,7 @@ function template_spellcheck()
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
 			<div id="spellview">&nbsp;</div>
-			<table border="0" cellpadding="4" cellspacing="0" width="100%"><tr class="windowbg">
+			<table width="100%"><tr class="windowbg">
 				<td style="width: 50%; vertical-align: top">
 					', $txt['spellcheck_change_to'], '<br>
 					<input type="text" name="changeto" style="width: 98%;" class="input_text">

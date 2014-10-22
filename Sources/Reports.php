@@ -478,7 +478,7 @@ function BoardPermissionsReport()
 
 				// Now actually make the data for the group look right.
 				if (empty($curData[$id_group]))
-					$curData[$id_group] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 				elseif ($curData[$id_group] == 1)
 					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 				else
@@ -730,7 +730,7 @@ function GroupPermissionsReport()
 		if ($row['add_deny'])
 			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 		else
-			$curData[$row['id_group']] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 	}
 	$smcFunc['db_free_result']($request);
 

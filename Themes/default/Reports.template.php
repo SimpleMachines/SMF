@@ -90,7 +90,7 @@ function template_main()
 				<tr class="windowbg table_caption">';
 			else
 				echo '
-				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : ($alternate ? 'windowbg' : 'windowbg2'), '" valign="top">';
+				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : ($alternate ? 'windowbg' : 'windowbg2'), '">';
 
 			// Now do each column.
 			$column_number = 0;
@@ -161,7 +161,7 @@ function template_print()
 	{
 		echo '
 		<div style="overflow: visible;', $table['max_width'] != 'auto' ? ' width: ' . $table['max_width'] . 'px;' : '', '">
-			<table border="0" cellspacing="1" cellpadding="4" width="100%" class="bordercolor">';
+			<table class="bordercolor">';
 
 		if (!empty($table['title']))
 			echo '
@@ -178,10 +178,10 @@ function template_print()
 		{
 			if ($row_number == 0 && !empty($table['shading']['top']))
 				echo '
-				<tr class="titlebg" valign="top">';
+				<tr class="titlebg">';
 			else
 				echo '
-				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" valign="top">';
+				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">';
 
 			// Now do each column!!
 			$column_number = 0;

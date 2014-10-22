@@ -36,11 +36,10 @@ function template_fatal_error()
 				', $context['error_title'], '
 			</h3>
 		</div>
-		<div class="windowbg generic_list_wrapper">
+		<div class="windowbg">
 			<div ', $context['error_code'], 'class="padding">', $context['error_message'], '</div>
 		</div>
-	</div>
-	<br class="clear">';
+	</div>';
 
 		// Show a back button (using javascript.)
 		echo '
@@ -72,7 +71,7 @@ function template_error_log()
 					<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit">
 				</div>
 			</div>
-			<table border="0" cellspacing="1" class="table_grid" id="error_log">
+			<table class="table_grid" id="error_log">
 				<tr>
 					<td colspan="3" class="windowbg">
 						&nbsp;&nbsp;', $txt['apply_filter_of_type'], ':';
@@ -153,7 +152,7 @@ function template_error_log()
 			echo '
 						<div style="float: left; width: 100%; padding: 4px 0; line-height: 1.6em; border-top: 1px solid #e3e3e3;">
 							<a style="display: table-cell; padding: 4px; width: 20px; vertical-align: top;" href="', $scripturl, '?action=admin;area=logs;sa=errorlog', $context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', $txt['apply_filter'], ': ', $txt['filter_only_file'], '"><span class="generic_icons filter"></span></a>
-							<div style="display: table-cell;">
+							<div>
 								', $txt['file'], ': ', $error['file']['link'], '<br>
 								', $txt['line'], ': ', $error['file']['line'], '
 							</div>

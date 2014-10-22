@@ -63,7 +63,7 @@ function template_show_list($list_id = null)
 	}
 
 	echo '
-			<table class="table_grid clear" cellspacing="0"', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
+			<table class="table_grid clear" ', !empty($cur_list['width']) ? ' style="width:' . $cur_list['width'] . '"' : '', '>';
 
 	// Show the column headers.
 	$header_count = count($cur_list['headers']);
@@ -221,11 +221,11 @@ function template_create_list_menu($list_menu, $direction = 'top')
 	if (!isset($list_menu['style']) || isset($list_menu['style']) && $list_menu['style'] == 'tabs')
 	{
 		echo '
-		<table cellpadding="0" cellspacing="0" style="margin-', $list_menu['position'], ': 10px; width: 100%;">
+		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
 				<td>&nbsp;</td>' : '', '
 				<td align="', $list_menu['position'], '">
-					<table cellspacing="0" cellpadding="0">
+					<table>
 						<tr>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>';
 
@@ -234,13 +234,13 @@ function template_create_list_menu($list_menu, $direction = 'top')
 			if ($link['is_selected'])
 				echo '
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $first, '">&nbsp;</td>
-							<td valign="top" class="', $direction == 'top' ? 'mirrortab' : 'maintab', '_active_back">
+							<td class="', $direction == 'top' ? 'mirrortab' : 'maintab', '_active_back">
 								<a href="', $link['href'], '">', $link['label'], '</a>
 							</td>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_active_', $last, '">&nbsp;</td>';
 			else
 				echo '
-							<td valign="top" class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">
+							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">
 								<a href="', $link['href'], '">', $link['label'], '</a>
 							</td>';
 		}
@@ -261,11 +261,11 @@ function template_create_list_menu($list_menu, $direction = 'top')
 			$links[] = '<a href="' . $link['href'] . '">' . $link['label'] . '</a>';
 
 		echo '
-		<table cellpadding="0" cellspacing="0" style="margin-', $list_menu['position'], ': 10px; width: 100%;">
+		<table style="margin-', $list_menu['position'], ': 10px; width: 100%;">
 			<tr>', $list_menu['position'] == 'right' ? '
 				<td>&nbsp;</td>' : '', '
 				<td align="', $list_menu['position'], '">
-					<table cellspacing="0" cellpadding="0">
+					<table>
 						<tr>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_', $first, '">&nbsp;</td>
 							<td class="', $direction == 'top' ? 'mirror' : 'main', 'tab_back">', implode(' &nbsp;|&nbsp; ', $links), '</td>
