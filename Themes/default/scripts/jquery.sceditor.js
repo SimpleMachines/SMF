@@ -2084,8 +2084,6 @@
 			if(!$.sceditor.isWysiwygSupported && base.inSourceMode())
 				return;
 
-			base.blur();
-
 			if(base.inSourceMode())
 				base.setWysiwygEditorValue(base.getSourceEditorValue());
 			else
@@ -5985,7 +5983,7 @@
 		 * If to auto focus the editor on page load
 		 * @type {Boolean}
 		 */
-		autofocus: true,
+		autofocus: false,
 
 		/**
 		 * If to auto focus the editor to the end of the content
