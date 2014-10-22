@@ -294,12 +294,15 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	margin: 2px;
 }
 .sceditor-more {
-	border-top: 1px solid #bbb;
 	display: block;
 	text-align: center;
 	cursor: pointer;
 	font-weight: 700;
-	padding: 6px 0;
+	margin: 5px !important;
+	padding: 6px !important;
+}
+#sceditor-popup-smiley {
+	min-height: 50px;
 }
 .sceditor-dropdown a:hover {
 	background: #eee;
@@ -460,4 +463,7 @@ div.sceditor-group {
 .sceditor-button-shadow div, .sceditor-button-move div,
 .sceditor-button-tt div, .sceditor-button-pre div {
 	margin: 0 0 0 -3px;
+}
+.sceditor-insertemoticon img {
+	margin: 6px 4px 4px;
 }
