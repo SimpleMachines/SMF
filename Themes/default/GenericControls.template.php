@@ -52,7 +52,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 						{';
 				elseif ($location == 'popup')
 					echo '
-						more:
+						popup:
 						{';
 
 				$numRows = count($smileyRows);
@@ -100,7 +100,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					toolbar: "",';
 
 		echo '
-				});',
+				});
+				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();',
 				$editor_context['rich_active'] ? '' : '
 				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
 				if (!(is_ie || is_ie11 || is_ff || is_opera || is_safari || is_chrome))
