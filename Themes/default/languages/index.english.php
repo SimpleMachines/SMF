@@ -579,6 +579,8 @@ $txt['quick_mod_sticky'] = 'Sticky/Unsticky selected';
 $txt['quick_mod_move'] = 'Move selected to';
 $txt['quick_mod_merge'] = 'Merge selected';
 $txt['quick_mod_markread'] = 'Mark selected read';
+$txt['quick_mod_markunread'] = 'Mark selected unread';
+$txt['quick_mod_selected'] = 'With the selected options do';
 $txt['quick_mod_go'] = 'Go';
 $txt['quickmod_confirm'] = 'Are you sure you want to do this?';
 

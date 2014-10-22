@@ -470,7 +470,14 @@ function template_showPosts()
 
 function template_showAlerts()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
+
+	// Do we have an update message?
+	if (!empty($context['update_message']))
+		echo '
+			<div class="infobox">
+				', $context['update_message'], '.
+			</div>';
 
 	echo '
 		<div class="cat_bar">
@@ -486,19 +493,45 @@ function template_showAlerts()
 		</div>';
 	else
 	{
+		// Start the form.
+		echo '
+		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
+
 		$alt = false;
 		$counter = 1;
-		foreach ($context['alerts'] as $alert)
+		foreach ($context['alerts'] as $id => $alert)
 		{
 			$alt = !$alt;
 
 			echo '
-				<div class="', $alt ? 'windowbg' : 'windowbg2', '">
-					<div class="counter">', $counter++, '</div>
-					<div class="topic_details">', $alert['time'], '</div>
-					<div class="list_posts">', $alert['text'], '</div>
-				</div>';
+			<div class="', $alt ? 'windowbg' : 'windowbg2', '">
+				<div class="topic_details floatleft">', $alert['time'], '</div>
+				<ul class="quickbuttons">
+					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
+					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+					<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
+				</ul>
+				<div class="list_posts clear">', $alert['text'], '</div>
+			</div>';
 		}
+
+		echo '
+			<div class="roundframe">
+				<div class="floatleft">
+					', $context['pagination'] ,'
+				</div>
+				<div class="floatright">
+					', $txt['check_all'] ,': <input type="checkbox" name="select_all" id="select_all">
+					<select name="mark_as">
+						<option value="read">', $txt['quick_mod_markread'] ,'</option>
+						<option value="unread">', $txt['quick_mod_markunread'] ,'</option>
+						<option value="remove">', $txt['quick_mod_remove'] ,'</option>
+					</select>
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" class="button_submit">
+				</div>
+			</div>
+		</form>';
 	}
 }
 

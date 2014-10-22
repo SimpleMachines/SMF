@@ -2099,6 +2099,102 @@ function alert_markread($memID)
 	updateMemberData($memID, array('alerts' => 0));
 }
 
+/**
+ * alert_mark
+ *
+ * Marks a group of alerts as un/read
+ * @param int $memID the user ID.
+ * @param array|integer $toMark Either a single integer or an array of IDs. The function will convert single integers to arrays for better handling.
+ * @param integer $read To mark as read or unread, 1 for read, 0 or any other value different than 1 for unread.
+ * @return integer the new amount of unread alerts.
+ */
+function alert_mark($memID, $toMark, $read = 0)
+{
+	global $smcFunc;
+
+	if (empty($toMark) || empty($memID))
+		return false;
+
+	$toMark = (array) $toMark;
+	$count = 0;
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts
+		SET is_read = {int:read}
+		WHERE id_alert IN({array_int:toMark})',
+		array(
+			'read' => $read == 1 ? time() : 0,
+			'toMark' => $toMark,
+		)
+	);
+
+	// Gotta know how many unread alerts are left.
+	$count =  alert_count($memID, true);
+
+	updateMemberData($memID, array('alerts' => $count));
+
+	// Might want to know this.
+	return $count;
+}
+
+/**
+ * alert_delete
+ *
+ * Deletes a single or a group of alerts by ID
+ * @param int|array Either a single ID or an arrays of IDs. the Function will convert integers into an array for better handling.
+ */
+function alert_delete($toDelete)
+{
+	global $smcFunc;
+
+	if (empty($toDelete))
+		return false;
+
+	$toDelete = (array) $toDelete;
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts
+		WHERE id_alert IN({array_int:toDelete})',
+		array(
+			'toDelete' => $toDelete,
+		)
+	);
+}
+
+/**
+ * alert_count
+ *
+ * Counts all alerts an user have or the unread ones.
+ * @param int $memID the user ID.
+ * @param boolean $unread true if you want to count only the unread alerts.
+ * @return integer the amount of requested alerts.
+ */
+function alert_count($memID, $unread = false)
+{
+	global $smcFunc;
+
+	if (empty($memID))
+		return false;
+
+	$count = 0;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_alert
+		FROM {db_prefix}user_alerts
+		WHERE id_member = {int:id_member}
+			'.($unread ? '
+			AND is_read = 0' : ''),
+		array(
+			'id_member' => $memID,
+		)
+	);
+
+	$count =  $smcFunc['db_num_rows']($request);
+	$smcFunc['db_free_result']($request);
+
+	return $count;
+}
+
 function alert_notifications_topics($memID)
 {
 	global $txt, $scripturl, $context, $modSettings, $sourcedir;

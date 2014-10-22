@@ -200,7 +200,7 @@ function summary($memID)
  * @param bool $all Fetch all, or only fetch unread.
  * @param int $counter
  */
-function fetch_alerts($memID, $all = false, $counter = 0)
+function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 {
 	global $smcFunc, $txt, $scripturl, $memberContext;
 
@@ -212,11 +212,14 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
 		WHERE ua.id_member = {int:id_member}' . (!$all ? '
 			AND is_read = 0' : '') . '
-		ORDER BY id_alert DESC' . (!empty($counter) ? '
-		LIMIT {int:counter}' : ''),
+		ORDER BY id_alert DESC' . (!empty($counter) && empty($pagination) ? '
+		LIMIT {int:counter}' : '') . (!empty($pagination) && empty($counter) ? '
+		LIMIT {int:start}, {int:maxIndex}' : ''),
 		array(
 			'id_member' => $memID,
 			'counter' => $counter,
+			'start' => !empty($pagination['start']) ? $pagination['start'] : 0,
+			'maxIndex' => !empty($pagination['maxIndex']) ? $pagination['maxIndex'] : 0,
 		)
 	);
 
@@ -346,14 +349,84 @@ function fetch_alerts($memID, $all = false, $counter = 0)
 /**
  * Shows all alerts for this user
  *
- * @param int $memID
+ * @param int $memID The current User profile.
  * @return void
  */
 function showAlerts($memID)
 {
-	global $context;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl;
 
-	$context['alerts'] = fetch_alerts($memID, true);
+	require_once($sourcedir . '/Profile-Modify.php');
+
+	// Prepare the pagination vars.
+	$maxIndex = 10;
+	$start = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+	$count =  alert_count($memID);
+
+	// Get the alerts.
+	$context['alerts'] = fetch_alerts($memID, true, false, array('start' => $start, 'maxIndex' => $maxIndex));
+	$toMark = false;
+	$action = '';
+
+	// Create the pagination.
+	$context['pagination'] = constructPageIndex($scripturl . '?action=profile;area=showalerts;u=' . $memID, $start, $count, $maxIndex, false);
+
+	// Set some JavaScript for checking all alerts at once.
+	addInlineJavascript('
+	$(function(){
+		$(\'#select_all\').on(\'change\', function() {
+			var checkboxes = $(\'#mark_all\').find(\':checkbox\');
+			if($(this).prop(\'checked\')) {
+				checkboxes.prop(\'checked\', true);
+			}
+			else {
+				checkboxes.prop(\'checked\', false);
+			}
+		});
+	});', true);
+
+	// Set a nice message.
+	if (!empty($_SESSION['update_message']))
+	{
+		$context['update_message'] = $txt['profile_updated_own'];
+		unset($_SESSION['update_message']);
+	}
+
+	// Saving multiple changes?
+	if (isset($_GET['save']) && !empty($_POST['mark']))
+	{
+		// Get the values.
+		$toMark = array_map('intval', $_POST['mark']);
+
+		// Which action?
+		$action = !empty($_POST['mark_as']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_POST['mark_as'])) : '';
+	}
+
+	// A single change.
+	if (!empty($_GET['do']) && !empty($_GET['aid']))
+	{
+		$toMark = (int) $_GET['aid'];
+		$action = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_GET['do']));
+	}
+
+	// Save the changes.
+	if (!empty($toMark) && !empty($action))
+	{
+		checkSession('request');
+
+		// Call it!
+		if ($action == 'remove')
+			alert_delete($toMark);
+
+		else
+			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);
+
+		// Set a nice update message.
+		$_SESSION['update_message'] = true;
+
+		// Redirect.
+		redirectexit('action=profile;area=showalerts;u=' . $memID);
+	}
 }
 
 /**
