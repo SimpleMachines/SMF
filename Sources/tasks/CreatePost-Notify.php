@@ -116,7 +116,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$content_type = 'topic';
 			}
-			else
+			// A new topic in a watched board then?
+			elseif ($type == 'topic')
 			{
 				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : $prefs[$member]['board_notify'];
 
@@ -124,7 +125,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
 			}
-
+			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
+			else
+				continue;
+			
 			if (!empty($prefs[$member]['msg_receive_body']) && in_array($type, array('topic', 'reply')))
 				$message_type .= '_body';
 
