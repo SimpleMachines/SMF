@@ -298,11 +298,10 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	text-align: center;
 	cursor: pointer;
 	font-weight: 700;
-	margin: 5px !important;
-	padding: 6px !important;
 }
-#sceditor-popup-smiley {
-	min-height: 50px;
+.sceditor-insertemoticon .sceditor-more {
+	width: 15%;
+	margin: 0 auto;
 }
 .sceditor-dropdown a:hover {
 	background: #eee;

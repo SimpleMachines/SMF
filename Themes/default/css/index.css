@@ -2866,9 +2866,6 @@ div#editlang_desc {
 tr.windowbg, tr.windowbg2 {
 	box-shadow: none;
 }
-#postmodify .roundframe div{
-	padding-right: 0;
-}
 #postmodify #message{
 	width: 100%;
 	box-sizing: border-box;
