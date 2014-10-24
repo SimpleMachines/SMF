@@ -1229,13 +1229,13 @@ function template_admin_search_results()
 	echo '
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
-								<object id="quick_search">
+								<div id="quick_search">
 									<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
 										<input type="search" name="search_term" value="', $context['search_term'], '" class="input_text">
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit">
 									</form>
-								</object>
+								</div>
 								<span class="generic_icons filter"></span>&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 							</h3>
 						</div>
