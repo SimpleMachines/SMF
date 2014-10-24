@@ -4017,64 +4017,6 @@
 		},
 		// END_COMMAND
 
-		// START_COMMAND: Emoticons
-		emoticon: {
-			exec: function (caller) {
-				var editor = this;
-
-				var createContent = function(includeMore) {
-					var	emoticonsCompat = editor.opts.emoticonsCompat,
-						rangeHelper     = editor.getRangeHelper(),
-						startSpace      = emoticonsCompat && rangeHelper.getOuterText(true, 1)  !== ' ' ? ' ' : '',
-						endSpace        = emoticonsCompat && rangeHelper.getOuterText(false, 1) !== ' ' ? ' ' : '',
-						$content        = $('<div>'),
-						$line           = $('<div>').appendTo($content),
-						emoticons       = $.extend({}, editor.opts.emoticons.dropdown, includeMore ? editor.opts.emoticons.more : {}),
-						perLine         = 0;
-
-					$.each(emoticons, function() {
-						perLine++;
-					});
-					perLine = Math.sqrt(perLine);
-
-					$.each(emoticons, function(code, emoticon) {
-						$line.append(
-							$('<img>').attr({
-								src: emoticon.url || emoticon,
-								alt: code,
-								title: emoticon.tooltip || code
-							}).click(function() {
-								editor.insert(startSpace + $(this).attr('alt') + endSpace, null, false).closeDropDown(true);
-								return false;
-							})
-						);
-
-						if($line.children().length >= perLine)
-							$line = $('<div>').appendTo($content);
-					});
-
-					if(!includeMore)
-					{
-						$content.append(
-							$(editor._('<a class="sceditor-more">{0}</a>', editor._('More'))).click(function () {
-								editor.createDropDown(caller, 'more-emoticons', createContent(true));
-								return false;
-							})
-						);
-					}
-
-					return $content;
-				};
-
-				editor.createDropDown(caller, 'emoticons', createContent(false));
-			},
-			txtExec: function(caller) {
-				$.sceditor.command.get('emoticon').exec.call(this, caller);
-			},
-			tooltip: 'Insert an emoticon'
-		},
-		// END_COMMAND
-
 		// START_COMMAND: YouTube
 		youtube: {
 			_dropDown: function (editor, caller, handleIdFunc) {
@@ -5819,73 +5761,6 @@
 		 * @type {String}
 		 */
 		charset: 'utf-8',
-
-		/**
-		 * Compatibility mode for emoticons.
-		 *
-		 * Helps if you have emoticons such as :/ which would put an emoticon inside http://
-		 *
-		 * This mode requires emoticons to be surrounded by whitespace or end of line chars.
-		 * This mode has limited As You Type emoticon conversion support. It will not replace
-		 * AYT for end of line chars, only emoticons surrounded by whitespace. They will still
-		 * be replaced correctly when loaded just not AYT.
-		 * @type {Boolean}
-		 */
-		emoticonsCompat: false,
-
-		/**
-		 * If to enable emoticons. Can be changes at runtime using the emoticons() method.
-		 * @type {Boolean}
-		 * @since 1.4.2
-		 */
-		emoticonsEnabled: true,
-
-		/**
-		 * Emoticon root URL
-		 * @type {String}
-		 */
-		emoticonsRoot: '',
-		emoticons: {
-			dropdown: {
-				':)': 'emoticons/smile.png',
-				':angel:': 'emoticons/angel.png',
-				':angry:': 'emoticons/angry.png',
-				'8-)': 'emoticons/cool.png',
-				":'(": 'emoticons/cwy.png',
-				':ermm:': 'emoticons/ermm.png',
-				':D': 'emoticons/grin.png',
-				'<3': 'emoticons/heart.png',
-				':(': 'emoticons/sad.png',
-				':O': 'emoticons/shocked.png',
-				':P': 'emoticons/tongue.png',
-				';)': 'emoticons/wink.png'
-			},
-			more: {
-				':alien:': 'emoticons/alien.png',
-				':blink:': 'emoticons/blink.png',
-				':blush:': 'emoticons/blush.png',
-				':cheerful:': 'emoticons/cheerful.png',
-				':devil:': 'emoticons/devil.png',
-				':dizzy:': 'emoticons/dizzy.png',
-				':getlost:': 'emoticons/getlost.png',
-				':happy:': 'emoticons/happy.png',
-				':kissing:': 'emoticons/kissing.png',
-				':ninja:': 'emoticons/ninja.png',
-				':pinch:': 'emoticons/pinch.png',
-				':pouty:': 'emoticons/pouty.png',
-				':sick:': 'emoticons/sick.png',
-				':sideways:': 'emoticons/sideways.png',
-				':silly:': 'emoticons/silly.png',
-				':sleeping:': 'emoticons/sleeping.png',
-				':unsure:': 'emoticons/unsure.png',
-				':woot:': 'emoticons/w00t.png',
-				':wassat:': 'emoticons/wassat.png'
-			},
-			hidden: {
-				':whistling:': 'emoticons/whistling.png',
-				':love:': 'emoticons/wub.png'
-			}
-		},
 
 		/**
 		 * Width of the editor. Set to null for automatic with
