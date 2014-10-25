@@ -795,13 +795,13 @@ $(function() {
 		return false;
 	});
 
-	$('#button_strip_notify').next().find('a').click(function (e) {
+	$('.button_strip_notify').next().find('a').click(function (e) {
 		var $obj = $(this);
 		e.preventDefault();
 		ajax_indicator(true);
 		$.get($obj.attr('href') + ';xml', function () {
 			ajax_indicator(false);
-			$('#button_strip_notify').text($obj.find('strong').text());
+			$('.button_strip_notify').text($obj.find('strong').text());
 		});
 
 		return false;
