@@ -517,7 +517,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 			if (!empty($value['sub_buttons']))
 			{
 				$button .= '
-					<div id="' . $key . '_dropdown" class="top_menu dropmenu">
+					<div class="top_menu dropmenu ' . $key . '_dropdown">
 						<div class="viewport">
 							<div class="overview">';
 				foreach ($value['sub_buttons'] as $element)
