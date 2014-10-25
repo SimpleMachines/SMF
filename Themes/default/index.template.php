@@ -509,7 +509,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 		{
 			if (!isset($value['id']))
-				$value['id'] = $key . (!empty($strip_options['is_duplicate']) ? '2' : '');
+				$value['id'] = $key;
 
 			$button = '
 				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . '" href="' . (!empty($value['url']) ? $value['url'] : '') . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
@@ -517,7 +517,7 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 			if (!empty($value['sub_buttons']))
 			{
 				$button .= '
-					<div id="' . $key . (!empty($strip_options['is_duplicate']) ? '2' : '') . '_dropdown" class="top_menu dropmenu">
+					<div id="' . $key . '_dropdown" class="top_menu dropmenu">
 						<div class="viewport">
 							<div class="overview">';
 				foreach ($value['sub_buttons'] as $element)

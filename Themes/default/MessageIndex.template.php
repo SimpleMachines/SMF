@@ -328,7 +328,7 @@ function template_main()
 
 		echo '
 	<div class="pagesection">
-		', template_button_strip($context['normal_buttons'], 'right', array('is_duplicate' => true)), '
+		', template_button_strip($context['normal_buttons'], 'right'), '
 		', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft" id="bot">', $txt['go_up'], '</a>
 		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
