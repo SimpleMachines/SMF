@@ -790,10 +790,11 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  */
 function un_htmlspecialchars($string)
 {
+	global $context;
 	static $translation = array();
 
 	if (empty($translation))
-		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' ');
+		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $context['character_set'])) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
 }
