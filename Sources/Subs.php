@@ -3745,7 +3745,7 @@ function setupMenuContext()
 			addInlineJavascript('
 	var new_alert_title = "' . $context['forum_name'] . '";
 	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array(), 'smf_alerts');
+			loadJavascriptFile('alerts.js', array('default_theme' => true), 'smf_alerts');
 		}
 	}
 
