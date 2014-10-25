@@ -90,7 +90,7 @@
 			if (popup_exists)
 			{
 				this.opts.emoticons.more = this.opts.emoticons.popup;
-				moreButton = $('<div class="sceditor-more-button sceditor-more">').text('[' + this._('More') + ']').click(function () {
+				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
 					if ($(".sceditor-smileyPopup").length > 0)
 					{
 						$(".sceditor-smileyPopup").fadeIn('fast');
@@ -106,7 +106,7 @@
 						adjheight = 0;
 
 						popupContent.append(titlebar);
-						closeButton = $('<span>').text('[' + base._('Close') + ']').click(function () {
+						closeButton = $('<span class="button">').text(base._('Close')).click(function () {
 							$(".sceditor-smileyPopup").fadeOut('fast');
 						});
 

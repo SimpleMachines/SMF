@@ -47,10 +47,14 @@ function template_profile_popup()
 	// Unlike almost every other template, this is designed to be included into the HTML directly via $().load()
 
 	echo '
+		<div class="profile_user_avatar">
+			', $context['member']['avatar']['image'],'
+		</div>
 		<div class="profile_user_info">
 			<span class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></span>
 			<span class="profile_group">', $context['member']['group'], '</span>
 		</div>
+		<br class="clear">
 		<div class="profile_user_links">
 			<ol>';
 
