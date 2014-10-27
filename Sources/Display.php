@@ -1180,7 +1180,7 @@ function Display()
 
 	// Now create the editor.
 	$editorOptions = array(
-		'id' => 'message',
+		'id' => 'quickReply',
 		'value' => '',
 		'disable_smiley_box' => empty($options['use_editor_quick_reply']),
 		'labels' => array(
