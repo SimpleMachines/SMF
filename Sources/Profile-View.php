@@ -416,7 +416,7 @@ function showAlerts($memID)
 
 		// Call it!
 		if ($action == 'remove')
-			alert_delete($toMark);
+			alert_delete($toMark, $memID);
 
 		else
 			alert_mark($memID, $toMark, $action == 'read' ? 1 : 0);

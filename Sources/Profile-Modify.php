@@ -2143,7 +2143,7 @@ function alert_mark($memID, $toMark, $read = 0)
  * Deletes a single or a group of alerts by ID
  * @param int|array Either a single ID or an arrays of IDs. the Function will convert integers into an array for better handling.
  */
-function alert_delete($toDelete)
+function alert_delete($toDelete, $memID = false)
 {
 	global $smcFunc;
 
@@ -2159,6 +2159,17 @@ function alert_delete($toDelete)
 			'toDelete' => $toDelete,
 		)
 	);
+
+	// Gotta know how many unread alerts are left.
+	if ($memID)
+	{
+		$count =  alert_count($memID, true);
+
+		updateMemberData($memID, array('alerts' => $count));
+
+		// Might want to know this.
+		return $count;
+	}
 }
 
 /**
