@@ -369,13 +369,17 @@ function Post($post_errors = array())
 
 	// Previewing, modifying, or posting?
 	// Do we have a body, but an error happened.
-	if (isset($_REQUEST['message']) || !empty($context['post_error']))
+	if (isset($_REQUEST['message']) || isset($_REQUEST['quickReply']) || !empty($context['post_error']))
 	{
+		if (isset($_REQUEST['quickReply']))
+			$_REQUEST['message'] = $_REQUEST['quickReply'];
+
 		// Validate inputs.
 		if (empty($context['post_error']))
 		{
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
+			
 		}
 		else
 		{
