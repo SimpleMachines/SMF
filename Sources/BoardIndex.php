@@ -133,7 +133,7 @@ function BoardIndex()
 
 	if (!empty($settings['show_newsfader']))
 	{
-		loadJavascriptFile('slippry.min.js');
+		loadJavascriptFile('slippry.min.js', array('default_theme' => true));
 		loadCSSFile('slider.min.css');
 	}
 }
