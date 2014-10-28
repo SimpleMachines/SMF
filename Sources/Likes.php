@@ -63,6 +63,7 @@ class Likes
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
+	 * => 'custom_alert' boolean optional defaults to false, if true the default alert created for every like won't be created.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
@@ -72,6 +73,7 @@ class Likes
 		'flush_cache' => '',
 		'callback' => false,
 		'json' => false,
+		'custom_alert' => false,
 	);
 
 	/**
@@ -319,18 +321,19 @@ class Likes
 		);
 
 		// Add a background task to process sending alerts.
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}background_tasks',
-			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-				'content_id' => $content,
-				'content_type' => $type,
-				'sender_id' => $user['id'],
-				'sender_name' => $user['name'],
-				'time' => $time,
-			)), 0),
-			array('id_task')
-		);
+		if (!$this->_validLikes['custom_alert'])
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+					'content_id' => $content,
+					'content_type' => $type,
+					'sender_id' => $user['id'],
+					'sender_name' => $user['name'],
+					'time' => $time,
+				)), 0),
+				array('id_task')
+			);
 
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
