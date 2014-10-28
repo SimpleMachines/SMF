@@ -248,7 +248,7 @@ class Likes
 
 						// Fill out the rest.
 						$this->_type = $result['type'];
-						$this->_validLikes = $this->_validLikes + $result;
+						$this->_validLikes = array_merge($this->_validLikes, $result);
 						$found = true;
 						break;
 					}
