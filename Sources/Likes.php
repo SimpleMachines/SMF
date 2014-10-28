@@ -156,6 +156,21 @@ class Likes
 	}
 
 	/**
+	 * Likes::get()
+	 *
+	 * A simple getter for all protected properties.
+	 * Accessed from index.php?action=likes
+	 * @param string $property The name of the property to get. 
+	 * @return mixed either return the property or false if there isn't a property with that name.
+	 */
+	public function get($property = '')
+	{
+		// All properties inside Likes are protected, thus, an underscore is used.
+		$property = '_'. $property;
+		return property_exists($this, $property) ? $this->$property : false;
+	}
+
+	/**
 	 * Likes::check()
 	 *
 	 * Performs basic checks on the data provided, checks for a valid msg like.
@@ -233,7 +248,7 @@ class Likes
 
 						// Fill out the rest.
 						$this->_type = $result['type'];
-						$this->_validLikes = $result;
+						$this->_validLikes = $this->_validLikes + $result;
 						$found = true;
 						break;
 					}
@@ -304,18 +319,20 @@ class Likes
 		);
 
 		// Add a background task to process sending alerts.
-		$smcFunc['db_insert']('insert',
-			'{db_prefix}background_tasks',
-			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-				'content_id' => $content,
-				'content_type' => $type,
-				'sender_id' => $user['id'],
-				'sender_name' => $user['name'],
-				'time' => $time,
-			)), 0),
-			array('id_task')
-		);
+		// Mod author, you can add your own background task for your own custom like event using the "integrate_issue_like" hook or your callback, both are immediately called after this.
+		if ($this->_type == 'msg')
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+					'content_id' => $content,
+					'content_type' => $type,
+					'sender_id' => $user['id'],
+					'sender_name' => $user['name'],
+					'time' => $time,
+				)), 0),
+				array('id_task')
+			);
 
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
