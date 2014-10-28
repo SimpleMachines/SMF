@@ -21,40 +21,40 @@ class Likes
 	/**
 	 *@var boolean Know if a request comes from an ajax call or not, depends on $_GET['js'] been set.
 	 */
-	public $js = false;
+	protected $_js = false;
 
 	/**
-	 *@var string If filled, its value will contain a string matching a key on a language var $txt[$this->error]
+	 *@var string If filled, its value will contain a string matching a key on a language var $txt[$this->_error]
 	 */
-	public $error = false;
+	protected $_error = false;
 
 	/**
 	 *@var string The unique type to like, needs to be unique and it needs to be no longer than 6 characters, only numbers and letters are allowed.
 	 */
-	public $type = '';
+	protected $_type = '';
 
 	/**
 	 *@var string A generic string used if you need to pass any extra info. It gets set via $_GET['extra'].
 	 */
-	public $extra = false;
+	protected $_extra = false;
 
 	/**
 	 *@var integer a valid ID to identify your like content.
 	 */
-	public $content = 0;
+	protected $_content = 0;
 
 	/**
 	 *@var integer The number of times your content has been liked.
 	 */
-	public $numLikes = 0;
+	protected $_numLikes = 0;
 
 	/**
 	 *@var boolean If the current user has already liked this content.
 	 */
-	public $alreadyLiked = false;
+	protected $_alreadyLiked = false;
 
 	/**
-	 * @var array $validLikes mostly used for external integration, needs to be filled as an array with the following keys:
+	 * @var array $_validLikes mostly used for external integration, needs to be filled as an array with the following keys:
 	 * => 'can_see' boolean|string whether or not the current user can see the like.
 	 * => 'can_like' boolean|string whether or not the current user can actually like your content.
 	 * for both can_like and can_see: Return a boolean true if the user can, otherwise return a string, the string will be used as key in a regular $txt language error var. The code assumes you already loaded your language file. If no value is returned or the $txt var isn't set, the code will use a generic error message.
@@ -64,7 +64,7 @@ class Likes
 	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
 	 */
-	public $validLikes = array(
+	protected $_validLikes = array(
 		'can_see' => false,
 		'can_like' => false,
 		'redirect' => '',
@@ -77,12 +77,12 @@ class Likes
 	/**
 	 * @var array The current user info ($user_info).
 	 */
-	protected $user;
+	protected $_user;
 
 	/**
 	 * @var integer The topic ID, used for liking messages.
 	 */
-	protected $idTopic = 0;
+	protected $_idTopic = 0;
 
 	/**
 	 * @var boolean to know if response(); will be executed as normal. If this is set to false it indicates the method already solved its own way to send back a response.
@@ -98,14 +98,14 @@ class Likes
 	{
 		global $db_show_debug;
 
-		$this->type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
-		$this->content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
-		$this->js = isset($_GET['js']) ? true : false;
+		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
+		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
+		$this->_js = isset($_GET['js']) ? true : false;
 		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
-		$this->extra = isset($_GET['extra']) ? $_GET['extra'] : false;
+		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
 
 		// We do not want to output debug information here.
-		if ($this->js)
+		if ($this->_js)
 			$db_show_debug = false;
 	}
 
@@ -121,7 +121,7 @@ class Likes
 	{
 		global $context;
 
-		$this->user = $context['user'];
+		$this->_user = $context['user'];
 
 		// Make sure the user can see and like your content.
 		$this->check();
@@ -136,7 +136,7 @@ class Likes
 
 		// So at this point, whatever type of like the user supplied and the item of content in question,
 		// we know it exists, now we need to figure out what we're doing with that.
-		if (in_array($this->_sa, $subActions) && !is_string($this->error))
+		if (in_array($this->_sa, $subActions) && !is_string($this->_error))
 		{
 			// To avoid ambiguity, turn the property to a normal var.
 			$call = $this->_sa;
@@ -156,6 +156,21 @@ class Likes
 	}
 
 	/**
+	 * Likes::get()
+	 *
+	 * A simple getter for all the protected properties.
+	 * Accessed from index.php?action=likes
+	 * @param string $property The name of the property to get. 
+	 * @return mixed either return the property or false if there isn't a property with that name.
+	 */
+	public function get($property = '')
+	{
+		// All properties inside Likes are protected, thus, an underscore is used.
+		$property = '_'. $property;
+		return property_exists($this, $property) ? $this->$property : false;
+	}
+
+	/**
 	 * Likes::check()
 	 *
 	 * Performs basic checks on the data provided, checks for a valid msg like.
@@ -167,18 +182,18 @@ class Likes
 
 		// This feature is currently disable.
 		if (empty($modSettings['enable_likes']))
-			return $this->error = 'like_disable';
+			return $this->_error = 'like_disable';
 
 		// Zerothly, they did indicate some kind of content to like, right?
-		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->type, $matches);
-		$this->type = isset($matches[1]) ? $matches[1] : '';
+		preg_match('~^([a-z0-9\-\_]{1,6})~i', $this->_type, $matches);
+		$this->_type = isset($matches[1]) ? $matches[1] : '';
 
-		if ($this->type == '' || $this->content <= 0)
-			return $this->error = 'cannot_';
+		if ($this->_type == '' || $this->_content <= 0)
+			return $this->_error = 'cannot_';
 
 		// First we need to verify if the user can see the type of content or not. This is set up to be extensible,
 		// so we'll check for the one type we do know about, and if it's not that, we'll defer to any hooks.
-		if ($this->type == 'msg')
+		if ($this->_type == 'msg')
 		{
 			// So we're doing something off a like. We need to verify that it exists, and that the current user can see it.
 			// Fortunately for messages, this is quite easy to do - and we'll get the topic id while we're at it, because
@@ -190,34 +205,34 @@ class Likes
 				WHERE {query_see_board}
 					AND m.id_msg = {int:msg}',
 				array(
-					'msg' => $this->content,
+					'msg' => $this->_content,
 				)
 			);
 			if ($smcFunc['db_num_rows']($request) == 1)
-				list ($this->idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
+				list ($this->_idTopic, $topicOwner) = $smcFunc['db_fetch_row']($request);
 
 			$smcFunc['db_free_result']($request);
-			if (empty($this->idTopic))
-				return $this->error = 'cannot_';
+			if (empty($this->_idTopic))
+				return $this->_error = 'cannot_';
 
 			// So we know what topic it's in and more importantly we know the user can see it.
 			// If we're not viewing, we need some info set up.
-			$this->validLikes['type'] = 'msg';
-			$this->validLikes['flush_cache'] = 'likes_topic_' . $this->idTopic . '_' . $this->user['id'];
-			$this->validLikes['redirect'] = 'topic=' . $this->idTopic . '.msg' . $this->content . '#msg' . $this->content;
-			$this->validLikes['can_see'] = allowedTo('likes_view') ? true : 'cannot_view_likes';
+			$this->_validLikes['type'] = 'msg';
+			$this->_validLikes['flush_cache'] = 'likes_topic_' . $this->_idTopic . '_' . $this->_user['id'];
+			$this->_validLikes['redirect'] = 'topic=' . $this->_idTopic . '.msg' . $this->_content . '#msg' . $this->_content;
+			$this->_validLikes['can_see'] = allowedTo('likes_view') ? true : 'cannot_view_likes';
 
-			$this->validLikes['can_like'] = ($this->user['id'] == $topicOwner ? 'cannot_likecontent' : (allowedTo('likes_like') ? true : 'cannot_likecontent'));
+			$this->_validLikes['can_like'] = ($this->_user['id'] == $topicOwner ? 'cannot_like_content' : (allowedTo('likes_like') ? true : 'cannot_like_content'));
 		}
 
 		else
 		{
-			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->type=msg, $this->content=1
-			// When you hook this, check $this->type first. If it is not something your mod worries about, return false.
-			// Otherwise, fill an array according to the docs for $this->validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists) Remember that users can't like their own content.
+			// Modders: This will give you whatever the user offers up in terms of liking, e.g. $this->_type=msg, $this->_content=1
+			// When you hook this, check $this->_type first. If it is not something your mod worries about, return false.
+			// Otherwise, fill an array according to the docs for $this->_validLikes. Determine (however you need to) that the user can see and can_like the relevant liked content (and it exists) Remember that users can't like their own content.
 			// If the user cannot see it, return the appropriate key (can_see) as false. If the user can see it and can like it, you MUST return your type in the 'type' key back.
 			// See also issueLike() for further notes.
-			$can_like = call_integration_hook('integrate_valid_likes', array($this->type, $this->content, $this->_sa, $this->js, $this->extra));
+			$can_like = call_integration_hook('integrate_valid_likes', array($this->_type, $this->_content, $this->_sa, $this->_js, $this->_extra));
 
 			$found = false;
 			if (!empty($can_like))
@@ -228,12 +243,12 @@ class Likes
 					if ($result !== false)
 					{
 						// Match the type with what we already have.
-						if (!isset($result['type']) || $result['type'] != $this->type)
-							return $this->error = 'not_valid_liketype';
+						if (!isset($result['type']) || $result['type'] != $this->_type)
+							return $this->_error = 'not_valid_like_type';
 
 						// Fill out the rest.
-						$this->type = $result['type'];
-						$this->validLikes = $result;
+						$this->_type = $result['type'];
+						$this->_validLikes = $result;
 						$found = true;
 						break;
 					}
@@ -241,22 +256,22 @@ class Likes
 			}
 
 			if (!$found)
-				return $this->error = 'cannot_';
+				return $this->_error = 'cannot_';
 		}
 
 		// Does the user can see this?
-		if (isset($this->validLikes['can_see']) && is_string($this->validLikes['can_see']))
-			return $this->error = $this->validLikes['can_see'];
+		if (isset($this->_validLikes['can_see']) && is_string($this->_validLikes['can_see']))
+			return $this->_error = $this->_validLikes['can_see'];
 
 		// Does the user can like this? Viewing a list of likes doesn't require this permission.
-			if ($this->_sa != 'view' && isset($this->validLikes['can_like']) && is_string($this->validLikes['can_like']))
-				return $this->error = $this->validLikes['can_like'];
+			if ($this->_sa != 'view' && isset($this->_validLikes['can_like']) && is_string($this->_validLikes['can_like']))
+				return $this->_error = $this->_validLikes['can_like'];
 	}
 
 	/**
 	 * Likes::delete()
 	 *
-	 * Deletes an entry from user_likes table, needs 3 properties: $content, $type and $user['id'].
+	 * Deletes an entry from user_likes table, needs 3 properties: $_content, $_type and $_user['id'].
 	 */
 	protected function delete()
 	{
@@ -264,13 +279,13 @@ class Likes
 
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}user_likes
-			WHERE content_id = {int:likecontent}
-				AND contenttype = {string:liketype}
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
 			array(
-				'likecontent' => $this->content,
-				'liketype' => $this->type,
-				'id_member' => $this->user['id'],
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+				'id_member' => $this->_user['id'],
 			)
 		);
 
@@ -289,18 +304,18 @@ class Likes
 		global $smcFunc;
 
 		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
-		$type = $this->type;
-		$content = $this->content;
-		$user = $this->user;
+		$type = $this->_type;
+		$content = $this->_content;
+		$user = $this->_user;
 		$time = time();
 		call_integration_hook('integrate_issue_like_before', array(&$type, &$content, &$user, &$time));
 
 		// Insert the like.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_likes',
-			array('content_id' => 'int', 'contenttype' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
+			array('content_id' => 'int', 'content_type' => 'string-6', 'id_member' => 'int', 'like_time' => 'int'),
 			array($content, $type, $user['id'], $time),
-			array('content_id', 'contenttype', 'id_member')
+			array('content_id', 'content_type', 'id_member')
 		);
 
 		// Add a background task to process sending alerts.
@@ -309,7 +324,7 @@ class Likes
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
 				'content_id' => $content,
-				'contenttype' => $type,
+				'content_type' => $type,
 				'sender_id' => $user['id'],
 				'sender_name' => $user['name'],
 				'time' => $time,
@@ -325,7 +340,7 @@ class Likes
 	/**
 	 * Likes::_count()
 	 *
-	 * Sets $numLikes with the actual number of likes your content has, needs two properties: $content and $_view. When called directly it will return the number of likes as response.
+	 * Sets $_numLikes with the actual number of likes your content has, needs two properties: $_content and $_view. When called directly it will return the number of likes as response.
 	 */
 	protected function _count()
 	{
@@ -334,19 +349,19 @@ class Likes
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member)
 			FROM {db_prefix}user_likes
-			WHERE content_id = {int:likecontent}
-				AND contenttype = {string:liketype}',
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}',
 			array(
-				'likecontent' => $this->content,
-				'liketype' => $this->type,
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
 			)
 		);
-		list ($this->numLikes) = $smcFunc['db_fetch_row']($request);
+		list ($this->_numLikes) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		// If you want to call this directly, fill out _data property too.
 		if ($this->_sa == __FUNCTION__)
-			$this->_data = $this->numLikes;
+			$this->_data = $this->_numLikes;
 	}
 
 	/**
@@ -359,26 +374,26 @@ class Likes
 		global $smcFunc;
 
 		// Safety first!
-		if (empty($this->type) || empty($this->content))
-			return $this->error = 'cannot_';
+		if (empty($this->_type) || empty($this->_content))
+			return $this->_error = 'cannot_';
 
 		// Do we already like this?
 		$request = $smcFunc['db_query']('', '
-			SELECT content_id, contenttype, id_member
+			SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_likes
-			WHERE content_id = {int:likecontent}
-				AND contenttype = {string:liketype}
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
 				AND id_member = {int:id_member}',
 			array(
-				'likecontent' => $this->content,
-				'liketype' => $this->type,
-				'id_member' => $this->user['id'],
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
+				'id_member' => $this->_user['id'],
 			)
 		);
-		$this->alreadyLiked = (bool) $smcFunc['db_num_rows']($request) != 0;
+		$this->_alreadyLiked = (bool) $smcFunc['db_num_rows']($request) != 0;
 		$smcFunc['db_free_result']($request);
 
-		if ($this->alreadyLiked)
+		if ($this->_alreadyLiked)
 			$this->delete();
 
 		else
@@ -388,16 +403,16 @@ class Likes
 		$this->_count();
 
 		// Update the likes count for messages.
-		if ($this->type == 'msg')
+		if ($this->_type == 'msg')
 			$this->msgIssueLike();
 
 		// Any callbacks?
-		elseif (!empty($this->validLikes['callback']))
+		elseif (!empty($this->_validLikes['callback']))
 		{
-			$call = call_helper($this->validLikes['callback'], true);
+			$call = call_helper($this->_validLikes['callback'], true);
 
 			if (!empty($call))
-				calluser_func_array($call, array($this));
+				call_user_func_array($call, array($this));
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
@@ -406,18 +421,18 @@ class Likes
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
 		// in integrate_valid_likes where it absolutely has to exist.
-		if (!empty($this->validLikes['flush_cache']))
-			cache_put_data($this->validLikes['flush_cache'], null);
+		if (!empty($this->_validLikes['flush_cache']))
+			cache_put_data($this->_validLikes['flush_cache'], null);
 
 		// All done, start building the data to pass as response.
 		$this->_data = array(
-			'id_topic' => !empty($this->idTopic) ? $this->idTopic : 0,
-			'idcontent' => $this->content,
-			'count' => $this->numLikes,
-			'can_like' => $this->validLikes['can_like'],
-			'can_see' => $this->validLikes['can_see'],
-			'already_liked' => empty($this->alreadyLiked),
-			'type' => $this->type,
+			'id_topic' => !empty($this->_idTopic) ? $this->_idTopic : 0,
+			'id_content' => $this->_content,
+			'count' => $this->_numLikes,
+			'can_like' => $this->_validLikes['can_like'],
+			'can_see' => $this->_validLikes['can_see'],
+			'already_liked' => empty($this->_alreadyLiked),
+			'type' => $this->_type,
 		);
 	}
 
@@ -431,7 +446,7 @@ class Likes
 	{
 		global $smcFunc;
 
-		if ($this->type !== 'msg')
+		if ($this->_type !== 'msg')
 			return;
 
 		$smcFunc['db_query']('', '
@@ -439,13 +454,13 @@ class Likes
 			SET likes = {int:num_likes}
 			WHERE id_msg = {int:id_msg}',
 			array(
-				'id_msg' => $this->content,
-				'num_likes' => $this->numLikes,
+				'id_msg' => $this->_content,
+				'num_likes' => $this->_numLikes,
 			)
 		);
 
 		// Note that we could just as easily have cleared the cache here, or set up the redirection address
-		// but if your liked content doesn't need to do anything other than have the record in smfuser_likes,
+		// but if your liked content doesn't need to do anything other than have the record in smf_user_likes,
 		// there's no point in creating another function unnecessarily.
 	}
 
@@ -465,12 +480,12 @@ class Likes
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, like_time
 			FROM {db_prefix}user_likes
-			WHERE content_id = {int:likecontent}
-				AND contenttype = {string:liketype}
+			WHERE content_id = {int:like_content}
+				AND content_type = {string:like_type}
 			ORDER BY like_time DESC',
 			array(
-				'likecontent' => $this->content,
-				'liketype' => $this->type,
+				'like_content' => $this->_content,
+				'like_type' => $this->_type,
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -529,7 +544,7 @@ class Likes
 			return;
 
 		// Want a json response huh?
-		if ($this->validLikes['json'])
+		if ($this->_validLikes['json'])
 			return $this->jsonResponse();
 
 		// Set everything up for display.
@@ -537,22 +552,22 @@ class Likes
 		$context['template_layers'] = array();
 
 		// If there are any errors, process them first.
-		if ($this->error)
+		if ($this->_error)
 		{
 			// If this is a generic error, set it up good.
-			if ($this->error == 'cannot_')
-				$this->error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_likecontent';
+			if ($this->_error == 'cannot_')
+				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 
 			// Is this request coming from an ajax call?
-			if ($this->js)
+			if ($this->_js)
 			{
 				$context['sub_template'] = 'generic';
-				$context['data'] = isset($txt[$this->error]) ? $txt[$this->error] : $txt['likeerror'];
+				$context['data'] = isset($txt[$this->_error]) ? $txt[$this->_error] : $txt['like_error'];
 			}
 
 			// Nope?  then just do a redirect to whatever URL was provided.
 			else
-				redirectexit(!empty($this->validLikes['redirect']) ? $this->validLikes['redirect'] .';error='. $this->error : '');
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] .';error='. $this->_error : '');
 
 			return;
 		}
@@ -561,8 +576,8 @@ class Likes
 		else
 		{
 			// Not an ajax request so send the user back to the previous location or the main page.
-			if (!$this->js)
-				redirectexit(!empty($this->validLikes['redirect']) ? $this->validLikes['redirect'] : '');
+			if (!$this->_js)
+				redirectexit(!empty($this->_validLikes['redirect']) ? $this->_validLikes['redirect'] : '');
 
 			// These fine gentlemen all share the same template.
 			$generic = array('delete', 'insert', '_count');
@@ -602,16 +617,16 @@ class Likes
 		);
 
 		// If there is an error, send it.
-		if ($this->error)
+		if ($this->_error)
 		{
-			if ($this->error == 'cannot_')
-				$this->error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_likecontent';
+			if ($this->_error == 'cannot_')
+				$this->_error = $this->_sa == 'view' ? 'cannot_view_likes' : 'cannot_like_content';
 
-			$print['error'] = $this->error;
+			$print['error'] = $this->_error;
 		}
 
 		// Do you want to add something at the very last minute?
-		call_integration_hook('integrate_likesjson_response', array(&$print));
+		call_integration_hook('integrate_likes_json_response', array(&$print));
 
 		// Print the data.
 		echo json_encode($print);
