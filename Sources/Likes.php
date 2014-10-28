@@ -63,7 +63,6 @@ class Likes
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
 	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
-	 * => 'custom_alert' boolean optional defaults to false, if true the default alert created for every like won't be created.
 	 */
 	protected $_validLikes = array(
 		'can_see' => false,
@@ -73,7 +72,6 @@ class Likes
 		'flush_cache' => '',
 		'callback' => false,
 		'json' => false,
-		'custom_alert' => false,
 	);
 
 	/**
@@ -160,7 +158,7 @@ class Likes
 	/**
 	 * Likes::get()
 	 *
-	 * A simple getter for all the protected properties.
+	 * A simple getter for all protected properties.
 	 * Accessed from index.php?action=likes
 	 * @param string $property The name of the property to get. 
 	 * @return mixed either return the property or false if there isn't a property with that name.
@@ -321,7 +319,8 @@ class Likes
 		);
 
 		// Add a background task to process sending alerts.
-		if (!$this->_validLikes['custom_alert'])
+		// Mod author, you can add your own background task for your own custom like event using the "integrate_issue_like" hook or your callback, both are immediately called after this.
+		if ($this->_type == 'msg')
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
