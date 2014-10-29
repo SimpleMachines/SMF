@@ -379,7 +379,7 @@ function Post($post_errors = array())
 		{
 			// This means they didn't click Post and get an error.
 			$really_previewing = true;
-			
+
 		}
 		else
 		{
@@ -1574,6 +1574,10 @@ function Post2()
 			$_SESSION['guest_email'] = $_POST['email'];
 		}
 	}
+
+	// Coming from the quickReply?
+	if(isset($_POST['quickReply']))
+		$_POST['message'] = $_POST['quickReply'];
 
 	// Check the subject and message.
 	if (!isset($_POST['subject']) || $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_POST['subject'])) === '')
