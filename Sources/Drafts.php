@@ -52,6 +52,9 @@ function SaveDraft(&$post_errors)
 		return true;
 	}
 
+	if (!isset($_POST['message']))
+		$_POST['message'] = isset($_POST['quickReply']) ? $_POST['quickReply'] : '';
+
 	// prepare any data from the form
 	$topic_id = empty($_REQUEST['topic']) ? 0 : (int) $_REQUEST['topic'];
 	$draft['icon'] = empty($_POST['icon']) ? 'xx' : preg_replace('~[\./\\\\*:"\'<>]~', '', $_POST['icon']);
@@ -460,6 +463,9 @@ function ShowDrafts($member_id, $topic = false, $draft_type = 0)
 	// add them to the draft array for display
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($row['subject']))
+			$row['subject'] = $txt['no_subject'];
+
 		// Post drafts
 		if ($draft_type === 0)
 			$context['drafts'][] = array(
