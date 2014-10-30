@@ -253,7 +253,17 @@
 	img#icons {
 		margin: 0 0 0 5px;
 	}
-
+	#quickReplyOptions #postmodify {
+		width: 100%;
+	}
+	/* Poll */
+	#poll_options dl.options {
+		padding: 0;
+	}
+	#poll_options dl.options dt,
+	#poll_options dl.options dd {
+		width: 100%;
+	}
 	/* Stats Center */
 	.half_content {
 		width: 100%;
@@ -380,9 +390,11 @@
 
 /* Still not enough data or people to test this... */
 @media (min-width: 721px) and (max-width: 1023px) {
-	#messageindex .lastpost {
-		width: 20% !important;
-		margin: 3px 0 0 5px;
+	div.lastpost {
+		margin: 0 0 0 20px;
+	}
+	div.stats {
+		display: none;
 	}
 }
 
@@ -413,14 +425,5 @@
 	}
 	.dropmenu ul li a {
 		width: auto !important;
-	}
-	/* Poll tests */
-	/* 0.o beta inside beta!! I feel like I'm playing dota2 test only if you know what I mean... */
-	#poll_options dl.options {
-		padding: 0;
-	}
-	#poll_options dl.options dt,
-	#poll_options dl.options dd {
-		width: 100%;
 	}
 }
