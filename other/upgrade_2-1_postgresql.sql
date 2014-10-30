@@ -1795,5 +1795,5 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 /******************************************************************************/
 ---#
 ALTER TABLE {$db_prefix}log_spider_hits
-ALTER url TYPE varchar(255)
+ALTER url TYPE varchar(255);
 ---#
