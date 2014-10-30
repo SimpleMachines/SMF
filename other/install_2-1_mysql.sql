@@ -1068,7 +1068,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 	id_hit int(10) unsigned NOT NULL auto_increment,
   id_spider smallint(5) unsigned NOT NULL default '0',
   log_time int(10) unsigned NOT NULL default '0',
-  url varchar(255) NOT NULL default '',
+  url varchar(1024) NOT NULL default '',
   processed tinyint(3) NOT NULL default '0',
   PRIMARY KEY (id_hit),
   KEY id_spider(id_spider),

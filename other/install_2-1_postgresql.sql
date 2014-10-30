@@ -1420,7 +1420,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
   id_hit int default nextval('{$db_prefix}log_spider_hits_seq'),
   id_spider smallint NOT NULL default '0',
   log_time int NOT NULL default '0',
-  url varchar(255) NOT NULL,
+  url varchar(1024) NOT NULL,
   processed smallint NOT NULL default '0',
   PRIMARY KEY (id_hit)
 );
