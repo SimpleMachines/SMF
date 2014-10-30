@@ -735,7 +735,7 @@ function template_single_post($message, $force_alternate = null)
 							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
 
 		$last_approved_state = 1;
-		$attachments_per_line = 4;
+		$attachments_per_line = 5;
 		$i = 0;
 
 		foreach ($message['attachment'] as $attachment)
@@ -792,7 +792,7 @@ function template_single_post($message, $force_alternate = null)
 			// Next attachment line ?
 			if (++$i % $attachments_per_line === 0)
 				echo '
-									<hr>';
+									<br>';
 		}
 
 		// If we had unapproved attachments clean up.
