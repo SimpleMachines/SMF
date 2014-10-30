@@ -2131,7 +2131,7 @@ function ModifyLogSettings($return_config = false)
 			$vals = array();
 			foreach ($config_vars as $index => $dummy)
 			{
-				if (!is_array($dummy) || $index == 'pruningOptions')
+				if (!is_array($dummy) || $index == 'pruningOptions' || !in_array($dummy[1], $prune_toggle))
 					continue;
 
 				$vals[] = empty($_POST[$dummy[1]]) || $_POST[$dummy[1]] < 0 ? 0 : (int) $_POST[$dummy[1]];
