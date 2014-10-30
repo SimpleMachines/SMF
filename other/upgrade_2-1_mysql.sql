@@ -1684,3 +1684,11 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
   }
   $smcFunc['db_free_result']($existing_notify);
 ---}
+
+/******************************************************************************/
+--- Fixing the url column in the log_spider_hits table
+/******************************************************************************/
+---#
+ALTER TABLE {$db_prefix}log_spider_hits
+CHANGE `url` `url` varchar(1024) NOT NULL DEFAULT '';
+---#
