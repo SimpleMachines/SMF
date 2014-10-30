@@ -592,7 +592,9 @@ function logSpider()
 		{
 			$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 			unset($url['sesc'], $url[$context['session_var']]);
-			$url = serialize($url);
+			
+			// Encoding so we are sure the variable doesn't get messed with.
+			$url = base64_encode(serialize($url));
 		}
 		else
 			$url = '';
@@ -785,7 +787,16 @@ function SpiderLogs()
 			if (empty($row['viewing']['value']) && isset($modSettings['spider_mode']) && $modSettings['spider_mode'] < 3)
 				$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . $txt['spider_disabled'] . '</em>';
 			else
-				$urls[$k] = array($row['viewing']['value'], -1);
+			{
+				// Done like this for backwards compatibility. Anything done in Base64 is cooler, but older stuff can work as well.
+				$data = base64_decode($row['data']['viewing']['value'], true);
+				
+				// Is the data encoded?
+				if (!base64_encode($data))
+					$data = $row['data']['viewing']['value'];
+				
+				$urls[$k] = array($data, -1);
+			}
 		}
 
 		// Now stick in the new URLs.
@@ -793,7 +804,7 @@ function SpiderLogs()
 		$urls = determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{
-			$context['spider_logs']['rows'][$k]['viewing']['value'] = $new_url;
+			$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 		}
 	}
 
