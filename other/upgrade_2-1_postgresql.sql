@@ -1768,6 +1768,7 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 /******************************************************************************/
 --- Port post notification settings
 /******************************************************************************/
+---# Upgrading post notification settings
 ---{
   $existing_notify = $smcFunc['db_query']('', '
     SELECT id_member, notify_regularity, notify_send_body, notify_types
@@ -1789,11 +1790,12 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
   }
   $smcFunc['db_free_result']($existing_notify);
 ---}
+---#
 
 /******************************************************************************/
 --- Fixing the url column in the log_spider_hits table
 /******************************************************************************/
----#
+---# Changing url column size from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
-ALTER url TYPE varchar(255);
+ALTER url TYPE varchar(1024);
 ---#
