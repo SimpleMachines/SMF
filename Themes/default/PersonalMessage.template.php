@@ -362,10 +362,9 @@ function template_folder()
 				}
 
 				// Any custom fields for standard placement?
-				if (!empty($message['member']['custom_fields']))
-					foreach ($message['member']['custom_fields'] as $custom)
-						if (empty($custom['placement']) || empty($custom['value']))
-							echo '
+				if (!empty($message['custom_fields']['standard']))
+					foreach ($message['custom_fields']['standard'] as $custom)
+						echo '
 				<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
 
 				// Are we showing the warning status?
