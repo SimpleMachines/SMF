@@ -641,17 +641,10 @@ function template_single_post($message, $force_alternate = null)
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
-	if (!empty($message['member']['custom_fields']))
-	{
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 6 || empty($custom['value']))
-				continue;
-
+	if (!empty($message['custom_fields']['bottom_poster']))
+		foreach ($message['custom_fields']['bottom_poster'] as $custom)
 			echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-	}
 
 	// Poster info ends.
 	echo '
@@ -664,7 +657,7 @@ function template_single_post($message, $force_alternate = null)
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 								</div>';
 
-	//Some people dont want subject ... The div is still required or quick edit breaks...
+	//Some people don't want subject ... The div is still required or quick edit breaks...
 	echo '
 								<div id="subject_', $message['id'], '" class="subject_title">', (empty($modSettings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
