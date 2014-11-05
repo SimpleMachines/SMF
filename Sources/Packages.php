@@ -1115,7 +1115,7 @@ function PackageInstall()
 		{
 			// Reload the settings table for mods that have altered them upon installation
 			reloadSettings();
-			
+
 			// Any db changes from older version?
 			if (!empty($old_db_changes))
 				$db_package_log = empty($db_package_log) ? $old_db_changes : array_merge($old_db_changes, $db_package_log);

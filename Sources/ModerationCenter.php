@@ -396,7 +396,7 @@ function ModBlockNotes()
 					'note' => $_GET['delete'],
 				)
 			);
-			
+
 			list ($note_owner) = $smcFunc['db_fetch_assoc']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
 
