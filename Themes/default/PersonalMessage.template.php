@@ -299,25 +299,16 @@ function template_folder()
 				<li class="blurb">', $message['member']['blurb'], '</li>';
 
 				// Any custom fields to show as icons?
-				if (!empty($message['member']['custom_fields']))
+				if (!empty($message['custom_fields']['icons']))
 				{
-					$shown = false;
-					foreach ($message['member']['custom_fields'] as $custom)
-					{
-						if ($custom['placement'] != 1 || empty($custom['value']))
-							continue;
-						elseif (empty($shown))
-						{
-							$shown = true;
-								echo '
+					echo '
 				<li class="im_icons">
 					<ol>';
-						}
+
+					foreach ($message['custom_fields']['icons'] as $custom)
 						echo '
 						<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-					}
 
-					if ($shown)
 					echo '
 					</ol>
 				</li>';
