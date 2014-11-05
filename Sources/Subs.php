@@ -4144,7 +4144,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  *
  * @param string $hook The complete hook name.
  * @param string $function Function name, can be a call to a method via Class::method.
- * @params boolean $permanent Irrelevant for the function itself but need to declare it to match 
+ * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
  * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
 add_integration_function
  * @param boolean $object
