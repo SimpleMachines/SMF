@@ -223,16 +223,16 @@ function template_folder()
 		if (!empty($message['custom_fields']['above_member']))
 		{
 			echo '
-								<div class="custom_fields_above_member">
-									<ul class="reset nolist">';
+			<div class="custom_fields_above_member">
+				<ul class="reset nolist">';
 
 			foreach ($message['custom_fields']['above_member'] as $custom)
 				echo '
-										<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+					<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
 
 			echo '
-									</ul>
-								</div>';
+				</ul>
+			</div>';
 		}
 
 			echo '
@@ -261,18 +261,11 @@ function template_folder()
 					<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 				</li>';
 
-			// Are there any custom fields below the avatar?
-			if (!empty($message['member']['custom_fields']))
-			{
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 4 || empty($custom['value']))
-						continue;
-
-					echo '
+		// Are there any custom fields below the avatar?
+		if (!empty($message['custom_fields']['below_avatar']))
+			foreach ($message['custom_fields']['below_avatar'] as $custom)
+				echo '
 				<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-				}
-			}
 
 			if (!$message['member']['is_guest'])
 				echo '
