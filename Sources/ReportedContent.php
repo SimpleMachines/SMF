@@ -289,7 +289,7 @@ function ReportDetails()
 	else
 	{
 		$params = array(
-			'lm.id_topic = {int:id_topic} 
+			'lm.id_topic = {int:id_topic}
 				AND lm.id_board != {int:not_a_reported_post}',
 			array('id_topic' => $context['report']['topic_id'], 'not_a_reported_post' => 0),
 			1,
@@ -476,7 +476,7 @@ function HandleComment()
 		$comment_owner = $user_info['id'] == $comment['id_member'];
 
 		// Nope! sorry.
-		if (!allowedTo('admin_forum') && !$comment_owner) 
+		if (!allowedTo('admin_forum') && !$comment_owner)
 			fatal_lang_error('report_action_message_delete_cannot');
 
 		// All good!
@@ -535,7 +535,7 @@ function EditComment()
 		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
 
 		// So, you aren't neither an admin or the comment owner huh? that's too bad.
-		if (!allowedTo('admin_forum') && !$comment_owner) 
+		if (!allowedTo('admin_forum') && !$comment_owner)
 			fatal_lang_error('report_action_message_edit_cannot');
 
 		// All good!
