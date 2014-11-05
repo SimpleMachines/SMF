@@ -432,7 +432,7 @@ function template_reported_members()
 		if (!$report['closed'] && !empty($context['report_manage_bans']) && !empty($report['user']['id']))
 			echo '
 				<li><a href="', $scripturl, '?action=admin;area=ban;sa=add;u=', $report['user']['id'] ,';', $context['session_var'], '=', $context['session_id'], '">', $ban_button, '</a></li>';
-		
+
 		if (!$context['view_closed'])
 			echo '
 				<li><input type="checkbox" name="close[]" value="' . $report['id'] . '" class="input_check"></li>';
