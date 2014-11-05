@@ -2505,7 +2505,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		// If we don't have our ucwords function defined yet, let's load the settings data.
 		if (empty($smcFunc['ucwords']))
 			reloadSettings();
-		
+
 		// If we don't have our theme information yet, let's get it.
 		if (empty($settings['default_theme_dir']))
 			loadTheme(0, false);
