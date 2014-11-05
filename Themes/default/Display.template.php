@@ -505,7 +505,7 @@ function template_single_post($message, $force_alternate = null)
 									</h4>';
 
 	echo '
-								<ul class="user_info">';
+							<ul class="user_info">';
 
 
 	// Show the user's avatar.
@@ -516,17 +516,10 @@ function template_single_post($message, $force_alternate = null)
 								</li>';
 
 	// Are there any custom fields below the avatar?
-	if (!empty($message['member']['custom_fields']))
-	{
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 4 || empty($custom['value']))
-				continue;
-
+	if (!empty($message['custom_fields']['below_avatar']))
+		foreach ($message['custom_fields']['below_avatar'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-	}
+								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
 
 	// Show the post group icons, but not for guests.
 	if (!$message['member']['is_guest'])
