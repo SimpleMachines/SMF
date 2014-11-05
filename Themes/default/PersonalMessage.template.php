@@ -217,33 +217,27 @@ function template_folder()
 
 			echo '
 	<div class="', $window_class, '">
-		<div class="poster">
-			<h4>
-				<a id="msg', $message['id'], '"></a>';
+		<div class="poster">';
 
 		// Are there any custom fields above the member name?
-		if (!empty($message['member']['custom_fields']))
+		if (!empty($message['custom_fields']['above_member']))
 		{
-			$shown = false;
-			foreach ($message['member']['custom_fields'] as $custom)
-			{
-				if ($custom['placement'] != 5 || empty($custom['value']))
-					continue;
-				elseif (empty($shown))
-				{
-					$shown = true;
-					echo '
-							<div class="custom_fields_above_member">
-								<ul class="reset nolist">';
-				}
+			echo '
+								<div class="custom_fields_above_member">
+									<ul class="reset nolist">';
+
+			foreach ($message['custom_fields']['above_member'] as $custom)
 				echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-			}
-			if ($shown)
-				echo '
-								</ul>
-							</div>';
+										<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+
+			echo '
+									</ul>
+								</div>';
 		}
+
+			echo '
+			<h4>
+				<a id="msg', $message['id'], '"></a>';
 
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
