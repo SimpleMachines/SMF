@@ -420,30 +420,6 @@ function template_folder()
 			<div class="post">
 				<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
 
-			// Are there any custom profile fields for above the signature?
-			if (!empty($message['member']['custom_fields']))
-			{
-				$shown = false;
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 2 || empty($custom['value']))
-						continue;
-					if (!$shown)
-					{
-						$shown = true;
-						echo '
-				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
-					}
-					echo '
-						<li>', $custom['value'], '</li>';
-				}
-				if ($shown)
-					echo '
-					</ul>
-				</div>';
-			}
-
 			if ($message['can_report'])
 			echo '
 				<a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '" class="floatright">' . $txt['pm_report_to_admin'] . '</a>';
@@ -481,31 +457,39 @@ function template_folder()
 			echo '
 				</ul>';
 
+			// Are there any custom profile fields for above the signature?
+			if (!empty($message['custom_fields']['above_signature']))
+			{
+				echo '
+					<div class="custom_fields_above_signature">
+						<ul class="reset nolist">';
+
+				foreach ($message['custom_fields']['above_signature'] as $custom)
+					echo '
+							<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+
+				echo '
+						</ul>
+					</div>';
+			}
+
 			// Show the member's signature?
 			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
 				echo '
 				<div class="signature">', $message['member']['signature'], '</div>';
 
 			// Are there any custom profile fields for below the signature?
-			if (!empty($message['member']['custom_fields']))
+			if (!empty($message['custom_fields']['below_signature']))
 			{
-				$shown = false;
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 3 || empty($custom['value']))
-						continue;
-					if (empty($shown))
-					{
-						$shown = true;
-						echo '
+				echo '
 					<div class="custom_fields_below_signature">
 						<ul class="reset nolist">';
-					}
+
+				foreach ($message['custom_fields']['below_signature'] as $custom)
 					echo '
 							<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-				}
-				if ($shown)
-					echo '
+
+				echo '
 						</ul>
 					</div>';
 			}
