@@ -160,7 +160,7 @@ class Likes
 	 *
 	 * A simple getter for all protected properties.
 	 * Accessed from index.php?action=likes
-	 * @param string $property The name of the property to get. 
+	 * @param string $property The name of the property to get.
 	 * @return mixed either return the property or false if there isn't a property with that name.
 	 */
 	public function get($property = '')
