@@ -179,6 +179,15 @@
 	#pm_menu {
 		margin: 0 0 0 -85px;
 	}
+	.dropmenu li {
+		width: 50%;
+	}
+	.dropmenu li a {
+		width: 65%;
+	}
+	.dropmenu ul li a {
+		width: auto !important;
+	}
 	/* BoardIndex */
 	div.icon {
 		width: 15% !important;
@@ -417,13 +426,7 @@
 	#notify_dropdown {
 		margin: 5px 0 0 2px;
 	}
-	.dropmenu li {
-		width: 50%;
-	}
 	.dropmenu li a {
-		width: 65%;
-	}
-	.dropmenu ul li a {
-		width: auto !important;
+		width: 80%;
 	}
 }
