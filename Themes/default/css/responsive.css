@@ -398,18 +398,19 @@
 }
 
 /* Still not enough data or people to test this... */
-@media (min-width: 721px) and (max-width: 1023px) {
+/* This needs more data and this range is probably for iPad Air (alike) tablets... */
+@media (min-width: 721px) and (max-width: 855px) {
 	div.lastpost {
-		margin: 0 0 0 20px;
+		margin: 0 0 0 20px !important;
 	}
 	div.stats {
 		display: none;
 	}
 }
 
-@media (min-width: 1024px) {
-/* I need to hide them from you desktop people... */
-	#messageindex .lastpost {
+/* Some very big stuff? Dunno... */
+@media (min-width: 856px) and (max-width: 1024px) {
+	div.lastpost {
 		width: 20% !important;
 		margin: 3px 0 0 5px;
 	}
