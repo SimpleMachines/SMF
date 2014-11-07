@@ -1560,7 +1560,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding mail queue settings
 /******************************************************************************/
----#
+---# Adding default settings for the mail queue
 ---{
 	if (empty($modSettings['mail_limit']))
 	{
@@ -1580,7 +1580,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding gravatar settings
 /******************************************************************************/
----#
+---# Adding default gravatar settings
 ---{
 	if (empty($modSettings['gravatarEnabled']))
 	{
