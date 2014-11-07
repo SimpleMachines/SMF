@@ -475,25 +475,17 @@ function template_single_post($message, $force_alternate = null)
 						<div class="poster">';
 
 	// Are there any custom fields above the member name?
-	if (!empty($message['member']['custom_fields']))
+	if (!empty($message['custom_fields']['above_member']))
 	{
-		$shown = false;
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 5 || empty($custom['value']))
-				continue;
-			elseif (empty($shown))
-			{
-				$shown = true;
-				echo '
+		echo '
 							<div class="custom_fields_above_member">
 								<ul class="reset nolist">';
-			}
+
+		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-		if ($shown)
-			echo '
+
+		echo '
 								</ul>
 							</div>';
 	}
@@ -513,7 +505,7 @@ function template_single_post($message, $force_alternate = null)
 									</h4>';
 
 	echo '
-								<ul class="user_info">';
+							<ul class="user_info">';
 
 
 	// Show the user's avatar.
@@ -524,17 +516,10 @@ function template_single_post($message, $force_alternate = null)
 								</li>';
 
 	// Are there any custom fields below the avatar?
-	if (!empty($message['member']['custom_fields']))
-	{
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 4 || empty($custom['value']))
-				continue;
-
+	if (!empty($message['custom_fields']['below_avatar']))
+		foreach ($message['custom_fields']['below_avatar'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-	}
+								<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
 
 	// Show the post group icons, but not for guests.
 	if (!$message['member']['is_guest'])
@@ -571,25 +556,16 @@ function template_single_post($message, $force_alternate = null)
 								<li class="blurb">', $message['member']['blurb'], '</li>';
 
 		// Any custom fields to show as icons?
-		if (!empty($message['member']['custom_fields']))
+		if (!empty($message['custom_fields']['icons']))
 		{
-			$shown = false;
-			foreach ($message['member']['custom_fields'] as $custom)
-			{
-				if ($custom['placement'] != 1 || empty($custom['value']))
-					continue;
-				elseif (empty($shown))
-				{
-					$shown = true;
-						echo '
-							<li class="im_icons">
-								<ol>';
-				}
+			echo '
+								<li class="im_icons">
+									<ol>';
+
+			foreach ($message['custom_fields']['icons'] as $custom)
 				echo '
 										<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-			}
 
-			if ($shown)
 			echo '
 									</ol>
 								</li>';
@@ -618,13 +594,10 @@ function template_single_post($message, $force_alternate = null)
 		}
 
 		// Any custom fields for standard placement?
-		if (!empty($message['member']['custom_fields']))
-		{
-			foreach ($message['member']['custom_fields'] as $custom)
-				if (empty($custom['placement']) || empty($custom['value']))
-					echo '
+		if (!empty($message['custom_fields']['standard']))
+			foreach ($message['custom_fields']['standard'] as $custom)
+				echo '
 								<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
-		}
 
 	}
 	// Otherwise, show the guest's email.
@@ -659,17 +632,10 @@ function template_single_post($message, $force_alternate = null)
 								<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span> ', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
-	if (!empty($message['member']['custom_fields']))
-	{
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 6 || empty($custom['value']))
-				continue;
-
+	if (!empty($message['custom_fields']['bottom_poster']))
+		foreach ($message['custom_fields']['bottom_poster'] as $custom)
 			echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-	}
 
 	// Poster info ends.
 	echo '
@@ -682,7 +648,7 @@ function template_single_post($message, $force_alternate = null)
 									<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 								</div>';
 
-	//Some people dont want subject ... The div is still required or quick edit breaks...
+	//Some people don't want subject ... The div is still required or quick edit breaks...
 	echo '
 								<div id="subject_', $message['id'], '" class="subject_title">', (empty($modSettings['subject_toggle']) ? '' : '<a href="' . $message['href'] . '" rel="nofollow">' . $message['subject'] . '</a>'), '</div>';
 
@@ -804,7 +770,7 @@ function template_single_post($message, $force_alternate = null)
 							</div>';
 	}
 
-	// And stuff below the attachments
+	// And stuff below the attachments.
 	echo '
 							<div class="under_message">';
 
@@ -929,25 +895,17 @@ function template_single_post($message, $force_alternate = null)
 						<div class="moderatorbar">';
 
 	// Are there any custom profile fields for above the signature?
-	if (!empty($message['member']['custom_fields']))
+	if (!empty($message['custom_fields']['above_signature']))
 	{
-		$shown = false;
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 2 || empty($custom['value']))
-				continue;
-			if (empty($shown))
-			{
-				$shown = true;
-				echo '
+		echo '
 							<div class="custom_fields_above_signature">
 								<ul class="reset nolist">';
-			}
+
+		foreach ($message['custom_fields']['above_signature'] as $custom)
 			echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-		if ($shown)
-			echo '
+
+		echo '
 								</ul>
 							</div>';
 	}
@@ -959,25 +917,17 @@ function template_single_post($message, $force_alternate = null)
 
 
 	// Are there any custom profile fields for below the signature?
-	if (!empty($message['member']['custom_fields']))
+	if (!empty($message['custom_fields']['below_signature']))
 	{
-		$shown = false;
-		foreach ($message['member']['custom_fields'] as $custom)
-		{
-			if ($custom['placement'] != 3 || empty($custom['value']))
-				continue;
-			if (empty($shown))
-			{
-				$shown = true;
-				echo '
+		echo '
 							<div class="custom_fields_below_signature">
 								<ul class="reset nolist">';
-			}
+
+		foreach ($message['custom_fields']['below_signature'] as $custom)
 			echo '
 									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-		}
-		if ($shown)
-			echo '
+
+		echo '
 								</ul>
 							</div>';
 	}

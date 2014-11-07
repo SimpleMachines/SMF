@@ -217,33 +217,27 @@ function template_folder()
 
 			echo '
 	<div class="', $window_class, '">
-		<div class="poster">
-			<h4>
-				<a id="msg', $message['id'], '"></a>';
+		<div class="poster">';
 
 		// Are there any custom fields above the member name?
-		if (!empty($message['member']['custom_fields']))
+		if (!empty($message['custom_fields']['above_member']))
 		{
-			$shown = false;
-			foreach ($message['member']['custom_fields'] as $custom)
-			{
-				if ($custom['placement'] != 5 || empty($custom['value']))
-					continue;
-				elseif (empty($shown))
-				{
-					$shown = true;
-					echo '
-							<div class="custom_fields_above_member">
-								<ul class="reset nolist">';
-				}
+			echo '
+			<div class="custom_fields_above_member">
+				<ul class="reset nolist">';
+
+			foreach ($message['custom_fields']['above_member'] as $custom)
 				echo '
-									<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-			}
-			if ($shown)
-				echo '
-								</ul>
-							</div>';
+					<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+
+			echo '
+				</ul>
+			</div>';
 		}
+
+			echo '
+			<h4>
+				<a id="msg', $message['id'], '"></a>';
 
 		// Show online and offline buttons?
 		if (!empty($modSettings['onlineEnable']) && !$message['member']['is_guest'])
@@ -267,18 +261,11 @@ function template_folder()
 					<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
 				</li>';
 
-			// Are there any custom fields below the avatar?
-			if (!empty($message['member']['custom_fields']))
-			{
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 4 || empty($custom['value']))
-						continue;
-
-					echo '
+		// Are there any custom fields below the avatar?
+		if (!empty($message['custom_fields']['below_avatar']))
+			foreach ($message['custom_fields']['below_avatar'] as $custom)
+				echo '
 				<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-				}
-			}
 
 			if (!$message['member']['is_guest'])
 				echo '
@@ -312,25 +299,16 @@ function template_folder()
 				<li class="blurb">', $message['member']['blurb'], '</li>';
 
 				// Any custom fields to show as icons?
-				if (!empty($message['member']['custom_fields']))
+				if (!empty($message['custom_fields']['icons']))
 				{
-					$shown = false;
-					foreach ($message['member']['custom_fields'] as $custom)
-					{
-						if ($custom['placement'] != 1 || empty($custom['value']))
-							continue;
-						elseif (empty($shown))
-						{
-							$shown = true;
-								echo '
+					echo '
 				<li class="im_icons">
 					<ol>';
-						}
+
+					foreach ($message['custom_fields']['icons'] as $custom)
 						echo '
 						<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-					}
 
-					if ($shown)
 					echo '
 					</ol>
 				</li>';
@@ -384,10 +362,9 @@ function template_folder()
 				}
 
 				// Any custom fields for standard placement?
-				if (!empty($message['member']['custom_fields']))
-					foreach ($message['member']['custom_fields'] as $custom)
-						if (empty($custom['placement']) || empty($custom['value']))
-							echo '
+				if (!empty($message['custom_fields']['standard']))
+					foreach ($message['custom_fields']['standard'] as $custom)
+						echo '
 				<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
 
 				// Are we showing the warning status?
@@ -396,17 +373,10 @@ function template_folder()
 				<li class="warning">', $context['can_issue_warning'] ? '<a href="' . $scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="generic_icons warning_', $message['member']['warning_status'], '"></span>', $context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', $txt['warn_' . $message['member']['warning_status']], '</span></li>';
 
 				// Are there any custom fields to show at the bottom of the poster info?
-				if (!empty($message['member']['custom_fields']))
-				{
-					foreach ($message['member']['custom_fields'] as $custom)
-					{
-						if ($custom['placement'] != 6 || empty($custom['value']))
-							continue;
-
+				if (!empty($message['custom_fields']['bottom_poster']))
+					foreach ($message['custom_fields']['bottom_poster'] as $custom)
 						echo '
 				<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-					}
-				}
 			}
 
 			// Done with the information about the poster... on to the post itself.
@@ -450,30 +420,6 @@ function template_folder()
 			<div class="post">
 				<div class="inner" id="msg_', $message['id'], '"', '>', $message['body'], '</div>';
 
-			// Are there any custom profile fields for above the signature?
-			if (!empty($message['member']['custom_fields']))
-			{
-				$shown = false;
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 2 || empty($custom['value']))
-						continue;
-					if (!$shown)
-					{
-						$shown = true;
-						echo '
-				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
-					}
-					echo '
-						<li>', $custom['value'], '</li>';
-				}
-				if ($shown)
-					echo '
-					</ul>
-				</div>';
-			}
-
 			if ($message['can_report'])
 			echo '
 				<a href="' . $scripturl . '?action=pm;sa=report;l=' . $context['current_label_id'] . ';pmsg=' . $message['id'] . '" class="floatright">' . $txt['pm_report_to_admin'] . '</a>';
@@ -511,31 +457,39 @@ function template_folder()
 			echo '
 				</ul>';
 
+			// Are there any custom profile fields for above the signature?
+			if (!empty($message['custom_fields']['above_signature']))
+			{
+				echo '
+					<div class="custom_fields_above_signature">
+						<ul class="reset nolist">';
+
+				foreach ($message['custom_fields']['above_signature'] as $custom)
+					echo '
+							<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
+
+				echo '
+						</ul>
+					</div>';
+			}
+
 			// Show the member's signature?
 			if (!empty($message['member']['signature']) && empty($options['show_no_signatures']) && $context['signature_enabled'])
 				echo '
 				<div class="signature">', $message['member']['signature'], '</div>';
 
 			// Are there any custom profile fields for below the signature?
-			if (!empty($message['member']['custom_fields']))
+			if (!empty($message['custom_fields']['below_signature']))
 			{
-				$shown = false;
-				foreach ($message['member']['custom_fields'] as $custom)
-				{
-					if ($custom['placement'] != 3 || empty($custom['value']))
-						continue;
-					if (empty($shown))
-					{
-						$shown = true;
-						echo '
+				echo '
 					<div class="custom_fields_below_signature">
 						<ul class="reset nolist">';
-					}
+
+				foreach ($message['custom_fields']['below_signature'] as $custom)
 					echo '
 							<li class="custom ', $custom['col_name'] ,'">', $custom['value'], '</li>';
-				}
-				if ($shown)
-					echo '
+
+				echo '
 						</ul>
 					</div>';
 			}
