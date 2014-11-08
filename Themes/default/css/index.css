@@ -3839,22 +3839,19 @@ h3.profile_hd {
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
 
-.dropmenu {
-	background: #ffffff;
-	padding: 0;
-}
-.dropmenu strong {
+/* Topic/Board follow-alert menu */
+.notify_dropdown strong {
 	font-size: 1.1em;
 }
-.dropmenu a {
+.notify_dropdown a {
 	display: block;
 	padding: 0.5em;
 }
-.dropmenu a:hover {
+.notify_dropdown a:hover {
 	text-decoration: none;
 	background: #eee;
 }
-.dropmenu span {
+.notify_dropdown span {
 	font-size: 0.9em;
 }
 
