@@ -608,11 +608,6 @@ ADD COLUMN unwatched tinyint(3) NOT NULL DEFAULT '0';
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
-
-INSERT INTO {$db_prefix}settings
-	(variable, value)
-VALUES
-	('enable_unwatch', 0);
 ---#
 
 ---# Fixing column name change...
@@ -1144,7 +1139,7 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch');
 ---#
 
 ---# Cleaning up old theme settings.
