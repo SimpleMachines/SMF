@@ -357,7 +357,7 @@ function Register2()
 		'check_password_strength' => true,
 		'check_email_ban' => true,
 		'send_welcome_email' => !empty($modSettings['send_welcomeEmail']),
-		'require' => !empty($modSettings['coppaAge']) && !$verifiedOpenID && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
+		'require' => !empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
 		'extra_register_vars' => array(),
 		'theme_vars' => array(),
 	);

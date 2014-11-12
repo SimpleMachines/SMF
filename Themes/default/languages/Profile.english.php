@@ -219,9 +219,6 @@ $txt['trackActivity'] = 'Activity';
 $txt['trackIP'] = 'IP Address';
 $txt['trackLogins'] = 'Logins';
 
-$txt['authentication'] = 'Authentication';
-$txt['change_authentication'] = 'From this section you can change how you login to the forum. You may choose to either use an OpenID account for your authentication, or alternatively switch to use a username and password.';
-
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 $txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
