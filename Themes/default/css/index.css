@@ -2759,9 +2759,6 @@ dl.addrules dt.floatleft {
 }
 .popup_content {
 	color: #222;
-	/* @todo Can't really see any reason for pop-up text to be smaller than standard body text.*/
-	/* Perhaps we should just remove the descritpion class from the div in the template. */
-	font-size: 1.11em;
 	line-height: 1.6em;
 	max-height: 20em;
 	overflow: auto;
@@ -3842,29 +3839,26 @@ h3.profile_hd {
 	background-image: linear-gradient(to bottom, #FFFFFF 0%, #F1F3F5 95%);
 }
 
-.dropmenu {
-	background: #ffffff;
-	padding: 0;
-}
-.dropmenu strong {
+/* Topic/Board follow-alert menu */
+.notify_dropdown strong {
 	font-size: 1.1em;
 }
-.dropmenu a {
+.notify_dropdown a {
 	display: block;
 	padding: 0.5em;
 }
-.dropmenu a:hover {
+.notify_dropdown a:hover {
 	text-decoration: none;
 	background: #eee;
 }
-.dropmenu span {
+.notify_dropdown span {
 	font-size: 0.9em;
 }
 
 /* Some new stuff */
 #display_head {
 	clear: both;
-	margin: -3px 0 15px 0;
+	margin: -7px 0 15px 0;
 }
 #display_head p {
 	color: #959595;
