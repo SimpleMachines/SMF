@@ -159,7 +159,7 @@ function ModifyProfile($post_errors = array())
 					'subsections' => array(
 						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
 						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
+						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $context['user']['is_owner']),
 						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(

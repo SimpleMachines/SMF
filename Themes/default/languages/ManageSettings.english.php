@@ -17,7 +17,6 @@ $txt['userLanguage'] = 'Enable user-selectable language support';
 $txt['allow_hideOnline'] = 'Allow non-administrators to hide their online status';
 $txt['titlesEnable'] = 'Enable custom titles';
 $txt['enable_buddylist'] = 'Enable buddy/ignore lists';
-$txt['enable_unwatch'] = 'Enable unwatch topics';
 $txt['default_personal_text'] = 'Default personal text';
 $txt['default_personal_text_note'] = 'Personal text to assign to newly registered members.';
 $txt['time_format'] = 'Default time format';

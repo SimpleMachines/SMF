@@ -563,11 +563,6 @@ a.moderation_link, a.moderation_link:visited {
 	font-weight: bold;
 }
 
-.openid_login {
-	background: white url(../images/openid.png) no-repeat 5px 5px;
-	padding-left: 18px;
-}
-
 p.para2 {
 	padding: 12px 0 44px 0;
 	margin: 0;

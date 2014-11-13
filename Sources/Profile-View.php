@@ -484,7 +484,7 @@ function showPosts($memID)
 	if (isset($_GET['sa']) && $_GET['sa'] == 'attach')
 		return showAttachments($memID);
 	// Instead, if we're dealing with unwatched topics (and the feature is enabled) use that other function.
-	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics' && $modSettings['enable_unwatch'])
+	elseif (isset($_GET['sa']) && $_GET['sa'] == 'unwatchedtopics')
 		return showUnwatched($memID);
 
 	// Are we just viewing topics?
@@ -1011,7 +1011,7 @@ function showUnwatched($memID)
 	global $txt, $user_info, $scripturl, $modSettings, $context, $sourcedir;
 
 	// Only the owner can see the list (if the function is enabled of course)
-	if ($user_info['id'] != $memID || !$modSettings['enable_unwatch'])
+	if ($user_info['id'] != $memID)
 		return;
 
 	require_once($sourcedir . '/Subs-List.php');
