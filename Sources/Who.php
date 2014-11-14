@@ -559,13 +559,13 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
 						'Kindred',
-						'Michael &quot;Oldiesmann&quot; Eshom',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
+						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
 						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
 						'John &quot;live627&quot; Rayes',
