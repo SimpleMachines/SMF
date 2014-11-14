@@ -3502,7 +3502,7 @@ function quickFileWritable($file)
 // This is what is displayed if there's any chmod to be done. If not it returns nothing...
 function template_chmod()
 {
-	global $upcontext, $settings;
+	global $upcontext, $txt, $settings;
 
 	// Don't call me twice!
 	if (!empty($upcontext['chmod_called']))
