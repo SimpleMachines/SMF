@@ -617,7 +617,6 @@ function Credits($in_admin = false)
 						'CapadY',
 						'gbsothere',
 						'Kevin &quot;greyknight17&quot; Hou',
-						'Michele &quot;Illori&quot; Davis',
 						'S-Ace',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'xenovanis',
@@ -644,12 +643,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'AngelinaBelle',
+						'Michele &quot;Illori&quot; Davis',
 						// Doc Writers
-						'Graeme Spence',
-						'Joshua &quot;groundup&quot; Dickerson',
 						'Chainy',
 						'Irisado'
+						// Former Doc Writers
+						'AngelinaBelle',
+						'Graeme Spence',
+						'Joshua &quot;groundup&quot; Dickerson',
 					),
 				),
 				array(
