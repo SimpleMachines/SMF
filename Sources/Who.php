@@ -657,11 +657,11 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Reylana',
+						'Relyana',
 						// Localizers
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						// Former Localizers
 						'Dr. Deejay',
-						'Relyana',
 					),
 				),
 				array(
