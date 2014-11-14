@@ -668,6 +668,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
+						'Mert &quot;Antes&quot; Al&#305;nbay ',
 						// Marketing
 						// Former Marketing
 						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
