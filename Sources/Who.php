@@ -566,29 +566,29 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						// 'Steven &quot;Fustrate&quot; Hoffman',
 						// Developers
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'emanuele',
-						'Norv',
-						// 'Spuds', // Doesn't want to be listed here
+						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+						'John &quot;live627&quot; Rayes',
+						'Shitiz &quot;Dragooon&quot; Garg',
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Karl &quot;RegularExpression&quot; Benson',
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Michael &quot;Thantos&quot; Miller',
+						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						// 'Spuds', // Doesn't want to be listed here
+						// 'Steven &quot;Fustrate&quot; Hoffman',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
-						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
-						'John &quot;live627&quot; Rayes',
-						'Shitiz &quot;Dragooon&quot; Garg',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
 					),
 				),
 				array(
