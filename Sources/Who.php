@@ -668,13 +668,12 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
-						'Ralph &quot;[n3rve]&quot; Otowo',
 						// Marketing
-						'Bryan &quot;Runic&quot; Deakin',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						// Former Marketing
-						'Kindred',
+						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+						'Bryan &quot;Runic&quot; Deakin',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
+						'Ralph &quot;[n3rve]&quot; Otowo',
 					),
 				),
 				array(
