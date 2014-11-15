@@ -605,8 +605,8 @@ function Credits($in_admin = false)
 						'Margarett',
 						'Mashby',
 						'Shadow82x',
-						'ѕησω',
 						'Storman&trade;',
+						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'Yoshi',
 						'ziycon',
 						// Former Support Specialists
@@ -618,7 +618,6 @@ function Credits($in_admin = false)
 						'Kevin &quot;greyknight17&quot; Hou',
 						'Old Fossil',
 						'S-Ace',
-						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'xenovanis',
 					),
 				),
