@@ -597,6 +597,7 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
+						'Adam &quot;ziycon&quot; Tallon',
 						'Bigguy',
 						'ChalkCat',
 						'Chas Large',
@@ -608,7 +609,6 @@ function Credits($in_admin = false)
 						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'Yoshi',
-						'ziycon',
 						// Former Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
 						'CapadY',
