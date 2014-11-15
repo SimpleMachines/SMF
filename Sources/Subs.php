@@ -1208,7 +1208,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (isset($disabled['url']))
 						$tag['content'] = '$1';
 					elseif (strpos($data[0], 'http://') !== 0 && strpos($data[0], 'https://') !== 0)
-						$data[0] = 'http://' . $data[0];
+						$data[0] = '//' . $data[0];
 				},
 				'disabled_content' => '<a href="$1" target="_blank" class="new_win">$1</a>',
 			),
@@ -1247,7 +1247,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
+				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 0 0 3px">',
 				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
 			),
 			array(
@@ -1288,7 +1288,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1305,7 +1305,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 
 					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
 						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
@@ -1320,7 +1320,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 				},
 			),
 			array(
@@ -1333,7 +1333,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (substr($data, 0, 1) == '#')
 						$data = '#post_' . substr($data, 1);
 					elseif (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1621,7 +1621,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				{
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 				},
 			),
 			array(
@@ -1632,7 +1632,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
-						$data = 'http://' . $data;
+						$data = '//' . $data;
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
@@ -1871,7 +1871,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						), array(
 							'[url]$1[/url]',
 							'[ftp]$1[/ftp]',
-							'[url=http://$1]$1[/url]'
+							'[url=//$1]$1[/url]'
 						), $data)))
 							$data = $result;
 
