@@ -5,9 +5,6 @@
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?fin20" />
 		<style type="text/css">#wrapper, .frame {width: 90%;}</style>
 		<style type="text/css">
-			h1.forumtitle {
-				color: #346;
-			}
 			#upper_section .user {
 				height: 1em;
 			}
@@ -157,8 +154,6 @@
 				<div class="panel">
 					<h2 id="backups">Backing up data</h2>
 					<p>Before starting the upgrade process, a backup of the live database should be taken. This protects the forum from accidental damage and any issues from upgrading. Although all steps are taken, and extensive testing carried out, sometimes issues develop. Therefore, having a backup is crucial. The upgrading tool can backup all database tables before it runs, however the best practice is to have a full backup available. </p>
-					<h3>Back up a database using SMF</h3>
-					<p>From SMF, navigate to Forum Maintenance. (Administration Center -&gt; Maintenance -&gt; Forum Maintenance) On the database section, save the data and the structure. Then, compress the file. Select &quot;Download&quot; and wait for the database to complete the download completely. It is recommended if you use this method to verify that the backup is complete by opening the file and checking the last line. If the file is not complete and has an error please try one of the other methods to backup your database.</p>
 					<h3>Back up a database using PHPMyAdmin</h3>
 					<p>PHPMyAdmin gives the option to export a database, from the initial page, select the &quot;Export&quot; option and follow the instructions. Select your SMF database. These are different based on host. </p>
 					<h3>Back up a database using a control panel</h3>
