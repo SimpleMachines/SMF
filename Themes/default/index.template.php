@@ -104,6 +104,10 @@ function template_html_above()
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
+	// What is your Lollipop's color?
+	echo '
+	<meta name="theme-color" content="#557EA0">';
+
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
 		echo '
