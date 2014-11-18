@@ -559,36 +559,36 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
 						'Kindred',
-						'Michael &quot;Oldiesmann&quot; Eshom',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						// 'Steven &quot;Fustrate&quot; Hoffman',
+						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'emanuele',
-						'Norv',
-						// 'Spuds', // Doesn't want to be listed here
+						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+						'John &quot;live627&quot; Rayes',
+						'Shitiz &quot;Dragooon&quot; Garg',
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Karl &quot;RegularExpression&quot; Benson',
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Michael &quot;Thantos&quot; Miller',
+						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						// 'Spuds', // Doesn't want to be listed here
+						// 'Steven &quot;Fustrate&quot; Hoffman',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
-						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
-						'John &quot;live627&quot; Rayes',
-						'Shitiz &quot;Dragooon&quot; Garg',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
 					),
 				),
 				array(
@@ -597,29 +597,27 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
-						'Aleksi &quot;Lex&quot; Kilpinen',
+						'Adam &quot;ziycon&quot; Tallon',
 						'Bigguy',
-						'Chas Large',
-						'Duncan85',
-						'JimM',
-						'Mashby',
-						'Old Fossil',
-						'Yoshi',
-						'ziycon',
-						'Justyne',
-						'Storman™',
-						'Margarett',
-						'Shadow82x',
-						'ѕησω',
 						'ChalkCat',
+						'Chas Large',
+						'Justyne',
 						'Krash',
-						// Former Support Specialists
-						'CapadY',
-						'gbsothere',
-						'Kevin &quot;greyknight17&quot; Hou',
-						'Michele &quot;Illori&quot; Davis',
-						'S-Ace',
+						'Margarett',
+						'Mashby',
+						'Shadow82x',
+						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
+						'Yoshi',
+						// Former Support Specialists
+						'Aleksi &quot;Lex&quot; Kilpinen',
+						'CapadY',
+						'Duncan85',
+						'gbsothere',
+						'JimM',
+						'Kevin &quot;greyknight17&quot; Hou',
+						'Old Fossil',
+						'S-Ace',
 						'xenovanis',
 					),
 				),
@@ -644,36 +642,38 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'AngelinaBelle',
+						'Michele &quot;Illori&quot; Davis',
 						// Doc Writers
-						'Graeme Spence',
-						'Joshua &quot;groundup&quot; Dickerson',
 						'Chainy',
 						'Irisado'
+						// Former Doc Writers
+						'AngelinaBelle',
+						'Graeme Spence',
+						'Joshua &quot;groundup&quot; Dickerson',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Reylana',
+						'Relyana',
 						// Localizers
 						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						// Former Localizers
 						'Dr. Deejay',
-						'Relyana',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
-						'Ralph &quot;[n3rve]&quot; Otowo',
+						'Mert &quot;Antes&quot; Al&#305;nbay ',
 						// Marketing
-						'Bryan &quot;Runic&quot; Deakin',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						// Former Marketing
-						'Kindred',
+						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+						'Bryan &quot;Runic&quot; Deakin',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
+						'Ralph &quot;[n3rve]&quot; Otowo',
 					),
 				),
 				array(
