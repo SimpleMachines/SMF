@@ -224,9 +224,9 @@ $.sceditor.command.set(
 $.sceditor.command.set(
 	'shadow', {
 		tooltip: 'Shadow',
-		txtExec: ["[shadow=red,left]", "[/shadow]"],
+		txtExec: ["[shadow=red,right]", "[/shadow]"],
 		exec: function () {
-			this.wysiwygEditorInsertHtml('[shadow=red,left]', '[/shadow]');
+			this.wysiwygEditorInsertHtml('[shadow=red,right]', '[/shadow]');
 		}
 	}
 );
