@@ -600,10 +600,6 @@ function template_single_post($message, $force_alternate = null)
 								<li class="custom ', $custom['col_name'] ,'">', $custom['title'], ': ', $custom['value'], '</li>';
 
 	}
-	// Otherwise, show the guest's email.
-	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
-		echo '
-								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', ($settings['use_image_buttons'] ? '<span class="generic_icons mail centericon" title="' . $txt['email'] . '"></span>' : $txt['email']), '</a></li>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty($context['can_moderate_forum']) && !empty($message['member']['ip']))
