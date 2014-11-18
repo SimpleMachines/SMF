@@ -1368,6 +1368,8 @@ function prepareDisplayContext($reset = false)
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
 		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
+		// Show the email if it's your post...
+		$memberContext[$message['id_member']]['show_email'] |= ($message['id_member'] == $context['member']['id']);
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
