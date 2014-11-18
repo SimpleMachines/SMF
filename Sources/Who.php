@@ -686,6 +686,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_servers'],
 					'members' => array(
 						'Derek Schwab',
+						'Michael Johnson',
 						'Liroy &quot;CoreISP&quot; van Hoewijk',
 					),
 				),
