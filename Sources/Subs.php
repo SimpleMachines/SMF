@@ -793,6 +793,10 @@ function un_htmlspecialchars($string)
 	global $context;
 	static $translation = array();
 
+	// Just in case...
+	if (empty($context['character_set']))
+		$context['character_set'] = 'UTF-8';
+
 	if (empty($translation))
 		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $context['character_set'])) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
 
