@@ -150,10 +150,6 @@ function template_summary()
 			</div>
 			', $context['member']['avatar']['image'], '
 			<ul class="reset">';
-	// Email is only visible if it's your profile or you have the moderate_forum permission
-	if ($context['member']['show_email'])
-		echo '
-				<li><a href="mailto:', $context['member']['email'], '" title="', $context['member']['email'], '" rel="nofollow"><span class="generic_icons mail" title="' . $txt['email'] . '"></span></a></li>';
 
 	// Don't show an icon if they haven't specified a website.
 	if ($context['member']['website']['url'] !== '' && !isset($context['disabled_fields']['website']))
