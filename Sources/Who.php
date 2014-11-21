@@ -687,7 +687,7 @@ function Credits($in_admin = false)
 					'members' => array(
 						'Derek Schwab',
 						'Michael Johnson',
-						'Liroy &quot;CoreISP&quot; van Hoewijk',
+						'Liroy van Hoewijk',
 					),
 				),
 			),
