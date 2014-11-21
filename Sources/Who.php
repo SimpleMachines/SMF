@@ -597,7 +597,7 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
-						'Adam &quot;ziycon&quot; Tallon',
+						'Adam Tallon',
 						'Bigguy',
 						'ChalkCat',
 						'Chas Large',
