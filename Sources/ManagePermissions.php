@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
 
 function ModifyPermissions()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	loadLanguage('ManagePermissions+ManageMembers');
 	loadTemplate('ManagePermissions');
@@ -43,8 +43,6 @@ function ModifyPermissions()
 		'profiles' => array('EditPermissionProfiles', 'manage_permissions'),
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
-
-	call_integration_hook('integrate_manage_permissions', array(&$subActions));
 
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
@@ -73,7 +71,9 @@ function ModifyPermissions()
 		),
 	);
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_integration_hook('integrate_manage_permissions', array(&$subActions));
+
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $smcFunc, $sourcedir;
+	global $context, $txt, $smcFunc;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
@@ -1123,7 +1123,9 @@ function setPermissionLevel($level, $group, $profile = 'null')
 	// Standard - ie. members.  They can do anything Restrictive can.
 	$groupLevels['global']['standard'] = array_merge($groupLevels['global']['restrict'], array(
 		'view_mlist',
-		'karma_edit',
+		'likes_view',
+		'likes_like',
+		'mention',
 		'pm_read',
 		'pm_send',
 		'profile_view',
@@ -1242,6 +1244,8 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'modify_any',
 		'approve_posts',
 	));
+
+	call_integration_hook('integrate_load_permission_levels', array(&$groupLevels, &$boardLevels));
 
 	// Make sure we're not granting someone too many permissions!
 	foreach ($groupLevels['global'][$level] as $k => $permission)
@@ -1421,6 +1425,8 @@ function loadAllPermissions()
 			'maintenance',
 			'member_admin',
 			'profile',
+			'likes',
+			'mentions',
 		),
 		'board' => array(
 			'general_board',
@@ -1446,11 +1452,9 @@ function loadAllPermissions()
 			'view_mlist' => array(false, 'general'),
 			'who_view' => array(false, 'general'),
 			'search_posts' => array(false, 'general'),
-			'karma_edit' => array(false, 'general'),
 			'pm_read' => array(false, 'pm'),
 			'pm_send' => array(false, 'pm'),
 			'pm_draft' => array(false, 'pm'),
-			'pm_autosave_draft' => array(false, 'pm'),
 			'calendar_view' => array(false, 'calendar'),
 			'calendar_post' => array(false, 'calendar'),
 			'calendar_edit' => array(true, 'calendar'),
@@ -1476,18 +1480,21 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
+			'report_user' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
 			'profile_remove' => array(true, 'profile_account'),
 			'view_warning' => array(true, 'profile_account'),
+			'likes_view' => array(false, 'likes'),
+			'likes_like' => array(false, 'likes'),
+			'mention' => array(false, 'mentions'),
 		),
 		'board' => array(
 			'moderate_board' => array(false, 'general_board'),
 			'approve_posts' => array(false, 'general_board'),
 			'post_new' => array(false, 'topic'),
 			'post_draft' => array(false, 'topic'),
-			'post_autosave_draft' => array(false, 'topic'),
 			'post_unapproved_topics' => array(false, 'topic'),
 			'post_unapproved_replies' => array(true, 'topic'),
 			'post_reply' => array(true, 'topic'),
@@ -1544,8 +1551,6 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'issue_warning';
 		$hiddenPermissions[] = 'view_warning';
 	}
-	if (empty($modSettings['karmaMode']))
-		$hiddenPermissions[] = 'karma_edit';
 
 	// Post moderation?
 	if (!$modSettings['postmod_active'])
@@ -1575,6 +1580,17 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'view_attachments';
 		$hiddenPermissions[] = 'post_unapproved_attachments';
 		$hiddenPermissions[] = 'post_attachment';
+	}
+
+	// Hide Likes/Mentions permissions...
+	if (empty($modSettings['enable_likes']))
+	{
+		$hiddenPermissions[] = 'likes_view';
+		$hiddenPermissions[] = 'likes_like';
+	}
+	if (empty($modSettings['enable_mentions']))
+	{
+		$hiddenPermissions[] = 'mention';
 	}
 
 	// Provide a practical way to modify permissions.
@@ -1765,6 +1781,9 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 				unset($context[$permission][$group]);
 		}
 	}
+
+	// Create the token for the separate inline permission verification.
+	createToken('admin-mp');
 }
 
 /**
@@ -2193,7 +2212,6 @@ function loadIllegalGuestPermissions()
 		'delete_replies',
 		'edit_news',
 		'issue_warning',
-		'karma_edit',
 		'lock',
 		'make_sticky',
 		'manage_attachments',
@@ -2351,7 +2369,7 @@ function ModifyPostModeration()
 					'postmod_active' => 0,
 					'warning_moderate' => 0,
 				));
-				
+
 				require_once($sourcedir . '/PostModeration.php');
 				approveAllData();
 			}

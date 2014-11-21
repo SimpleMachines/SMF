@@ -8,13 +8,13 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Alpha 1';
+$GLOBALS['current_smf_version'] = '2.1 Beta 1';
 $GLOBALS['db_script_version'] = '2-1';
 
-$GLOBALS['required_php_version'] = '5.3.2';
+$GLOBALS['required_php_version'] = '5.3.8';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
@@ -78,58 +78,6 @@ $databases = array(
 
 			// Is it reserved?
 			if ($value == \'pg_\')
-				return $txt[\'error_db_prefix_reserved\'];
-
-			// Is the prefix numeric?
-			if (preg_match(\'~^\d~\', $value))
-				return $txt[\'error_db_prefix_numeric\'];
-
-			return true;
-		'),
-	),
-	'sqlite' => array(
-		'name' => 'SQLite',
-		'version' => '1',
-		'function_check' => 'sqlite_open',
-		'version_check' => 'return 1;',
-		'supported' => function_exists('sqlite_open'),
-		'always_has_db' => true,
-		'utf8_default' => false,
-		'utf8_required' => false,
-		'utf8_support' => false,
-		'validate_prefix' => create_function('&$value', '
-			global $incontext, $txt;
-
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
-
-			// Is it reserved?
-			if ($value == \'sqlite_\')
-				return $txt[\'error_db_prefix_reserved\'];
-
-			// Is the prefix numeric?
-			if (preg_match(\'~^\d~\', $value))
-				return $txt[\'error_db_prefix_numeric\'];
-
-			return true;
-		'),
-	),
-	'sqlite3' => array(
-		'name' => 'SQLite3',
-		'version' => '1',
-		'function_check' => 'SQLite3::version',
-		'version_check' => 'return 1;',
-		'supported' => is_callable(array('sqlite3', 'version')),
-		'always_has_db' => true,
-		'utf8_default' => true,
-		'utf8_required' => true,
-		'utf8_support' => true,
-		'validate_prefix' => create_function('&$value', '
-			global $incontext, $txt;
-
-			$value = preg_replace(\'~[^A-Za-z0-9_\$]~\', \'\', $value);
-
-			// Is it reserved?
-			if ($value == \'sqlite_\')
 				return $txt[\'error_db_prefix_reserved\'];
 
 			// Is the prefix numeric?
@@ -380,8 +328,8 @@ function load_lang_file()
 // This handy function loads some settings and the like.
 function load_database()
 {
-	global $db_prefix, $db_connection, $db_character_set, $sourcedir, $language;
-	global $smcFunc, $mbname, $scripturl, $boardurl, $modSettings, $db_type, $db_name, $db_user, $db_persist, $db_port;
+	global $db_prefix, $db_connection, $sourcedir;
+	global $smcFunc, $modSettings, $db_type, $db_name, $db_user, $db_persist;
 
 	if (empty($sourcedir))
 		$sourcedir = dirname(__FILE__) . '/Sources';
@@ -782,7 +730,7 @@ function DatabaseSettings()
 	if (isset($_POST['db_user']))
 	{
 		$incontext['db']['user'] = $_POST['db_user'];
-		$incontext['db']['name'] = ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'];
+		$incontext['db']['name'] =  $_POST['db_name'];
 		$incontext['db']['server'] = $_POST['db_server'];
 		$incontext['db']['prefix'] = $_POST['db_prefix'];
 
@@ -797,22 +745,6 @@ function DatabaseSettings()
 	// Are we submitting?
 	if (isset($_POST['db_type']))
 	{
-		if (isset($_POST['db_filename']))
-		{
-			// You better enter enter a database name for SQLite.
-			if (trim($_POST['db_filename']) == '')
-			{
-				$incontext['error'] = $txt['error_db_filename'];
-				return false;
-			}
-			// Duplicate name in the same dir?  Can't do that with SQLite.  Weird things happen.
-			if (file_exists($_POST['db_filename'] . (substr($_POST['db_filename'], -3) != '.db' ? '.db' : '')))
-			{
-				$incontext['error'] = $txt['error_db_filename_exists'];
-				return false;
-			}
-		}
-
 		// What type are they trying?
 		$db_type = preg_replace('~[^A-Za-z0-9]~', '', $_POST['db_type']);
 		$db_prefix = $_POST['db_prefix'];
@@ -828,7 +760,7 @@ function DatabaseSettings()
 		// Take care of these variables...
 		$vars = array(
 			'db_type' => $db_type,
-			'db_name' => ($_POST['db_type'] == 'sqlite' || $_POST['db_type'] == 'sqlite3') && isset($_POST['db_filename']) ? $_POST['db_filename'] : $_POST['db_name'],
+			'db_name' => $_POST['db_name'],
 			'db_user' => $_POST['db_user'],
 			'db_passwd' => isset($_POST['db_passwd']) ? $_POST['db_passwd'] : '',
 			'db_server' => $_POST['db_server'],
@@ -959,7 +891,7 @@ function DatabaseSettings()
 // Let's start with basic forum type settings.
 function ForumSettings()
 {
-	global $txt, $incontext, $databases, $smcFunc, $db_connection, $db_type, $boardurl;
+	global $txt, $incontext, $databases, $db_type, $db_connection;
 
 	$incontext['sub_template'] = 'forum_settings';
 	$incontext['page_title'] = $txt['install_settings'];
@@ -1005,6 +937,8 @@ function ForumSettings()
 			'cachedir' => addslashes(dirname(__FILE__)) . '/cache',
 			'mbname' => strtr($_POST['mbname'], array('\"' => '"')),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
+			'image_proxy_secret' => substr(sha1(mt_rand()), 0, 8),
+			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 		);
 
 		// Must save!
@@ -1040,7 +974,7 @@ function ForumSettings()
 // Step one: Do the SQL thang.
 function DatabasePopulation()
 {
-	global $db_character_set, $txt, $db_connection, $smcFunc, $databases, $modSettings, $db_type, $sourcedir, $db_prefix, $incontext, $db_name, $boardurl;
+	global $db_character_set, $txt, $db_connection, $smcFunc, $databases, $modSettings, $db_type, $db_prefix, $incontext, $db_name, $boardurl;
 
 	$incontext['sub_template'] = 'populate_database';
 	$incontext['page_title'] = $txt['db_populate'];
@@ -1112,7 +1046,7 @@ function DatabasePopulation()
 		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
-	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
@@ -1159,7 +1093,7 @@ function DatabasePopulation()
 			// Don't error on duplicate indexes (or duplicate operators in PostgreSQL.)
 			elseif (!preg_match('~^\s*CREATE( UNIQUE)? INDEX ([^\n\r]+?)~', $current_statement, $match) && !($db_type == 'postgresql' && preg_match('~^\s*CREATE OPERATOR (^\n\r]+?)~', $current_statement, $match)))
 			{
-				// MySQLi requires a connection object. It's optional with MySQL, Postgres and sqlite
+				// MySQLi requires a connection object. It's optional with MySQL and Postgres
 				$incontext['failures'][$count] = $smcFunc['db_error']($db_connection);
 			}
 		}
@@ -1268,6 +1202,21 @@ function DatabasePopulation()
 		}
 	}
 
+	// Are we enabling SSL?
+	if (!empty($_POST['force_ssl']))
+	{
+		$smcFunc['db_insert']('',
+			$db_prefix . 'settings',
+			array(
+				'variable' => 'string-255', 'value' => 'string-65534',
+			),
+			array(
+				'force_ssl', 2,
+			),
+			array('variable')
+		);
+	}
+
 	// As of PHP 5.1, setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
 	{
@@ -1292,10 +1241,6 @@ function DatabasePopulation()
 	foreach ($tables as $table)
 	{
 		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
-
-		// Optimizing one sqlite table, optimizes them all
-		if ($db_type == 'sqlite' || $db_type == 'sqlite3')
-			break;
 
 		if (!empty($db_messed))
 		{
@@ -1323,7 +1268,7 @@ function DatabasePopulation()
 // Ask for the administrator login information.
 function AdminAccount()
 {
-	global $txt, $db_type, $db_connection, $databases, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir;
+	global $txt, $db_type, $db_connection, $smcFunc, $incontext, $db_prefix, $db_passwd, $sourcedir, $db_character_set;
 
 	$incontext['sub_template'] = 'admin_account';
 	$incontext['page_title'] = $txt['user_settings'];
@@ -1337,9 +1282,17 @@ function AdminAccount()
 	require(dirname(__FILE__) . '/Settings.php');
 	load_database();
 
-	// Define the sha1 function, if it doesn't exist.
-	if (!function_exists('sha1') || version_compare(PHP_VERSION, '5', '<'))
-		require_once($sourcedir . '/Subs-Compat.php');
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	// We need this to properly hash the password for Admin
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		create_function('$string', '
+			global $sourcedir;
+			if (function_exists(\'mb_strtolower\'))
+				return mb_strtolower($string, \'UTF-8\');
+			require_once($sourcedir . \'/Subs-Charset.php\');
+			return utf8_strtolower($string);
+		');
 
 	if (!isset($_POST['username']))
 		$_POST['username'] = '';
@@ -1349,7 +1302,7 @@ function AdminAccount()
 	$incontext['username'] = htmlspecialchars(stripslashes($_POST['username']));
 	$incontext['email'] = htmlspecialchars(stripslashes($_POST['email']));
 
-	$incontext['require_db_confirm'] = empty($db_type) || ($db_type != 'sqlite' && $db_type != 'sqlite3');
+	$incontext['require_db_confirm'] = empty($db_type);
 
 	// Only allow skipping if we think they already have an account setup.
 	$request = $smcFunc['db_query']('', '
@@ -1431,7 +1384,7 @@ function AdminAccount()
 			$incontext['error'] = $txt['error_invalid_characters_username'];
 			return false;
 		}
-		elseif (empty($_POST['email']) || preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', stripslashes($_POST['email'])) === 0 || strlen(stripslashes($_POST['email'])) > 255)
+		elseif (empty($_POST['email']) || !filter_var(stripslashes($_POST['email']), FILTER_VALIDATE_EMAIL) || strlen(stripslashes($_POST['email'])) > 255)
 		{
 			// One step back, this time fill out a proper email address.
 			$incontext['error'] = sprintf($txt['error_valid_email_needed'], $_POST['username']);
@@ -1445,6 +1398,8 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
+			$_POST['password1'] = hash_password(stripslashes($_POST['username']), stripslashes($_POST['password1']));
+
 			$request = $smcFunc['db_insert']('',
 				$db_prefix . 'members',
 				array(
@@ -1454,16 +1409,16 @@ function AdminAccount()
 					'member_ip' => 'string', 'member_ip2' => 'string', 'buddy_list' => 'string', 'pm_ignore_list' => 'string',
 					'website_title' => 'string', 'website_url' => 'string',
 					'signature' => 'string', 'usertitle' => 'string', 'secret_question' => 'string',
-					'additional_groups' => 'string', 'ignore_boards' => 'string', 'openid_uri' => 'string',
+					'additional_groups' => 'string', 'ignore_boards' => 'string',
 				),
 				array(
-					stripslashes($_POST['username']), stripslashes($_POST['username']), sha1(strtolower(stripslashes($_POST['username'])) . stripslashes($_POST['password1'])), stripslashes($_POST['email']),
+					stripslashes($_POST['username']), stripslashes($_POST['username']), $_POST['password1'], stripslashes($_POST['email']),
 					1, 0, time(),
 					$incontext['member_salt'], '', '', '',
 					$ip, $ip, '', '',
 					'', '',
 					'', '', '',
-					'', '', '',
+					'', '',
 				),
 				array('id_member')
 			);
@@ -1489,9 +1444,9 @@ function AdminAccount()
 // Final step, clean up and a complete message!
 function DeleteInstall()
 {
-	global $txt, $db_prefix, $db_connection, $HTTP_SESSION_VARS, $cookiename, $incontext;
-	global $smcFunc, $db_character_set, $mbname, $context, $scripturl, $boardurl;
-	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $language, $db_type;
+	global $txt, $incontext;
+	global $smcFunc, $db_character_set, $context, $cookiename;
+	global $current_smf_version, $databases, $sourcedir, $forum_version, $modSettings, $user_info, $db_type, $boardurl;
 
 	$incontext['page_title'] = $txt['congratulations'];
 	$incontext['sub_template'] = 'delete_install';
@@ -1548,7 +1503,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id']) && isset($incontext['member_salt']))
-		setLoginCookie(3153600 * 60, $incontext['member_id'], sha1(sha1(strtolower($_POST['username']) . $_POST['password1']) . $incontext['member_salt']));
+		setLoginCookie(3153600 * 60, $incontext['member_id'], hash_salt($_POST['password1'], $incontext['member_salt']));
 
 	$result = $smcFunc['db_query']('', '
 		SELECT value
@@ -1586,8 +1541,14 @@ function DeleteInstall()
 	updateStats('topic');
 
 	// This function is needed to do the updateStats('subject') call.
-	$smcFunc['strtolower'] = $db_character_set === 'utf8' || $txt['lang_character_set'] === 'UTF-8' ? create_function('$string', '
-		return $string;') : 'strtolower';
+	$smcFunc['strtolower'] = $db_character_set != 'utf8' && $txt['lang_character_set'] != 'UTF-8' ? 'strtolower' :
+		create_function('$string', '
+			global $sourcedir;
+			if (function_exists(\'mb_strtolower\'))
+				return mb_strtolower($string, \'UTF-8\');
+			require_once($sourcedir . \'/Subs-Charset.php\');
+			return utf8_strtolower($string);
+		');
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_msg
@@ -1626,6 +1587,11 @@ function DeleteInstall()
 	// Some final context for the template.
 	$incontext['dir_still_writable'] = is_writable(dirname(__FILE__)) && substr(__FILE__, 1, 2) != ':\\';
 	$incontext['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(dirname(__FILE__)) || is_writable(__FILE__);
+
+	// Update hash's cost to an appropriate setting
+	updateSettings(array(
+		'bcrypt_hash_cost' => hash_benchmark(),
+	));
 
 	return false;
 }
@@ -2108,7 +2074,7 @@ function fixModSecurity()
 
 function template_install_above()
 {
-	global $incontext, $txt, $smfsite, $installurl;
+	global $incontext, $txt, $installurl;
 
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
@@ -2225,7 +2191,7 @@ function template_install_below()
 // Welcome them to the wonderful world of SMF!
 function template_welcome_message()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $txt;
 
 	echo '
 	<script src="http://www.simplemachines.org/smf/current-version.js?version=' . $GLOBALS['current_smf_version'] . '"></script>
@@ -2371,7 +2337,7 @@ function template_chmod_files()
 // Get the database settings prepared.
 function template_database_settings()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $txt;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
@@ -2380,7 +2346,7 @@ function template_database_settings()
 	template_warning_divs();
 
 	echo '
-		<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 1em 0;">';
+		<table width="100%" border="0" style="margin: 1em 0;">';
 
 	// More than one database type?
 	if (count($incontext['supported_databases']) > 1)
@@ -2396,7 +2362,7 @@ function template_database_settings()
 						<option value="', $key, '"', isset($_POST['db_type']) && $_POST['db_type'] == $key ? ' selected' : '', '>', $db['name'], '</option>';
 
 	echo '
-					</select><div id="db_sqlite_warning" style="color: blue; display: none;" class="smalltext">', $txt['db_sqlite_warning'], '</div>
+					</select>
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['db_settings_type_info'], '</div>
 				</td>
 			</tr>';
@@ -2458,32 +2424,11 @@ function template_database_settings()
 			</tr>
 		</table>';
 
-	// Allow the toggling of input boxes for SQLite etc.
+	// Toggles a warning related to db names in PostgreSQL
 	echo '
 	<script><!-- // --><![CDATA[
 		function toggleDBInput()
 		{
-			// What state is it?';
-
-	if (!isset($incontext['supported_databases']['sqlite']) && !isset($incontext['supported_databases']['sqlite3']))
-		echo '
-			var showAll = true;';
-	elseif (count($incontext['supported_databases']) < 2)
-		echo '
-			var showAll = false;';
-	// If we have more than one DB including SQLite, what should we be doing?
-	else
-		echo '
-			var showAll = (document.getElementById(\'db_type_input\').value == \'sqlite\' || document.getElementById(\'db_type_input\').value == \'sqlite3\') ? false : true;';
-
-	echo '
-			document.getElementById(\'db_passwd_contain\').style.display = showAll ? \'\' : \'none\';
-			document.getElementById(\'db_server_contain\').style.display = showAll ? \'\' : \'none\';
-			document.getElementById(\'db_user_contain\').style.display = showAll ? \'\' : \'none\';
-			document.getElementById(\'db_name_contain\').style.display = showAll ? \'\' : \'none\';
-			document.getElementById(\'db_filename_contain\').style.display = !showAll ? \'\' : \'none\';
-			document.getElementById(\'db_sqlite_warning\').style.display = !showAll ? \'\' : \'none\';
-			document.getElementById(\'db_port_contain\').style.display = showAll ? \'\' : \'none\';
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
 				document.getElementById(\'db_name_info_warning\').style.display = \'none\';
 			else
@@ -2496,7 +2441,7 @@ function template_database_settings()
 // Stick in their forum settings.
 function template_forum_settings()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $txt;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
@@ -2578,6 +2523,15 @@ function template_forum_settings()
 					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['install_settings_stats_info'], '</div>
 				</td>
 			</tr>
+			<tr>
+				<td class="textbox" style="vertical-align: top;">', $txt['force_ssl'], ':</td>
+				<td>
+					<input type="checkbox" name="force_ssl" id="force_ssl" class="input_check" />&nbsp;
+					<label for="force_ssl">', $txt['force_ssl_label'], '</label>
+					<br />
+					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['force_ssl_info'], '</div>
+				</td>
+			</tr>
 		</table>
 	';
 }
@@ -2585,7 +2539,7 @@ function template_forum_settings()
 // Show results of the database population.
 function template_populate_database()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $txt;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
@@ -2625,7 +2579,7 @@ function template_populate_database()
 // Create the admin account.
 function template_admin_account()
 {
-	global $incontext, $installurl, $txt;
+	global $incontext, $txt;
 
 	echo '
 	<form action="', $incontext['form_url'], '" method="post">
@@ -2634,7 +2588,7 @@ function template_admin_account()
 	template_warning_divs();
 
 	echo '
-		<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 2em 0;">
+		<table width="100%" border="0" style="margin: 2em 0;">
 			<tr>
 				<td width="18%" valign="top" class="textbox"><label for="username">', $txt['user_settings_username'], ':</label></td>
 				<td>

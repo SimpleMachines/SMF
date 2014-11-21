@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Reports
+// Version: 2.1 Beta 1; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -102,7 +102,6 @@ $txt['group_perms_name_calendar_post'] = 'Post events';
 $txt['group_perms_name_calendar_view'] = 'View events';
 $txt['group_perms_name_edit_news'] = 'Edit forum news';
 $txt['group_perms_name_issue_warning'] = 'Issue warnings';
-$txt['group_perms_name_karma_edit'] = 'Edit user karma';
 $txt['group_perms_name_manage_attachments'] = 'Manage attachments';
 $txt['group_perms_name_manage_bans'] = 'Manage bans';
 $txt['group_perms_name_manage_boards'] = 'Manage boards';

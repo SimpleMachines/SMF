@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -158,12 +158,14 @@ function Display()
 		SELECT
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
+			IFNULL (mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? implode(',', $topic_selects) : '') . '
 			' . (!$user_info['is_guest'] ? ', IFNULL(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
-			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)' . ($user_info['is_guest'] ? '' : '
+			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
+			LEFT JOIN {db_prefix}members AS mem on (mem.id_member = ms.id_member)' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
 			' . (!empty($topic_tables) ? implode("\n\t", $topic_tables) : '') . '
@@ -173,9 +175,22 @@ function Display()
 	);
 
 	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('not_a_topic', false);
+		fatal_lang_error('not_a_topic', false, 404);
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	// Get notification preferences
+	$topicinfo['notify_prefs'] = array();
+	if (!empty($user_info['id']))
+	{
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . $context['current_topic']), true);
+		$pref = !empty($prefs[$user_info['id']]) ? $prefs[$user_info['id']] : array();
+		$topicinfo['notify_prefs'] = array(
+			'is_custom' => isset($pref['topic_notify_' . $topic]),
+			'pref' => isset($pref['topic_notify_' . $context['current_topic']]) ? $pref['topic_notify_' . $context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
+		);
+	}
 
 	// Is this a moved topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
@@ -194,13 +209,19 @@ function Display()
 				array('id_member', 'id_topic')
 			);
 		}
-		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0');
+		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0', false, true);
 	}
 
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
+	$context['topic_started_time'] = timeformat($topicinfo['topic_started_time']);
+	$context['topic_started_timestamp'] = $topicinfo['topic_started_time'];
+	$context['topic_poster_name'] = $topicinfo['topic_started_name'];
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
 	$context['topic_last_message'] = $topicinfo['id_last_msg'];
 	$context['topic_unwatched'] = isset($topicinfo['unwatched']) ? $topicinfo['unwatched'] : 0;
+	$context['topic_notification'] = !empty($user_info['id']) ? $topicinfo['notify_prefs'] : array();
+	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
+	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
 
 	// Add up unapproved replies to get real number of replies...
 	if ($modSettings['postmod_active'] && allowedTo('approve_posts'))
@@ -506,11 +527,6 @@ function Display()
 	$context['is_locked'] = $topicinfo['locked'];
 	$context['is_sticky'] = $topicinfo['is_sticky'];
 	$context['is_approved'] = $topicinfo['approved'];
-
-	// @todo Tricks? We don't want to show the poll icon in the topic class here, so pretend it's not one.
-	$context['is_poll'] = false;
-	determineTopicClass($context);
-
 	$context['is_poll'] = $topicinfo['id_poll'] > 0 && $modSettings['pollMode'] == '1' && allowedTo('poll_view');
 
 	// Did this user start the topic or not?
@@ -728,9 +744,18 @@ function Display()
 		// 2. anyone can see them (hide_results == 0), or
 		// 3. you can see them after you voted (hide_results == 1), or
 		// 4. you've waited long enough for the poll to expire. (whether hide_results is 1 or 2.)
-		$context['allow_poll_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && $context['poll']['has_voted']) || $context['poll']['is_expired'];
-		$context['poll']['show_results'] = $context['allow_poll_view'] && (isset($_REQUEST['viewresults']) || isset($_REQUEST['viewResults']));
-		$context['show_view_results_button'] = $context['allow_vote'] && (!$context['allow_poll_view'] || !$context['poll']['show_results'] || !$context['poll']['has_voted']);
+		$context['allow_results_view'] = allowedTo('moderate_board') || $pollinfo['hide_results'] == 0 || ($pollinfo['hide_results'] == 1 && $context['poll']['has_voted']) || $context['poll']['is_expired'];
+
+		// Show the results if:
+		// 1. You're allowed to see them (see above), and
+		// 2. $_REQUEST['viewresults'] or $_REQUEST['viewResults'] is set
+		$context['poll']['show_results'] = $context['allow_results_view'] && (isset($_REQUEST['viewresults']) || isset($_REQUEST['viewResults']));
+
+		// Show the button if:
+		// 1. You can vote in the poll (see above), and
+		// 2. Results are visible to everyone (hidden = 0), and
+		// 3. You aren't already viewing the results
+		$context['show_view_results_button'] = $context['allow_vote'] && $context['allow_results_view'] && !$context['poll']['show_results'];
 
 		// You're allowed to change your vote if:
 		// 1. the poll did not expire, and
@@ -765,8 +790,7 @@ function Display()
 				'percent' => $bar,
 				'votes' => $option['votes'],
 				'voted_this' => $option['voted_this'] != -1,
-				// Note: IE < 8 requires us to set a width on the container, too.
-				'bar_ndt' => $bar > 0 ? '<div class="bar" style="width: ' . ($bar * 3.5 + 4) . 'px;"><div style="width: ' . $bar * 3.5 . 'px;"></div></div>' : '',
+				'bar_ndt' => $bar > 0 ? '<div class="bar" style="width: ' . $bar . '%;"></div>' : '',
 				'bar_width' => $barWide,
 				'option' => parse_bbc($option['label']),
 				'vote_button' => '<input type="' . ($pollinfo['max_votes'] > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '" class="input_' . ($pollinfo['max_votes'] > 1 ? 'check' : 'radio') . '">'
@@ -1004,7 +1028,8 @@ function Display()
 		);
 
 		// And the likes
-		$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext();
+		if (!empty($modSettings['enable_likes']))
+			$context['my_likes'] = $context['user']['is_guest'] ? array() : prepareLikesContext($topic);
 
 		// Go to the last message if the given time is beyond the time of the last message.
 		if (isset($context['start_from']) && $context['start_from'] >= $topicinfo['num_replies'])
@@ -1050,6 +1075,8 @@ function Display()
 		'can_issue_warning' => 'issue_warning',
 		'can_restore_topic' => 'move_any',
 		'can_restore_msg' => 'move_any',
+		'can_see_likes' => 'likes_view',
+		'can_like' => 'likes_like',
 	);
 	foreach ($common_permissions as $contextual => $perm)
 		$context[$contextual] = allowedTo($perm);
@@ -1097,7 +1124,8 @@ function Display()
 	$context['can_reply'] |= $context['can_reply_unapproved'];
 	$context['can_quote'] = $context['can_reply'] && (empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC'])));
 	$context['can_mark_unread'] = !$user_info['is_guest'];
-	$context['can_unwatch'] = !$user_info['is_guest'] && $modSettings['enable_unwatch'];
+	$context['can_unwatch'] = !$user_info['is_guest'];
+	$context['can_set_notify'] = !$user_info['is_guest'];
 
 	$context['can_print'] = empty($modSettings['disable_print_topic']);
 
@@ -1110,7 +1138,7 @@ function Display()
 
 	// Check if the draft functions are enabled and that they have permission to use them (for quick reply.)
 	$context['drafts_save'] = !empty($modSettings['drafts_post_enabled']) && allowedTo('post_draft') && $context['can_reply'];
-	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('post_autosave_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_save']) && !empty($modSettings['drafts_autosave_enabled']);
 	if (!empty($context['drafts_save']))
 		loadLanguage('Drafts');
 
@@ -1147,49 +1175,72 @@ function Display()
 	checkSubmitOnce('register');
 	$context['name'] = isset($_SESSION['guest_name']) ? $_SESSION['guest_name'] : '';
 	$context['email'] = isset($_SESSION['guest_email']) ? $_SESSION['guest_email'] : '';
-	if (!empty($options['use_editor_quick_reply']) && $context['can_reply'])
-	{
-		// Needed for the editor and message icons.
-		require_once($sourcedir . '/Subs-Editor.php');
+	// Needed for the editor and message icons.
+	require_once($sourcedir . '/Subs-Editor.php');
 
-		// Now create the editor.
-		$editorOptions = array(
-			'id' => 'message',
-			'value' => '',
-			'labels' => array(
-				'post_button' => $txt['post'],
-			),
-			// add height and width for the editor
-			'height' => '250px',
-			'width' => '100%',
-			// We do XML preview here.
-			'preview_type' => 0,
-			// This is required
-			'required' => true,
-		);
-		create_control_richedit($editorOptions);
+	// Now create the editor.
+	$editorOptions = array(
+		'id' => 'quickReply',
+		'value' => '',
+		'disable_smiley_box' => empty($options['use_editor_quick_reply']),
+		'labels' => array(
+			'post_button' => $txt['post'],
+		),
+		// add height and width for the editor
+		'height' => '250px',
+		'width' => '100%',
+		// We do HTML preview here.
+		'preview_type' => 1,
+		// This is required
+		'required' => true,
+	);
+	create_control_richedit($editorOptions);
 
-		// Store the ID.
-		$context['post_box_name'] = $editorOptions['id'];
+	// Store the ID.
+	$context['post_box_name'] = $editorOptions['id'];
 
-		$context['attached'] = '';
-		$context['make_poll'] = isset($_REQUEST['poll']);
+	// Set a flag so the sub template knows what to do...
+	$context['show_bbc'] = !empty($options['use_editor_quick_reply']);
+	$modSettings['disable_wysiwyg'] = !empty($options['use_editor_quick_reply']);
+	$context['attached'] = '';
+	$context['make_poll'] = isset($_REQUEST['poll']);
 
-		// Message icons - customized icons are off?
-		$context['icons'] = getMessageIcons($board);
+	// Message icons - customized icons are off?
+	$context['icons'] = getMessageIcons($board);
 
-		if (!empty($context['icons']))
-			$context['icons'][count($context['icons']) - 1]['is_last'] = true;
-	}
+	if (!empty($context['icons']))
+		$context['icons'][count($context['icons']) - 1]['is_last'] = true;
 
 	// Build the normal button array.
 	$context['normal_buttons'] = array(
 		'reply' => array('test' => 'can_reply', 'text' => 'reply', 'image' => 'reply.png', 'lang' => true, 'url' => $scripturl . '?action=post;topic=' . $context['current_topic'] . '.' . $context['start'] . ';last_msg=' . $context['topic_last_message'], 'active' => true),
 		'add_poll' => array('test' => 'can_add_poll', 'text' => 'add_poll', 'image' => 'add_poll.png', 'lang' => true, 'url' => $scripturl . '?action=editpoll;add;topic=' . $context['current_topic'] . '.' . $context['start']),
-		'notify' => array('test' => 'can_mark_notify', 'text' => $context['is_marked_notify'] ? 'unwatch_topic' : 'watch_topic', 'image' => ($context['is_marked_notify'] ? 'un' : '') . 'notify.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . ($context['is_marked_notify'] ? $txt['notification_disable_topic'] : $txt['notification_enable_topic']) . '\');"', 'url' => $scripturl . '?action=notify;sa=' . ($context['is_marked_notify'] ? 'off' : 'on') . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'mark_unread' => array('test' => 'can_mark_unread', 'text' => 'mark_unread', 'image' => 'markunread.png', 'lang' => true, 'url' => $scripturl . '?action=markasread;sa=topic;t=' . $context['mark_unread_time'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';' . $context['session_var'] . '=' . $context['session_id']),
-		'unwatch' => array('test' => 'can_unwatch', 'text' => ($context['topic_unwatched'] ? '' : 'un') . 'watch', 'image' => ($context['topic_unwatched'] ? 'un' : '') . 'watch.png', 'lang' => true, 'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . '.' . $context['start'] . ';sa=' . ($context['topic_unwatched'] ? 'off' : 'on') . ';' . $context['session_var'] . '=' . $context['session_id']),
 		'print' => array('test' => 'can_print', 'text' => 'print', 'image' => 'print.png', 'lang' => true, 'custom' => 'rel="nofollow"', 'url' => $scripturl . '?action=printpage;topic=' . $context['current_topic'] . '.0'),
+		'notify' => array(
+			'lang' => true,
+			'test' => 'can_set_notify',
+			'text' => 'notify_topic_' . $context['topic_notification_mode'],
+			'sub_buttons' => array(
+				array(
+					'test' => 'can_unwatch',
+					'text' => 'notify_topic_0',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=0;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_1',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=1;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_2',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=2;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+				array(
+					'text' => 'notify_topic_3',
+					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
+				),
+			),
+		),
 	);
 
 	// Build the mod button array
@@ -1222,6 +1273,13 @@ function Display()
 
 	// topic.js
 	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+
+	// Mentions
+	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+	{
+		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+	}
 }
 
 /**
@@ -1263,9 +1321,8 @@ function prepareDisplayContext($reset = false)
 	// $context['icon_sources'] says where each icon should come from - here we set up the ones which will always exist!
 	if (empty($context['icon_sources']))
 	{
-		$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 		$context['icon_sources'] = array();
-		foreach ($stable_icons as $icon)
+		foreach ($context['stable_icons'] as $icon)
 			$context['icon_sources'][$icon] = 'images_url';
 	}
 
@@ -1307,14 +1364,16 @@ function prepareDisplayContext($reset = false)
 	{
 		// Define this here to make things a bit more readable
 		$can_view_warning = $context['user']['can_mod'] || allowedTo('view_warning_any') || ($message['id_member'] == $user_info['id'] && allowedTo('view_warning_own'));
-		
+
 		$memberContext[$message['id_member']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member']]['is_topic_starter'] = $message['id_member'] == $context['topic_starter_id'];
 		$memberContext[$message['id_member']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member']]['warning_status'] && $can_view_warning;
+		// Show the email if it's your post...
+		$memberContext[$message['id_member']]['show_email'] |= ($message['id_member'] == $context['member']['id']);
 	}
 
 	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
-	$memberContext[$message['id_member']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
+	$memberContext[$message['id_member']]['show_profile_buttons'] = !empty($modSettings['show_profile_buttons']) && (!empty($memberContext[$message['id_member']]['can_view_profile']) || (!empty($memberContext[$message['id_member']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member']]['show_email'] || $context['can_send_pm']);
 
 	// Do the censor thang.
 	censorText($message['body']);
@@ -1347,11 +1406,6 @@ function prepareDisplayContext($reset = false)
 			'name' => $message['modified_name'],
 			'reason' => $message['modified_reason']
 		),
-		'likes' => array(
-			'count' => $message['likes'],
-			'you' => in_array($message['id_msg'], $context['my_likes']),
-			'can_like' => !$context['user']['is_guest'], // @todo!
-		),
 		'body' => $message['body'],
 		'new' => empty($message['is_read']),
 		'approved' => $message['approved'],
@@ -1364,6 +1418,14 @@ function prepareDisplayContext($reset = false)
 		'can_see_ip' => allowedTo('moderate_forum') || ($message['id_member'] == $user_info['id'] && !empty($user_info['id'])),
 	);
 
+	// Are likes enable?
+	if (!empty($modSettings['enable_likes']))
+		$output['likes'] = array(
+			'count' => $message['likes'],
+			'you' => in_array($message['id_msg'], $context['my_likes']),
+			'can_like' => !$context['user']['is_guest'] && $message['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+		);
+
 	// Is this user the message author?
 	$output['is_message_author'] = $message['id_member'] == $user_info['id'];
 	if (!empty($output['modified']['name']))
@@ -1372,6 +1434,34 @@ function prepareDisplayContext($reset = false)
 	// Did they give a reason for editing?
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
+
+
+	// Any custom profile fields?
+	if (!empty($memberContext[$message['id_member']]['custom_fields']))
+		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
+			switch ($custom['placement'])
+			{
+				case 1:
+					$output['custom_fields']['icons'][] = $custom;
+					break;
+				case 2:
+					$output['custom_fields']['above_signature'][] = $custom;
+					break;
+				case 3:
+					$output['custom_fields']['below_signature'][] = $custom;
+					break;
+				case 4:
+					$output['custom_fields']['below_avatar'][] = $custom;
+					break;
+				case 5:
+					$output['custom_fields']['above_member'][] = $custom;
+					break;
+				case 6:
+					$output['custom_fields']['bottom_poster'][] = $custom;
+					break;
+				default:
+					$output['custom_fields']['standard'][] = $custom;
+			}
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 
@@ -1459,13 +1549,11 @@ function Download()
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($filename))
 	{
-		loadLanguage('Errors');
-
 		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
 		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// We need to die like this *before* we send any anti-caching headers as below.
-		die('404 - ' . $txt['attachment_not_found']);
+		die('File not found.');
 	}
 
 	// If it hasn't been modified since the last time this attachement was retrieved, there's no need to display it again.
@@ -1549,11 +1637,20 @@ function Download()
 	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file_ext, array('txt', 'css', 'htm', 'html', 'php', 'xml')))
 	{
 		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
+			};
 		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\r", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r", $buffer);
+			};
 		else
-			$callback = create_function('$buffer', 'return preg_replace(\'~[\r]?\n~\', "\n", $buffer);');
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\n", $buffer);
+			};
 	}
 
 	// Since we don't do output compression for files this large...
@@ -1891,42 +1988,6 @@ function QuickInTopicModeration()
 	}
 
 	redirectexit(!empty($topicGone) ? 'board=' . $board : 'topic=' . $topic . '.' . $_REQUEST['start']);
-}
-
-/**
- * Prepares an array of "likes" info for the topic specified by $topic
- * @uses $topic and $context['user']['id']
- * @return Array an array of IDs of messages in the specified topic that the current user likes
- */
-function prepareLikesContext()
-{
-	global $context, $smcFunc, $topic;
-
-	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$cache_key = 'likes_topic_' . $topic . '_' . $context['user']['id'];
-	$ttl = 180;
-
-	if (($temp = cache_get_data($cache_key, $ttl)) === null)
-	{
-		$temp = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT content_id
-			FROM {db_prefix}user_likes AS l
-				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
-			WHERE l.id_member = {int:current_user}
-				AND l.content_type = {literal:msg}
-				AND m.id_topic = {int:topic}',
-			array(
-				'current_user' => $context['user']['id'],
-				'topic' => $topic,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$temp[] = (int) $row['content_id'];
-
-		cache_put_data($cache_key, $temp, $ttl);
-	}
-	return $temp;
 }
 
 ?>

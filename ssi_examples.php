@@ -8,7 +8,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -33,7 +33,7 @@ if (isset($_GET['view']) && $_GET['view'] == 'home1')
 template_ssi_above();
 ?>
 			<h2>SMF SSI.php Functions</h2>
-			<p><strong>Current Version:</strong> 2.1 Alpha 1</p>
+			<p><strong>Current Version:</strong> 2.1 Beta 1</p>
 			<p>This file is used to demonstrate the capabilities of SSI.php using PHP include functions. The examples show the include tag, then the results of it.</p>
 
 			<h2>Include Code</h2>
@@ -363,7 +363,7 @@ template_ssi_above();
 			<div class="ssi_preview" id="ssi_fetchPosts">
 				<h2>Show Single Post</h2>
 				<p>Fetches a post with a particular IDs. By default will only show if you have permission to the see
-				the board in question. This can be overriden by passing the 2nd parameter as <tt>true</tt>.</p>
+				the board in question. This can be overriden by passing the 2nd parameter as <pre>true</pre>.</p>
 
 				<h3>Code</h3>
 				<div class="codeheader">Code: <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">[Select]</a></div><code class="bbc_code">&lt;?php ssi_fetchPosts($postIDs, $isOverride); ?&gt;</code>
@@ -416,7 +416,7 @@ function template_ssi_above()
 	echo '<!DOCTYPE html>
 <html>
 	<head>
-		<title>SMF 2.1 Alpha 1 SSI.php Examples</title>
+		<title>SMF 2.1 Beta 1 SSI.php Examples</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<style type="text/css">
@@ -516,7 +516,7 @@ function template_ssi_above()
 	<body>
 		<div id="header">
 			<div class="frame">
-				<h1 class="forumtitle">SMF 2.1 Alpha 1 SSI.php Examples</h1>
+				<h1 class="forumtitle">SMF 2.1 Beta 1 SSI.php Examples</h1>
 				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
 			</div>
 		</div>

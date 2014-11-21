@@ -60,7 +60,7 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 	return;
 }
 
-// Since your back we resume the autosave timer
+// Since you're back we resume the autosave timer
 smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 {
 	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)

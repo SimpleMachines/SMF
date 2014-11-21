@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ReportedContent()
 {
-	global $txt, $context, $scripturl, $user_info, $smcFunc;
+	global $txt, $context, $user_info, $smcFunc;
 	global $sourcedir;
 
 	// First order of business - what are these reports about?
@@ -57,7 +57,7 @@ function ReportedContent()
 	if ($context['report_type'] == 'members' || $user_info['mod_cache']['bq'] == '0=1')
 		isAllowedTo('moderate_forum');
 
-	$sub_actions = array(
+	$subActions = array(
 		'show' => 'ShowReports',
 		'closed' => 'ShowClosedReports',
 		'handle' => 'HandleReport', // Deals with closing/opening reports.
@@ -67,17 +67,17 @@ function ReportedContent()
 	);
 
 	// Go ahead and add your own sub-actions.
-	call_integration_hook('integrate_reported_' . $context['report_type'], array(&$sub_actions));
+	call_integration_hook('integrate_reported_' . $context['report_type'], array(&$subActions));
 
 	// By default we call the open sub-action.
-	if (isset($_REQUEST['sa']) && isset($sub_actions[$_REQUEST['sa']]))
+	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$context['sub_action'] = $smcFunc['htmltrim']($smcFunc['htmlspecialchars']($_REQUEST['sa']), ENT_QUOTES);
 
 	else
 		$context['sub_action'] = 'show';
 
 	// Hi Ho Silver Away!
-	$sub_actions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
@@ -129,7 +129,7 @@ function ShowReports()
 		redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 	}
 
-	// Show a confirmation if the user wants to disregard a report.
+	// Show a confirmation if the user wants to ignore a report.
 	if (!$context['view_closed'])
 		addInlineJavascript('
 	$(\'.delete_message\').on(\'click\', function(){
@@ -174,7 +174,7 @@ function ShowClosedReports()
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
 
-	// Show a confirmation if the user wants to disregard a report.
+	// Show a confirmation if the user wants to ignore a report.
 	addInlineJavascript('
 	$(\'.delete_message\').on(\'click\', function(){
 			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
@@ -197,8 +197,7 @@ function ShowClosedReports()
  */
 function ReportDetails()
 {
-	global $user_info, $context, $sourcedir, $scripturl, $txt;
-	global $smcFunc;
+	global $context, $sourcedir, $scripturl, $txt;
 
 	$report = array();
 	$reportComments = array();
@@ -290,7 +289,7 @@ function ReportDetails()
 	else
 	{
 		$params = array(
-			'lm.id_topic = {int:id_topic} 
+			'lm.id_topic = {int:id_topic}
 				AND lm.id_board != {int:not_a_reported_post}',
 			array('id_topic' => $context['report']['topic_id'], 'not_a_reported_post' => 0),
 			1,
@@ -419,7 +418,7 @@ function ReportDetails()
 	createToken('mod-reportC-add');
 	createToken('mod-reportC-delete', 'get');
 
-	// We can "un-disregard" and close a report from here so add their respective tokens.
+	// We can "un-ignore" and close a report from here so add their respective tokens.
 	createToken('mod-report-ignore', 'get');
 	createToken('mod-report-closed', 'get');
 }
@@ -430,7 +429,7 @@ function ReportDetails()
  */
 function HandleComment()
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $smcFunc, $scripturl, $user_info, $context;
 
 	$comment = array();
 
@@ -474,10 +473,10 @@ function HandleComment()
 			fatal_lang_error('report_action_message_delete_issue');
 
 		// Can you actually do this?
-		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
+		$comment_owner = $user_info['id'] == $comment['id_member'];
 
 		// Nope! sorry.
-		if (!allowedTo('admin_forum') || !$comment_owner)
+		if (!allowedTo('admin_forum') && !$comment_owner)
 			fatal_lang_error('report_action_message_delete_cannot');
 
 		// All good!
@@ -536,7 +535,7 @@ function EditComment()
 		$comment_owner = $user_info['id'] == $context['comment']['id_member'];
 
 		// So, you aren't neither an admin or the comment owner huh? that's too bad.
-		if (!allowedTo('admin_forum') || !$comment_owner)
+		if (!allowedTo('admin_forum') && !$comment_owner)
 			fatal_lang_error('report_action_message_edit_cannot');
 
 		// All good!
@@ -571,7 +570,7 @@ function HandleReport()
 
 	validateToken('mod-report-'. $action, 'get');
 
-	// Are we disregarding or "un-disregarding"? "un-disregarding" thats a funny word!
+	// Are we ignore or "un-ignore"? "un-ignore" thats a funny word!
 	$value = (int) $_GET[$action];
 
 	// Figuring out.

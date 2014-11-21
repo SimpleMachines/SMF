@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Post
+// Version: 2.1 Beta 1; Post
 
 global $context;
 
@@ -98,7 +98,7 @@ $txt['poll_results_voted'] = 'Only show the results after someone has voted.';
 $txt['poll_results_after'] = 'Only show the results after the poll has expired.';
 $txt['poll_max_votes'] = 'Maximum votes per user';
 $txt['poll_do_change_vote'] = 'Allow users to change vote';
-$txt['poll_too_many_votes'] = 'You selected too many options.  For this poll, you may only select %1$s options.';
+$txt['poll_too_many_votes'] = 'You selected too many options. For this poll, you may only select %1$s options.';
 $txt['poll_add_option'] = 'Add Option';
 $txt['poll_guest_vote'] = 'Allow guests to vote';
 
@@ -123,6 +123,11 @@ $txt['error_new_reply'] = 'Warning - while you were typing a new reply has been 
 $txt['error_new_replies'] = 'Warning - while you were typing %1$d new replies have been posted. You may wish to review your post.';
 $txt['error_new_reply_reading'] = 'Warning - while you were reading a new reply has been posted. You may wish to review your post.';
 $txt['error_new_replies_reading'] = 'Warning - while you were reading %1$d new replies have been posted. You may wish to review your post.';
+
+$txt['error_topic_locked'] = 'Warning - while you were typing the topic was locked. Please check the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_unlocked'] = 'Warning - while you were typing the topic was locked. Please uncheck the "Lock this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_stickied'] = 'Warning - while you were typing the topic was stickied. Please check the "Sticky this topic" box under "Attachments and other options" below if you do not wish to undo this action.';
+$txt['error_topic_unstickied'] = 'Warning - while you were typing the topic was unstickied. Please uncheck the "Sticky this topic" box under "Attachments and Other Options" below if you do not wish to undo this action.';
 
 $txt['announce_this_topic'] = 'Send an announcement about this topic to the members:';
 $txt['announce_title'] = 'Send an announcement';
@@ -173,7 +178,7 @@ $txt['php_upload_error_6'] = 'Unable to save. Missing a temporary directory. Ple
 $txt['php_upload_error_7'] = 'Failed to write file to disk. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['php_upload_error_8'] = 'A PHP extension stopped the file upload. This is a PHP related error. Please contact your host if this problem continues.';
 $txt['error_temp_attachments_new'] = 'There are attachments which you had previously attached but not posted. These attachments are still attached to this post. This post does need to be submitted before these attachments are either saved or removed. You can do that <a href="#postAttachment">here</a>';
-$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submited.<br>Click <a href="%1$s">here</a> to remove those attachments. Or <a href="%2$s">here</a> to return to that post.%3$s';
+$txt['error_temp_attachments_found'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not post until these are either removed or that post has been submitted.<br>Click <a href="%1$s">here</a> to remove those attachments. Or <a href="%2$s">here</a> to return to that post.%3$s';
 $txt['error_temp_attachments_lost'] = 'The following attachments were found which you had previously attached to another post but not posted. It is advisable that you do not upload any more attachments until these are removed or that post has been submitted.<br>Click <a href="%1$s">here</a> to remove these attachments.%2$s';
 $txt['error_temp_attachments_gone'] = 'Those attachments have now been removed and you have been returned to the page you were previously on';
 $txt['error_temp_attachments_flushed'] = 'Please note that any files which had been previously attached but not posted have now been removed.';
@@ -184,8 +189,8 @@ $txt['file_too_big'] = 'Your file is too large. The maximum attachment size allo
 $txt['attach_timeout'] = 'Your attachment couldn\'t be saved. This might happen because it took too long to upload or the file is bigger than the server will allow.<br><br>Please consult your server administrator for more information.';
 $txt['bad_attachment'] = 'Your attachment has failed security checks and cannot be uploaded. Please consult the forum administrator.';
 $txt['ran_out_of_space'] = 'The upload directory is full. Please contact an administrator about this problem.';
-$txt['attachments_no_write'] = 'The attachments upload directory is not writable.  Your attachment or avatar cannot be saved.';
-$txt['attachments_no_create'] = 'Unable to create a new attachment directory.  Your attachment or avatar cannot be saved.';
+$txt['attachments_no_write'] = 'The attachments upload directory is not writable. Your attachment or avatar cannot be saved.';
+$txt['attachments_no_create'] = 'Unable to create a new attachment directory. Your attachment or avatar cannot be saved.';
 $txt['attachments_limit_per_post'] = 'You may not upload more than %1$d attachments per post';
 
 ?>

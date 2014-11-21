@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -1129,7 +1129,7 @@ function fixChildren($parent, $newLevel, $newParent)
 /**
  * Tries to load up the entire board order and category very very quickly
  * Returns an array with two elements, cats and boards
- * 
+ *
  * @return array
  */
 function getTreeOrder()

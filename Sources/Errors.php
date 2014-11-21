@@ -12,7 +12,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -120,16 +120,22 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
  * It logs the error message if $log is specified.
  * @param string $error The error message
  * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param int $status The HTTP status code associated with this error
  */
-function fatal_error($error, $log = 'general')
+function fatal_error($error, $log = 'general', $status = 500)
 {
 	global $txt;
+
+	// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// We don't have $txt yet, but that's okay...
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log ? log_error($error, $log) : $error, $error);
+	log_error_online($error, false);
+	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
 /**
@@ -145,11 +151,16 @@ function fatal_error($error, $log = 'general')
  * @param string $error The error message
  * @param string $log The type of error, or false to not log it
  * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ * @param int $status = false The HTTP status code associated with this error
  */
-function fatal_lang_error($error, $log = 'general', $sprintf = array())
+function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
 	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
+
+	// Send the status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// Try to load a theme if we don't have one.
 	if (empty($context['theme_loaded']) && empty($fatal_error_called))
@@ -179,6 +190,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
+	log_error_online($error, true, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 
@@ -266,7 +278,7 @@ function error_handler($error_level, $error_string, $file, $line)
  * @param string $error_message The error message
  * @param string $error_code An error code
  */
-function setup_fatal_error_context($error_message, $error_code)
+function setup_fatal_error_context($error_message, $error_code = null)
 {
 	global $context, $txt, $ssi_on_error_method;
 	static $level = 0;
@@ -456,6 +468,77 @@ function set_fatal_error_headers()
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 3600');
+}
+
+
+/**
+ * Small utility function for fatal error pages.
+ * Used by fatal_error(), fatal_lang_error()
+ *
+ * @param string $error The error
+ * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ */
+function log_error_online($error, $sprintf = array())
+{
+	global $smcFunc, $user_info, $modSettings;
+
+	// Don't bother if Who's Online is disabled.
+	if (empty($modSettings['who_enabled']))
+		return;
+
+	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+
+	// First, we have to get the online log, because we need to break apart the serialized string.
+	$request = $smcFunc['db_query']('', '
+		SELECT url
+		FROM {db_prefix}log_online
+		WHERE session = {string:session}',
+		array(
+			'session' => $session_id,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		list ($url) = $smcFunc['db_fetch_row']($request);
+		$url = unserialize($url);
+		$url['error'] = $error;
+
+		if (!empty($sprintf))
+			$url['error_params'] = $sprintf;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_online
+			SET url = {string:url}
+			WHERE session = {string:session}',
+			array(
+				'url' => serialize($url),
+				'session' => $session_id,
+			)
+		);
+	}
+	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * Sends an appropriate HTTP status header based on a given status code
+ * @param int $code The status code
+ */
+function send_http_status($code)
+{
+	$statuses = array(
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		410 => 'Gone',
+		500 => 'Internal Server Error',
+		503 => 'Service Unavailable'
+	);
+
+	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+
+	if (!isset($statuses[$code]))
+		header($protocol . ' 500 Internal Server Error');
+	else
+		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
 
 ?>

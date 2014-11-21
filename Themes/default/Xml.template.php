@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 function template_sendbody()
@@ -97,7 +97,7 @@ function template_modifytopicdone()
 
 function template_post()
 {
-	global $context, $txt;
+	global $context;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -171,7 +171,7 @@ function template_pm()
 
 function template_warning()
 {
-	global $context, $txt;
+	global $context;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
@@ -195,7 +195,7 @@ function template_warning()
 
 function template_stats()
 {
-	global $context, $txt, $modSettings;
+	global $context, $modSettings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';

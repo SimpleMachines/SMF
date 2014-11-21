@@ -11,6 +11,7 @@ Packages/*.tgz
 Packages/*.tar.gz
 Packages/*.zip
 Packages/*/
+attachments/
 /upgrade.php
 
 # Compiled source #
@@ -48,7 +49,6 @@ Packages/*/
 ######################
 .DS_Store*
 ehthumbs.db
-Icon?
 Thumbs.db
 *.lnk
 

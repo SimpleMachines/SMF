@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -246,16 +246,17 @@ function RecentPosts()
 		$query_these_boards = str_replace('AND m.id_msg >= {int:max_id_msg}', '', $query_this_board);
 		$query_these_boards_params = $query_parameters;
 		unset($query_these_boards_params['max_id_msg']);
-		
+
 		$get_num_posts = $smcFunc['db_query']('', '
-			SELECT IFNULL(SUM(num_posts), 0)
+			SELECT IFNULL(SUM(b.num_posts), 0)
 			FROM {db_prefix}boards AS b
 			WHERE ' . $query_these_boards . '
 				AND b.redirect = {string:empty}',
 			array_merge($query_these_boards_params, array('empty' => ''))
 		);
 
-		$num_posts = min(100, $smcFunc['db_fetch_row']($get_num_posts));
+		list($db_num_posts) = $smcFunc['db_fetch_row']($get_num_posts);
+		$num_posts = min(100, $db_num_posts);
 
 		$smcFunc['db_free_result']($get_num_posts);
 
@@ -694,9 +695,8 @@ function UnreadTopics()
 	}
 
 	// Setup the default topic icons... for checking they exist and the like ;)
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 	$context['icon_sources'] = array();
-	foreach ($stable_icons as $icon)
+	foreach ($context['stable_icons'] as $icon)
 		$context['icon_sources'][$icon] = 'images_url';
 
 	$is_topics = $_REQUEST['action'] == 'unread';
@@ -704,7 +704,7 @@ function UnreadTopics()
 	// This part is the same for each query.
 	$select_clause = '
 				ms.subject AS first_subject, ms.poster_time AS first_poster_time, ms.id_topic, t.id_board, b.name AS bname,
-				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,
+				t.num_replies, t.num_views, ms.id_member AS id_first_member, ml.id_member AS id_last_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
 				ml.poster_time AS last_poster_time, IFNULL(mems.real_name, ms.poster_name) AS first_poster_name,
 				IFNULL(meml.real_name, ml.poster_name) AS last_poster_name, ml.subject AS last_subject,
 				ml.icon AS last_icon, ms.icon AS first_icon, t.id_poll, t.is_sticky, t.locked, ml.modified_time AS last_modified_time,
@@ -797,8 +797,7 @@ function UnreadTopics()
 			WHERE lt.id_member = {int:current_member}
 				AND t.' . $query_this_board . (empty($earliest_msg) ? '' : '
 				AND t.id_last_msg > {int:earliest_msg}') . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : ''),
+				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -820,8 +819,7 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : ''),
+				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -877,8 +875,7 @@ function UnreadTopics()
 			WHERE b.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND ms.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : '') . '
+				AND ms.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -903,8 +900,7 @@ function UnreadTopics()
 				AND t.id_last_msg > {int:earliest_msg}' : (!$context['showing_all_topics'] && empty($_SESSION['first_login']) ? '
 				AND t.id_last_msg > {int:id_msg_last_visit}' : '')) . '
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : ''),
+				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
@@ -966,8 +962,7 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < ml.id_msg' . ($modSettings['postmod_active'] ? '
-				AND ms.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : '') . '
+				AND ms.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
 			ORDER BY {raw:order}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1020,8 +1015,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-				AND lt.unwatched != 1' : '') . '
+					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
@@ -1074,8 +1068,7 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND m.id_member = {int:current_member}
 					AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ($modSettings['enable_unwatch'] ? '
-					AND lt.unwatched != 1' : ''),
+					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
 				array_merge($query_parameters, array(
 					'current_member' => $user_info['id'],
 					'is_approved' => 1,
@@ -1139,8 +1132,7 @@ function UnreadTopics()
 				WHERE t.' . $query_this_board . '
 					AND t.id_last_msg >= {int:min_message}
 					AND (IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0))) < t.id_last_msg
-					AND t.approved = {int:is_approved}' . ($modSettings['enable_unwatch'] ? '
-					AND lt.unwatched != 1' : '') . '
+					AND t.approved = {int:is_approved} AND lt.unwatched != 1
 				ORDER BY {raw:order}
 				LIMIT {int:offset}, {int:limit}',
 				array_merge($query_parameters, array(
@@ -1342,7 +1334,47 @@ function UnreadTopics()
 				'link' => '<a href="' . $scripturl . '?board=' . $row['id_board'] . '.0">' . $row['bname'] . '</a>'
 			)
 		);
-
+		if (!empty($settings['avatars_on_indexes']))
+		{
+			if (!empty($modSettings['gravatarOverride']))
+			{
+				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
+					$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+				else
+					$image = get_gravatar_url($row['email_address']);
+			}
+			else
+			{
+				// So it's stored in the member table?
+				if (!empty($row['avatar']))
+				{
+					if (stristr($row['avatar'], 'gravatar://'))
+					{
+						if ($row['avatar'] == 'gravatar://')
+							$image = get_gravatar_url($row['email_address']);
+						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+							$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
+					}
+					else
+						$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
+				}
+				// Right... no avatar...
+				else
+					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+						'name' => '',
+						'image' => '',
+						'href' => '',
+						'url' => '',
+					);
+			}
+			if (!empty($image))
+				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+					'name' => $row['avatar'],
+					'image' => '<img class="avatar" src="' . $image . '" />',
+					'href' => $image,
+					'url' => $image,
+				);
+		}
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}
 	$smcFunc['db_free_result']($request);

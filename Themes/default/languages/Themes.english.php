@@ -1,7 +1,7 @@
 <?php
-// Version: 2.1 Alpha 1; Themes
+// Version: 2.1 Beta 1; Themes
 
-$txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum.  These settings affect the selection of themes, and which themes guests and other members use.';
+$txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
 $txt['theme_allow'] = 'Allow members to select their own themes.';
 $txt['theme_guests'] = 'Overall forum default';
@@ -54,7 +54,7 @@ $txt['theme_pick_variant'] = 'Select Variant';
 $txt['theme_edit'] = 'Edit Theme';
 $txt['theme_edit_style'] = 'Modify the stylesheets. (colors, fonts, etc.)';
 $txt['theme_edit_index'] = 'Modify the index template. (the main template)';
-$txt['theme_edit_no_save'] = 'This file cannot be saved because it is not writable.  Please make sure the following file is 777 or has the proper permissions';
+$txt['theme_edit_no_save'] = 'This file cannot be saved because it is not writable. Please make sure the following file is 777 or has the proper permissions';
 $txt['theme_edit_save'] = 'Save Changes';
 
 $txt['theme_global_description'] = 'This is the default theme, which means your theme will change along with the administrators\' settings and the board you are viewing.';
@@ -93,23 +93,22 @@ $txt['member_list_bar'] = 'Show members list bar on board index';
 $txt['header_logo_url'] = 'Logo image URL';
 $txt['header_logo_url_desc'] = '(leave blank to show forum name or default logo.)';
 $txt['number_recent_posts'] = 'Number of recent posts to display on board index';
-$txt['number_recent_posts_desc'] = 'To disable the recent posts bar set this value to zero.';
 
 $txt['theme_adding_title'] = 'Obtaining Themes';
 $txt['theme_adding'] = 'You can always find new themes for your forum from the SMF themes area - <strong><a href="http://custom.simplemachines.org/themes/" target="_blank">http://custom.simplemachines.org/themes/</a></strong>. You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there.<br><br>If you run into any questions with themes, each modification published on simplemachines.org has a dedicated topic about it where support and comments should be directed to.';
 
-$txt['theme_options_defaults'] = 'These are the default values for some member specific settings.  Changing these will only affect new members and guests.';
+$txt['theme_options_defaults'] = 'These are the default values for some member specific settings. Changing these will only affect new members and guests.';
 $txt['theme_options_title'] = 'Change or reset default options';
 
 $txt['themeadmin_title'] = 'Themes and Layout Settings';
 $txt['themeadmin_description'] = 'Here you can modify the settings for your themes, update theme selections, reset member options, and the like.';
-$txt['themeadmin_admin_desc'] = 'This page allows you to change the default theme, reset members to all use a certain theme, and choose other settings related to theme selection.  You are also able to install themes from here.<br><br>Don\'t forget to look at the theme settings for your themes for layout options.';
+$txt['themeadmin_admin_desc'] = 'This page allows you to change the default theme, reset members to all use a certain theme, and choose other settings related to theme selection. You are also able to install themes from here.<br><br>Don\'t forget to look at the theme settings for your themes for layout options.';
 $txt['themeadmin_list_desc'] = 'From here, you can view the list of themes you currently have installed, change their paths and settings, and uninstall them.';
-$txt['themeadmin_reset_desc'] = 'Below you will see an interface to change the current theme-specific options for all your members.  You will only see those themes that have their own set of settings.';
-$txt['themeadmin_edit_desc'] = 'Modify the stylesheet and source code of your installed themes.  Please consult the documentation for more information.';
+$txt['themeadmin_reset_desc'] = 'Below you will see an interface to change the current theme-specific options for all your members. You will only see those themes that have their own set of settings.';
+$txt['themeadmin_edit_desc'] = 'Modify the stylesheet and source code of your installed themes. Please consult the documentation for more information.';
 
 $txt['themeadmin_list_heading'] = 'Theme Settings Overview';
-$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another.  Click on the theme\'s names below to set their options, change their directory or URL settings, or to find other options.';
+$txt['themeadmin_list_tip'] = 'Remember, the layout settings may be different between one theme and another. Click on the theme\'s names below to set their options, change their directory or URL settings, or to find other options.';
 $txt['themeadmin_list_theme_dir'] = 'Theme directory (templates)';
 $txt['themeadmin_list_invalid'] = '(Warning! this path is not correct.)';
 $txt['themeadmin_list_theme_url'] = 'URL to above directory';
@@ -119,7 +118,7 @@ $txt['themeadmin_list_reset_dir'] = 'Base path to Themes directory';
 $txt['themeadmin_list_reset_url'] = 'Base URL to the same directory';
 $txt['themeadmin_list_reset_go'] = 'Attempt to reset all themes';
 
-$txt['themeadmin_reset_tip'] = 'Each theme may have its own custom options for selection by your members.  These include things like avatars, signatures, layout options and other similar options.  Here you can change the defaults or reset everyone\'s options.<br><br>Please note that some themes may use the default options, in which case they will not have their own options.';
+$txt['themeadmin_reset_tip'] = 'Each theme may have its own custom options for selection by your members. These include things like avatars, signatures, layout options and other similar options. Here you can change the defaults or reset everyone\'s options.<br><br>Please note that some themes may use the default options, in which case they will not have their own options.';
 $txt['themeadmin_reset_defaults'] = 'Configure guest and new user options for this theme';
 $txt['themeadmin_reset_defaults_current'] = 'options currently set.';
 $txt['themeadmin_reset_members'] = 'Change current options for all members using this theme';
@@ -127,7 +126,7 @@ $txt['themeadmin_reset_remove'] = 'Remove all members\' options and use the defa
 $txt['themeadmin_reset_remove_current'] = 'members currently using their own options.';
 // Don't use entities in the below string.
 $txt['themeadmin_reset_remove_confirm'] = 'Are you sure you want to remove all theme options?\\nThis may reset some custom profile fields as well.';
-$txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>.  To change an option, select &quot;change&quot; in the box next to it, and then select a value for it.  To use the default, select &quot;default&quot;.  Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
+$txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>. To change an option, select &quot;change&quot; in the box next to it, and then select a value for it. To use the default, select &quot;default&quot;. Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
 $txt['themeadmin_reset_options_default'] = 'Default';

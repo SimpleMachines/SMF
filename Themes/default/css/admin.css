@@ -1,136 +1,20 @@
-/* Experimental code to hide header content in admin. Will not be used in deafult.
-/* Not checked since main theme was rewritten for the new look. Beware.
-/* Commenting out the entire block sets admin back to the default header.
-------------------------------------------------------- */
-/*
-body.action_admin #header {
-	padding: 2px 2px 0 2px;
-}
-body.action_admin #header .frame {
-	padding: 0 0 50px 0;
-	background:  url(../images/theme/bars.png) 0 -560px repeat-x;
-}
-body.action_admin #top_section, body.action_admin #upper_section {
-	display: none;
-}
-body.action_admin #upper_wrap {
-	background: none;
-	padding: 4px 8px 0 8px;
-}
-body.action_admin #main_content_section {
-	margin: -45px 0 0 0;
-}
-body.action_admin .navigate_section ul {
-	padding: 5px 8px;
-
-	border: 1px solid #b8b8b8;
-	border-radius: 5px;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-body.action_admin .navigate_section ul li.unread_links {
-	display: none;
-}
-body.action_admin .navigate_section ul li a {
-	font-weight: bold;
-}*/
-/* End experimental header hiding stuffz. */
-
-
-/* Common admin center classes.
-------------------------------------------------------- */
-/* @todo
-/* The CSS targeting for all this gets a bit convoluted and requires a good clean up.
-/* It's left over from when I started theming admin independently over a Curve forum.
-/* Can be simplified quite a lot before production builds. */
-/* Special styling for admin descriptions. */
-.action_admin p.description, .action_admin  .information {
-	overflow: auto;
-	background: none;
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0 0 7px 7px;
-	margin: 0 0 0 0;
-	padding: 12px 9px 8px 9px;
-}
-.action_admin p.description a {
-	font-weight: bold;
-}
-.action_admin p.description  img {
-	vertical-align: middle;
-}
-.action_admin .generic_list_wrapper .information {
-
-	margin: 8px 0;
-	padding: 4px 12px 2px 12px;
-	border: 1px solid #ccc;
-	border-radius: 2px;
-	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-.action_admin .generic_list_wrapper .information div {
-	background: none;
-}
-.information a {
-	font-weight: bold;
-}
+/* Start with most common */
 .action_admin .generic_list {
 	overflow: auto;
 }
-#admin_content .windowbg, #admin_content .windowbg2 {
-	margin-bottom: 5px;
+#admin_content .windowbg {
+	margin: 5px 0 5px 0;
+	box-shadow: none;
+	background: #F8F8F8;
+}
+#admin_content .windowbg2 {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
-}
-#admincenter .content {
-	padding: 12px;
+	margin: 0 0 10px 0;
+	box-shadow: none;
+	background: #F8F8F8;
 }
 
-/* A general admin wrapper class. */
-#admin_main_section, div.quick_tasks,
-#support_credits, #admin_newsletters,
-#generate_reports_type,
-#groupForm, #mailqueue_stats, #manage_maintenance,
-#new_group, #view_group, #admin_form_wrapper {
-	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
-	overflow: auto;
-}
-div.quick_tasks {
-	margin: -8px 0 0 0;
-}
-#admin_form_wrapper div.windowbg, #support_credits div.windowbg,
-#generate_reports_type div.windowbg, #new_group div.windowbg,
-#view_group  div.windowbg, #admin_newsletters .windowbg {
-	background: none;
-	padding: 0;
-	margin: 0 4px;
-}
-#mailqueue_stats {
-	padding: 8px 8px 0 8px;
-}
-#mailqueue_stats .windowbg {
-	background: none;
-	padding: 0;
-}
-#mailqueue_stats .windowbg .content {
-	padding: 12px 9px 0 9px;
-}
-#view_group .table_grid {
-	margin: 4px 0 8px 0;
-}
 .action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
 	border-radius: 0;
 	border-top: 2px solid #ff9400;
@@ -139,47 +23,21 @@ div.quick_tasks {
 	background: #fff;
 	color: #666;
 }
-.action_admin .table_grid tr.catbg th a:link {
-	color: #666;
-}
-.action_admin .table_grid .first_th, .action_admin .table_grid  td:first-child {
-	border-left: 1px solid #ccc;
-}
 .action_admin .table_grid .last_th, .action_admin .table_grid td {
-	border-right: 1px solid #ccc;
+	border: 1px solid #ddd;
+	border-top: 0;
 }
-.action_admin .table_grid td {
-	border-bottom: 1px solid #ccc;
-}
-.action_admin .table_grid tr:nth-child(even) td {
+.action_admin .table_grid tr:nth-child(even) {
 	background: #fdfdfd;
 }
-.action_admin .table_grid tr:nth-child(odd) td {
+.action_admin .table_grid tr:nth-child(odd) {
 	background: #f8f8f8;
 }
-/*-------------------------------------------*/
-
-/* Newsletters screen.
----------------------------------------------*/
-#admin_newsletters .information {
-
-	margin: 8px 0;
-	padding: 8px 12px 6px 12px;
-	border: 1px solid #ccc;
-	border-radius: 2px;
-	box-shadow: 0 2px 2px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-/*-------------------------------------------*/
 .action_admin .generic_list .flow_auto {
 	padding: 4px 2px;
 }
 .windowbg.nopadding {
-	margin: 4px 0 0 0;
+	margin: 0 !important;
 	padding: 0;
 }
 .windowbg ol {
@@ -187,7 +45,7 @@ div.quick_tasks {
 	margin-bottom: 0;
 }
 a.help .icon {
-	margin: 0 0 0 0;
+	margin: 0;
 	padding: 0 4px 0 0;
 }
 .catbg a.help .icon {
@@ -222,7 +80,7 @@ h3.catbg #quick_search form {
 	font-size: 0.9em;
 }
 h3.catbg #quick_search form input, h3.catbg #quick_search form select, h3.catbg #quick_search form .button_submit {
-	margin: 0 3px;
+	margin: 0 3px !important;
 	padding: 4px 3px 3px 3px;
 	border-radius: 4px;
 	border: 1px solid #777;
@@ -238,39 +96,21 @@ h3.catbg #quick_search form select option {
 }
 h3.catbg #quick_search form .button_submit {
 	font-weight: bold;
-
 	padding: 3px 6px 2px 6px;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
 }
 h3.catbg #quick_search form .button_submit:hover {
 	background: #fff;
 }
 
 /* Browser tweaks. */
+body#chrome #quick_search form .input_text {
+	padding: 2px;
+}
 body#chrome #quick_search form input {
-	padding: 4px 3px;
-	margin-top: -3px;
-}
-body#chrome #quick_search .button_submit, body#ie #quick_search .button_submit, body#opera #quick_search .button_submit {
-	margin: 0 5px;
-	padding: 5px 9px 4px 9px;
-}
-body#chrome  #quick_search .button_submit {
-	margin: -29px 5px 0 5px;
+	float: none;
 }
 
 /* The welcome thingy. */
-#admincenter .roundframe {
-	background: none;
-	border: none;
-	box-shadow: none;
-	padding: 0;
-	overflow: visible;
-}
 #welcome {
 	border: 1px solid #ddd;
 	border-top: none;
@@ -294,6 +134,9 @@ body#chrome  #quick_search .button_submit {
 	line-height: 1.7em;
 	border-bottom: double #ccc;
 }
+.search_results li:last-child {
+	border: none;
+}
 .search_results li a strong {
 	color: #346;
 }
@@ -304,46 +147,23 @@ body#chrome  #quick_search .button_submit {
 
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
-/* Live news from smf.org and support information. */
-#admin_main_section {
-	margin: 12px 0;
-	padding: 8px 12px;
-	border-radius: 7px;
-}
+/* Live news from smorg and support information. */
 #live_news, #supportVersionsTable {
 	width: 70%;
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 #supportVersionsTable {
 	width: 30%;
 	padding-left: 6px;
 }
+#admin_main_section {
+	overflow: auto;
+}
 #admin_main_section .windowbg {
 	padding: 6px 0;
-	border: 1px solid #ccc;
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #ddd;
 	border-radius: 0;
-
-	box-shadow:  0 2px 2px rgba(255,255,255,0.5), 0 -1px 2px rgba(0,0,0,0.1);
 	height: 12em;
 	overflow: auto;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#live_news div.content, #supportVersionsTable  div.content {
-	padding: 0;
-	font-size: 0.9em;
-}
-#supportVersionsTable  div.content {
-	padding: 0 8px;
-}
-#live_news div.content dl {
-	padding: 0;
-	color: #111;
 }
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
@@ -384,87 +204,133 @@ fieldset.admin_group .inactive {
 	margin: 6px 0;
 }
 
-/* Links to handy sections of admin.
-----------------------------------*/
-/* The <li>'s here have been set to a height in em with hidden overflow.
-/* Yes, this will clip the blurb when using very large font sizes on a narrowish screen.
-/* However, more than enough content is still available for clarity,
-/* and the advantage is that a clean layout is always maintained.
-/* The <li>'s could be set to auto overflow instead, but that just clutters things up with scrollbars.
-/* Scrollbars here look worse, take up space, and don't really add anything useful in this context. */
-div.quick_tasks {
-	border-radius: 0 0 7px 7px;
-	border-top: none;
-	box-shadow: none;
-	padding: 0 0 16px 0;
-}
-#quick_tasks {
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #fff;
-}
-#quick_tasks  li {
-	list-style: none;
-	padding: 10px 6px 10px 6px;
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #bbb;
-	float: left;
-	width: 50%;
-	height: 6em;
-	overflow: hidden;
-}
-#quick_tasks  li a  {
-	line-height: 1.6em;
-}
-.home_image {
-	float: left;
-	margin: 2px 10px;
-}
-#quick_tasks  li span {
+/* The icons. */
+.large_admin_menu_icon_file {
+	margin: 0 auto;
 	display: block;
-	margin: 0 0 0 70px;
+	width: 32px;
+	height: 32px;
+}
+.large_admin_menu_icon {
+	background: url(../images/icons/admin_icons_hd.png) no-repeat  -5px -47px;
+	margin: 0 auto;
+	display: block;
+	content: '';
+	width: 32px;
+	height: 32px;
+}
+.large_admin_menu_icon.attachment {
+	background-position: -5px -5px;
+}
+.large_admin_menu_icon.ban {
+	background-position: -47px -5px;
+}
+.large_admin_menu_icon.boards {
+	background-position: -89px -5px;
+}
+.large_admin_menu_icon.calendar {
+	background-position: -131px -5px;
+}
+.large_admin_menu_icon.current_theme {
+	background-position: -173px -5px;
+}
+.large_admin_menu_icon.default {
+	background-position: -5px -47px;
+}
+.large_admin_menu_icon.engines {
+	background-position: -47px -47px;
+}
+.large_admin_menu_icon.exit {
+	background-position: -89px -47px;
+}
+.large_admin_menu_icon.features {
+	background-position: -131px -47px;
+}
+.large_admin_menu_icon.languages {
+	background-position: -173px -47px;
+}
+.large_admin_menu_icon.logs {
+	background-position: -5px -89px;
+}
+.large_admin_menu_icon.mail {
+	background-position: -47px -89px;
+}
+.large_admin_menu_icon.maintain {
+	background-position: -89px -89px;
+}
+.large_admin_menu_icon.membergroups {
+	background-position: -131px -89px;
+}
+.large_admin_menu_icon.members {
+	background-position: -173px -89px;
+}
+.large_admin_menu_icon.modifications {
+	background-position: -5px -131px;
+}
+.large_admin_menu_icon.news {
+	background-position: -47px -131px;
+}
+.large_admin_menu_icon.packages {
+	background-position: -89px -131px;
+}
+.large_admin_menu_icon.paid {
+	background-position: -131px -131px;
+}
+.large_admin_menu_icon.permissions {
+	background-position: -173px -131px;
+}
+.large_admin_menu_icon.posts {
+	background-position: -5px -173px;
+}
+.large_admin_menu_icon.regcenter {
+	background-position: -47px -173px;
+}
+.large_admin_menu_icon.reports {
+	background-position: -89px -173px;
+}
+.large_admin_menu_icon.scheduled {
+	background-position: -131px -173px;
+}
+.large_admin_menu_icon.search {
+	background-position: -173px -173px;
+}
+.large_admin_menu_icon.security {
+	background-position: -215px -5px;
+}
+.large_admin_menu_icon.server {
+	background-position: -215px -47px;
+}
+.large_admin_menu_icon.smiley {
+	background-position: -215px -89px;
+}
+.large_admin_menu_icon.support {
+	background-position: -215px -131px;
+}
+.large_admin_menu_icon.themes {
+	background-position: -215px -173px;
+}
+.large_admin_menu_icon.warning {
+	background-position: -5px -215px;
 }
 
 /* Styles for the support and credits page.
 /* Hey, people might actually want to put their names on it now!
 /* Only a couple of trivial markup hacks that wont break any mods or themes.
 /* The older I get, the more devious I get. :D
-/* Nobody ever themes admin anyway. That's why it looked like crap.
------------------------------------------------------------------*/
+/* Nobody ever themes admin anyway. That's why it looked like crap. */
 #support_credits {
 	position: relative;
-	padding: 6px 12px 12px 12px;
-}
-#support_resources, #credits_sections {
-	margin: 16px 0 -24px 0;
-	border: none;
-	border-top: 1px solid #bbb;
+	margin: -4px 0 0 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 #credits_logo {
 	position: absolute;
 	right: 10px;
 	top: 9px;
 }
-#support_credits .content {
-	padding: 0 18px;
-	line-height: 1.6em;
-}
-#support_credits .content p {
-	margin: 12px 0 0 0;
-	padding: 0;
-}
-#support_credits a {
-	border-bottom: 1px solid #d2d2d2;
-}
-#support_credits a:hover {
-	color: #00163d;
-	text-decoration: none;
-	border-bottom: 1px solid #556f82;
-}
 #support_credits img.icon {
 	vertical-align: middle;
-}
-#support_credits .catbg a.help, #support_credits .catbg a.help:hover {
-	border-bottom: none;
 }
 #latestSupport{
 	padding: 0 25px 15px 25px;
@@ -482,8 +348,7 @@ div.quick_tasks {
 }
 
 /* Styles for the package manager.
-/* Haven't got here yet. :P
-------------------------------------------------- */
+/* Haven't got here yet. :P */
 #package_list .tborder {
 	margin: .25em 0 .25em 26px;
 }
@@ -503,16 +368,6 @@ div.quick_tasks {
 	border: 1px solid #cacdd3;
 	padding: 0.2em;
 	margin: 1px;
-}
-.description {
-	max-height: 15em;
-	overflow: auto;
-	padding-bottom: .5em;
-}
-.information {
-	max-height: 15em;
-	overflow: auto;
-	padding-bottom: .5em;
 }
 .package_section {
 	border: 1px solid #cacdd3;
@@ -556,8 +411,7 @@ pre.file_content {
 	padding: 0 1em;
 }
 
-/* Styles for the file permissions section.
-------------------------------------------------- */
+/* Styles for the file permissions section. */
 .filepermissions {
 	font-size: 0.8em;
 	white-space: nowrap;
@@ -604,51 +458,35 @@ pre.file_content {
 	background-position: -80px -32px;
 }
 
-/* Styles for the BBC permissions
-------------------------------------------------- */
+/* Styles for the BBC permissions */
 .list_bbc {
 	width: 33%;
 }
 
-/* Styles for the manage boards section.
-------------------------------------------------- */
+/* Styles for the manage boards section. */
 #manage_boards {
-	background: #f0f4f7;
-	margin: 12px 0 0 0;
-	padding: 8px 8px 16px 8px;
-	border: 1px solid #ccc;
-	border-radius: 7px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
 	overflow: auto;
 }
-#manage_boards .windowbg {
+.roundframe .windowbg, .roundframe .windowbg2 {
+	border: 0;
+	padding: 0;
 	background: none;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
-	border: none;
-	border-radius: 7px 7px 0 0;
 }
-#manage_boards .windowbg {
-	margin: 0;
-	padding: 0;
-}
-#manage_boards ul {
-	padding: 0;
-	margin: 0 0 8px 0;
-	max-height: 30em;
-	overflow: auto;
-	border-top: 1px solid #bbb;
-	border-bottom: 1px solid #fff;
-	border-radius: 2px;
-}
-#manage_boards li, #manage_boards li.windowbg, #manage_boards li.windowbg2 {
-	list-style: none;
-	margin: 0 1px;
+#manage_boards li.windowbg, #manage_boards li.windowbg2 {
 	padding: 8px 0;
-	border: 1px solid #ccc;
-	border-bottom: 1px solid #bbb;
-	border-top: 1px solid #fff;
+	margin: 0;
 	border-radius: 0;
+	border: 1px solid #ddd;
+	border-bottom: none;
+}
+#manage_boards li.windowbg:first-child, #manage_boards li.windowbg2:first-child {
+	border-top: none;
+}
+#manage_boards li.windowbg:last-child, #manage_boards li.windowbg2:last-child {
+	border-bottom: 1px solid #ddd;
+}
+#manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
+	background: #D0E7F8;
 }
 #manage_boards li img {
 	vertical-align: middle;
@@ -671,46 +509,8 @@ pre.file_content {
 .move_links {
 	padding: 0 13px 0 0;
 }
-.modify_boards {
-	padding: 0 0.5em;
-}
-#manage_boards span.modify_boards a {
-	border: 1px solid #aaa;
-	border-radius: 3px;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-	padding: 3px 6px;
-	font: 95%/115% verdana, Helvetica, sans-serif;
-	color: #222;
-	font-size: 1em;
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards span.modify_boards a:hover {
-	text-decoration: none;
-	color: #444;
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1);
-	background: linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -o-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -moz-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -webkit-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-	background: -ms-linear-gradient(bottom, #FFFFFF 1%, #F1F3F5 96%);
-}
-#manage_boards .button_submit {
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.1), 0 -1px 3px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #bbb;
-	border-left: 1px solid #bbb;
-	background: #dceeff;
-	text-shadow: 0 0 2px #fff;
-	margin: 0 8px;
-}
-#manage_boards  .button_submit:hover {
-	box-shadow: -1px -1px 1px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.1) inset;
-	border-top: 1px solid #999;
-	border-left: 1px solid #999;
-	background: #cde7ff;
+#manage_boards .button {
+	margin: 0 8px 0 0;
 }
 #manage_boards dl {
 	padding: 8px 6px 0 6px;
@@ -722,13 +522,14 @@ pre.file_content {
 	border-bottom: 1px dotted #000;
 	cursor: help;
 }
+#manage_boards .button_submit {
+	margin: 2px 2px 0px 12px;
+}
 .select_all_box {
 	display:none;
 }
 
-/* Styles for the manage members section.
-------------------------------------------------- */
-
+/* Styles for the manage members section. */
 .msearch_details {
 	display: block;
 	width: 49%;
@@ -737,38 +538,13 @@ dl.right dt {
 	padding-right: 10px;
 }
 
-/* Styles for the manage maintenance section.
-------------------------------------------------- */
-#manage_maintenance div.windowbg, #manage_maintenance div.windowbg2 {
-	background: none;
-	padding: 0 0 12px 0;
-	margin: 0;
-}
-#manage_maintenance p {
-	margin: -5px 0 0 0;
-	padding: 0 0 10px 0;
-	max-width: 70em;
-}
-#manage_maintenance p .button_submit{
-	margin: 10px 10px 0px 10px;
-}
-/* Stop the submit buttons running away on wide screens.*/
-#manage_maintenance form {
-	max-width: 80em;
-}
-#manage_maintenance .settings {
-	margin: 16px 0 0 0;
-}
-
-/* Styles for the question and answers
-------------------------------------------------- */
+/* Styles for the question and answers */
 fieldset.qa_fieldset {
 	clear: both;
 	display: none;
 }
 
-/* Styles for the manage calendar section.
-------------------------------------------------- */
+/* Styles for the manage calendar section. */
 dl.settings dt.small_caption {
 	width: 20%;
 }
@@ -776,8 +552,7 @@ dl.settings dd.small_caption {
 	width: 79%;
 }
 
-/* Styles for the manage search section.
-------------------------------------------------- */
+/* Styles for the manage search section. */
 dl.settings dt.large_caption {
 	width: 70%;
 }
@@ -793,8 +568,7 @@ span.search_weight {
 	width: 47%;
 }
 
-/* Styles for the manage bans section.
-------------------------------------------------- */
+/* Styles for the manage bans section. */
 .ban_restriction {
 	margin: 0.2em 0 0.2em 2.2em;
 }
@@ -808,8 +582,7 @@ span.search_weight {
 	margin-bottom: 0;
 }
 
-/* Styles for the manage subscriptions section.
-------------------------------------------------- */
+/* Styles for the manage subscriptions section. */
 #fixed_area {
 	width: 97%;
 }
@@ -821,8 +594,7 @@ ul.pending_payments li {
 	list-style-type: none;
 }
 
-/* Styles for the manage permissions section.
-------------------------------------------------- */
+/* Styles for the manage permissions section. */
 .perm_name, .perm_profile, .perm_board {
 	display: block;
 	width: 40%;
@@ -834,8 +606,11 @@ ul.pending_payments li {
 .perm_boards li {
 	list-style-type: none;
 	border: 1px solid #cacdd3;
+	border-top: 0;
 	padding: 0.2em;
-	margin: 1px;
+}
+.perm_boards li:first-child {
+	border-top: 1px solid #cacdd3;
 }
 .perm_groups {
 	background-color: #fff;
@@ -869,8 +644,7 @@ dl.admin_permissions dd {
 	text-align: center;
 }
 
-/* Styles for the themes section.
-------------------------------------------------- */
+/* Styles for the themes section. */
 ul.theme_options {
 	padding: 0;
 	margin: 0;
@@ -901,8 +675,7 @@ dl.themes_list dd {
 	white-space: nowrap;
 }
 
-/* Styles for the registration center.
-------------------------------------------------- */
+/* Styles for the registration center. */
 .agreement, .reserved_names {
 	padding: 0;
 }
@@ -910,8 +683,7 @@ dl.themes_list dd {
 	width: 99%;
 }
 
-/* Styles for the moderation center.
-------------------------------------------------- */
+/* Styles for the moderation center. */
 #modcenter {
 	display: block;
 	width: 100%;
@@ -936,9 +708,7 @@ ul.moderation_notes li {
 	width: 85%;
 }
 
-/* Styles for the error log.
-------------------------------------------------- */
-
+/* Styles for the error log. */
 h3.grid_header {
 	height: 25px;
 }
@@ -950,7 +720,7 @@ h3.grid_header {
 	line-height: 160%;
 }
 #error_log td div {
-	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	box-sizing: border-box;
 }
 #error_log td.checkbox_column {
 	width: 15px;
@@ -962,9 +732,7 @@ h3.grid_header {
 	margin: 0 8px 0 0;
 }
 
-
-/* More error log stuff. Could still be cleaned up a bit.
---------------------------------------------------*/
+/* More error log stuff. Could still be cleaned up a bit. */
 #error_log {
 	margin: 4px 0;
 }
@@ -975,8 +743,7 @@ h3.grid_header {
 	padding: 8px;
 }
 
-/* Styles for the Report generation
-------------------------------------------------- */
+/* Styles for the Report generation */
 #report_buttons {
 	min-height: 2.4em;
 	padding: 3px 0;
@@ -986,80 +753,38 @@ h3.grid_header {
 	border-right: 1px solid #ddd;
 }
 
-/* Try out some nifty small screen friendliness, for the cost of a few more bytes. */
-
-@media screen and (max-width: 490px),(max-width: 32em) {
-	body {
-		padding: 0;
-	}
-	#wrapper, #footer_section div.frame {
-		min-width: 100%;
-	}
-	#main_content_section {
-		padding: 0 10px;
-	}
-	/* Level 1 button background. */
-	.dropmenu li {
-		line-height: 3.2em;
-	}
-	.dropmenu li ul {
-		top: 3.45em;
-	}
-	.dropmenu li li a {
-		line-height: 3.2em;
-	}
-	h3.catbg #quick_search form {
-		margin: 0 0 8px 0;
-		padding: 0;
-	}
-	h3.catbg #quick_search form input {
-		margin: 0 0 12px 0;
-	}
-	h3.catbg #quick_search form select option {
-		padding: 4px 4px;
-	}
-	h3.catbg #quick_search form .button_submit {
-		margin: 0 3px 0 3px;
-	}
-	#live_news, #supportVersionsTable {
-		width: 100%;
-	}
-	#live_news {
-		margin: 0 0 6px 0;
-	}
-	#supportVersionsTable {
-		padding: 0;
-	}
-	#quick_tasks ul li span {
-		display: block;
-		margin: 0 0 0 50px;
-	}
-	#credits_page {
-		padding-top: 35px;
-	}
-	#credits_page img {
-		right: 6px;
-	}
-	#manage_boards .catbg {
-		margin-top: 10px;
-	}
-	#manage_boards .windowbg {
-		line-height: 3.2em;
-	}
-	#manage_boards ul {
-		max-height: 120em;
-		padding: 0 0 10px 0;
-	}
-	#manage_boards dd, #manage_boards dt {
-		width: 100%;
-	}
-	#manage_boards dt {
-		line-height: 1.6em;
-	}
-}
-/* These kids and their new-fangled thingummys. :P */
-/* When I were a lad, things were different! */
-
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
+}
+#taskpad .button_submit, #admincenter, #admin_form_wrapper {
+	margin: 5px 0 5px 0;
+}
+h3.config_hd {
+	background: url(../images/icons/config_hd.png) no-repeat 12px;
+	padding: 8px 0 8px 45px;
+}
+.full_width {
+	width: 100%;
+}
+.winfo {
+	border-radius: 0;
+	border-bottom: 0;
+	margin: 0;
+}
+
+#postmod .windowbg2 {
+	text-align: center;
+}
+
+.half_table {
+	width: 50%;
+}
+.quarter_table {
+	width: 25%;
+}
+#versions .table_grid {
+	margin: 0;
+}
+#Sources .half_table, #Default .half_table, #Languages .half_table {
+	padding-left: 20px;
 }

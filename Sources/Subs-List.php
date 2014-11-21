@@ -9,7 +9,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -75,7 +75,9 @@ function createList($listOptions)
 		// First get an impression of how many items to expect.
 		if (isset($listOptions['get_count']['file']))
 			require_once($listOptions['get_count']['file']);
-		$list_context['total_num_items'] = call_user_func_array($listOptions['get_count']['function'], empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+
+		$call = call_helper($listOptions['get_count']['function'], true);
+		$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
 
 		// Default the start to the beginning...sounds logical.
 		$list_context['start'] = isset($_REQUEST[$list_context['start_var_name']]) ? (int) $_REQUEST[$list_context['start_var_name']] : 0;
@@ -108,7 +110,8 @@ function createList($listOptions)
 		require_once($listOptions['get_items']['file']);
 
 	// Call the function and include which items we want and in what order.
-	$list_items = call_user_func_array($listOptions['get_items']['function'], array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
+	$call = call_helper($listOptions['get_items']['function'], true);
+	$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
 	$list_items = empty($list_items) ? array() : $list_items;
 
 	// Loop through the list items to be shown and construct the data values.

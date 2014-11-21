@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
@@ -70,7 +70,7 @@ function ManageNews()
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -152,15 +152,15 @@ function EditNews()
 					'value' => $txt['admin_edit_news'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width 100%;margin 0 5em') . ';">' . $news['unparsed'] . '</textarea>
 							<br>
-							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
+							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
-							return $news[\'unparsed\'];
-					'),
+							return $news['unparsed'];
+					},
 					'style' => 'width: 50%;',
 				),
 			),
@@ -169,10 +169,10 @@ function EditNews()
 					'value' => $txt['preview'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						return \'<div id="box_preview_\' . $news[\'id\'] . \'" style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
-					'),
+					'function' => function ($news)
+					{
+						return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
+					},
 					'style' => 'width: 45%;',
 				),
 			),
@@ -182,13 +182,13 @@ function EditNews()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check">\';
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
 						else
-							return \'\';
-					'),
+							return '';
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -434,7 +434,7 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview ()
 {
-	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	global $context, $modSettings, $scripturl, $user_info, $txt;
 	loadLanguage('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
@@ -495,7 +495,7 @@ function prepareMailingForPreview ()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc, $scripturl;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Setup the template!
 	$context['page_title'] = $txt['admin_newsletters'];
@@ -801,7 +801,7 @@ function SendMailing($clean_only = false)
 		foreach ($addressed as $curmem)
 		{
 			$curmem = trim($curmem);
-			if ($curmem != '' && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $curmem) !== 0)
+			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
 				$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}

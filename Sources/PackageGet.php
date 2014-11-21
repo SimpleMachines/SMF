@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function PackageGet()
 {
-	global $txt, $scripturl, $context, $boarddir, $sourcedir;
+	global $txt, $context, $sourcedir;
 
 	isAllowedTo('admin_forum');
 	require_once($sourcedir . '/Subs-Package.php');
@@ -65,9 +65,6 @@ function PackageGet()
 			'packageget' => array(
 				'description' => $txt['download_packages_desc'],
 			),
-			'installed' => array(
-				'description' => $txt['installed_packages_desc'],
-			),
 			'perms' => array(
 				'description' => $txt['package_file_perms_desc'],
 			),
@@ -77,7 +74,9 @@ function PackageGet()
 		),
 	);
 
-	$subActions[$context['sub_action']]();
+	call_integration_hook('integrate_package_get', array(&$subActions));
+
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
@@ -85,7 +84,7 @@ function PackageGet()
  */
 function PackageServers()
 {
-	global $txt, $scripturl, $context, $boarddir, $sourcedir, $packagesdir, $modSettings, $smcFunc;
+	global $txt, $context, $sourcedir, $packagesdir, $modSettings, $smcFunc;
 
 	// Ensure we use the correct template, and page title.
 	$context['sub_template'] = 'servers';
@@ -174,7 +173,24 @@ function PackageServers()
 	addInlineJavascript('
 	$(\'.new_package_content\').hide();
 	$(\'.download_new_package\').on(\'click\', function() {
-		$(\'.new_package_content\').css(\'display\') == \'none\' ? $(\'.new_package_content\').show(\'slow\') : $(\'.new_package_content\').hide(\'slow\'); 
+		var collapseState = $(\'.new_package_content\').css(\'display\');
+		var icon = $(\'.download_new_package\').children(\'span\');
+		var collapsedDiv = $(\'.new_package_content\');
+
+		if (collapseState == \'none\')
+		{
+			collapsedDiv.show(\'slow\');
+			icon.removeClass(\'toggle_down\').addClass(\'toggle_up\');
+			icon.prop(\'title\', '. JavaScriptEscape($txt['hide']) .');
+		}
+
+		else
+		{
+			collapsedDiv.hide(\'slow\');
+			icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
+			icon.prop(\'title\', '. JavaScriptEscape($txt['show']) .');
+		}
+
 	});', true);
 }
 
@@ -183,7 +199,7 @@ function PackageServers()
  */
 function PackageGBrowse()
 {
-	global $txt, $boardurl, $context, $scripturl, $boarddir, $sourcedir, $forum_version, $smcFunc;
+	global $txt, $context, $scripturl, $sourcedir, $forum_version, $smcFunc;
 
 	if (isset($_GET['server']))
 	{
@@ -269,7 +285,7 @@ function PackageGBrowse()
 
 	// Use the package list's name if it exists.
 	if ($listing->exists('list-title'))
-		$name = $listing->fetch('list-title');
+		$name = $smcFunc['htmlspecialchars']($listing->fetch('list-title'));
 
 	// Pick the correct template.
 	$context['sub_template'] = 'package_list';
@@ -291,7 +307,7 @@ function PackageGBrowse()
 	if ($listing->exists('default-author'))
 	{
 		$default_author = $smcFunc['htmlspecialchars']($listing->fetch('default-author'));
-		if ($listing->exists('default-author/@email'))
+		if ($listing->exists('default-author/@email') && filter_var($thisPackage->fetch('default-author/@email'), FILTER_VALIDATE_EMAIL))
 			$default_email = $smcFunc['htmlspecialchars']($listing->fetch('default-author/@email'));
 	}
 
@@ -401,14 +417,13 @@ function PackageGBrowse()
 				$package['download_conflict'] = is_array($already_exists) && $already_exists['id'] == $package['id'] && $already_exists['version'] != $package['version'];
 
 				$package['href'] = $url . '/' . $package['filename'];
-				$package['name'] = $smcFunc['htmlspecialchars']($package['name']);
 				$package['link'] = '<a href="' . $package['href'] . '">' . $package['name'] . '</a>';
 				$package['download']['href'] = $scripturl . '?action=admin;area=packages;get;sa=download' . $server_att . ';package=' . $current_url . $package['filename'] . ($package['download_conflict'] ? ';conflict' : '') . ';' . $context['session_var'] . '=' . $context['session_id'];
 				$package['download']['link'] = '<a href="' . $package['download']['href'] . '">' . $package['name'] . '</a>';
 
 				if ($thisPackage->exists('author') || isset($default_author))
 				{
-					if ($thisPackage->exists('author/@email'))
+					if ($thisPackage->exists('author/@email') && filter_var($thisPackage->fetch('author/@email'), FILTER_VALIDATE_EMAIL))
 						$package['author']['email'] = $thisPackage->fetch('author/@email');
 					elseif (isset($default_email))
 						$package['author']['email'] = $default_email;
@@ -419,11 +434,7 @@ function PackageGBrowse()
 						$package['author']['name'] = $default_author;
 
 					if (!empty($package['author']['email']))
-					{
-						// Only put the "mailto:" if it looks like a valid email address.  Some may wish to put a link to an SMF IM Form or other web mail form.
-						$package['author']['href'] = preg_match('~^[\w\.\-]+@[\w][\w\-\.]+[\w]$~', $package['author']['email']) != 0 ? 'mailto:' . $package['author']['email'] : $package['author']['email'];
-						$package['author']['link'] = '<a href="' . $package['author']['href'] . '">' . $package['author']['name'] . '</a>';
-					}
+						$package['author']['link'] = '<a href="mailto:' . $package['author']['email'] . '">' . $package['author']['name'] . '</a>';
 				}
 
 				if ($thisPackage->exists('website') || isset($default_website))
@@ -438,23 +449,12 @@ function PackageGBrowse()
 						$package['author']['website']['name'] = $default_website;
 
 					if ($thisPackage->exists('website') && $thisPackage->fetch('website') != '')
-						$authorhompage = $thisPackage->fetch('website');
+						$authorhompage = $smcFunc['htmlspecialchars']($thisPackage->fetch('website'));
 					else
 						$authorhompage = $default_website;
 
-					if (stripos($authorhompage, 'a href') === false)
-					{
-						$package['author']['website']['href'] = $authorhompage;
-						$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
-					}
-					else
-					{
-						if (preg_match('/a href="(.+?)"/', $authorhompage, $match) == 1)
-							$package['author']['website']['href'] = $match[1];
-						else
-							$package['author']['website']['href'] = '';
-						$package['author']['website']['link'] = $authorhompage;
-					}
+					$package['author']['website']['href'] = $authorhompage;
+					$package['author']['website']['link'] = '<a href="' . $authorhompage . '">' . $package['author']['website']['name'] . '</a>';
 				}
 				else
 				{
@@ -499,12 +499,27 @@ function PackageGBrowse()
 			{
 				$installs = $packageInfo['xml']->set('install');
 				foreach ($installs as $install)
+				{
 					if (!$install->exists('@for') || matchPackageVersion($the_version, $install->fetch('@for')))
 					{
 						// Okay, this one is good to go.
 						$context['package_list'][$ps_id]['items'][$i]['can_install'] = true;
 						break;
 					}
+
+					// no install found for this version, lets see if one exists for another
+					if ($context['package_list'][$ps_id]['items'][$i]['can_install'] === false && $install->exists('@for'))
+					{
+						$reset = true;
+
+						// Get the highest install version that is available from the package
+						foreach ($installs as $install)
+						{
+							$context['package_list'][$ps_id]['items'][$i]['can_emulate_install'] = matchHighestPackageVersion($install->fetch('@for'), $reset, $the_version);
+							$reset = false;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -515,7 +530,7 @@ function PackageGBrowse()
  */
 function PackageDownload()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir, $smcFunc;
+	global $txt, $scripturl, $context, $packagesdir, $smcFunc;
 
 	// Use the downloaded sub template.
 	$context['sub_template'] = 'downloaded';
@@ -624,7 +639,7 @@ function PackageDownload()
  */
 function PackageUpload()
 {
-	global $txt, $scripturl, $boarddir, $context, $sourcedir, $packagesdir;
+	global $txt, $scripturl, $context, $packagesdir;
 
 	// Setup the correct template, even though I'll admit we ain't downloading ;)
 	$context['sub_template'] = 'downloaded';

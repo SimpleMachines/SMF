@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; ManagePermissions
+// Version: 2.1 Beta 1; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -89,7 +89,7 @@ $txt['permissions_option_any'] = 'Any';
 $txt['permissions_option_on'] = 'A';
 $txt['permissions_option_off'] = 'X';
 $txt['permissions_option_deny'] = 'D';
-$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span style="color: red;">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
+$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span class="red">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
@@ -100,8 +100,6 @@ $txt['permissionname_who_view'] = 'View Who\'s Online';
 $txt['permissionhelp_who_view'] = 'Who\'s online shows all members that are currently online and what they are doing at that moment. This permission will only work if you also have enabled it in \'Features and Options\'. You can access the \'Who\'s Online\' screen by clicking the link in the \'Users Online\' section of the board index. Even if this is denied, members will still be able to see who\'s online, just not where they are.';
 $txt['permissionname_search_posts'] = 'Search for posts and topics';
 $txt['permissionhelp_search_posts'] = 'The Search permission allows the user to search all boards he or she is allowed to access. When the search permission is enabled, a \'Search\' button will be added to the forum button bar.';
-$txt['permissionname_karma_edit'] = 'Change other people\'s karma';
-$txt['permissionhelp_karma_edit'] = 'Karma is a feature that shows the popularity of a member. In order to use this feature, you need to have it enabled in \'Features and Options\'. This permission will allow a membergroup to cast a vote. This permission has no effect on guests.';
 
 $txt['permissiongroup_pm'] = 'Personal Messaging';
 $txt['permissionname_pm_read'] = 'Read personal messages';
@@ -238,11 +236,21 @@ $txt['permissionname_modify_any'] = 'Any post';
 $txt['permissionname_report_any'] = 'Report posts to the moderators';
 $txt['permissionhelp_report_any'] = 'This permission adds a link to each message, allowing a user to report a post to a moderator. On reporting, all moderators on that board will receive an email with a link to the reported post and a description of the problem (as given by the reporting user).';
 
+$txt['permissiongroup_likes'] = 'Likes';
+$txt['permissionname_likes_view'] = 'View likes';
+$txt['permissionhelp_likes_view'] = 'This permission allows an user to view any likes. Without this permission, the user will only see the likes she/he has made.';
+$txt['permissionname_likes_like'] = 'Can like any content';
+$txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
+
+$txt['permissiongroup_mentions'] = 'Mentions';
+$txt['permissionname_mention'] = 'Mention others via @name';
+$txt['permissionhelp_mention'] = 'This permission allows a user to mention other users by @name. For example, user Jack could be mentioned using @Jack by a user when given this permission.';
+
 $txt['permissiongroup_poll'] = 'Polls';
 $txt['permissionname_poll_view'] = 'View polls';
 $txt['permissionhelp_poll_view'] = 'This permission allows a user to view a poll. Without this permission, the user will only see the topic.';
 $txt['permissionname_poll_vote'] = 'Vote in polls';
-$txt['permissionhelp_poll_vote'] = 'This permission allows a (registered) user to cast one vote. It doesn\'t apply to guests.';
+$txt['permissionhelp_poll_vote'] = 'This permission allows a user to cast one vote. <br><br><strong>Note on guest voting:</strong> SMF uses cookies to attempt to prevent guests from voting multiple times. However, it should be noted that nothing can be done to completely prevent guests from voting twice, and as such, results may not be reliable. Also note that guest voting must be enabled on a per-poll basis.';
 $txt['permissionname_poll_post'] = 'Post polls';
 $txt['permissionhelp_poll_post'] = 'This permission allows a user to post a new poll. The user needs to have the \'Post new topics\' permission.';
 $txt['permissionname_poll_add'] = 'Add poll to topics';
@@ -263,13 +271,9 @@ $txt['permissionname_poll_remove_own'] = 'Own poll';
 $txt['permissionname_poll_remove_any'] = 'Any poll';
 
 $txt['permissionname_post_draft'] = 'Save drafts of new posts';
-$txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
-$txt['permissionname_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
-$txt['permissionhelp_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionname_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
-$txt['permissionhelp_pm_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of their posts so they can complete them later.';
 $txt['permissionname_pm_draft'] = 'Save drafts of personal messages';
-$txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
+$txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of their personal messages so they can complete them later.';
 
 $txt['permissiongroup_approval'] = 'Post Moderation';
 $txt['permissionname_approve_posts'] = 'Approve items awaiting moderation';

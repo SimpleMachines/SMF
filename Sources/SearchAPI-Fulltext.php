@@ -8,7 +8,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -42,7 +42,7 @@ class fulltext_search extends search_api
 	 */
 	public function __construct()
 	{
-		global $smcFunc, $modSettings, $db_type;
+		global $modSettings, $db_type;
 
 		// Is this database supported?
 		if (!in_array($db_type, $this->supported_databases))

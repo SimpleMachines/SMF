@@ -12,7 +12,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -43,8 +43,6 @@ function ManageMail()
 		'settings' => 'ModifyMailSettings',
 	);
 
-	call_integration_hook('integrate_manage_mail', array(&$subActions));
-
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -56,8 +54,10 @@ function ManageMail()
 		'description' => $txt['mailqueue_desc'],
 	);
 
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -66,7 +66,7 @@ function ManageMail()
 function BrowseMailQueue()
 {
 	global $scripturl, $context, $txt, $smcFunc;
-	global $sourcedir;
+	global $sourcedir, $modSettings;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
@@ -98,7 +98,7 @@ function BrowseMailQueue()
 	$listOptions = array(
 		'id' => 'mail_queue',
 		'title' => $txt['mailqueue_browse'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=mailqueue',
 		'default_sort_col' => 'age',
 		'no_items_label' => $txt['mailqueue_no_items'],
@@ -114,10 +114,10 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_subject'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $smcFunc;
-						return $smcFunc[\'strlen\']($rowData[\'subject\']) > 50 ? sprintf(\'%1$s...\', $smcFunc[\'htmlspecialchars\']($smcFunc[\'substr\']($rowData[\'subject\'], 0, 47))) : $smcFunc[\'htmlspecialchars\']($rowData[\'subject\']);
-					'),
+					'function' => function ($rowData) use ($smcFunc)
+					{
+						return $smcFunc['strlen']($rowData['subject']) > 50 ? sprintf('%1$s...', $smcFunc['htmlspecialchars']($smcFunc['substr']($rowData['subject'], 0, 47))) : $smcFunc['htmlspecialchars']($rowData['subject']);
+					},
 					'class' => 'smalltext',
 				),
 				'sort' => array(
@@ -148,15 +148,14 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_priority'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
+					'function' => function ($rowData) use ($txt)
+					{
 						// We probably have a text label with your priority.
-						$txtKey = sprintf(\'mq_mpriority_%1$s\', $rowData[\'priority\']);
+						$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
 
 						// But if not, revert to priority 0.
-						return isset($txt[$txtKey]) ? $txt[$txtKey] : $txt[\'mq_mpriority_1\'];
-					'),
+						return isset($txt[$txtKey]) ? $txt[$txtKey] : $txt['mq_mpriority_1'];
+					},
 					'class' => 'smalltext',
 				),
 				'sort' => array(
@@ -169,9 +168,10 @@ function BrowseMailQueue()
 					'value' => $txt['mailqueue_age'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return time_since(time() - $rowData[\'time_sent\']);
-					'),
+					'function' => function ($rowData)
+					{
+						return time_since(time() - $rowData['time_sent']);
+					},
 					'class' => 'smalltext',
 				),
 				'sort' => array(
@@ -184,9 +184,10 @@ function BrowseMailQueue()
 					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return \'<input type="checkbox" name="delete[]" value="\' . $rowData[\'id_mail\'] . \'" class="input_check">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="checkbox" name="delete[]" value="' . $rowData['id_mail'] . '" class="input_check">';
+					},
 					'class' => 'smalltext',
 				),
 			),
@@ -298,7 +299,7 @@ function ModifyMailSettings($return_config = false)
 
 	$config_vars = array(
 			// Mail queue stuff, this rocks ;)
-			array('int', 'mail_limit'),
+			array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
 			array('int', 'mail_quantity'),
 		'',
 			// SMTP stuff.

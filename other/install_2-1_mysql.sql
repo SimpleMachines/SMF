@@ -26,8 +26,7 @@ VALUES
 	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
 	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
 	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(5, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
+	(4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
 # --------------------------------------------------------
 
 #
@@ -159,7 +158,6 @@ VALUES (-1, 1, 'poll_view'),
 	(0, 1, 'post_attachment'),
 	(0, 1, 'post_new'),
 	(0, 1, 'post_draft'),
-	(0, 1, 'post_autosave_draft'),
 	(0, 1, 'post_reply_any'),
 	(0, 1, 'post_reply_own'),
 	(0, 1, 'post_unapproved_topics'),
@@ -172,7 +170,6 @@ VALUES (-1, 1, 'poll_view'),
 	(2, 1, 'moderate_board'),
 	(2, 1, 'post_new'),
 	(2, 1, 'post_draft'),
-	(2, 1, 'post_autosave_draft'),
 	(2, 1, 'post_reply_own'),
 	(2, 1, 'post_reply_any'),
 	(2, 1, 'post_unapproved_topics'),
@@ -204,7 +201,6 @@ VALUES (-1, 1, 'poll_view'),
 	(3, 1, 'moderate_board'),
 	(3, 1, 'post_new'),
 	(3, 1, 'post_draft'),
-	(3, 1, 'post_autosave_draft'),
 	(3, 1, 'post_reply_own'),
 	(3, 1, 'post_reply_any'),
 	(3, 1, 'post_unapproved_topics'),
@@ -242,7 +238,6 @@ VALUES (-1, 1, 'poll_view'),
 	(0, 2, 'post_attachment'),
 	(0, 2, 'post_new'),
 	(0, 2, 'post_draft'),
-	(0, 2, 'post_autosave_draft'),
 	(0, 2, 'post_reply_any'),
 	(0, 2, 'post_reply_own'),
 	(0, 2, 'post_unapproved_topics'),
@@ -255,7 +250,6 @@ VALUES (-1, 1, 'poll_view'),
 	(2, 2, 'moderate_board'),
 	(2, 2, 'post_new'),
 	(2, 2, 'post_draft'),
-	(2, 2, 'post_autosave_draft'),
 	(2, 2, 'post_reply_own'),
 	(2, 2, 'post_reply_any'),
 	(2, 2, 'post_unapproved_topics'),
@@ -287,7 +281,6 @@ VALUES (-1, 1, 'poll_view'),
 	(3, 2, 'moderate_board'),
 	(3, 2, 'post_new'),
 	(3, 2, 'post_draft'),
-	(3, 2, 'post_autosave_draft'),
 	(3, 2, 'post_reply_own'),
 	(3, 2, 'post_reply_any'),
 	(3, 2, 'post_unapproved_topics'),
@@ -334,7 +327,6 @@ VALUES (-1, 1, 'poll_view'),
 	(2, 3, 'moderate_board'),
 	(2, 3, 'post_new'),
 	(2, 3, 'post_draft'),
-	(2, 3, 'post_autosave_draft'),
 	(2, 3, 'post_reply_own'),
 	(2, 3, 'post_reply_any'),
 	(2, 3, 'post_unapproved_topics'),
@@ -366,7 +358,6 @@ VALUES (-1, 1, 'poll_view'),
 	(3, 3, 'moderate_board'),
 	(3, 3, 'post_new'),
 	(3, 3, 'post_draft'),
-	(3, 3, 'post_autosave_draft'),
 	(3, 3, 'post_reply_own'),
 	(3, 3, 'post_reply_any'),
 	(3, 3, 'post_unapproved_topics'),
@@ -403,7 +394,6 @@ VALUES (-1, 1, 'poll_view'),
 	(2, 4, 'moderate_board'),
 	(2, 4, 'post_new'),
 	(2, 4, 'post_draft'),
-	(2, 4, 'post_autosave_draft'),
 	(2, 4, 'post_reply_own'),
 	(2, 4, 'post_reply_any'),
 	(2, 4, 'post_unapproved_topics'),
@@ -435,7 +425,6 @@ VALUES (-1, 1, 'poll_view'),
 	(3, 4, 'moderate_board'),
 	(3, 4, 'post_new'),
 	(3, 4, 'post_draft'),
-	(3, 4, 'post_autosave_draft'),
 	(3, 4, 'post_reply_own'),
 	(3, 4, 'post_reply_any'),
 	(3, 4, 'post_unapproved_topics'),
@@ -885,19 +874,6 @@ CREATE TABLE {$db_prefix}log_group_requests (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `log_karma`
-#
-
-CREATE TABLE {$db_prefix}log_karma (
-  id_target mediumint(8) unsigned NOT NULL default '0',
-  id_executor mediumint(8) unsigned NOT NULL default '0',
-  log_time int(10) unsigned NOT NULL default '0',
-  action tinyint(4) NOT NULL default '0',
-  PRIMARY KEY (id_target, id_executor),
-  KEY log_time (log_time)
-) ENGINE=MyISAM;
-
-#
 # Table structure for table `log_mark_read`
 #
 
@@ -1019,7 +995,6 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report mediumint(8) NOT NULL default '0',
   id_member mediumint(8) NOT NULL,
   membername varchar(255) NOT NULL default '',
-  email_address varchar(255) NOT NULL default '',
   member_ip varchar(255) NOT NULL default '',
   comment varchar(255) NOT NULL default '',
   time_sent int(10) NOT NULL,
@@ -1093,7 +1068,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 	id_hit int(10) unsigned NOT NULL auto_increment,
   id_spider smallint(5) unsigned NOT NULL default '0',
   log_time int(10) unsigned NOT NULL default '0',
-  url varchar(255) NOT NULL default '',
+  url varchar(1024) NOT NULL default '',
   processed tinyint(3) NOT NULL default '0',
   PRIMARY KEY (id_hit),
   KEY id_spider(id_spider),
@@ -1227,7 +1202,6 @@ CREATE TABLE {$db_prefix}members (
   pm_prefs mediumint(8) NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
   passwd varchar(64) NOT NULL default '',
-  openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL default '',
   personal_text varchar(255) NOT NULL default '',
   birthdate date NOT NULL default '0001-01-01',
@@ -1239,9 +1213,6 @@ CREATE TABLE {$db_prefix}members (
   signature text NOT NULL,
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL default '',
-  pm_email_notify tinyint(4) NOT NULL default '0',
-  karma_bad smallint(5) unsigned NOT NULL default '0',
-  karma_good smallint(5) unsigned NOT NULL default '0',
   usertitle varchar(255) NOT NULL default '',
   notify_announcements tinyint(4) NOT NULL default '1',
   notify_regularity tinyint(4) NOT NULL default '1',
@@ -1264,6 +1235,7 @@ CREATE TABLE {$db_prefix}members (
   warning tinyint(4) NOT NULL default '0',
   passwd_flood varchar(12) NOT NULL default '',
   pm_receive_from tinyint(4) unsigned NOT NULL default '1',
+  timezone varchar(80) NOT NULL DEFAULT 'UTC',
   PRIMARY KEY (id_member),
   KEY member_name (member_name),
   KEY real_name (real_name),
@@ -1398,21 +1370,6 @@ CREATE TABLE {$db_prefix}moderator_groups (
 ) ENGINE=MyISAM;
 
 #
-# Table structure for table `openid_assoc`
-#
-
-CREATE TABLE {$db_prefix}openid_assoc (
-  server_url text NOT NULL,
-  handle varchar(255) NOT NULL default '',
-  secret text NOT NULL,
-  issued int(10) NOT NULL default '0',
-  expires int(10) NOT NULL default '0',
-  assoc_type varchar(64) NOT NULL,
-  PRIMARY KEY (server_url(125), handle(125)),
-  KEY expires (expires)
-) ENGINE=MyISAM;
-
-#
 # Table structure for table `package_servers`
 #
 
@@ -1477,7 +1434,6 @@ VALUES (-1, 'search_posts'),
 	(0, 'pm_read'),
 	(0, 'pm_send'),
 	(0, 'pm_draft'),
-	(0, 'pm_autosave_draft'),
 	(0, 'calendar_view'),
 	(0, 'view_stats'),
 	(0, 'who_view'),
@@ -1494,14 +1450,12 @@ VALUES (-1, 'search_posts'),
 	(0, 'profile_upload_avatar'),
 	(0, 'profile_remote_avatar'),
 	(0, 'send_email_to_members'),
-	(0, 'karma_edit'),
 	(2, 'view_mlist'),
 	(2, 'search_posts'),
 	(2, 'profile_view'),
 	(2, 'pm_read'),
 	(2, 'pm_send'),
 	(2, 'pm_draft'),
-	(2, 'pm_autosave_draft'),
 	(2, 'calendar_view'),
 	(2, 'view_stats'),
 	(2, 'who_view'),
@@ -1521,7 +1475,6 @@ VALUES (-1, 'search_posts'),
 	(2, 'profile_title_own'),
 	(2, 'calendar_post'),
 	(2, 'calendar_edit_any'),
-	(2, 'karma_edit'),
 	(2, 'access_mod_center');
 # --------------------------------------------------------
 
@@ -1653,6 +1606,7 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
   time_unit varchar(1) NOT NULL default 'h',
   disabled tinyint(3) NOT NULL default '0',
   task varchar(24) NOT NULL default '',
+  callable varchar(60) NOT NULL default '',
   PRIMARY KEY (id_task),
   KEY next_time (next_time),
   KEY disabled (disabled),
@@ -1664,19 +1618,19 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
 #
 
 INSERT INTO {$db_prefix}scheduled_tasks
-	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(1, 0, 0, 2, 'h', 0, 'approval_notification'),
-	(3, 0, 60, 1, 'd', 0, 'daily_maintenance'),
-	(5, 0, 0, 1, 'd', 0, 'daily_digest'),
-	(6, 0, 0, 1, 'w', 0, 'weekly_digest'),
-	(7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles'),
-	(8, 0, 0, 1, 'd', 1, 'birthdayemails'),
-	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance'),
-	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions'),
-	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments'),
-	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect'),
-	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts');
+	(1, 0, 0, 2, 'h', 0, 'approval_notification', ''),
+	(3, 0, 60, 1, 'd', 0, 'daily_maintenance', ''),
+	(5, 0, 0, 1, 'd', 0, 'daily_digest', ''),
+	(6, 0, 0, 1, 'w', 0, 'weekly_digest', ''),
+	(7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles', ''),
+	(8, 0, 0, 1, 'd', 1, 'birthdayemails', ''),
+	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance', ''),
+	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions', ''),
+	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', ''),
+	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', ''),
+	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 
 # --------------------------------------------------------
 
@@ -1701,16 +1655,9 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('compactTopicPagesContiguous', '5'),
 	('compactTopicPagesEnable', '1'),
 	('todayMod', '1'),
-	('karmaMode', '0'),
-	('karmaTimeRestrictAdmins', '1'),
 	('enablePreviousNext', '1'),
 	('pollMode', '1'),
 	('enableCompressedOutput', '{$enableCompressedOutput}'),
-	('karmaWaitTime', '1'),
-	('karmaMinPosts', '0'),
-	('karmaLabel', '{$default_karmaLabel}'),
-	('karmaSmiteLabel', '{$default_karmaSmiteLabel}'),
-	('karmaApplaudLabel', '{$default_karmaApplaudLabel}'),
 	('attachmentSizeLimit', '128'),
 	('attachmentPostLimit', '192'),
 	('attachmentNumPerPostLimit', '4'),
@@ -1875,7 +1822,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('attachment_thumb_png', '1'),
 	('avatar_reencode', '1'),
 	('avatar_paranoid', '0'),
-	('enable_unwatch', '0'),
 	('drafts_post_enabled', '1'),
 	('drafts_pm_enabled', '1'),
 	('drafts_autosave_enabled', '1'),
@@ -1885,12 +1831,18 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('browser_cache', '?alph21'),
 	('mail_limit', '5'),
 	('mail_quantity', '5'),
-	('admin_bbc', '1'),
 	('additional_options_collapsable', '1'),
 	('show_modify', '1'),
 	('show_user_images', '1'),
 	('show_blurb', '1'),
-	('show_profile_buttons', '1');
+	('show_profile_buttons', '1'),
+	('enable_ajax_alerts', '1'),
+	('gravatarEnabled', '1'),
+	('gravatarOverride', '0'),
+	('gravatarAllowExtraEmail', '1'),
+	('gravatarMaxRating', 'PG'),
+	('defaultMaxListItems', '15'),
+	('loginHistoryDays', '30');
 
 # --------------------------------------------------------
 
@@ -2037,11 +1989,10 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
 	(1, 'show_stats_index', '1'),
-	(1, 'newsfader_time', '5000'),
+	(1, 'newsfader_time', '500'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
 	(1, 'forum_width', '90%'),
-	(1, 'drafts_autosave_enabled', '1'),
 	(1, 'drafts_show_saved_enabled', '1');
 
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
@@ -2171,3 +2122,18 @@ CREATE TABLE {$db_prefix}user_likes (
   INDEX content (content_id, content_type),
   INDEX liker (id_member)
 ) ENGINE=MyISAM;
+
+#
+# Table structure for table `mentions`
+#
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned),
+  INDEX content (content_id, content_type),
+  INDEX mentionee (id_member)
+) ENGINE=MyISAM;
+---#

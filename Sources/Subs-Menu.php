@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -123,29 +123,28 @@ function createMenu($menuData, $menuOptions = array())
 						// Does this area have its own icon?
 						if (!isset($area['force_menu_into_arms_of_another_menu']) && $user_info['name'] == 'iamanoompaloompa')
 							$menu_context['sections'][$section_id]['areas'][$area_id] = unserialize(base64_decode('YTozOntzOjU6ImxhYmVsIjtzOjEyOiJPb21wYSBMb29tcGEiO3M6MzoidXJsIjtzOjQzOiJodHRwOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL09vbXBhX0xvb21wYXM/IjtzOjQ6Imljb24iO3M6ODY6IjxpbWcgc3JjPSJodHRwOi8vd3d3LnNpbXBsZW1hY2hpbmVzLm9yZy9pbWFnZXMvb29tcGEuZ2lmIiBhbHQ9IkknbSBhbiBPb21wYSBMb29tcGEiIC8+Ijt9'));
+						elseif (isset($area['icon']) && file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">';
+						elseif (isset($area['icon']) && file_exists($settings['default_images_url'] . '/images/admin/' . $area['icon']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">';
 						elseif (isset($area['icon']))
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = file_exists($settings['theme_dir'] . '/images/admin/' . $area['icon']) ? '<img src="' . $settings['images_url'] . '/admin/' . $area['icon'] . '" alt="">&nbsp;&nbsp;' : '<img src="' . $settings['default_images_url'] . '/admin/' . $area['icon'] . '" alt="">&nbsp;&nbsp;';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area['icon'] .'"></span>';
 						else
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon'] = '<span class="generic_icons ' . $area_id .'"></span>';
 
-						// Mod authors may wish to just set such an icon. Easy here, just drop in a URL.
-						if (!empty($menuOptions['do_big_icons']))
+						if (isset($area['icon_class']) && empty($menu_context['sections'][$section_id]['areas'][$area_id]['icon']))
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . $area['icon_class'];
+						elseif (isset($area['icon']))
 						{
-							if (isset($area['bigicon']))
-								$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $area['bigicon'];
-							// Otherwise we try to use the big icon, which has the same filename as the small one but in another folder.
-							elseif (isset($area['icon']))
-							{
-								if (file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
-									$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['images_url'] . '/admin/big/' . $area['icon'];
-								elseif (file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
-									$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['default_images_url'] . '/admin/big/' . $area['icon'];
-							}
+							if ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['theme_dir'] . '/images/admin/big/' . $area['icon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['theme_url'] . '/images/admin/big/' . $area['icon'];
+							elseif ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
+								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
 
-							// They do need an icon. Have they got one?
-							if (empty($menu_context['sections'][$section_id]['areas'][$area_id]['bigicon']))
-								$menu_context['sections'][$section_id]['areas'][$area_id]['bigicon'] = $settings['default_images_url'] . '/admin/big/default.png';
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area['icon']);
 						}
+						else
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area_id);
 
 						// Some areas may be listed but not active, which we show as greyed out.
 						$menu_context['sections'][$section_id]['areas'][$area_id]['inactive'] = !empty($area['inactive']);
@@ -230,6 +229,10 @@ function createMenu($menuData, $menuOptions = array())
 	// Should we use a custom base url, or use the default?
 	$menu_context['base_url'] = isset($menuOptions['base_url']) ? $menuOptions['base_url'] : $scripturl . '?action=' . $menu_context['current_action'];
 
+	// If we didn't find the area we were looking for go to a default one.
+	if (isset($backup_area) && empty($found_section))
+		$menu_context['current_area'] = $backup_area;
+
 	// If there are sections quickly goes through all the sections to check if the base menu has an url
 	if (!empty($menu_context['current_section']))
 	{
@@ -248,10 +251,6 @@ function createMenu($menuData, $menuOptions = array())
 				}
 			}
 	}
-
-	// If we didn't find the area we were looking for go to a default one.
-	if (isset($backup_area) && empty($found_section))
-		$menu_context['current_area'] = $backup_area;
 
 	// If still no data then return - nothing to show!
 	if (empty($menu_context['sections']))

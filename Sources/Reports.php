@@ -18,7 +18,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -288,7 +288,7 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
@@ -478,7 +478,7 @@ function BoardPermissionsReport()
 
 				// Now actually make the data for the group look right.
 				if (empty($curData[$id_group]))
-					$curData[$id_group] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 				elseif ($curData[$id_group] == 1)
 					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 				else
@@ -505,7 +505,7 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $context, $txt, $settings, $modSettings, $smcFunc;
+	global $txt, $settings, $modSettings, $smcFunc;
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
@@ -607,7 +607,7 @@ function MemberGroupsReport()
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.
@@ -628,7 +628,7 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	if (isset($_REQUEST['groups']))
 	{
@@ -690,8 +690,7 @@ function GroupPermissionsReport()
 	}
 	if (empty($modSettings['warning_settings']) || $modSettings['warning_settings'][0] == 0)
 		$disabled_permissions[] = 'issue_warning';
-	if (empty($modSettings['karmaMode']))
-		$disabled_permissions[] = 'karma_edit';
+
 	call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
 
 	// Now the big permission fetch!
@@ -731,7 +730,7 @@ function GroupPermissionsReport()
 		if ($row['add_deny'])
 			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 		else
-			$curData[$row['id_group']] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -749,7 +748,7 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $sourcedir, $context, $txt, $smcFunc;
+	global $sourcedir, $txt, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Members.php');
 

@@ -15,7 +15,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -900,7 +900,12 @@ function showCodeImage($code)
 		$loaded_fonts[$font_index] = imageloadfont($settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 
 	// Determine the dimensions of each character.
-	$total_width = $character_spacing * strlen($code) + 40;
+	if ($imageType == 4 || $imageType == 5)
+		$extra = 80;
+	else
+		$extra = 45;
+
+	$total_width = $character_spacing * strlen($code) + $extra;
 	$max_height = 0;
 	foreach ($characters as $char_index => $character)
 	{

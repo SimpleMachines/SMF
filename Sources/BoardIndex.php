@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -132,7 +132,10 @@ function BoardIndex()
 	call_integration_hook('integrate_mark_read_button');
 
 	if (!empty($settings['show_newsfader']))
-	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => false), 'smf_fader');
+	{
+		loadJavascriptFile('slippry.min.js', array('default_theme' => true));
+		loadCSSFile('slider.min.css');
+	}
 }
 
 ?>

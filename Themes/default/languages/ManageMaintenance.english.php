@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; ManageMaintenance
+// Version: 2.1 Beta 1; ManageMaintenance
 
 $txt['repair_zero_ids'] = 'Found topics and/or messages with topic or message IDs of 0.';
 $txt['repair_missing_topics'] = 'Message #%1$d is in non-existent topic #%2$d.';
@@ -113,9 +113,9 @@ $txt['errortype_all'] = 'All errors';
 $txt['errortype_general'] = 'General';
 $txt['errortype_general_desc'] = 'General errors that have not been categorized into another type';
 $txt['errortype_critical'] = '<span style="color:red;">Critical</span>';
-$txt['errortype_critical_desc'] = 'Critical errors.  These should be taken care of as quickly as possible.  Ignoring these errors can result in your forum failing and possibly security issues';
+$txt['errortype_critical_desc'] = 'Critical errors. These should be taken care of as quickly as possible. Ignoring these errors can result in your forum failing and possibly security issues';
 $txt['errortype_database'] = 'Database';
-$txt['errortype_database_desc'] = 'Errors caused by faulty queries.  These should be looked at and reported to the SMF team.';
+$txt['errortype_database_desc'] = 'Errors caused by faulty queries. These should be looked at and reported to the SMF team.';
 $txt['errortype_undefined_vars'] = 'Undefined';
 $txt['errortype_undefined_vars_desc'] = 'Errors caused by the use of undefined variables, indexes, or offsets.';
 $txt['errortype_ban'] = 'Bans';
@@ -123,7 +123,7 @@ $txt['errortype_ban_desc'] = 'A log of banned users trying to access your forum.
 $txt['errortype_template'] = 'Template';
 $txt['errortype_template_desc'] = 'Errors related to the loading of templates.';
 $txt['errortype_user'] = 'User';
-$txt['errortype_user_desc'] = 'Errors resulting from user errors.  Includes failed passwords, trying to login when banned, and trying to do an action for which they do not have permission.';
+$txt['errortype_user_desc'] = 'Errors resulting from user errors. Includes failed passwords, trying to login when banned, and trying to do an action for which they do not have permission.';
 $txt['errortype_cron'] = 'Cron';
 $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
 $txt['errortype_paidsubs'] = 'Paid Subs';
@@ -194,7 +194,7 @@ $txt['utf8_database_charset'] = 'Database character set';
 $txt['utf8_target_charset'] = 'Convert data and database to';
 $txt['utf8_utf8'] = 'UTF-8';
 $txt['utf8_db_version_too_low'] = 'The version of MySQL that your database server is using is not high enough to support UTF-8 properly. A minimum version of 4.1.2 is required.';
-$txt['utf8_cannot_convert_fulltext'] = 'Your messages table is using a fulltext index for use when searching.  You cannot proceed in converting to UTF-8 until that index is removed. You can re-create it after the conversion has been completed.';
+$txt['utf8_cannot_convert_fulltext'] = 'Your messages table is using a fulltext index for use when searching. You cannot proceed in converting to UTF-8 until that index is removed. You can re-create it after the conversion has been completed.';
 
 $txt['text_title'] = 'Convert to TEXT';
 $txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
@@ -223,7 +223,7 @@ $txt['move_type_locked'] = 'Locked topics';
 $txt['move_zero_all'] = 'Enter 0 to move all topics';
 
 $txt['maintain_reattribute_posts'] = 'Reattribute User Posts';
-$txt['reattribute_guest_posts'] = 'Attribute guest posts made with';
+$txt['reattribute_guest_posts'] = 'Attribute posts made with';
 $txt['reattribute_email'] = 'Email address of';
 $txt['reattribute_username'] = 'Username of';
 $txt['reattribute_current_member'] = 'Attribute posts to member';
@@ -236,7 +236,7 @@ $txt['reattribute_confirm_email'] = 'an email address';
 $txt['reattribute_cannot_find_member'] = 'Could not find member to attribute posts to.';
 
 $txt['maintain_recountposts'] = 'Recount User Posts';
-$txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count.  It will recount all (countable) posts made by each user and then update their profile post count totals';
+$txt['maintain_recountposts_info'] = 'Run this maintenance task to update your users total post count. It will recount all (countable) posts made by each user and then update their profile post count totals';
 
 $txt['safe_mode_enabled'] = '<a href="http://php.net/manual/en/features.safe-mode.php">safe_mode</a> is enabled on your server!<br>The backup done with this tool cannot be considered reliable!';
 $txt['use_external_tool'] = 'Please consider using an external tool to backup your database, any backup created with this utility cannot be considered 100% reliable.';

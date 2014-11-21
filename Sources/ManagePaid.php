@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePaidSubscriptions()
 {
-	global $context, $txt, $scripturl, $sourcedir, $smcFunc, $modSettings;
+	global $context, $txt, $modSettings;
 
 	// Load the required language and template.
 	loadLanguage('ManagePaid');
@@ -44,8 +44,6 @@ function ManagePaidSubscriptions()
 		$subActions = array(
 			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
 		);
-
-	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
 
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
@@ -71,8 +69,10 @@ function ManagePaidSubscriptions()
 			),
 		);
 
+	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -210,7 +210,7 @@ function ModifySubscriptionSettings($return_config = false)
 			foreach (explode(',', $_POST['paid_email_to']) as $email)
 			{
 				$email = trim($email);
-				if (!empty($email) && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $email))
+				if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
 					$email_addresses[] = $email;
 				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}
@@ -245,7 +245,7 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir, $scripturl;
+	global $context, $txt, $modSettings, $sourcedir, $scripturl;
 
 	// Not made the settings yet?
 	if (empty($modSettings['paid_currency_symbol']))
@@ -258,19 +258,32 @@ function ViewSubscriptions()
 	$listOptions = array(
 		'id' => 'subscription_list',
 		'title' => $txt['subscriptions'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
-			'function' => create_function('', '
-				global $context;
-				return $context[\'subscriptions\'];
-			'),
+			'function' => function ($start, $items_per_page) use ($context)
+			{
+				$subscriptions = array();
+				$counter = 0;
+				$start++;
+
+				foreach ($context['subscriptions'] as $data)
+				{
+					if (++$counter < $start)
+						continue;
+					elseif ($counter == $start + $items_per_page)
+						break;
+
+					$subscriptions[] = $data;
+				}
+				return $subscriptions;
+			},
 		),
 		'get_count' => array(
-			'function' => create_function('', '
-				global $context;
-				return count($context[\'subscriptions\']);
-			'),
+			'function' => function () use ($context)
+			{
+				return count($context['subscriptions']);
+			},
 		),
 		'no_items_label' => $txt['paid_none_yet'],
 		'columns' => array(
@@ -280,11 +293,10 @@ function ViewSubscriptions()
 					'style' => 'width: 35%;',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
-						return sprintf(\'<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>\', $scripturl, $rowData[\'id\'], $rowData[\'name\']);
-					'),
+					'function' => function ($rowData) use ($scripturl)
+					{
+						return sprintf('<a href="%1$s?action=admin;area=paidsubscribe;sa=viewsub;sid=%2$s">%3$s</a>', $scripturl, $rowData['id'], $rowData['name']);
+					},
 				),
 			),
 			'cost' => array(
@@ -292,11 +304,10 @@ function ViewSubscriptions()
 					'value' => $txt['paid_cost'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt;
-
-						return $rowData[\'flexible\'] ? \'<em>\' . $txt[\'flexible\'] . \'</em>\' : $rowData[\'cost\'] . \' / \' . $rowData[\'length\'];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return $rowData['flexible'] ? '<em>' . $txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
+					},
 				),
 			),
 			'pending' => array(
@@ -336,31 +347,28 @@ function ViewSubscriptions()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt;
-
-						return \'<span style="color: \' . ($rowData[\'active\'] ? \'green\' : \'red\') . \'">\' . ($rowData[\'active\'] ? $txt[\'yes\'] : $txt[\'no\']) . \'</span>\';
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? $txt['yes'] : $txt['no']) . '</span>';
+					},
 					'class' => 'centercol',
 				),
 			),
 			'modify' => array(
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return \'<a href="\' . $scripturl . \'?action=admin;area=paidsubscribe;sa=modify;sid=\' . $rowData[\'id\'] . \'">\' . $txt[\'modify\'] . \'</a>\';
-					'),
+					'function' => function ($rowData) use ($txt, $scripturl)
+					{
+						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
+					},
 					'class' => 'centercol',
 				),
 			),
 			'delete' => array(
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return \'<a href="\' . $scripturl . \'?action=admin;area=paidsubscribe;sa=modify;delete;sid=\' . $rowData[\'id\'] . \'">\' . $txt[\'delete\'] . \'</a>\';
-					'),
+					'function' => function ($rowData) use ($scripturl, $txt)
+					{
+						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . $txt['delete'] . '</a>';
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -783,7 +791,7 @@ function ViewSubscribedUsers()
 	$listOptions = array(
 		'id' => 'subscribed_users_list',
 		'title' => sprintf($txt['view_users_subscribed'], $row['name']),
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . $context['sub_id'],
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -810,11 +818,10 @@ function ViewSubscribedUsers()
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return $rowData[\'id_member\'] == 0 ? $txt[\'guest\'] : \'<a href="\' . $scripturl . \'?action=profile;u=\' . $rowData[\'id_member\'] . \'">\' . $rowData[\'name\'] . \'</a>\';
-					'),
+					'function' => function ($rowData) use ($scripturl, $txt)
+					{
+						return $rowData['id_member'] == 0 ? $txt['guest'] : '<a href="' . $scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
+					},
 				),
 				'sort' => array(
 					'default' => 'name',
@@ -881,11 +888,10 @@ function ViewSubscribedUsers()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return \'<a href="\' . $scripturl . \'?action=admin;area=paidsubscribe;sa=modifyuser;lid=\' . $rowData[\'id\'] . \'">\' . $txt[\'modify\'] . \'</a>\';
-					'),
+					'function' => function ($rowData) use ($scripturl, $txt)
+					{
+						return '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . $txt['modify'] . '</a>';
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -895,11 +901,10 @@ function ViewSubscribedUsers()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context, $txt, $scripturl;
-
-						return \'<input type="checkbox" name="delsub[\' . $rowData[\'id\'] . \']" class="input_check">\';
-					'),
+					'function' => function ($rowData)
+					{
+						return '<input type="checkbox" name="delsub[' . $rowData['id'] . ']" class="input_check">';
+					},
 					'class' => 'centercol',
 				),
 			),

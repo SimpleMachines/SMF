@@ -7,7 +7,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 // Our main calendar template, which encapsulates weeks and months.
@@ -34,7 +34,7 @@ function template_main()
 	if (isset($_GET['viewweek']))
 	{
 		echo '
-			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
+			<div id="main_grid">
 				', template_show_week_grid('main'), '
 			</div>
 		';
@@ -42,7 +42,7 @@ function template_main()
 	else
 	{
 		echo '
-			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
+			<div id="main_grid">
 				', template_show_month_grid('main'), '
 			</div>
 		';

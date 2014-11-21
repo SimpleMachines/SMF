@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -31,7 +31,7 @@ function PostModerationMain()
 	require_once($sourcedir . '/ModerationCenter.php');
 
 	// Allowed sub-actions, you know the drill by now!
-	$subactions = array(
+	$subActions = array(
 		'approve' => 'ApproveMessage',
 		'attachments' => 'UnapprovedAttachments',
 		'replies' => 'UnapprovedPosts',
@@ -39,10 +39,12 @@ function PostModerationMain()
 	);
 
 	// Pick something valid...
-	if (!isset($_REQUEST['sa']) || !isset($subactions[$_REQUEST['sa']]))
+	if (!isset($_REQUEST['sa']) || !isset($subActions[$_REQUEST['sa']]))
 		$_REQUEST['sa'] = 'replies';
 
-	$subactions[$_REQUEST['sa']]();
+	call_integration_hook('integrate_post_moderation', array(&$subActions));
+
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -390,7 +392,7 @@ function UnapprovedAttachments()
 	$listOptions = array(
 		'id' => 'mc_unapproved_attach',
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['mc_unapproved_attachments_none_found'],
 		'base_href' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 		'default_sort_col' => 'attach_name',
@@ -436,9 +438,10 @@ function UnapprovedAttachments()
 					'value' => $txt['mc_unapproved_attach_poster'],
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						return $data[\'poster\'][\'link\'];'
-					)
+					'function' => function ($data)
+					{
+						return $data['poster']['link'];
+					},
 				),
 				'sort' => array(
 					'default' => 'm.id_member',
@@ -465,9 +468,10 @@ function UnapprovedAttachments()
 					'value' => $txt['post'],
 				),
 				'data' => array(
-					'function' => create_function('$data', '
-						return \'<a href="\' . $data[\'message\'][\'href\'] . \'">\' . shorten_subject($data[\'message\'][\'subject\'], 20) . \'</a>\';'
-					),
+					'function' => function ($data)
+					{
+						return '<a href="' . $data['message']['href'] . '">' . shorten_subject($data['message']['subject'], 20) . '</a>';
+					},
 					'class' => 'smalltext',
 					'style' => 'width:15em;',
 				),
@@ -806,4 +810,5 @@ function removeMessages($messages, $messageDetails, $current_view = 'replies')
 		}
 	}
 }
+
 ?>

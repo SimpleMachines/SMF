@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -158,9 +158,6 @@ function KickGuest()
 	loadTemplate('Login');
 	createToken('login');
 
-	// Need some js goodies.
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
-
 	// Never redirect to an attachment
 	if (strpos($_SERVER['REQUEST_URL'], 'dlattach') === false)
 		$_SESSION['login_url'] = $_SERVER['REQUEST_URL'];
@@ -176,19 +173,18 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context;
+	global $txt, $mtitle, $mmessage, $context, $smcFunc;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
 	createToken('login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 
 	// Basic template stuff..
 	$context['sub_template'] = 'maintenance';
-	$context['title'] = &$mtitle;
+	$context['title'] = $smcFunc['htmlspecialchars']($mtitle);
 	$context['description'] = &$mmessage;
 	$context['page_title'] = $txt['maintain_mode'];
 }
@@ -203,11 +199,10 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $context, $scripturl, $txt, $user_info, $user_settings;
+	global $context, $txt, $user_settings, $user_info;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
-	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Validate what type of session check this is.
 	$types = array();
@@ -541,7 +536,7 @@ function RequestMembers()
  */
 function resetPassword($memID, $username = null)
 {
-	global $scripturl, $context, $txt, $sourcedir, $modSettings, $smcFunc, $language;
+	global $sourcedir, $modSettings, $smcFunc, $language;
 
 	// Language... and a required file.
 	loadLanguage('Login');
@@ -567,7 +562,7 @@ function resetPassword($memID, $username = null)
 
 	// Generate a random password.
 	$newPassword = substr(preg_replace('/\W/', '', md5(mt_rand())), 0, 10);
-	$newPassword_sha1 = sha1(strtolower($user) . $newPassword);
+	$newPassword_sha1 = hash_password($user, $newPassword);
 
 	// Do some checks on the username if needed.
 	if ($username !== null)
@@ -719,7 +714,7 @@ function rebuildModCache()
 	// Then, same again, just the boards this time!
 	$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
 
-	if ($board_query == '0=1')
+	if ($board_query == '0=1' && !$user_info['is_guest'])
 	{
 		$boards = boardsAllowedTo('moderate_board', true);
 
@@ -809,6 +804,85 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 
 	// This function is pointless if we have PHP >= 5.2.
 	return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+}
+
+/**
+ * Hashes username with password
+ *
+ * @param string $username
+ * @param string $password
+ * @param int $cost
+ * @return string
+ */
+function hash_password($username, $password, $cost = null)
+{
+	global $sourcedir, $smcFunc, $modSettings;
+	if (!function_exists('password_hash'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	$cost = empty($cost) ? (empty($modSettings['bcrypt_hash_cost']) ? 10 : $modSettings['bcrypt_hash_cost']) : $cost;
+
+	return password_hash($smcFunc['strtolower']($username) . $password, PASSWORD_BCRYPT, array(
+		'cost' => $cost,
+	));
+}
+
+/**
+ * Hashes password with salt, this is solely used for cookies.
+ *
+ * @param string $password
+ * @param string $salt
+ * @return string
+ */
+function hash_salt($password, $salt)
+{
+	return hash('sha512', $password . $salt);
+}
+
+/**
+ * Verifies a raw SMF password against the bcrypt'd string
+ *
+ * @param string $username
+ * @param string $password
+ * @param string $hash
+ * @return bool
+ */
+function hash_verify_password($username, $password, $hash)
+{
+	global $sourcedir, $smcFunc;
+	if (!function_exists('password_verify'))
+		require_once($sourcedir . '/Subs-Password.php');
+
+	return password_verify($smcFunc['strtolower']($username) . $password, $hash);
+}
+
+/**
+ * Returns the length for current hash
+ *
+ * @return int
+ */
+function hash_length()
+{
+	return 60;
+}
+
+/**
+ * Benchmarks the server to figure out an appropriate cost factor (minimum 9)
+ *
+ * @param int $hashTime Time to target, in seconds
+ * @return int
+ */
+function hash_benchmark($hashTime = 0.2)
+{
+	$cost = 9;
+	do {
+		$timeStart = microtime(true);
+		hash_password('test', 'thisisatestpassword', $cost);
+		$timeTaken = microtime(true) - $timeStart;
+		$cost++;
+	} while ($timeTaken < $hashTime);
+
+	return $cost;
 }
 
 ?>

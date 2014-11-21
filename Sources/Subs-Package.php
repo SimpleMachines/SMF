@@ -13,7 +13,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -405,12 +405,14 @@ function loadInstalledPackages()
 
 		$found[] = $row['package_id'];
 
+		$row = htmlspecialchars__recursive($row);
+
 		$installed[] = array(
 			'id' => $row['id_install'],
-			'name' => $row['name'],
+			'name' => $smcFunc['htmlspecialchars']($row['name']),
 			'filename' => $row['filename'],
 			'package_id' => $row['package_id'],
-			'version' => $row['version'],
+			'version' => $smcFunc['htmlspecialchars']($row['version']),
 			'time_installed' => !empty($row['time_installed']) ? $row['time_installed'] : 0,
 		);
 	}
@@ -431,7 +433,7 @@ function loadInstalledPackages()
  */
 function getPackageInfo($gzfilename)
 {
-	global $boarddir, $sourcedir, $packagesdir, $smcFunc;
+	global $sourcedir, $packagesdir, $smcFunc;
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
@@ -471,9 +473,19 @@ function getPackageInfo($gzfilename)
 	$packageInfo = $packageInfo->path('package-info[0]');
 
 	$package = $packageInfo->to_array();
+	$package = htmlspecialchars__recursive($package);
 	$package['xml'] = $packageInfo;
 	$package['filename'] = $gzfilename;
-	$package['name'] = $smcFunc['htmlspecialchars']($package['name']);
+
+	// Don't want to mess with code...
+	$types = array('install', 'uninstall', 'upgrade');
+	foreach($types as $type)
+	{
+		if (isset($package[$type]['code']))
+		{
+			$package[$type]['code'] = un_htmlspecialchars($package[$type]['code']);
+		}
+	}
 
 	if (!isset($package['type']))
 		$package['type'] = 'modification';
@@ -592,12 +604,11 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_cur_status'],
 					),
 					'data' => array(
-						'function' => create_function('$rowData', '
-							global $txt;
-
-							$formatTxt = $rowData[\'result\'] == \'\' || $rowData[\'result\'] == \'skipped\' ? $txt[\'package_restore_permissions_pre_change\'] : $txt[\'package_restore_permissions_post_change\'];
-							return sprintf($formatTxt, $rowData[\'cur_perms\'], $rowData[\'new_perms\'], $rowData[\'writable_message\']);
-						'),
+						'function' => function ($rowData) use ($txt)
+						{
+							$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? $txt['package_restore_permissions_pre_change'] : $txt['package_restore_permissions_post_change'];
+							return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+						},
 						'class' => 'smalltext',
 					),
 				),
@@ -621,11 +632,10 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						'value' => $txt['package_restore_permissions_result'],
 					),
 					'data' => array(
-						'function' => create_function('$rowData', '
-							global $txt;
-
-							return $txt[\'package_restore_permissions_action_\' . $rowData[\'result\']];
-						'),
+						'function' => function ($rowData) use ($txt)
+						{
+							return $txt['package_restore_permissions_action_' . $rowData['result']];
+						},
 						'class' => 'smalltext',
 					),
 				),
@@ -1015,7 +1025,7 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
  */
 function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install', $previous_version = '')
 {
-	global $boarddir, $packagesdir, $forum_version, $context, $temp_path, $language, $smcFunc;
+	global $packagesdir, $forum_version, $context, $temp_path, $language, $smcFunc;
 
 	// Mayday!  That action doesn't exist!!
 	if (empty($packageXML) || !$packageXML->exists($method))
@@ -2249,7 +2259,7 @@ function parseModification($file, $testing = true, $undo = false, $theme_paths =
  */
 function parseBoardMod($file, $testing = true, $undo = false, $theme_paths = array())
 {
-	global $boarddir, $sourcedir, $settings, $txt, $modSettings;
+	global $boarddir, $sourcedir, $settings, $modSettings;
 
 	@set_time_limit(600);
 	$file = strtr($file, array("\r" => ''));
@@ -2869,7 +2879,7 @@ function package_create_backup($id = 'backup')
 
 	$files = array();
 
-	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
+	$base_files = array('index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php');
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))

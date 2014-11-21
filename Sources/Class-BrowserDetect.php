@@ -8,7 +8,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -72,7 +72,7 @@ class browser_detector
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
-		
+
 		// IE11 seems to be fine by itself without being lumped into the "is_ie" category
 		$this->isIe11();
 
@@ -83,7 +83,7 @@ class browser_detector
 			$this->_browsers['possibly_robot'] = !empty($user_info['possibly_robot']);
 
 			// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register'))) || !$user_info['is_guest'])
+			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register', 'signup'))) || !$user_info['is_guest'])
 				$this->_browsers['possibly_robot'] = false;
 		}
 		else
@@ -121,7 +121,7 @@ class browser_detector
 			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 		return $this->_browsers['is_ie'];
 	}
-	
+
 	/**
 	* Determine if the browser is IE11 or not
 	* @return boolean true if the browser is IE11 otherwise false
@@ -371,7 +371,7 @@ class browser_detector
 
 			$context['browser_body_id'] = 'smf';
 			$active = array_reverse(array_keys($this->_browsers, true));
-			foreach ($active as $key => $browser)
+			foreach ($active as $browser)
 			{
 				if (array_key_exists($browser, $browser_priority))
 				{
@@ -421,3 +421,5 @@ class browser_detector
 		);
 	}
 }
+
+?>

@@ -7,8 +7,25 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
+
+// Define page index info for wireless templates
+function template_wireless_init()
+{
+	global $settings, $txt;
+
+	// This defines the formatting for the page indexes used throughout the forumm.
+	$settings['page_index'] = array(
+		'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+		'previous_page' => '<span class="previous_page"></span>',
+		'current_page' => '<span class="current_page">[%1$d]</span> ',
+		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+		'next_page' => '<span class="next_page"></span>',
+		'extra_after' => '',
+	);
+}
 
 // This is the header for WAP 1.1 output. You can view it with ?wap in the URL.
 function template_wap_above()
@@ -156,17 +173,7 @@ function template_wap_login()
 		<input type="text" name="user" class="input_text" /></p>
 
 		<p>', $txt['password'], ':<br />
-		<input type="password" name="passwrd" class="input_password" /></p>';
-
-	// Open ID?
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-		<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-
-		<p>', $txt['openid'], ':<br />
-		<input type="text" name="openid_identifier" class="input_text openid_login" size="17" /></p>';
-
-	echo '
+		<input type="password" name="passwrd" class="input_password" /></p>
 		<p><do type="accept" label="', $txt['login'], '">
 			<go method="post" href="', $scripturl, '?action=login2;wap">
 				<postfield name="user" value="$user" />
@@ -236,7 +243,7 @@ function template_imode_above()
 	echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD Compact HTML 1.0 Draft//EN">
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />';
+		<meta charset="', $context['character_set'], '" />';
 
 	// Present a canonical url for search engines to prevent duplicate content in their indices.
 	if ($user_info['is_guest'] && !empty($context['canonical_url']))
@@ -333,7 +340,7 @@ function template_imode_messageindex()
 
 function template_imode_display()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<table border="0" cellspacing="0" cellpadding="0">
@@ -467,16 +474,7 @@ function template_imode_login()
 				<tr><td>', $txt['username'], ':</td></tr>
 				<tr><td><input type="text" name="user" size="10" class="input_text" /></td></tr>
 				<tr><td>', $txt['password'], ':</td></tr>
-				<tr><td><input type="password" name="passwrd" size="10" class="input_password" /></td></tr>';
-
-	// Open ID?
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-				<tr><td><strong>&mdash;', $txt['or'], '&mdash;</strong></td></tr>
-				<tr><td>', $txt['openid'], ':</td></tr>
-				<tr><td><input type="text" name="openid_identifier" class="input_text openid_login" size="17" /></td></tr>';
-
-	echo '
+				<tr><td><input type="password" name="passwrd" size="10" class="input_password" /></td></tr>
 				<tr><td><input type="submit" value="', $txt['login'], '" class="button_submit" /><input type="hidden" name="cookieneverexp" value="1" /></td></tr>
 				<tr bgcolor="#b6dbff"><td>', $txt['wireless_navigation'], '</td></tr>
 				<tr><td>[0] <a href="', $scripturl, '?imode" accesskey="0">', $txt['wireless_navigation_up'], '</a></td></tr>
@@ -745,7 +743,7 @@ function template_imode_error()
 
 function template_imode_profile()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<table border="0" cellspacing="0" cellpadding="0">
@@ -1066,16 +1064,7 @@ function template_wap2_login()
 			<p class="windowbg">', $txt['username'], ':</p>
 			<p class="windowbg"><input type="text" name="user" size="10" class="input_text" /></p>
 			<p class="windowbg">', $txt['password'], ':</p>
-			<p class="windowbg"><input type="password" name="passwrd" size="10" class="input_password" /></p>';
-
-	// Open ID?
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-			<p class="windowbg"><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-			<p class="windowbg">', $txt['openid'], ':</p>
-			<p class="windowbg"><input type="text" name="openid_identifier" class="input_text openid_login" size="17" /></p>';
-
-	echo '
+			<p class="windowbg"><input type="password" name="passwrd" size="10" class="input_password" /></p>
 			<p class="windowbg"><input type="submit" value="', $txt['login'], '" class="button_submit" /><input type="hidden" name="cookieneverexp" value="1" /></p>
 			<p class="catbg">', $txt['wireless_navigation'], '</p>
 			<p class="windowbg">[0] <a href="', $scripturl, '?wap2" accesskey="0">', $txt['wireless_navigation_up'], '</a></p>
@@ -1391,7 +1380,7 @@ function template_wap2_error()
 
 function template_wap2_profile()
 {
-	global $context, $scripturl, $board, $txt;
+	global $context, $scripturl, $txt;
 
 	echo '
 		<p class="catbg">', $txt['summary'], ' - ', $context['member']['name'], '</p>
@@ -1429,7 +1418,7 @@ function template_wap2_profile()
 
 function template_wap2_ban_edit()
 {
-	global $context, $scripturl, $board, $txt, $modSettings;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<form action="', $scripturl, '?action=admin;area=ban;sa=add;wap2" method="post">

@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -39,8 +39,6 @@ function ManageScheduledTasks()
 		'tasks' => 'ScheduledTasks',
 	);
 
-	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
-
 	// We need to find what's the action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
 		$context['sub_action'] = $_REQUEST['sa'];
@@ -62,8 +60,10 @@ function ManageScheduledTasks()
 		),
 	);
 
+	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
+
 	// Call it.
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
@@ -74,6 +74,8 @@ function ManageScheduledTasks()
 function ScheduledTasks()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
+	global $modSettings;
+
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -110,6 +112,11 @@ function ScheduledTasks()
 	// Want to run any of the tasks?
 	if (isset($_REQUEST['run']) && isset($_POST['run_task']))
 	{
+		$task_string = '';
+
+		// Any external tasks?
+		$external_tasks = !empty($modSettings['integrate_autotask_include']) ? explode(',', $modSettings['integrate_autotask_include']) : array();
+
 		// Lets figure out which ones they want to run.
 		$tasks = array();
 		foreach ($_POST['run_task'] as $task => $dummy)
@@ -117,7 +124,7 @@ function ScheduledTasks()
 
 		// Load up the tasks.
 		$request = $smcFunc['db_query']('', '
-			SELECT id_task, task
+			SELECT id_task, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task IN ({array_int:tasks})
 			LIMIT ' . count($tasks),
@@ -131,9 +138,21 @@ function ScheduledTasks()
 		ignore_user_abort(true);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			// What kind of task are we handling?
+			if (!empty($external_tasks) && !empty($row['callable']) && in_array($row['callable'], $external_tasks))
+				$task_string = $row['callable'];
+
+			// Using the task name huh?
+			elseif (!empty($external_tasks) && in_array($row['task'], $external_tasks))
+				$task_string = $row['task'];
+
+			// Default SMF task or old mods?
+			elseif (function_exists('scheduled_' . $row['task']))
+				$task_string = 'scheduled_' . $row['task'];
+
 			$start_time = microtime();
 			// The functions got to exist for us to use it.
-			if (!function_exists('scheduled_' . $row['task']))
+			if (empty($task_string))
 				continue;
 
 			// Try to stop a timeout, this would be bad...
@@ -141,8 +160,12 @@ function ScheduledTasks()
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
-			// Do the task...
-			$completed = call_user_func('scheduled_' . $row['task']);
+			// Get the callable.
+			$callable_task = call_helper($task_string, true);
+
+			// Perform the task.
+			if (!empty($callable_task))
+				$completed = call_user_func($callable_task);
 
 			// Log that we did it ;)
 			if ($completed)
@@ -285,7 +308,7 @@ function ScheduledTasks()
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt, $scripturl;
+	global $smcFunc, $txt;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
@@ -477,9 +500,10 @@ function TaskLog()
 					'value' => $txt['scheduled_log_time_run'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'time_run\'], true);
-					'),
+					'function' => function ($rowData)
+					{
+						return timeformat($rowData['time_run'], true);
+					},
 				),
 				'sort' => array(
 					'default' => 'lst.id_log DESC',

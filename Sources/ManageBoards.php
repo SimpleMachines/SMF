@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -44,8 +44,6 @@ function ManageBoards()
 		'settings' => array('EditBoardSettings', 'admin_forum'),
 	);
 
-	call_integration_hook('integrate_manage_boards', array(&$subActions));
-
 	// Default to sub action 'main' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_boards') ? 'main' : 'settings');
 
@@ -68,7 +66,9 @@ function ManageBoards()
 		),
 	);
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_integration_hook('integrate_manage_boards', array(&$subActions));
+
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -842,7 +842,7 @@ function EditBoardSettings($return_config = false)
 	require_once($sourcedir . '/Subs-Boards.php');
 	sortBoards($recycle_boards);
 
-	array_unshift($recycle_boards, '');
+        $recycle_boards = array('') + $recycle_boards;
 
 	// Here and the board settings...
 	$config_vars = array(

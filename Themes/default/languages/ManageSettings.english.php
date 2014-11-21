@@ -1,9 +1,9 @@
 <?php
-// Version: 2.1 Alpha 1; ManageSettings
+// Version: 2.1 Beta 1; ManageSettings
 
 global $scripturl;
 
-$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum.  Please see the <a href="' . $scripturl . '?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options.  Click the help icons for more information about a setting.';
+$txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="' . $scripturl . '?action=admin;area=theme;sa=list;th=%1$s;%3$s=%2$s">theme settings</a> for more options. Click the help icons for more information about a setting.';
 $txt['modification_settings_desc'] = 'This page contains settings added by any modifications to your forum';
 
 $txt['modification_no_misc_settings'] = 'There are no modifications installed that have added any settings to this area yet.';
@@ -17,7 +17,6 @@ $txt['userLanguage'] = 'Enable user-selectable language support';
 $txt['allow_hideOnline'] = 'Allow non-administrators to hide their online status';
 $txt['titlesEnable'] = 'Enable custom titles';
 $txt['enable_buddylist'] = 'Enable buddy/ignore lists';
-$txt['enable_unwatch'] = 'Enable unwatch topics';
 $txt['default_personal_text'] = 'Default personal text';
 $txt['default_personal_text_note'] = 'Personal text to assign to newly registered members.';
 $txt['time_format'] = 'Default time format';
@@ -48,7 +47,7 @@ $txt['cookieTime'] = 'Default login cookies length';
 $txt['localCookies'] = 'Enable local storage of cookies';
 $txt['globalCookies'] = 'Use subdomain independent cookies';
 $txt['globalCookiesDomain'] = 'Main domain used for subdomain independent cookies';
-$txt['invalid_cookie_domain'] = 'The domain intruduced seems to be invalid, please check it and save again.';
+$txt['invalid_cookie_domain'] = 'The domain introduced seems to be invalid, please check it and save again.';
 $txt['secureCookies'] = 'Force cookies to be secure';
 $txt['httponlyCookies'] = 'Force cookies to be made accessible only through the HTTP protocol';
 $txt['securityDisable'] = 'Disable administration security';
@@ -58,6 +57,7 @@ $txt['approveAccountDeletion'] = 'Require admin approval when member deletes acc
 $txt['autoFixDatabase'] = 'Automatically fix broken tables';
 $txt['allow_disableAnnounce'] = 'Allow users to disable announcements';
 $txt['disallow_sendBody'] = 'Don\'t allow post text in notifications';
+$txt['enable_ajax_alerts'] = 'Allow AJAX Desktop Notifications for Alerts';
 $txt['jquery_source'] = 'Source for the jQuery Library';
 $txt['jquery_custom_label'] = 'Custom';
 $txt['jquery_custom'] = 'Custom url to the jQuery Library';
@@ -88,15 +88,19 @@ $txt['who_enabled'] = 'Enable who\'s online list';
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
+$txt['image_proxy_enabled'] = 'Enable Image Proxy';
+$txt['image_proxy_secret'] = 'Image Proxy Secret';
+$txt['image_proxy_maxsize'] = 'Maximum file size of images to cache (in KB)';
+$txt['force_ssl'] = 'Forum SSL mode';
+$txt['force_ssl_off'] = 'Disable SSL';
+$txt['force_ssl_auth'] = 'Enable SSL for Authentication (Login and Register)';
+$txt['force_ssl_complete'] = 'Force SSL throughout the forum';
 
-$txt['karmaMode'] = 'Karma mode';
-$txt['karma_options'] = 'Disable karma|Enable karma total|Enable karma positive/negative';
-$txt['karmaMinPosts'] = 'Set the minimum posts needed to modify karma';
-$txt['karmaWaitTime'] = 'Set wait time in hours';
-$txt['karmaTimeRestrictAdmins'] = 'Restrict administrators to wait time';
-$txt['karmaLabel'] = 'Karma label';
-$txt['karmaApplaudLabel'] = 'Karma applaud label';
-$txt['karmaSmiteLabel'] = 'Karma smite label';
+// Like settings.
+$txt['enable_likes'] = 'Enable likes';
+
+// Mention settings.
+$txt['enable_mentions'] = 'Enable mentions';
 
 $txt['caching_information'] = 'SMF supports caching through the use of accelerators. The currently supported accelerators include:
 <ul class="normallist">
@@ -106,7 +110,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>XCache</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
-$txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server.  File based caching can be used instead.</strong>';
+$txt['detected_no_caching'] = '<strong class="alert">SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.</strong>';
 $txt['detected_accelerators'] = '<strong class="success">SMF has detected the following accelerators: %1$s</strong>';
 
 
@@ -150,6 +154,7 @@ $txt['posts_require_captcha_desc'] = '(0 for no limit, moderators are exempt)';
 $txt['search_enable_captcha'] = 'Require verification on all guest searches';
 $txt['setting_guests_require_captcha'] = 'Guests must pass verification when making a post';
 $txt['setting_guests_require_captcha_desc'] = '(Automatically set if you specify a minimum post count below)';
+$txt['question_not_defined'] = 'You need to add a question and answer for your forum\'s default language (%1$s) otherwise users will not be able to fill in a CAPTCHA, meaning no registration.';
 
 $txt['configure_verification_means'] = 'Configure Verification Methods';
 $txt['setting_qa_verification_number'] = 'Number of verification questions user must answer';
@@ -175,15 +180,15 @@ $txt['setup_verification_add_answer'] = 'Add another answer';
 $txt['moderation_settings'] = 'Moderation Settings';
 $txt['setting_warning_enable'] = 'Enable User Warning System';
 $txt['setting_warning_watch'] = 'Warning level for user watch';
-$txt['setting_warning_watch_note'] = 'The user warning level after which a user watch is put in place - 0 to disable.';
+$txt['setting_warning_watch_note'] = 'The user warning level after which a user watch is put in place.';
 $txt['setting_warning_moderate'] = 'Warning level for post moderation';
-$txt['setting_warning_moderate_note'] = 'The user warning level after which a user has all posts moderated - 0 to disable.';
+$txt['setting_warning_moderate_note'] = 'The user warning level after which a user has all posts moderated.';
 $txt['setting_warning_mute'] = 'Warning level for user muting';
-$txt['setting_warning_mute_note'] = 'The user warning level after which a user cannot post any further - 0 to disable.';
+$txt['setting_warning_mute_note'] = 'The user warning level after which a user cannot post any further.';
 $txt['setting_user_limit'] = 'Maximum user warning points per day';
 $txt['setting_user_limit_note'] = 'This value is the maximum amount of warning points a single moderator can assign to a user in a 24 hour period - 0 for no limit.';
 $txt['setting_warning_decrement'] = 'Warning points that are decreased every 24 hours';
-$txt['setting_warning_decrement_note'] = 'Only applies to users not warned within last 24 hours - set to 0 to disable.';
+$txt['setting_warning_decrement_note'] = 'Only applies to users not warned within last 24 hours.';
 $txt['setting_warning_show'] = 'Users who can see warning status';
 $txt['setting_warning_show_note'] = 'Determines who can see the warning level of users on the forum.';
 $txt['setting_warning_show_mods'] = 'Moderators Only';
@@ -274,13 +279,13 @@ $txt['custom_edit_order_up'] = 'Up';
 $txt['custom_edit_order_down'] = 'Down';
 $txt['custom_edit_placement'] = 'Choose Placement';
 $txt['custom_edit_placement_standard'] = 'Standard (with title)';
-$txt['custom_edit_placement_withicons'] = 'With Icons';
-$txt['custom_edit_placement_abovesignature'] = 'Above Signature';
+$txt['custom_edit_placement_with_icons'] = 'With Icons';
+$txt['custom_edit_placement_above_signature'] = 'Above Signature';
 $txt['custom_profile_placement'] = 'Placement';
 $txt['custom_profile_placement_standard'] = 'Standard';
-$txt['custom_profile_placement_withicons'] = 'With Icons';
-$txt['custom_profile_placement_abovesignature'] = 'Above Signature';
-$txt['custom_profile_placement_belowsignature'] = 'Below Signature';
+$txt['custom_profile_placement_with_icons'] = 'With Icons';
+$txt['custom_profile_placement_above_signature'] = 'Above Signature';
+$txt['custom_profile_placement_below_signature'] = 'Below Signature';
 $txt['custom_profile_placement_below_avatar'] = 'Below Avatar';
 $txt['custom_profile_placement_above_name'] = 'Above Username';
 $txt['custom_profile_placement_bottom'] = 'Bottom poster info';
@@ -290,6 +295,7 @@ $txt['custom_edit_delete_sure'] = 'Are you sure you wish to delete this field - 
 
 $txt['standard_profile_title'] = 'Standard Profile Fields';
 $txt['standard_profile_field'] = 'Field';
+$txt['standard_profile_field_timezone'] = 'Timezone';
 
 $txt['languages_lang_name'] = 'Language Name';
 $txt['languages_locale'] = 'Locale';
@@ -360,4 +366,5 @@ $txt['select_boards_from_list'] = 'Select boards which apply';
 
 $txt['topic_move_any'] = 'Allow moving of topics to read-only boards';
 
+$txt['defaultMaxListItems'] = 'Maximum number of items per page in lists';
 ?>

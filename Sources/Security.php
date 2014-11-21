@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function validateSession($type = 'admin')
 {
-	global $modSettings, $sourcedir, $user_info, $sc, $user_settings;
+	global $modSettings, $sourcedir, $user_info, $user_settings;
 
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
@@ -50,20 +50,6 @@ function validateSession($type = 'admin')
 
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	// Hashed password, ahoy!
-	if (isset($_POST[$type . '_hash_pass']) && strlen($_POST[$type . '_hash_pass']) == 40)
-	{
-		checkSession();
-
-		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_hash_pass'], true)), true);
-
-		if ($good_password || $_POST[$type . '_hash_pass'] == sha1($user_info['passwd'] . $sc))
-		{
-			$_SESSION[$type . '_time'] = time();
-			unset($_SESSION['request_referer']);
-			return;
-		}
-	}
 	// Posting the password... check it.
 	if (isset($_POST[$type. '_pass']))
 	{
@@ -72,24 +58,13 @@ function validateSession($type = 'admin')
 		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
 
 		// Password correct?
-		if ($good_password || sha1(strtolower($user_info['username']) . $_POST[$type . '_pass']) == $user_info['passwd'])
+		if ($good_password || hash_verify_password($user_info['username'], $_POST[$type . '_pass'], $user_info['passwd']))
 		{
 			$_SESSION[$type . '_time'] = time();
 			unset($_SESSION['request_referer']);
 			return;
 		}
 	}
-	// OpenID?
-	if (!empty($user_settings['openid_uri']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		smf_openID_revalidate();
-
-		$_SESSION[$type . '_time'] = time();
-		unset($_SESSION['request_referer']);
-		return;
-	}
-
 
 	// Better be sure to remember the real referer
 	if (empty($_SESSION['request_referer']))
@@ -113,16 +88,15 @@ function validateSession($type = 'admin')
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl;
+	global $user_info, $txt, $context, $scripturl, $modSettings;
 
 	// Luckily, this person isn't a guest.
-	if (isset($user_info['is_guest']) && !$user_info['is_guest'])
+	if (!$user_info['is_guest'])
 		return;
 
-	// People always worry when they see people doing things they aren't actually doing...
-	$_GET['action'] = '';
-	$_GET['board'] = '';
-	$_GET['topic'] = '';
+	// Log what they were trying to do didn't work)
+	if (!empty($modSettings['who_enabled']))
+		$_GET['error'] = 'guest_login';
 	writeLog(true);
 
 	// Just die.
@@ -155,7 +129,6 @@ function is_not_guest($message = '')
 	else
 	{
 		loadTemplate('Login');
-		loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 		$context['sub_template'] = 'kick_guest';
 		$context['robot_no_index'] = true;
 	}
@@ -365,7 +338,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 		Logout(true, false);
-		
+
 		// You banned, sucka!
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
 
@@ -492,7 +465,7 @@ function banPermissions()
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (isset($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
 		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
@@ -502,8 +475,8 @@ function banPermissions()
 	else
 		$context['open_mod_reports'] = 0;
 
-	if (isset($_SESSION['rmc']) && $_SESSION['rmc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rmc']['id'] == $user_info['id'])
-		$contexct['open_member_reports'] = $_SESSION['rmc']['reports'];
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+		$context['open_member_reports'] = !empty($_SESSION['rc']['member_reports']) ? $_SESSION['rc']['member_reports'] : 0;
 	elseif (allowedTo('moderate_forum'))
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');
@@ -1334,7 +1307,7 @@ function frameOptionsHeader($override = null)
 	$option = 'SAMEORIGIN';
 	if (is_null($override) && !empty($modSettings['frame_security']))
 		$option = $modSettings['frame_security'];
-	elseif (in_array($override, array('SAMEORIGIN', 'DENY', 'SAMEORIGIN')))
+	elseif (in_array($override, array('SAMEORIGIN', 'DENY')))
 		$option = $override;
 
 	// Don't bother setting the header if we have disabled it.

@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -43,8 +43,6 @@ function Ban()
 		'list' => 'BanList',
 		'log' => 'BanLog',
 	);
-
-	call_integration_hook('integrate_manage_bans', array(&$subActions));
 
 	// Default the sub-action to 'view ban list'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
@@ -82,8 +80,10 @@ function Ban()
 		),
 	);
 
+	call_integration_hook('integrate_manage_bans', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -98,7 +98,7 @@ function Ban()
 function BanList()
 {
 	global $txt, $context, $scripturl;
-	global $user_info, $sourcedir;
+	global $user_info, $sourcedir, $modSettings;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -128,7 +128,7 @@ function BanList()
 	$listOptions = array(
 		'id' => 'ban_list',
 		'title' => $txt['ban_title'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
 		'default_sort_dir' => 'desc',
@@ -183,11 +183,10 @@ function BanList()
 					'value' => $txt['ban_added'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context;
-
-						return timeformat($rowData[\'ban_time\'], empty($context[\'ban_time_format\']) ? true : $context[\'ban_time_format\']);
-					'),
+					'function' => function ($rowData) use ($context)
+					{
+						return timeformat($rowData['ban_time'], empty($context['ban_time_format']) ? true : $context['ban_time_format']);
+					},
 				),
 				'sort' => array(
 					'default' => 'bg.ban_time',
@@ -199,21 +198,20 @@ function BanList()
 					'value' => $txt['ban_expires'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
+					'function' => function ($rowData) use ($txt)
+					{
 						// This ban never expires...whahaha.
-						if ($rowData[\'expire_time\'] === null)
-							return $txt[\'never\'];
+						if ($rowData['expire_time'] === null)
+							return $txt['never'];
 
 						// This ban has already expired.
-						elseif ($rowData[\'expire_time\'] < time())
-							return sprintf(\'<span style="color: red">%1$s</span>\', $txt[\'ban_expired\']);
+						elseif ($rowData['expire_time'] < time())
+							return sprintf('<span class="red">%1$s</span>', $txt['ban_expired']);
 
 						// Still need to wait a few days for this ban to expire.
 						else
-							return sprintf(\'%1$d&nbsp;%2$s\', ceil(($rowData[\'expire_time\'] - time()) / (60 * 60 * 24)), $txt[\'ban_days\']);
-					'),
+							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), $txt['ban_days']);
+					},
 				),
 				'sort' => array(
 					'default' => 'IFNULL(bg.expire_time, 1=1) DESC, bg.expire_time DESC',
@@ -379,7 +377,7 @@ function BanEdit()
 				'id' => 'ban_items',
 				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxMessages'],
+				'items_per_page' => $modSettings['defaultMaxListItems'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -399,16 +397,15 @@ function BanEdit()
 							'style' => 'width: 60%;text-align: left;',
 						),
 						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt;
-
-								if (in_array($ban_item[\'type\'], array(\'ip\', \'hostname\', \'email\')))
-									return \'<strong>\' . $txt[$ban_item[\'type\']] . \':</strong>&nbsp;\' . $ban_item[$ban_item[\'type\']];
-								elseif ($ban_item[\'type\'] == \'user\')
-									return \'<strong>\' . $txt[\'username\'] . \':</strong>&nbsp;\' . $ban_item[\'user\'][\'link\'];
+							'function' => function ($ban_item) use ($txt)
+							{
+								if (in_array($ban_item['type'], array('ip', 'hostname', 'email')))
+									return '<strong>' . $txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
+								elseif ($ban_item['type'] == 'user')
+									return '<strong>' . $txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
 								else
-									return \'<strong>\' . $txt[\'unknown\'] . \':</strong>&nbsp;\' . $ban_item[\'no_bantype_selected\'];
-							'),
+									return '<strong>' . $txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
+							},
 							'style' => 'text-align: left;',
 						),
 					),
@@ -428,11 +425,10 @@ function BanEdit()
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt, $context, $scripturl;
-
-								return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
-							'),
+							'function' => function ($ban_item) use ($txt, $context, $scripturl)
+							{
+								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+							},
 							'style' => 'text-align: center;',
 						),
 					),
@@ -1747,7 +1743,7 @@ function BanBrowseTriggers()
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
 		'title' => $txt['ban_trigger_browse'],
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
 		'no_items_label' => $txt['ban_no_triggers'],
@@ -1836,27 +1832,28 @@ function BanBrowseTriggers()
 	if ($context['selected_entity'] === 'ip')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
+			'function' => function ($rowData)
+			{
 				return range2ip(array(
-					$rowData[\'ip_low1\'],
-					$rowData[\'ip_low2\'],
-					$rowData[\'ip_low3\'],
-					$rowData[\'ip_low4\'],
-					$rowData[\'ip_low5\'],
-					$rowData[\'ip_low6\'],
-					$rowData[\'ip_low7\'],
-					$rowData[\'ip_low8\']
+					$rowData['ip_low1'],
+					$rowData['ip_low2'],
+					$rowData['ip_low3'],
+					$rowData['ip_low4'],
+					$rowData['ip_low5'],
+					$rowData['ip_low6'],
+					$rowData['ip_low7'],
+					$rowData['ip_low8']
 				), array(
-					$rowData[\'ip_high1\'],
-					$rowData[\'ip_high2\'],
-					$rowData[\'ip_high3\'],
-					$rowData[\'ip_high4\'],
-					$rowData[\'ip_high5\'],
-					$rowData[\'ip_high6\'],
-					$rowData[\'ip_high7\'],
-					$rowData[\'ip_high8\']
+					$rowData['ip_high1'],
+					$rowData['ip_high2'],
+					$rowData['ip_high3'],
+					$rowData['ip_high4'],
+					$rowData['ip_high5'],
+					$rowData['ip_high6'],
+					$rowData['ip_high7'],
+					$rowData['ip_high8']
 				));
-			'),
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8',
@@ -1866,10 +1863,10 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'hostname')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
-				global $smcFunc;
-				return strtr($smcFunc[\'htmlspecialchars\']($rowData[\'hostname\']), array(\'%\' => \'*\'));
-			'),
+			'function' => function ($rowData) use ($smcFunc)
+			{
+				return strtr($smcFunc['htmlspecialchars']($rowData['hostname']), array('%' => '*'));
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.hostname',
@@ -1879,10 +1876,10 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'email')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
-				global $smcFunc;
-				return strtr($smcFunc[\'htmlspecialchars\']($rowData[\'email_address\']), array(\'%\' => \'*\'));
-			'),
+			'function' => function ($rowData) use ($smcFunc)
+			{
+				return strtr($smcFunc['htmlspecialchars']($rowData['email_address']), array('%' => '*'));
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.email_address',
@@ -1998,7 +1995,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $sourcedir, $txt;
+	global $scripturl, $context, $sourcedir, $txt, $modSettings;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
@@ -2020,7 +2017,7 @@ function BanLog()
 	$listOptions = array(
 		'id' => 'ban_log',
 		'title' => $txt['ban_log'],
-		'items_per_page' => 30,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -2083,9 +2080,10 @@ function BanLog()
 					'value' => $txt['ban_log_date'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'log_time\']);
-					'),
+					'function' => function ($rowData)
+					{
+						return timeformat($rowData['log_time']);
+					},
 				),
 				'sort' => array(
 					'default' => 'lb.log_time DESC',

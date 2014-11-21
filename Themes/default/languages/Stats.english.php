@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Stats
+// Version: 2.1 Beta 1; Stats
 
 global $context;
 
@@ -20,10 +20,10 @@ $txt['top_topics_views'] = 'Top 10 Topics (by Views)';
 $txt['yearly_summary'] = 'Yearly Summary';
 $txt['smf_stats_14'] = 'Most Online';
 $txt['top_starters'] = 'Top Topic Starters';
-$txt['most_time_online'] = 'Most Time Online';
-$txt['best_karma'] = 'Best Karma';
-$txt['worst_karma'] = 'Worst Karma';
+$txt['top_time_online'] = 'Most Time Online';
 $txt['stats_more_detailed'] = 'more detailed &raquo;';
+$txt['top_liked_messages'] = 'Top liked messages';
+$txt['top_liked_users'] = 'Top liked users';
 
 $txt['average_members'] = 'Average registrations per day';
 $txt['average_posts'] = 'Average posts per day';
@@ -38,7 +38,7 @@ $txt['average_hits'] = 'Average page views per day';
 $txt['ssi_comment'] = 'comment';
 $txt['ssi_comments'] = 'comments';
 $txt['ssi_write_comment'] = 'Write Comment';
-$txt['ssi_no_guests'] = 'You cannot specify a board that doesn\'t allow guests.  Please check the board ID before trying again.';
+$txt['ssi_no_guests'] = 'You cannot specify a board that doesn\'t allow guests. Please check the board ID before trying again.';
 $txt['xml_rss_desc'] = 'Live information from ' . $context['forum_name'];
 
 ?>

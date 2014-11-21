@@ -11,7 +11,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -290,6 +290,7 @@ function determineActions($urls, $preferred_prefix = false)
 		'viewErrorLog' => array('admin_forum'),
 		'viewmembers' => array('moderate_forum'),
 	);
+	call_integration_hook('who_allowed', array(&$allowedActions));
 
 	if (!is_array($urls))
 		$url_list = array(array($urls, $user_info['id']));
@@ -348,7 +349,7 @@ function determineActions($urls, $preferred_prefix = false)
 					$actions['u'] = $url[1];
 
 				$data[$k] = $txt['who_hidden'];
-				$profile_ids[(int) $actions['u']][$k] = $actions['action'] == 'profile' ? $txt['who_viewprofile'] : $txt['who_profile'];
+				$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? $txt['who_viewownprofile'] : $txt['who_viewprofile'];
 			}
 			elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board']))
 			{
@@ -415,6 +416,19 @@ function determineActions($urls, $preferred_prefix = false)
 				$data[$k] = $txt['who_generic'] . ' ' . $actions['action'];
 			else
 				$data[$k] = $txt['who_unknown'];
+		}
+
+		if (isset($actions['error']))
+		{
+			if (isset($txt[$actions['error']]))
+				$error_message = str_replace('"', '&quot;', empty($actions['who_error_params']) ? $txt[$actions['error']] : vsprintf($txt[$actions['error']], $actions['who_error_params']));
+			elseif ($actions['error'] == 'guest_login')
+				$error_message = str_replace('"', '&quot;', $txt['who_guest_login']);
+			else
+				$error_message = str_replace('"', '&quot;', $actions['error']);
+
+			if (!empty($error_message))
+				$data[$k] .= ' <span class="generic_icons error" title="' . $error_message . '"></span>';
 		}
 
 		// Maybe the action is integrated into another system?
@@ -507,6 +521,8 @@ function determineActions($urls, $preferred_prefix = false)
 		$smcFunc['db_free_result']($result);
 	}
 
+	call_integration_hook('whos_online_after', array(&$urls, &$data));
+
 	if (!is_array($urls))
 		return isset($data[0]) ? $data[0] : false;
 	else
@@ -525,7 +541,7 @@ function Credits($in_admin = false)
 	// Don't blink. Don't even blink. Blink and you're dead.
 	loadLanguage('Who');
 
-	if($in_admin)
+	if ($in_admin)
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
 			'title' => $txt['support_credits_title'],
@@ -542,29 +558,34 @@ function Credits($in_admin = false)
 				array(
 					'title' => $txt['credits_groups_pm'],
 					'members' => array(
-						'Michael &quot;Oldiesmann&quot; Eshom',
+						'Kindred',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						// 'Steven &quot;Fustrate&quot; Hoffman',
+						'Michael &quot;Oldiesmann&quot; Eshom',
 						// Developers
-						'Brad &quot;IchBin&trade;&quot; Grow',
-						'emanuele',
-						'Norv',
-						// 'Spuds', // Doesn't want to be listed here
+						'Jessica &quot;Suki&quot; Gonz&aacute;lez',
+						'John &quot;live627&quot; Rayes',
+						'Shitiz &quot;Dragooon&quot; Garg',
 						// Former Developers
 						'Aaron van Geffen',
 						'Antechinus',
 						'Bjoern &quot;Bloc&quot; Kristiansen',
+						'Brad &quot;IchBin&trade;&quot; Grow',
+						'emanuele',
 						'Hendrik Jan &quot;Compuart&quot; Visser',
 						'Juan &quot;JayBachatero&quot; Hernandez',
 						'Karl &quot;RegularExpression&quot; Benson',
+						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Michael &quot;Thantos&quot; Miller',
+						'Norv',
 						'Selman &quot;[SiNaN]&quot; Eser',
+						// 'Spuds', // Doesn't want to be listed here
+						// 'Steven &quot;Fustrate&quot; Hoffman',
 						'Theodore &quot;Orstio&quot; Hildebrandt',
 						'Thorsten &quot;TE&quot; Eurich',
 						'winrules',
@@ -576,22 +597,27 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
-						'Aleksi &quot;Lex&quot; Kilpinen',
+						'Adam &quot;ziycon&quot; Tallon',
 						'Bigguy',
+						'ChalkCat',
 						'Chas Large',
-						'Duncan85',
-						'JimM',
+						'Justyne',
+						'Krash',
+						'Margarett',
 						'Mashby',
-						'Old Fossil',
-						'Yoshi',
-						'ziycon',
-						// Former Support Specialists
-						'CapadY',
-						'gbsothere',
-						'Kevin &quot;greyknight17&quot; Hou',
-						'Michele &quot;Illori&quot; Davis',
-						'S-Ace',
+						'Shadow82x',
+						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
+						'Yoshi',
+						// Former Support Specialists
+						'Aleksi &quot;Lex&quot; Kilpinen',
+						'CapadY',
+						'Duncan85',
+						'gbsothere',
+						'JimM',
+						'Kevin &quot;greyknight17&quot; Hou',
+						'Old Fossil',
+						'S-Ace',
 						'xenovanis',
 					),
 				),
@@ -601,10 +627,12 @@ function Credits($in_admin = false)
 						// Lead Customizer
 						'Gary M. Gadsdon',
 						// Customizers
-						'Jessica Gonz&aacute;lez',
 						'Kays',
-						'Matthew &quot;Labradoodle-360&quot; Kerle',
 						'Ricky.',
+						'Jack "akabugeyes" Thorsen',
+						'Colin Schoen',
+						'SA™',
+						'Diego Andrés',
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
 						'Joey &quot;Tyrsson&quot; Smith',
@@ -614,8 +642,12 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'AngelinaBelle',
+						'Michele &quot;Illori&quot; Davis',
 						// Doc Writers
+						'Chainy',
+						'Irisado',
+						// Former Doc Writers
+						'AngelinaBelle',
 						'Graeme Spence',
 						'Joshua &quot;groundup&quot; Dickerson',
 					),
@@ -624,23 +656,24 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_internationalizers'],
 					'members' => array(
 						// Lead Localizer
-						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
-						// Localizers
-						'Dr. Deejay',
 						'Relyana',
+						// Localizers
+						'Nikola &quot;Dzonny&quot; Novakovi&cacute;',
+						// Former Localizers
+						'Dr. Deejay',
 					),
 				),
 				array(
 					'title' => $txt['credits_groups_marketing'],
 					'members' => array(
 						// Marketing Coordinator
-						'Ralph &quot;[n3rve]&quot; Otowo',
+						'Mert &quot;Antes&quot; Al&#305;nbay ',
 						// Marketing
-						'Bryan &quot;Runic&quot; Deakin',
-						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
 						// Former Marketing
-						'Kindred',
+						'Adish &quot;(F.L.A.M.E.R)&quot; Patel',
+						'Bryan &quot;Runic&quot; Deakin',
 						'Marcus &quot;c&sigma;&sigma;&#1082;&iota;&#1108; &#1084;&sigma;&eta;&#1109;&#1090;&#1108;&#1103;&quot; Forsberg',
+						'Ralph &quot;[n3rve]&quot; Otowo',
 					),
 				),
 				array(
@@ -722,14 +755,15 @@ function Credits($in_admin = false)
 		'software' => array(
 			'<a href="http://jquery.org/">JQuery</a> | &copy; John Resig | Licensed under <a href="http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt">The MIT License (MIT)</a>',
 			'<a href="http://cherne.net/brian/resources/jquery.hoverIntent.html">hoverIntent</a> | &copy; Brian Cherne | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
-			'<a href="http://users.tpg.com.au/j_birch/plugins/superfish/">Superfish</a> | &copy; Joel Birch | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://www.sceditor.com/">SCEditor</a> | &copy; Sam Clarke | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 			'<a href="http://wayfarerweb.com/jquery/plugins/animadrag/">animaDrag</a> | &copy; Abel Mohler | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/mzubala/jquery-custom-scrollbar">jQuery Custom Scrollbar</a> | &copy; Maciej Zubala | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="http://slippry.com/">jQuery Responsive Slider</a> | &copy; booncon ROCKETS | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
-			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> |&copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> |&copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
-			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> |&copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/consolamono"> ConsolaMono</a> | &copy; 2012 | This font is licensed under the SIL Open Font License, Version 1.1',
+			'<a href="http://openfontlibrary.org/en/font/phennig"> Phennig</a> | &copy; 2009-2012 | This font is licensed under the SIL Open Font License, Version 1.1',
 		),
 	);
 

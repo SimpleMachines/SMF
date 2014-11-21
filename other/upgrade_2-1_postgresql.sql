@@ -96,10 +96,30 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
 ---#
 
----# Enable BBC on Editor and collapse object
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
+---# Adding new "enable_ajax_alerts" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+---#
+
+---# Collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
+
+---# Adding new "defaultMaxListItems" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
+---#
+
+---# Adding new "loginHistoryDays" setting
+---{
+	if (!isset($modSettings['loginHistoryDays']))
+		$smcFunc['db_insert']('insert', 
+			'{db_prefix}settings', 
+			array('variable' => 'string', 'value' => 'string'), 
+			array('loginHistoryDays', '30'), 
+			array()
+		);
+---}
+---#
+
 ---# Enable some settings we ripped from Theme settings
 ---{
 	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
@@ -140,7 +160,38 @@ $custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custo
 
 // This little fellow has to cooperate...
 if (!is_writable($custom_av_dir))
-	@chmod($custom_av_dir, 0777);
+{
+	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
+	$chmod_values = array(0755, 0775, 0777);
+
+	foreach($chmod_values as $val)
+	{
+		// If it's writable, break out of the loop
+		if (is_writable($custom_av_dir))
+			break;
+		else
+			@chmod($custom_av_dir, $val);
+	}
+}
+
+// If we already are using a custom dir, delete the predefined one.
+if ($custom_av_dir != $GLOBALS['boarddir'] .'/custom_avatar')
+{
+	// Borrow custom_avatars index.php file.
+	if (!file_exists($custom_av_dir . '/index.php'))
+		@rename($GLOBALS['boarddir'] .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+	else
+		@unlink($GLOBALS['boarddir'] . '/custom_avatar/index.php');
+
+	// Borrow blank.png as well
+	if (!file_exists($custom_av_dir . '/blank.png'))
+		@rename($GLOBALS['boarddir'] . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
+	else
+		@unlink($GLOBALS['boarddir'] . '/custom_avatar/blank.png');
+
+	// Attempt to delete the directory.
+	@rmdir($GLOBALS['boarddir'] .'/custom_avatar');
+}
 
 $request = upgrade_query("
 	SELECT MAX(id_attach)
@@ -215,6 +266,10 @@ while (!$is_done)
 		{
 			$oldFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'];
 			$newFile = $currentFolder . '/' . $row['id_attach'] . '_' . $row['file_hash'] .'.dat';
+
+			// Make sure it exists...
+			if (!file_exists($oldFile))
+				$oldFile = false;
 		}
 
 		if (!$oldFile)
@@ -434,19 +489,27 @@ upgrade_query("
 /******************************************************************************/
 --- Adding new scheduled tasks
 /******************************************************************************/
+---# Adding a new column "callable" to scheduled_tasks table
+---{
+upgrade_query("
+	ALTER TABLE {$db_prefix}scheduled_tasks
+	ADD COLUMN callable varchar(60) NOT NULL default ''");
+---}
+---#
+
 ---# Adding new scheduled tasks
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 120, 1, 'd', 0, 'remove_temp_attachments');
+	(0, 120, 1, 'd', 0, 'remove_temp_attachments', '');
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 180, 1, 'd', 0, 'remove_topic_redirect');
+	(0, 180, 1, 'd', 0, 'remove_topic_redirect', '');
 INSERT INTO {$db_prefix}scheduled_tasks
-	(next_time, time_offset, time_regularity, time_unit, disabled, task)
+	(next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
-	(0, 240, 1, 'd', 0, 'remove_old_drafts');
+	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 ---#
 
 /******************************************************************************/
@@ -611,11 +674,6 @@ ADD COLUMN unwatched int NOT NULL DEFAULT '0';
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
-
-INSERT INTO {$db_prefix}settings
-	(variable, value)
-VALUES
-	('enable_unwatch', 0);
 ---#
 
 ---# Fixing column name change...
@@ -643,6 +701,12 @@ SET value = 'SMF Default Theme - Curve2'
 WHERE value LIKE 'SMF Default Theme%';
 ---#
 
+---# Fader time update
+UPDATE {$db_prefix}themes
+SET value = '500'
+WHERE variable = 'newsfader_time';
+---#
+
 ---# Adding the enableThemes setting.
 INSERT INTO {$db_prefix}settings
 	(variable, value)
@@ -660,6 +724,77 @@ SET id_theme = 0;
 
 UPDATE {$db_prefix}members
 SET id_theme = 0;
+---#
+
+/******************************************************************************/
+--- Membergroup icons changes
+/******************************************************************************/
+---# Check the current saved names for icons and change them to the new name.
+---{
+$request = $smcFunc['db_query']('', '
+	SELECT icons
+	FROM {db_prefix}membergroups
+	WHERE icons != {string:blank}',
+	array(
+		'blank' => '',
+	)
+);
+$toMove = array();
+$toChange = array();
+while ($row = $smcFunc['db_fetch_assoc']($request))
+{
+	if (strpos($row['icons'], 'star.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('star.gif', 'icon.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'starmod.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('starmod.gif', 'iconmod.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'stargmod.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('stargmod.gif', 'icongmod.png', $row['icons']),
+		);
+
+	elseif (strpos($row['icons'], 'staradmin.gif') !== false)
+		$toChange[] = array(
+			'old' => $row['icons'],
+			'new' => str_replace('staradmin.gif', 'iconadmin.png', $row['icons']),
+		);
+
+	else
+		$toMove[] = $row['icons'];
+}
+$smcFunc['db_free_result']($request);
+
+foreach ($toChange as $change)
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}membergroups
+		SET icons = {string:new}
+		WHERE icons = {string:old}',
+		array(
+			'new' => $change['new'],
+			'old' => $change['old'],
+		)
+	);
+
+// Attempt to move any custom uploaded icons.
+foreach ($toMove as $move)
+{
+	// Get the actual image.
+	$image = explode('#', $move);
+	$image = $image[1];
+
+	// PHP won't suppress errors when running things from shell, so make sure it exists first...
+	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))  
+		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
+}
+---}
 ---#
 
 /******************************************************************************/
@@ -720,20 +855,26 @@ ADD COLUMN show_mlist smallint NOT NULL default '0';
 ---#
 
 ---# Insert fields
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 ---#
 
----# Add an order and show on mlist value to each existing cust profile field.
+---# Add an order value to each existing cust profile field.
 ---{
 	$ocf = $smcFunc['db_query']('', '
 		SELECT id_field
-		FROM {db_prefix}custom_fields');
+		FROM {db_prefix}custom_fields
+		WHERE field_order = 0');
 
 		// We start counting from 6 because we already have the first 6 fields.
 		$fields_count = 6;
@@ -742,19 +883,15 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 		{
 			++$fields_count;
 
-			if (!empty($row['id_field']))
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}custom_fields
-					SET field_order = {int:field_count}, show_mlist = {int:show_mlist}
-					WHERE id_field = {int:id_field}
-						AND field_order = {int:show_mlist}',
-					array(
-						'field_count' => $fields_count,
-						'show_mlist' => 0,
-						'id_field' => $row['id_field'],
-						'six' => 6,
-					)
-				);
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}custom_fields
+				SET field_order = {int:field_count}
+				WHERE id_field = {int:id_field}',
+				array(
+					'field_count' => $fields_count,
+					'id_field' => $row['id_field'],
+				)
+			);
 		}
 		$smcFunc['db_free_result']($ocf);
 ---}
@@ -803,34 +940,50 @@ if (@$modSettings['smfVersion'] < '2.1')
 ---}
 ---#
 ---# Dropping old fields
-ALTER TABLE `{$db_prefix}members`
-  DROP `icq`,
-  DROP `aim`,
-  DROP `yim`,
-  DROP `msn`,
-  DROP `location`,
-  DROP `gender`;
+ALTER TABLE {$db_prefix}members
+  DROP icq,
+  DROP aim,
+  DROP yim,
+  DROP msn,
+  DROP location,
+  DROP gender;
 ---#
 
 ---# Create the displayFields setting
-	$request = $smcFunc['db_query']('', '
-		SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
-		FROM {db_prefix}custom_fields',
-		array()
-	);
+---{
+	if (empty($modSettings['displayFields']))
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+			FROM {db_prefix}custom_fields',
+			array()
+		);
 
-	$fields = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$fields[] = $row;
+		$fields = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			$fields[] = array(
+				'col_name' => strtr($row['col_name'], array('|' => '', ';' => '')),
+				'title' => strtr($row['field_name'], array('|' => '', ';' => '')),
+				'type' => $row['field_type'],
+				'order' => $row['field_order'],
+				'bbc' => $row['bbc'] ? '1' : '0',
+				'placement' => !empty($row['placement']) ? $row['placement'] : '0',
+				'enclose' => !empty($row['enclose']) ? $row['enclose'] : '',
+				'mlist' => $row['show_mlist'],
+			);
+		}
 
-	$smcFunc['db_free_result']($request);
+		$smcFunc['db_free_result']($request);
 
-	$smcFunc['db_insert']('replace',
-		'{db_prefix}settings',
-		array('variable' => 'string', 'value' => 'string'),
-		array('displayFields', serialize($fields)),
-		array('id_theme', 'id_member', 'variable')
-	);
+		$smcFunc['db_insert']('',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('displayFields', serialize($fields)),
+			array('id_theme', 'id_member', 'variable')
+		);
+	}
+---}
 ---#
 
 /******************************************************************************/
@@ -873,7 +1026,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], $row[id_board], 'post_draft', $row[add_deny])";
-		$inserts[] = "($row[id_group], $row[id_board], 'post_autosave_draft', $row[add_deny])";
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -898,7 +1050,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$inserts[] = "($row[id_group], 'pm_draft', $row[add_deny])";
-		$inserts[] = "($row[id_group], 'pm_autosave_draft', $row[add_deny])";
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -918,7 +1069,6 @@ if (@$modSettings['smfVersion'] < '2.1')
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_show_saved_enabled', '1');
 ---#
 
@@ -941,6 +1091,23 @@ CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
 ---# Adding count to the messages table.
 ALTER TABLE {$db_prefix}messages
 ADD COLUMN likes smallint NOT NULL default '0';
+---#
+
+/******************************************************************************/
+--- Adding support for mentions
+/******************************************************************************/
+---# Creating mentions table
+CREATE TABLE  {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  time int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned)
+);
+
+CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
+CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
 ---#
 
 /******************************************************************************/
@@ -1048,20 +1215,30 @@ WHERE variable = 'avatar_action_too_large'
 
 ---# Cleaning up old settings.
 DELETE FROM {$db_prefix}settings
-WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin');
+WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_registration', 'attachmentEncryptFilenames', 'hotTopicPosts', 'hotTopicVeryPosts', 'fixLongWords', 'admin_features', 'topbottomEnable', 'simpleSearch', 'enableVBStyleLogin', 'admin_bbc', 'enable_unwatch');
 ---#
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled');
 ---#
+
+---# Calculate appropriate hash cost
+---{
+  $smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('bcrypt_hash_cost', hash_benchmark()),
+		array('variable')
+  );
+---}
 
 /******************************************************************************/
 --- Updating files that fetched from simplemachines.org
 /******************************************************************************/
 ---# We no longer call on several files.
 DELETE FROM {$db_prefix}admin_info_files
-WHERE filename IN ('latest-packages.js', 'latest-support.js', 'latest-themes.js')
+WHERE filename IN ('latest-packages.js', 'latest-smileys.js', 'latest-support.js', 'latest-themes.js')
 	AND path = '/smf/';
 ---#
 
@@ -1161,6 +1338,14 @@ WHERE permission = 'mark_notify' OR permission = 'mark_any_notify';
 ---# Removing the send-topic permission
 DELETE FROM {$db_prefix}board_permissions
 WHERE permission = 'send_topic';
+---#
+
+---# Removing the draft "autosave" permissions
+DELETE FROM {$db_prefix}permissions
+WHERE permission = 'post_autosave_draft' OR permission = 'pm_autosave_draft';
+
+DELETE FROM {$db_prefix}board_permissions
+WHERE permission = 'post_autosave_draft';
 ---#
 
 ---# Adding "profile_password_own"
@@ -1473,9 +1658,38 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 ---#
 
 /******************************************************************************/
+--- Adding gravatar settings
+/******************************************************************************/
+---# Adding default gravatar settings
+---{
+	if (empty($modSettings['gravatarEnabled']))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string'),
+			array(
+				array('gravatarEnabled', '1'),
+				array('gravatarOverride', '0'),
+				array('gravatarAllowExtraEmail', '1'),
+				array('gravatarMaxRating', 'PG'),
+			),
+			array('variable')
+		);
+	}
+---}
+---#
+
+/******************************************************************************/
+--- Adding timezone support
+/******************************************************************************/
+---# Adding the "timezone" column to the members table
+ALTER TABLE {$db_prefix}members ADD timezone VARCHAR(80) NOT NULL DEFAULT 'UTC';
+---#
+
+/******************************************************************************/
 --- Adding mail queue settings
 /******************************************************************************/
----#
+---# Adding default settings for the mail queue
 ---{
 	if (empty($modSettings['mail_limit']))
 	{
@@ -1510,6 +1724,11 @@ ALTER TABLE {$db_prefix}members
 DROP hide_email;
 ---#
 
+---# Dropping the "email_address" column from log_reported_comments
+ALTER TABLE {$db_prefix}log_reported_comments
+DROP email_address;
+---#
+
 /******************************************************************************/
 --- Deleting the "Auto Optimize" task
 /******************************************************************************/
@@ -1522,4 +1741,56 @@ WHERE id_task = '2';
 
 DELETE FROM {$db_prefix}settings
 WHERE variable = 'autoOptMaxOnline';
+---#
+
+/******************************************************************************/
+--- Removing OpenID-related things...
+/******************************************************************************/
+---# Removing the openid_uri column in the members table
+ALTER TABLE {$db_prefix}members
+DROP openid_uri;
+---#
+
+---# Dropping the openid_assoc table
+DROP TABLE IF EXISTS {$db_prefix}openid_assoc;
+---#
+
+---# Removing related settings
+DELETE FROM {$db_prefix}settings
+WHERE variable='enableOpenID' OR variable='dh_keys';
+---#
+
+/******************************************************************************/
+--- Port post notification settings
+/******************************************************************************/
+---# Upgrading post notification settings
+---{
+  $existing_notify = $smcFunc['db_query']('', '
+    SELECT id_member, notify_regularity, notify_send_body, notify_types
+    FROM {db_prefix}members',
+    array()
+  );
+  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+  {
+    $smcFunc['db_insert']('ignore',
+      '{db_prefix}user_alerts_prefs',
+      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+      array(
+        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+      ),
+      array('id_member', 'alert_pref')
+    );
+  }
+  $smcFunc['db_free_result']($existing_notify);
+---}
+---#
+
+/******************************************************************************/
+--- Fixing the url column in the log_spider_hits table
+/******************************************************************************/
+---# Changing url column size from 255 to 1024
+ALTER TABLE {$db_prefix}log_spider_hits
+ALTER url TYPE varchar(1024);
 ---#

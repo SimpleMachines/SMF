@@ -358,8 +358,8 @@ function updateInputBoxes()
 	document.getElementById("default_dd").style.display = curType == "check" ? "" : "none";
 	document.getElementById("mask_dt").style.display = curType == "text" ? "" : "none";
 	document.getElementById("mask").style.display = curType == "text" ? "" : "none";
-	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
+	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
 	document.getElementById("regex_div").style.display = curType == "text" && document.getElementById("mask").value == "regex" ? "" : "none";
 	document.getElementById("display").disabled = false;
 	// Cannot show this on the topic
@@ -478,7 +478,7 @@ function selectMethod(element)
 function updatePreview()
 {
 	var currentImage = document.getElementById("preview");
-	currentImage.src = smf_images_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
+	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
 }
 
 function swap_database_changes()

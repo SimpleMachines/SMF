@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -199,7 +199,10 @@ function ShowXmlFeed()
 		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	if (empty($xml))
 	{
-		$xml = $subActions[$_GET['sa']][0]($xml_format);
+		$call = call_helper($subActions[$_GET['sa']][0], true);
+
+		if (!empty($call))
+			$xml = call_user_func($call, $xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))
@@ -256,7 +259,7 @@ function ShowXmlFeed()
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/atom+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -333,7 +336,10 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . (isset($m[2]) ? $m[2] : "");'), $val);
+	$val = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function ($m) use ($scripturl)
+		{
+			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+		}, $val);
 	return $val;
 }
 
@@ -556,7 +562,7 @@ function getXmlMembers($xml_format)
  */
 function getXmlNews($xml_format)
 {
-	global $scripturl, $modSettings, $board;
+	global $scripturl, $modSettings, $board, $user_info;
 	global $query_this_board, $smcFunc, $context;
 
 	/* Find the latest posts that:
@@ -648,7 +654,7 @@ function getXmlNews($xml_format)
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -691,7 +697,7 @@ function getXmlNews($xml_format)
 function getXmlRecent($xml_format)
 {
 	global $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $context;
+	global $query_this_board, $smcFunc, $context, $user_info;
 
 	$done = false;
 	$loops = 0;
@@ -800,7 +806,7 @@ function getXmlRecent($xml_format)
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : ''
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -851,7 +857,7 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $scripturl, $memberContext, $user_profile, $modSettings, $user_info;
+	global $scripturl, $memberContext, $user_profile, $user_info;
 
 	// You must input a valid user....
 	if (empty($_GET['u']) || loadMemberData((int) $_GET['u']) === false)
@@ -889,7 +895,7 @@ function getXmlProfile($xml_format)
 			'author' => array(
 				'name' => $profile['real_name'],
 				'email' => $profile['show_email'] ? $profile['email'] : null,
-				'uri' => !empty($profile['website']) ? $profile['website']['url'] : ''
+				'uri' => !empty($profile['website']) ? $profile['website']['url'] : null,
 			),
 			'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['date_registered']),
 			'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['last_login']),
@@ -935,12 +941,6 @@ function getXmlProfile($xml_format)
 
 		if ($profile['group'] != '')
 			$data['position'] = cdata_parse($profile['group']);
-
-		if (!empty($modSettings['karmaMode']))
-			$data['karma'] = array(
-				'good' => $profile['karma']['good'],
-				'bad' => $profile['karma']['bad']
-			);
 
 		if ($profile['show_email'])
 			$data['email'] = $profile['email'];

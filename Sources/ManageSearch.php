@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -48,8 +48,6 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
-	call_integration_hook('integrate_manage_search', array(&$subActions));
-
 	// Default the sub-action to 'edit search settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
 
@@ -73,8 +71,10 @@ function ManageSearch()
 		),
 	);
 
+	call_integration_hook('integrate_manage_search', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -94,7 +94,6 @@ function EditSearchSettings($return_config = false)
 			// Permission...
 			array('permissions', 'search_posts'),
 			// Some simple settings.
-			array('check', 'search_dropdown'),
 			array('int', 'search_results_per_page'),
 			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
 		'',

@@ -10,7 +10,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function ManageSmileys()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('manage_smileys');
 
@@ -41,8 +41,6 @@ function ManageSmileys()
 		'settings' => 'EditSmileySettings',
 		'install' => 'InstallSmileySet'
 	);
-
-	call_integration_hook('integrate_manage_smileys', array(&$subActions));
 
 	// If customized smileys is disabled don't show the setting page
 	if (empty($modSettings['smiley_enable']))
@@ -102,8 +100,10 @@ function ManageSmileys()
 		$context[$context['admin_menu_name']]['tab_data']['tabs']['setorder']['disabled'] = true;
 	}
 
+	call_integration_hook('integrate_manage_smileys', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -187,7 +187,7 @@ function EditSmileySettings($return_config = false)
  */
 function EditSmileySets()
 {
-	global $modSettings, $context, $txt, $boarddir;
+	global $modSettings, $context, $txt;
 	global $smcFunc, $scripturl, $sourcedir;
 
 	// Set the right tab to be selected.
@@ -206,9 +206,14 @@ function EditSmileySets()
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
 			{
-				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
+				// If this is the set you've marked as default, or the only one remaining, you can't delete it
+				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
 					unset($set_paths[$id], $set_names[$id]);
 			}
+
+			// Shortcut... array_merge() on a single array resets the numeric keys
+			$set_paths = array_merge($set_paths);
+			$set_names = array_merge($set_names);
 
 			updateSettings(array(
 				'smiley_sets_known' => implode(',', $set_paths),
@@ -388,9 +393,10 @@ function EditSmileySets()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return $rowData[\'selected\'] ? \'<span class="field_icons valid"></span>\' : \'\';
-					'),
+					'function' => function ($rowData)
+					{
+						return $rowData['selected'] ? '<span class="generic_icons valid"></span>' : '';
+					},
 					'class' => 'centercol',
 				),
 				'sort' => array(
@@ -447,9 +453,10 @@ function EditSmileySets()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return $rowData[\'id\'] == 0 ? \'\' : sprintf(\'<input type="checkbox" name="smiley_set[%1$d]" class="input_check">\', $rowData[\'id\']);
-					'),
+					'function' => function ($rowData)
+					{
+						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -461,7 +468,7 @@ function EditSmileySets()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" onclick="return confirm(\'' . $txt['smiley_sets_confirm'] . '\');" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" onclick="return confirm(\'' . $txt['smiley_sets_confirm'] . '\');" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 		),
 	);
@@ -984,16 +991,15 @@ function EditSmileys()
 						'value' => $txt['smileys_location'],
 					),
 					'data' => array(
-						'function' => create_function('$rowData', '
-							global $txt;
-
-							if (empty($rowData[\'hidden\']))
-								return $txt[\'smileys_location_form\'];
-							elseif ($rowData[\'hidden\'] == 1)
-								return $txt[\'smileys_location_hidden\'];
+						'function' => function ($rowData) use ($txt)
+						{
+							if (empty($rowData['hidden']))
+								return $txt['smileys_location_form'];
+							elseif ($rowData['hidden'] == 1)
+								return $txt['smileys_location_hidden'];
 							else
-								return $txt[\'smileys_location_popup\'];
-						'),
+								return $txt['smileys_location_popup'];
+						},
 					),
 					'sort' => array(
 						'default' => 'FIND_IN_SET(hidden, \'' . implode(',', array_keys($smiley_locations)) . '\')',
@@ -1005,25 +1011,24 @@ function EditSmileys()
 						'value' => $txt['smileys_description'],
 					),
 					'data' => array(
-						'function' => create_function('$rowData', empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']) ? '
-							global $smcFunc;
-							return $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
-						' : '
-							global $context, $txt, $modSettings, $smcFunc;
+						'function' => function ($rowData) use ($modSettings, $context, $txt, $modSettings, $smcFunc)
+						{
+							if (empty($modSettings['smileys_dir']) || !is_dir($modSettings['smileys_dir']))
+								return $smcFunc['htmlspecialchars']($rowData['description']);
 
 							// Check if there are smileys missing in some sets.
 							$missing_sets = array();
-							foreach ($context[\'smiley_sets\'] as $smiley_set)
-								if (!file_exists(sprintf(\'%1$s/%2$s/%3$s\', $modSettings[\'smileys_dir\'], $smiley_set[\'path\'], $rowData[\'filename\'])))
-									$missing_sets[] = $smiley_set[\'path\'];
+							foreach ($context['smiley_sets'] as $smiley_set)
+								if (!file_exists(sprintf('%1$s/%2$s/%3$s', $modSettings['smileys_dir'], $smiley_set['path'], $rowData['filename'])))
+									$missing_sets[] = $smiley_set['path'];
 
-							$description = $smcFunc[\'htmlspecialchars\']($rowData[\'description\']);
+							$description = $smcFunc['htmlspecialchars']($rowData['description']);
 
 							if (!empty($missing_sets))
-								$description .= sprintf(\'<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>\', $txt[\'smileys_not_found_in_set\'], implode(\', \', $missing_sets));
+								$description .= sprintf('<br><span class="smalltext"><strong>%1$s:</strong> %2$s</span>', $txt['smileys_not_found_in_set'], implode(', ', $missing_sets));
 
 							return $description;
-						'),
+						},
 					),
 					'sort' => array(
 						'default' => 'description',
@@ -1241,7 +1246,7 @@ function list_getNumSmileys()
  */
 function EditSmileyOrder()
 {
-	global $context, $txt, $boarddir, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	// Move smileys to another position.
 	if (isset($_REQUEST['reorder']))
@@ -1701,7 +1706,7 @@ function ImportSmileys($smileyPath)
 function EditMessageIcons()
 {
 	global $context, $settings, $txt;
-	global $boarddir, $smcFunc, $scripturl, $sourcedir;
+	global $smcFunc, $scripturl, $sourcedir;
 
 	// Get a list of icons.
 	$context['icons'] = array();
@@ -1849,12 +1854,11 @@ function EditMessageIcons()
 		'columns' => array(
 			'icon' => array(
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $settings, $smcFunc;
-
-						$images_url = $settings[file_exists(sprintf(\'%1$s/images/post/%2$s.png\', $settings[\'theme_dir\'], $rowData[\'filename\'])) ? \'actual_images_url\' : \'default_images_url\'];
-						return sprintf(\'<img src="%1$s/post/%2$s.png" alt="%3$s">\', $images_url, $rowData[\'filename\'], $smcFunc[\'htmlspecialchars\']($rowData[\'title\']));
-					'),
+					'function' => function ($rowData) use ($settings, $smcFunc)
+					{
+						$images_url = $settings[file_exists(sprintf('%1$s/images/post/%2$s.png', $settings['theme_dir'], $rowData['filename'])) ? 'actual_images_url' : 'default_images_url'];
+						return sprintf('<img src="%1$s/post/%2$s.png" alt="%3$s">', $images_url, $rowData['filename'], $smcFunc['htmlspecialchars']($rowData['title']));
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -1884,11 +1888,10 @@ function EditMessageIcons()
 					'value' => $txt['icons_board'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
-						return empty($rowData[\'board_name\']) ? $txt[\'icons_edit_icons_all_boards\'] : $rowData[\'board_name\'];
-					'),
+					'function' => function ($rowData) use ($txt)
+					{
+						return empty($rowData['board_name']) ? $txt['icons_edit_icons_all_boards'] : $rowData['board_name'];
+					},
 				),
 			),
 			'modify' => array(

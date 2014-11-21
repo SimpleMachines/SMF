@@ -8,14 +8,14 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Alpha 1');
-define('SMF_LANG_VERSION', '2.1 Alpha 1');
+define('SMF_VERSION', '2.1 Beta 1');
+define('SMF_LANG_VERSION', '2.1 Beta 1');
 
-$GLOBALS['required_php_version'] = '5.3.2';
+$GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '4.0.18';
 
 $databases = array(
@@ -43,12 +43,6 @@ $databases = array(
 		'version_check' => '$version = pg_version(); return $version[\'client\'];',
 		'always_has_db' => true,
 	),
-	'sqlite' => array(
-		'name' => 'SQLite',
-		'version' => '1',
-		'version_check' => 'return 1;',
-		'always_has_db' => true,
-	),
 );
 
 // General options for the script.
@@ -71,7 +65,7 @@ $upcontext['steps'] = array(
 	3 => array(4, 'Database Changes', 'DatabaseChanges', 70),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
-	4 => array(5, 'Delete Upgrade', 'DeleteUpgrade', 1),
+	4 => array(5, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -163,8 +157,6 @@ if (!function_exists('text2words'))
 {
 	function text2words($text)
 	{
-		global $smcFunc;
-
 		// Step 1: Remove entities/things we don't consider words:
 		$words = preg_replace('~(?:[\x0B\0\xA0\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~', ' ', $text);
 
@@ -207,8 +199,8 @@ if (!function_exists('clean_cache'))
 		closedir($dh);
 
 		// Invalidate cache, to be sure!
-		// ... as long as Load.php can be modified, anyway.
-		@touch($sourcedir . '/' . 'Load.php');
+		// ... as long as index.php can be modified, anyway.
+		@touch($cachedir . '/' . 'index.php');
 		clearstatcache();
 	}
 }
@@ -793,7 +785,7 @@ function redirectLocation($location, $addForm = true)
 function loadEssentialData()
 {
 	global $db_server, $db_user, $db_passwd, $db_name, $db_connection, $db_prefix, $db_character_set, $db_type;
-	global $modSettings, $sourcedir, $smcFunc, $upcontext;
+	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
 	@set_magic_quotes_runtime(0);
@@ -807,6 +799,18 @@ function loadEssentialData()
 
 	if (empty($smcFunc))
 		$smcFunc = array();
+
+	// We need this for authentication and some upgrade code
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	$smcFunc['strtolower'] = $db_character_set != 'utf8'  ? 'strtolower' :
+		function($string) use ($sourcedir)
+		{
+			if (function_exists('mb_strtolower'))
+				return mb_strtolower($string, 'UTF-8');
+			require_once($sourcedir . '/Subs-Charset.php');
+			return utf8_strtolower($string);
+		};
 
 	// Check we don't need some compatibility.
 	if (@version_compare(PHP_VERSION, '5.1', '<='))
@@ -868,7 +872,7 @@ function loadEssentialData()
 
 function initialize_inputs()
 {
-	global $sourcedir, $start_time, $upcontext, $db_type;
+	global $start_time, $upcontext, $db_type;
 
 	$start_time = time();
 
@@ -891,7 +895,7 @@ function initialize_inputs()
 	{
 		@unlink(__FILE__);
 
-		$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+		$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 		// And the extra little files ;).
 		@unlink(dirname(__FILE__) . '/upgrade_1-0.sql');
@@ -916,7 +920,6 @@ function initialize_inputs()
 		// 1.1 JS files were stored in the main theme folder, but in 2.0+ are in the scripts/ folder
 		@unlink(dirname(__FILE__) . '/Themes/default/fader.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/script.js');
-		@unlink(dirname(__FILE__) . '/Themes/default/sha1.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/spellcheck.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/xml_board.js');
 		@unlink(dirname(__FILE__) . '/Themes/default/xml_topic.js');
@@ -956,12 +959,12 @@ function initialize_inputs()
 // Step 0 - Let's welcome them in and ask them to login!
 function WelcomeLogin()
 {
-	global $boarddir, $sourcedir, $db_prefix, $language, $modSettings, $cachedir, $upgradeurl, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $databases, $txt;
+	global $boarddir, $sourcedir, $modSettings, $cachedir, $upgradeurl, $upcontext;
+	global $smcFunc, $db_type, $databases, $txt, $boardurl;
 
 	$upcontext['sub_template'] = 'welcome_message';
 
-	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// Check for some key files - one template, one language, and a new and an old source file.
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
@@ -1008,10 +1011,10 @@ function WelcomeLogin()
 	$need_settings_update = empty($modSettings['custom_avatar_dir']);
 
 	$custom_av_dir = !empty($modSettings['custom_avatar_dir']) ? $modSettings['custom_avatar_dir'] : $GLOBALS['boarddir'] .'/custom_avatar';
+	$custom_av_url = !empty($modSettings['custom_avatar_url']) ? $modSettings['custom_avatar_url'] : $boardurl .'/custom_avatar';
 
 	// This little fellow has to cooperate...
-	if (!is_writable($custom_av_dir))
-		@chmod($custom_av_dir, 0777);
+	quickFileWritable($custom_av_dir);
 
 	// Are we good now?
 	if(!is_writable($custom_av_dir))
@@ -1021,6 +1024,7 @@ function WelcomeLogin()
 		if (!function_exists('cache_put_data'))
 			require_once($sourcedir . '/Load.php');
 		updateSettings(array('custom_avatar_dir' => $custom_av_dir));
+		updateSettings(array('custom_avatar_url' => $custom_av_url));
 	}
 
 	require_once($sourcedir . '/Security.php');
@@ -1087,8 +1091,8 @@ function WelcomeLogin()
 // Step 0.5: Does the login work?
 function checkLogin()
 {
-	global $boarddir, $sourcedir, $db_prefix, $language, $modSettings, $cachedir, $upgradeurl, $upcontext, $disable_security;
-	global $smcFunc, $db_type, $databases, $support_js, $txt;
+	global $modSettings, $upcontext, $disable_security;
+	global $smcFunc, $db_type, $support_js;
 
 	// Are we trying to login?
 	if (isset($_POST['contbutt']) && (!empty($_POST['user']) || $disable_security))
@@ -1149,19 +1153,7 @@ function checkLogin()
 				foreach ($groups as $k => $v)
 					$groups[$k] = (int) $v;
 
-				// Figure out the password using SMF's encryption - if what they typed is right.
-				if (isset($_REQUEST['hash_passwrd']) && strlen($_REQUEST['hash_passwrd']) == 40)
-				{
-					// This is needed for validateToken, but isn't always included for some reason...
-					include_once($sourcedir . '/Security.php');
-
-					// Challenge passed.
-					$tk = validateToken('login');
-					if ($_REQUEST['hash_passwrd'] == sha1($password . $upcontext['rid'] . $tk))
-						$sha_passwd = $password;
-				}
-				else
-					$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
+				$sha_passwd = sha1(strtolower($name) . un_htmlspecialchars($_REQUEST['passwrd']));
 			}
 			else
 				$upcontext['username_incorrect'] = true;
@@ -1183,7 +1175,7 @@ function checkLogin()
 			$upcontext['user']['version'] = $modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if ((empty($sha_passwd) || $password != $sha_passwd) && empty($upcontext['username_incorrect']) && !$disable_security)
+		if ((empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !hash_verify_password((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']) && !$disable_security)
 		{
 			// MD5?
 			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));
@@ -1271,10 +1263,19 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $mmessage, $cachedir, $upcontext, $db_type, $db_server;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
+
+	db_extend('packages');
+	$upcontext['karma_installed'] = array('good' => false, 'bad' => false);
+	$member_columns = $smcFunc['db_list_columns']('{db_prefix}members');
+
+	$upcontext['karma_installed']['good'] = in_array('karma_good', $member_columns);
+	$upcontext['karma_installed']['bad'] = in_array('karma_bad', $member_columns);
+
+	unset($member_columns);
 
 	// If we've not submitted then we're done.
 	if (empty($_POST['upcont']))
@@ -1319,6 +1320,44 @@ function UpgradeOptions()
 				'db_error_skip' => true,
 			)
 		);
+
+	// Deleting old karma stuff?
+	if (!empty($_POST['delete_karma']))
+	{
+		// Delete old settings vars.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}settings
+			WHERE variable IN ({array_string:karma_vars})',
+			array(
+				'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
+			)
+		);
+
+		// Cleaning up old karma member settings.
+		if ($upcontext['karma_installed']['good'])
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_good',
+				array()
+			);
+
+		// Does karma bad was enable?
+		if ($upcontext['karma_installed']['bad'])
+			$smcFunc['db_query']('', '
+				ALTER TABLE {db_prefix}members
+				DROP karma_bad',
+				array()
+			);
+
+		// Cleaning up old karma permissions.
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}permissions
+			WHERE permission = {string:karma_vars}',
+			array(
+				'karma_vars' => 'karma_edit',
+			)
+		);
+	}
 
 	// Emptying the error log?
 	if (!empty($_POST['empty_error']))
@@ -1529,7 +1568,7 @@ function backupTable($table)
 function DatabaseChanges()
 {
 	global $db_prefix, $modSettings, $command_line, $smcFunc;
-	global $language, $boardurl, $sourcedir, $boarddir, $upcontext, $support_js, $db_type;
+	global $upcontext, $support_js, $db_type;
 
 	// Have we just completed this?
 	if (!empty($_POST['database_done']))
@@ -1538,7 +1577,7 @@ function DatabaseChanges()
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'database_xml' : 'database_changes';
 	$upcontext['page_title'] = 'Database Changes';
 
-	$type = ($db_type == 'mysqli') ? 'mysql' : $db_type;
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 
 	// All possible files.
 	// Name, <version, insert_on_complete
@@ -1627,7 +1666,7 @@ function DatabaseChanges()
 // Clean up any mods installed...
 function CleanupMods()
 {
-	global $db_prefix, $modSettings, $upcontext, $boarddir, $sourcedir, $packagesdir, $settings, $smcFunc, $command_line;
+	global $db_prefix, $upcontext, $boarddir, $packagesdir, $settings, $smcFunc, $command_line;
 
 	// Sorry. Not supported for command line users.
 	if ($command_line)
@@ -2037,6 +2076,9 @@ function DeleteUpgrade()
 		exit;
 	}
 
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 8) . '\''));
+
 	// Make sure it says we're done.
 	$upcontext['overall_percent'] = 100;
 	if (isset($upcontext['step_progress']))
@@ -2049,7 +2091,7 @@ function DeleteUpgrade()
 // Just like the built in one, but setup for CLI to not use themes.
 function cli_scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc;
+	global $sourcedir, $language, $forum_version, $modSettings, $smcFunc;
 
 	if (empty($modSettings['time_format']))
 		$modSettings['time_format'] = '%B %d, %Y, %I:%M:%S %p';
@@ -2148,7 +2190,7 @@ function convertSettingsToTheme()
 // This function only works with MySQL but that's fine as it is only used for v1.0.
 function convertSettingstoOptions()
 {
-	global $db_prefix, $modSettings, $smcFunc;
+	global $modSettings, $smcFunc;
 
 	// Format: new_setting -> old_setting_name.
 	$values = array(
@@ -2263,10 +2305,7 @@ function updateLastError()
 
 function php_version_check()
 {
-	$minver = explode('.', $GLOBALS['required_php_version']);
-	$curver = explode('.', PHP_VERSION);
-
-	return !(($curver[0] <= $minver[0]) && ($curver[1] <= $minver[1]) && ($curver[1] <= $minver[1]) && ($curver[2][0] < $minver[2][0]));
+	return version_compare(PHP_VERSION, $GLOBALS['required_php_version'], '>=');
 }
 
 function db_version_check()
@@ -2281,7 +2320,7 @@ function db_version_check()
 
 function getMemberGroups()
 {
-	global $db_prefix, $smcFunc;
+	global $smcFunc;
 	static $member_groups = array();
 
 	if (!empty($member_groups))
@@ -2328,7 +2367,7 @@ function fixRelativePath($path)
 function parse_sql($filename)
 {
 	global $db_prefix, $db_collation, $boarddir, $boardurl, $command_line, $file_steps, $step_progress, $custom_warning;
-	global $upcontext, $support_js, $is_debug, $smcFunc, $db_connection, $databases, $db_type, $db_character_set;
+	global $upcontext, $support_js, $is_debug, $smcFunc, $databases, $db_type, $db_character_set;
 
 /*
 	Failure allowed on:
@@ -2707,9 +2746,6 @@ function upgrade_query($string, $unbuffered = false)
 		{
 			if (strpos($db_error_message, 'exist') !== false)
 				return true;
-			// SQLite
-			if (strpos($db_error_message, 'missing') !== false)
-				return true;
 		}
 		elseif (strpos(trim($string), 'INSERT ') !== false)
 		{
@@ -2744,7 +2780,7 @@ function upgrade_query($string, $unbuffered = false)
 
 			<div style="margin: 2ex;">
 				This query:
-				<blockquote><tt>' . nl2br(htmlspecialchars(trim($string))) . ';</tt></blockquote>
+				<blockquote><pre>' . nl2br(htmlspecialchars(trim($string))) . ';</pre></blockquote>
 
 				Caused the error:
 				<blockquote>' . nl2br(htmlspecialchars($db_error_message)) . '</blockquote>
@@ -3050,7 +3086,7 @@ function checkChange(&$change)
 // The next substep.
 function nextSubstep($substep)
 {
-	global $start_time, $timeLimitThreshold, $command_line, $file_steps, $modSettings, $custom_warning;
+	global $start_time, $timeLimitThreshold, $command_line, $custom_warning;
 	global $step_progress, $is_debug, $upcontext;
 
 	if ($_GET['substep'] < $substep)
@@ -3110,8 +3146,8 @@ function nextSubstep($substep)
 
 function cmdStep0()
 {
-	global $boarddir, $sourcedir, $db_prefix, $language, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
-	global $language, $is_debug, $txt;
+	global $boarddir, $sourcedir, $language, $modSettings, $start_time, $cachedir, $databases, $db_type, $smcFunc, $upcontext;
+	global $language, $is_debug;
 	$start_time = time();
 
 	ob_end_clean();
@@ -3171,14 +3207,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Some files have not yet been updated properly.');
 
 	// Make sure Settings.php is writable.
-	if (!is_writable($boarddir . '/Settings.php'))
-		@chmod($boarddir . '/Settings.php', 0777);
+		quickFileWritable($boarddir . '/Settings.php');
 	if (!is_writable($boarddir . '/Settings.php'))
 		print_error('Error: Unable to obtain write access to "Settings.php".', true);
 
-	// Make sure Settings.php is writable.
-	if (!is_writable($boarddir . '/Settings_bak.php'))
-		@chmod($boarddir . '/Settings_bak.php', 0777);
+	// Make sure Settings_bak.php is writable.
+		quickFileWritable($boarddir . '/Settings_bak.php');
 	if (!is_writable($boarddir . '/Settings_bak.php'))
 		print_error('Error: Unable to obtain write access to "Settings_bak.php".');
 
@@ -3192,8 +3226,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	}
 
 	// Make sure Themes is writable.
-	if (!is_writable($modSettings['theme_dir']))
-		@chmod($modSettings['theme_dir'], 0777);
+	quickFileWritable($modSettings['theme_dir']);
 
 	if (!is_writable($modSettings['theme_dir']) && !isset($modSettings['smfVersion']))
 		print_error('Error: Unable to obtain write access to "Themes".');
@@ -3203,8 +3236,8 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	if (!file_exists($cachedir_temp))
 		@mkdir($cachedir_temp);
 
-	if (!is_writable($cachedir_temp))
-		@chmod($cachedir_temp, 0777);
+	// Make sure the cache temp dir is writable.
+	quickFileWritable($cachedir_temp);
 
 	if (!is_writable($cachedir_temp))
 		print_error('Error: Unable to obtain write access to "cache".', true);
@@ -3442,6 +3475,26 @@ function makeFilesWritable(&$files)
 	return false;
 }
 
+function quickFileWritable($file)
+{
+	if (is_writable($file))
+		return true;
+
+	@chmod($file, 0755);
+
+	// Try 755 and 775 first since 777 doesn't always work and could be a risk...
+	$chmod_values = array(0755, 0775, 0777);
+
+	foreach($chmod_values as $val)
+	{
+		// If it's writable, break out of the loop
+		if (is_writable($file))
+			break;
+		else
+			@chmod($file, $val);
+	}
+}
+
 /******************************************************************************
 ******************* Templates are below this point ****************************
 ******************************************************************************/
@@ -3449,7 +3502,7 @@ function makeFilesWritable(&$files)
 // This is what is displayed if there's any chmod to be done. If not it returns nothing...
 function template_chmod()
 {
-	global $upcontext, $upgradeurl, $settings;
+	global $upcontext, $txt, $settings;
 
 	// Don't call me twice!
 	if (!empty($upcontext['chmod_called']))
@@ -3511,7 +3564,7 @@ function template_chmod()
 	<form action="', $upcontext['form_url'], '" method="post">';
 
 	echo '
-		<table width="520" cellspacing="0" cellpadding="0" border="0" align="center" style="margin-bottom: 1ex;">
+		<table width="520" border="0" align="center" style="margin-bottom: 1ex;">
 			<tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_server">', $txt['ftp_server'], ':</label></td>
 				<td>
@@ -3550,7 +3603,7 @@ function template_chmod()
 
 function template_upgrade_above()
 {
-	global $modSettings, $txt, $smfsite, $settings, $upcontext, $upgradeurl;
+	global $modSettings, $txt, $settings, $upcontext, $upgradeurl;
 
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
@@ -3735,8 +3788,6 @@ function template_xml_above()
 
 function template_xml_below()
 {
-	global $upcontext;
-
 	echo '
 		</smf>';
 }
@@ -3757,13 +3808,12 @@ function template_error_message()
 
 function template_welcome_message()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $txt;
+	global $upcontext, $disable_security, $settings, $txt;
 
 	echo '
 		<script src="http://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
-		<script src="', $settings['default_theme_url'], '/scripts/sha1.js"></script>
 			<h3>', sprintf($txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
-	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform" ', empty($upcontext['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $upcontext['rid'] . '\', \'' . (!empty($upcontext['login_token']) ? $upcontext['login_token'] : '') . '\');"' : '', '>
+	<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 		<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 		<div id="version_warning" style="margin: 2ex; padding: 2ex; border: 2px dashed #a92174; color: black; background-color: #fbbbe2; display: none;">
 			<div style="float: left; width: 2ex; font-size: 2em; color: red;">!!</div>
@@ -3938,7 +3988,7 @@ function template_welcome_message()
 
 function template_upgrade_options()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $boarddir, $db_prefix, $mmessage, $mtitle, $db_type;
+	global $upcontext, $modSettings, $db_prefix, $mmessage, $mtitle, $db_type;
 
 	echo '
 			<h3>Before the upgrade gets underway please review the options below - and hit continue when you\'re ready to begin.</h3>
@@ -3956,7 +4006,7 @@ function template_upgrade_options()
 		</div>';
 
 	echo '
-				<table cellpadding="1" cellspacing="0">
+				<table>
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="backup" id="backup" value="1"', $db_type != 'mysql' && $db_type != 'mysqli' && $db_type != 'postgresql' ? ' disabled' : '', ' class="input_check">
@@ -4009,7 +4059,20 @@ function template_upgrade_options()
 						<td width="100%">
 							<label for="empty_error">Empty error log before upgrading</label>
 						</td>
-					</tr>
+					</tr>';
+
+	if (!empty($upcontext['karma_installed']['good']) || !empty($upcontext['karma_installed']['bad']))
+		echo '
+					<tr valign="top">
+						<td width="2%">
+							<input type="checkbox" name="delete_karma" id="delete_karma" value="1" class="input_check">
+						</td>
+						<td width="100%">
+							<label for="delete_karma">Delete all karma settings and info from the DB</label>
+						</td>
+					</tr>';
+
+	echo '
 					<tr valign="top">
 						<td width="2%">
 							<input type="checkbox" name="stat" id="stat" value="1"', empty($modSettings['allow_sm_stats']) ? '' : ' checked', ' class="input_check">
@@ -4031,7 +4094,7 @@ function template_upgrade_options()
 // Template for the database backup tool/
 function template_backup_database()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $support_js, $is_debug;
+	global $upcontext, $support_js, $is_debug;
 
 	echo '
 			<h3>Please wait while a backup is created. For large forums this may take some time!</h3>';
@@ -4106,7 +4169,7 @@ function template_backup_database()
 
 function template_backup_xml()
 {
-	global $upcontext, $settings, $options, $txt;
+	global $upcontext;
 
 	echo '
 	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
@@ -4115,7 +4178,7 @@ function template_backup_xml()
 // Here is the actual "make the changes" template!
 function template_database_changes()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $support_js, $is_debug, $timeLimitThreshold;
+	global $upcontext, $support_js, $is_debug, $timeLimitThreshold;
 
 	echo '
 		<h3>Executing database changes</h3>
@@ -4432,7 +4495,7 @@ function template_database_changes()
 
 function template_database_xml()
 {
-	global $upcontext, $settings, $options, $txt;
+	global $upcontext, $txt;
 
 	echo '
 	<file num="', $upcontext['cur_file_num'], '" items="', $upcontext['total_items'], '" debug_items="', $upcontext['debug_items'], '">', $upcontext['cur_file_name'], '</file>
@@ -4446,7 +4509,7 @@ function template_database_xml()
 
 function template_clean_mods()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $boarddir, $db_prefix, $boardurl;
+	global $upcontext;
 
 	$upcontext['chmod_in_form'] = true;
 
@@ -4458,7 +4521,7 @@ function template_clean_mods()
 	template_chmod();
 
 	echo '
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="40%"><strong>Modification Name</strong></td>
 				<td width="10%" align="center"><strong>Version</strong></td>
@@ -4498,12 +4561,12 @@ function template_clean_mods()
 // Finished with the mods - let them know what we've done.
 function template_cleanup_done()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $boarddir, $db_prefix, $boardurl;
+	global $upcontext;
 
 	echo '
 	<h3>SMF has attempted to fix and reinstall mods as required. We recommend you visit the package manager upon completing upgrade to check the status of your modifications.</h3>
 	<form action="', $upcontext['form_url'], '&amp;ssi=1" name="upform" id="upform" method="post">
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="100%"><strong>Actions Completed:</strong></td>
 			</tr>';
@@ -4526,7 +4589,7 @@ function template_cleanup_done()
 // Do they want to upgrade their templates?
 function template_upgrade_templates()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $boarddir, $db_prefix, $boardurl;
+	global $upcontext;
 
 	echo '
 	<h3>There have been numerous language and template changes since the previous version of SMF. On this step the upgrader can attempt to automatically make these changes in your templates to save you from doing so manually.</h3>
@@ -4541,7 +4604,7 @@ function template_upgrade_templates()
 	{
 		echo '
 		The following template files will be updated to ensure they are compatible with this version of SMF. Note that this can only fix a limited number of compatibility issues and in general you should seek out the latest version of these themes/language files.
-		<table width="90%" align="center" cellspacing="1" cellpadding="2" style="background-color: black;">
+		<table width="90%" align="center" style="background-color: black;">
 			<tr style="background-color: #eeeeee;">
 				<td width="80%"><strong>Area</strong></td>
 				<td width="20%" align="center"><strong>Changes Required</strong></td>
@@ -4629,7 +4692,7 @@ function template_upgrade_templates()
 
 function template_upgrade_complete()
 {
-	global $upcontext, $modSettings, $upgradeurl, $disable_security, $settings, $boarddir, $db_prefix, $boardurl;
+	global $upcontext, $upgradeurl, $settings, $boardurl;
 
 	echo '
 	<h3>That wasn\'t so hard, was it?  Now you are ready to use <a href="', $boardurl, '/index.php">your installation of SMF</a>.  Hope you like it!</h3>
@@ -4637,7 +4700,7 @@ function template_upgrade_complete()
 
 	if (!empty($upcontext['can_delete_script']))
 		echo '
-			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete this upgrade.php and its data files now.</label> <em>(doesn\'t work on all servers.)</em>
+			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete upgrade.php and its data files now</label> <em>(doesn\'t work on all servers).</em>
 			<script><!-- // --><![CDATA[
 				function doTheDelete(theCheck)
 				{

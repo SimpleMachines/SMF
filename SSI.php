@@ -8,7 +8,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 // Don't do anything if SMF is already loaded.
@@ -50,7 +50,7 @@ $ssi_error_reporting = error_reporting(defined('E_STRICT') ? E_ALL | E_STRICT : 
 */
 $ssi_on_error_method = false;
 
-// Don't do john didley if the forum's been shut down competely.
+// Don't do john didley if the forum's been shut down completely.
 if ($maintenance == 2 && (!isset($ssi_maintenance_off) || $ssi_maintenance_off !== true))
 	die($mmessage);
 
@@ -67,11 +67,12 @@ require_once($sourcedir . '/Logging.php');
 require_once($sourcedir . '/Load.php');
 require_once($sourcedir . '/Security.php');
 require_once($sourcedir . '/Class-BrowserDetect.php');
+require_once($sourcedir . '/Subs-Auth.php');
 
 // Create a variable to store some SMF specific functions in.
 $smcFunc = array();
 
-// Initate the database connection and define some database functions to use.
+// Initiate the database connection and define some database functions to use.
 loadDatabase();
 
 // Load installed 'Mods' settings.
@@ -295,7 +296,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 	return ssi_queryPosts($query_where, $query_where_params, $num_recent, 'm.id_msg DESC', $output_method, $limit_body);
 }
 
-// Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overriden.
+// Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overridden.
 function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
 	global $modSettings;
@@ -324,12 +325,15 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
 	global $scripturl, $txt, $user_info;
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $context;
+
+	if (!empty($modSettings['enable_likes']))
+		$context['can_like'] = allowedTo('likes_like');
 
 	// Find all the posts. Newer ones will have higher IDs.
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
-			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, b.name AS board_name,
+			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg, m.id_board, m.likes, b.name AS board_name,
 			IFNULL(mem.real_name, m.poster_name) AS poster_name, ' . ($user_info['is_guest'] ? '1 AS is_read, 0 AS new_from' : '
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) >= m.id_msg_modified AS is_read,
 			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from') . ', ' . ($limit_body ? 'SUBSTRING(m.body, 1, 384) AS body' : 'm.body') . ', m.smileys_enabled
@@ -361,7 +365,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		$preview = strip_tags(strtr($row['body'], array('<br>' => '&#10;')));
 
 		// Build the array.
-		$posts[] = array(
+		$posts[$row['id_msg']] = array(
 			'id' => $row['id_msg'],
 			'board' => array(
 				'id' => $row['id_board'],
@@ -388,6 +392,14 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
 		);
+
+		// Get the likes for each message.
+		if (!empty($modSettings['enable_likes']))
+			$posts[$row['id_msg']]['likes'] = array(
+				'count' => $row['likes'],
+				'you' => in_array($row['id_msg'], prepareLikesContext($row['id_topic'])),
+				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+			);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -420,7 +432,7 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 {
 	global $settings, $scripturl, $txt, $user_info;
-	global $modSettings, $smcFunc;
+	global $modSettings, $smcFunc, $context;
 
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
 		$exclude_boards = array($modSettings['recycle_board']);
@@ -438,9 +450,8 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		$include_boards = array();
 	}
 
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless');
 	$icon_sources = array();
-	foreach ($stable_icons as $icon)
+	foreach ($context['stable_icons'] as $icon)
 		$icon_sources[$icon] = 'images_url';
 
 	// Find all the posts in distinct topics.  Newer ones will have higher IDs.
@@ -612,7 +623,7 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 // Show boards by activity.
 function ssi_topBoards($num_top = 10, $output_method = 'echo')
 {
-	global $context, $txt, $scripturl, $user_info, $modSettings, $smcFunc;
+	global $txt, $scripturl, $user_info, $modSettings, $smcFunc;
 
 	// Find boards with lots of posts.
 	$request = $smcFunc['db_query']('', '
@@ -668,7 +679,7 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 // Shows the top topics.
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
-	global $txt, $scripturl, $modSettings, $smcFunc, $context;
+	global $txt, $scripturl, $modSettings, $smcFunc;
 
 	if ($modSettings['totalMessages'] > 100000)
 	{
@@ -765,7 +776,7 @@ function ssi_topTopicsViews($num_topics = 10, $output_method = 'echo')
 // Show a link to the latest member:  Please welcome, Someone, out latest member.
 function ssi_latestMember($output_method = 'echo')
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	if ($output_method == 'echo')
 		echo '
@@ -864,8 +875,7 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 // Fetch some member data!
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
-	global $context, $scripturl, $txt;
-	global $modSettings, $smcFunc, $memberContext;
+	global $smcFunc, $memberContext;
 
 	if ($query_where === null)
 		return;
@@ -973,7 +983,7 @@ function ssi_boardStats($output_method = 'echo')
 // Shows a list of online users:  YY Guests, ZZ Users and then a list...
 function ssi_whosOnline($output_method = 'echo')
 {
-	global $user_info, $txt, $sourcedir, $settings, $modSettings;
+	global $user_info, $txt, $sourcedir, $settings;
 
 	require_once($sourcedir . '/Subs-MembersOnline.php');
 	$membersOnlineOptions = array(
@@ -1046,18 +1056,8 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 				</tr><tr>
 					<td style="text-align: right; border-spacing: 1"><label for="passwrd">', $txt['password'], ':</label>&nbsp;</td>
 					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
-				</tr>';
-
-	// Open ID?
-	if (!empty($modSettings['enableOpenID']))
-		echo '<tr>
-					<td colspan="2" style="text-align :center"><strong>&mdash;', $txt['or'], '&mdash;</strong></td>
-				</tr><tr>
-					<td style="text-align: right"><label for="openid_url">', $txt['openid'], ':</label>&nbsp;</td>
-					<td><input type="text" name="openid_identifier" id="openid_url" class="input_text openid_login" size="17"></td>
-				</tr>';
-
-	echo '<tr>
+				</tr>
+				<tr>
 					<td><input type="hidden" name="cookielength" value="-1"></td>
 					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>
@@ -1076,7 +1076,7 @@ function ssi_topPoll($output_method = 'echo')
 // Show the most recently posted poll.
 function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 {
-	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = array_intersect(boardsAllowedTo('poll_view'), boardsAllowedTo('poll_vote'));
 
@@ -1169,7 +1169,6 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 	foreach ($options as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
-		$barWide = $bar == 0 ? 1 : floor(($bar * 5) / 3);
 		$return['options'][$i] = array(
 			'id' => 'options-' . ($topPollInstead ? 'top-' : 'recent-') . $i,
 			'percent' => $bar,
@@ -1207,7 +1206,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 function ssi_showPoll($topic = null, $output_method = 'echo')
 {
-	global $txt, $settings, $boardurl, $user_info, $context, $smcFunc, $modSettings;
+	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
 
 	$boardsAllowed = boardsAllowedTo('poll_view');
 
@@ -1320,7 +1319,6 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 	foreach ($options as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
-		$barWide = $bar == 0 ? 1 : floor(($bar * 5) / 3);
 		$return['options'][$i] = array(
 			'id' => 'options-' . $i,
 			'percent' => $bar,
@@ -1509,6 +1507,8 @@ function ssi_news($output_method = 'echo')
 {
 	global $context;
 
+	$context['random_news_line'] = !empty($context['news_lines']) ? $context['news_lines'][mt_rand(0, count($context['news_lines']) - 1)] : '';
+
 	if ($output_method != 'echo')
 		return $context['random_news_line'];
 
@@ -1585,7 +1585,7 @@ function ssi_todaysEvents($output_method = 'echo')
 	}
 }
 
-// Show all calendar entires for today. (birthdays, holodays, and events.)
+// Show all calendar entires for today. (birthdays, holidays, and events.)
 function ssi_todaysCalendar($output_method = 'echo')
 {
 	global $modSettings, $txt, $scripturl, $user_info;
@@ -1685,11 +1685,15 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	list ($board) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Load the message icons - the usual suspects.
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless');
 	$icon_sources = array();
-	foreach ($stable_icons as $icon)
+	foreach ($context['stable_icons'] as $icon)
 		$icon_sources[$icon] = 'images_url';
+
+	if (!empty($modSettings['enable_likes']))
+	{
+		$context['can_like'] = allowedTo('likes_like');
+		$context['can_see_likes'] = allowedTo('likes_view');
+	}
 
 	// Find the post ids.
 	$request = $smcFunc['db_query']('', '
@@ -1717,7 +1721,7 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	// Find the posts.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
+			m.icon, m.subject, m.body, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.likes,
 			t.num_replies, t.id_topic, m.id_member, m.smileys_enabled, m.id_msg, t.locked, t.id_last_msg, m.id_board
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -1785,7 +1789,13 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				'link' => !empty($row['id_member']) ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['poster_name'] . '</a>' : $row['poster_name']
 			),
 			'locked' => !empty($row['locked']),
-			'is_last' => false
+			'is_last' => false,
+			// Nasty ternary for likes not messing around the "is_last" check.
+			'likes' => !empty($modSettings['enable_likes']) ? array(
+				'count' => $row['likes'],
+				'you' => in_array($row['id_msg'], prepareLikesContext((int) $row['id_topic'])),
+				'can_like' => !$context['user']['is_guest'] && $row['id_member'] != $context['user']['id'] && !empty($context['can_like']),
+			) : array(),
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -1808,7 +1818,44 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 				</h3>
 				<div class="news_timestamp">', $news['time'], ' ', $txt['by'], ' ', $news['poster']['link'], '</div>
 				<div class="news_body" style="padding: 2ex 0;">', $news['body'], '</div>
-				', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '
+				', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
+
+
+		// Is there any likes to show?
+		if (!empty($modSettings['enable_likes']))
+		{
+			echo '
+					<ul>';
+
+			if (!empty($news['likes']['can_like']))
+			{
+				echo '
+						<li class="like_button" id="msg_', $news['message_id'], '_likes"><a href="', $scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', $context['session_var'], '=', $context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+			}
+
+			if (!empty($news['likes']['count']) && !empty($context['can_see_likes']))
+			{
+				$context['some_likes'] = true;
+				$count = $news['likes']['count'];
+				$base = 'likes_';
+				if ($news['likes']['you'])
+				{
+					$base = 'you_' . $base;
+					$count--;
+				}
+				$base .= (isset($txt[$base . $count])) ? $count : 'n';
+
+				echo '
+						<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
+			}
+
+			echo '
+					</ul>';
+		}
+
+
+		// Close the main div.
+		echo '
 			</div>';
 
 		if (!$news['is_last'])
@@ -1904,7 +1951,7 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 // Check the passed id_member/password.  If $is_username is true, treats $id as a username.
 function ssi_checkPassword($id = null, $password = null, $is_username = false)
 {
-	global $sourcedir, $smcFunc;
+	global $smcFunc;
 
 	// If $id is null, this was most likely called from a query string and should do nothing.
 	if ($id === null)
@@ -1922,13 +1969,13 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 	list ($pass, $user, $active) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	return sha1(strtolower($user) . $password) == $pass && $active == 1;
+	return hash_verify_password($user, $password, $pass) && $active == 1;
 }
 
 // We want to show the recent attachments outside of the forum.
 function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 {
-	global $smcFunc, $context, $modSettings, $scripturl, $txt, $settings;
+	global $smcFunc, $modSettings, $scripturl, $txt, $settings;
 
 	// We want to make sure that we only get attachments for boards that we can see *if* any.
 	$attachments_boards = boardsAllowedTo('view_attachments');

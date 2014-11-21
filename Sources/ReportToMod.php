@@ -9,7 +9,7 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -164,7 +164,7 @@ function ReportToModerator()
  */
 function ReportToModerator2()
 {
-	global $txt, $topic, $user_info, $modSettings, $sourcedir, $context, $smcFunc;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Sorry, no guests allowed... Probably just trying to spam us anyway
 	is_not_guest();

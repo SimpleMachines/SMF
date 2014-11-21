@@ -7,18 +7,13 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 // This is just the basic "login" form.
 function template_login()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
-
-	// AJAX request?
-	if (!empty($context['from_ajax']))
-		echo '
-		<script src="', $settings['default_theme_url'], '/scripts/sha1.js', $modSettings['browser_cache'] ,'"></script>';
 
 	echo '
 		<div class="tborder login">
@@ -28,17 +23,17 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '" ', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>';
+				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
 		echo '
-					<p class="errorbox">', implode('<br>', $context['login_errors']), '</p><br>';
+					<div class="errorbox">', implode('<br>', $context['login_errors']), '</div><br>';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
 		echo '
-					<p class="description">', $context['description'], '</p>';
+					<p class="information">', $context['description'], '</p>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
@@ -47,21 +42,10 @@ function template_login()
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-					</dl>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-					<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-					<dl>
-						<dt>', $txt['openid'], ':</dt>
-						<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon"></a></dd>
 					</dl>
-					<hr>';
-
-	echo '
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
-						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text"></dd>
+						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1" max="525600"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
 						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
 	// If they have deleted their account, give them a chance to change their mind.
@@ -100,7 +84,7 @@ function template_kick_guest()
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
+	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
@@ -113,7 +97,7 @@ function template_kick_guest()
 
 
 	if ($context['can_register'])
-		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=register', $context['forum_name_html_safe']);
+		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
 	else
 		echo $txt['login_below'];
 
@@ -129,20 +113,7 @@ function template_kick_guest()
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-				</dl>
-				<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-				<dl>
-					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17"></dd>
-				</dl>
-				<hr>
-				<dl>';
-
-	echo '
+					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
 					<dt>', $txt['mins_logged_in'], ':</dt>
 					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
 					<dt>', $txt['always_logged_in'], ':</dt>
@@ -167,16 +138,16 @@ function template_kick_guest()
 // This is for maintenance mode.
 function template_maintenance()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	// Display the administrator's message at the top.
 	echo '
-<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '"', empty($context['disable_login_hashing']) ? ' onsubmit="hashLoginPassword(this, \'' . $context['session_id'] . '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');"' : '', '>
+<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
 	<div class="tborder login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
-		<p class="description">
+		<p class="information">
 			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
 			', $context['description'], '<br class="clear">
 		</p>
@@ -207,11 +178,11 @@ function template_maintenance()
 // This is for the security stuff - makes administrators login every so often.
 function template_admin_login()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin" onsubmit="hash', ucfirst($context['sessionCheckType']), 'Password(this, \'', $context['user']['username'], '\', \'', $context['session_id'], '\', \'' . (!empty($context['login_token']) ? $context['login_token'] : '') . '\');">
+<form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -227,7 +198,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><br>
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';

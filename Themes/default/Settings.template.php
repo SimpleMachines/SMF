@@ -7,12 +7,12 @@
  * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 function template_options()
 {
-	global $context, $scripturl, $txt;
+	global $context, $txt;
 
 	$context['theme_options'] = array(
 		array(
@@ -120,11 +120,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'drafts_autosave_enabled',
-			'label'  => $txt['drafts_autosave_enabled'],
-			'default' => true,
-		),
-		array(
 			'id' => 'drafts_show_saved_enabled',
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
@@ -180,7 +175,7 @@ function template_settings()
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
-			'description' => $txt['number_recent_posts_desc'],
+			'description' => $txt['zero_to_disable'],
 			'type' => 'number',
 		),
 		array(
