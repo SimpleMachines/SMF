@@ -93,7 +93,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 ---#
 
 ---# Adding new "browser_cache" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?beta21');
+---{
+	$smcFunc['db_inser']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('browser_cache', '?beta21'),
+		array('variable')
+	);
+---}
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
