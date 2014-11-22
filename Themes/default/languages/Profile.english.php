@@ -408,7 +408,7 @@ $txt['request_group_membership_desc'] = 'Before you can join this group your mem
 $txt['submit_request'] = 'Submit Request';
 
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
-$txt['profile_updated_else'] = 'The profile for %1$s has been updated successfully.';
+$txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
 
 $txt['profile_error_signature_max_length'] = 'Your signature cannot be greater than %1$d characters';
 $txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
