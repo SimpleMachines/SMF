@@ -2730,9 +2730,9 @@ function TransferAttachments()
 							// Since we're in auto mode. Create a new folder and reset the counters.
 							automanage_attachments_by_space();
 
-							$results[] = sprintf($txt['attachments_transfered'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+							$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
 							if (!empty($total_not_moved))
-								$results[] = sprintf($txt['attachments_not_transfered'], $total_not_moved);
+								$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 
 							$dir_files = 0;
 							$total_moved = 0;
@@ -2796,9 +2796,9 @@ function TransferAttachments()
 			}
 		}
 
-		$results[] = sprintf($txt['attachments_transfered'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+		$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
 		if (!empty($total_not_moved))
-			$results[] = sprintf($txt['attachments_not_transfered'], $total_not_moved);
+			$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 	}
 
 	$_SESSION['results'] = $results;
