@@ -93,6 +93,11 @@ class ProxyServer
 			exit;
 		}
 
+		// Make sure we're serving an image
+		$contentParts = explode('/', !empty($cached['content-type']) ? $cached['content-type'] : '');
+		if ($contentParts[0] != 'image')
+			exit;
+
 		header('Content-type: ' . $cached['content_type']);
 		header('Content-length: ' . $cached['size']);
 		echo base64_decode($cached['body']);
