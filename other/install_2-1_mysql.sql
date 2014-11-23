@@ -1842,7 +1842,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('gravatarAllowExtraEmail', '1'),
 	('gravatarMaxRating', 'PG'),
 	('defaultMaxListItems', '15'),
-	('loginHistoryDays', '30');
+	('loginHistoryDays', '30'),
+	('httponlyCookies', '1');
 
 # --------------------------------------------------------
 

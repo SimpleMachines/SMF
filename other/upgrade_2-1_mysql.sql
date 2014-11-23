@@ -146,6 +146,18 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---}
 ---#
 
+---# Adding new "httponlyCookies" setting
+---{
+	if (!isset($modSettings['httponlyCookies']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('httponlyCookies', '1'),
+			array()
+		);
+---}
+---#
+
 ---# Calculate appropriate hash cost
 ---{
   $smcFunc['db_insert']('replace',
