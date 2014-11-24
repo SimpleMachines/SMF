@@ -1201,18 +1201,6 @@ function Post2()
 	// No need!
 	$context['robot_no_index'] = true;
 
-	// Previewing? Go back to start.
-	if (isset($_REQUEST['preview']))
-	{
-		if (checkSession('post', '', false) != '')
-		{
-			loadLanguage('Errors');
-			$context['post_errors']['message'][] = $txt['error_session_timeout'];
-			unset ($_POST['preview'], $_REQUEST['xml']); // just in case
-		}
-		return Post();
-	}
-
 	// Prevent double submission of this form.
 	checkSubmitOnce('check');
 
@@ -1659,6 +1647,18 @@ function Post2()
 		// Previewing.
 		$_REQUEST['preview'] = true;
 
+		return Post($post_errors);
+	}
+
+	// Previewing? Go back to start.
+	if (isset($_REQUEST['preview']))
+	{
+		if (checkSession('post', '', false) != '')
+		{
+			loadLanguage('Errors');
+			$post_errors[] = 'session_timeout';
+			unset ($_POST['preview'], $_REQUEST['xml']); // just in case
+		}
 		return Post($post_errors);
 	}
 
