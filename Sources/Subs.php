@@ -3990,6 +3990,13 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
 	}
 
+	// Show how many errors there are
+	if (allowedTo('admin_forum') && !empty($context['num_errors']))
+	{
+		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
+	}
+
 	/**
 	 * @todo For some reason, $context['open_member_reports'] isn't getting set
 	 */
