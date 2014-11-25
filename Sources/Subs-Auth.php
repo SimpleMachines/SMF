@@ -787,9 +787,9 @@ function rebuildModCache()
  * @param string $path = ''
  * @param string $domain = ''
  * @param bool $secure = false
- * @param bool $httponly = null
+ * @param bool $httponly = true
  */
-function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = null)
+function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true)
 {
 	global $modSettings;
 

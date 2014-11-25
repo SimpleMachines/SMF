@@ -1230,6 +1230,18 @@ DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled');
 ---#
 
+---# Adding new "httponlyCookies" setting
+---{
+	if (!isset($modSettings['httponlyCookies']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('httponlyCookies', '1'),
+			array()
+		);
+---}
+---#
+
 ---# Calculate appropriate hash cost
 ---{
   $smcFunc['db_insert']('replace',
