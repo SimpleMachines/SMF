@@ -256,6 +256,19 @@ function reloadSettings()
 
 	// Add your own icons.
 	call_integration_hook('integrate_stable_icons');
+
+	// Get an error count, if necessary
+	if (!isset($context['num_errors'])
+	{
+		$query = $smcFunc['db_query']('', '
+			SELECT COUNT(id_error)
+			FROM {db_prefix}log_errors',
+			array()
+		);
+
+		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+		$smcFunc['db_free_result']($query);
+	}
 }
 
 /**
