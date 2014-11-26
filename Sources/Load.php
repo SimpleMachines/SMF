@@ -258,7 +258,7 @@ function reloadSettings()
 	call_integration_hook('integrate_stable_icons');
 
 	// Get an error count, if necessary
-	if (!isset($context['num_errors'])
+	if (!isset($context['num_errors']))
 	{
 		$query = $smcFunc['db_query']('', '
 			SELECT COUNT(id_error)
