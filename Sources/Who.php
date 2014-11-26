@@ -583,6 +583,7 @@ function Credits($in_admin = false)
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Michael &quot;Thantos&quot; Miller',
 						'Norv',
+						'Peter "Arantor" Spicer',
 						'Selman &quot;[SiNaN]&quot; Eser',
 						// 'Spuds', // Doesn't want to be listed here
 						// 'Steven &quot;Fustrate&quot; Hoffman',
@@ -597,7 +598,7 @@ function Credits($in_admin = false)
 						// Lead Support Specialist
 						'Kat',
 						// Support Specialists
-						'Adam &quot;ziycon&quot; Tallon',
+						'Adam Tallon',
 						'Bigguy',
 						'ChalkCat',
 						'Chas Large',
@@ -605,7 +606,7 @@ function Credits($in_admin = false)
 						'Krash',
 						'Margarett',
 						'Mashby',
-						'Shadow82x',
+						'Michael Colin Blaber',
 						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'Yoshi',
@@ -686,7 +687,8 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_servers'],
 					'members' => array(
 						'Derek Schwab',
-						'Liroy &quot;CoreISP&quot; van Hoewijk',
+						'Michael Johnson',
+						'Liroy van Hoewijk',
 					),
 				),
 			),
