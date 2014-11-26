@@ -2077,7 +2077,7 @@ function DeleteUpgrade()
 	}
 
 	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 8) . '\''));
+	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
 
 	// Make sure it says we're done.
 	$upcontext['overall_percent'] = 100;

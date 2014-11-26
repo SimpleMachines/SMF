@@ -1828,7 +1828,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('drafts_show_saved_enabled', '1'),
 	('drafts_keep_days', '7'),
 	('topic_move_any', '0'),
-	('browser_cache', '?alph21'),
+	('browser_cache', '?beta21'),
 	('mail_limit', '5'),
 	('mail_quantity', '5'),
 	('additional_options_collapsable', '1'),
@@ -1842,7 +1842,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('gravatarAllowExtraEmail', '1'),
 	('gravatarMaxRating', 'PG'),
 	('defaultMaxListItems', '15'),
-	('loginHistoryDays', '30');
+	('loginHistoryDays', '30'),
+	('httponlyCookies', '1');
 
 # --------------------------------------------------------
 

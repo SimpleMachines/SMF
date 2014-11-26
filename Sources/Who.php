@@ -645,7 +645,7 @@ function Credits($in_admin = false)
 						'Michele &quot;Illori&quot; Davis',
 						// Doc Writers
 						'Chainy',
-						'Irisado'
+						'Irisado',
 						// Former Doc Writers
 						'AngelinaBelle',
 						'Graeme Spence',

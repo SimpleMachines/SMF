@@ -94,6 +94,22 @@ function ViewErrorLog()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . (isset($filter) ? $filter['href'] : ''), $_GET['start'], $num_errors, $modSettings['defaultMaxListItems']);
 	$context['start'] = $_GET['start'];
 
+	// Update the error count
+	if (!isset($filter))
+		$context['num_errors'] = $num_errors;
+	else
+	{
+		// We want all errors, not just the number of filtered messages...
+		$query = $smcFunc['db_query']('', '
+			SELECT COUNT(id_error)
+			FROM {db_prefix}log_errors',
+			array()
+		);
+
+		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
+		$smcFunc['db_free_result']($query);
+	}
+
 	// Find and sort out the errors.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_error, id_member, ip, url, log_time, message, session, error_type, file, line

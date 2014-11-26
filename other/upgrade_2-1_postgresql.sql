@@ -93,7 +93,14 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 ---#
 
 ---# Adding new "browser_cache" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
+---{
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('browser_cache', '?beta21'),
+		array('variable')
+	);
+---}
 ---#
 
 ---# Adding new "enable_ajax_alerts" setting
@@ -1221,6 +1228,18 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
 WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled');
+---#
+
+---# Adding new "httponlyCookies" setting
+---{
+	if (!isset($modSettings['httponlyCookies']))
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('httponlyCookies', '1'),
+			array()
+		);
+---}
 ---#
 
 ---# Calculate appropriate hash cost

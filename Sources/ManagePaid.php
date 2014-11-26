@@ -754,7 +754,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $scripturl, $smcFunc, $sourcedir;
+	global $context, $txt, $scripturl, $smcFunc, $sourcedir, $modSettings;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];

@@ -5,9 +5,6 @@
 		display: inline-block;
 		margin: 5px 7px 0 0;
 	}
-	input.input_check, input.input_radio {
-		width: 10%;
-	}
 	#registration .field_icons {
 		float: left;
 		margin: 5px 0 0 3px;
@@ -150,6 +147,12 @@
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
 		display: none !important;
+	}
+
+	/* Admin */
+	#permissions table.table_grid.perm_grid {
+		margin: 0 !important;
+		width: 100% !important;
 	}
 }
 
@@ -346,6 +349,21 @@
 	}
 	.action_admin .navigate_section {
 		display: none;
+	}
+	/* Menu tests */
+	#adm_submenus {
+		padding: 0;
+	}
+	#adm_submenus .dropmenu li {
+		float: left;
+		margin: 0;
+	}
+	/* 3rd level menu tests */
+	.dropmenu li ul ul {
+		margin: 0 !important;
+	}
+	.dropmenu li li:hover ul, .dropmenu li li ul {
+		left: 1px !important;
 	}
 }
 
