@@ -605,7 +605,7 @@ function Credits($in_admin = false)
 						'Krash',
 						'Margarett',
 						'Mashby',
-						'Shadow82x',
+						'Michael Colin Blaber',
 						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
 						'Yoshi',
