@@ -583,6 +583,7 @@ function Credits($in_admin = false)
 						$user_info['is_admin'] ? 'Matt &quot;Grudge&quot; Wolf': 'Grudge',
 						'Michael &quot;Thantos&quot; Miller',
 						'Norv',
+						'Peter "Arantor" Spicer',
 						'Selman &quot;[SiNaN]&quot; Eser',
 						// 'Spuds', // Doesn't want to be listed here
 						// 'Steven &quot;Fustrate&quot; Hoffman',
