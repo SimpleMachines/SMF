@@ -770,7 +770,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 	if ($smcFunc['db_num_rows']($theme_request) == 1)
 	{
 		// Only one row, so no loop needed
-		$row = $smcFunc['db_fetch_array']($theme_request);
+		$row = $smcFunc['db_fetch_row']($theme_request);
 		$id_theme = $row[0];
 		$smcFunc['db_free_result']($theme_request);
 
