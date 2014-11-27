@@ -1509,6 +1509,9 @@ function BackupDatabase()
 	if ($command_line)
 		echo 'Backing Up Tables.';
 
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
+
 	// If we don't support javascript we backup here.
 	if (!$support_js || isset($_GET['xml']))
 	{
@@ -2075,9 +2078,6 @@ function DeleteUpgrade()
 		echo 'Please delete this file as soon as possible for security reasons.', $endl;
 		exit;
 	}
-
-	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
 
 	// Make sure it says we're done.
 	$upcontext['overall_percent'] = 100;
