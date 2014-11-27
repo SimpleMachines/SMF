@@ -57,11 +57,6 @@ function template_recent()
 			echo '
 						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '" class="quote_button"><span>', $txt['quote_action'], '</span></a></li>';
 
-		// Can we request notification of topics?
-		if ($post['can_mark_notify'])
-			echo '
-						<li><a href="', $scripturl, '?action=notify;topic=', $post['topic'], '.', $post['start'], '" class="notify_button"><span>', $txt['notify'], '</span></a></li>';
-
 		// How about... even... remove it entirely?!
 		if ($post['can_delete'])
 			echo '
