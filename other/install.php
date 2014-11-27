@@ -421,12 +421,6 @@ function Welcome()
 	if (isset($_POST['contbutt']))
 		return true;
 
-	// Check the PHP version.
-	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>')))
-	{
-		$incontext['warning'] = $txt['error_php_too_low'];
-	}
-
 	// See if we think they have already installed it?
 	if (is_readable(dirname(__FILE__) . '/Settings.php'))
 	{
@@ -464,7 +458,11 @@ function Welcome()
 		}
 	}
 
-	if (empty($incontext['supported_databases']))
+	// Check the PHP version.
+	if ((!function_exists('version_compare') || version_compare($GLOBALS['required_php_version'], PHP_VERSION, '>')))
+		$error = 'error_php_too_low';
+	// Make sure we have a supported database
+	elseif (empty($incontext['supported_databases']))
 		$error = empty($notFoundSQLFile) ? 'error_db_missing' : 'error_db_script_missing';
 	// How about session support?  Some crazy sysadmin remove it?
 	elseif (!function_exists('session_start'))
