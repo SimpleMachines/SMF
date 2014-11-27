@@ -1225,19 +1225,19 @@ function Display()
 				array(
 					'test' => 'can_unwatch',
 					'text' => 'notify_topic_0',
-					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=0;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => $scripturl . '?action=notifytopic;topic=' . $context['current_topic'] . ';mode=0;' . $context['session_var'] . '=' . $context['session_id'],
 				),
 				array(
 					'text' => 'notify_topic_1',
-					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=1;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => $scripturl . '?action=notifytopic;topic=' . $context['current_topic'] . ';mode=1;' . $context['session_var'] . '=' . $context['session_id'],
 				),
 				array(
 					'text' => 'notify_topic_2',
-					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=2;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => $scripturl . '?action=notifytopic;topic=' . $context['current_topic'] . ';mode=2;' . $context['session_var'] . '=' . $context['session_id'],
 				),
 				array(
 					'text' => 'notify_topic_3',
-					'url' => $scripturl . '?action=unwatchtopic;topic=' . $context['current_topic'] . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
+					'url' => $scripturl . '?action=notifytopic;topic=' . $context['current_topic'] . ';mode=3;' . $context['session_var'] . '=' . $context['session_id'],
 				),
 			),
 		),
