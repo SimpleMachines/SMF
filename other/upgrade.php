@@ -1281,6 +1281,9 @@ function UpgradeOptions()
 	if (empty($_POST['upcont']))
 		return false;
 
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
+
 	// Firstly, if they're enabling SM stat collection just do it.
 	if (!empty($_POST['stats']) && substr($boardurl, 0, 16) != 'http://localhost' && empty($modSettings['allow_sm_stats']))
 	{
@@ -1508,9 +1511,6 @@ function BackupDatabase()
 
 	if ($command_line)
 		echo 'Backing Up Tables.';
-
-	require_once($sourcedir . '/Subs-Admin.php');
-	updateSettingsFile(array('image_proxy_secret' => '\'' . substr(sha1(mt_rand()), 0, 20) . '\''));
 
 	// If we don't support javascript we backup here.
 	if (!$support_js || isset($_GET['xml']))
