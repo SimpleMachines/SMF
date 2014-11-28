@@ -441,7 +441,7 @@ function template_results()
 					</div>
 					<div class="list_posts">', $message['body_highlighted'], '</div>';
 
-			if ($topic['can_reply'] || $topic['can_mark_notify'])
+			if ($topic['can_reply'])
 				echo '
 					<div class="quickbuttons_wrap">
 						<ul class="reset smalltext quickbuttons">';
@@ -456,12 +456,7 @@ function template_results()
 				echo '
 							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '" class="quote_button">', $txt['quote_action'], '</a></li>';
 
-				// Can we request notification of topics?
-			if ($topic['can_mark_notify'])
-				echo '
-							<li><a href="', $scripturl . '?action=notify;topic=' . $topic['id'] . '.' . $message['start'], '" class="notify_button">', $txt['notify'], '</a></li>';
-
-			if ($topic['can_reply'] || $topic['can_mark_notify'])
+			if ($topic['can_reply'])
 				echo '
 						</ul>
 					</div>';

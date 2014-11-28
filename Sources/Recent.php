@@ -392,7 +392,6 @@ function RecentPosts()
 			),
 			'message' => $row['body'],
 			'can_reply' => false,
-			'can_mark_notify' => !$context['user']['is_guest'],
 			'can_delete' => false,
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty($modSettings['edit_disable_time']) || $row['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()),
 		);

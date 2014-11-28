@@ -18,86 +18,6 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Turn off/on notification for a particular topic.
- * Must be called with a topic specified in the URL.
- * The sub-action can be 'on', 'off', or nothing for what to do.
- * Upon successful completion of action will direct user back to topic.
- * Accessed via ?action=notify.
- *
- * @uses Notify template, main sub-template
- */
-function Notify()
-{
-	global $scripturl, $txt, $topic, $user_info, $context, $smcFunc;
-
-	// Make sure they aren't a guest or something - guests can't really receive notifications!
-	is_not_guest();
-
-	// Make sure the topic has been specified.
-	if (empty($topic))
-		fatal_lang_error('not_a_topic', false);
-
-	// What do we do?  Better ask if they didn't say..
-	if (empty($_GET['sa']))
-	{
-		// Load the template, but only if it is needed.
-		loadTemplate('Notify');
-
-		// Find out if they have notification set for this topic already.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_topic = {int:current_topic}
-			LIMIT 1',
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-			)
-		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
-
-		// Set the template variables...
-		$context['topic_href'] = $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
-
-		return;
-	}
-	elseif ($_GET['sa'] == 'on')
-	{
-		checkSession('get');
-
-		// Attempt to turn notifications on.
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}log_notify',
-			array('id_member' => 'int', 'id_topic' => 'int'),
-			array($user_info['id'], $topic),
-			array('id_member', 'id_topic')
-		);
-	}
-	else
-	{
-		checkSession('get');
-
-		// Just turn notifications off.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_topic = {int:current_topic}',
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-			)
-		);
-	}
-
-	// Send them back to the topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
-}
-
-/**
  * Turn off/on notification for a particular board.
  * Must be called with a board specified in the URL.
  * Only uses the template if no sub action is used. (on/off)
@@ -174,7 +94,7 @@ function BoardNotify()
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=unwatchtopic.
  */
-function TopicUnwatch()
+function TopicNotify()
 {
 	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir, $context;
 

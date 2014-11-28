@@ -2008,7 +2008,6 @@ function prepareSearchContext($reset = false)
 		'replies' => $message['num_replies'],
 		'can_reply' => in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any']),
 		'can_quote' => (in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any'])) && $quote_enabled,
-		'can_mark_notify' => !$context['user']['is_guest'],
 		'first_post' => array(
 			'id' => $message['first_msg'],
 			'time' => timeformat($message['first_poster_time']),

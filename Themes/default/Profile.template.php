@@ -419,7 +419,7 @@ function template_showPosts()
 					', $post['body'], '
 				</div>';
 
-			if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
+			if ($post['can_reply'] || $post['can_delete'])
 				echo '
 				<div class="floatright">
 					<ul class="reset smalltext quickbuttons">';
@@ -434,17 +434,12 @@ function template_showPosts()
 				echo '
 						<li><a href="', $scripturl . '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '" class="quote_button"><span>', $txt['quote_action'], '</span></a></li>';
 
-			// Can we request notification of topics?
-			if ($post['can_mark_notify'])
-				echo '
-						<li><a href="', $scripturl, '?action=notify;topic=', $post['topic'], '.', $post['start'], '" class="notify_button"><span>', $txt['notify'], '</span></a></li>';
-
 			// How about... even... remove it entirely?!
 			if ($post['can_delete'])
 				echo '
 						<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';profile;u=', $context['member']['id'], ';start=', $context['start'], ';', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['remove_message'], '?\');" class="remove_button"><span>', $txt['remove'], '</span></a></li>';
 
-			if ($post['can_reply'] || $post['can_mark_notify'] || $post['can_delete'])
+			if ($post['can_reply'] || $post['can_delete'])
 				echo '
 					</ul>
 				</div>';
