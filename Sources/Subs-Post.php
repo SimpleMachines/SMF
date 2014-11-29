@@ -556,7 +556,7 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	foreach($to_array as $k => $v)
 	{
 		// This should never happen, but better safe than sorry
-		if (trim($v) == '' || empty($v))
+		if (trim($v) == '')
 		{
 			unset($to_array[$k]);
 		}
