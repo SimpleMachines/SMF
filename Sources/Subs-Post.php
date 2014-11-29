@@ -552,6 +552,20 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 	// If the recipient list isn't an array, make it one.
 	$to_array = is_array($to) ? $to : array($to);
 
+	// Make sure we actually have email addresses to send this to
+	foreach($to_array as $k => $v)
+	{
+		// This should never happen, but better safe than sorry
+		if (trim($v) == '' || empty($v))
+		{
+			unset($to_array[$k]);
+		}
+	}
+
+	// Nothing left? Nothing else to do
+	if (empty($to_array))
+		return true;
+
 	// Once upon a time, Hotmail could not interpret non-ASCII mails.
 	// In honour of those days, it's still called the 'hotmail fix'.
 	if ($hotmail_fix === null)
