@@ -385,7 +385,7 @@ function loadUserSettings()
 						$tfasecret = null;
 				}
 
-				if (empty($tfasecret) || hash_salt($user_settings['tfa_secret'], $user_settings['password_salt']) != $tfasecret)
+				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
 				{
 					$id_member = 0;
 					redirectexit('action=logintfa');
