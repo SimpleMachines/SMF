@@ -245,6 +245,16 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_identity_any', 'profile_password_any', 'manage_membergroups'),
 					),
 				),
+				'tfasetup' => array(
+					'file' => 'Profile-Modify.php',
+					'function' => 'tfasetup',
+					'sc' => 'post',
+					'token' => 'profile-tfa%u',
+					'permission' => array(
+						'own' => array('profile_password_own'),
+						'any' => array('profile_password_any'),
+					),
+				),
 				'forumprofile' => array(
 					'label' => $txt['forumprofile'],
 					'file' => 'Profile-Modify.php',

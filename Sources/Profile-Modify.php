@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars;
+	global $sourcedir, $profile_vars, $user_settings;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -496,6 +496,17 @@ function loadProfileFields($force_reload = false)
 				$context['allow_no_censored'] = false;
 				if ($user_info['is_admin'] || $context['user']['is_owner'])
 					$context['allow_no_censored'] = !empty($modSettings['allow_no_censored']);
+
+				return true;
+			},
+		),
+		'tfa' => array(
+			'type' => 'callback',
+			'callback_func' => 'tfa',
+			'permission' => 'profile_password',
+			'preload' => function() use (&$context, $user_info, $modSettings, $user_settings)
+			{
+				$context['tfa_enabled'] = !empty($user_settings['tfa_secret']);
 
 				return true;
 			},
@@ -1651,6 +1662,7 @@ function account($memID)
 			'member_name', 'real_name', 'date_registered', 'posts', 'lngfile', 'hr',
 			'id_group', 'hr',
 			'email_address', 'show_online', 'hr',
+			'tfa', 'hr',
 			'passwrd1', 'passwrd2', 'hr',
 			'secret_question', 'secret_answer',
 		)
@@ -3954,4 +3966,80 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 	return $changeType;
 }
 
+/**
+ * Provides interface to setup Two Factor Auth in SMF
+ *
+ * @param int $memID
+ * @return void
+ */
+function tfasetup($memID)
+{
+	global $user_info, $context, $user_settings, $sourcedir, $modSettings;
+
+	require_once($sourcedir . '/Class-TOTP.php');
+	require_once($sourcedir . '/Subs-Auth.php');
+
+	// If TFA has not been setup, allow them to set it up
+	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
+	{
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+		{
+			$context['from_ajax'] = true;
+			$context['template_layers'] = array();
+		}
+
+		// When the code is being sent, verify to make sure the user got it right
+		if (!empty($_POST['tfa_code']) && !empty($_SESSION['tfa_secret']))
+		{
+			$code = $_POST['tfa_code'];
+			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
+			$totp->setRange(15);
+
+			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
+			{
+				$backup = substr(sha1(mt_rand()), 0, 16);
+				$backup_encrypted = hash_password($user_settings['username'], $backup);
+
+				updateMemberData($memID, array(
+					'tfa_secret' => $_SESSION['tfa_secret'],
+					'tfa_backup' => $backup_encrypted,
+				));
+
+				setTFACookie(60 * $modSettings['cookieTime'], $memID, hash_salt($_SESSION['tfa_secret'], $user_settings['password_salt']));
+
+				unset($_SESSION['tfa_secret']);
+
+				$context['tfa_backup'] = $backup;
+				$context['sub_template'] = 'tfasetup_backup';
+
+				return;
+			}
+			else
+			{
+				$context['tfa_secret'] = $_SESSION['tfa_secret'];
+				$context['tfa_error'] = true;
+				$context['tfa_value'] = $_POST['tfa_code'];
+			}
+		}
+		else
+		{
+			$totp = new \TOTP\Auth();
+			$secret = $totp->generateCode();
+			$_SESSION['tfa_secret'] = $secret;
+			$context['tfa_secret'] = $secret;
+		}
+
+		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ' : ' . $user_info['name'], $context['tfa_secret']);
+	}
+	elseif (!empty($_REQUEST['disable']))
+	{
+		updateMemberData($memID, array(
+			'tfa_secret' => '',
+			'tfa_backup' => '',
+		));
+		redirectexit('action=profile;area=account');
+	}
+	else
+		redirectexit('action=profile;area=account');
+}
 ?>

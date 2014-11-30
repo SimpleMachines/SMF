@@ -108,6 +108,34 @@ function setLoginCookie($cookie_length, $id, $password = '')
 }
 
 /**
+ * Sets Two Factor Auth cookie
+ *
+ * @param int $cookie_length
+ * @param int $id
+ * @param string $secret Should be a salted secret using hash_salt
+ */
+function setTFACookie($cookie_length, $id, $secret)
+{
+	global $modSettings, $cookiename, $boardurl;
+
+	$identifier = $cookiename . '_tfa';
+	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
+
+	// Get the data and path to set it on.
+	$data = serialize(empty($id) ? array(0, '', 0) : array($id, $secret, time() + $cookie_length, $cookie_state));
+	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
+
+	// Set the cookie, $_COOKIE, and session variable.
+	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
+
+	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
+	if (empty($id) && !empty($modSettings['globalCookies']))
+		smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], '');
+
+	$_COOKIE[$identifier] = $data;
+}
+
+/**
  * Get the domain and path for the cookie
  * - normally, local and global should be the localCookies and globalCookies settings, respectively.
  * - uses boardurl to determine these two things.

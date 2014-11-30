@@ -2877,4 +2877,89 @@ function template_profile_smiley_pick()
 							</dd>';
 }
 
+function template_tfasetup()
+{
+	global $txt, $context, $scripturl;
+
+	echo '
+							<div class="roundframe">
+								<h4>', $txt['tfa_title'], '</h4>
+								<div>
+									<div class="smalltext">', $txt['tfa_desc'], '</div>
+									<div id="basicinfo" style="width: 60%">
+										<strong>', $txt['tfa_step1'], '</strong>
+										<div class="smalltext">', $txt['tfa_step1_desc'], '</div>
+										<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_secret'], '</div>
+										<div style="margin-top: 10px;">
+											<strong>', $txt['tfa_step2'] , '</strong>
+											<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
+												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
+												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error" value="' . $context['tfa_value'] . '"' : '' ,'>
+												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button_submit" style="float: none;" />
+												<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
+											</form>
+										</div>
+									</div>
+									<div id="detailedinfo" style="width: 30%;">
+										<img src="', $context['tfa_qr_url'], '" alt="" style="max-width: 120px;" />
+									</div>
+									<div class="clear"></div>';
+
+	if (!empty($context['from_ajax']))
+		echo '
+									<br>
+									<a href="javascript:self.close();"></a>
+									<script type="text/javascript">
+										var form = $("#basicinfo form");
+										form.find("input[type=submit]").click(function(e) {
+											e.preventDefault();
+											e.stopPropagation();
+											$.post(form.prop("action"), form.serialize(), function(data) {
+													form.parent().parent().parent().html($("div:first", data));
+											});
+											return false;
+										});
+									</script>';
+
+	echo '
+								</div>
+							</div>';
+}
+
+function template_tfasetup_backup()
+{
+	global $context, $txt;
+
+	echo '
+							<div class="roundframe">
+								<div>
+									<h4>', $txt['tfa_backup_title'], '</h4>
+									<div class="smalltext">', $txt['tfa_backup_desc'], '</div>
+									<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_backup'], '</div>
+								</div>
+							</div>';
+}
+
+function template_profile_tfa()
+{
+	global $context, $txt, $scripturl;
+
+	echo '
+							<dt>
+								<strong>', $txt['tfa_profile_lable'], ':</strong>
+								<br /><div class="smalltext">', $txt['tfa_profile_desc'], '</div>
+							</dt>
+							<dd>';
+	if (!$context['tfa_enabled'] && $context['user']['is_owner'])
+		echo '
+								<a href="', $scripturl, '?action=profile;area=tfasetup" id="enable_tfa" onclick="return reqOverlayDiv(this.href, ', JavaScriptEscape($txt['tfa_profile_enable']), ');">', $txt['tfa_profile_enable'], '</a>';
+	elseif (!$context['tfa_enabled'])
+		echo '
+								', $txt['tfa_profile_disabled'];
+	else
+		echo '
+							', sprintf($txt['tfa_profile_enabled'], $scripturl . '?action=profile;area=tfasetup;disable');
+	echo '
+							</dd>';
+}
 ?>
