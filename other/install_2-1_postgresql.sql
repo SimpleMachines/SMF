@@ -1635,6 +1635,8 @@ CREATE TABLE {$db_prefix}members (
   passwd_flood varchar(12) NOT NULL default '',
   pm_receive_from smallint NOT NULL default '1',
   timezone varchar(80) NOT NULL DEFAULT 'UTC',
+  tfa_secret varchar(24) NOT NULL DEFAULT '',
+  tfa_backup varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (id_member)
 );
 

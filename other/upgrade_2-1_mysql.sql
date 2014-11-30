@@ -1708,3 +1708,16 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ALTER TABLE {$db_prefix}log_spider_hits
 CHANGE `url` `url` varchar(1024) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Adding support for 2FA
+/******************************************************************************/
+---# Adding the secret column to members table
+ALTER TABLE {$db_prefix}members
+ADD tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
+---#
+
+---# Adding the backup column to members table
+ALTER TABLE {$db_prefix}members
+ADD tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
+---#
