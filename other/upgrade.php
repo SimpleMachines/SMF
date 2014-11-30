@@ -16,24 +16,24 @@ define('SMF_VERSION', '2.1 Beta 1');
 define('SMF_LANG_VERSION', '2.1 Beta 1');
 
 $GLOBALS['required_php_version'] = '5.3.8';
-$GLOBALS['required_mysql_version'] = '4.0.18';
+$GLOBALS['required_mysql_version'] = '5.0.3';
 
 $databases = array(
 	'mysqli' => array(
 		'name' => 'MySQLi',
-		'version' => '4.0.18',
+		'version' => '5.0.3',
 		'version_check' => 'global $db_connection; return min(mysqli_get_server_info($db_connection), mysqli_get_client_info());',
 		'utf8_support' => true,
-		'utf8_version' => '4.1.0',
+		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'global $db_connection; return mysqli_get_server_info($db_connection);',
 		'alter_support' => true,
 	),
 	'mysql' => array(
 		'name' => 'MySQL',
-		'version' => '4.0.18',
+		'version' => '5.0.3',
 		'version_check' => 'return min(mysql_get_server_info(), mysql_get_client_info());',
 		'utf8_support' => true,
-		'utf8_version' => '4.1.0',
+		'utf8_version' => '5.0.3',
 		'utf8_version_check' => 'return mysql_get_server_info();',
 		'alter_support' => true,
 	),
@@ -142,7 +142,7 @@ if (isset($_GET['ssi']))
 }
 
 // All the non-SSI stuff.
-if (!function_exists('ip2range'))
+if (!function_exists('ip2range') && php_version_check())
 	require_once($sourcedir . '/Subs.php');
 
 if (!function_exists('un_htmlspecialchars'))
@@ -803,18 +803,8 @@ function loadEssentialData()
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 
-	$smcFunc['strtolower'] = $db_character_set != 'utf8'  ? 'strtolower' :
-		function($string) use ($sourcedir)
-		{
-			if (function_exists('mb_strtolower'))
-				return mb_strtolower($string, 'UTF-8');
-			require_once($sourcedir . '/Subs-Charset.php');
-			return utf8_strtolower($string);
-		};
+	$smcFunc['strtolower'] = 'smf_strtolower';
 
-	// Check we don't need some compatibility.
-	if (@version_compare(PHP_VERSION, '5.1', '<='))
-		require_once($sourcedir . '/Subs-Compat.php');
 
 	// Initialize everything...
 	initialize_inputs();
@@ -860,7 +850,7 @@ function loadEssentialData()
 	}
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
-	if (file_exists($sourcedir . '/QueryString.php'))
+	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
 	{
 		require_once($sourcedir . '/QueryString.php');
 		cleanRequest();
@@ -980,6 +970,12 @@ function WelcomeLogin()
 	if (!isset($modSettings['smfVersion']) || $modSettings['smfVersion'] < 1.1)
 		$check &= @file_exists(dirname(__FILE__) . '/upgrade_1-0.sql');
 
+	// This needs to exist!
+	if (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
+		return throw_error('The upgrader could not find the &quot;Install&quot; language file for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
+	else
+		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
+
 	if (!$check)
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
 		return throw_error('The upgrader was unable to find some crucial files.<br><br>Please make sure you uploaded all of the files included in the package, including the Themes, Sources, and other directories.');
@@ -1046,12 +1042,6 @@ function WelcomeLogin()
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION)
 			return throw_error('The upgrader found some old or outdated language files, for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded the new versions of all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?skiplang">SKIP</a>] [<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
 	}
-
-	// This needs to exist!
-	if (!file_exists($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php'))
-		return throw_error('The upgrader could not find the &quot;Install&quot; language file for the forum default language, ' . $upcontext['language'] . '.<br><br>Please make certain you uploaded all the files included in the package, even the theme and language files for the default theme.<br>&nbsp;&nbsp;&nbsp;[<a href="' . $upgradeurl . '?lang=english">Try English</a>]');
-	else
-		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
 
 	if (!makeFilesWritable($writable_files))
 		return false;
@@ -3494,6 +3484,14 @@ function quickFileWritable($file)
 			@chmod($file, $val);
 	}
 }
+function smf_strtolower($string)
+{
+	global $sourcedir;
+	if (function_exists('mb_strtolower'))
+		return mb_strtolower($string, 'UTF-8');
+	require_once($sourcedir . '/Subs-Charset.php');
+	return utf8_strtolower($string);
+};
 
 /******************************************************************************
 ******************* Templates are below this point ****************************
