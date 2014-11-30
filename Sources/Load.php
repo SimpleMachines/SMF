@@ -367,6 +367,38 @@ function loadUserSettings()
 			require_once($sourcedir . '/LogInOut.php');
 			validatePasswordFlood(!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member, !empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false, $id_member != 0);
 		}
+		// Validate for Two Factor Authentication
+		elseif ($id_member && !empty($user_settings['tfa_secret']) && !in_array($_REQUEST['action'], array('login2', 'logintfa')))
+		{
+			$tfacookie = $cookiename . '_tfa';
+			$tfasecret = null;
+
+			$verified = call_integration_hook('integrate_verify_tfa', array($id_member, $user_settings));
+
+			if (empty($verified) || !in_array(true, $verified))
+			{
+				if (!empty($_COOKIE[$tfacookie]))
+				{
+					list ($tfamember, $tfasecret) = @unserialize($_COOKIE[$tfacookie]);
+
+					if ((int) $tfamember != $id_member)
+						$tfasecret = null;
+				}
+
+				if (empty($tfasecret) || hash_salt($user_settings['tfa_secret'], $user_settings['password_salt']) != $tfasecret)
+				{
+					$id_member = 0;
+					redirectexit('action=logintfa');
+				}
+			}
+		}
+		// When authenticating their two factor code, make sure to reset their ID/password for security
+		elseif ($id_member && !empty($user_settings['tfa_secret']) && $_REQUEST['action'] == 'logintfa')
+		{
+			$id_member = 0;
+			$context['tfa_member'] = $user_settings;
+			$user_settings = array();
+		}
 	}
 
 	// Found 'im, let's set up the variables.
