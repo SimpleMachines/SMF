@@ -2911,7 +2911,7 @@ function template_tfasetup()
 									<a href="javascript:self.close();"></a>
 									<script type="text/javascript">
 										var form = $("#basicinfo form");
-										form.find("input[type=submit]").click(function(e) {
+										form.submit(function(e) {
 											e.preventDefault();
 											e.stopPropagation();
 											$.post(form.prop("action"), form.serialize(), function(data) {

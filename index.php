@@ -299,6 +299,7 @@ function smf_main()
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
 		'login2' => array('LogInOut.php', 'Login2'),
+		'logintfa' => array('LogInOut.php', 'LoginTFA'),
 		'logout' => array('LogInOut.php', 'Logout'),
 		'markasread' => array('Subs-Boards.php', 'MarkRead'),
 		'mergetopics' => array('SplitTopics.php', 'MergeTopics'),

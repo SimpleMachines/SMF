@@ -124,11 +124,11 @@ function Login2()
 
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
-			redirectexit();
+			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
 		{
 			unset ($_SESSION['login_url']);
-			redirectexit();
+			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		else
 		{
@@ -217,7 +217,7 @@ function Login2()
 	// Load the data up!
 	$request = $smcFunc['db_query']('', '
 		SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			passwd_flood
+			passwd_flood, tfa_secret
 		FROM {db_prefix}members
 		WHERE ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(member_name) = LOWER({string:user_name})' : 'member_name = {string:user_name}') . '
 		LIMIT 1',
@@ -232,7 +232,7 @@ function Login2()
 
 		$request = $smcFunc['db_query']('', '
 			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			passwd_flood
+			passwd_flood, tfa_secret
 			FROM {db_prefix}members
 			WHERE email_address = {string:user_name}
 			LIMIT 1',
@@ -383,6 +383,67 @@ function Login2()
 		return;
 
 	DoLogin();
+}
+
+/**
+ * Allows the user to enter their Two-Factor Authentication code
+ */
+function LoginTFA()
+{
+	global $sourcedir, $txt, $context, $user_info, $modSettings;
+
+	if (!$user_info['is_guest'] || empty($context['tfa_member']))
+		fatal_lang_error('no_access', false);
+
+	loadLanguage('Profile');
+	require_once($sourcedir . '/Class-TOTP.php');
+
+	$member = $context['tfa_member'];
+
+	$totp = new \TOTP\Auth($member['tfa_secret']);
+	$totp->setRange(15);
+
+	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	{
+		$context['from_ajax'] = true;
+		$context['template_layers'] = array();
+	}
+
+	if (!empty($_POST['tfa_code']))
+	{
+		$code = $_POST['tfa_code'];
+
+		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
+		{
+			setTFACookie(60 * $modSettings['cookieTime'], $member['id_member'], hash_salt($member['tfa_secret'], $member['password_salt']));
+			redirectexit();
+		}
+		else
+		{
+			$context['tfa_error'] = true;
+			$context['tfa_value'] = $_POST['tfa_code'];
+		}
+	}
+	elseif (!empty($_POST['tfa_backup']))
+	{
+		$backup = $_POST['tfa_backup'];
+
+		if (hash_verify_password($member['username'], $backup, $member['tfa_backup']))
+		{
+			setTFACookie(60 * $modSettings['cookieTime'], $member['id_member'], hash_salt($member['tfa_secret'], $member['password_salt']));
+			redirectexit();
+		}
+		else
+		{
+			$context['tfa_backup_error'] = true;
+			$context['tfa_value'] = $_POST['tfa_code'];
+			$context['tfa_backup_value'] = $_POST['tfa_backup'];
+		}
+	}
+
+	loadTemplate('Login');
+	$context['sub_template'] = 'login_tfa';
+	$context['page_title'] = $txt['login'];
 }
 
 /**
