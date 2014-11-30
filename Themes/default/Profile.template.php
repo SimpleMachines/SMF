@@ -2946,7 +2946,7 @@ function template_profile_tfa()
 
 	echo '
 							<dt>
-								<strong>', $txt['tfa_profile_lable'], ':</strong>
+								<strong>', $txt['tfa_profile_label'], ':</strong>
 								<br /><div class="smalltext">', $txt['tfa_profile_desc'], '</div>
 							</dt>
 							<dd>';
