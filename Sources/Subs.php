@@ -3966,7 +3966,7 @@ function setupMenuContext()
 	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
 	if ($context['current_action'] == 'profile' && !empty($context['user']['is_owner']))
 	{
-		$current_action = !empty($_GET['area']) && $_GET['area'] == 'alerts_popup' ? 'self_alerts' : 'self_profile';
+		$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
 		$context[$current_action] = true;
 	}
 	elseif ($context['current_action'] == 'pm')
