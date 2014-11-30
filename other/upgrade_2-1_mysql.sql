@@ -859,7 +859,7 @@ if (in_array('gender', $results))
 		FROM {db_prefix}members');
 
 	$inserts = array();
-	$genderTypes = array(1=>"Male",2=>"Female");
+	$genderTypes = array(1 => 'Male', 2 => 'Female');
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['aim']))
