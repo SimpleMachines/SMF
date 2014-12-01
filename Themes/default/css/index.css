@@ -2809,7 +2809,7 @@ dl.addrules dt.floatleft {
 	z-index: 1;
 }
 
-.generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+.windowbg, .windowbg2 {
 	background: #f0f4f7;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
@@ -2820,7 +2820,7 @@ dl.addrules dt.floatleft {
 	box-sizing: border-box;
 }
 /* Special treatment for #forumposts area */
-#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
+#forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
@@ -2835,21 +2835,9 @@ dl.addrules dt.floatleft {
 .windowbg.sticky.locked, .windowbg2.sticky.locked {
 	background: #e8d8cf;
 }
-/* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic, .windowbg2.approvetopic {
-	background: #e4a17c;
-}
-/* Unapproved posts in approved topics */
-.windowbg.approvepost, .windowbg2.approvepost {
-	background: #ffeaea;
-}
-.generic_list_wrapper .additional_row {
-	margin: 0;
-	padding: 5px 0;
-	border-radius: 0;
-}
-.generic_list_wrapper table.table_grid {
-	border-bottom: 1px solid #aaa;
+/* If its not approved then it needs to be seen first */
+.windowbg.approvebg, .windowbg2.approvebg {
+	background: #FFEAEA !important; /* important is needed for messageindex to avoid creating extra rules for locked/stick/locked&stick situations */
 }
 
 div#editlang_desc {
@@ -2870,16 +2858,6 @@ tr.windowbg, tr.windowbg2 {
 }
 #postmodify .lastedit{
 	font-weight: bold;
-}
-
-/* Colors for background of posts requiring approval */
-#forumposts .approvebg {
-	color: #222;
-	background: #ffeaea;
-}
-#forumposts .approvebg2 {
-	color: #222;
-	background: #fff2f2;
 }
 
 div#manage_boards dl dd textarea[name=desc] {
@@ -3094,7 +3072,7 @@ span.postby {
 .moderation {
 	float: right;
 	width: 35px;
-	margin: 5px 0 0 0;
+	margin: 2px 0 0 0;
 }
 #topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	box-shadow: none;
@@ -3119,7 +3097,6 @@ span.postby {
 	padding: 8px 10px 8px 10px;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
-	border-bottom: 0;
 }
 .lastpost span.last_post {
 	float: right;
@@ -3685,9 +3662,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	margin: 0 0 10px 0;
 	padding: 12px 9px 8px 9px;
 	box-sizing: border-box;
-}
-.generic_list_wrapper .information div {
-	background: none;
 }
 .information a {
 	font-weight: bold;

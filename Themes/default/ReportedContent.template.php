@@ -407,7 +407,7 @@ function template_reported_members()
 	foreach ($context['reports'] as $report)
 	{
 		echo '
-		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
+		<div class="', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
 			<h5>
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
