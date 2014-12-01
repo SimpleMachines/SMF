@@ -1239,7 +1239,7 @@ function template_admin_search_results()
 								<span class="generic_icons filter"></span>&nbsp;', sprintf($txt['admin_search_results_desc'], $context['search_term']), '
 							</h3>
 						</div>
-					<div class="windowbg2 generic_list_wrapper">';
+					<div class="windowbg2">';
 
 	if (empty($context['search_results']))
 	{

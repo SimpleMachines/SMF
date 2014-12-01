@@ -113,7 +113,7 @@ function template_main()
 	if ($context['description'] != '' || !empty($context['moderators']))
 		{
 		echo '
-	<div id="description_board" class="generic_list_wrapper">
+	<div id="description_board" class="windowbg">
 		<h3 class="floatleft">', $context['name'], '&nbsp;-&nbsp;</h3>
 		<p>';
 	if ($context['description'] != '')

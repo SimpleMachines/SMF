@@ -815,21 +815,20 @@ function template_trackActivity()
 
 	// The first table shows IP information about the user.
 	echo '
-		<div class="generic_list_wrapper">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
+		</div>';
 
 	// The last IP the user used.
 	echo '
-			<div id="tracking" class="windowbg2">
-				<dl class="noborder">
-					<dt>', $txt['most_recent_ip'], ':
-						', (empty($context['last_ip2']) ? '' : '<br>
-						<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
-					</dt>
-					<dd>
-						<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
+		<div id="tracking" class="roundframe">
+			<dl class="noborder">
+				<dt>', $txt['most_recent_ip'], ':
+					', (empty($context['last_ip2']) ? '' : '<br>
+					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
+				</dt>
+				<dd>
+					<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
 
 	// Second address detected?
 	if (!empty($context['last_ip2']))
