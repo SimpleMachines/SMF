@@ -3888,3 +3888,9 @@ h3.profile_hd {
 	display: block;
 	margin: 0 0 2px 0;
 }
+
+/* Alternating colors */
+.stripes:nth-of-type(even) { background-color:#F2F2F2; }
+.stripes:nth-of-type(odd) { background-color:#f0f4f7; }
+.alternative { background-color:#F2F2F2; }
+.alternative2{ background-color:#E8EDF0; }
