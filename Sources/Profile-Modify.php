@@ -4041,9 +4041,9 @@ function tfasetup($memID)
 			'tfa_secret' => '',
 			'tfa_backup' => '',
 		));
-		redirectexit('action=profile;area=account');
+		redirectexit('action=profile;area=account;u=' . $memID);
 	}
 	else
-		redirectexit('action=profile;area=account');
+		redirectexit('action=profile;area=account;u=' . $memID);
 }
 ?>
