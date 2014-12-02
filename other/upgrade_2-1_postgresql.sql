@@ -1826,3 +1826,15 @@ ADD COLUMN tfa_secret VARCHAR(24) NOT NULL DEFAULT '';
 ALTER TABLE {$db_prefix}members
 ADD COLUMN tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 ---#
+
+---# Add tfa_mode setting
+---{
+	if (!isset($modSettings['tfa_mode']))
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('tfa_mode', '1'),
+			array('variable')
+		);
+---}
+---#

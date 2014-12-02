@@ -2352,6 +2352,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarMaxRating', 
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('loginHistoryDays', '30');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('httponlyCookies', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('tfa_mode', '1');
 
 # --------------------------------------------------------
 

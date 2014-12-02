@@ -1845,7 +1845,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('gravatarMaxRating', 'PG'),
 	('defaultMaxListItems', '15'),
 	('loginHistoryDays', '30'),
-	('httponlyCookies', '1');
+	('httponlyCookies', '1'),
+	('tfa_mode', '1');
 
 # --------------------------------------------------------
 
