@@ -2956,7 +2956,7 @@ function template_profile_tfa()
 								', $txt['tfa_profile_disabled'];
 	else
 		echo '
-							', sprintf($txt['tfa_profile_enabled'], $scripturl . '?action=profile;u=', $context['id_member'], ';area=tfasetup;disable');
+							', sprintf($txt['tfa_profile_enabled'], $scripturl . '?action=profile;u=' . $context['id_member'] . ';area=tfasetup;disable');
 	echo '
 							</dd>';
 }
