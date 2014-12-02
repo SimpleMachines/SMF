@@ -434,7 +434,7 @@ function LoginTFA()
 	{
 		$backup = $_POST['tfa_backup'];
 
-		if (hash_verify_password($member['username'], $backup, $member['tfa_backup']))
+		if (hash_verify_password($member['member_name'], $backup, $member['tfa_backup']))
 		{
 			// Get rid of their current TFA settings
 			updateMemberData($member['id_member'], array(

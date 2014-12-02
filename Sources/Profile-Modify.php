@@ -4001,7 +4001,7 @@ function tfasetup($memID)
 			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
 			{
 				$backup = substr(sha1(mt_rand()), 0, 16);
-				$backup_encrypted = hash_password($user_settings['username'], $backup);
+				$backup_encrypted = hash_password($user_settings['member_name'], $backup);
 
 				updateMemberData($memID, array(
 					'tfa_secret' => $_SESSION['tfa_secret'],
