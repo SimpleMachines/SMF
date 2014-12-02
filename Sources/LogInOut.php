@@ -626,6 +626,8 @@ function Logout($internal = false, $redirect = true)
 
 	// Empty the cookie! (set it in the past, and for id_member = 0)
 	setLoginCookie(-3600, 0);
+	if (!empty($modSettings['tfa_mode']))
+		setTFACookie(-3600, 0, '');
 
 	// And some other housekeeping while we're at it.
 	session_destroy();
