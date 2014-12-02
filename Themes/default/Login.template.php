@@ -111,7 +111,7 @@ function template_login_tfa()
 			<div class="roundframe">';
 	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
 		echo '
-				<div class="error">', $txt['tfa_' . ($context['tfa_error'] ? 'code_' : 'backup_') . 'invalid'], '</div>';
+				<div class="error">', $txt['tfa_' . (!empty($context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '</div>';
 	echo '
 				<form action="', $scripturl, '?action=logintfa" method="post" id="frmTfa">
 					<div id="tfaCode">
