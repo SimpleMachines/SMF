@@ -4035,7 +4035,7 @@ function tfasetup($memID)
 
 		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ' : ' . $user_info['name'], $context['tfa_secret']);
 	}
-	elseif (!empty($_REQUEST['disable']))
+	elseif (isset($_REQUEST['disable']))
 	{
 		updateMemberData($memID, array(
 			'tfa_secret' => '',
