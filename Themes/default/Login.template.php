@@ -126,7 +126,7 @@ function template_login_tfa()
 						', $txt['tfa_backup_desc'], '<br />
 						<strong>', $txt['tfa_backup_code'], ': </strong>
 						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '"  />
-						<input type="button" class="button_submit" name="submit" value="', $txt['login'], '" />
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" />
 					</div>
 				</form>
 				<script type="text/javascript">
@@ -134,6 +134,10 @@ function template_login_tfa()
 	if (!empty($context['from_ajax']))
 		echo '
 						form.submit(function(e) {
+							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+							if (form.find("input[name=tfa_backup]:first").val().length > 0)
+								return true;
+
 							e.preventDefault();
 							e.stopPropagation();
 

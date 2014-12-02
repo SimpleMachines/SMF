@@ -398,7 +398,7 @@ function LoginTFA()
 {
 	global $sourcedir, $txt, $context, $user_info, $modSettings;
 
-	if (!$user_info['is_guest'] || empty($context['tfa_member']))
+	if (!$user_info['is_guest'] || empty($context['tfa_member']) || empty($modSettings['tfa_mode']))
 		fatal_lang_error('no_access', false);
 
 	loadLanguage('Profile');
@@ -415,7 +415,7 @@ function LoginTFA()
 		$context['template_layers'] = array();
 	}
 
-	if (!empty($_POST['tfa_code']))
+	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 	{
 		$code = $_POST['tfa_code'];
 

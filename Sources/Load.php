@@ -368,7 +368,7 @@ function loadUserSettings()
 			validatePasswordFlood(!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member, !empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false, $id_member != 0);
 		}
 		// Validate for Two Factor Authentication
-		elseif ($id_member && !empty($user_settings['tfa_secret']) && !in_array($_REQUEST['action'], array('login2', 'logintfa')))
+		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], array('login2', 'logintfa'))))
 		{
 			$tfacookie = $cookiename . '_tfa';
 			$tfasecret = null;
@@ -392,12 +392,21 @@ function loadUserSettings()
 				}
 			}
 		}
-		// When authenticating their two factor code, make sure to reset their ID/password for security
-		elseif ($id_member && !empty($user_settings['tfa_secret']) && $_REQUEST['action'] == 'logintfa')
+		// When authenticating their two factor code, make sure to reset their ID for security
+		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && $_REQUEST['action'] == 'logintfa')
 		{
 			$id_member = 0;
 			$context['tfa_member'] = $user_settings;
 			$user_settings = array();
+		}
+		// Are we forcing 2FA?
+		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2 && $id_member && empty($user_settings['tfa_secret']))
+		{
+			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
+			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
+
+			if (!in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+				redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
 

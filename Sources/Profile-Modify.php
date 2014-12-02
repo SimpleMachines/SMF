@@ -504,6 +504,7 @@ function loadProfileFields($force_reload = false)
 			'type' => 'callback',
 			'callback_func' => 'tfa',
 			'permission' => 'profile_password',
+			'enabled' => !empty($modSettings['tfa_mode']),
 			'preload' => function() use (&$context, $user_info, $modSettings, $user_settings)
 			{
 				$context['tfa_enabled'] = !empty($user_settings['tfa_secret']);
@@ -3982,14 +3983,16 @@ function tfasetup($memID)
 	// If TFA has not been setup, allow them to set it up
 	if (empty($user_settings['tfa_secret']) && $context['user']['is_owner'])
 	{
-		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+		// In some cases (forced 2FA or backup code) they would be forced to be redirected here,
+		// we do not want too much AJAX to confuse them.
+		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' && !isset($_REQUEST['backup']) && !isset($_REQUEST['forced']))
 		{
 			$context['from_ajax'] = true;
 			$context['template_layers'] = array();
 		}
 
 		// When the code is being sent, verify to make sure the user got it right
-		if (!empty($_POST['tfa_code']) && !empty($_SESSION['tfa_secret']))
+		if (!empty($_REQUEST['save']) && !empty($_SESSION['tfa_secret']))
 		{
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
@@ -4027,6 +4030,7 @@ function tfasetup($memID)
 			$secret = $totp->generateCode();
 			$_SESSION['tfa_secret'] = $secret;
 			$context['tfa_secret'] = $secret;
+			$context['tfa_backup'] = isset($_REQUEST['backup']);
 		}
 
 		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ' : ' . $user_info['name'], $context['tfa_secret']);

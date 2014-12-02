@@ -2879,12 +2879,16 @@ function template_profile_smiley_pick()
 
 function template_tfasetup()
 {
-	global $txt, $context, $scripturl;
+	global $txt, $context, $scripturl, $modSettings;
 
 	echo '
 							<div class="roundframe">
-								<h4>', $txt['tfa_title'], '</h4>
+								<h3>', $txt['tfa_title'], '</h3>
 								<div>
+		', !empty($context['tfa_backup']) ? '
+									<div class="smalltext error">' . $txt['tfa_backup_used_desc'] . '</div>' :
+			($modSettings['tfa_mode'] == 2 ? '
+									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
 									<div id="basicinfo" style="width: 60%">
 										<strong>', $txt['tfa_step1'], '</strong>
@@ -2897,6 +2901,7 @@ function template_tfasetup()
 												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error" value="' . $context['tfa_value'] . '"' : '' ,'>
 												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button_submit" style="float: none;" />
 												<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
+												<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
 											</form>
 										</div>
 									</div>
