@@ -2882,8 +2882,10 @@ function template_tfasetup()
 	global $txt, $context, $scripturl, $modSettings;
 
 	echo '
+							<div class="cat_bar">
+								<h3 class="catbg">', $txt['tfa_title'], '</h3>
+							</div>
 							<div class="roundframe">
-								<h3>', $txt['tfa_title'], '</h3>
 								<div>
 		', !empty($context['tfa_backup']) ? '
 									<div class="smalltext error">' . $txt['tfa_backup_used_desc'] . '</div>' :
@@ -2913,18 +2915,7 @@ function template_tfasetup()
 	if (!empty($context['from_ajax']))
 		echo '
 									<br>
-									<a href="javascript:self.close();"></a>
-									<script type="text/javascript">
-										var form = $("#basicinfo form");
-										form.submit(function(e) {
-											e.preventDefault();
-											e.stopPropagation();
-											$.post(form.prop("action"), form.serialize(), function(data) {
-													form.parent().parent().parent().html($("div:first", data));
-											});
-											return false;
-										});
-									</script>';
+									<a href="javascript:self.close();"></a>';
 
 	echo '
 								</div>
@@ -2936,9 +2927,11 @@ function template_tfasetup_backup()
 	global $context, $txt;
 
 	echo '
+							<div class="cat_bar">
+								<h3 class="catbg">', $txt['tfa_backup_title'], '</h3>
+							</div>
 							<div class="roundframe">
 								<div>
-									<h4>', $txt['tfa_backup_title'], '</h4>
 									<div class="smalltext">', $txt['tfa_backup_desc'], '</div>
 									<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_backup'], '</div>
 								</div>
