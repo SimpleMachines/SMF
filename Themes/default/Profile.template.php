@@ -2893,19 +2893,26 @@ function template_tfasetup()
 									<div class="smalltext"><strong>' . $txt['tfa_forced_desc'] . '</strong></div>' : ''), '
 									<div class="smalltext">', $txt['tfa_desc'], '</div>
 									<div id="basicinfo" style="width: 60%">
-										<strong>', $txt['tfa_step1'], '</strong>
-										<div class="smalltext">', $txt['tfa_step1_desc'], '</div>
-										<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_secret'], '</div>
-										<div style="margin-top: 10px;">
-											<strong>', $txt['tfa_step2'] , '</strong>
-											<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
+										<form action="', $scripturl, '?action=profile;area=tfasetup" method="post">
+											<div>
+												<strong>', $txt['tfa_step1'], '</strong><br />
+												', !empty($context['tfa_pass_error']) ? '<div class="error smalltext">' . $txt['tfa_pass_invalid'] . '</div>' : '', '
+												<input type="password" name="passwd" style="width: 200px;"', !empty($context['tfa_pass_error']) ? ' class="error"' : '', !empty($context['tfa_pass_value']) ? ' value="' . $context['tfa_pass_value'] . '"' : '' ,'>
+											</div>
+											<div>
+												<strong>', $txt['tfa_step2'], '</strong>
+												<div class="smalltext">', $txt['tfa_step2_desc'], '</div>
+												<div class="bbc_code" style="resize: none; border: none;">', $context['tfa_secret'], '</div>
+											</div>
+											<div style="margin-top: 10px;">
+												<strong>', $txt['tfa_step3'] , '</strong><br />
 												', !empty($context['tfa_error']) ? '<div class="error smalltext">' . $txt['tfa_code_invalid'] . '</div>' : '', '
-												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error" value="' . $context['tfa_value'] . '"' : '' ,'>
+												<input type="text" name="tfa_code" style="width: 200px;"', !empty($context['tfa_error']) ? ' class="error"' : '', !empty($context['tfa_value']) ? ' value="' . $context['tfa_value'] . '"' : '' ,'>
 												<input type="submit" name="save" value="', $txt['tfa_enable'], '" class="button_submit" style="float: none;" />
-												<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
-												<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-											</form>
-										</div>
+											</div>
+											<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '" />
+											<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+										</form>
 									</div>
 									<div id="detailedinfo" style="width: 30%;">
 										<img src="', $context['tfa_qr_url'], '" alt="" style="max-width: 120px;" />
