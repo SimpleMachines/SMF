@@ -72,7 +72,7 @@ function template_login()
 							e.stopPropagation();
 
 							$.post(form.prop("action"), form.serialize(), function(data) {
-								if ($(data).has("body").length)
+								if (data.indexOf("<bo" + "dy") > -1)
 									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
 								else {
 									form.parent().html($(data).find(".roundframe").html());
@@ -138,7 +138,7 @@ function template_login_tfa()
 							e.stopPropagation();
 
 							$.post(form.prop("action"), form.serialize(), function(data) {
-								if ($(data).has("body").length)
+								if (data.indexOf("<bo" + "dy") > -1)
 									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
 								else {
 									form.parent().html($(data).find(".roundframe").html());
