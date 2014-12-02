@@ -497,7 +497,7 @@ function loadUserSettings()
 		$user_info = array('groups' => array(-1));
 		$user_settings = array();
 
-		if (isset($_COOKIE[$cookiename]))
+		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
 			$_COOKIE[$cookiename] = '';
 
 		// Create a login token if it doesn't exist yet.
