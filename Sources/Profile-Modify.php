@@ -4033,7 +4033,7 @@ function tfasetup($memID)
 			$context['tfa_backup'] = isset($_REQUEST['backup']);
 		}
 
-		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ' : ' . $user_info['name'], $context['tfa_secret']);
+		$context['tfa_qr_url'] = $totp->getQrCodeUrl($context['forum_name'] . ':' . $user_info['name'], $context['tfa_secret']);
 	}
 	elseif (isset($_REQUEST['disable']))
 	{
