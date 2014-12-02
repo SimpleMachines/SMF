@@ -430,8 +430,13 @@ function LoginTFA()
 
 		if (hash_verify_password($member['username'], $backup, $member['tfa_backup']))
 		{
+			// Get rid of their current TFA settings
+			updateMemberData($member['id_member'], array(
+				'tfa_secret' => '',
+				'tfa_backup' => '',
+			));
 			setTFACookie(60 * $modSettings['cookieTime'], $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
-			redirectexit();
+			redirectexit('action=profile;area=tfasetup;backup');
 		}
 		else
 		{
