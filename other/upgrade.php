@@ -991,9 +991,19 @@ function WelcomeLogin()
 	if (!db_version_check())
 		return throw_error('Your ' . $databases[$db_type]['name'] . ' version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.');
 
-	// Do they have ALTER privileges?
-	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('alter_boards', 'ALTER TABLE {db_prefix}boards ORDER BY id_board', array()) === false)
-		return throw_error('The ' . $databases[$db_type]['name'] . ' user you have set in Settings.php does not have proper privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.');
+	// Do some checks to make sure they have proper privileges
+	// CREATE
+	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true), array(), array(), 'overwrite'));
+
+	// ALTER
+	$alter = $smcFunc['db_query']('', 'ALTER TABLE {db_prefix}priv_check ADD txt tinytext NOT NULL DEFAULT \'\'', array());
+
+	// DROP
+	$drop = $smcFunc['db_drop_table']('{db_prefix}priv_check');
+
+	// Sorry... we need CREATE, ALTER and DROP
+	if (!$create || !$alter || !$drop)
+		return throw_error('The ' . $databases[$db_type]['name'] . ' user you have set in Settings.php does not have ALTER privileges.<br><br>Please ask your host to give this user the ALTER, CREATE, and DROP privileges.');
 
 	// Do a quick version spot check.
 	$temp = substr(@implode('', @file($boarddir . '/index.php')), 0, 4096);
