@@ -996,7 +996,7 @@ function WelcomeLogin()
 	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true), array(), array(), 'overwrite'));
 
 	// ALTER
-	$alter = $smcFunc['db_query']('', 'ALTER TABLE {db_prefix}priv_check ADD txt tinytext NOT NULL DEFAULT \'\'', array());
+	$alter = $smcFunc['db_query']('', 'ALTER TABLE {db_prefix}priv_check ADD txt tinytext NOT NULL DEFAULT {empty}', array());
 
 	// DROP
 	$drop = $smcFunc['db_drop_table']('{db_prefix}priv_check');
