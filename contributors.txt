@@ -65,6 +65,7 @@ SCEditor | © Sam Clarke | Licensed under The MIT License (MIT)
 animaDrag | © Abel Mohler | Licensed under The MIT License (MIT)
 At.js | © chord.luo@gmail.com | Licensed under The MIT License (MIT)
 HTML5 Desktop Notifications | © Tsvetan Tsvetkov | Licensed under The Apache License Version 2.0
+GAuth Code Generator/Validator | © Chris Cornutt | Licensed under The MIT License (MIT)
 
 Fonts
 Anonymous Pro | © 2009 | This font is licensed under the SIL Open Font License, Version 1.1

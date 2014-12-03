@@ -276,6 +276,14 @@ function ModifyCookieSettings($return_config = false)
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
 		array('databaseSession_loose', $txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
 		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => $txt['seconds']),
+		'',
+		// 2FA
+		array('tfa_mode', $txt['tfa_mode'], 'db', 'select', array(
+			0 => $txt['tfa_mode_disabled'],
+			1 => $txt['tfa_mode_enabled'],
+		) + (empty($user_settings['tfa_secret']) ? array() : array(
+			2 => $txt['tfa_mode_forced'],
+		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : '')),
 	);
 
 	addInlineJavascript('
@@ -294,6 +302,9 @@ function ModifyCookieSettings($return_config = false)
 	$("#localCookies, #globalCookies").click(function() {
 		hideGlobalCookies();
 	});', true);
+
+	if (empty($user_settings['tfa_secret']))
+		addInlineJavascript('');
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
 

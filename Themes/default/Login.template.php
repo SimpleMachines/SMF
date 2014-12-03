@@ -60,10 +60,29 @@ function template_login()
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-					<script>
+					<script type="text/javascript">
 						setTimeout(function() {
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
-						}, 150);
+						}, 150);';
+	if (!empty($context['from_ajax']))
+		echo '
+						form = $("#frmLogin");
+						form.submit(function(e) {
+							e.preventDefault();
+							e.stopPropagation();
+
+							$.post(form.prop("action"), form.serialize(), function(data) {
+								if (data.indexOf("<bo" + "dy") > -1)
+									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+								else {
+									form.parent().html($(data).find(".roundframe").html());
+								}
+							});
+
+							return false;
+						});';
+
+	echo '
 					</script>
 				</form>';
 
@@ -73,6 +92,71 @@ function template_login()
 					<br>
 					<a href="javascript:self.close();"></a>';
 	echo '
+			</div>
+		</div>';
+}
+
+// TFA authentication
+function template_login_tfa()
+{
+	global $context, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="tborder login">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['tfa_profile_label'] ,'
+				</h3>
+			</div>
+			<div class="roundframe">';
+	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
+		echo '
+				<div class="error">', $txt['tfa_' . (!empty($context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '</div>';
+	echo '
+				<form action="', $scripturl, '?action=logintfa" method="post" id="frmTfa">
+					<div id="tfaCode">
+						', $txt['tfa_login_desc'], '<br />
+						<strong>', $txt['tfa_code'], ':</strong>
+						<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '" />
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '"  />
+						<hr />
+						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;" />
+					</div>
+					<div id="tfaBackup" style="display: none;">
+						', $txt['tfa_backup_desc'], '<br />
+						<strong>', $txt['tfa_backup_code'], ': </strong>
+						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '"  />
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" />
+					</div>
+				</form>
+				<script type="text/javascript">
+						form = $("#frmTfa");';
+	if (!empty($context['from_ajax']))
+		echo '
+						form.submit(function(e) {
+							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+							if (form.find("input[name=tfa_backup]:first").val().length > 0)
+								return true;
+
+							e.preventDefault();
+							e.stopPropagation();
+
+							$.post(form.prop("action"), form.serialize(), function(data) {
+								if (data.indexOf("<bo" + "dy") > -1)
+									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+								else {
+									form.parent().html($(data).find(".roundframe").html());
+								}
+							});
+
+							return false;
+						});';
+	echo '
+						form.find("input[name=backup]").click(function(e) {
+							$("#tfaBackup").show();
+							$("#tfaCode").hide();
+						});
+				</script>
 			</div>
 		</div>';
 }

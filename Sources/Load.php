@@ -367,6 +367,47 @@ function loadUserSettings()
 			require_once($sourcedir . '/LogInOut.php');
 			validatePasswordFlood(!empty($user_settings['id_member']) ? $user_settings['id_member'] : $id_member, !empty($user_settings['passwd_flood']) ? $user_settings['passwd_flood'] : false, $id_member != 0);
 		}
+		// Validate for Two Factor Authentication
+		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && (empty($_REQUEST['action']) || !in_array($_REQUEST['action'], array('login2', 'logintfa'))))
+		{
+			$tfacookie = $cookiename . '_tfa';
+			$tfasecret = null;
+
+			$verified = call_integration_hook('integrate_verify_tfa', array($id_member, $user_settings));
+
+			if (empty($verified) || !in_array(true, $verified))
+			{
+				if (!empty($_COOKIE[$tfacookie]))
+				{
+					list ($tfamember, $tfasecret) = @unserialize($_COOKIE[$tfacookie]);
+
+					if ((int) $tfamember != $id_member)
+						$tfasecret = null;
+				}
+
+				if (empty($tfasecret) || hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']) != $tfasecret)
+				{
+					$id_member = 0;
+					redirectexit('action=logintfa');
+				}
+			}
+		}
+		// When authenticating their two factor code, make sure to reset their ID for security
+		elseif (!empty($modSettings['tfa_mode']) && $id_member && !empty($user_settings['tfa_secret']) && $_REQUEST['action'] == 'logintfa')
+		{
+			$id_member = 0;
+			$context['tfa_member'] = $user_settings;
+			$user_settings = array();
+		}
+		// Are we forcing 2FA?
+		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2 && $id_member && empty($user_settings['tfa_secret']))
+		{
+			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
+			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
+
+			if (!in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+				redirectexit('action=profile;area=tfasetup;forced');
+		}
 	}
 
 	// Found 'im, let's set up the variables.
@@ -456,7 +497,7 @@ function loadUserSettings()
 		$user_info = array('groups' => array(-1));
 		$user_settings = array();
 
-		if (isset($_COOKIE[$cookiename]))
+		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
 			$_COOKIE[$cookiename] = '';
 
 		// Create a login token if it doesn't exist yet.

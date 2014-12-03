@@ -2755,7 +2755,7 @@ dl.addrules dt.floatleft {
 .popup_content {
 	color: #222;
 	line-height: 1.6em;
-	max-height: 20em;
+	max-height: 30em;
 	overflow: auto;
 	margin: 0;
 	padding: 10px 8px;
