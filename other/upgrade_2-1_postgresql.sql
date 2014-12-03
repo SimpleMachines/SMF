@@ -907,13 +907,16 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 ---# Converting member values...
 ---{
 // We cannot do this twice
-if (@$modSettings['smfVersion'] < '2.1')
+// First see if we still have a gender column
+$results = $smcFunc['db_list_columns']('{db_prefix}members');
+if (in_array('gender', $results))
 {
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, aim, icq, msn, yim, location, gender
 		FROM {db_prefix}members');
 
 	$inserts = array();
+	$genderTypes = array(1 => 'Male', 2 => 'Female');
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!empty($row['aim']))
@@ -931,8 +934,8 @@ if (@$modSettings['smfVersion'] < '2.1')
 		if (!empty($row['location']))
 			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
 
-		if (!empty($row['gender']))
-			$inserts[] = array($row['id_member'], -1, 'cust_gender', $row['gender']);
+		if (!empty($row['gender']) && isset($genderTypes[intval($row['gender'])]))
+			$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[intval($row['gender'])]);
 	}
 	$smcFunc['db_free_result']($request);
 
