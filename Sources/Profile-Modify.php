@@ -26,7 +26,7 @@ if (!defined('SMF'))
 function loadProfileFields($force_reload = false)
 {
 	global $context, $profile_fields, $txt, $scripturl, $modSettings, $user_info, $old_profile, $smcFunc, $cur_profile, $language;
-	global $sourcedir, $profile_vars, $user_settings;
+	global $sourcedir, $profile_vars;
 
 	// Don't load this twice!
 	if (!empty($profile_fields) && !$force_reload)
@@ -505,9 +505,9 @@ function loadProfileFields($force_reload = false)
 			'callback_func' => 'tfa',
 			'permission' => 'profile_password',
 			'enabled' => !empty($modSettings['tfa_mode']),
-			'preload' => function() use (&$context, $user_info, $modSettings, $user_settings)
+			'preload' => function() use (&$context, $cur_profile)
 			{
-				$context['tfa_enabled'] = !empty($user_settings['tfa_secret']);
+				$context['tfa_enabled'] = !empty($cur_profile['tfa_secret']);
 
 				return true;
 			},
