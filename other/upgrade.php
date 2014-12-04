@@ -3270,7 +3270,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 		// Otherwise include it!
 		require_once($modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php');
-	}/
+	}
 
 	// Make sure we skip the HTML for login.
 	$_POST['upcont'] = true;
