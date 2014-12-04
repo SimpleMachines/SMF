@@ -1058,6 +1058,8 @@ img.sort, .sort {
 /* Box-shadow only on this one. */
 #wrapper {
 	clear: both;
+	background: #fff;
+	border: 1px solid #b8b8b8;
 	border-radius: 8px;
 	box-shadow: 0 2px 3px rgba(0,0,0,0.14);
 }
@@ -1182,10 +1184,6 @@ img#smflogo {
 #upper_section {
 	padding: 2px 2px 0 2px;
 	margin: 0;
-	border: 1px solid #bbb;
-	border-bottom: none;
-	border-radius: 8px 8px 0 0;
-	background: #fff;
 }
 #inner_section {
 	padding: 12px 10px 2px 10px;
@@ -1285,12 +1283,8 @@ ul li.greeting {
 }
 /* The content section */
 #content_section {
-	background: #fff;
 	margin: 0 auto;
 	padding: 0;
-	border: 1px solid #b8b8b8;
-	border-top: none;
-	border-radius: 0 0 8px 8px;
 	clear: both;
 }
 #main_content_section {
