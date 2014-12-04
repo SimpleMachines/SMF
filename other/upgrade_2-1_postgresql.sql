@@ -907,12 +907,17 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 ---# Converting member values...
 ---{
 // We cannot do this twice
-// First see if we still have a gender column
+// See which columns we have
 $results = $smcFunc['db_list_columns']('{db_prefix}members');
-if (in_array('gender', $results))
+$possible_columns = array('aim', 'icq', 'msn', 'yim', 'location', 'gender');
+
+// Find values that are in both arrays
+$select_columns = array_intersect($possible_columns, $results);
+
+if (!empty($select_columns))
 {
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, aim, icq, msn, yim, location, gender
+		SELECT ', implode(',', $select_columns), '
 		FROM {db_prefix}members');
 
 	$inserts = array();
