@@ -406,8 +406,12 @@ function LoginTFA()
 
 	$member = $context['tfa_member'];
 
+	// Prevent replay attacks by limiting atleast 2 minutes before they can log in again via 2FA
+	if (time() - $member['last_login'] < 120)
+		fatal_lang_error('tfa_wait', false);
+
 	$totp = new \TOTP\Auth($member['tfa_secret']);
-	$totp->setRange(15);
+	$totp->setRange(1);
 
 	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
 	{
@@ -421,11 +425,15 @@ function LoginTFA()
 
 		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
 		{
+			updateMemberData($member['id_member'], array('last_login' => time()));
+
 			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit();
 		}
 		else
 		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
 			$context['tfa_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
 		}
@@ -446,6 +454,8 @@ function LoginTFA()
 		}
 		else
 		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
 			$context['tfa_backup_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
 			$context['tfa_backup_value'] = $_POST['tfa_backup'];
@@ -741,19 +751,24 @@ function phpBB3_password_check($passwd, $passwd_hash)
  * @param $id_member
  * @param $password_flood_value = false
  * @param $was_correct = false
+ * @param $tfa = false;
  */
-function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false)
+function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false, $tfa = false)
 {
 	global $cookiename, $sourcedir;
 
 	// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
 	// Destroy any session or cookie data about this member, as they validated wrong.
-	require_once($sourcedir . '/Subs-Auth.php');
-	setLoginCookie(-3600, 0);
+	// Only if they're not validating for 2FA
+	if (!$tfa)
+	{
+		require_once($sourcedir . '/Subs-Auth.php');
+		setLoginCookie(-3600, 0);
 
-	if (isset($_SESSION['login_' . $cookiename]))
-		unset($_SESSION['login_' . $cookiename]);
+		if (isset($_SESSION['login_' . $cookiename]))
+			unset($_SESSION['login_' . $cookiename]);
+	}
 
 	// We need a member!
 	if (!$id_member)

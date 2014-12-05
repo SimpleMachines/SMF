@@ -3996,7 +3996,7 @@ function tfasetup($memID)
 		{
 			$code = $_POST['tfa_code'];
 			$totp = new \TOTP\Auth($_SESSION['tfa_secret']);
-			$totp->setRange(15);
+			$totp->setRange(1);
 			$valid_password = hash_verify_password($user_settings['member_name'], trim($_POST['passwd']), $user_settings['passwd']);
 			$valid_code = strlen($code) == $totp->getCodeLength() && $totp->validateCode($code);
 
