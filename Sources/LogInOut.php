@@ -407,7 +407,7 @@ function LoginTFA()
 	$member = $context['tfa_member'];
 
 	$totp = new \TOTP\Auth($member['tfa_secret']);
-	$totp->setRange(15);
+	$totp->setRange(1);
 
 	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
 	{
