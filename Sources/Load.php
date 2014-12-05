@@ -500,6 +500,13 @@ function loadUserSettings()
 		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
 			$_COOKIE[$cookiename] = '';
 
+		// Expire the 2FA cookie
+		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
+		{
+			$_COOKIE[$cookiename . '_tfa'] = '';
+			setTFACookie(-3600, 0, '');
+		}
+
 		// Create a login token if it doesn't exist yet.
 		if (!isset($_SESSION['token']['post-login']))
 			createToken('login');
