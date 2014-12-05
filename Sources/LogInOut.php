@@ -426,6 +426,8 @@ function LoginTFA()
 		}
 		else
 		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
 			$context['tfa_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
 		}
@@ -446,6 +448,8 @@ function LoginTFA()
 		}
 		else
 		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
 			$context['tfa_backup_error'] = true;
 			$context['tfa_value'] = $_POST['tfa_code'];
 			$context['tfa_backup_value'] = $_POST['tfa_backup'];
@@ -741,19 +745,24 @@ function phpBB3_password_check($passwd, $passwd_hash)
  * @param $id_member
  * @param $password_flood_value = false
  * @param $was_correct = false
+ * @param $tfa = false;
  */
-function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false)
+function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false, $tfa = false)
 {
 	global $cookiename, $sourcedir;
 
 	// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
 	// Destroy any session or cookie data about this member, as they validated wrong.
-	require_once($sourcedir . '/Subs-Auth.php');
-	setLoginCookie(-3600, 0);
+	// Only if they're not validating for 2FA
+	if (!$tfa)
+	{
+		require_once($sourcedir . '/Subs-Auth.php');
+		setLoginCookie(-3600, 0);
 
-	if (isset($_SESSION['login_' . $cookiename]))
-		unset($_SESSION['login_' . $cookiename]);
+		if (isset($_SESSION['login_' . $cookiename]))
+			unset($_SESSION['login_' . $cookiename]);
+	}
 
 	// We need a member!
 	if (!$id_member)
