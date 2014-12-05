@@ -340,7 +340,7 @@ class Auth
 	 */
 	public function getQrCodeUrl($name, $code)
 	{
-		$urlencoded = urlencode('otpauth://totp/' . $name . '?secret=' . $code);
+		$urlencoded = urlencode('otpauth://totp/' . urlencode($name) . '?secret=' . $code);
 		return 'https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=' . $urlencoded;
 	}
 }
