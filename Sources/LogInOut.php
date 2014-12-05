@@ -406,6 +406,10 @@ function LoginTFA()
 
 	$member = $context['tfa_member'];
 
+	// Prevent replay attacks by limiting atleast 2 minutes before they can log in again via 2FA
+	if (time() - $member['last_login'] < 120)
+		fatal_lang_error('tfa_wait', false);
+
 	$totp = new \TOTP\Auth($member['tfa_secret']);
 	$totp->setRange(1);
 
@@ -421,6 +425,8 @@ function LoginTFA()
 
 		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
 		{
+			updateMemberData($member['id_member'], array('last_login' => time()));
+
 			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit();
 		}
