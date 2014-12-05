@@ -816,9 +816,6 @@ function loadEssentialData()
 	{
 		require_once($sourcedir . '/Subs-Db-' . $db_type . '.php');
 
-		// It should be safe to assume that DbExtra exists if Subs-Db does...
-		require_once($sourcedir . '/DbExtra-' . $db_type . '.php');
-
 		// Make the connection...
 		$db_connection = smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true));
 
@@ -991,11 +988,13 @@ function WelcomeLogin()
 		return throw_error('Your ' . $databases[$db_type]['name'] . ' version does not meet the minimum requirements of SMF.<br><br>Please ask your host to upgrade.');
 
 	// Do some checks to make sure they have proper privileges
+	db_extend('packages');
+
 	// CREATE
-	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true), array(), array(), 'overwrite'));
+	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(), array(), 'overwrite');
 
 	// ALTER
-	$alter = $smcFunc['db_query']('', 'ALTER TABLE {db_prefix}priv_check ADD txt tinytext NOT NULL DEFAULT {empty}', array());
+	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array(array('name' => 'txt', 'type' => 'tinytext', 'null' => false, 'default' => '')));
 
 	// DROP
 	$drop = $smcFunc['db_drop_table']('{db_prefix}priv_check');
@@ -3195,18 +3194,20 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: ' . $databases[$db_type]['name'] . ' ' . $databases[$db_type]['version'] . ' does not match minimum requirements.', true);
 
 	// Do some checks to make sure they have proper privileges
+	db_extend('packages');
+
 	// CREATE
-	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true), array(), array(), 'overwrite'));
+	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(), array(), 'overwrite');
 
 	// ALTER
-	$alter = $smcFunc['db_query']('', 'ALTER TABLE {db_prefix}priv_check ADD txt tinytext NOT NULL DEFAULT {empty}', array());
+	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array(array('name' => 'txt', 'type' => 'tinytext', 'null' => false, 'default' => '')));
 
 	// DROP
 	$drop = $smcFunc['db_drop_table']('{db_prefix}priv_check');
 
 	// Sorry... we need CREATE, ALTER and DROP
 	if (!$create || !$alter || !$drop)
-		print_error("The " . $databases[$db_type]['name'] . " user you have set in Settings.php does not have proper privileges.\n\nPlease ask your host to give this user the ALTER, CREATE, and DROP privileges.");
+		print_error("The " . $databases[$db_type]['name'] . " user you have set in Settings.php does not have proper privileges.\n\nPlease ask your host to give this user the ALTER, CREATE, and DROP privileges.", true);
 
 	$check = @file_exists($modSettings['theme_dir'] . '/index.template.php')
 		&& @file_exists($sourcedir . '/QueryString.php')
