@@ -991,7 +991,7 @@ function WelcomeLogin()
 	db_extend('packages');
 
 	// CREATE
-	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(), array(), 'overwrite');
+	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => 'id_test', 'type' => 'primary')), array(), 'overwrite');
 
 	// ALTER
 	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array(array('name' => 'txt', 'type' => 'tinytext', 'null' => false, 'default' => '')));
@@ -3197,7 +3197,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 	db_extend('packages');
 
 	// CREATE
-	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(), array(), 'overwrite');
+	$create = $smcFunc['db_create_table']('{db_prefix}priv_check', array(array('name' => 'id_test', 'type' => 'int', 'size' => 10, 'unsigned' => true, 'auto' => true)), array(array('columns' => 'id_test', 'primary' => true)), array(), 'overwrite');
 
 	// ALTER
 	$alter = $smcFunc['db_add_column']('{db_prefix}priv_check', array(array('name' => 'txt', 'type' => 'tinytext', 'null' => false, 'default' => '')));
