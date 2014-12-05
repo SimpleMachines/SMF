@@ -4010,7 +4010,7 @@ function tfasetup($memID)
 					'tfa_backup' => $backup_encrypted,
 				));
 
-				setTFACookie(60 * $modSettings['cookieTime'], $memID, hash_salt($backup_encrypted, $user_settings['password_salt']));
+				setTFACookie(3153600, $memID, hash_salt($backup_encrypted, $user_settings['password_salt']));
 
 				unset($_SESSION['tfa_secret']);
 

@@ -421,7 +421,7 @@ function LoginTFA()
 
 		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
 		{
-			setTFACookie(60 * $modSettings['cookieTime'], $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit();
 		}
 		else
@@ -441,7 +441,7 @@ function LoginTFA()
 				'tfa_secret' => '',
 				'tfa_backup' => '',
 			));
-			setTFACookie(60 * $modSettings['cookieTime'], $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit('action=profile;area=tfasetup;backup');
 		}
 		else
