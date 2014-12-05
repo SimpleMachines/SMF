@@ -532,7 +532,7 @@ function BrowseFiles()
 
 						// Add a link to the topic in case of an attachment.
 						if ($context['browse_type'] !== 'avatars')
-							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
 					},
