@@ -1495,10 +1495,9 @@ ul.quickbuttons li.inline_mod_check {
 .quickbuttons li:hover ul {
 	display: block;
 }
-.quickbuttons li ul li, .quickbuttons li:hover ul li{
+.quickbuttons li ul li, .quickbuttons li:hover ul li {
 	display: block;
 	background: none;
-	border: none;
 	box-shadow: none;
 	width: 12em;
 	border: 1px solid transparent;
@@ -2303,7 +2302,6 @@ dl {
 	background: #fff;
 }
 .activity_stats li div.bar div {
-	background: #6294CE;
 	background: orange;
 	box-shadow: 4px -4px 4px rgba(0,0,0,0.1) inset, 4px 4px 4px rgba(255,255,255,0.3) inset;
 }
@@ -3187,8 +3185,6 @@ select.qaction {
 	font-weight: bold;
 }
 #poll_options dl.options dd {
-	margin: 0 0 0 15px;
-	padding: 1px 0 0 0;
 	width: 60%;
 	max-width: 45em;
 	float: left;
