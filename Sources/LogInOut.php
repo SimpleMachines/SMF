@@ -448,6 +448,7 @@ function LoginTFA()
 			updateMemberData($member['id_member'], array(
 				'tfa_secret' => '',
 				'tfa_backup' => '',
+				'last_login' => time(),
 			));
 			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit('action=profile;area=tfasetup;backup');
@@ -568,7 +569,10 @@ function DoLogin()
 	$smcFunc['db_free_result']($request);
 
 	// You've logged in, haven't you?
-	updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
+	$update = array('member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']);
+	if (empty($user_settings['tfa_secret']))
+		$update['last_login'] = time();
+	updateMemberData($user_info['id'], $update);
 
 	// Get rid of the online entry for that old guest....
 	$smcFunc['db_query']('', '
