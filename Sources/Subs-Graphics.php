@@ -163,7 +163,7 @@ function createThumbnail($source, $max_width, $max_height)
 }
 
 /**
- * Used to re-econodes an image to a specifed image format
+ * Used to re-econodes an image to a specified image format
  * - creates a copy of the file at the same location as fileName.
  * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
  * - the function makes sure that all non-essential image contents are disposed.
@@ -190,7 +190,7 @@ function reencodeImage($fileName, $preferred_format = 0)
 }
 
 /**
- * Searches through the file to see if there's potentialy harmful non-binary content.
+ * Searches through the file to see if there's potentially harmful non-binary content.
  * - if extensiveCheck is true, searches for asp/php short tags as well.
  *
  * @param string $fileName

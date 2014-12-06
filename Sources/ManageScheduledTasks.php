@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Scheduled tasks management dispatcher. This function checks permissions and delegates
  * to the appropriate function based on the sub-action.
- * Everything here requires adin_forum permission.
+ * Everything here requires admin_forum permission.
  *
  * @uses ManageScheduledTasks template file
  * @uses ManageScheduledTasks language file

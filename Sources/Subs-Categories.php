@@ -183,7 +183,7 @@ function createCategory($catOptions)
  * Remove one or more categories.
  * general function to delete one or more categories.
  * allows to move all boards in the categories to a different category before deleting them.
- * if moveChildrenTo is set to null, all boards inside the given categorieswill be deleted.
+ * if moveChildrenTo is set to null, all boards inside the given categories will be deleted.
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
  *

@@ -349,7 +349,7 @@ function construct_query_string($get)
  * - searches only buddies if buddies_only is set.
  *
  * @param array $names
- * @param bool $use_wildcards = false, accepts wildcards ? and * in the patern if true
+ * @param bool $use_wildcards = false, accepts wildcards ? and * in the pattern if true
  * @param bool $buddies_only = false,
  * @param int $max = 500 retrieves a maximum of max members, if passed
  * @return array containing information about the matching members

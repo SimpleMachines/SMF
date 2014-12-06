@@ -44,7 +44,7 @@ function validateSession($type = 'admin')
 	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 		return;
 
-	// Or are they already logged in?, Moderator or admin sesssion is need for this area
+	// Or are they already logged in?, Moderator or admin session is need for this area
 	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
 		return;
 
@@ -789,7 +789,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		2. The {$type} variable should exist.
 		3. We concat the variable we received with the user agent
 		4. Match that result against what is in the session.
-		5. If it matchs, success, otherwise we fallout.
+		5. If it matches, success, otherwise we fallout.
 	*/
 	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['token'][$type . '-' . $action][1])
 	{

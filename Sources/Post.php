@@ -720,7 +720,7 @@ function Post($post_errors = array())
 			$context['email'] = $smcFunc['htmlspecialchars']($row['poster_email']);
 		}
 
-		// Set the destinaton.
+		// Set the destination.
 		$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 		$context['submit_label'] = $txt['save'];
 	}
@@ -980,7 +980,7 @@ function Post($post_errors = array())
 		$post_errors[] = 'need_qr_verification';
 
 	/*
-	 * There are two error types: serious and miinor. Serious errors
+	 * There are two error types: serious and minor. Serious errors
 	 * actually tell the user that a real error has occurred, while minor
 	 * errors are like warnings that let them know that something with
 	 * their post isn't right.

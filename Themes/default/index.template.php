@@ -56,7 +56,7 @@ function template_init()
 	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index.
 	$settings['avatars_on_indexes'] = false;
 
-	// This defines the formatting for the page indexes used throughout the forumm.
+	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
 		'previous_page' => '<span class="previous_page"></span>',
@@ -355,7 +355,7 @@ function template_body_below()
 
 function template_html_below()
 {
-	// load in any javascipt that could be defered to the end of the page
+	// load in any javascipt that could be deferred to the end of the page
 	template_javascript(true);
 
 	echo '

@@ -218,7 +218,7 @@ function automanage_attachments_by_space()
 		return;
 
 	$basedirectory = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : $boarddir;
-	//Just to be sure: I don't want directory separators at the end
+	// Just to be sure: I don't want directory separators at the end
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
@@ -399,7 +399,7 @@ function processAttachments()
 			'board' => !empty($board) ? $board : 0,
 		);
 
-	// If we have an itital error, lets just display it.
+	// If we have an initial error, lets just display it.
 	if (!empty($initial_error))
 	{
 		$_SESSION['temp_attachments']['initial_error'] = $initial_error;
@@ -467,7 +467,7 @@ function processAttachments()
 			if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 				unlink($_FILES['attachment']['tmp_name'][$n]);
 		}
-		// If there's no errors to this pont. We still do need to apply some addtional checks before we are finished.
+		// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
 		if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
 			attachmentChecks($attachID);
 	}
@@ -664,7 +664,7 @@ function attachmentChecks($attachID)
 
 /**
  * Create an attachment, with the given array of parameters.
- * - Adds any addtional or missing parameters to $attachmentOptions.
+ * - Adds any additional or missing parameters to $attachmentOptions.
  * - Renames the temporary file.
  * - Creates a thumbnail if the file is an image and the option enabled.
  *

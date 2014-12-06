@@ -631,7 +631,7 @@ function registerMember(&$regOptions, $return_errors = false)
 
 	if (isset($regOptions['memberGroup']))
 	{
-		// Make sure the id_group will be valid, if this is an administator.
+		// Make sure the id_group will be valid, if this is an administrator.
 		$regOptions['register_vars']['id_group'] = $regOptions['memberGroup'] == 1 && !allowedTo('admin_forum') ? 0 : $regOptions['memberGroup'];
 
 		// Check if this group is assignable.
@@ -1341,7 +1341,7 @@ function list_getNumMembers($where, $where_params = array())
 }
 
 /**
- * Find potential duplicate registation members based on the same IP address
+ * Find potential duplicate registration members based on the same IP address
  *
  * @param $members
  */

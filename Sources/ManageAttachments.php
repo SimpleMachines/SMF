@@ -124,7 +124,7 @@ function ManageAttachmentSettings($return_config = false)
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
-	// See if we can find if the server is set up to support the attacment limits
+	// See if we can find if the server is set up to support the attachment limits
 	$post_max_size = ini_get('post_max_size');
 	$upload_max_filesize = ini_get('upload_max_filesize');
 	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
@@ -1782,7 +1782,7 @@ function ApproveAttach()
 		{
 			$attachments[] = $row['id_attach'];
 
-			// Also come up witht he redirection URL.
+			// Also come up with the redirection URL.
 			$redirect = 'topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'];
 		}
 	}
@@ -2667,7 +2667,7 @@ function TransferAttachments()
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
-			// If limts are set, get the file count and size for the destination folder
+			// If limits are set, get the file count and size for the destination folder
 			if ($dir_files <= 0 && (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit'])))
 			{
 				$request = $smcFunc['db_query']('', '

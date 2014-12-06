@@ -535,7 +535,7 @@ function SpiderCheck()
 			break;
 	}
 
-	// If this is low server tracking then log the spider here as oppossed to the main logging function.
+	// If this is low server tracking then log the spider here as opposed to the main logging function.
 	if (!empty($modSettings['spider_mode']) && $modSettings['spider_mode'] == 1 && !empty($_SESSION['id_robot']))
 		logSpider();
 
@@ -1058,7 +1058,7 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
- * Get the number of spider stat rows from the log spicer stats table
+ * Get the number of spider stat rows from the log spider stats table
  *
  * @return int
  */

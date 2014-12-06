@@ -162,7 +162,7 @@ function template_show_list($list_id = null)
 	</form>';
 	}
 
-	// Tabs at the bottom.  Usually bottom alligned.
+	// Tabs at the bottom.  Usually bottom aligned.
 	if (isset($cur_list['list_menu'], $cur_list['list_menu']['show_on']) && ($cur_list['list_menu']['show_on'] == 'both' || $cur_list['list_menu']['show_on'] == 'bottom'))
 		template_create_list_menu($cur_list['list_menu'], 'bottom');
 
@@ -190,9 +190,9 @@ function template_create_list_menu($list_menu, $direction = 'top')
 			// This is the style to use.  Tabs or Buttons (Text 1 | Text 2).
 			// By default tabs are selected if not set.
 			// The main difference between tabs and buttons is that tabs get highlighted if selected.
-			// If style is set to buttons and use tabs is diabled then we change the style to old styled tabs.
+			// If style is set to buttons and use tabs is disabled then we change the style to old styled tabs.
 			'style' => 'tabs',
-			// The posisiton of the tabs/buttons.  Left or Right.  By default is set to left.
+			// The position of the tabs/buttons.  Left or Right.  By default is set to left.
 			'position' => 'left',
 			// This is used by the old styled menu.  We *need* to know the total number of columns to span.
 			'columns' => 0,

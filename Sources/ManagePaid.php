@@ -1740,7 +1740,7 @@ function removeSubscription($id_subscribe, $id_member, $delete = false)
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Now, for everything we are removing check they defintely are not allowed it.
+	// Now, for everything we are removing check they definitely are not allowed it.
 	$existingGroups = explode(',', $additional_groups);
 	foreach ($existingGroups as $key => $group)
 		if (empty($group) || (in_array($group, $removals) && !in_array($group, $allowed)))
@@ -1954,7 +1954,7 @@ function loadPaymentGateways()
 					$gateways[] = array(
 						'filename' => $file,
 						'code' => strtolower($matches[1]),
-						// Don't need anything snazier than this yet.
+						// Don't need anything snazzier than this yet.
 						'valid_version' => class_exists(strtolower($matches[1]) . '_payment') && class_exists(strtolower($matches[1]) . '_display'),
 						'payment_class' => strtolower($matches[1]) . '_payment',
 						'display_class' => strtolower($matches[1]) . '_display',

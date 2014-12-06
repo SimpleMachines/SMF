@@ -1103,7 +1103,7 @@ function next_time($regularity, $unit, $offset)
 			$next_time = time() + 60 * ($off - $curMin);
 		}
 	}
-	// Otherwise, work out what the offset would be with todays date.
+	// Otherwise, work out what the offset would be with today's date.
 	else
 	{
 		$next_time = mktime(date('H', $offset), date('i', $offset), 0, date('m'), date('d'), date('Y'));
@@ -1717,7 +1717,7 @@ function scheduled_remove_topic_redirect()
 	// init
 	$topics = array();
 
-	// We will need this for lanaguage files
+	// We will need this for language files
 	loadEssentialThemeData();
 
 	// Find all of the old MOVE topic notices that were set to expire
@@ -1758,7 +1758,7 @@ function scheduled_remove_old_drafts()
 	// init
 	$drafts = array();
 
-	// We need this for lanaguage items
+	// We need this for language items
 	loadEssentialThemeData();
 
 	// Find all of the old drafts

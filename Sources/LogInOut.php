@@ -406,7 +406,7 @@ function LoginTFA()
 
 	$member = $context['tfa_member'];
 
-	// Prevent replay attacks by limiting atleast 2 minutes before they can log in again via 2FA
+	// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
 	if (time() - $member['last_login'] < 120)
 		fatal_lang_error('tfa_wait', false);
 

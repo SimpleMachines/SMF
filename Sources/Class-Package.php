@@ -230,7 +230,7 @@ class xmlArray
 	}
 
 	/**
-	 * Count the number of occurences of a path.
+	 * Count the number of occurrences of a path.
 	 * Example use:
 	 *  echo $xml->count('html/head/meta');
 	 * @param string $path - the path to search for.
@@ -1044,7 +1044,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Determins the current dirctory we are in
+	 * Determines the current directory we are in
 	 *
 	 * @param string $file The name of a file
 	 * @param string $listing A directory listing or null to generate one

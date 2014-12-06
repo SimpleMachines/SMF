@@ -1247,7 +1247,7 @@ function cleanLangString($string, $to_display = true)
 		$is_escape = false;
 		for ($i = 0; $i < strlen($string); $i++)
 		{
-			// Handle ecapes first.
+			// Handle escapes first.
 			if ($string{$i} == '\\')
 			{
 				// Toggle the escape.

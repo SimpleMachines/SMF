@@ -1294,7 +1294,7 @@ function InstallFile()
 	if (!is_writable($dirtemp))
 	{
 		// Lets give it a try.
-		@chmod($dirtmp, '0755');
+		@chmod($dirtemp, '0755');
 
 		// How about now?
 		if (!is_writable($dirtemp))

@@ -712,7 +712,7 @@ function ConvertUtf8()
  * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT and vice versa.
  * It requires the admin_forum permission.
  * This is needed only for MySQL.
- * During the convertion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
+ * During the conversion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
  * This action is linked from the maintenance screen (if it's applicable).
  * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
  *
@@ -2005,9 +2005,9 @@ function MaintainMassMoveTopics()
  * it requires the admin_forum permission.
  *
  * - recounts all posts for members found in the message table
- * - updates the members post count record in the members talbe
+ * - updates the members post count record in the members table
  * - honors the boards post count flag
- * - does not count posts in the recyle bin
+ * - does not count posts in the recycle bin
  * - zeros post counts for all members with no posts in the message table
  * - runs as a delayed loop to avoid server overload
  * - uses the not_done template in Admin.template

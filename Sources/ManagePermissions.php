@@ -17,7 +17,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Dispaches to the right function based on the given subaction.
+ * Dispatches to the right function based on the given subaction.
  * Checks the permissions, based on the sub-action.
  * Called by ?action=managepermissions.
  *

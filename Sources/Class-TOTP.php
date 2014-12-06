@@ -234,7 +234,7 @@ class Auth
 	 *
 	 * @param string $initKey Initialization key [optional]
 	 * @param string $timestamp Timestamp for calculation [optional]
-	 * @return string Geneerated code/hash
+	 * @return string Generated code/hash
 	 */
 	public function generateOneTime($initKey = null, $timestamp = null)
 	{

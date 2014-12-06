@@ -61,7 +61,7 @@ function db_packages_init()
 
 /**
  * This function can be used to create a table without worrying about schema
- *  compatabilities across supported database systems.
+ *  compatibilities across supported database systems.
  *  - If the table exists will, by default, do nothing.
  *  - Builds table with columns as passed to it - at least one column must be sent.
  *  The columns array should have one sub-array for each column - these sub arrays contain:

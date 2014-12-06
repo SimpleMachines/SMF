@@ -309,7 +309,7 @@ function MarkRead()
 		if (isset($_REQUEST['children']) && !empty($boards))
 		{
 			// They want to mark the entire tree starting with the boards specified
-			// The easist thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
+			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 
 			$request = $smcFunc['db_query']('', '
 				SELECT b.id_board, b.id_parent

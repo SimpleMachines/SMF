@@ -1530,7 +1530,7 @@ function SpellCheck()
 		if (in_array($smcFunc['strtolower']($check_word[0]), $known_words) || spell_check($dict, $check_word[0]) || !isset($check_word[2]))
 			continue;
 
-		// Find the word, and move up the "last occurance" to here.
+		// Find the word, and move up the "last occurrence" to here.
 		$found_words = true;
 
 		// Add on the javascript for this misspelling.
