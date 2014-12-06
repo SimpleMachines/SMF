@@ -396,7 +396,7 @@ function Login2()
  */
 function LoginTFA()
 {
-	global $sourcedir, $txt, $context, $user_info, $modSettings;
+	global $sourcedir, $txt, $context, $user_info, $modSettings, $scripturl;
 
 	if (!$user_info['is_guest'] || empty($context['tfa_member']) || empty($modSettings['tfa_mode']))
 		fatal_lang_error('no_access', false);
@@ -421,6 +421,10 @@ function LoginTFA()
 
 	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
 	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
 		$code = $_POST['tfa_code'];
 
 		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
@@ -440,6 +444,10 @@ function LoginTFA()
 	}
 	elseif (!empty($_POST['tfa_backup']))
 	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
 		$backup = $_POST['tfa_backup'];
 
 		if (hash_verify_password($member['member_name'], $backup, $member['tfa_backup']))
@@ -448,6 +456,7 @@ function LoginTFA()
 			updateMemberData($member['id_member'], array(
 				'tfa_secret' => '',
 				'tfa_backup' => '',
+				'last_login' => time(),
 			));
 			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
 			redirectexit('action=profile;area=tfasetup;backup');
@@ -465,6 +474,7 @@ function LoginTFA()
 	loadTemplate('Login');
 	$context['sub_template'] = 'login_tfa';
 	$context['page_title'] = $txt['login'];
+	$context['tfa_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=logintfa';
 }
 
 /**
@@ -568,7 +578,10 @@ function DoLogin()
 	$smcFunc['db_free_result']($request);
 
 	// You've logged in, haven't you?
-	updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
+	$update = array('member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']);
+	if (empty($user_settings['tfa_secret']))
+		$update['last_login'] = time();
+	updateMemberData($user_info['id'], $update);
 
 	// Get rid of the online entry for that old guest....
 	$smcFunc['db_query']('', '

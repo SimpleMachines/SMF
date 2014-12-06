@@ -1251,12 +1251,15 @@ function template_statPanel()
 // Template for editing profile options.
 function template_edit_options()
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// The main header!
-        // because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
+	// because some browsers ignore autocomplete=off and fill username in display name and/ or email field, fake them out.
+	$url = !empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member'];
+	$url = $context['require_password'] && !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($url, array('http://' => 'https://')) : $url;
+
 	echo '
-		<form action="', (!empty($context['profile_custom_submit_url']) ? $context['profile_custom_submit_url'] : $scripturl . '?action=profile;area=' . $context['menu_item_selected'] . ';u=' . $context['id_member']), '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
+		<form action="', $url, '" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', ($context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
 			<div style="position:absolute; top:-100px;"><input type="text" id="autocompleteFakeName"/><input type="password" id="autocompleteFakePassword"/></div>
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
@@ -2947,7 +2950,7 @@ function template_tfasetup_backup()
 
 function template_profile_tfa()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 							<dt>
@@ -2957,7 +2960,7 @@ function template_profile_tfa()
 							<dd>';
 	if (!$context['tfa_enabled'] && $context['user']['is_owner'])
 		echo '
-								<a href="', $scripturl, '?action=profile;area=tfasetup" id="enable_tfa" onclick="return reqOverlayDiv(this.href, ', JavaScriptEscape($txt['tfa_profile_enable']), ');">', $txt['tfa_profile_enable'], '</a>';
+								<a href="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', $txt['tfa_profile_enable'], '</a>';
 	elseif (!$context['tfa_enabled'])
 		echo '
 								', $txt['tfa_profile_disabled'];

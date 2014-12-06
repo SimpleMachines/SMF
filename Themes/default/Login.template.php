@@ -64,7 +64,7 @@ function template_login()
 						setTimeout(function() {
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
-	if (!empty($context['from_ajax']))
+	if (!empty($context['from_ajax']) && (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] == 2))
 		echo '
 						form = $("#frmLogin");
 						form.submit(function(e) {
@@ -121,7 +121,7 @@ function template_login_tfa()
 		echo '
 				<div class="error">', $txt['tfa_' . (!empty($context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '</div>';
 	echo '
-				<form action="', $scripturl, '?action=logintfa" method="post" id="frmTfa">
+				<form action="', $context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
 						', $txt['tfa_login_desc'], '<br />
 						<strong>', $txt['tfa_code'], ':</strong>

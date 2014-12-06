@@ -53,6 +53,10 @@ function validateSession($type = 'admin')
 	// Posting the password... check it.
 	if (isset($_POST[$type. '_pass']))
 	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
 		checkSession();
 
 		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
