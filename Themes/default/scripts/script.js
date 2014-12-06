@@ -122,7 +122,7 @@ String.prototype.php_to8bit = function ()
 		{
 			n = this.charCodeAt(i);
 			if (n < 128)
-				sReturn += String.fromCharCode(n)
+				sReturn += String.fromCharCode(n);
 			else if (n < 2048)
 				sReturn += String.fromCharCode(192 | n >> 6) + String.fromCharCode(128 | n & 63);
 			else if (n < 65536)

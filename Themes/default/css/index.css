@@ -158,7 +158,7 @@ ul#likes li span.description {
 }
 
 /* I think the reset class can be deprecated. */
-/* Must test interitance thoroughly to be sure. */
+/* Must test inheritance thoroughly to be sure. */
 /* A quick reset list class. */
 ul.reset, ul.reset li {
 	padding: 0;
@@ -205,7 +205,6 @@ a.new_posts, span.new_posts {
 	line-height: 1.12px;
 	border-radius: 2px;
 	background: orange;
-	color: #fff;
 }
 span.new_posts {
 	display: inline;
@@ -508,7 +507,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 .topbottom:hover {
 	text-decoration: none;
 	color: #af6700;
-	text-decoration: none;
 	border: 1px solid #ddd;
 	border-left: 1px solid #bbb;
 	border-top: 1px solid #aaa;
@@ -3290,7 +3288,7 @@ div#pollmoderation {
 /* poster details and list of items */
 .poster {
 	float: left;
-	/* Don't set this in em.It will eat too much space if people nead to set large text sizes. */
+	/* Don't set this in em.It will eat too much space if people need to set large text sizes. */
 	/* Better to just break the few words here, and leave more space for actual topic content. */
 	width: 160px;
 	word-break: hyphenate;
