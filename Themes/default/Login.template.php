@@ -123,18 +123,18 @@ function template_login_tfa()
 	echo '
 				<form action="', $context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
-						', $txt['tfa_login_desc'], '<br />
+						', $txt['tfa_login_desc'], '<br>
 						<strong>', $txt['tfa_code'], ':</strong>
-						<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '" />
-						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '"  />
+						<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
 						<hr />
-						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;" />
+						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
 					</div>
 					<div id="tfaBackup" style="display: none;">
-						', $txt['tfa_backup_desc'], '<br />
+						', $txt['tfa_backup_desc'], '<br>
 						<strong>', $txt['tfa_backup_code'], ': </strong>
-						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '"  />
-						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" />
+						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
 					</div>
 				</form>
 				<script type="text/javascript">
