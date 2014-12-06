@@ -860,7 +860,7 @@ $select_columns = array_intersect($possible_columns, $results);
 if (!empty($select_columns))
 {
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, ', implode(',', $select_columns) ,'
+		SELECT id_member, '. implode(',', $select_columns) .'
 		FROM {db_prefix}members');
 
 	$inserts = array();
