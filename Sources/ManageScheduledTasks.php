@@ -164,6 +164,9 @@ function ScheduledTasks()
 			if (!empty($callable_task))
 				$completed = call_user_func($callable_task);
 
+			else
+				$completed = false;
+
 			// Log that we did it ;)
 			if ($completed)
 			{
