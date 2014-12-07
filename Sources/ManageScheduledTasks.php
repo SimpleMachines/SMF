@@ -237,6 +237,23 @@ function ScheduledTasks()
 					'class' => 'smalltext',
 				),
 			),
+			'run_now' => array(
+				'header' => array(
+					'value' => $txt['scheduled_tasks_run_now'],
+					'style' => 'width: 12%;',
+					'class' => 'centercol',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' =>
+							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
+						'params' => array(
+							'id' => false,
+						),
+					),
+					'class' => 'centercol',
+				),
+			),
 			'enabled' => array(
 				'header' => array(
 					'value' => $txt['scheduled_tasks_enabled'],
@@ -250,23 +267,6 @@ function ScheduledTasks()
 						'params' => array(
 							'id' => false,
 							'checked_state' => false,
-						),
-					),
-					'class' => 'centercol',
-				),
-			),
-			'run_now' => array(
-				'header' => array(
-					'value' => $txt['scheduled_tasks_run_now'],
-					'style' => 'width: 12%;',
-					'class' => 'centercol',
-				),
-				'data' => array(
-					'sprintf' => array(
-						'format' =>
-							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
-						'params' => array(
-							'id' => false,
 						),
 					),
 					'class' => 'centercol',
