@@ -114,9 +114,6 @@ function ScheduledTasks()
 	{
 		$task_string = '';
 
-		// Any external tasks?
-		$external_tasks = !empty($modSettings['integrate_autotask_include']) ? explode(',', $modSettings['integrate_autotask_include']) : array();
-
 		// Lets figure out which ones they want to run.
 		$tasks = array();
 		foreach ($_POST['run_task'] as $task => $dummy)
@@ -139,16 +136,16 @@ function ScheduledTasks()
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
 			// What kind of task are we handling?
-			if (!empty($external_tasks) && !empty($row['callable']) && in_array($row['callable'], $external_tasks))
+			if (!empty($row['callable']))
 				$task_string = $row['callable'];
-
-			// Using the task name huh?
-			elseif (!empty($external_tasks) && in_array($row['task'], $external_tasks))
-				$task_string = $row['task'];
 
 			// Default SMF task or old mods?
 			elseif (function_exists('scheduled_' . $row['task']))
 				$task_string = 'scheduled_' . $row['task'];
+
+			// One last resource, the task name.
+			elseif (!empty($row['task']))
+				$task_string = $row['task'];
 
 			$start_time = microtime();
 			// The functions got to exist for us to use it.
