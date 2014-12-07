@@ -205,7 +205,7 @@ function reloadSettings()
 
 	// Here to justify the name of this function. :P
 	// It should be added to the install and upgrade scripts.
-	// But since the convertors need to be updated also. This is easier.
+	// But since the converters need to be updated also. This is easier.
 	if (empty($modSettings['currentAttachmentUploadDir']))
 	{
 		updateSettings(array(
@@ -1489,7 +1489,7 @@ function loadMemberCustomFields($users, $params)
 
 /**
  * Loads information about what browser the user is viewing with and places it in $context
- *  - uses the class from Class-BrowerDetect.php
+ *  - uses the class from Class-BrowserDetect.php
  *
  */
 function detectBrowser()

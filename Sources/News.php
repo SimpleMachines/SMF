@@ -319,7 +319,7 @@ function ShowXmlFeed()
 
 /**
  * Called from dumpTags to convert data to xml
- * Finds urls for local sitte and santizes them
+ * Finds urls for local site and sanitizes them
  *
  * @param type $val
  * @return type
@@ -344,7 +344,7 @@ function fix_possible_url($val)
 }
 
 /**
- * Ensures supplied data is properly encpsulated in cdata xml tags
+ * Ensures supplied data is properly encapsulated in cdata xml tags
  * Called from getXmlProfile in News.php
  *
  * @param type $data

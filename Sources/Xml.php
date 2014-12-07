@@ -43,7 +43,7 @@ function GetJumpTo()
 {
 	global $context, $sourcedir;
 
-	// Find the boards/cateogories they can see.
+	// Find the boards/categories they can see.
 	require_once($sourcedir . '/Subs-MessageIndex.php');
 	$boardListOptions = array(
 		'use_permissions' => true,

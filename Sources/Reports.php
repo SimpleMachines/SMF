@@ -78,7 +78,7 @@ function ReportsMain()
 			'is_first' => $is_first++ == 0,
 		);
 
-	// If they haven't choosen a report type which is valid, send them off to the report type chooser!
+	// If they haven't chosen a report type which is valid, send them off to the report type chooser!
 	if (empty($_REQUEST['rt']) || !isset($context['report_types'][$_REQUEST['rt']]))
 	{
 		$context['sub_template'] = 'report_type';
@@ -942,7 +942,7 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  * required key is present in the incoming data. If this data is missing
  * the current tables default value will be used.
  * if any key in the incoming data begins with '#sep#', the function
- * will add a separator accross the table at this point.
+ * will add a separator across the table at this point.
  * once the incoming data has been sanitized, it is added to the table.
  *
  * @param array $inc_data
@@ -1079,7 +1079,7 @@ function finishTables()
  * keys is an array whose keys are the keys for data being passed to
  * addData().
  * if reverse is set to true, then the values of the variable "keys"
- * are used as oppossed to the keys(!
+ * are used as opposed to the keys(!
  *
  * @param string $method = 'rows' rows or cols
  * @param array $keys = array()

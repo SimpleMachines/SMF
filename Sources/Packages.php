@@ -261,7 +261,7 @@ function PackageInstallTest()
 			fatal_lang_error('package_uninstall_cannot', false);
 		}
 
-		// Can't edit the custom themes it's edited if you're unisntalling, they must be removed.
+		// Can't edit the custom themes it's edited if you're uninstalling, they must be removed.
 		$context['themes_locked'] = true;
 
 		// Only let them uninstall themes it was installed into.
@@ -2562,7 +2562,7 @@ function PackagePermissionsAction()
 			$context['special_files'] = array();
 
 			/**
-			 * Builds a list of special files recusivly for a given path
+			 * Builds a list of special files recursively for a given path
 			 *
 			 * @param type $path
 			 * @param type $data

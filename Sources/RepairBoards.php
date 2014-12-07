@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Finds or repairs errors in the database to fix possible problems.
  * Requires the admin_forum permission.
- * Calls createSalvageArea() to create a new board, if necesary.
+ * Calls createSalvageArea() to create a new board, if necessary.
  * Accessed by ?action=admin;area=repairboards.
  *
  * @uses repair_boards sub-template.

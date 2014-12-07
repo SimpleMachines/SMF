@@ -31,7 +31,7 @@ if (!defined('SMF'))
  * 'topic' updates the total number of topics, or if parameter1 is true
  *  simply increments them.
  *
- * 'subject' updateds the log_search_subjects in the event of a topic being
+ * 'subject' updates the log_search_subjects in the event of a topic being
  *  moved, removed or split.  parameter1 is the topicid, parameter2 is the new subject
  *
  * 'postgroups' case updates those members who match condition's
@@ -542,7 +542,7 @@ function updateSettings($changeArray, $update = false)
  * @param bool $flexible_start Whether a ;start=x component should be introduced into the URL automatically (see above)
  * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
  *
- * @return string The complete HTML of the page index that was requested, formated by the template.
+ * @return string The complete HTML of the page index that was requested, formatted by the template.
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
@@ -690,7 +690,7 @@ function comma_format($number, $override_decimal_count = false)
 /**
  * Format a time to make it look purdy.
  *
- * - returns a pretty formated version of time based on the user's format in $user_info['time_format'].
+ * - returns a pretty formatted version of time based on the user's format in $user_info['time_format'].
  * - applies all necessary time offsets to the timestamp, unless offset_type is set.
  * - if todayMod is set and show_today was not not specified or true, an
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
@@ -2234,7 +2234,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$tag['content'] = $tag['disabled_content'];
 		}
 
-		// we use this alot
+		// we use this a lot
 		$tag_strlen = strlen($tag['tag']);
 
 		// The only special case is 'html', which doesn't need to close things.
@@ -3613,7 +3613,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  * Type can be user, data or left blank
  * 	- user clears out user data
  *  - data clears out system / opcode data
- *  - If no type is specified will perfom a complete cache clearing
+ *  - If no type is specified will perform a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
  * @param string $type = ''
@@ -4513,7 +4513,7 @@ function replaceEntities__callback($matches)
 		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
 		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
 			return '';
-		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
 		elseif ($num < 0x80)
 			return chr($num);
 		// <0x800 (2048)

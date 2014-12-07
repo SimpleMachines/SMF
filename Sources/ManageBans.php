@@ -88,7 +88,7 @@ function Ban()
 
 /**
  * Shows a list of bans currently set.
- * It is accesssed by ?action=admin;area=ban;sa=list.
+ * It is accessed by ?action=admin;area=ban;sa=list.
  * It removes expired bans.
  * It allows sorting on different criteria.
  * It also handles removal of selected ban items.
@@ -337,10 +337,10 @@ function list_getNumBans()
 /**
  * This function is behind the screen for adding new bans and modifying existing ones.
  * Adding new bans:
- * 	- is accesssed by ?action=admin;area=ban;sa=add.
+ * 	- is accessed by ?action=admin;area=ban;sa=add.
  * 	- uses the ban_edit sub template of the ManageBans template.
  * Modifying existing bans:
- *  - is accesssed by ?action=admin;area=ban;sa=edit;bg=x
+ *  - is accessed by ?action=admin;area=ban;sa=edit;bg=x
  *  - uses the ban_edit sub template of the ManageBans template.
  *  - shows a list of ban triggers for the specified ban.
  */
@@ -1534,7 +1534,7 @@ function updateBanGroup($ban_info = array())
 
 /**
  * Creates a new ban group
- * If a ban group with the same name already exists or the group s sucessfully created the ID is returned
+ * If a ban group with the same name already exists or the group s successfully created the ID is returned
  * On error the error code is returned or false
  *
  * Errors in $context['ban_errors']

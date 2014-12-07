@@ -39,7 +39,7 @@ function template_profile_below()
 {
 }
 
-// Tempate for showing off the spiffy popup of the menu
+// Template for showing off the spiffy popup of the menu
 function template_profile_popup()
 {
 	global $context, $scripturl;
@@ -2682,7 +2682,7 @@ function template_profile_avatar_select()
 								<div id="avatar_server_stored">
 									<div>
 										<select name="cat" id="cat" size="10" onchange="changeSel(\'\');" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');">';
-		// This lists all the file catergories.
+		// This lists all the file categories.
 		foreach ($context['avatars'] as $avatar)
 			echo '
 											<option value="', $avatar['filename'] . ($avatar['is_dir'] ? '/' : ''), '"', ($avatar['checked'] ? ' selected' : ''), '>', $avatar['name'], '</option>';

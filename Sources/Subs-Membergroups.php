@@ -322,7 +322,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 			$groups[$key] = (int) $value;
 	}
 
-	// Fetch a list of groups members cannot be assigned to explicitely, and the group names of the ones we want.
+	// Fetch a list of groups members cannot be assigned to explicitly, and the group names of the ones we want.
 	$implicitGroups = array(-1, 0, 3);
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name, min_posts

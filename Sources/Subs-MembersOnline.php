@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Retrieve a list and several other statistics of the users currently online.
  * Used by the board index and SSI.
  * Also returns the membergroups of the users that are currently online.
- * (optionally) hides members that chose to hide their online presense.
+ * (optionally) hides members that chose to hide their online presence.
  * @param array $membersOnlineOptions
  * @return array
  */

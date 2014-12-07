@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Load class
  * Initiate as
  *  - $fetch_data = new cURL_fetch_web_data();
- *	- optionaly pass an array of cURL options and redirect count
+ *	- optionally pass an array of cURL options and redirect count
  *	- cURL_fetch_web_data(cURL options array, Max redirects);
  *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
  *
@@ -62,7 +62,7 @@ class curl_fetch_web_data
 	* - allow for user override values
 	*
 	* @param array $options cURL options as an array
-	* @param int $max_redirect use to overide the default of 3
+	* @param int $max_redirect use to override the default of 3
 	*/
 	public function __construct($options = array(), $max_redirect = 3)
 	{

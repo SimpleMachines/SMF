@@ -1556,7 +1556,7 @@ function Download()
 		die('File not found.');
 	}
 
-	// If it hasn't been modified since the last time this attachement was retrieved, there's no need to display it again.
+	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
@@ -1687,7 +1687,7 @@ function Download()
  * the max_image_width and max_image_height settings.
  *
  * @param int $id_msg ID of the post to load attachments for
- * @return array An array of attachemnt info
+ * @return array An array of attachment info
  */
 function loadAttachmentContext($id_msg)
 {

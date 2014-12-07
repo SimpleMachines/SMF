@@ -418,7 +418,7 @@ function template_modify_board()
 						</table>
 					</dd>';
 
-	// Options to choose moderators, specifiy as announcement board and choose whether to count posts here.
+	// Options to choose moderators, specify as announcement board and choose whether to count posts here.
 	echo '
 					<dt>
 						<strong>', $txt['mboards_moderators'], ':</strong><br>

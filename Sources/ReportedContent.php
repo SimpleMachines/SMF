@@ -570,7 +570,7 @@ function HandleReport()
 
 	validateToken('mod-report-'. $action, 'get');
 
-	// Are we ignore or "un-ignore"? "un-ignore" thats a funny word!
+	// Are we ignore or "un-ignore"? "un-ignore" that's a funny word!
 	$value = (int) $_GET[$action];
 
 	// Figuring out.

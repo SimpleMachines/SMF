@@ -903,7 +903,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	if (isset($_POST['sa']) && $_POST['sa'] == 'ignoreboards' && empty($_POST['ignore_brd']))
 			$_POST['ignore_brd'] = array();
 
-	unset($_POST['ignore_boards']); // Whatever it is set to is a dirty fithy thing.  Kinda like our minds.
+	unset($_POST['ignore_boards']); // Whatever it is set to is a dirty filthy thing.  Kinda like our minds.
 	if (isset($_POST['ignore_brd']))
 	{
 		if (!is_array($_POST['ignore_brd']))
@@ -1177,7 +1177,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			- The user is NOT an admin.
 			- The data is not freely viewable and editable by users.
 			- The data is not invisible to users but editable by the owner (or if it is the user is not the owner)
-			- The area isn't registration, and if it is that the field is not suppossed to be shown there.
+			- The area isn't registration, and if it is that the field is not supposed to be shown there.
 		*/
 		if ($row['private'] != 0 && !allowedTo('admin_forum') && ($memID != $user_info['id'] || $row['private'] != 2) && ($area != 'register' || $row['show_reg'] == 0))
 			continue;
