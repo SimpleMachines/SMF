@@ -726,49 +726,174 @@ function html_to_bbc($text)
 
 	// The final bits are the easy ones - tags which map to tags which map to tags - etc etc.
 	$tags = array(
-		'~<b(\s(.)*?)*?' . '>~i' => '[b]',
-		'~</b>~i' => '[/b]',
-		'~<i(\s(.)*?)*?' . '>~i' => '[i]',
-		'~</i>~i' => '[/i]',
-		'~<u(\s(.)*?)*?' . '>~i' => '[u]',
-		'~</u>~i' => '[/u]',
-		'~<strong(\s(.)*?)*?' . '>~i' => '[b]',
-		'~</strong>~i' => '[/b]',
-		'~<em(\s(.)*?)*?' . '>~i' => '[i]',
-		'~</em>~i' => '[/i]',
-		'~<s(\s(.)*?)*?' . '>~i' => "[s]",
-		'~</s>~i' => "[/s]",
-		'~<strike(\s(.)*?)*?' . '>~i' => '[s]',
-		'~</strike>~i' => '[/s]',
-		'~<del(\s(.)*?)*?' . '>~i' => '[s]',
-		'~</del>~i' => '[/s]',
-		'~<center(\s(.)*?)*?' . '>~i' => '[center]',
-		'~</center>~i' => '[/center]',
-		'~<pre(\s(.)*?)*?' . '>~i' => '[pre]',
-		'~</pre>~i' => '[/pre]',
-		'~<sub(\s(.)*?)*?' . '>~i' => '[sub]',
-		'~</sub>~i' => '[/sub]',
-		'~<sup(\s(.)*?)*?' . '>~i' => '[sup]',
-		'~</sup>~i' => '[/sup]',
-		'~<tt(\s(.)*?)*?' . '>~i' => '[tt]',
-		'~</tt>~i' => '[/tt]',
-		'~<table(\s(.)*?)*?' . '>~i' => '[table]',
-		'~</table>~i' => '[/table]',
-		'~<tr(\s(.)*?)*?' . '>~i' => '[tr]',
-		'~</tr>~i' => '[/tr]',
-		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~ie' => 'str_repeat(\'[td][/td]\', $2 - 1) . \'[td]\'',
-		'~<(td|th)(\s(.)*?)*?' . '>~i' => '[td]',
-		'~</(td|th)>~i' => '[/td]',
-		'~<br(?:\s[^<>]*?)?' . '>~i' => "\n",
-		'~<hr[^<>]*>(\n)?~i' => "[hr]\n$1",
-		'~(\n)?\\[hr\\]~i' => "\n[hr]",
-		'~^\n\\[hr\\]~i' => "[hr]",
-		'~<blockquote(\s(.)*?)*?' . '>~i' => "&lt;blockquote&gt;",
-		'~</blockquote>~i' => "&lt;/blockquote&gt;",
-		'~<ins(\s(.)*?)*?' . '>~i' => "&lt;ins&gt;",
-		'~</ins>~i' => "&lt;/ins&gt;",
+		'~<b(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[b]';
+		},
+		'~</b>~i' => function ()
+		{
+			return '[/b]';
+		},
+		'~<i(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[i]';
+		},
+		'~</i>~i' => function ()
+		{
+			return '[/i]';
+		},
+		'~<u(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[u]';
+		},
+		'~</u>~i' => function ()
+		{
+			return '[/u]';
+		},
+		'~<strong(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[b]';
+		},
+		'~</strong>~i' => function ()
+		{
+			return '[/b]';
+		},
+		'~<em(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[i]';
+		},
+		'~</em>~i' => function ()
+		{
+			return '[i]';
+		},
+		'~<s(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return "[s]";
+		},
+		'~</s>~i' => function ()
+		{
+			return "[/s]";
+		},
+		'~<strike(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[s]';
+		},
+		'~</strike>~i' => function ()
+		{
+			return '[/s]';
+		},
+		'~<del(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[s]';
+		},
+		'~</del>~i' => function ()
+		{
+			return '[/s]';
+		},
+		'~<center(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[center]';
+		},
+		'~</center>~i' => function ()
+		{
+			return '[/center]';
+		},
+		'~<pre(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[pre]';
+		},
+		'~</pre>~i' => function ()
+		{
+			return '[/pre]';
+		},
+		'~<sub(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[sub]';
+		},
+		'~</sub>~i' => function ()
+		{
+			return '[/sub]';
+		},
+		'~<sup(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[sup]';
+		},
+		'~</sup>~i' => function ()
+		{
+			return '[/sup]';
+		},
+		'~<tt(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[tt]';
+		},
+		'~</tt>~i' => function ()
+		{
+			return '[/tt]';
+		},
+		'~<table(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[table]';
+		},
+		'~</table>~i' => function ()
+		{
+			return '[/table]';
+		},
+		'~<tr(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[tr]';
+		},
+		'~</tr>~i' => function ()
+		{
+			return '[/tr]';
+		},
+		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function ($matches)
+		{
+			return str_repeat('[td][/td]', $matches[2] - 1) . '[td]';
+		},
+		'~<(td|th)(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return '[td]';
+		},
+		'~</(td|th)>~i' => function ()
+		{
+			return '[/td]';
+		},
+		'~<br(?:\s[^<>]*?)?' . '>~i' => function ()
+		{
+			return "\n";
+		},
+		'~<hr[^<>]*>(\n)?~i' => function ($matches)
+		{
+			return "[hr]\n". $matches[0];
+		},
+		'~(\n)?\\[hr\\]~i' => function ()
+		{
+			return "\n[hr]";
+		},
+		'~^\n\\[hr\\]~i' => function ()
+		{
+			return "[hr]";
+		},
+		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function ()
+		{
+			return "&lt;blockquote&gt;";
+		},
+		'~</blockquote>~i' => function ()
+		{
+			return "&lt;/blockquote&gt;";
+		},
+		'~<ins(\s(.)*?)*?' . '>~i' => function ()
+		{
+			return "&lt;ins&gt;";
+		},
+		'~</ins>~i' => function ()
+		{
+			return "&lt;/ins&gt;";
+		},
 	);
-	$text = preg_replace(array_keys($tags), array_values($tags), $text);
+
+	foreach ($tags as $tag => $replace)
+		$text = preg_replace_callback($tag, $replace, $text);
 
 	// Please give us just a little more time.
 	if (connection_aborted() && $context['server']['is_apache'])
