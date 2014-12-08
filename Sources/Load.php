@@ -1331,9 +1331,9 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// If the set isn't minimal then load their avatar as ell.
 	if ($context['loadMemberContext_set'] != 'minimal')
 	{
-		if (!empty($modSettings['gravatarOverride']))
+		if (!empty($modSettings['gravatarOverride']) || (!empty($modSettings['gravatarEnabled']) && stristr($profile['avatar'], 'gravatar://')))
 		{
-			if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($profile['avatar']) && stristr($profile['avatar'], 'gravatar://'))
+			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($profile['avatar'], 'gravatar://') && strlen($profile['avatar']) > 11)
 				$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
 			else
 				$image = get_gravatar_url($profile['email_address']);
@@ -1343,15 +1343,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			// So it's stored in the member table?
 			if (!empty($profile['avatar']))
 			{
-				if (stristr($profile['avatar'], 'gravatar://'))
-				{
-					if ($profile['avatar'] == 'gravatar://')
-						$image = get_gravatar_url($profile['email_address']);
-					elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-						$image = get_gravatar_url($smcFunc['substr']($profile['avatar'], 11));
-				}
-				else
-					$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+				$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
 			}
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
