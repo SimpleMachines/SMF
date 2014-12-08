@@ -776,6 +776,7 @@ function template_single_post($message, $force_alternate = null)
 	}
 
 	// And stuff below the attachments.
+	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
 							<div class="under_message">';
 
@@ -893,10 +894,12 @@ function template_single_post($message, $force_alternate = null)
 								</ul>';
 	}
 
+	if ($context['can_report_moderator'] || !empty($context['can_see_likes']) || !empty($context['can_like']) || $message['can_approve'] || $message['can_unapprove'] || $context['can_reply'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'] || $context['can_quote'])
 	echo '
-							</div>
-						</div>';
+							</div>';
+
 	echo '
+						</div>
 						<div class="moderatorbar">';
 
 	// Are there any custom profile fields for above the signature?
