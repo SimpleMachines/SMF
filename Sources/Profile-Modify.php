@@ -2937,10 +2937,19 @@ function profileLoadAvatarData()
 		'allow_server_stored' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_upload' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_upload_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_external' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
-		'allow_gravatar' => !empty($modSettings['gravatarEnabled']),
+		'allow_gravatar' => !empty($modSettings['gravatarEnabled']) || !empty($modSettings['gravatarOverride']),
 	);
 
-	if ($cur_profile['avatar'] == '' && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
+	if ($context['member']['avatar']['allow_gravatar'] && (stristr($cur_profile['avatar'], 'gravatar://') || !empty($modSettings['gravatarOverride'])))
+	{
+		$context['member']['avatar'] += array(
+			'choice' => 'gravatar',
+			'server_pic' => 'blank.png',
+			'external' => ($cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) || !empty($modSettings['gravatarOverride']) ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11),
+		);
+		$context['member']['avatar']['href'] = get_gravatar_url($context['member']['avatar']['external']);
+	}
+	elseif ($cur_profile['avatar'] == '' && $cur_profile['id_attach'] > 0 && $context['member']['avatar']['allow_upload'])
 	{
 		$context['member']['avatar'] += array(
 			'choice' => 'upload',
@@ -2961,15 +2970,6 @@ function profileLoadAvatarData()
 			'server_pic' => $cur_profile['avatar'] == '' ? 'blank.png' : $cur_profile['avatar'],
 			'external' => 'http://'
 		);
-	elseif (stristr($cur_profile['avatar'], 'gravatar://') && $context['member']['avatar']['allow_gravatar'])
-	{
-		$context['member']['avatar'] += array(
-			'choice' => 'gravatar',
-			'server_pic' => 'blank.png',
-			'external' => $cur_profile['avatar'] == 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']) ? $cur_profile['email_address'] : substr($cur_profile['avatar'], 11),
-		);
-		$context['member']['avatar']['href'] = get_gravatar_url($context['member']['avatar']['external']);
-	}
 	else
 		$context['member']['avatar'] += array(
 			'choice' => 'none',

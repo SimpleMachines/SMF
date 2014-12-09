@@ -2914,20 +2914,20 @@ function setupThemeContext($forceload = false)
 
 		$context['user']['avatar'] = array();
 
-		// Figure out the avatar... uploaded?
-		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
+		// Check for gravatar first since we might be forcing them...
+		if (($modSettings['gravatarEnabled'] && substr($user_info['avatar']['url'], 0, 11) == 'gravatar://') || !empty($modSettings['gravatarOverride']))
+		{
+			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($user_info['avatar']['url'], 'gravatar://') && strlen($user_info['avatar']['url']) > 11)
+				$context['user']['avatar']['href'] = get_gravatar_url($smcFunc['substr']($user_info['avatar']['url'], 11));
+			else
+				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
+		}
+		// Uploaded?
+		elseif ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-		// Gravatar?
-		elseif (substr($user_info['avatar']['url'], 0, 11) == 'gravatar://')
-		{
-			if ($user_info['avatar']['url'] === 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']))
-				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
-			else
-				$context['user']['avatar']['href'] = get_gravatar_url(substr($user_info['avatar']['url'], 11));
-		}
 		// Otherwise we assume it's server stored.
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
