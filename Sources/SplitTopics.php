@@ -925,7 +925,8 @@ function MergeIndex()
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE t.id_board = {int:id_board}
-			AND t.id_topic != {int:id_topic}' . ($onlyApproved ? '
+			AND t.id_topic != {int:id_topic}
+			AND t.id_redirect_topic = {int:not_redirect}' . ($onlyApproved ? '
 			AND t.approved = {int:is_approved}' : '') . '
 		ORDER BY {raw:sort}
 		LIMIT {int:offset}, {int:limit}',
@@ -936,6 +937,7 @@ function MergeIndex()
 			'offset' => $_REQUEST['start'],
 			'limit' => $modSettings['defaultMaxTopics'],
 			'is_approved' => 1,
+			'not_redirect' => 0,
 		)
 	);
 	$context['topics'] = array();
@@ -1010,7 +1012,7 @@ function MergeExecute($topics = array())
 	// Get info about the topics and polls that will be merged.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts,
+			t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic
 			m1.subject, m1.poster_time AS time_started, IFNULL(mem1.id_member, 0) AS id_member_started, IFNULL(mem1.real_name, m1.poster_name) AS name_started,
 			m2.poster_time AS time_updated, IFNULL(mem2.id_member, 0) AS id_member_updated, IFNULL(mem2.real_name, m2.poster_name) AS name_updated
 		FROM {db_prefix}topics AS t
@@ -1035,6 +1037,10 @@ function MergeExecute($topics = array())
 	$firstTopic = 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		// Sorry, redirection topics can't be merged
+		if (!empty($row['id_redirect_topic']))
+			fatal_lang_error('cannot_merge_redirect', false);
+
 		// Make a note for the board counts...
 		if (!isset($boardTotals[$row['id_board']]))
 			$boardTotals[$row['id_board']] = array(
