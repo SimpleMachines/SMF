@@ -957,7 +957,7 @@ function MergeIndex()
 	}
 	$smcFunc['db_free_result']($request);
 
-	if (empty($context['topics']) && count($context['boards']) <= 1)
+	if (empty($context['topics']) && count($merge_boards) <= 1 && !in_array(0, $merge_boards))
 		fatal_lang_error('merge_need_more_topics');
 
 	$context['sub_template'] = 'merge';

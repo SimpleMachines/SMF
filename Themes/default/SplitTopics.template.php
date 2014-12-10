@@ -269,39 +269,47 @@ function template_merge()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
-			<form action="', $scripturl , '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
-				<div class="title_bar">
-					<h4 class="titlebg">', $txt['target_below'];
+			<div class="title_bar">
+				<h4 class="titlebg">';
 
-		if (isset($context['merge_categories']))
+	if (isset($context['merge_categories']))
+	{
+		echo '
+					<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '" id="mergeSelectBoard">
+						', $txt['target_below'], ' (', $txt['board'], ':&nbsp;
+						<select name="targetboard" onchange="this.form.submit();">';
+		foreach ($context['merge_categories'] as $cat)
 		{
-			echo ' (', $txt['board'], ':&nbsp;
-						<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '">
-							<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
-							<select name="targetboard" onchange="this.form.submit();">';
-			foreach ($context['merge_categories'] as $cat)
+			echo '
+							<optgroup label="', $cat['name'], '">';
+
+			foreach ($cat['boards'] as $board)
 			{
 				echo '
-								<optgroup label="', $cat['name'], '">';
-
-				foreach ($cat['boards'] as $board)
-				{
-					echo '
-									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
-				}
-
-				echo '
-								</optgroup>';
+								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 			}
+
 			echo '
-							</select>
-							<input type="submit" value="', $txt['go'], '" class="">
-						</form>)';
-
+							</optgroup>';
 		}
+		echo '
+						</select>)
+						<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
+						<input type="submit" value="', $txt['go'], '" class="button_submit">
+					</form>';
 
-		echo '</h4>
-				</div>
+	}
+	else
+		echo $txt['target_below'];
+
+	echo '				</h4>
+			</div>';
+
+	// Don't show this if there aren't any topics...
+	if (!empty($context['topics']))
+	{
+		echo '
+			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
@@ -323,8 +331,17 @@ function template_merge()
 				</div>
 				<div class="pagesection">
 					', $context['page_index'], '
-				</div><br>
+				</div>';
+	}
+	else
+	{
+		// Just a nice "There aren't any topics" message
+		echo '
+				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
+	}
 
+	echo '
+				<br>
 				<div class="title_bar">
 					<h4 class="titlebg">', $txt['target_id'], '</h4>
 				</div>
