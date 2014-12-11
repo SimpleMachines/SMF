@@ -1971,7 +1971,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .generic_icons.change_menu2, .generic_icons.sent {
 	background-position: -231px -135px;
-	margin: 5px 5px 0px 0px;
 }
 /* 7th row */
 .generic_icons.post_moderation_moderate {
@@ -1988,7 +1987,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 .generic_icons.post_moderation_allow {
 	background-position: -109px -161px;
-	margin: 0 2px 0 -2px;
 }
 .generic_icons.personal_message {
 	background-position: -135px -161px;
