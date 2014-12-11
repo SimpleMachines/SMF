@@ -470,20 +470,6 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-weight: bold;
 	cursor: pointer;
 }
-.previous_page {
-	background: url(../images/generic_icons.png) no-repeat -114px -49px;
-	width: 14px;
-	height: 13px;
-	display: inline-block;
-	margin: 0 0 -1px 0;
-}
-.next_page {
-	background: url(../images/generic_icons.png) no-repeat -114px -33px;
-	width: 14px;
-	height: 13px;
-	display: inline-block;
-	margin: 0 0 -1px 0;
-}
 .current_page {
 	padding: 0 4px 0 2px;
 	color: #b46100;
@@ -1797,7 +1783,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -1px 0;
+	background: url(../images/generic_icons.png) no-repeat -5px -5px;
 	vertical-align: middle;
 }
 .generic_icons.gender_None {
@@ -1807,301 +1793,289 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
 }
+
 /* Top row */
 .generic_icons.help {
-	background-position: -1px 0;
-	margin: 0 5px 3px 0;
-}
-.generic_icons.gender_Female {
-	background-position: -17px 0;
-}
-.generic_icons.last_post {
-	background-position: -32px 0;
-}
-.generic_icons.mail {
-	background-position: -49px 0;
-}
-.generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
-	background-position: -65px 0;
-}
-.generic_icons.sort_up {
-	background-position: -80px 0;
-}
-.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune {
-	background-position: -96px 0;
-}
-.generic_icons.sticky {
-	background-position: -112px 0;
-}
-/* 2nd row */
-.generic_icons.error {
-	background-position: 0 -16px;
+	background-position: -5px -5px;
 }
 .generic_icons.gender_Male {
-	background-position: -16px -16px;
+	background-position: -31px -5px;
 }
 .generic_icons.www {
-	background-position: -32px -16px;
+	background-position: -57px -5px;
 }
 .generic_icons.mail_new {
-	background-position: -48px -16px;
+	background-position: -83px -5px;
 }
 .generic_icons.unlike {
-	background-position: -65px -16px;
+	background-position: -109px -5px;
 }
 .generic_icons.sort_down {
-	background-position: -80px -16px;
+	background-position: -135px -5px;
 }
 .generic_icons.filter {
-	background-position: -97px -16px;
+	background-position: -161px -5px;
 	margin: 0 5px 0 0;
 }
-.generic_icons.lock {
-	background-position: -113px -16px;
+.generic_icons.lock, .generic_icons.security {
+	background-position: -187px -5px;
 }
-/* 3rd row */
 .generic_icons.valid {
-	background-position: 0 -32px;
+	background-position: -213 -5px;
 }
+.generic_icons.search, .generic_icons.engines {
+	background-position: -239px -5px;
+}
+/* 2nd row */
 .generic_icons.check {
-	background-position: -16px -32px;
+	background-position: -5px -31px;
 }
 .generic_icons.invalid {
-	background-position: -32px -32px;
+	background-position: -31px -31px;
+}
+.generic_icons.gender_Female {
+	background-position: -57px -31px;
 }
 .generic_icons.watch {
-	background-position: -96px -32px;
+	background-position: -161px -31px;
 }
-.generic_icons.move {
-	background-position: -112px -32px;
+.generic_icons.move, .generic_icons.next_page {
+	background-position: -187px -31px;
 }
-/* 4th row */
 .generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
-	background-position: 0 -48px;
-}
-.generic_icons.posters {
-	background-position: -16px -48px;
-}
-.generic_icons.replies, .generic_icons.topics_replies {
-	background-position: -32px -48px;
-}
-.generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
-	background-position: -49px -48px;
-}
-.generic_icons.views {
-	background-position: -64px -48px;
-}
-.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups, .generic_icons.mlist {
-	background-position: -80px -48px;
-}
-.generic_icons.poll {
-	background-position: -97px -48px;
-}
-/* 5th row */
-.generic_icons.inbox {
-	background-position: 0 -64px;
-}
-.generic_icons.switch {
-	background-position: -17px -64px;
-}
-.generic_icons.replied, .generic_icons.send {
-	background-position: -32px -64px;
-}
-.generic_icons.im_on {
-	background-position: -48px -64px;
-}
-.generic_icons.im_off {
-	background-position: -64px -64px;
-}
-.generic_icons.del_small {
-	background-position: -80px -64px;
-	cursor: pointer;
-	width: 9px;
-	height: 9px;
-}
-.generic_icons.split_desel {
-	background-position: -96px -64px;
-}
-.generic_icons.split_sel {
-	background-position: -112px -64px;
-}
-/* 6th row */
-.generic_icons.warning_mute {
-	background-position: 0px -80px;
-}
-.generic_icons.warning_moderate {
-	background-position: -16px -80px;
-}
-.generic_icons.warning_watch {
-	background-position: -32px -80px;
-}
-.generic_icons.openid {
-	background-position: -48px -80px;
-}
-.generic_icons.calendar_export {
-	background-position: -64px -80px;
-}
-.generic_icons.calendar {
-	background-position: -80px -80px;
-}
-.generic_icons.calendar_modify {
-	background-position: -97px -80px;
-}
-.generic_icons.plus {
-	background-position: -112px -80px;
-}
-/* 7th row */
-.generic_icons.warning, .generic_icons.moderate {
-	background-position: 0 -97px;
-}
-.generic_icons.themes {
-	background-position: -19px -97px;
-}
-.generic_icons.support {
-	background-position: -36px -97px;
-}
-.generic_icons.stats {
-	background-position: -54px -97px;
-}
-.generic_icons.right_arrow {
-	background-position: -72px -102px;
-}
-.generic_icons.left_arrow {
-	background-position: -86px -102px;
-}
-.generic_icons.smiley {
-	background-position: -95px -97px;
-}
-.generic_icons.server {
-	background-position: -112px -97px;
-}
-/* 8th row */
-.generic_icons.security {
-	background-position: 0 -114px;
-}
-.generic_icons.ban, .generic_icons.ignore {
-	background-position: -18px -113px;
-}
-.generic_icons.boards  {
-	background-position: -35px -113px;
-}
-.generic_icons.regcenter {
-	background-position: -55px -113px;
-}
-.generic_icons.posts {
-	background-position: -74px -112px;
-}
-.generic_icons.post_moderation_moderate {
-	background-position: -92px -113px;
-}
-.generic_icons.post_moderation_deny {
-	background-position: -112px -113px;
-}
-/* 9th row */
-.generic_icons.post_moderation_attach {
-	background-position: -1px -130px;
-}
-.generic_icons.post_moderation_allow {
-	background-position: -15px -129px;
-	margin: 0 2px 0 -2px;
-}
-.generic_icons.personal_message {
-	background-position: -31px -130px;
-}
-.generic_icons.permissions, .generic_icons.signup {
-	background-position: -46px -130px;
-	width: 12px;
-	margin: -3px 11px 0 2px;
-}
-.generic_icons.paid {
-	background-position: -59px -130px;
-}
-.generic_icons.packages {
-	background-position: -76px -128px;
-}
-.generic_icons.package_ops {
-	background-position: -92px -130px;
-}
-.generic_icons.reports {
-	background-position: -112px -130px;
-}
-/* 10th row */
-.generic_icons.news {
-	background-position: -2px -149px;
-}
-.generic_icons.modifications {
-	background-position: -22px -148px;
-}
-.generic_icons.maintain, .generic_icons.admin {
-	background-position: -39px -147px;
-}
-.generic_icons.administration, .generic_icons.home {
-	background-position: -57px -147px;
-}
-.generic_icons.frenemy {
-	background-position: -74px -147px;
-}
-.generic_icons.attachment {
-	background-position: -94px -148px;
-}
-.generic_icons.languages {
-	background-position: -110px -149px;
-}
-/* 11th row */
-.generic_icons.members_request {
-	background-position: -1px -166px;
-}
-.generic_icons.members_delete {
-	background-position: -20px -165px;
-}
-.generic_icons.members {
-	background-position: -39px -166px;
-}
-.generic_icons.members_watched {
-	background-position: -55px -165px;
-}
-.generic_icons.corefeatures, .generic_icons.settings, .generic_icons.manrules, .generic_icons.manlabels {
-	background-position: -75px -166px;
-}
-.generic_icons.calendar {
-	background-position: -93px -166px;
-}
-.generic_icons.logs {
-	background-position: -110px -165px;
-}
-/* 12th row */
-.generic_icons.search, .generic_icons.engines {
-	background-position: 0 -182px;
+	background-position: -213px -31px;
 }
 .generic_icons.features {
-	background-position: -22px -184px;
+	background-position: -239px -31px;
+}
+/* 3rd row */
+.generic_icons.posters {
+	background-position: -5px -57px;
+}
+.generic_icons.replies, .generic_icons.topics_replies {
+	background-position: -31px -57px;
+}
+.generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
+	background-position: -57px -57px;
+}
+.generic_icons.views {
+	background-position: -83px -57px;
+}
+.generic_icons.last_post {
+	background-position: -109px -57px;
+}
+.generic_icons.starters, .generic_icons.people, .generic_icons.membergroups, .generic_icons.mlist {
+	background-position: -135px -57px;
+}
+.generic_icons.poll {
+	background-position: -161px -57px;
+}
+.generic_icons.previous_page {
+	background-position: -187px -57px;
+}
+.generic_icons.inbox {
+	background-position: -213px -57px;
 }
 .generic_icons.exit, .generic_icons.logout {
-	background-position: -39px -183px;
+	background-position: -239px -57px;
+}
+/* 4th row */
+.generic_icons.switch {
+	background-position: -5px -83px;
+}
+.generic_icons.replied, .generic_icons.send {
+	background-position: -31px -83px;
+}
+.generic_icons.im_on {
+	background-position: -57px -83px;
+}
+.generic_icons.im_off {
+	background-position: -83px -83px;
+}
+.generic_icons.split_desel {
+	background-position: -109px -83px;
+}
+.generic_icons.split_sel {
+	background-position: -135px -83px;
+}
+.generic_icons.mail {
+	background-position: -161px -83px;
+}
+.generic_icons.warning_mute {
+	background-position: -187px -83px;
+}
+.generic_icons.warning_moderate {
+	background-position: -213px -83px;
 }
 .generic_icons.drafts {
-	background-position: -55px -182px;
+	background-position: -239px -83px;
+}
+/* 5th row */
+.generic_icons.warning_watch {
+	background-position: -5px -109px;
+}
+.generic_icons.calendar_export {
+	background-position: -31px -109px;
+}
+.generic_icons.calendar {
+	background-position: -57px -109px;
+}
+.generic_icons.calendar_modify {
+	background-position: -83px -109px;
+}
+.generic_icons.plus {
+	background-position: -109px -109px;
+}
+.generic_icons.warning, .generic_icons.moderate {
+	background-position: -135px -109px;
+}
+.generic_icons.themes {
+	background-position: -161px -109px;
+}
+.generic_icons.support {
+	background-position: -187px -109px;
+}
+.generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
+	background-position: -213px -109px;
 }
 .generic_icons.current_theme {
-	background-position: -73px -183px;
+	background-position: -239px -109px;
+}
+/* 6th row */
+.generic_icons.stats {
+	background-position: -5px -135px;
+}
+.generic_icons.right_arrow {
+	background-position: -31px -135px;
+}
+.generic_icons.left_arrow {
+	background-position: -53px -135px;
+}
+.generic_icons.smiley {
+	background-position: -75px -135px;
+}
+.generic_icons.server {
+	background-position: -101px -135px;
+}
+.generic_icons.ban, .generic_icons.ignore {
+	background-position: -127px -135px;
+}
+.generic_icons.boards  {
+	background-position: -153px -135px;
+}
+.generic_icons.regcenter {
+	background-position: -179px -135px;
+}
+.generic_icons.posts {
+	background-position: -205px -135px;
 }
 .generic_icons.change_menu2, .generic_icons.sent {
-	background-position: -94px -185px;
-	margin: 5px 5px 0px 0px;
+	background-position: -231px -135px;
+}
+/* 7th row */
+.generic_icons.post_moderation_moderate {
+	background-position: -5px -161px;
+}
+.generic_icons.sort_up {
+	background-position: -31px -161px;
+}
+.generic_icons.post_moderation_deny {
+	background-position: -57px -161px;
+}
+.generic_icons.post_moderation_attach {
+	background-position: -83px -161px;
+}
+.generic_icons.post_moderation_allow {
+	background-position: -109px -161px;
+}
+.generic_icons.personal_message {
+	background-position: -135px -161px;
+}
+.generic_icons.permissions, .generic_icons.signup {
+	background-position: -161px -161px;
+}
+.generic_icons.paid {
+	background-position: -187px -161px;
+}
+.generic_icons.packages {
+	background-position: -213px -161px;
 }
 .generic_icons.change_menu {
-	background-position: -110px -185px;
+	background-position: -239px -161px;
 }
-/* 13th row */
+/* 8th row */
+.generic_icons.package_ops {
+	background-position: -5px -187px;
+}
+.generic_icons.reports {
+	background-position: -31px -187px;
+}
+.generic_icons.news {
+	background-position: -57px -187px;
+}
+.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune {
+	background-position: -83px -187px;
+}
+.generic_icons.modifications {
+	background-position: -109px -187px;
+}
+.generic_icons.maintain, .generic_icons.admin {
+	background-position: -135px -187px;
+}
+.generic_icons.administration, .generic_icons.home {
+	background-position: -161px -187px;
+}
+.generic_icons.frenemy {
+	background-position: -187px -187px;
+}
+.generic_icons.attachment {
+	background-position: -213px -187px;
+}
+.generic_icons.error {
+	background-position: -239px -187px;
+}
+/* 9th row */
+.generic_icons.languages {
+	background-position: -5px -213px;
+}
+.generic_icons.members_request {
+	background-position: -31px -213px;
+}
+.generic_icons.members_delete {
+	background-position: -57px -213px;
+}
+.generic_icons.members {
+	background-position: -83px -213px;
+}
+.generic_icons.members_watched {
+	background-position: -109px -213px;
+}
+.generic_icons.sticky {
+	background-position: -135px -213px;
+}
+.generic_icons.corefeatures, .generic_icons.settings, .generic_icons.manrules, .generic_icons.manlabels {
+	background-position: -161px -213px;
+}
+.generic_icons.calendar {
+	background-position: -187px -213px;
+}
+.generic_icons.logs {
+	background-position: -213px -213px;
+}
 .generic_icons.approve {
-	background-position: -1px -200px;
+	background-position: -239px -213px;
 }
+/* 10th row */
 .generic_icons.close {
-	background-position: -19px -200px;
+	background-position: -5px -239px;
 }
 .generic_icons.details {
-	background-position: -37px -200px;
+	background-position: -31px -239px;
 }
+.generic_icons.merge {
+	background-position: -57px -239px;
+}
+
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
