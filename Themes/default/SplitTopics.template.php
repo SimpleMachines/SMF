@@ -308,7 +308,7 @@ function template_merge()
 				<div class="windowbg2">
 					<ul class="reset merge_topics">';
 
-		$merge_button = create_button('merge.png', 'merge', '');
+		$merge_button = create_button('merge', 'merge', '');
 
 		foreach ($context['topics'] as $topic)
 			echo '
