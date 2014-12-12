@@ -232,7 +232,7 @@ function template_list_themes()
 
 				// Enable/Disable.
 				echo '
-					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : '') ,'" onclick="return confirm(\'', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable') .'_confirm'], '\');">', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable')] ,'</a>';
+					<a href="', $scripturl, '?action=admin;area=theme;sa=enable;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';', $context['admin-tre_token_var'], '=', $context['admin-tre_token'], '', (!empty($theme['enable']) ? ';disabled' : '') ,'" onclick="return confirm(\'', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable') .'_confirm'], '\');"><span class="generic_icons ',!empty($theme['enable']) ? 'disable' : 'enable','" title="', $txt['theme_'. (!empty($theme['enable']) ? 'disable' : 'enable')] ,'"></span></a>';
 
 				// Deleting.
 				echo '
