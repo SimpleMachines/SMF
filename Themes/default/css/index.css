@@ -2031,7 +2031,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.attachment {
 	background-position: -213px -187px;
 }
-.generic_icons.error {
+.generic_icons.error, .generic_icons.disable {
 	background-position: -239px -187px;
 }
 /* 9th row */
@@ -2062,7 +2062,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.logs {
 	background-position: -213px -213px;
 }
-.generic_icons.approve {
+.generic_icons.approve, .generic_icons.enable {
 	background-position: -239px -213px;
 }
 /* 10th row */
