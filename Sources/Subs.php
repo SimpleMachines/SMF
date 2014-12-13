@@ -3735,7 +3735,7 @@ function setupMenuContext()
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup");', true);
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
 		if ($context['allow_pm'])
 			addInlineJavascript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
