@@ -31,6 +31,6 @@
 .sy-filler{width:100%}
 .sy-filler.ready{-moz-transition:padding 600ms ease;-o-transition:padding 600ms ease;-webkit-transition:padding 600ms ease;transition:padding 600ms ease}
 /* SMF extra */
-.sy-slides-wrap{padding:10px 0;}
-#smf_slider li{padding:5px 10px;}
-.sy-box{margin: 0 0 5px 0;}
+#smf_slider li{padding:5px 10px}
+.sy-slides-wrap{padding:0 0 15px}
+.sy-box{margin:0 0 10px}
