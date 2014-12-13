@@ -38,6 +38,7 @@ function template_newsfader()
 				speed: ', $settings['newsfader_time'],',
 				adaptiveHeight: 0,
 				captions: 0,
+				controls: 0,
 			});
 		</script>';
 	}
