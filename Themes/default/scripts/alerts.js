@@ -29,7 +29,7 @@ var updateAlerts = function ()
 
     unreadAlerts = parseInt(unreadAlerts);
 
-    $.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts, function (data)
+    $.get(smf_scripturl + '?action=profile;area=alerts_popup;counter=' + unreadAlerts + ';u=' + smf_member_id, function (data)
     {
         var alerts = $(data).find('.unread');
         if (alerts.length == 0)
