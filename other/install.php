@@ -1056,7 +1056,7 @@ function DatabasePopulation()
 		}
 
 		$replaces['{$engine}'] = in_array($engines, 'InnoDB') ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array($engines, 'Memory') ? 'Memory' : $replaces['{$engine}'];
+		$replaces['{$memory}'] = in_array($engines, 'MEMORY') ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
