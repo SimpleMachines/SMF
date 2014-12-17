@@ -1039,13 +1039,33 @@ function DatabasePopulation()
 	}
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
-	// If the UTF-8 setting was enabled, add it to the table definitions.
-	if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
-		$replaces[') ENGINE=MyISAM;'] = ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
-
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
+
+	// MySQL-specific stuff
+	if ($type == 'mysql')
+	{
+		// Figure out storage engines - what do we have, etc.
+		$get_engines = $smcFunc['db_query']('', 'SHOW ENGINES', array());
+
+		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
+		{
+			if ($row['Support'] == 'Yes')
+				$engines[] = $row['Engine'];
+		}
+
+		$replaces['{$engine}'] = in_array($engines, 'InnoDB') ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = in_array($engines, 'Memory') ? 'Memory' : $replaces['{$engine}'];
+
+		// If the UTF-8 setting was enabled, add it to the table definitions.
+		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
+		{
+			$replaces[') ENGINE=' . $replaces['{$engine}'] . ';'] = ') ENGINE=' . $replaces['{$engine}'] . ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
+			$replaces[') ENGINE=MEMORY;'] = ') ENGINE=MEMORY DEFAULT CHARSET=utf8 COLLATE-utf8_general_ci';
+		}
+	}
+
 
 	// Execute the SQL.
 	$current_statement = '';
