@@ -658,7 +658,7 @@ WHERE value LIKE 'SMF Default Theme%';
 
 ---# Fader time update
 UPDATE {$db_prefix}themes
-SET value = '500'
+SET value = '3000'
 WHERE variable = 'newsfader_time';
 ---#
 
