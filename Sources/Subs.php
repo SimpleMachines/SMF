@@ -3703,7 +3703,7 @@ function clean_cache($type = '')
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -3932,6 +3932,16 @@ function setupMenuContext()
 							}
 						}
 					}
+
+					// Does this button have its own icon?
+					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']) && file_exists($settings['default_images_url'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']))
+						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+					else
+						$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}
