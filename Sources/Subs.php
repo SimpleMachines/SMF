@@ -3936,7 +3936,7 @@ function setupMenuContext()
 					// Does this button have its own icon?
 					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
 						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']) && file_exists($settings['default_images_url'] . '/images/' . $button['icon']))
+					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
 						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
 					elseif (isset($button['icon']))
 						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
