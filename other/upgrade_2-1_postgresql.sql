@@ -1815,10 +1815,15 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ---#
 
 /******************************************************************************/
---- Fixing the url column in the log_spider_hits table
+--- Fixing the url column in the log_spider_hits and log_online tables
 /******************************************************************************/
----# Changing url column size from 255 to 1024
+---# Changing url column size in log_spider_hits from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
+ALTER url TYPE varchar(1024);
+---#
+
+---# Changing url column in log_online from text to varchar(1024)
+ALTER TABLE {$db_prefix}log_online
 ALTER url TYPE varchar(1024);
 ---#
 

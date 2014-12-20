@@ -752,6 +752,9 @@ function detectFulltextIndex()
 {
 	global $smcFunc, $context, $db_prefix;
 
+	// We need this for db_get_version
+	db_extend();
+
 	$request = $smcFunc['db_query']('', '
 		SHOW INDEX
 		FROM {db_prefix}messages',
@@ -792,7 +795,7 @@ function detectFulltextIndex()
 	if ($request !== false)
 	{
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			if ((isset($row['Type']) && strtolower($row['Type']) != 'myisam') || (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam'))
+			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'], '5.6.4', '>=')))
 				$context['cannot_create_fulltext'] = true;
 		$smcFunc['db_free_result']($request);
 	}
