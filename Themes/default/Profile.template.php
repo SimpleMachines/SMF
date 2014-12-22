@@ -148,7 +148,26 @@ function template_summary()
 			<div class="username">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
 			</div>
-			', $context['member']['avatar']['image'], '
+			', $context['member']['avatar']['image'];
+
+	// Are there any custom profile fields for below the avatar?
+	if (!empty($context['custom_fields']))
+	{
+		echo '
+				<div class="custom_fields_above_signature">
+					<ul class="reset nolist">';
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 4 || empty($field['output_html']))
+				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
+
+		echo '
 			<ul class="reset">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
