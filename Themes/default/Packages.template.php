@@ -1523,11 +1523,11 @@ function template_file_permissions()
 						<span style="color: ', ($dir['perms']['chmod'] ? 'green' : 'red'), '">', ($dir['perms']['chmod'] ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']), '</span>
 						', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 					</td>
-					<td class="perm_read"><input type="radio" name="permStatus[', $name, ']" value="read" class="input_radio"></td>
-					<td class="perm_write"><input type="radio" name="permStatus[', $name, ']" value="writable" class="input_radio"></td>
-					<td class="perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="input_radio"></td>
-					<td class="perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="input_radio"></td>
-					<td class="perm_nochange"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="input_radio"></td>
+					<td class="centertext perm_read"><input type="radio" name="permStatus[', $name, ']" value="read" class="centertext input_radio"></td>
+					<td class="centertext perm_write"><input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext input_radio"></td>
+					<td class="centertext perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext input_radio"></td>
+					<td class="centertext perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext input_radio"></td>
+					<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext input_radio"></td>
 				</tr>
 			';
 
@@ -1607,9 +1607,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 				$drawn_div = true;
 				echo '
 			</tbody>
-			</table>
-			<table border="0" class="table_grid" id="', $js_ident, '">
-			<tbody>';
+			<tbody class="table_grid" id="', $js_ident, '">';
 			}
 
 			$cur_ident = preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', $ident . '/' . $name);
@@ -1629,18 +1627,17 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 					<span class="', ($dir['perms']['chmod'] ? 'success' : 'error'), '">', ($dir['perms']['chmod'] ? $txt['package_file_perms_writable'] : $txt['package_file_perms_not_writable']), '</span>
 					', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 				</td>
-				<td class="perm_read"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="read" class="input_radio"></td>
-				<td class="perm_write"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable" class="input_radio"></td>
-				<td class="perm_execute"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="execute" class="input_radio"></td>
-				<td class="perm_custom"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="custom" class="input_radio"></td>
-				<td class="perm_nochange"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
+				<td class="centertext perm_read"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="read" class="input_radio"></td>
+				<td class="centertext perm_write"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable" class="input_radio"></td>
+				<td class="centertext perm_execute"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="execute" class="input_radio"></td>
+				<td class="centertext perm_custom"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="custom" class="input_radio"></td>
+				<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
 			</tr>
 			<tr id="insert_div_loc_' . $cur_ident . '" style="display: none;"><td></td></tr>';
 
 			if (!empty($dir['contents']))
 			{
 				template_permission_show_contents($ident . '/' . $name, $dir['contents'], $level + 1, !empty($dir['more_files']));
-
 			}
 		}
 	}
@@ -1667,13 +1664,9 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 		if ($level > 1 && !$isFound)
 			echo '
-		</tbody>
-		</table><script><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
-		// ]]></script>
-		<table border="0" class="table_grid">
-			<tbody>
-			<tr style="display: none;"><td></td></tr>';
+		// ]]></script>';
 	}
 }
 
