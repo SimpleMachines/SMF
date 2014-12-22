@@ -234,7 +234,26 @@ function template_summary()
 			<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>';
 
 	echo '
-		</div>
+		</div>';
+
+	// Are there any custom profile fields for bottom?
+	if (!empty($context['custom_fields']))
+	{
+		echo '
+				<div class="custom_fields_bottom">
+					<ul class="reset nolist">';
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 6 || empty($field['output_html']))
+				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
+
+	echo '
 		<div id="detailedinfo">
 			<dl>';
 
