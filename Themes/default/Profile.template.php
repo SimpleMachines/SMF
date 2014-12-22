@@ -150,21 +150,22 @@ function template_summary()
 	if (!empty($context['custom_fields']))
 	{
 		echo '
-				<div class="custom_fields_above_name">
-					<ul class="reset nolist">';
+			<div class="custom_fields_above_name">
+				<ul >';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 5 || empty($field['output_html']))
+			if ($field['placement'] == 5 && !empty($field['output_html']))
 				echo '
-						<li>', $field['output_html'], '</li>';
+					<li>', $field['output_html'], '</li>';
 
 		echo '
-					</ul>
-				</div>';
+				</ul>
+			</div>
+			<br>';
 	}
 
 	echo '
-			<div class="username">
+			<div class="username clear">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
 			</div>
 			', $context['member']['avatar']['image'];
@@ -177,7 +178,7 @@ function template_summary()
 					<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 4 || empty($field['output_html']))
+			if ($field['placement'] == 4 && !empty($field['output_html']))
 				echo '
 						<li>', $field['output_html'], '</li>';
 
@@ -187,7 +188,7 @@ function template_summary()
 	}
 
 		echo '
-			<ul class="reset">';
+			<ul class="reset clear">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -233,25 +234,25 @@ function template_summary()
 	echo '
 			<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>';
 
-	echo '
-		</div>';
-
 	// Are there any custom profile fields for bottom?
 	if (!empty($context['custom_fields']))
 	{
 		echo '
-				<div class="custom_fields_bottom">
-					<ul class="reset nolist">';
+			<div class="custom_fields_bottom">
+				<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 6 || empty($field['output_html']))
+			if ($field['placement'] == 6 && !empty($field['output_html']))
 				echo '
-						<li>', $field['output_html'], '</li>';
+					<li>', $field['output_html'], '</li>';
 
 		echo '
-					</ul>
-				</div>';
+				</ul>
+			</div>';
 	}
+
+	echo '
+		</div>';
 
 	echo '
 		<div id="detailedinfo">
@@ -298,7 +299,7 @@ function template_summary()
 				<dl>';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 0 || empty($field['output_html']))
+			if ($field['placement'] == 0 && !empty($field['output_html']))
 				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
@@ -396,7 +397,7 @@ function template_summary()
 					<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 2 || empty($field['output_html']))
+			if ($field['placement'] == 2 && !empty($field['output_html']))
 				echo '
 						<li>', $field['output_html'], '</li>';
 
@@ -421,7 +422,7 @@ function template_summary()
 					<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
-			if ($field['placement'] == 3 || empty($field['output_html']))
+			if ($field['placement'] == 3 && !empty($field['output_html']))
 				echo '
 						<li>', $field['output_html'], '</li>';
 
