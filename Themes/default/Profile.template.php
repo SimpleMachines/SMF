@@ -160,7 +160,7 @@ function template_summary()
 		echo '
 				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
-	// Are there any custom profile fields for the summary?
+	// Are there any custom profile fields as icons?
 	if (!empty($context['custom_fields']))
 	{
 		foreach ($context['custom_fields'] as $field)
@@ -237,26 +237,16 @@ function template_summary()
 	// Any custom fields for standard placement?
 	if (!empty($context['custom_fields']))
 	{
-		$shown = false;
-		foreach ($context['custom_fields'] as $field)
-		{
-			if ($field['placement'] != 0 || empty($field['output_html']))
-				continue;
-
-			if (empty($shown))
-			{
-				echo '
+		echo '
 				<dl>';
-				$shown = true;
-			}
 
-			echo '
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 0 || empty($field['output_html']))
+				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
-		}
 
-		if (!empty($shown))
-			echo '
+		echo '
 				</dl>';
 	}
 
@@ -341,26 +331,19 @@ function template_summary()
 	echo '
 				</dl>';
 
-	// Are there any custom profile fields for the summary?
+	// Are there any custom profile fields for above the signature?
 	if (!empty($context['custom_fields']))
 	{
-		$shown = false;
-		foreach ($context['custom_fields'] as $field)
-		{
-			if ($field['placement'] != 2 || empty($field['output_html']))
-				continue;
-			if (empty($shown))
-			{
-				$shown = true;
-				echo '
+		echo '
 				<div class="custom_fields_above_signature">
 					<ul class="reset nolist">';
-			}
-			echo '
-						<li>', $field['output_html'], '</li>';
-		}
-		if ($shown)
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 2 || empty($field['output_html']))
 				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
 					</ul>
 				</div>';
 	}
