@@ -469,11 +469,10 @@ function MLSearch()
 			$search_fields[] = 'group';
 		}
 		// Search for an email address?
-		if (in_array('email', $_POST['fields']))
+		if (in_array('email', $_POST['fields']) && allowedTo('moderate_forum'))
 		{
-			$fields += array(2 => allowedTo('moderate_forum') ? 'email_address' : '');
+			$fields += array(2 => 'email_address');
 			$search_fields[] = 'email';
-			$condition = allowedTo('moderate_forum') ? '' : ')';
 		}
 		else
 			$condition = '';
