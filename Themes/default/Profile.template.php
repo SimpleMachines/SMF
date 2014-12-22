@@ -356,6 +356,23 @@ function template_summary()
 					', $context['member']['signature'], '
 				</div>';
 
+	// Are there any custom profile fields for below the signature?
+	if (!empty($context['custom_fields']))
+	{
+		echo '
+				<div class="custom_fields_above_signature">
+					<ul class="reset nolist">';
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 3 || empty($field['output_html']))
+				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
+
 	echo '
 		</div>
 	</div>
