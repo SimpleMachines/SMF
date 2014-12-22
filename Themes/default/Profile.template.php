@@ -144,7 +144,26 @@ function template_summary()
 	// Display the basic information about the user
 	echo '
 	<div id="profileview" class="roundframe flow_auto">
-		<div id="basicinfo">
+		<div id="basicinfo">';
+
+	// Are there any custom profile fields for above the name?
+	if (!empty($context['custom_fields']))
+	{
+		echo '
+				<div class="custom_fields_above_name">
+					<ul class="reset nolist">';
+
+		foreach ($context['custom_fields'] as $field)
+			if ($field['placement'] == 5 || empty($field['output_html']))
+				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
+
+	echo '
 			<div class="username">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
 			</div>
@@ -154,7 +173,7 @@ function template_summary()
 	if (!empty($context['custom_fields']))
 	{
 		echo '
-				<div class="custom_fields_above_signature">
+				<div class="custom_fields_below_avatar">
 					<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
@@ -379,7 +398,7 @@ function template_summary()
 	if (!empty($context['custom_fields']))
 	{
 		echo '
-				<div class="custom_fields_above_signature">
+				<div class="custom_fields_below_signature">
 					<ul class="reset nolist">';
 
 		foreach ($context['custom_fields'] as $field)
