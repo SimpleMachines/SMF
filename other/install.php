@@ -1046,17 +1046,20 @@ function DatabasePopulation()
 	// MySQL-specific stuff
 	if ($type == 'mysql')
 	{
+		// Just in case the query fails for some reason...
+		$engines = array();
+
 		// Figure out storage engines - what do we have, etc.
 		$get_engines = $smcFunc['db_query']('', 'SHOW ENGINES', array());
 
 		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
 		{
-			if ($row['Support'] == 'Yes')
+			if ($row['Support'] == 'YES')
 				$engines[] = $row['Engine'];
 		}
 
-		$replaces['{$engine}'] = in_array($engines, 'InnoDB') ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array($engines, 'MEMORY') ? 'MEMORY' : $replaces['{$engine}'];
+		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
