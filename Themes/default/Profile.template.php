@@ -479,17 +479,18 @@ function template_showAlerts()
 			</div>';
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['alerts'], ' - ', $context['member']['name'], '
-			</h3>
-		</div>';
+		<table id="alerts" class="table_grid">
+			<tr class="title_bar">
+				<th>', $txt['alerts'], ' - ', $context['member']['name'], '</th>
+			</tr>';
 
 	if (empty($context['alerts']))
 		echo '
-		<div class="tborder windowbg2 centertext">
-			', $txt['alerts_none'], '
-		</div>';
+			<tr>
+				<td class="windowbg2 centertext">
+					', $txt['alerts_none'], '
+				</td>
+			</tr>';
 	else
 	{
 		// Start the form.
@@ -503,19 +504,22 @@ function template_showAlerts()
 			$alt = !$alt;
 
 			echo '
-			<div class="', $alt ? 'windowbg' : 'windowbg2', '">
-				<div class="topic_details floatleft">', $alert['time'], '</div>
-				<ul class="quickbuttons">
-					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
-					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-					<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
-				</ul>
-				<div class="list_posts clear">', $alert['text'], '</div>
-			</div>';
+			<tr class="', $alt ? 'windowbg' : 'windowbg2', '">
+				<td>', $alert['text'], '</td>
+				<td>', $alert['time'], '</td>
+				<td>
+					<ul class="quickbuttons">
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+						<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
+					</ul>
+				</td>
+			</tr>';
 		}
 
 		echo '
-			<div class="roundframe">
+		</table>
+			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'] ,'
 				</div>
@@ -815,49 +819,47 @@ function template_trackActivity()
 
 	// The first table shows IP information about the user.
 	echo '
-		<div class="generic_list_wrapper">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
+		</div>';
 
 	// The last IP the user used.
 	echo '
-			<div id="tracking" class="windowbg2">
-				<dl class="noborder">
-					<dt>', $txt['most_recent_ip'], ':
-						', (empty($context['last_ip2']) ? '' : '<br>
-						<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
-					</dt>
-					<dd>
-						<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
+		<div id="tracking" class="windowbg2">
+			<dl class="noborder">
+				<dt>', $txt['most_recent_ip'], ':
+					', (empty($context['last_ip2']) ? '' : '<br>
+					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
+				</dt>
+				<dd>
+					<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
 
 	// Second address detected?
 	if (!empty($context['last_ip2']))
 		echo '
-						, <a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip2'], ';u=', $context['member']['id'], '">', $context['last_ip2'], '</a>';
+					, <a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip2'], ';u=', $context['member']['id'], '">', $context['last_ip2'], '</a>';
 
 	echo '
-					</dd>';
+				</dd>';
 
 	// Lists of IP addresses used in messages / error messages.
 	echo '
-					<dt>', $txt['ips_in_messages'], ':</dt>
-					<dd>
-						', (count($context['ips']) > 0 ? implode(', ', $context['ips']) : '(' . $txt['none'] . ')'), '
-					</dd>
-					<dt>', $txt['ips_in_errors'], ':</dt>
-					<dd>
-						', (count($context['ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
-					</dd>';
+				<dt>', $txt['ips_in_messages'], ':</dt>
+				<dd>
+					', (count($context['ips']) > 0 ? implode(', ', $context['ips']) : '(' . $txt['none'] . ')'), '
+				</dd>
+				<dt>', $txt['ips_in_errors'], ':</dt>
+				<dd>
+					', (count($context['ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
+				</dd>';
 
 	// List any members that have used the same IP addresses as the current member.
 	echo '
-					<dt>', $txt['members_in_range'], ':</dt>
-					<dd>
-						', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
-					</dd>
-				</dl>
-			</div>
+				<dt>', $txt['members_in_range'], ':</dt>
+				<dd>
+					', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
+				</dd>
+			</dl>
 		</div>
 		<br>';
 
@@ -877,7 +879,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="roundframe">
+		<div class="windowbg2">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
