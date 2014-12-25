@@ -1664,6 +1664,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
+			usort($codes, 'sort_bbc_tags');
 			return $codes;
 		}
 
@@ -2480,6 +2481,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	}
 
 	return $message;
+}
+
+/**
+ * Helper function for usort(), used in parse_bbc().
+ */
+function sort_bbc_tags($a, $b)
+{
+	return strcmp($a['tag'], $b['tag']);
 }
 
 /**
