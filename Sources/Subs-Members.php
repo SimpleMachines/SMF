@@ -920,7 +920,7 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
 
 	// Make sure they don't want someone else's name.
-	$request = $smcFunc['db_query']('', '
+	$request = $smcFunc['db_query']('case_insensitive', '
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
