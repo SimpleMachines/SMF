@@ -155,7 +155,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 
 		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
 		{
-			if ($row['Support'] == 'YES')
+			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
 				$engines[] = $row['Engine'];
 		}
 
