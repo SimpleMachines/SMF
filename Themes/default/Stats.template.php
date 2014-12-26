@@ -105,13 +105,13 @@ function template_main()
 			if (!empty($item['percent']))
 				echo '
 							<div class="bar" style="width: ', $item['percent'], '%;">
+								<span class="righttext">', $item['num'], '</span>
 							</div>';
 			else
 				echo '
-							<div class="bar empty"></div>';
+							<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
 
 			echo '
-							<span class="righttext">', $item['num'], '</span>
 						</dd>';
 		}
 
@@ -132,7 +132,7 @@ function template_main()
 	if (!empty($context['yearly']))
 	{
 		echo '
-		<table id="stats">
+		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
 					<th class="first_th lefttext">', $txt['yearly_summary'], '</th>

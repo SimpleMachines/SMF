@@ -72,8 +72,8 @@ function template_error_log()
 				</div>
 			</div>
 			<table class="table_grid" id="error_log">
-				<tr>
-					<td colspan="3" class="windowbg">
+				<tr class="title_bar">
+					<td colspan="3">
 						&nbsp;&nbsp;', $txt['apply_filter_of_type'], ':';
 
 	$error_types = array();

@@ -1821,7 +1821,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -187px -5px;
 }
 .generic_icons.valid {
-	background-position: -213 -5px;
+	background-position: -213px -5px;
 }
 .generic_icons.search, .generic_icons.engines {
 	background-position: -239px -5px;
@@ -2430,7 +2430,6 @@ dl.stats dd {
 	font-size: 1em;
 	float: left;
 	margin: 0 0 4px 0;
-	padding: 0 4px 0 0;
 	line-height: 1.4em;
 	min-height: 1.4em;
 	background: #fff;
@@ -2461,19 +2460,15 @@ dl.stats {
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 dl.stats dd span {
-	padding: 0 2px;
+	padding: 0 5px;
 	position: absolute;
 	right: 0;
 	top: 0;
 	z-index: 2;
-	background: #fff;
 	white-space: pre;
 }
 
 /* Forum history table. */
-#stats {
-	width: 100%;
-}
 #stats td, #stats th {
 	width: 15%;
 	padding: 4px;
@@ -2486,7 +2481,7 @@ dl.stats dd span {
 	border-left: 1px solid #fff;
 	text-align: left;
 }
-#stats tr.windowbg2 th {
+#stats tr.windowbg2 th, #stats tr.windowbg2 td {
 	border-right: 1px solid #fff;
 	border-bottom: 1px solid #fff;
 }
@@ -3856,3 +3851,8 @@ h3.profile_hd {
 .stripes:nth-of-type(odd) { background-color:#f0f4f7; }
 .alternative { background-color:#F2F2F2; }
 .alternative2{ background-color:#E8EDF0; }
+
+#alerts tr.windowbg td,
+#alerts tr.windowbg2 td {
+	border-right: 1px solid #DDD;
+}

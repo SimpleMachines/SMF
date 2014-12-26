@@ -16,14 +16,10 @@
 }
 
 .action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
-	border-radius: 0;
-	border-top: 2px solid #ff9400;
-	border-bottom: 2px solid #bf6900;
 	padding: 6px 6px 5px 6px;
 	background: #fff;
-	color: #666;
 }
-.action_admin .table_grid .last_th, .action_admin .table_grid td {
+.action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;
 }
@@ -737,8 +733,6 @@ h3.grid_header {
 	margin: 4px 0;
 }
 #error_log tr:first-child td {
-	border-top: 2px solid #ff9400;
-	border-bottom: 2px solid #bf6900;
 	background: #fff;
 	padding: 8px;
 }
