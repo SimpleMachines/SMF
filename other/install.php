@@ -1039,12 +1039,8 @@ function DatabasePopulation()
 	}
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], array('\\\\n' => '\\n'));
 
-	// Read in the SQL.  Turn this on and that off... internationalize... etc.
-	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
-	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
-
-	// MySQL-specific stuff
-	if ($type == 'mysql')
+	// MySQL-specific stuff - storage engine and UTF8 handling
+	if (substr($db_type, 0, 5) == 'mysql')
 	{
 		// Just in case the query fails for some reason...
 		$engines = array();
@@ -1058,17 +1054,23 @@ function DatabasePopulation()
 				$engines[] = $row['Engine'];
 		}
 
+		// Done with this now
+		$smcFunc['db_free_result']($get_engines);
+
 		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
 		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
-			$replaces[') ENGINE=' . $replaces['{$engine}'] . ';'] = ') ENGINE=' . $replaces['{$engine}'] . ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;';
-			$replaces[') ENGINE=MEMORY;'] = ') ENGINE=MEMORY DEFAULT CHARSET=utf8 COLLATE-utf8_general_ci';
+			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLAGE=utf8_general_ci';
 		}
 	}
 
+	// Read in the SQL.  Turn this on and that off... internationalize... etc.
+	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
+	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
 
 	// Execute the SQL.
 	$current_statement = '';
