@@ -105,13 +105,13 @@ function template_main()
 			if (!empty($item['percent']))
 				echo '
 							<div class="bar" style="width: ', $item['percent'], '%;">
+								<span class="righttext">', $item['num'], '</span>
 							</div>';
 			else
 				echo '
-							<div class="bar empty"></div>';
+							<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
 
 			echo '
-							<span class="righttext">', $item['num'], '</span>
 						</dd>';
 		}
 
