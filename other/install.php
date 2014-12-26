@@ -1050,7 +1050,7 @@ function DatabasePopulation()
 
 		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
 		{
-			if ($row['Support'] == 'YES')
+			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
 				$engines[] = $row['Engine'];
 		}
 
@@ -1064,7 +1064,7 @@ function DatabasePopulation()
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
 			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLAGE=utf8_general_ci';
+			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 		}
 	}
 
