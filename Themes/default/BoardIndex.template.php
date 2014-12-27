@@ -35,7 +35,10 @@ function template_newsfader()
 		</ul>
 		<script>
 			jQuery("#smf_slider").slippry({
-				speed: ', $settings['newsfader_time'],'
+				pause: ', $settings['newsfader_time'],',
+				adaptiveHeight: 0,
+				captions: 0,
+				controls: 0,
 			});
 		</script>';
 	}
