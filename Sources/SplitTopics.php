@@ -1012,7 +1012,7 @@ function MergeExecute($topics = array())
 	// Get info about the topics and polls that will be merged.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic
+			t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic,
 			m1.subject, m1.poster_time AS time_started, IFNULL(mem1.id_member, 0) AS id_member_started, IFNULL(mem1.real_name, m1.poster_name) AS name_started,
 			m2.poster_time AS time_updated, IFNULL(mem2.id_member, 0) AS id_member_updated, IFNULL(mem2.real_name, m2.poster_name) AS name_updated
 		FROM {db_prefix}topics AS t
