@@ -1047,6 +1047,9 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 	if ($output_method != 'echo' || !$user_info['is_guest'])
 		return $user_info['is_guest'];
 
+	// Create a login token
+	createToken('login');
+		
 	echo '
 		<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
 			<table style="border: none" class="ssi_table">
@@ -1058,7 +1061,10 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 					<td><input type="password" name="passwrd" id="passwrd" size="9" class="input_password"></td>
 				</tr>
 				<tr>
-					<td><input type="hidden" name="cookielength" value="-1"></td>
+					<td>
+						<input type="hidden" name="cookielength" value="-1">
+						<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token', '">
+					</td>
 					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>
 			</table>
