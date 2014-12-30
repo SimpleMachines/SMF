@@ -443,7 +443,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								<span class="generic_icons ', $act, '" ', (!empty($button['custom']) ? ' ' . $button['custom'] : ''),'></span>', $button['title'], '
+								', $button['icon'], $button['title'], '
 							</a>';
 
 		if (!empty($button['sub_buttons']))
