@@ -98,8 +98,8 @@ function template_show_list($list_id = null)
 	// Show a nice message informing there are no items in this list.
 	if (empty($cur_list['rows']) && !empty($cur_list['no_items_label']))
 		echo '
-				<tr>
-					<td class="windowbg" colspan="', $cur_list['num_columns'], '" align="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'center', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
+				<tr class="windowbg">
+					<td colspan="', $cur_list['num_columns'], '" align="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'center', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
 				</tr>';
 
 	// Show the list rows.

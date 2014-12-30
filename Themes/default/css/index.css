@@ -631,6 +631,17 @@ table.table_grid {
 table.table_grid td {
 	padding: 3px;
 }
+/* Some predefined widths (mostly for tables) */
+.half_table {
+	width: 50%;
+}
+.equal_table {
+	width: 33%;
+}
+.quarter_table {
+	width: 25%;
+}
+
 .title_bar th {
 	padding: 4px 3px 3px 8px;
 }

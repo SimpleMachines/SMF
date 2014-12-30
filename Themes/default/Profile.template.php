@@ -486,10 +486,8 @@ function template_showAlerts()
 
 	if (empty($context['alerts']))
 		echo '
-			<tr>
-				<td class="windowbg2 centertext">
-					', $txt['alerts_none'], '
-				</td>
+			<tr class="windowbg2 centertext">
+				<td>', $txt['alerts_none'], '</td>
 			</tr>';
 	else
 	{
@@ -934,9 +932,9 @@ function template_trackIP()
 		// Loop through each of the members and display them.
 		foreach ($context['ips'] as $ip => $memberlist)
 			echo '
-				<tr>
-					<td class="windowbg2"><a href="', $context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
-					<td class="windowbg2">', implode(', ', $memberlist), '</td>
+				<tr class="windowbg2">
+					<td><a href="', $context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
+					<td>', implode(', ', $memberlist), '</td>
 				</tr>';
 
 		echo '
@@ -957,6 +955,7 @@ function template_trackIP()
 function template_showPermissions()
 {
 	global $context, $scripturl, $txt;
+	$alternate = true;
 
 	echo '
 		<div class="cat_bar">
@@ -1012,11 +1011,11 @@ function template_showPermissions()
 			foreach ($context['member']['permissions']['general'] as $permission)
 			{
 				echo '
-							<tr>
-								<td class="windowbg" title="', $permission['id'], '">
+							<tr class="windowbg', $alternate ? '2' : '', '">
+								<td title="', $permission['id'], '">
 									', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 								</td>
-								<td class="windowbg2 smalltext">';
+								<td class="smalltext">';
 
 				if ($permission['is_denied'])
 					echo '
@@ -1028,6 +1027,7 @@ function template_showPermissions()
 					echo '
 								</td>
 							</tr>';
+			$alternate = !$alternate;
 			}
 			echo '
 						</tbody>
@@ -1075,11 +1075,11 @@ function template_showPermissions()
 			foreach ($context['member']['permissions']['board'] as $permission)
 			{
 				echo '
-						<tr>
-							<td class="windowbg" title="', $permission['id'], '">
+						<tr class="windowbg', $alternate ? '2' : '', '">
+							<td title="', $permission['id'], '">
 								', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 							</td>
-							<td class="windowbg2 smalltext">';
+							<td class="smalltext">';
 
 				if ($permission['is_denied'])
 				{
@@ -1094,6 +1094,7 @@ function template_showPermissions()
 				echo '
 							</td>
 						</tr>';
+			$alternate = !$alternate;
 			}
 			echo '
 					</tbody>
