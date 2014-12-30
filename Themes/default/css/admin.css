@@ -325,10 +325,7 @@ fieldset.admin_group .inactive {
 	right: 10px;
 	top: 9px;
 }
-#support_credits img.icon {
-	vertical-align: middle;
-}
-#latestSupport{
+#latestSupport {
 	padding: 0 25px 15px 25px;
 }
 #support_credits dl {
@@ -353,13 +350,6 @@ fieldset.admin_group .inactive {
 	margin-left: 50px;
 	border: none;
 }
-#package_list ol ul, #package_list ol ul li {
-	margin-left: 0;
-	list-style: none;
-}
-#package_list {
-	list-style-type: none;
-}
 #package_list li {
 	border: 1px solid #cacdd3;
 	padding: 0.2em;
@@ -368,35 +358,8 @@ fieldset.admin_group .inactive {
 .package_section {
 	border: 1px solid #cacdd3;
 }
-ul.packages li {
-	border: none !important;
-	list-style: none;
-}
-code#find_code, code#replace_code {
-	display: block;
-	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
-	font-size: 0.9em;
-	background: #eef;
-	border-top: 2px solid #999;
-	border-bottom: 2px solid #999;
-	margin: 1px 0 6px 0;
-	padding: 3px 12px;
-	overflow: auto;
-	white-space: nowrap;
-	/* Show a scrollbar after about 6 lines. */
-	/* This is much better than the old max-height css. */
-	height: 10em;
-	resize: vertical;
-}
 span.package_server {
 	padding: 0 3em;
-}
-ul.package_servers {
-	margin: 0;
-	padding: 0;
-}
-ul.package_servers li {
-	list-style-type: none;
 }
 pre.file_content {
 	overflow: auto;
@@ -438,20 +401,14 @@ pre.file_content {
 	width: 8%;
 }
 
-.select_spot {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	background: url(../images/generic_icons.png) no-repeat -48px -32px;
+.generic_icons.select_above {
+	background-position: -134px -30px;
 }
-.select_spot.above {
-	background-position: -48px -32px;
+.generic_icons.select_here {
+	background-position: -108px -30px;
 }
-.select_spot.here {
-	background-position: -64px -32px;
-}
-.select_spot.below {
-	background-position: -80px -32px;
+.generic_icons.select_below {
+	background-position: -80px -30px;
 }
 
 /* Styles for the BBC permissions */
@@ -483,14 +440,6 @@ pre.file_content {
 }
 #manage_boards li.windowbg:hover, #manage_boards li.windowbg2:hover {
 	background: #D0E7F8;
-}
-#manage_boards li img {
-	vertical-align: middle;
-	padding: 0 6px 3px 6px;
-}
-#manage_boards li .select_spot {
-	vertical-align: middle;
-	margin: 0 6px 3px 6px;
 }
 #manage_boards li .floatleft {
 	font-weight: bold;
@@ -581,13 +530,6 @@ span.search_weight {
 /* Styles for the manage subscriptions section. */
 #fixed_area {
 	width: 97%;
-}
-ul.pending_payments {
-	margin: 0;
-	padding: 0;
-}
-ul.pending_payments li {
-	list-style-type: none;
 }
 
 /* Styles for the manage permissions section. */
