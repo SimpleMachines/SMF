@@ -191,6 +191,25 @@ function summary($memID)
 	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
 		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
+
+	// Quick array to avoid unnecessary iterations.
+	$cust_placement = array(
+		'standard',
+		'icons',
+		'above_signature',
+		'below_signature',
+		'below_avatar',
+		'above_member',
+		'bottom_poster',
+	);
+
+	$context['print_custom_fields'] = array();
+
+	// Any custom profile fields?
+	if (!empty($context['custom_fields']))
+		foreach ($context['custom_fields'] as $custom)
+			$context['print_custom_fields'][$cust_placement[$custom['placement']]][] = $custom;
+
 }
 
 /**
