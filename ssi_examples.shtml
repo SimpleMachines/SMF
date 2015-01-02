@@ -149,12 +149,12 @@
 
 		<br>
 		<br>
-		<span style="font-size: smaller;">
+		<span class="smalltext">
 			<a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2011, Simple Machines</a>
 		</span>
 		<br>
 		<br>
-		<span style="font-size: smaller; color: #CCCCCC;">
+		<span class="smalltext" style="color: #CCCCCC;">
 			*ssi_examples.shtml last modified on <!--#config timefmt="%m/%d/%y" --><!--#echo var="LAST_MODIFIED" -->
 		</span>
 
