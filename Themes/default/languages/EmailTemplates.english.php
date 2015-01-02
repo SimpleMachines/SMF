@@ -650,7 +650,7 @@ More replies may be posted, but you won\'t receive any more notifications until 
 	@description:
 */
 $txt['notification_sticky_subject'] = 'Topic stickied: {TOPICSUBJECT}';
-$txt['notification_sticky_body'] = 'A topic you are watching has been marked as a sticky topic by {POSTERNAME}.
+$txt['notification_sticky_body'] = 'A topic you are watching has been marked as a sticky topic.
 
 View the topic at: {TOPICLINK}
 
@@ -663,7 +663,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_lock_subject'] = 'Topic locked: {TOPICSUBJECT}';
-$txt['notification_lock_body'] = 'A topic you are watching has been locked by {POSTERNAME}.
+$txt['notification_lock_body'] = 'A topic you are watching has been locked.
 
 View the topic at: {TOPICLINK}
 
@@ -676,7 +676,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_unlock_subject'] = 'Topic unlocked: {TOPICSUBJECT}';
-$txt['notification_unlock_body'] = 'A topic you are watching has been unlocked by {POSTERNAME}.
+$txt['notification_unlock_body'] = 'A topic you are watching has been unlocked.
 
 View the topic at: {TOPICLINK}
 
@@ -689,7 +689,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_remove_subject'] = 'Topic removed: {TOPICSUBJECT}';
-$txt['notification_remove_body'] = 'A topic you are watching has been removed by {POSTERNAME}.
+$txt['notification_remove_body'] = 'A topic you are watching has been removed.
 
 {REGARDS}';
 
@@ -698,7 +698,7 @@ $txt['notification_remove_body'] = 'A topic you are watching has been removed by
 	@description:
 */
 $txt['notification_move_subject'] = 'Topic moved: {TOPICSUBJECT}';
-$txt['notification_move_body'] = 'A topic you are watching has been moved to another board by {POSTERNAME}.
+$txt['notification_move_body'] = 'A topic you are watching has been moved to another board.
 
 View the topic at: {TOPICLINK}
 
@@ -711,7 +711,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_merge_subject'] = 'Topic merged: {TOPICSUBJECT}';
-$txt['notification_merge_body'] = 'A topic you are watching has been merged with another topic by {POSTERNAME}.
+$txt['notification_merge_body'] = 'A topic you are watching has been merged with another topic.
 
 View the new merged topic at: {TOPICLINK}
 
@@ -724,7 +724,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_split_subject'] = 'Topic split: {TOPICSUBJECT}';
-$txt['notification_split_body'] = 'A topic you are watching has been split into two or more topics by {POSTERNAME}.
+$txt['notification_split_body'] = 'A topic you are watching has been split into two or more topics.
 
 View what remains of this topic at: {TOPICLINK}
 
