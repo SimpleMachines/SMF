@@ -568,6 +568,21 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	if (WIRELESS)
 		$base_url .= ';' . WIRELESS_PROTOCOL;
 
+	// Define some default page index settings if we don't already have it...
+	if (!isset($settings['page_index']))
+	{
+		// This defines the formatting for the page indexes used throughout the forum.
+		$settings['page_index'] = array(
+			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+			'previous_page' => '<span class="generic_icons previous_page"></span>',
+			'current_page' => '<span class="current_page">[%1$d]</span> ',
+			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+			'next_page' => '<span class="generic_icons next_page"></span>',
+			'extra_after' => '',
+		);
+	}
+
 	$base_link = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
 	$pageindex = $settings['page_index']['extra_before'];
 
