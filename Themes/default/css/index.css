@@ -284,11 +284,16 @@ h3.largetext {
 }
 .half_content {
 	box-sizing: border-box;
-	margin: 0 -0.25em;
 	padding: 0 0.3%;
 	width: 50%;
 	display: inline-block;
 	vertical-align: top;
+}
+.half_content:nth-of-type(even) {
+	margin: 0 -0.25em 0 0;
+}
+.half_content:nth-of-type(odd) {
+	margin: 0 0 0 -0.25em;
 }
 
 /* BBC */
@@ -630,6 +635,9 @@ table.table_grid {
 }
 table.table_grid td {
 	padding: 3px;
+}
+.table_grid.half_content {
+	width: 50%;
 }
 /* Some predefined widths (mostly for tables) */
 .half_table {
@@ -2486,9 +2494,6 @@ dl.stats dd span {
 	padding: 4px;
 	text-align: center;
 }
-#stats th.first_th {
-	padding-left: 8px;
-}
 #stats tr.windowbg2 th.lefttext {
 	border-left: 1px solid #fff;
 	text-align: left;
@@ -2790,6 +2795,14 @@ dl.addrules dt.floatleft {
 	overflow: auto;
 	box-sizing: border-box;
 }
+/* Here comes the glory... */
+.windowbg:nth-of-type(even) {
+	background: #f0f4f7;
+}
+.windowbg:nth-of-type(odd) {
+	background: #fdfdfd; /* needs new color */
+}
+
 /* Special treatment for #forumposts area */
 #forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;

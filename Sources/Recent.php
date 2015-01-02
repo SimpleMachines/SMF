@@ -357,7 +357,6 @@ function RecentPosts()
 		$context['posts'][$row['id_msg']] = array(
 			'id' => $row['id_msg'],
 			'counter' => $counter++,
-			'alternate' => $counter % 2,
 			'category' => array(
 				'id' => $row['id_cat'],
 				'name' => $row['cname'],

@@ -5,29 +5,21 @@
 #admin_content .windowbg {
 	margin: 5px 0 5px 0;
 	box-shadow: none;
-	background: #F8F8F8;
 }
 #admin_content .windowbg2 {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 	margin: 0 0 10px 0;
 	box-shadow: none;
-	background: #F8F8F8;
+	background: #f0f4f7;
 }
 
-.action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
+.action_admin .table_grid th {
 	padding: 6px 6px 5px 6px;
-	background: #fff;
 }
 .action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;
-}
-.action_admin .table_grid tr:nth-child(even) {
-	background: #fdfdfd;
-}
-.action_admin .table_grid tr:nth-child(odd) {
-	background: #f8f8f8;
 }
 .action_admin .generic_list .flow_auto {
 	padding: 4px 2px;
@@ -448,7 +440,7 @@ pre.file_content {
 #manage_boards li#recycle_board {
 	background-color: #dee;
 }
-#manage_boards li.redirect_board {
+#manage_boards li.redirect_board, #manage_boards li.redirect_board:hover {
 	background-color: #eed;
 }
 .move_links {
@@ -706,10 +698,6 @@ h3.config_hd {
 	border-radius: 0;
 	border-bottom: 0;
 	margin: 0 !important;
-}
-
-#postmod .windowbg2 {
-	text-align: center;
 }
 
 #versions .table_grid {

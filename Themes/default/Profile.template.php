@@ -401,7 +401,7 @@ function template_showPosts()
 		foreach ($context['posts'] as $post)
 		{
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+			<div class="windowbg">
 				<div class="counter">', $post['counter'], '</div>
 				<div class="topic_details">
 					<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
@@ -495,14 +495,11 @@ function template_showAlerts()
 		echo '
 		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
 
-		$alt = false;
 		$counter = 1;
 		foreach ($context['alerts'] as $id => $alert)
 		{
-			$alt = !$alt;
-
 			echo '
-			<tr class="', $alt ? 'windowbg' : 'windowbg2', '">
+			<tr class="windowbg">
 				<td>', $alert['text'], '</td>
 				<td>', $alert['time'], '</td>
 				<td>
@@ -563,7 +560,7 @@ function template_showDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+				<div class="windowbg">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
@@ -619,7 +616,7 @@ function template_editBuddies()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
+				<th scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -631,7 +628,7 @@ function template_editBuddies()
 				echo '<th scope="col">', $column['label'], '</th>';
 
 	echo '
-				<th class="last_th" scope="col">', $txt['remove'], '</th>
+				<th scope="col">', $txt['remove'], '</th>
 			</tr>';
 
 	// If they don't have any buddies don't list them!
@@ -644,11 +641,10 @@ function template_editBuddies()
 		// Now loop through each buddy showing info on each.
 	else
 	{
-		$alternate = false;
 		foreach ($context['buddies'] as $buddy)
 		{
 			echo '
-				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+				<tr class="windowbg">
 					<td>', $buddy['link'], '</td>
 					<td><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
 
@@ -665,8 +661,6 @@ function template_editBuddies()
 			echo '
 					<td><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
 				</tr>';
-
-			$alternate = !$alternate;
 		}
 	}
 
@@ -732,7 +726,7 @@ function template_editIgnoreList()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -740,7 +734,7 @@ function template_editIgnoreList()
 				<th scope="col">', $txt['email'], '</th>';
 
 	echo '
-				<th class="last_th" scope="col">', $txt['ignore_remove'] ,'</th>
+				<th scope="col">', $txt['ignore_remove'] ,'</th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
@@ -751,11 +745,10 @@ function template_editIgnoreList()
 			</tr>';
 
 	// Now loop through each buddy showing info on each.
-	$alternate = false;
 	foreach ($context['ignore_list'] as $member)
 	{
 		echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+			<tr class="windowbg">
 				<td>', $member['link'], '</td>
 				<td><a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a></td>';
 
@@ -765,8 +758,6 @@ function template_editIgnoreList()
 		echo '
 				<td><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
-
-		$alternate = !$alternate;
 	}
 
 	echo '
@@ -923,8 +914,8 @@ function template_trackIP()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
-					<th class="last_th" scope="col">', $txt['display_name'], '</th>
+					<th scope="col">', $txt['ip_address'], '</th>
+					<th scope="col">', $txt['display_name'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -955,7 +946,6 @@ function template_trackIP()
 function template_showPermissions()
 {
 	global $context, $scripturl, $txt;
-	$alternate = true;
 
 	echo '
 		<div class="cat_bar">
@@ -1002,8 +992,8 @@ function template_showPermissions()
 					<table class="table_grid">
 						<thead>
 							<tr class="title_bar">
-								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
+								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 							</tr>
 						</thead>
 						<tbody>';
@@ -1011,7 +1001,7 @@ function template_showPermissions()
 			foreach ($context['member']['permissions']['general'] as $permission)
 			{
 				echo '
-							<tr class="windowbg', $alternate ? '2' : '', '">
+							<tr class="windowbg">
 								<td title="', $permission['id'], '">
 									', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 								</td>
@@ -1027,7 +1017,6 @@ function template_showPermissions()
 					echo '
 								</td>
 							</tr>';
-			$alternate = !$alternate;
 			}
 			echo '
 						</tbody>
@@ -1067,15 +1056,15 @@ function template_showPermissions()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
+							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
 			foreach ($context['member']['permissions']['board'] as $permission)
 			{
 				echo '
-						<tr class="windowbg', $alternate ? '2' : '', '">
+						<tr class="windowbg">
 							<td title="', $permission['id'], '">
 								', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 							</td>
@@ -1094,7 +1083,6 @@ function template_showPermissions()
 				echo '
 							</td>
 						</tr>';
-			$alternate = !$alternate;
 			}
 			echo '
 					</tbody>
@@ -1745,7 +1733,6 @@ function template_alert_configuration()
 					<td>', $txt['receive_alert'], '</td>
 					<td>', $txt['receive_mail'], '</td>
 				</tr>';
-	$use_bg2 = true;
 
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
@@ -1798,7 +1785,7 @@ function template_alert_configuration()
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
-				<tr class="windowbg', $use_bg2 ? '2' : '', '">
+				<tr class="windowbg">
 					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="generic_icons help" title="'. $txt['help'].'"></span>' : '', '</td>';
 
 			foreach ($context['alert_bits'] as $type => $bitmask)
@@ -1827,8 +1814,6 @@ function template_alert_configuration()
 
 			echo '
 				</tr>';
-
-			$use_bg2 = !$use_bg2;
 		}
 	}
 
@@ -1929,11 +1914,10 @@ function template_groupMembership()
 				<h3 class="titlebg">', $txt['current_membergroups'], '</h3>
 			</div>';
 
-		$alternate = true;
 		foreach ($context['groups']['member'] as $group)
 		{
 			echo '
-					<div class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
+					<div class="windowbg" id="primdiv_', $group['id'], '">';
 
 				if ($context['can_edit_primary'])
 					echo '
@@ -1949,7 +1933,6 @@ function template_groupMembership()
 
 				echo '
 					</div>';
-			$alternate = !$alternate;
 		}
 
 		if ($context['can_edit_primary'])
@@ -1966,11 +1949,10 @@ function template_groupMembership()
 						<h3 class="titlebg">', $txt['available_groups'], '</h3>
 					</div>';
 
-			$alternate = true;
 			foreach ($context['groups']['available'] as $group)
 			{
 				echo '
-					<div class="', $alternate ? 'windowbg' : 'windowbg2', '">
+					<div class="windowbg">
 						<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
 				if ($group['type'] == 3)
@@ -1985,7 +1967,6 @@ function template_groupMembership()
 
 				echo '
 					</div>';
-				$alternate = !$alternate;
 			}
 		}
 

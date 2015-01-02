@@ -34,7 +34,7 @@ function template_recent()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
+			<div class="windowbg">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>

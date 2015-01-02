@@ -94,7 +94,7 @@ function template_select()
 
 	foreach ($context['not_selected']['messages'] as $message)
 		echo '
-					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="not_selected_', $message['id'], '">
+					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><span class="generic_icons split_sel" title="-&gt;"></span></a>
 							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
@@ -124,7 +124,7 @@ function template_select()
 	if (!empty($context['selected']['messages']))
 		foreach ($context['selected']['messages'] as $message)
 			echo '
-					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="selected_', $message['id'], '">
+					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><span class="generic_icons split_desel" title="&lt;-"></span></a>
 							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
@@ -376,11 +376,11 @@ function template_merge_extra_options()
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" class="first_th" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" width="10px">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
-						<th scope="col" class="last_th" width="20px">' . $txt['merge_include_notifications'] . '</th>
+						<th scope="col" width="20px">' . $txt['merge_include_notifications'] . '</th>
 					</tr>
 				</thead>
 				<tbody>';

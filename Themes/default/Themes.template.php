@@ -300,17 +300,13 @@ function template_reset_list()
 		<div id="admin_form_wrapper">';
 
 	// Show each theme.... with X for delete and a link to settings.
-	$alternate = false;
-
 	foreach ($context['themes'] as $theme)
 	{
-		$alternate = !$alternate;
-
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', $theme['name'], '</h3>
 			</div>
-			<div class="windowbg2">
+			<div class="windowbg">
 				<ul class="reset">
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
@@ -815,11 +811,8 @@ function template_edit_list()
 		</div>
 		<br>';
 
-	$alternate = false;
-
 	foreach ($context['themes'] as $theme)
 	{
-		$alternate = !$alternate;
 
 		echo '
 		<div class="cat_bar">
@@ -828,7 +821,7 @@ function template_edit_list()
 				<em>(' . $theme['version'] . ')</em>' : '', '
 			</h3>
 		</div>
-		<div class="windowbg2">
+		<div class="windowbg">
 			<ul class="reset">
 				<li><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit">', $txt['themeadmin_edit_browse'], '</a></li>', $theme['can_edit_style'] ? '
 				<li><a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=css">' . $txt['themeadmin_edit_style'] . '</a></li>' : '', '
@@ -856,13 +849,11 @@ function template_copy_template()
 		<div class="windowbg">
 			<ul class="theme_options">';
 
-	$alternate = false;
 	foreach ($context['available_templates'] as $template)
 	{
-		$alternate = !$alternate;
 
 		echo '
-				<li class="reset flow_hidden windowbg', $alternate ? '2' : '', '">
+				<li class="reset flow_hidden windowbg">
 					<span class="floatleft">', $template['filename'], $template['already_exists'] ? ' <span class="error">(' . $txt['themeadmin_edit_exists'] . ')</span>' : '', '</span>
 					<span class="floatright">';
 
@@ -899,21 +890,18 @@ function template_edit_browse()
 		<table class="table_grid tborder">
 		<thead>
 			<tr class="title_bar">
-				<th class="lefttext first_th" scope="col" width="50%">', $txt['themeadmin_edit_filename'], '</th>
+				<th class="lefttext" scope="col" width="50%">', $txt['themeadmin_edit_filename'], '</th>
 				<th scope="col" width="35%">', $txt['themeadmin_edit_modified'], '</th>
-				<th class="last_th" scope="col" width="15%">', $txt['themeadmin_edit_size'], '</th>
+				<th scope="col" width="15%">', $txt['themeadmin_edit_size'], '</th>
 			</tr>
 		</thead>
 		<tbody>';
 
-	$alternate = false;
-
 	foreach ($context['theme_files'] as $file)
 	{
-		$alternate = !$alternate;
 
 		echo '
-			<tr class="windowbg', $alternate ? '2' : '', '">
+			<tr class="windowbg">
 				<td>';
 
 		if ($file['is_editable'])

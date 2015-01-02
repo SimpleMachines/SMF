@@ -2267,7 +2267,7 @@ function alert_notifications_topics($memID)
 			'subject' => array(
 				'header' => array(
 					'value' => $txt['notifications_topics'],
-					'class' => 'lefttext first_th',
+					'class' => 'lefttext',
 				),
 				'data' => array(
 					'function' => function ($topic) use ($txt)
@@ -2414,7 +2414,7 @@ function alert_notifications_boards($memID)
 			'board_name' => array(
 				'header' => array(
 					'value' => $txt['notifications_boards'],
-					'class' => 'lefttext first_th',
+					'class' => 'lefttext',
 				),
 				'data' => array(
 					'function' => function ($board) use ($txt)

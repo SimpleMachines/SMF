@@ -143,7 +143,7 @@
 	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.smalltext.last_th, th.id_group, th.registered,
+	#siteslogan, th.id_group, th.registered,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
 		display: none !important;

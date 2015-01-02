@@ -139,9 +139,9 @@ function template_search_members()
 				<table width="49%" class="table_grid floatleft">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
+							<th scope="col">', $txt['membergroups'], '</th>
 							<th scope="col" class="centercol">', $txt['primary'], '</th>
-							<th scope="col" class="last_th centercol">', $txt['additional'], '</th>
+							<th scope="col" class="centercol">', $txt['additional'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -176,10 +176,10 @@ function template_search_members()
 				<table width="49%" class="table_grid floatright">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="first_th">
+							<th scope="col">
 								', $txt['membergroups_postgroups'], '
 							</th>
-							<th class="last_th">&nbsp;</th>
+							<th>&nbsp;</th>
 						</tr>
 					</thead>
 					<tbody>';

@@ -131,16 +131,15 @@ function template_view_package()
 			<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th" scope="col" width="20"></th>
+					<th scope="col" width="20"></th>
 					<th scope="col" width="30"></th>
 					<th scope="col" class="lefttext">', $txt['package_install_type'], '</th>
 					<th scope="col" class="lefttext" width="50%">', $txt['package_install_action'], '</th>
-					<th class="last_th lefttext" scope="col" width="20%">', $txt['package_install_desc'], '</th>
+					<th class="lefttext" scope="col" width="20%">', $txt['package_install_desc'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
 
-		$alternate = true;
 		$i = 1;
 		$action_num = 1;
 		$js_operations = array();
@@ -150,7 +149,7 @@ function template_view_package()
 			$js_operations[$action_num] = isset($packageaction['failed']) ? $packageaction['failed'] : 0;
 
 			echo '
-				<tr class="windowbg', $alternate ? '' : '2', '">
+				<tr class="windowbg">
 					<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
 					<td>', $i++, '.</td>
 					<td>', $packageaction['type'], '</td>
@@ -167,7 +166,6 @@ function template_view_package()
 						<table width="100%">';
 
 				// Show the operations.
-				$alternate2 = true;
 				$operation_num = 1;
 				foreach ($packageaction['operations'] as $operation)
 				{
@@ -175,7 +173,7 @@ function template_view_package()
 					$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 					echo '
-							<tr class="windowbg', $alternate2 ? '' : '2', '">
+							<tr class="windowbg">
 								<td width="0"></td>
 								<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 680, 400, false);"><span class="generic_icons package_ops"></span></a></td>
 								<td width="30" class="smalltext">', $operation_num, '.</td>
@@ -185,7 +183,6 @@ function template_view_package()
 							</tr>';
 
 					$operation_num++;
-					$alternate2 = !$alternate2;
 				}
 
 				echo '
@@ -196,7 +193,6 @@ function template_view_package()
 				// Increase it.
 				$action_num++;
 			}
-			$alternate = !$alternate;
 		}
 					echo '
 			</tbody>
@@ -242,7 +238,7 @@ function template_view_package()
 				foreach ($theme['actions'] as $action)
 				{
 					echo '
-					<tr class="windowbg', $alternate ? '' : '2', '">
+					<tr class="windowbg">
 						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . $settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
 						<td width="30">
 							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '" class="input_check"', (!empty($action['not_mod']) ? '' : ' disabled'), !empty($context['themes_locked']) ? ' checked' : '', '>
@@ -260,7 +256,6 @@ function template_view_package()
 						<td colspan="5" class="windowbg2">
 							<table width="100%">';
 
-						$alternate2 = true;
 						$operation_num = 1;
 						foreach ($action['operations'] as $operation)
 						{
@@ -268,7 +263,7 @@ function template_view_package()
 							$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 							echo '
-								<tr class="windowbg', $alternate2 ? '' : '2', '">
+								<tr class="windowbg">
 									<td width="0"></td>
 									<td width="30" class="smalltext"><a href="' . $scripturl . '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty($context['install_id']) ? ';install_id=' . $context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);"><span class="generic_icons package_ops"></span></a></td>
 									<td width="30" class="smalltext">', $operation_num, '.</td>
@@ -277,7 +272,6 @@ function template_view_package()
 									<td width="20%" class="smalltext">', $operation['description'], !empty($operation['ignore_failure']) ? ' (' . $txt['operation_ignore'] . ')' : '', '</td>
 								</tr>';
 							$operation_num++;
-							$alternate2 = !$alternate2;
 						}
 
 						echo '
@@ -289,8 +283,6 @@ function template_view_package()
 						$action_num++;
 					}
 				}
-
-				$alternate = !$alternate;
 			}
 
 			echo '
@@ -868,8 +860,6 @@ function template_package_list()
 			echo '
 					<', $context['list_type'], ' id="package_section_', $i, '" class="packages">';
 
-			$alt = false;
-
 			foreach ($packageSection['items'] as $id => $package)
 			{
 				echo '
@@ -926,7 +916,7 @@ function template_package_list()
 							<li class="package_section"><div class="information">', $txt['package_description'], ':&nbsp; ', $package['description'], '</div></li>
 						</ul>';
 				}
-				$alt = !$alt;
+
 				echo '
 					</li>';
 			}
@@ -1495,13 +1485,13 @@ function template_file_permissions()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th lefttext" width="30%">&nbsp;', $txt['package_file_perms_name'], '&nbsp;</th>
+					<th class="lefttext" width="30%">&nbsp;', $txt['package_file_perms_name'], '&nbsp;</th>
 					<th width="30%" class="lefttext">', $txt['package_file_perms_status'], '</th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_read'], '</span></th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_write'], '</span></th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_execute'], '</span></th>
 					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_custom'], '</span></th>
-					<th class="last_th" width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
+					<th width="8%"><span class="filepermissions">', $txt['package_file_perms_status_no_change'], '</span></th>
 				</tr>
 			</thead>
 			<tbody>';
