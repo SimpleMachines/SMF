@@ -1435,21 +1435,10 @@ function prepareDisplayContext($reset = false)
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
 
-	// Quick array to avoid unnecessary iterations.
-	$cust_placement = array(
-		'standard',
-		'icons',
-		'above_signature',
-		'below_signature',
-		'below_avatar',
-		'above_member',
-		'bottom_poster',
-	);
-
 	// Any custom profile fields?
 	if (!empty($memberContext[$message['id_member']]['custom_fields']))
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
-			$output['custom_fields'][$cust_placement[$custom['placement']]][] = $custom;
+			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 

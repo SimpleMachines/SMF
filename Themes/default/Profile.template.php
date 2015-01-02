@@ -391,7 +391,7 @@ function template_summary()
 				</dl>';
 
 	// Are there any custom profile fields for above the signature?
-	if ($context['print_custom_fields']['above_signature'])
+	if (!empty($context['print_custom_fields']['above_signature']))
 	{
 		echo '
 				<div class="custom_fields_above_signature">

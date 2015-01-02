@@ -254,6 +254,17 @@ function reloadSettings()
 	// Define a list of icons used across multiple places.
 	$context['stable_icons'] = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 
+	// Define an array for custom profile fields placements.
+	$context['cust_profile_fields_placement'] = array(
+		'standard',
+		'icons',
+		'above_signature',
+		'below_signature',
+		'below_avatar',
+		'above_member',
+		'bottom_poster',
+	);
+
 	// Add your own icons.
 	call_integration_hook('integrate_stable_icons');
 
