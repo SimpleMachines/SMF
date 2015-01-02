@@ -109,7 +109,7 @@ function template_permission_index()
 			<div id="permissions_panel_advanced" class="windowbg2">
 				<fieldset>
 					<legend>', $txt['permissions_with_selection'], '</legend>
-					<dl class="settings admin_permissions">
+					<dl class="settings">
 						<dt>
 							<a class="help" href="', $scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="generic_icons help" title="', $txt['help'],'"></span></a>', $txt['permissions_apply_pre_defined'], ':
 						</dt>
@@ -668,7 +668,7 @@ function template_inline_permissions()
 												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', $txt['avatar_select_permission'], '</a></legend>';
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
-												<ul class="permission_groups">';
+												<ul class="reset">';
 	else
 		echo '
 												<div class="information">', $txt['permissions_option_desc'], '</div>

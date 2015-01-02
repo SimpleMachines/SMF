@@ -481,21 +481,7 @@ fieldset.qa_fieldset {
 	display: none;
 }
 
-/* Styles for the manage calendar section. */
-dl.settings dt.small_caption {
-	width: 20%;
-}
-dl.settings dd.small_caption {
-	width: 79%;
-}
-
 /* Styles for the manage search section. */
-dl.settings dt.large_caption {
-	width: 70%;
-}
-dl.settings dd.large_caption {
-	width: 29%;
-}
 span.search_weight {
 	width: 40px;
 	padding: 0 0.5em;
@@ -544,29 +530,6 @@ span.search_weight {
 }
 .perm_groups {
 	background-color: #fff;
-}
-table.table_grid.perm_grid {
-	margin: 0.2em;
-	width: 49%;
-}
-.perm_grid img {
-	vertical-align: middle;
-	width: 16px;
-}
-dl.admin_permissions dt {
-	width: 35%;
-}
-dl.admin_permissions dd {
-	width: 64%;
-}
-.permission_groups {
-	padding: 0;
-	margin: 0;
-}
-.permission_groups li {
-	list-style-type: none;
-	padding: 0.2em;
-	margin: 1px;
 }
 .perms {
 	width: 20px;

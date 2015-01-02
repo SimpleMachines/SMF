@@ -150,9 +150,10 @@
 	}
 
 	/* Admin */
-	#permissions table.table_grid.perm_grid {
-		margin: 0 !important;
-		width: 100% !important;
+	.table_grid.half_content {
+		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 }
 

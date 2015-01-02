@@ -44,7 +44,6 @@ function template_recent()
 
 		if ($post['can_reply'] || $post['can_delete'])
 			echo '
-				<div class="quickbuttons_wrap">
 					<ul class="reset smalltext quickbuttons">';
 
 		// If they *can* reply?
@@ -64,8 +63,7 @@ function template_recent()
 
 		if ($post['can_reply'] || $post['can_delete'])
 			echo '
-					</ul>
-				</div>';
+					</ul>';
 
 		echo '
 			</div>';

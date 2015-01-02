@@ -443,7 +443,6 @@ function template_results()
 
 			if ($topic['can_reply'])
 				echo '
-					<div class="quickbuttons_wrap">
 						<ul class="reset smalltext quickbuttons">';
 
 				// If they *can* reply?
@@ -458,8 +457,7 @@ function template_results()
 
 			if ($topic['can_reply'])
 				echo '
-						</ul>
-					</div>';
+						</ul>';
 			echo '
 					<br class="clear">
 				</div>
