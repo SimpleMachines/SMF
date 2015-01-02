@@ -1435,33 +1435,21 @@ function prepareDisplayContext($reset = false)
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
 
+	// Quick array to avoid unnecessary iterations.
+	$cust_placement = array(
+		'standard',
+		'icons',
+		'above_signature',
+		'below_signature',
+		'below_avatar',
+		'above_member',
+		'bottom_poster',
+	);
 
 	// Any custom profile fields?
 	if (!empty($memberContext[$message['id_member']]['custom_fields']))
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
-			switch ($custom['placement'])
-			{
-				case 1:
-					$output['custom_fields']['icons'][] = $custom;
-					break;
-				case 2:
-					$output['custom_fields']['above_signature'][] = $custom;
-					break;
-				case 3:
-					$output['custom_fields']['below_signature'][] = $custom;
-					break;
-				case 4:
-					$output['custom_fields']['below_avatar'][] = $custom;
-					break;
-				case 5:
-					$output['custom_fields']['above_member'][] = $custom;
-					break;
-				case 6:
-					$output['custom_fields']['bottom_poster'][] = $custom;
-					break;
-				default:
-					$output['custom_fields']['standard'][] = $custom;
-			}
+			$output['custom_fields'][$cust_placement[$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 
