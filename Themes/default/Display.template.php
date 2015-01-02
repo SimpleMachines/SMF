@@ -274,7 +274,7 @@ function template_main()
 
 						aJumpTo[aJumpTo.length] = new JumpTo({
 							sContainerId: "display_jump_to",
-							sJumpToTemplate: "<label class=\"smalltext\" for=\"%select_id%\">', $context['jump_to']['label'], ':<" + "/label> %dropdown_list%",
+							sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', $context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 							iCurBoardId: ', $context['current_board'], ',
 							iCurBoardChildLevel: ', $context['jump_to']['child_level'], ',
 							sCurBoardName: "', $context['jump_to']['board_name'], '",
