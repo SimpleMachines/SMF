@@ -234,9 +234,6 @@ function reloadSettings()
 		}
 	}
 
-	// Call pre load integration functions.
-	call_integration_hook('integrate_pre_load');
-
 	// This determines the server... not used in many places, except for login fixing.
 	$context['server'] = array(
 		'is_iis' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false,
@@ -265,9 +262,6 @@ function reloadSettings()
 		'bottom_poster',
 	);
 
-	// Add your own icons.
-	call_integration_hook('integrate_stable_icons');
-
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
 	{
@@ -280,6 +274,9 @@ function reloadSettings()
 		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
 		$smcFunc['db_free_result']($query);
 	}
+
+	// Call pre load integration functions.
+	call_integration_hook('integrate_pre_load');
 }
 
 /**
