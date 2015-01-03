@@ -84,7 +84,7 @@ function template_main()
 	if (empty($context['members']))
 	{
 		echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td colspan="3">
 							', $txt['who_no_online_' . ($context['show_by'] == 'guests' || $context['show_by'] == 'spiders' ? $context['show_by'] : 'members')], '
 							</td>

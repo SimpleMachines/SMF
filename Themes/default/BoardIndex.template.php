@@ -265,7 +265,7 @@ function template_ic_block_recent()
 	{
 		echo '
 				<table id="ic_recentposts">
-					<tr>
+					<tr class="windowbg">
 						<th class="recentpost">', $txt['message'], '</th>
 						<th class="recentposter">', $txt['author'], '</th>
 						<th class="recentboard">', $txt['board'], '</th>
@@ -277,7 +277,7 @@ function template_ic_block_recent()
 				subject, short_subject (shortened with...), time, link, and href. */
 		foreach ($context['latest_posts'] as $post)
 			echo '
-					<tr>
+					<tr class="windowbg">
 						<td class="recentpost"><strong>', $post['link'], '</strong></td>
 						<td class="recentposter">', $post['poster']['link'], '</td>
 						<td class="recentboard">', $post['board']['link'], '</td>
