@@ -546,7 +546,7 @@ function updateSettings($changeArray, $update = false)
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $modSettings, $context, $smcFunc, $settings;
+	global $modSettings, $context, $smcFunc, $settings, $txt;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
