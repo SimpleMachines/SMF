@@ -1808,6 +1808,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
+	vertical-align: middle;
 }
 
 /* Top row */
