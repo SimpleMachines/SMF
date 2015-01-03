@@ -22,6 +22,7 @@
 .sy-list.vertical{-moz-transition:top ease;-o-transition:top ease;-webkit-transition:top ease;transition:top ease}
 .sy-slide{position:absolute;width:100%;z-index:2}
 .sy-slide.sy-active{z-index:3}
+.sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;}
 .sy-pager{overflow:hidden;*zoom:1;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
 .sy-pager li{display:inline-block;width:1.2em;height:1.2em;margin:0 1em 0 0;-moz-border-radius:50%;-webkit-border-radius:50%;border-radius:50%}
 .sy-pager li.sy-active a{background-color:#557EA0}

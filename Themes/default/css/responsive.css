@@ -143,16 +143,17 @@
 	}
 	/* Hide me */
 	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.smalltext.last_th, th.id_group, th.registered,
+	#siteslogan, th.id_group, th.registered,
 	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
 	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
 		display: none !important;
 	}
 
 	/* Admin */
-	#permissions table.table_grid.perm_grid {
-		margin: 0 !important;
-		width: 100% !important;
+	.table_grid.half_content {
+		width: 100%;
+		margin: 0;
+		padding: 0;
 	}
 }
 

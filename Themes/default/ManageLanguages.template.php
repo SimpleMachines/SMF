@@ -74,7 +74,7 @@ function template_download_language()
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th class="first_th" scope="col">
+						<th scope="col">
 							', $txt['languages_download_filename'], '
 						</th>
 						<th scope="col" style="width: 100px">
@@ -83,7 +83,7 @@ function template_download_language()
 						<th scope="col" style="width: 100px">
 							', $txt['languages_download_exists'], '
 						</th>
-						<th class="last_th centercol" scope="col" style="width: 4%">
+						<th class="centercol" scope="col" style="width: 4%">
 							', $txt['languages_download_copy'], '
 						</th>
 					</tr>
@@ -100,11 +100,10 @@ function template_download_language()
 					</td>
 				</tr>';
 
-		$alternate = false;
 		foreach ($group as $file)
 		{
 			echo '
-				<tr class="windowbg', $alternate ? '2' : '', '" id="', $theme, '-', $count++, '">
+				<tr class="windowbg" id="', $theme, '-', $count++, '">
 					<td>
 						<strong>', $file['name'], '</strong><br>
 						<span class="smalltext">', $txt['languages_download_dest'], ': ', $file['destination'], '</span>
@@ -119,7 +118,6 @@ function template_download_language()
 						<input type="checkbox" name="copy_file[]" value="', $file['generaldest'], '"', ($file['default_copy'] ? ' checked' : ''), ' class="input_check">
 					</td>
 				</tr>';
-			$alternate = !$alternate;
 		}
 	}
 
@@ -373,11 +371,11 @@ function template_modify_language_entries()
 					</dd>
 					<dt>
 						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
+						<textarea name="entry[', $cached['key'], ']" cols="40" rows="', $cached['rows'] < 2 ? 2 : $cached['rows'], '" style="width: 96%;">', $cached['value'], '</textarea>
 					</dt>
 					<dd>
 						<input type="hidden" name="comp[', $entry['key'], ']" value="', $entry['value'], '">
-						<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $entry['value'], '</textarea>
+						<textarea name="entry[', $entry['key'], ']" cols="40" rows="', $entry['rows'] < 2 ? 2 : $entry['rows'], '" style="width: 96%;">', $entry['value'], '</textarea>
 					</dd>';
 			$cached = array();
 		}
@@ -395,7 +393,7 @@ function template_modify_language_entries()
 					</dd>
 					<dt>
 						<input type="hidden" name="comp[', $cached['key'], ']" value="', $cached['value'], '">
-						<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 96%; min-width: 96%' : 'width: 96%') . ';">', $cached['value'], '</textarea>
+						<textarea name="entry[', $cached['key'], ']" cols="40" rows="2" style="width: 96%;">', $cached['value'], '</textarea>
 					</dt>
 					<dd>
 					</dd>';

@@ -5,29 +5,21 @@
 #admin_content .windowbg {
 	margin: 5px 0 5px 0;
 	box-shadow: none;
-	background: #F8F8F8;
 }
 #admin_content .windowbg2 {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 	margin: 0 0 10px 0;
 	box-shadow: none;
-	background: #F8F8F8;
+	background: #f0f4f7;
 }
 
-.action_admin .table_grid th, .action_admin .table_grid .first_th, .action_admin .table_grid .last_th {
+.action_admin .table_grid th {
 	padding: 6px 6px 5px 6px;
-	background: #fff;
 }
 .action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;
-}
-.action_admin .table_grid tr:nth-child(even) {
-	background: #fdfdfd;
-}
-.action_admin .table_grid tr:nth-child(odd) {
-	background: #f8f8f8;
 }
 .action_admin .generic_list .flow_auto {
 	padding: 4px 2px;
@@ -448,7 +440,7 @@ pre.file_content {
 #manage_boards li#recycle_board {
 	background-color: #dee;
 }
-#manage_boards li.redirect_board {
+#manage_boards li.redirect_board, #manage_boards li.redirect_board:hover {
 	background-color: #eed;
 }
 .move_links {
@@ -489,21 +481,7 @@ fieldset.qa_fieldset {
 	display: none;
 }
 
-/* Styles for the manage calendar section. */
-dl.settings dt.small_caption {
-	width: 20%;
-}
-dl.settings dd.small_caption {
-	width: 79%;
-}
-
 /* Styles for the manage search section. */
-dl.settings dt.large_caption {
-	width: 70%;
-}
-dl.settings dd.large_caption {
-	width: 29%;
-}
 span.search_weight {
 	width: 40px;
 	padding: 0 0.5em;
@@ -552,29 +530,6 @@ span.search_weight {
 }
 .perm_groups {
 	background-color: #fff;
-}
-table.table_grid.perm_grid {
-	margin: 0.2em;
-	width: 49%;
-}
-.perm_grid img {
-	vertical-align: middle;
-	width: 16px;
-}
-dl.admin_permissions dt {
-	width: 35%;
-}
-dl.admin_permissions dd {
-	width: 64%;
-}
-.permission_groups {
-	padding: 0;
-	margin: 0;
-}
-.permission_groups li {
-	list-style-type: none;
-	padding: 0.2em;
-	margin: 1px;
 }
 .perms {
 	width: 20px;
@@ -706,10 +661,6 @@ h3.config_hd {
 	border-radius: 0;
 	border-bottom: 0;
 	margin: 0 !important;
-}
-
-#postmod .windowbg2 {
-	text-align: center;
 }
 
 #versions .table_grid {

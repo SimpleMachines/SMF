@@ -284,27 +284,32 @@ h3.largetext {
 }
 .half_content {
 	box-sizing: border-box;
-	margin: 0 -0.25em;
 	padding: 0 0.3%;
 	width: 50%;
 	display: inline-block;
 	vertical-align: top;
 }
+.half_content:nth-of-type(even) {
+	margin: 0 -0.25em 0 0;
+}
+.half_content:nth-of-type(odd) {
+	margin: 0 0 0 -0.25em;
+}
 
 /* BBC */
 /* A quote, perhaps from another post. */
-.bbc_standard_quote:before, .bbc_alternate_quote:before {
+.bbc_standard_quote::before, .bbc_alternate_quote::before {
 	color: #aaa;
 	font-size: 22px;
 	content: '\275D';
 	margin: -5px 5px 0 -5px;
 }
 /* Remove the difference IE/Opera/Chrome/Firefox etc... */
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
+#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before {
 	font-size: 30px;
 }
-#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
-#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
+#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before,
+#chrome .bbc_standard_quote::before, #chrome .bbc_alternate_quote::before {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -404,18 +409,17 @@ a img {
 }
 
 /* Those collapse and expand icons are wonderful. */
-.toggle_up:before, .toggle_down:before {
+.toggle_up::before, .toggle_down::before {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
 	background: url(../images/toggle.png) no-repeat 0 0;
-	text-indent: -100em;
 	overflow: hidden;
 	content: '';
 	vertical-align: middle;
 	margin: -5px 5px 0 5px;
 }
-.toggle_down:before {
+.toggle_down::before {
 	background-position: 0 -17px;
 }
 
@@ -450,6 +454,9 @@ a img {
 	overflow: hidden;
 	margin: 0;
 	clear: both;
+}
+.pages::after, .jump_to::after {
+	content: ": ";
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
@@ -500,7 +507,7 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 }
 
 /* Posts and personal messages displayed throughout the forum. */
-.post, .personalmessage {
+.post {
 	overflow: auto;
 	line-height: 1.4em;
 	padding: 1px 0;
@@ -631,6 +638,9 @@ table.table_grid {
 table.table_grid td {
 	padding: 3px;
 }
+.table_grid.half_content {
+	width: 50%;
+}
 /* Some predefined widths (mostly for tables) */
 .half_table {
 	width: 50%;
@@ -716,7 +726,7 @@ img.sort, .sort {
 	position: relative;
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
-.dropmenu li .amt, #top_info li .amt {
+.amt {
 	margin-left: 3px;
 	padding: 0 5px;
 	color: white;
@@ -961,7 +971,7 @@ img.sort, .sort {
 .dropmenu li li:hover ul, .dropmenu li li ul {
 	left: -14px;
 }
-.dropmenu li li.subsections > a:after {
+.dropmenu li li.subsections > a::after {
 	position: absolute;
 	top: 0.7em;
 	right: 2px;
@@ -1071,7 +1081,7 @@ img.sort, .sort {
 #top_section .frame{
 	clear: both;
 }
-#top_section .frame:after {
+#top_section .frame::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1134,7 +1144,7 @@ img.sort, .sort {
 #header {
 	padding: 2px 2px 12px 2px;
 }
-#header:after {
+#header::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1184,7 +1194,7 @@ img#smflogo {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
 }
-#inner_section:after {
+#inner_section::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1285,7 +1295,7 @@ ul li.greeting {
 #main_content_section {
 	padding: 5px 12px 16px 12px;
 }
-#main_content_section:after {
+#main_content_section::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1346,87 +1356,82 @@ ul li.greeting {
 }
 
 /* The quick buttons */
-div.quickbuttons_wrap {
-	padding: 2px 0;
-	width: 100%;
-	float: left;
-}
-
-ul.quickbuttons {
+.quickbuttons {
 	margin: 11px 0 0 0;
 	padding: 0 0 4px 0;
 	clear: right;
 	float: right;
 	text-align: right;
 }
-ul.quickbuttons li {
+.quickbuttons li {
 	float: left;
 	display: inline;
 	margin: 0;
 	font-size: 0.9em;
 }
-ul.quickbuttons li a {
+.quickbuttons li a {
 	padding: 0 4px 0 5px;
 	display: block;
 	line-height: 1.9em;
 	float: left;
+	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
 }
-ul.quickbuttons li a img {
+.quickbuttons li a img {
 	padding-bottom: 2px;
 }
-ul.quickbuttons li input {
+.quickbuttons li input {
 	margin-top: 4px;
 }
-ul.quickbuttons a:hover {
+.quickbuttons a:hover {
 	color: #a70;
 }
-ul.quickbuttons li a.quote_button {
-	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
+.quickbuttons li a.quote_button {
+	background-position: 0 -1px;
 	padding: 0 2px 0 20px;
 }
 /* Fix for quote on reply box */
 #post_modify {
 	border-radius: 4px;
 }
-ul.quickbuttons li a.modifybutton {
-	background: url(../images/quickbuttons.png) no-repeat 0 -59px;
+.quickbuttons li a.modifybutton {
+	background-position: 0 -59px;
 	padding: 0 2px 0 20px;
 }
-ul.quickbuttons li a.remove_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -29px;
+.quickbuttons li a.remove_button {
+	background-position: 2px -29px;
 	padding: 0 2px 0 25px;
 }
-ul.quickbuttons li a.modify_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -59px;
+.quickbuttons li a.modify_button {
+	background-position: 2px -59px;
 }
-ul.quickbuttons li a.approve_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -88px;
+.quickbuttons li a.approve_button {
+	background-position: 2px -88px;
 }
-ul.quickbuttons li a.restore_button {
-	background: url(../images/quickbuttons.png) no-repeat 0 -120px;
+.quickbuttons li a.restore_button {
+	background-position: 0 -120px;
 }
-ul.quickbuttons li a.split_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -149px;
+.quickbuttons li a.split_button {
+	background-position: 2px -149px;
 }
-ul.quickbuttons li a.reply_button {
-	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
+.quickbuttons li a.reply_button {
+	background-position: 0 -180px;
 	padding: 0px 4px 0px 22px;
 }
-ul.quickbuttons li a.reply_all_button {
-	background: url(../images/quickbuttons.png) no-repeat 0 -180px;
+.quickbuttons li a.reply_all_button {
+	background-position: 0 -180px;
 	padding: 0px 4px 0px 22px;
 }
-ul.quickbuttons li a.notify_button {
-	background: url(../images/quickbuttons.png) no-repeat 1px -210px;
+.quickbuttons li a.notify_button {
+	background-position: 1px -210px;
 	padding: 0 4px 0 22px;
 }
-ul.quickbuttons li a.unapprove_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -238px;
+.quickbuttons li a.unapprove_button {
+	background-position: 2px -238px;
 }
-ul.quickbuttons li a.warn_button {
-	background: url(../images/quickbuttons.png) no-repeat 2px -270px;
+.quickbuttons li a.warn_button {
+	background-position: 2px -270px;
 }
-ul.quickbuttons li.inline_mod_check {
+.quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
 }
 .quickbuttons li {
@@ -1511,7 +1516,7 @@ ul.quickbuttons li.inline_mod_check {
 	box-sizing: border-box;
 }
 /* Sub buttons doesn't need to be effected by first-child/last-child */
-ul.quickbuttons li > ul > li {
+.quickbuttons li > ul > li {
 	border-radius: 3px !important;
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
@@ -1803,6 +1808,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* This is a small fix for dropmenu icons */
 .dropmenu .generic_icons, #profile_menu .generic_icons, .dropmenu img {
 	margin: -3px 8px 0 0;
+	vertical-align: middle;
 }
 
 /* Top row */
@@ -2095,7 +2101,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 80%;
 	margin: auto;
 }
-.errorbox:before, .noticebox:before, .infobox:before {
+.errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
 	background: url(../images/generic_icons.png) no-repeat -187px -83px;
@@ -2138,10 +2144,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* Styles for info boxes
 ------------------------------------------------- */
 
-.noticebox:before {
+.noticebox::before {
 	background-position: -213px -83px;
 }
-.infobox:before {
+.infobox::before {
 	background-position: -5px -108px;
 }
 .noticebox {
@@ -2486,9 +2492,6 @@ dl.stats dd span {
 	padding: 4px;
 	text-align: center;
 }
-#stats th.first_th {
-	padding-left: 8px;
-}
 #stats tr.windowbg2 th.lefttext {
 	border-left: 1px solid #fff;
 	text-align: left;
@@ -2755,7 +2758,7 @@ dl.addrules dt.floatleft {
 	border-radius: 5px;
 	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
-.progress_bar div.full_bar {
+.progress_bar.full_bar {
 	padding-top: 1pt;
 	width: 100%;
 	color: black;
@@ -2765,14 +2768,14 @@ dl.addrules dt.floatleft {
 	border-radius: 3px;
 	z-index: 2;
 }
-.progress_bar div.green_percent {
+.progress_bar.green_percent {
 	height: 15pt;
 	background-color: #c1ffc1;
 	background-image: linear-gradient(to bottom, #c1ffc1, green);
 	border-radius: 3px;
 	z-index: 1;
 }
-.progress_bar div.blue_percent {
+.progress_bar.blue_percent {
 	height: 15pt;
 	background-color: #98b8f4;
 	background-image: linear-gradient(to bottom, #98b8f4, blue);
@@ -2790,6 +2793,14 @@ dl.addrules dt.floatleft {
 	overflow: auto;
 	box-sizing: border-box;
 }
+/* Here comes the glory... */
+.windowbg:nth-of-type(even) {
+	background: #f0f4f7;
+}
+.windowbg:nth-of-type(odd) {
+	background: #fdfdfd; /* needs new color */
+}
+
 /* Special treatment for #forumposts area */
 #forumposts .windowbg, #forumposts .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
 	overflow: visible;
@@ -3261,7 +3272,7 @@ div#pollmoderation {
 	padding: 2px 0;
 }
 /* poster and postarea + moderation area underneath */
-.post_wrapper:after {
+.post_wrapper::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -3531,7 +3542,7 @@ ul.post_options li {
 .under_message {
 	overflow: visible;
 }
-.under_message:after {
+.under_message::after {
 	clear: both;
 	content: "";
 	display: block;
@@ -3855,7 +3866,7 @@ h3.profile_hd {
 }
 .block {
 	display: block;
-	margin: 0 0 2px 0;
+	margin: 0 0 5px 0;
 }
 
 /* Alternating colors */

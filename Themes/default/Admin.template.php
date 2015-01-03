@@ -1453,14 +1453,13 @@ function template_php_info()
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
 								<tr class="title_bar">
-									<th class="first_th equal_table" scope="col"></th>
+									<th class="equal_table" scope="col"></th>
 									<th class="centercol equal_table" scope="col"><strong>', $area, '</strong></th>
-									<th class="last_th equal_table" scope="col"></th>
+									<th class="equal_table" scope="col"></th>
 								</tr>
 							</thead>
 							<tbody>';
 
-		$alternate = true;
 		$localmaster = true;
 
 		// and for each setting in this category
@@ -1482,13 +1481,13 @@ function template_php_info()
 				}
 
 				echo '
-								<tr>
-									<td align="left" class="windowbg', $alternate ? '2' : '', ' equal_table">', $key, '</td>';
+								<tr class="windowbg">
+									<td align="left" class="equal_table">', $key, '</td>';
 
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-									<td align="left" class="windowbg', $alternate ? '2' : '', ' equal_table">', $value, '</td>';
+									<td align="left" class="equal_table">', $value, '</td>';
 				}
 				echo '
 								</tr>';
@@ -1497,13 +1496,11 @@ function template_php_info()
 			else
 			{
 				echo '
-								<tr>
-									<td align="left" class="windowbg', $alternate ? '2' : '', ' equal_table">', $key,  '</td>
-									<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
+								<tr class="windowbg">
+									<td align="left" class="equal_table">', $key,  '</td>
+									<td align="left" colspan="2">', $setting, '</td>
 								</tr>';
 			}
-
-			$alternate = !$alternate;
 		}
 		echo '
 							</tbody>

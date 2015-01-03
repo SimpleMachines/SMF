@@ -369,7 +369,6 @@ function SplitSelectTopics()
 
 		$context['not_selected']['messages'][$row['id_msg']] = array(
 			'id' => $row['id_msg'],
-			'alternate' => $counter % 2,
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => forum_time(true, $row['poster_time']),
@@ -410,7 +409,6 @@ function SplitSelectTopics()
 
 			$context['selected']['messages'][$row['id_msg']] = array(
 				'id' => $row['id_msg'],
-				'alternate' => $counter % 2,
 				'subject' => $row['subject'],
 				'time' => timeformat($row['poster_time']),
 				'timestamp' => forum_time(true, $row['poster_time']),

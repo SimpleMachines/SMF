@@ -112,7 +112,7 @@ function template_error_log()
 	foreach ($context['errors'] as $error)
 	{
 		echo '
-				<tr class="windowbg', $error['alternate'] ? '2' : '', '">
+				<tr class="windowbg">
 					<td>
 
 						<div style="float: left; width: 50%; line-height: 1.8em; padding: 0 4px 4px 4px; vertical-align: bottom;">

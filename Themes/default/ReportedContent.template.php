@@ -260,7 +260,7 @@ function template_viewmodreport()
 							</span>
 						</h3>
 					</div>
-					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 					<div class="padding">
 						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
 						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">
@@ -292,7 +292,7 @@ function template_edit_comment()
 			<div class="windowbg2">';
 
 	echo '
-				<textarea rows="6" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment">', $context['comment']['body'] ,'</textarea>
+				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', $context['comment']['body'] ,'</textarea>
 				<div>
 					<input type="submit" name="edit_comment" value="', $txt['mc_modreport_edit_mod_comment'], '" class="button_submit">
 				</div>
@@ -407,7 +407,7 @@ function template_reported_members()
 	foreach ($context['reports'] as $report)
 	{
 		echo '
-		<div class="generic_list_wrapper ', $report['alternate'] ? 'windowbg' : 'windowbg2', '">
+		<div class="generic_list_wrapper windowbg">
 			<h5>
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
@@ -545,7 +545,7 @@ function template_viewmemberreport()
 							</span>
 						</h3>
 					</div>
-					<textarea rows="2" cols="60" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 60%; min-width: 60%' : 'width: 60%') . ';" name="mod_comment"></textarea>
+					<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 					<div class="padding">
 						<input type="submit" name="add_comment" value="', $txt['mc_modreport_add_mod_comment'], '" class="button_submit">
 						<input type="hidden" name="', $context['mod-reportC-add_token_var'], '" value="', $context['mod-reportC-add_token'], '">

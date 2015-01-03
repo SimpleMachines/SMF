@@ -58,7 +58,7 @@ function template_init()
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
-		'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
 		'previous_page' => '<span class="generic_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">[%1$d]</span> ',
 		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
@@ -73,7 +73,7 @@ function template_init()
  */
 function template_html_above()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings, $mbname;
 
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html>
@@ -104,7 +104,16 @@ function template_html_above()
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
-	// What is your Lollipop's color?
+	// Some Open Graph?
+	echo '
+	<meta property="og:site_name" content="', $mbname,'" />
+	<meta properly="og:title" content="', $context['page_title_html_safe'],'" />
+	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'" />' : '',
+	!empty($settings['og_image']) ? '<meta properly="og:image" content="'. $settings['og_image'].'" />' : '','
+	<meta properly="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'" />';
+
+	/* What is your Lollipop's color?
+	Theme Authors you can change here to make sure your theme's main color got visible on tab */
 	echo '
 	<meta name="theme-color" content="#557EA0">';
 

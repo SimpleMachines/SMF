@@ -624,7 +624,6 @@ function showProfileDrafts($memID, $draft_type = 0)
 		$context['drafts'][$counter += $reverse ? -1 : 1] = array(
 			'body' => $row['body'],
 			'counter' => $counter,
-			'alternate' => $counter % 2,
 			'board' => array(
 				'name' => $row['bname'],
 				'id' => $row['id_board']
@@ -810,7 +809,6 @@ function showPMDrafts($memID = -1)
 		$context['drafts'][$counter += $reverse ? -1 : 1] = array(
 			'body' => $row['body'],
 			'counter' => $counter,
-			'alternate' => $counter % 2,
 			'subject' => $row['subject'],
 			'time' => timeformat($row['poster_time']),
 			'timestamp' => forum_time(true, $row['poster_time']),

@@ -152,4 +152,7 @@ $txt['themeadmin_edit_preview'] = 'Preview';
 $txt['themeadmin_selectable'] = 'Themes that the user is able to select';
 $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 
+/* Open Graph */
+$txt['og_image'] = 'OG Image';
+$txt['og_image_desc'] = 'Link to your Open Graph optimized image, suggested size 175x175px<br><span class="smalltext">You can read more about here <a href="http://ogp.me/">Open Graph</a></span>';
 ?>

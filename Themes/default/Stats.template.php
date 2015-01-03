@@ -135,15 +135,15 @@ function template_main()
 		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th lefttext">', $txt['yearly_summary'], '</th>
+					<th class="lefttext">', $txt['yearly_summary'], '</th>
 					<th>', $txt['stats_new_topics'], '</th>
 					<th>', $txt['stats_new_posts'], '</th>
 					<th>', $txt['stats_new_members'], '</th>
-					<th', empty($modSettings['hitStats']) ? ' class="last_th"' : '', '>', $txt['most_online'], '</th>';
+					<th>', $txt['most_online'], '</th>';
 
 		if (!empty($modSettings['hitStats']))
 			echo '
-					<th class="last_th">', $txt['page_views'], '</th>';
+					<th>', $txt['page_views'], '</th>';
 
 		echo '
 				</tr>

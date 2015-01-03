@@ -62,7 +62,6 @@ function Memberlist()
 	$context['columns'] = array(
 		'is_online' => array(
 			'label' => $txt['status'],
-			'class' => 'first_th',
 			'sort' => array(
 				'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
 				'up' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
@@ -128,7 +127,6 @@ function Memberlist()
 
 	// Aesthetic stuff.
 	end($context['columns']);
-	$context['columns'][key($context['columns'])]['class'] = 'last_th';
 
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=mlist',
