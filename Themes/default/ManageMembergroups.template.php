@@ -693,7 +693,7 @@ function template_group_request_reason()
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
-						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="' . (isBrowser('is_ie8') ? 'width: 635px; min-width: 96%; max-width: 96%' : 'min-width: 80%; max-width: 99%') . ';"></textarea>
+						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="min-width: 80%; max-width: 99%;"></textarea>
 					</dd>';
 
 	echo '

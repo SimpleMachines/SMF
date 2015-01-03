@@ -64,7 +64,7 @@ function template_email_members()
 						<span class="smalltext">', $txt['admin_news_select_email_desc'], '</span>
 					</dt>
 					<dd>
-						<textarea name="emails" rows="5" cols="30" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 98%; min-width: 98%' : 'width: 98%') . ';"></textarea>
+						<textarea name="emails" rows="5" cols="30" style="width: 98%;"></textarea>
 					</dd>
 					<dt>
 						<strong>', $txt['admin_news_select_members'], ':</strong><br>
