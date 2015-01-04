@@ -1442,7 +1442,6 @@ ul li.greeting {
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 	padding: 0 1px 0 1px;
 	color: #222;
-	margin: 3px 19px;
 	overflow: visible;
 }
 .quickbuttons li:first-child, .quickbuttons li:first-child:hover {
