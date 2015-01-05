@@ -486,9 +486,10 @@ function template_showAlerts()
 
 	if (empty($context['alerts']))
 		echo '
-			<tr class="windowbg2 centertext">
+			<tr class="windowbg centertext">
 				<td>', $txt['alerts_none'], '</td>
-			</tr>';
+			</tr>
+		</table>';
 	else
 	{
 		// Start the form.
@@ -634,7 +635,7 @@ function template_editBuddies()
 	// If they don't have any buddies don't list them!
 	if (empty($context['buddies']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="10"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
@@ -740,7 +741,7 @@ function template_editIgnoreList()
 	// If they don't have anyone on their ignore list, don't list it!
 	if (empty($context['ignore_list']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="8"><strong>', $txt['no_ignore'], '</strong></td>
 			</tr>';
 
@@ -923,7 +924,7 @@ function template_trackIP()
 		// Loop through each of the members and display them.
 		foreach ($context['ips'] as $ip => $memberlist)
 			echo '
-				<tr class="windowbg2">
+				<tr class="windowbg">
 					<td><a href="', $context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
 					<td>', implode(', ', $memberlist), '</td>
 				</tr>';

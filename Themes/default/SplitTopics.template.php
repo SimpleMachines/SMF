@@ -386,7 +386,7 @@ function template_merge_extra_options()
 				<tbody>';
 		foreach ($context['topics'] as $topic)
 			echo '
-					<tr class="windowbg2">
+					<tr class="windowbg">
 						<td>
 							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>

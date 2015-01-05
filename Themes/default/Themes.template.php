@@ -813,7 +813,6 @@ function template_edit_list()
 
 	foreach ($context['themes'] as $theme)
 	{
-
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -851,7 +850,6 @@ function template_copy_template()
 
 	foreach ($context['available_templates'] as $template)
 	{
-
 		echo '
 				<li class="reset flow_hidden windowbg">
 					<span class="floatleft">', $template['filename'], $template['already_exists'] ? ' <span class="error">(' . $txt['themeadmin_edit_exists'] . ')</span>' : '', '</span>

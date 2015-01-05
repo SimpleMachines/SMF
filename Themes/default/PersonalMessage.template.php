@@ -609,7 +609,7 @@ function template_subject_list()
 	<tbody>';
 	if (!$context['show_delete'])
 		echo '
-		<tr class="windowbg2">
+		<tr class="windowbg">
 			<td colspan="5">', $txt['pm_alert_none'], '</td>
 		</tr>';
 
@@ -1380,7 +1380,7 @@ function template_labels()
 		<tbody>';
 	if (count($context['labels']) < 2)
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="2">', $txt['pm_labels_no_exist'], '</td>
 			</tr>';
 	else
@@ -1533,7 +1533,7 @@ function template_rules()
 
 	if (empty($context['rules']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="2">
 					', $txt['pm_rules_none'], '
 				</td>

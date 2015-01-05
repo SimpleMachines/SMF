@@ -581,7 +581,7 @@ function template_group_members()
 
 	if (empty($context['members']))
 		echo '
-					<tr class="windowbg2">
+					<tr class="windowbg">
 						<td colspan="6">', $txt['membergroups_members_no_members'], '</td>
 					</tr>';
 

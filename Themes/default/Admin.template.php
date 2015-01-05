@@ -360,7 +360,7 @@ function template_view_versions()
 	// Loop through every source file displaying its version - using javascript.
 	foreach ($context['file_versions'] as $filename => $version)
 		echo '
-								<tr class="windowbg2">
+								<tr class="windowbg">
 									<td class="half_table">
 										', $filename, '
 									</td>
@@ -398,7 +398,7 @@ function template_view_versions()
 
 	foreach ($context['default_template_versions'] as $filename => $version)
 		echo '
-									<tr class="windowbg2">
+									<tr class="windowbg">
 										<td class="half_table">
 											', $filename, '
 										</td>
@@ -438,7 +438,7 @@ function template_view_versions()
 	{
 		foreach ($files as $filename => $version)
 			echo '
-									<tr class="windowbg2">
+									<tr class="windowbg">
 										<td class="half_table">
 											', $filename, '.<em>', $language, '</em>.php
 										</td>
@@ -480,7 +480,7 @@ function template_view_versions()
 
 		foreach ($context['template_versions'] as $filename => $version)
 			echo '
-									<tr class="windowbg2">
+									<tr class="windowbg">
 										<td class="half_table">
 											', $filename, '
 										</td>
