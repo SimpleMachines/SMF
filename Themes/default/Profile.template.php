@@ -488,7 +488,8 @@ function template_showAlerts()
 		echo '
 			<tr class="windowbg centertext">
 				<td>', $txt['alerts_none'], '</td>
-			</tr>';
+			</tr>
+		</table>';
 	else
 	{
 		// Start the form.
