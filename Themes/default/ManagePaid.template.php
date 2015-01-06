@@ -358,12 +358,12 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
 		</div>
 		<div class="windowbg">
-			<ul class="pending_payments">';
+			<ul class="reset">';
 
 		foreach ($context['pending_payments'] as $id => $payment)
 		{
 			echo '
-				<li class="reset">
+				<li>
 					', $payment['desc'], '
 					<span class="floatleft">
 						<a href="', $scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;lid=', $context['log_id'], ';pending=', $id, ';accept">', $txt['pending_payments_accept'], '</a>
@@ -410,10 +410,8 @@ function template_user_subscription()
 			</div>';
 
 		// Print out all the subscriptions.
-		$alternate = false;
 		foreach ($context['subscriptions'] as $id => $subscription)
 		{
-			$alternate = !$alternate;
 
 			// Ignore the inactive ones...
 			if (empty($subscription['active']))
@@ -423,7 +421,7 @@ function template_user_subscription()
 			<div class="cat_bar">
 				<h3 class="catbg">', $subscription['name'], '</h3>
 			</div>
-			<div class="windowbg', $alternate ? '' : '2', '">
+			<div class="windowbg">
 				<p><strong>', $subscription['name'], '</strong></p>
 				<p class="smalltext">', $subscription['desc'], '</p>';
 
@@ -478,10 +476,10 @@ function template_user_subscription()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th" style="width: 30%">', $txt['paid_name'], '</th>
+					<th style="width: 30%">', $txt['paid_name'], '</th>
 					<th>', $txt['paid_status'], '</th>
 					<th>', $txt['start_date'], '</th>
-					<th class="last_th">', $txt['end_date'], '</th>
+					<th>', $txt['end_date'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -494,14 +492,12 @@ function template_user_subscription()
 					</td>
 				</tr>';
 
-	$alternate = false;
 	foreach ($context['current'] as $sub)
 	{
-		$alternate = !$alternate;
 
 		if (!$sub['hide'])
 			echo '
-				<tr class="windowbg', $alternate ? '' : '2', '">
+				<tr class="windowbg">
 					<td>
 						', (allowedTo('admin_forum') ? '<a href="' . $scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $sub['id'] . '">' . $sub['name'] . '</a>' : $sub['name']), '
 					</td><td>

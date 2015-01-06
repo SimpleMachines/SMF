@@ -200,6 +200,13 @@ function template_settings()
 			),
 			'type' => 'number',
 		),
+	'',
+		array(
+			'id' => 'og_image',
+			'label' => $txt['og_image'],
+			'description' => $txt['og_image_desc'],
+			'type' => 'text',
+		),
 	);
 }
 

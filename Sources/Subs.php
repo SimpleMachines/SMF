@@ -546,7 +546,7 @@ function updateSettings($changeArray, $update = false)
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $modSettings, $context, $smcFunc, $settings;
+	global $modSettings, $context, $smcFunc, $settings, $txt;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
@@ -567,6 +567,21 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	// Wireless will need the protocol on the URL somewhere.
 	if (WIRELESS)
 		$base_url .= ';' . WIRELESS_PROTOCOL;
+
+	// Define some default page index settings if we don't already have it...
+	if (!isset($settings['page_index']))
+	{
+		// This defines the formatting for the page indexes used throughout the forum.
+		$settings['page_index'] = array(
+			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+			'previous_page' => '<span class="generic_icons previous_page"></span>',
+			'current_page' => '<span class="current_page">[%1$d]</span> ',
+			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+			'next_page' => '<span class="generic_icons next_page"></span>',
+			'extra_after' => '',
+		);
+	}
 
 	$base_link = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
 	$pageindex = $settings['page_index']['extra_before'];
@@ -1664,6 +1679,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
+			usort($codes, 'sort_bbc_tags');
 			return $codes;
 		}
 
@@ -2483,6 +2499,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 }
 
 /**
+ * Helper function for usort(), used in parse_bbc().
+ */
+function sort_bbc_tags($a, $b)
+{
+	return strcmp($a['tag'], $b['tag']);
+}
+
+/**
  * Parse smileys in the passed message.
  *
  * The smiley parsing function which makes pretty faces appear :).
@@ -2914,20 +2938,20 @@ function setupThemeContext($forceload = false)
 
 		$context['user']['avatar'] = array();
 
-		// Figure out the avatar... uploaded?
-		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
+		// Check for gravatar first since we might be forcing them...
+		if (($modSettings['gravatarEnabled'] && substr($user_info['avatar']['url'], 0, 11) == 'gravatar://') || !empty($modSettings['gravatarOverride']))
+		{
+			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($user_info['avatar']['url'], 'gravatar://') && strlen($user_info['avatar']['url']) > 11)
+				$context['user']['avatar']['href'] = get_gravatar_url($smcFunc['substr']($user_info['avatar']['url'], 11));
+			else
+				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
+		}
+		// Uploaded?
+		elseif ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-		// Gravatar?
-		elseif (substr($user_info['avatar']['url'], 0, 11) == 'gravatar://')
-		{
-			if ($user_info['avatar']['url'] === 'gravatar://' || empty($modSettings['gravatarAllowExtraEmail']))
-				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
-			else
-				$context['user']['avatar']['href'] = get_gravatar_url(substr($user_info['avatar']['url'], 11));
-		}
 		// Otherwise we assume it's server stored.
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
@@ -3703,7 +3727,7 @@ function clean_cache($type = '')
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir;
+	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -3735,7 +3759,7 @@ function setupMenuContext()
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup");', true);
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
 		if ($context['allow_pm'])
 			addInlineJavascript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
@@ -3932,6 +3956,16 @@ function setupMenuContext()
 							}
 						}
 					}
+
+					// Does this button have its own icon?
+					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
+						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
+					elseif (isset($button['icon']))
+						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+					else
+						$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}

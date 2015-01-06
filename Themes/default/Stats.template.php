@@ -105,13 +105,13 @@ function template_main()
 			if (!empty($item['percent']))
 				echo '
 							<div class="bar" style="width: ', $item['percent'], '%;">
+								<span class="righttext">', $item['num'], '</span>
 							</div>';
 			else
 				echo '
-							<div class="bar empty"></div>';
+							<div class="bar empty"><span class="righttext">', $item['num'], '</span></div>';
 
 			echo '
-							<span class="righttext">', $item['num'], '</span>
 						</dd>';
 		}
 
@@ -132,18 +132,18 @@ function template_main()
 	if (!empty($context['yearly']))
 	{
 		echo '
-		<table id="stats">
+		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th lefttext">', $txt['yearly_summary'], '</th>
+					<th class="lefttext">', $txt['yearly_summary'], '</th>
 					<th>', $txt['stats_new_topics'], '</th>
 					<th>', $txt['stats_new_posts'], '</th>
 					<th>', $txt['stats_new_members'], '</th>
-					<th', empty($modSettings['hitStats']) ? ' class="last_th"' : '', '>', $txt['most_online'], '</th>';
+					<th>', $txt['most_online'], '</th>';
 
 		if (!empty($modSettings['hitStats']))
 			echo '
-					<th class="last_th">', $txt['page_views'], '</th>';
+					<th>', $txt['page_views'], '</th>';
 
 		echo '
 				</tr>
@@ -153,7 +153,7 @@ function template_main()
 		foreach ($context['yearly'] as $id => $year)
 		{
 			echo '
-				<tr class="windowbg2" id="year_', $id, '">
+				<tr class="windowbg" id="year_', $id, '">
 					<th class="lefttext">
 						<img id="year_img_', $id, '" src="', $settings['images_url'], '/selected_open.png" alt="*"> <a href="#year_', $id, '" id="year_link_', $id, '">', $year['year'], '</a>
 					</th>
@@ -172,7 +172,7 @@ function template_main()
 			foreach ($year['months'] as $month)
 			{
 				echo '
-				<tr class="windowbg2" id="tr_month_', $month['id'], '">
+				<tr class="windowbg" id="tr_month_', $month['id'], '">
 					<th class="stats_month">
 						<img src="', $settings['images_url'], '/', $month['expanded'] ? 'selected_open.png' : 'selected.png', '" alt="" id="img_', $month['id'], '"> <a id="m', $month['id'], '" href="', $month['href'], '" onclick="return doingExpandCollapse;">', $month['month'], ' ', $month['year'], '</a>
 					</th>
@@ -193,7 +193,7 @@ function template_main()
 					foreach ($month['days'] as $day)
 					{
 						echo '
-				<tr class="windowbg2" id="tr_day_', $day['year'], '-', $day['month'], '-', $day['day'], '">
+				<tr class="windowbg" id="tr_day_', $day['year'], '-', $day['month'], '-', $day['day'], '">
 					<td class="stats_day">', $day['year'], '-', $day['month'], '-', $day['day'], '</td>
 					<td>', $day['new_topics'], '</td>
 					<td>', $day['new_posts'], '</td>
@@ -232,7 +232,7 @@ function template_main()
 			sMonthLinkIdPrefix: \'m\',
 
 			reDayPattern: /tr_day_(\d+-\d+-\d+)/,
-			sDayRowClassname: \'windowbg2\',
+			sDayRowClassname: \'windowbg\',
 			sDayRowIdPrefix: \'tr_day_\',
 
 			aCollapsedYears: [';

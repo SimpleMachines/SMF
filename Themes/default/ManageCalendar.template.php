@@ -22,18 +22,18 @@ function template_edit_holiday()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
-					<dt class="small_caption">
+					<dt>
 						<strong>', $txt['holidays_title_label'], ':</strong>
 					</dt>
-					<dd class="small_caption">
+					<dd>
 						<input type="text" name="title" value="', $context['holiday']['title'], '" size="55" maxlength="60">
 					</dd>
-					<dt class="small_caption">
+					<dt>
 						<strong>', $txt['calendar_year'], '</strong>
 					</dt>
-					<dd class="small_caption">
+					<dd>
 						<select name="year" id="year" onchange="generateDays();">
 							<option value="0000"', $context['holiday']['year'] == '0000' ? ' selected' : '', '>', $txt['every_year'], '</option>';
 	// Show a list of all the years we allow...
@@ -64,8 +64,7 @@ function template_edit_holiday()
 	echo '
 						</select>
 					</dd>
-				</dl>
-				<hr class="hrcolor">';
+				</dl>';
 
 	if ($context['is_new'])
 		echo '

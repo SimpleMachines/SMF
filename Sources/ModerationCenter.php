@@ -546,7 +546,6 @@ function ModBlockReportedPosts()
 	{
 		$context['reported_posts'][] = array(
 			'id' => $row['id_report'],
-			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			'report_href' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'],
 			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
@@ -594,7 +593,6 @@ function ModBlockGroupRequests()
 	{
 		$context['group_requests'][] = array(
 			'id' => $row['id_request'],
-			'alternate' => $i % 2,
 			'request_href' => $scripturl . '?action=groups;sa=requests;gid=' . $row['id_group'],
 			'member' => array(
 				'id' => $row['id_member'],
@@ -661,7 +659,6 @@ function ModBlockReportedMembers()
 	{
 		$context['reported_users'][] = array(
 			'id' => $row['id_report'],
-			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
@@ -853,7 +850,6 @@ function ReportedMembers()
 		$report_ids[] = $row['id_report'];
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
-			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],

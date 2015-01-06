@@ -213,10 +213,9 @@ function template_folder()
 
 		while ($message = $context['get_pmessage']('message'))
 		{
-			$window_class = $message['alternate'] == 0 ? 'windowbg' : 'windowbg2';
 
 			echo '
-	<div class="', $window_class, '">
+	<div class="windowbg">
 		<div class="poster">';
 
 		// Are there any custom fields above the member name?
@@ -590,7 +589,7 @@ function template_subject_list()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th width="4%" class="centercol first_th">
+			<th width="4%" class="centercol">
 				<a href="', $scripturl, '?action=pm;view;f=', $context['folder'], ';start=', $context['start'], ';sort=', $context['sort_by'], ($context['sort_direction'] == 'up' ? '' : ';desc'), ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''), '"> <span class="generic_icons switch" title="', $txt['pm_change_view'], '"></span></a>
 			</th>
 			<th class="lefttext" width="22%">
@@ -602,7 +601,7 @@ function template_subject_list()
 			<th class="lefttext">
 				<a href="', $scripturl, '?action=pm;f=', $context['folder'], ';start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '">', ($context['from_or_to'] == 'from' ? $txt['from'] : $txt['to']), $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 			</th>
-			<th width="4%" class="centercol last_th">
+			<th width="4%" class="centercol">
 				<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">
 			</th>
 		</tr>
@@ -610,15 +609,14 @@ function template_subject_list()
 	<tbody>';
 	if (!$context['show_delete'])
 		echo '
-		<tr class="windowbg2">
+		<tr class="windowbg">
 			<td colspan="5">', $txt['pm_alert_none'], '</td>
 		</tr>';
-	$next_alternate = false;
 
 	while ($message = $context['get_pmessage']('subject'))
 	{
 		echo '
-		<tr class="', $next_alternate ? 'windowbg' : 'windowbg2', '">
+		<tr class="windowbg">
 			<td width="4%">
 			<script><!-- // --><![CDATA[
 				currentLabels[', $message['id'], '] = {';
@@ -643,7 +641,6 @@ function template_subject_list()
 			<td>', ($context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '</td>
 			<td class="centercol" width="4%"><input type="checkbox" name="pms[]" id="deletelisting', $message['id'], '" value="', $message['id'], '"', $message['is_selected'] ? ' checked' : '', ' onclick="if (document.getElementById(\'deletedisplay', $message['id'], '\')) document.getElementById(\'deletedisplay', $message['id'], '\').checked = this.checked;" class="input_check"></td>
 		</tr>';
-			$next_alternate = !$next_alternate;
 	}
 
 	echo '
@@ -840,14 +837,13 @@ function template_search_results()
 	<table class="table_grid">
 	<thead>
 		<tr class="title_bar">
-			<th class="lefttext first_th" width="30%">', $txt['date'], '</th>
+			<th class="lefttext" width="30%">', $txt['date'], '</th>
 			<th class="lefttext" width="50%">', $txt['subject'], '</th>
-			<th class="lefttext last_th" width="20%">', $txt['from'], '</th>
+			<th class="lefttext" width="20%">', $txt['from'], '</th>
 		</tr>
 	</thead>
 	<tbody>';
 
-	$alternate = true;
 	// Print each message out...
 	foreach ($context['personal_messages'] as $message)
 	{
@@ -875,7 +871,7 @@ function template_search_results()
 					echo '
 				</h3>
 			</div>
-			<div class="windowbg', $alternate ? '2': '', '">
+			<div class="windowbg">
 				', $message['body'], '
 				<p class="pm_reply righttext">';
 
@@ -903,14 +899,12 @@ function template_search_results()
 		{
 			// @todo No context at all of the search?
 			echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+			<tr class="windowbg">
 				<td>', $message['time'], '</td>
 				<td>', $message['link'], '</td>
 				<td>', $message['member']['link'], '</td>
 			</tr>';
 		}
-
-		$alternate = !$alternate;
 	}
 
 	// Finish off the page...
@@ -1370,10 +1364,10 @@ function template_labels()
 		<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
-				<th class="lefttext first_th">
+				<th class="lefttext">
 					', $txt['pm_label_name'], '
 				</th>
-				<th class="centertext last_th" width="4%">';
+				<th class="centertext" width="4%">';
 
 	if (count($context['labels']) > 2)
 		echo '
@@ -1386,26 +1380,23 @@ function template_labels()
 		<tbody>';
 	if (count($context['labels']) < 2)
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="2">', $txt['pm_labels_no_exist'], '</td>
 			</tr>';
 	else
 	{
-		$alternate = true;
 		foreach ($context['labels'] as $label)
 		{
 			if ($label['id'] == -1)
 				continue;
 
 				echo '
-			<tr class="', $alternate ? 'windowbg2' : 'windowbg', '">
+			<tr class="windowbg">
 				<td>
 					<input type="text" name="label_name[', $label['id'], ']" value="', $label['name'], '" size="30" maxlength="30" class="input_text">
 				</td>
 				<td width="4%"><input type="checkbox" class="input_check" name="delete_label[', $label['id'], ']"></td>
 			</tr>';
-
-			$alternate = !$alternate;
 		}
 	}
 	echo '
@@ -1483,7 +1474,7 @@ function template_report_message()
 					<strong>', $txt['pm_report_reason'], ':</strong>
 				</dt>
 				<dd>
-					<textarea name="reason" rows="4" cols="70" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 80%; min-width: 80%' : 'width: 80%') . ';"></textarea>
+					<textarea name="reason" rows="4" cols="70" style="width: 80%;"></textarea>
 				</dd>
 			</dl>
 			<div class="righttext">
@@ -1525,10 +1516,10 @@ function template_rules()
 		<table class="table_grid">
 		<thead>
 			<tr class="title_bar">
-				<th class="lefttext first_th">
+				<th class="lefttext">
 					', $txt['pm_rule_title'], '
 				</th>
-				<th width="4%" class="centertext last_th">';
+				<th width="4%" class="centertext">';
 
 	if (!empty($context['rules']))
 		echo '
@@ -1542,17 +1533,16 @@ function template_rules()
 
 	if (empty($context['rules']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="2">
 					', $txt['pm_rules_none'], '
 				</td>
 			</tr>';
 
-	$alternate = false;
 	foreach ($context['rules'] as $rule)
 	{
 		echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+			<tr class="windowbg">
 				<td>
 					<a href="', $scripturl, '?action=pm;sa=manrules;add;rid=', $rule['id'], '">', $rule['name'], '</a>
 				</td>
@@ -1560,7 +1550,6 @@ function template_rules()
 					<input type="checkbox" name="delrule[', $rule['id'], ']" class="input_check">
 				</td>
 			</tr>';
-		$alternate = !$alternate;
 	}
 
 	echo '
@@ -1916,7 +1905,7 @@ function template_showPMDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+				<div class="windowbg">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong>', $draft['subject'], '</strong>&nbsp;';

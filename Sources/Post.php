@@ -2371,7 +2371,6 @@ function getTopic()
 		// ...and store.
 		$context['previous_posts'][] = array(
 			'counter' => $counter++,
-			'alternate' => $counter % 2,
 			'poster' => $row['poster_name'],
 			'message' => $row['body'],
 			'time' => timeformat($row['poster_time']),

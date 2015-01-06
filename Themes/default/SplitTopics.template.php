@@ -94,7 +94,7 @@ function template_select()
 
 	foreach ($context['not_selected']['messages'] as $message)
 		echo '
-					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="not_selected_', $message['id'], '">
+					<li class="windowbg" id="not_selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatright" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=down;msg=', $message['id'], '" onclick="return select(\'down\', ', $message['id'], ');"><span class="generic_icons split_sel" title="-&gt;"></span></a>
 							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
@@ -124,7 +124,7 @@ function template_select()
 	if (!empty($context['selected']['messages']))
 		foreach ($context['selected']['messages'] as $message)
 			echo '
-					<li class="windowbg', $message['alternate'] ? '2' : '', '" id="selected_', $message['id'], '">
+					<li class="windowbg" id="selected_', $message['id'], '">
 						<div class="message_header">
 							<a class="split_icon floatleft" href="', $scripturl, '?action=splittopics;sa=selectTopics;subname=', $context['topic']['subject'], ';topic=', $context['topic']['id'], '.', $context['not_selected']['start'], ';start2=', $context['selected']['start'], ';move=up;msg=', $message['id'], '" onclick="return select(\'up\', ', $message['id'], ');"><span class="generic_icons split_desel" title="&lt;-"></span></a>
 							', sprintf($txt['post_by_member'], $message['subject'], $message['poster']), '<br>
@@ -269,46 +269,54 @@ function template_merge()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['target_topic'], '</h3>
 			</div>
-			<form action="', $scripturl , '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
-				<div class="title_bar">
-					<h4 class="titlebg">', $txt['target_below'];
+			<div class="title_bar">
+				<h4 class="titlebg">';
 
-		if (isset($context['merge_categories']))
+	if (isset($context['merge_categories']))
+	{
+		echo '
+					<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '" id="mergeSelectBoard">
+						', $txt['target_below'], ' (', $txt['board'], ':&nbsp;
+						<select name="targetboard" onchange="this.form.submit();">';
+		foreach ($context['merge_categories'] as $cat)
 		{
-			echo ' (', $txt['board'], ':&nbsp;
-						<form action="' . $scripturl . '?action=mergetopics;from=' . $context['origin_topic'] . ';targetboard=' . $context['target_board'] . ';board=' . $context['current_board'] . '.0" method="post" accept-charset="', $context['character_set'], '">
-							<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
-							<select name="targetboard" onchange="this.form.submit();">';
-			foreach ($context['merge_categories'] as $cat)
+			echo '
+							<optgroup label="', $cat['name'], '">';
+
+			foreach ($cat['boards'] as $board)
 			{
 				echo '
-								<optgroup label="', $cat['name'], '">';
-
-				foreach ($cat['boards'] as $board)
-				{
-					echo '
-									<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
-				}
-
-				echo '
-								</optgroup>';
+								<option value="', $board['id'], '"', $board['selected'] ? ' selected' : '', '>', $board['child_level'] > 0 ? str_repeat('==', $board['child_level'] - 1) . '=&gt;' : '', ' ', $board['name'], '&nbsp;</option>';
 			}
+
 			echo '
-							</select>
-							<input type="submit" value="', $txt['go'], '" class="">
-						</form>)';
-
+							</optgroup>';
 		}
+		echo '
+						</select>)
+						<input type="hidden" name="from" value="' . $context['origin_topic'] . '">
+						<input type="submit" value="', $txt['go'], '" class="button_submit">
+					</form>';
 
-		echo '</h4>
-				</div>
+	}
+	else
+		echo $txt['target_below'];
+
+	echo '				</h4>
+			</div>';
+
+	// Don't show this if there aren't any topics...
+	if (!empty($context['topics']))
+	{
+		echo '
+			<form action="', $scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', $context['character_set'], '">
 				<div class="pagesection">
 					', $context['page_index'], '
 				</div>
 				<div class="windowbg2">
 					<ul class="reset merge_topics">';
 
-		$merge_button = create_button('merge.png', 'merge', '');
+		$merge_button = create_button('merge', 'merge', '');
 
 		foreach ($context['topics'] as $topic)
 			echo '
@@ -323,8 +331,17 @@ function template_merge()
 				</div>
 				<div class="pagesection">
 					', $context['page_index'], '
-				</div><br>
+				</div>';
+	}
+	else
+	{
+		// Just a nice "There aren't any topics" message
+		echo '
+				<div class="windowbg2">', $txt['topic_alert_none'], '</div>';
+	}
 
+	echo '
+				<br>
 				<div class="title_bar">
 					<h4 class="titlebg">', $txt['target_id'], '</h4>
 				</div>
@@ -359,17 +376,17 @@ function template_merge_extra_options()
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" class="first_th" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" width="10px">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
-						<th scope="col" class="last_th" width="20px">' . $txt['merge_include_notifications'] . '</th>
+						<th scope="col" width="20px">' . $txt['merge_include_notifications'] . '</th>
 					</tr>
 				</thead>
 				<tbody>';
 		foreach ($context['topics'] as $topic)
 			echo '
-					<tr class="windowbg2">
+					<tr class="windowbg">
 						<td>
 							<input type="checkbox" class="input_check" name="topics[]" value="' . $topic['id'] . '" checked>
 						</td>

@@ -824,7 +824,7 @@ function template_main()
 				$ignored_posts[] = $ignoring = $post['id'];
 
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
+			<div class="windowbg">
 				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '

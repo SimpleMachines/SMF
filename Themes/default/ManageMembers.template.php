@@ -139,16 +139,16 @@ function template_search_members()
 				<table width="49%" class="table_grid floatleft">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="first_th">', $txt['membergroups'], '</th>
+							<th scope="col">', $txt['membergroups'], '</th>
 							<th scope="col" class="centercol">', $txt['primary'], '</th>
-							<th scope="col" class="last_th centercol">', $txt['additional'], '</th>
+							<th scope="col" class="centercol">', $txt['additional'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
 
 			foreach ($context['membergroups'] as $membergroup)
 				echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td>', $membergroup['name'], '</td>
 							<td class="centercol">
 								<input type="checkbox" name="membergroups[1][]" value="', $membergroup['id'], '" checked class="input_check">
@@ -159,7 +159,7 @@ function template_search_members()
 						</tr>';
 
 			echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td>
 								<em>', $txt['check_all'], '</em>
 							</td>
@@ -176,17 +176,17 @@ function template_search_members()
 				<table width="49%" class="table_grid floatright">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="first_th">
+							<th scope="col">
 								', $txt['membergroups_postgroups'], '
 							</th>
-							<th class="last_th">&nbsp;</th>
+							<th>&nbsp;</th>
 						</tr>
 					</thead>
 					<tbody>';
 
 			foreach ($context['postgroups'] as $postgroup)
 				echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td>
 								', $postgroup['name'], '
 							</td>
@@ -196,7 +196,7 @@ function template_search_members()
 						</tr>';
 
 			echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td>
 								<em>', $txt['check_all'], '</em>
 							</td>

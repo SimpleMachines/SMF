@@ -417,7 +417,7 @@ function smf_db_table_sql($tableName)
 		$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode($columns, ', ') . ')';
 	}
 
-	// Now just get the comment and type... (MyISAM, etc.)
+	// Now just get the comment and engine... (MyISAM, etc.)
 	$result = $smcFunc['db_query']('', '
 		SHOW TABLE STATUS
 		LIKE {string:table}',
@@ -429,7 +429,7 @@ function smf_db_table_sql($tableName)
 	$smcFunc['db_free_result']($result);
 
 	// Probably MyISAM.... and it might have a comment.
-	$schema_create .= $crlf . ') ENGINE=' . (isset($row['Type']) ? $row['Type'] : $row['Engine']) . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
+	$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
 
 	return $schema_create;
 }

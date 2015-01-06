@@ -1177,7 +1177,7 @@ function checkLogin()
 			$upcontext['user']['version'] = $modSettings['smfVersion'];
 
 		// Didn't get anywhere?
-		if ((empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !hash_verify_password((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']) && !$disable_security)
+		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !hash_verify_password((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect']))
 		{
 			// MD5?
 			$md5pass = md5_hmac($_REQUEST['passwrd'], strtolower($_POST['user']));
@@ -3593,25 +3593,25 @@ function template_chmod()
 				<td>
 					<div style="float: right; margin-right: 1px;"><label for="ftp_port" class="textbox"><strong>', $txt['ftp_port'], ':&nbsp;</strong></label> <input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset($upcontext['chmod']['port']) ? $upcontext['chmod']['port'] : '21', '" class="input_text"></div>
 					<input type="text" size="30" name="ftp_server" id="ftp_server" value="', isset($upcontext['chmod']['server']) ? $upcontext['chmod']['server'] : 'localhost', '" style="width: 70%;" class="input_text">
-					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['ftp_server_info'], '</div>
+					<div class="smalltext block">', $txt['ftp_server_info'], '</div>
 				</td>
 			</tr><tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_username">', $txt['ftp_username'], ':</label></td>
 				<td>
 					<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset($upcontext['chmod']['username']) ? $upcontext['chmod']['username'] : '', '" style="width: 99%;" class="input_text">
-					<div style="font-size: smaller; margin-bottom: 2ex;">', $txt['ftp_username_info'], '</div>
+					<div class="smalltext block">', $txt['ftp_username_info'], '</div>
 				</td>
 			</tr><tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_password">', $txt['ftp_password'], ':</label></td>
 				<td>
 					<input type="password" size="50" name="ftp_password" id="ftp_password" style="width: 99%;" class="input_password">
-					<div style="font-size: smaller; margin-bottom: 3ex;">', $txt['ftp_password_info'], '</div>
+					<div class="smalltext block">', $txt['ftp_password_info'], '</div>
 				</td>
 			</tr><tr>
 				<td width="26%" valign="top" class="textbox"><label for="ftp_path">', $txt['ftp_path'], ':</label></td>
 				<td style="padding-bottom: 1ex;">
 					<input type="text" size="50" name="ftp_path" id="ftp_path" value="', isset($upcontext['chmod']['path']) ? $upcontext['chmod']['path'] : '', '" style="width: 99%;" class="input_text">
-					<div style="font-size: smaller; margin-bottom: 2ex;">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
+					<div class="smalltext block">', !empty($upcontext['chmod']['path']) ? $txt['ftp_path_found_info'] : $txt['ftp_path_info'], '</div>
 				</td>
 			</tr>
 		</table>

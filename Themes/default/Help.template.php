@@ -105,16 +105,13 @@ function template_find_members()
 		echo '
 				<ul class="reset padding">';
 
-		$alternate = true;
 		foreach ($context['results'] as $result)
 		{
 			echo '
-					<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
+					<li class="windowbg">
 						<a href="', $result['href'], '" target="_blank" class="new_win"> <span class="generic_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
-
-			$alternate = !$alternate;
 		}
 
 		echo '

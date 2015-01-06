@@ -401,7 +401,7 @@ function template_showPosts()
 		foreach ($context['posts'] as $post)
 		{
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+			<div class="windowbg">
 				<div class="counter">', $post['counter'], '</div>
 				<div class="topic_details">
 					<h5><strong><a href="', $scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', $scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong></h5>
@@ -479,43 +479,43 @@ function template_showAlerts()
 			</div>';
 
 	echo '
-		<div class="cat_bar">
-			<h3 class="catbg">
-				', $txt['alerts'], ' - ', $context['member']['name'], '
-			</h3>
-		</div>';
+		<table id="alerts" class="table_grid">
+			<tr class="title_bar">
+				<th>', $txt['alerts'], ' - ', $context['member']['name'], '</th>
+			</tr>';
 
 	if (empty($context['alerts']))
 		echo '
-		<div class="tborder windowbg2 centertext">
-			', $txt['alerts_none'], '
-		</div>';
+			<tr class="windowbg centertext">
+				<td>', $txt['alerts_none'], '</td>
+			</tr>
+		</table>';
 	else
 	{
 		// Start the form.
 		echo '
 		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
 
-		$alt = false;
 		$counter = 1;
 		foreach ($context['alerts'] as $id => $alert)
 		{
-			$alt = !$alt;
-
 			echo '
-			<div class="', $alt ? 'windowbg' : 'windowbg2', '">
-				<div class="topic_details floatleft">', $alert['time'], '</div>
-				<ul class="quickbuttons">
-					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
-					<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-					<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
-				</ul>
-				<div class="list_posts clear">', $alert['text'], '</div>
-			</div>';
+			<tr class="windowbg">
+				<td>', $alert['text'], '</td>
+				<td>', $alert['time'], '</td>
+				<td>
+					<ul class="quickbuttons">
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+						<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
+					</ul>
+				</td>
+			</tr>';
 		}
 
 		echo '
-			<div class="roundframe">
+		</table>
+			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'] ,'
 				</div>
@@ -561,7 +561,7 @@ function template_showDrafts()
 		foreach ($context['drafts'] as $draft)
 		{
 			echo '
-				<div class="', $draft['alternate'] == 0 ? 'windowbg2' : 'windowbg', '">
+				<div class="windowbg">
 					<div class="counter">', $draft['counter'], '</div>
 					<div class="topic_details">
 						<h5><strong><a href="', $scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
@@ -617,7 +617,7 @@ function template_editBuddies()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th class="first_th" scope="col" width="15%">', $txt['name'], '</th>
+				<th scope="col" width="15%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -629,24 +629,23 @@ function template_editBuddies()
 				echo '<th scope="col">', $column['label'], '</th>';
 
 	echo '
-				<th class="last_th" scope="col">', $txt['remove'], '</th>
+				<th scope="col">', $txt['remove'], '</th>
 			</tr>';
 
 	// If they don't have any buddies don't list them!
 	if (empty($context['buddies']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="10"><strong>', $txt['no_buddies'], '</strong></td>
 			</tr>';
 
 		// Now loop through each buddy showing info on each.
 	else
 	{
-		$alternate = false;
 		foreach ($context['buddies'] as $buddy)
 		{
 			echo '
-				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+				<tr class="windowbg">
 					<td>', $buddy['link'], '</td>
 					<td><a href="', $buddy['online']['href'], '"><span class="' . ($buddy['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $buddy['online']['text'] . '"></span></a></td>';
 
@@ -663,8 +662,6 @@ function template_editBuddies()
 			echo '
 					<td><a href="', $scripturl, '?action=profile;area=lists;sa=buddies;u=', $context['id_member'], ';remove=', $buddy['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['buddy_remove'], '"></span></a></td>
 				</tr>';
-
-			$alternate = !$alternate;
 		}
 	}
 
@@ -730,7 +727,7 @@ function template_editIgnoreList()
 		</div>
 		<table class="table_grid">
 			<tr class="title_bar">
-				<th class="first_th" scope="col" width="20%">', $txt['name'], '</th>
+				<th scope="col" width="20%">', $txt['name'], '</th>
 				<th scope="col">', $txt['status'], '</th>';
 
 	if (allowedTo('moderate_forum'))
@@ -738,22 +735,21 @@ function template_editIgnoreList()
 				<th scope="col">', $txt['email'], '</th>';
 
 	echo '
-				<th class="last_th" scope="col">', $txt['ignore_remove'] ,'</th>
+				<th scope="col">', $txt['ignore_remove'] ,'</th>
 			</tr>';
 
 	// If they don't have anyone on their ignore list, don't list it!
 	if (empty($context['ignore_list']))
 		echo '
-			<tr class="windowbg2">
+			<tr class="windowbg">
 				<td colspan="8"><strong>', $txt['no_ignore'], '</strong></td>
 			</tr>';
 
 	// Now loop through each buddy showing info on each.
-	$alternate = false;
 	foreach ($context['ignore_list'] as $member)
 	{
 		echo '
-			<tr class="', $alternate ? 'windowbg' : 'windowbg2', '">
+			<tr class="windowbg">
 				<td>', $member['link'], '</td>
 				<td><a href="', $member['online']['href'], '"><span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span></a></td>';
 
@@ -763,8 +759,6 @@ function template_editIgnoreList()
 		echo '
 				<td><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', $context['session_var'], '=', $context['session_id'], '"><span class="generic_icons delete" title="', $txt['ignore_remove'], '"></span></a></td>
 			</tr>';
-
-		$alternate = !$alternate;
 	}
 
 	echo '
@@ -815,49 +809,47 @@ function template_trackActivity()
 
 	// The first table shows IP information about the user.
 	echo '
-		<div class="generic_list_wrapper">
-			<div class="cat_bar">
-				<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
-			</div>';
+		<div class="cat_bar">
+			<h3 class="catbg">', $txt['view_ips_by'], ' ', $context['member']['name'], '</h3>
+		</div>';
 
 	// The last IP the user used.
 	echo '
-			<div id="tracking" class="windowbg2">
-				<dl class="noborder">
-					<dt>', $txt['most_recent_ip'], ':
-						', (empty($context['last_ip2']) ? '' : '<br>
-						<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
-					</dt>
-					<dd>
-						<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
+		<div id="tracking" class="windowbg2">
+			<dl class="noborder">
+				<dt>', $txt['most_recent_ip'], ':
+					', (empty($context['last_ip2']) ? '' : '<br>
+					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
+				</dt>
+				<dd>
+					<a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip'], ';u=', $context['member']['id'], '">', $context['last_ip'], '</a>';
 
 	// Second address detected?
 	if (!empty($context['last_ip2']))
 		echo '
-						, <a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip2'], ';u=', $context['member']['id'], '">', $context['last_ip2'], '</a>';
+					, <a href="', $scripturl, '?action=profile;area=tracking;sa=ip;searchip=', $context['last_ip2'], ';u=', $context['member']['id'], '">', $context['last_ip2'], '</a>';
 
 	echo '
-					</dd>';
+				</dd>';
 
 	// Lists of IP addresses used in messages / error messages.
 	echo '
-					<dt>', $txt['ips_in_messages'], ':</dt>
-					<dd>
-						', (count($context['ips']) > 0 ? implode(', ', $context['ips']) : '(' . $txt['none'] . ')'), '
-					</dd>
-					<dt>', $txt['ips_in_errors'], ':</dt>
-					<dd>
-						', (count($context['ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
-					</dd>';
+				<dt>', $txt['ips_in_messages'], ':</dt>
+				<dd>
+					', (count($context['ips']) > 0 ? implode(', ', $context['ips']) : '(' . $txt['none'] . ')'), '
+				</dd>
+				<dt>', $txt['ips_in_errors'], ':</dt>
+				<dd>
+					', (count($context['ips']) > 0 ? implode(', ', $context['error_ips']) : '(' . $txt['none'] . ')'), '
+				</dd>';
 
 	// List any members that have used the same IP addresses as the current member.
 	echo '
-					<dt>', $txt['members_in_range'], ':</dt>
-					<dd>
-						', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
-					</dd>
-				</dl>
-			</div>
+				<dt>', $txt['members_in_range'], ':</dt>
+				<dd>
+					', (count($context['members_in_range']) > 0 ? implode(', ', $context['members_in_range']) : '(' . $txt['none'] . ')'), '
+				</dd>
+			</dl>
 		</div>
 		<br>';
 
@@ -877,7 +869,7 @@ function template_trackIP()
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
-		<div class="roundframe">
+		<div class="windowbg2">
 			<form action="', $context['base_url'], '" method="post" accept-charset="', $context['character_set'], '">
 				<dl class="settings">
 					<dt>
@@ -923,8 +915,8 @@ function template_trackIP()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="first_th" scope="col">', $txt['ip_address'], '</th>
-					<th class="last_th" scope="col">', $txt['display_name'], '</th>
+					<th scope="col">', $txt['ip_address'], '</th>
+					<th scope="col">', $txt['display_name'], '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -932,9 +924,9 @@ function template_trackIP()
 		// Loop through each of the members and display them.
 		foreach ($context['ips'] as $ip => $memberlist)
 			echo '
-				<tr>
-					<td class="windowbg2"><a href="', $context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
-					<td class="windowbg2">', implode(', ', $memberlist), '</td>
+				<tr class="windowbg">
+					<td><a href="', $context['base_url'], ';searchip=', $ip, '">', $ip, '</a></td>
+					<td>', implode(', ', $memberlist), '</td>
 				</tr>';
 
 		echo '
@@ -1001,8 +993,8 @@ function template_showPermissions()
 					<table class="table_grid">
 						<thead>
 							<tr class="title_bar">
-								<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-								<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
+								<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 							</tr>
 						</thead>
 						<tbody>';
@@ -1010,11 +1002,11 @@ function template_showPermissions()
 			foreach ($context['member']['permissions']['general'] as $permission)
 			{
 				echo '
-							<tr>
-								<td class="windowbg" title="', $permission['id'], '">
+							<tr class="windowbg">
+								<td title="', $permission['id'], '">
 									', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 								</td>
-								<td class="windowbg2 smalltext">';
+								<td class="smalltext">';
 
 				if ($permission['is_denied'])
 					echo '
@@ -1065,19 +1057,19 @@ function template_showPermissions()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th class="lefttext first_th" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
-							<th class="lefttext last_th" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
+							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_permission'], '</th>
+							<th class="lefttext" scope="col" width="50%">', $txt['showPermissions_status'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
 			foreach ($context['member']['permissions']['board'] as $permission)
 			{
 				echo '
-						<tr>
-							<td class="windowbg" title="', $permission['id'], '">
+						<tr class="windowbg">
+							<td title="', $permission['id'], '">
 								', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
 							</td>
-							<td class="windowbg2 smalltext">';
+							<td class="smalltext">';
 
 				if ($permission['is_denied'])
 				{
@@ -1742,7 +1734,6 @@ function template_alert_configuration()
 					<td>', $txt['receive_alert'], '</td>
 					<td>', $txt['receive_mail'], '</td>
 				</tr>';
-	$use_bg2 = true;
 
 	foreach ($context['alert_types'] as $alert_group => $alerts)
 	{
@@ -1795,7 +1786,7 @@ function template_alert_configuration()
 		foreach ($alerts as $alert_id => $alert_details)
 		{
 			echo '
-				<tr class="windowbg', $use_bg2 ? '2' : '', '">
+				<tr class="windowbg">
 					<td>', $txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . $scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="generic_icons help" title="'. $txt['help'].'"></span>' : '', '</td>';
 
 			foreach ($context['alert_bits'] as $type => $bitmask)
@@ -1824,8 +1815,6 @@ function template_alert_configuration()
 
 			echo '
 				</tr>';
-
-			$use_bg2 = !$use_bg2;
 		}
 	}
 
@@ -1911,7 +1900,7 @@ function template_groupMembership()
 				</div>
 				<div class="roundframe">
 					', $txt['request_group_membership_desc'], ':
-					<textarea name="reason" rows="4" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 99%; min-width: 99%' : 'width: 99%') . ';"></textarea>
+					<textarea name="reason" rows="4" style="width: 99%;"></textarea>
 					<div class="righttext" style="margin: 0.5em 0.5% 0 0.5%;">
 						<input type="hidden" name="gid" value="', $context['group_request']['id'], '">
 						<input type="submit" name="req" value="', $txt['submit_request'], '" class="button_submit">
@@ -1926,11 +1915,10 @@ function template_groupMembership()
 				<h3 class="titlebg">', $txt['current_membergroups'], '</h3>
 			</div>';
 
-		$alternate = true;
 		foreach ($context['groups']['member'] as $group)
 		{
 			echo '
-					<div class="', $alternate ? 'windowbg' : 'windowbg2', '" id="primdiv_', $group['id'], '">';
+					<div class="windowbg" id="primdiv_', $group['id'], '">';
 
 				if ($context['can_edit_primary'])
 					echo '
@@ -1946,7 +1934,6 @@ function template_groupMembership()
 
 				echo '
 					</div>';
-			$alternate = !$alternate;
 		}
 
 		if ($context['can_edit_primary'])
@@ -1963,11 +1950,10 @@ function template_groupMembership()
 						<h3 class="titlebg">', $txt['available_groups'], '</h3>
 					</div>';
 
-			$alternate = true;
 			foreach ($context['groups']['available'] as $group)
 			{
 				echo '
-					<div class="', $alternate ? 'windowbg' : 'windowbg2', '">
+					<div class="windowbg">
 						<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
 				if ($group['type'] == 3)
@@ -1982,7 +1968,6 @@ function template_groupMembership()
 
 				echo '
 					</div>';
-				$alternate = !$alternate;
 			}
 		}
 
@@ -2667,7 +2652,7 @@ function template_profile_avatar_select()
 	echo '
 							<dt>
 								<strong id="personal_picture"><label for="avatar_upload_box">', $txt['personal_picture'], '</label></strong>
-								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['no_avatar'] . '</label><br />
+								', empty($modSettings['gravatarOverride']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . ($context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_none"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['no_avatar'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_server_stored']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . ($context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_server_stored"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['choose_avatar_gallery'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_external']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . ($context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_external"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['my_own_pic'] . '</label><br />' : '', '
 								', !empty($context['member']['avatar']['allow_upload']) ? '<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . ($context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . ' class="input_radio" /><label for="avatar_choice_upload"' . (isset($context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . $txt['avatar_will_upload'] . '</label><br />' : '', '

@@ -231,7 +231,6 @@ function getReports($closed = 0)
 		$report_ids[] = $row['id_report'];
 		$reports[$row['id_report']] = array(
 			'id' => $row['id_report'],
-			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $row['id_report'],
 			'comments' => array(),
 			'time_started' => timeformat($row['time_started']),

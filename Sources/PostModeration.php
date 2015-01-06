@@ -278,7 +278,6 @@ function UnapprovedPosts()
 
 		$context['unapproved_items'][] = array(
 			'id' => $row['id_msg'],
-			'alternate' => $i % 2,
 			'counter' => $context['start'] + $i,
 			'href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',

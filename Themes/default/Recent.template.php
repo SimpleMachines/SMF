@@ -34,7 +34,7 @@ function template_recent()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', '">
+			<div class="windowbg">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
@@ -44,7 +44,6 @@ function template_recent()
 
 		if ($post['can_reply'] || $post['can_delete'])
 			echo '
-				<div class="quickbuttons_wrap">
 					<ul class="reset smalltext quickbuttons">';
 
 		// If they *can* reply?
@@ -64,8 +63,7 @@ function template_recent()
 
 		if ($post['can_reply'] || $post['can_delete'])
 			echo '
-					</ul>
-				</div>';
+					</ul>';
 
 		echo '
 			</div>';

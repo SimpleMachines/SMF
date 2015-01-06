@@ -993,7 +993,7 @@ function template_wap2_display()
 		<p class="titlebg">' . $context['linktree'][1]['name'] . ' > ' . $context['linktree'][count($context['linktree']) - 2]['name'] . '</p>
 		<p class="catbg">', $context['subject'], '</p>
 		<p class="windowbg">', !empty($context['links']['prev']) ? '<a href="' . $context['links']['first'] . ';wap2">&lt;&lt;</a> <a href="' . $context['links']['prev'] . ';wap2">&lt;</a> ' : '', '(', $context['page_info']['current_page'], '/', $context['page_info']['num_pages'], ')', !empty($context['links']['next']) ? ' <a href="' . $context['links']['next'] . ';wap2">&gt;</a> <a href="' . $context['links']['last'] . ';wap2">&gt;&gt;</a> ' : '', '</p>';
-	$alternate = true;
+
 	while ($message = $context['get_message']())
 	{
 		// This is a special modification to the post so it will work on phones:
@@ -1018,12 +1018,11 @@ function template_wap2_display()
 
 		echo $message['first_new'] ? '
 		<a id="new"></a>' : '', '
-		<p class="windowbg', $alternate ? '' : '2', '">
+		<p class="windowbg">
 			', $context['wireless_moderate'] && $message['member']['id'] ? '<a href="' . $scripturl . '?action=profile;u=' . $message['member']['id'] . ';wap2">' . $message['member']['name'] . '</a>' : '<strong>' . $message['member']['name'] . '</strong>', ':
 			', ((empty($context['wireless_more']) && $message['can_modify']) || !empty($context['wireless_moderate']) ? '[<a href="' . $scripturl . '?action=post;msg=' . $message['id'] . ';topic=' . $context['current_topic'] . '.' . $context['start'] . ';wap2">' . $txt['wireless_display_edit'] . '</a>]' : ''), (!$message['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '<br />
 			', $message['body'], '
 		</p>';
-		$alternate = !$alternate;
 	}
 	echo '
 		<p class="titlebg">', $txt['wireless_navigation'], '</p>

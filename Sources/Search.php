@@ -2098,7 +2098,6 @@ function prepareSearchContext($reset = false)
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => loadAttachmentContext($message['id_msg']),
-		'alternate' => $counter % 2,
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',

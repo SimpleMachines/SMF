@@ -326,28 +326,28 @@ function template_view_versions()
 
 	// The current version of the core SMF package.
 	echo '
-									<tr>
-										<td class="windowbg half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											', $txt['admin_smfpackage'], '
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="yourSMF">', $context['forum_version'], '</em>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="currentSMF">??</em>
 										</td>
 									</tr>';
 
 	// Now list all the source file versions, starting with the overall version (if all match!).
 	echo '
-									<tr>
-										<td class="windowbg half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											<a href="#" id="Sources-link">', $txt['dvc_sources'], '</a>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="yourSources">??</em>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="currentSources">??</em>
 										</td>
 									</tr>
@@ -360,14 +360,14 @@ function template_view_versions()
 	// Loop through every source file displaying its version - using javascript.
 	foreach ($context['file_versions'] as $filename => $version)
 		echo '
-								<tr>
-									<td class="windowbg2 half_table">
+								<tr class="windowbg">
+									<td class="half_table">
 										', $filename, '
 									</td>
-									<td class="windowbg2 quarter_table">
+									<td class="quarter_table">
 										<em id="yourSources', $filename, '">', $version, '</em>
 									</td>
-									<td class="windowbg2 quarter_table">
+									<td class="quarter_table">
 										<em id="currentSources', $filename, '">??</em>
 									</td>
 								</tr>';
@@ -379,14 +379,14 @@ function template_view_versions()
 
 							<table class="table_grid">
 								<tbody>
-									<tr>
-										<td class="windowbg half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											<a href="#" id="Default-link">', $txt['dvc_default'], '</a>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="yourDefault">??</em>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="currentDefault">??</em>
 										</td>
 									</tr>
@@ -398,14 +398,14 @@ function template_view_versions()
 
 	foreach ($context['default_template_versions'] as $filename => $version)
 		echo '
-									<tr>
-										<td class="windowbg2 half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											', $filename, '
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="yourDefault', $filename, '">', $version, '</em>
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="currentDefault', $filename, '">??</em>
 										</td>
 									</tr>';
@@ -417,14 +417,14 @@ function template_view_versions()
 
 							<table class="table_grid">
 								<tbody>
-									<tr>
-										<td class="windowbg half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											<a href="#" id="Languages-link">', $txt['dvc_languages'], '</a>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="yourLanguages">??</em>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="currentLanguages">??</em>
 										</td>
 									</tr>
@@ -438,14 +438,14 @@ function template_view_versions()
 	{
 		foreach ($files as $filename => $version)
 			echo '
-									<tr>
-										<td class="windowbg2 half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											', $filename, '.<em>', $language, '</em>.php
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="your', $filename, '.', $language, '">', $version, '</em>
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="current', $filename, '.', $language, '">??</em>
 										</td>
 									</tr>';
@@ -461,14 +461,14 @@ function template_view_versions()
 		echo '
 							<table class="table_grid">
 								<tbody>
-									<tr>
-										<td class="windowbg half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											<a href="#" id="Templates-link">', $txt['dvc_templates'], '</a>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="yourTemplates">??</em>
 										</td>
-										<td class="windowbg quarter_table">
+										<td class="quarter_table">
 											<em id="currentTemplates">??</em>
 										</td>
 									</tr>
@@ -480,14 +480,14 @@ function template_view_versions()
 
 		foreach ($context['template_versions'] as $filename => $version)
 			echo '
-									<tr>
-										<td class="windowbg2 half_table">
+									<tr class="windowbg">
+										<td class="half_table">
 											', $filename, '
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="yourTemplates', $filename, '">', $version, '</em>
 										</td>
-										<td class="windowbg2 quarter_table">
+										<td class="quarter_table">
 											<em id="currentTemplates', $filename, '">??</em>
 										</td>
 									</tr>';
@@ -1453,14 +1453,13 @@ function template_php_info()
 						<table id="', str_replace(' ', '_', $area), '" class="table_grid">
 							<thead>
 								<tr class="title_bar">
-									<th class="first_th" scope="col" width="33%"></th>
-									<th scope="col" width="33%" class="centercol"><strong>', $area, '</strong></th>
-									<th class="last_th" scope="col" width="33%"></th>
+									<th class="equal_table" scope="col"></th>
+									<th class="centercol equal_table" scope="col"><strong>', $area, '</strong></th>
+									<th class="equal_table" scope="col"></th>
 								</tr>
 							</thead>
 							<tbody>';
 
-		$alternate = true;
 		$localmaster = true;
 
 		// and for each setting in this category
@@ -1474,21 +1473,21 @@ function template_php_info()
 					// heading row for the settings section of this categorys settings
 					echo '
 								<tr class="title_bar">
-									<td width="33%"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
-									<td width="33%"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
-									<td width="33%"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
+									<td class="equal_table"><strong>', $txt['phpinfo_itemsettings'], '</strong></td>
+									<td class="equal_table"><strong>', $txt['phpinfo_localsettings'], '</strong></td>
+									<td class="equal_table"><strong>', $txt['phpinfo_defaultsettings'], '</strong></td>
 								</tr>';
 					$localmaster = false;
 				}
 
 				echo '
-								<tr>
-									<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key, '</td>';
+								<tr class="windowbg">
+									<td align="left" class="equal_table">', $key, '</td>';
 
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-									<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $value, '</td>';
+									<td align="left" class="equal_table">', $value, '</td>';
 				}
 				echo '
 								</tr>';
@@ -1497,13 +1496,11 @@ function template_php_info()
 			else
 			{
 				echo '
-								<tr>
-									<td align="left" width="33%" class="windowbg', $alternate ? '2' : '', '">', $key,  '</td>
-									<td align="left" class="windowbg', $alternate ? '2' : '', '" colspan="2">', $setting, '</td>
+								<tr class="windowbg">
+									<td align="left" class="equal_table">', $key,  '</td>
+									<td align="left" colspan="2">', $setting, '</td>
 								</tr>';
 			}
-
-			$alternate = !$alternate;
 		}
 		echo '
 							</tbody>

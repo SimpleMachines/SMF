@@ -213,137 +213,9 @@ function template_main()
 	echo '
 			<div id="display_jump_to">&nbsp;</div>';
 
+	// Show quickreply
 	if ($context['can_reply'])
-	{
-		echo '
-			<a id="quickreply"></a>
-			<div class="tborder" id="quickreplybox">
-				<div class="cat_bar">
-					<h3 class="catbg">
-						', $txt['quick_reply'], '
-					</h3>
-				</div>
-				<div id="quickReplyOptions">
-					<div class="roundframe">', empty($options['use_editor_quick_reply']) ? '
-						<p class="smalltext lefttext">' . $txt['quick_reply_desc'] . '</p>' : '', '
-						', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
-						!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
-						', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
-						', !$context['can_reply_approved'] && $context['require_verification'] ? '<br>' : '', '
-						<form action="', $scripturl, '?board=', $context['current_board'], ';action=post2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
-							<input type="hidden" name="topic" value="', $context['current_topic'], '">
-							<input type="hidden" name="subject" value="', $context['response_prefix'], $context['subject'], '">
-							<input type="hidden" name="icon" value="xx">
-							<input type="hidden" name="from_qr" value="1">
-							<input type="hidden" name="notify" value="', $context['is_marked_notify'] || !empty($options['auto_notify']) ? '1' : '0', '">
-							<input type="hidden" name="not_approved" value="', !$context['can_reply_approved'], '">
-							<input type="hidden" name="goback" value="', empty($options['return_to_post']) ? '0' : '1', '">
-							<input type="hidden" name="last_msg" value="', $context['topic_last_message'], '">
-							<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-							<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">';
-
-		// Guests just need more.
-		if ($context['user']['is_guest'])
-			echo '
-							<dl id="post_header">
-								<dt>
-									', $txt['name'], ':
-								</dt>
-								<dd>
-									<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
-								</dd>
-								<dt>
-									', $txt['email'], ':
-								</dt>
-								<dd>
-									<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
-								</dd>
-							</dl>';
-
-		echo '
-							', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
-							<script><!-- // --><![CDATA[
-								function insertQuoteFast(messageid)
-								{
-									if (window.XMLHttpRequest)
-										getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
-									else
-										reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
-									return false;
-								}
-								function onDocReceived(XMLDoc)
-								{
-									var text = \'\';
-									for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
-										text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-									$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
-
-									ajax_indicator(false);
-								}
-							// ]]></script>';
-
-	// Is visual verification enabled?
-	if ($context['require_verification'])
-	{
-		echo '
-					<div class="post_verification">
-						<strong>', $txt['verification'], ':</strong>
-						', template_control_verification($context['visual_verification_id'], 'all'), '
-					</div>';
-	}
-
-	// Finally, the submit buttons.
-	echo '
-					<br class="clear_right">
-					<span id="post_confirm_buttons">
-						', template_control_richedit_buttons($context['post_box_name']) ,'
-					</span>';
-		echo '
-						</form>
-					</div>
-				</div>
-			</div>';
-	}
-	else
-		echo '
-			<br class="clear">';
-
-	// draft autosave available and the user has it enabled?
-	if (!empty($context['drafts_autosave']))
-		echo '
-			<script><!-- // --><![CDATA[
-				var oDraftAutoSave = new smf_DraftAutoSave({
-					sSelf: \'oDraftAutoSave\',
-					sLastNote: \'draft_lastautosave\',
-					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
-					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
-					sType: \'', 'quick', '\',
-					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
-					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
-				});
-			// ]]></script>';
-
-	if ($context['show_spellchecking'])
-		echo '
-			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
-
-	echo '
-				<script><!-- // --><![CDATA[';
-
-	echo '
-					var oQuickReply = new QuickReply({
-						bDefaultCollapsed: false,
-						iTopicId: ', $context['current_topic'], ',
-						iStart: ', $context['start'], ',
-						sScriptUrl: smf_scripturl,
-						sImagesUrl: smf_images_url,
-						sContainerId: "quickReplyOptions",
-						sImageId: "quickReplyExpand",
-						sClassCollapsed: "toggle_up",
-						sClassExpanded: "toggle_down",
-						sJumpAnchor: "quickreply",
-						bIsFull: true
-					});';
+	template_quickreply();
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
 		echo '
@@ -382,7 +254,7 @@ function template_main()
 							sTemplateBodyEdit: ', JavaScriptEscape('
 								<div id="quick_edit_body_container">
 									<div id="error_box" class="error"></div>
-									<textarea class="editor" name="message" rows="12" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 100%; min-width: 100%' : 'width: 100%') . '; margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
+									<textarea class="editor" name="message" rows="12" style="margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
 									<input type="hidden" name="' . $context['session_var']  . '" value="' . $context['session_id'] . '">
 									<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 									<input type="hidden" name="msg" value="%msg_id%">
@@ -402,7 +274,7 @@ function template_main()
 
 						aJumpTo[aJumpTo.length] = new JumpTo({
 							sContainerId: "display_jump_to",
-							sJumpToTemplate: "<label class=\"smalltext\" for=\"%select_id%\">', $context['jump_to']['label'], ':<" + "/label> %dropdown_list%",
+							sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', $context['jump_to']['label'], '<" + "/label> %dropdown_list%",
 							iCurBoardId: ', $context['current_board'], ',
 							iCurBoardChildLevel: ', $context['jump_to']['child_level'], ',
 							sCurBoardName: "', $context['jump_to']['board_name'], '",
@@ -445,12 +317,9 @@ function template_main()
 
 }
 
-function template_single_post($message, $force_alternate = null)
+function template_single_post($message)
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
-	static $alternate = false;
-	if ($force_alternate !== null)
-		$alternate = $force_alternate;
 
 	$ignoring = false;
 
@@ -466,7 +335,7 @@ function template_single_post($message, $force_alternate = null)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['approved'] ? ($message['alternate'] == 0 ? 'windowbg' : 'windowbg2') : 'approvebg', '">', $message['id'] != $context['first_message'] ? '
+				<div class="', $message['approved'] ? 'windowbg' : 'approvebg', '">', $message['id'] != $context['first_message'] ? '
 					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 
@@ -947,4 +816,134 @@ function template_single_post($message, $force_alternate = null)
 				<hr class="post_separator">';
 }
 
+function template_quickreply()
+{
+	global $context, $modSettings, $scripturl, $options, $txt;
+	echo '
+		<a id="quickreply"></a>
+		<div class="tborder" id="quickreplybox">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['quick_reply'], '
+				</h3>
+			</div>
+			<div id="quickReplyOptions">
+				<div class="roundframe">', empty($options['use_editor_quick_reply']) ? '
+					<p class="smalltext lefttext">' . $txt['quick_reply_desc'] . '</p>' : '', '
+					', $context['is_locked'] ? '<p class="alert smalltext">' . $txt['quick_reply_warning'] . '</p>' : '',
+					!empty($context['oldTopicError']) ? '<p class="alert smalltext">' . sprintf($txt['error_old_topic'], $modSettings['oldTopicDays']) . '</p>' : '', '
+					', $context['can_reply_approved'] ? '' : '<em>' . $txt['wait_for_approval'] . '</em>', '
+					', !$context['can_reply_approved'] && $context['require_verification'] ? '<br>' : '', '
+					<form action="', $scripturl, '?board=', $context['current_board'], ';action=post2" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
+						<input type="hidden" name="topic" value="', $context['current_topic'], '">
+						<input type="hidden" name="subject" value="', $context['response_prefix'], $context['subject'], '">
+						<input type="hidden" name="icon" value="xx">
+						<input type="hidden" name="from_qr" value="1">
+						<input type="hidden" name="notify" value="', $context['is_marked_notify'] || !empty($options['auto_notify']) ? '1' : '0', '">
+						<input type="hidden" name="not_approved" value="', !$context['can_reply_approved'], '">
+						<input type="hidden" name="goback" value="', empty($options['return_to_post']) ? '0' : '1', '">
+						<input type="hidden" name="last_msg" value="', $context['topic_last_message'], '">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						<input type="hidden" name="seqnum" value="', $context['form_sequence_number'], '">';
+
+		// Guests just need more.
+		if ($context['user']['is_guest'])
+			echo '
+						<dl id="post_header">
+							<dt>
+								', $txt['name'], ':
+							</dt>
+							<dd>
+								<input type="text" name="guestname" size="25" value="', $context['name'], '" tabindex="', $context['tabindex']++, '" class="input_text">
+							</dd>
+							<dt>
+								', $txt['email'], ':
+							</dt>
+							<dd>
+								<input type="email" name="email" size="25" value="', $context['email'], '" tabindex="', $context['tabindex']++, '" class="input_text" required>
+							</dd>
+						</dl>';
+
+		echo '
+						', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
+						<script><!-- // --><![CDATA[
+							function insertQuoteFast(messageid)
+							{
+								if (window.XMLHttpRequest)
+									getXMLDocument(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';xml;pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), onDocReceived);
+								else
+									reqWin(smf_prepareScriptUrl(smf_scripturl) + \'action=quotefast;quote=\' + messageid + \';pb=', $context['post_box_name'], ';mode=\' + (oEditorHandle_', $context['post_box_name'], '.bRichTextEnabled ? 1 : 0), 240, 90);
+								return false;
+							}
+							function onDocReceived(XMLDoc)
+							{
+								var text = \'\';
+								for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
+									text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
+								$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+
+								ajax_indicator(false);
+							}
+						// ]]></script>';
+
+	// Is visual verification enabled?
+	if ($context['require_verification'])
+	{
+		echo '
+				<div class="post_verification">
+					<strong>', $txt['verification'], ':</strong>
+					', template_control_verification($context['visual_verification_id'], 'all'), '
+				</div>';
+	}
+
+	// Finally, the submit buttons.
+	echo '
+				<br class="clear_right">
+				<span id="post_confirm_buttons">
+					', template_control_richedit_buttons($context['post_box_name']) ,'
+				</span>';
+		echo '
+					</form>
+				</div>
+			</div>
+		</div>
+		<br class="clear">';
+
+	// draft autosave available and the user has it enabled?
+	if (!empty($context['drafts_autosave']))
+		echo '
+			<script><!-- // --><![CDATA[
+				var oDraftAutoSave = new smf_DraftAutoSave({
+					sSelf: \'oDraftAutoSave\',
+					sLastNote: \'draft_lastautosave\',
+					sLastID: \'id_draft\',', !empty($context['post_box_name']) ? '
+					sSceditorID: \'' . $context['post_box_name'] . '\',' : '', '
+					sType: \'', 'quick', '\',
+					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
+					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
+				});
+			// ]]></script>';
+
+	if ($context['show_spellchecking'])
+		echo '
+			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
+
+	echo '
+				<script><!-- // --><![CDATA[';
+
+	echo '
+					var oQuickReply = new QuickReply({
+						bDefaultCollapsed: false,
+						iTopicId: ', $context['current_topic'], ',
+						iStart: ', $context['start'], ',
+						sScriptUrl: smf_scripturl,
+						sImagesUrl: smf_images_url,
+						sContainerId: "quickReplyOptions",
+						sImageId: "quickReplyExpand",
+						sClassCollapsed: "toggle_up",
+						sClassExpanded: "toggle_down",
+						sJumpAnchor: "quickreply",
+						bIsFull: true
+					});';
+}
 ?>

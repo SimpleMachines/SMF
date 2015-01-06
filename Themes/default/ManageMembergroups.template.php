@@ -561,7 +561,7 @@ function template_group_members()
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th class="first_th"><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=name', $context['sort_by'] == 'name' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['name'], $context['sort_by'] == 'name' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	if ($context['can_send_email'])
 		echo '
@@ -570,10 +570,10 @@ function template_group_members()
 	echo '
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=active', $context['sort_by'] == 'active' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['membergroups_members_last_active'], $context['sort_by'] == 'active' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
 						<th><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=registered', $context['sort_by'] == 'registered' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['date_registered'], $context['sort_by'] == 'registered' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th ', empty($context['group']['assignable']) ? ' class="last_th" colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '','</a></th>';
+						<th ', empty($context['group']['assignable']) ? ' colspan="2"' : '', '><a href="', $scripturl, '?action=', $context['current_action'], (isset($context['admin_area']) ? ';area=' . $context['admin_area'] : ''), ';sa=members;start=', $context['start'], ';sort=posts', $context['sort_by'] == 'posts' && $context['sort_direction'] == 'up' ? ';desc' : '', ';group=', $context['group']['id'], '">', $txt['posts'], $context['sort_by'] == 'posts' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '','</a></th>';
 	if (!empty($context['group']['assignable']))
 		echo '
-						<th class="last_th" style="width: 4%"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);"></th>';
+						<th style="width: 4%"><input type="checkbox" class="input_check" onclick="invertAll(this, this.form);"></th>';
 	echo '
 					</tr>
 				</thead>
@@ -581,16 +581,14 @@ function template_group_members()
 
 	if (empty($context['members']))
 		echo '
-					<tr class="windowbg2">
+					<tr class="windowbg">
 						<td colspan="6">', $txt['membergroups_members_no_members'], '</td>
 					</tr>';
 
-	$alternate = false;
 	foreach ($context['members'] as $member)
 	{
-		$alternate = !$alternate;
 		echo '
-					<tr class="', $alternate === true ? 'windowbg' : 'windowbg2', '">
+					<tr class="windowbg">
 						<td>', $member['name'], '</td>';
 		if ($context['can_send_email'])
 		{
@@ -695,7 +693,7 @@ function template_group_request_reason()
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
-						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="' . (isBrowser('is_ie8') ? 'width: 635px; min-width: 96%; max-width: 96%' : 'min-width: 80%; max-width: 99%') . ';"></textarea>
+						<textarea name="groupreason[', $request['id'], ']" rows="3" cols="40" style="min-width: 80%; max-width: 99%;"></textarea>
 					</dd>';
 
 	echo '

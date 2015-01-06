@@ -42,21 +42,17 @@ function template_main()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th scope="col" class="lefttext first_th" width="40%"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=user', $context['sort_direction'] != 'down' && $context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], $context['sort_by'] == 'user' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
+							<th scope="col" class="lefttext" width="40%"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=user', $context['sort_direction'] != 'down' && $context['sort_by'] == 'user' ? '' : ';asc', '" rel="nofollow">', $txt['who_user'], $context['sort_by'] == 'user' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
 							<th scope="col" class="lefttext time" width="10%"><a href="', $scripturl, '?action=who;start=', $context['start'], ';show=', $context['show_by'], ';sort=time', $context['sort_direction'] == 'down' && $context['sort_by'] == 'time' ? ';asc' : '', '" rel="nofollow">', $txt['who_time'], $context['sort_by'] == 'time' ? '<span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a></th>
-							<th scope="col" class="lefttext last_th half_table">', $txt['who_action'], '</th>
+							<th scope="col" class="lefttext half_table">', $txt['who_action'], '</th>
 						</tr>
 					</thead>
 					<tbody>';
 
-	// For every member display their name, time and action (and more for admin).
-	$alternate = 0;
-
 	foreach ($context['members'] as $member)
 	{
-		// $alternate will either be true or false. If it's true, use "windowbg2" and otherwise use "windowbg".
 		echo '
-						<tr class="windowbg', $alternate ? '2' : '', '">
+						<tr class="windowbg">
 							<td>';
 
 		// Guests can't be messaged.
@@ -82,16 +78,13 @@ function template_main()
 							<td class="time">', $member['time'], '</td>
 							<td>', $member['action'], '</td>
 						</tr>';
-
-		// Switch alternate to whatever it wasn't this time. (true -> false -> true -> false, etc.)
-		$alternate = !$alternate;
 	}
 
 	// No members?
 	if (empty($context['members']))
 	{
 		echo '
-						<tr class="windowbg2">
+						<tr class="windowbg">
 							<td colspan="3">
 							', $txt['who_no_online_' . ($context['show_by'] == 'guests' || $context['show_by'] == 'spiders' ? $context['show_by'] : 'members')], '
 							</td>

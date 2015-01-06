@@ -22,58 +22,58 @@ function template_modify_weights()
 			</div>
 			<div class="windowbg2">
 				<dl class="settings">
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight1_val">
 						', $txt['search_weight_frequency'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_frequency" id="weight1_val" value="', empty($modSettings['search_weight_frequency']) ? '0' : $modSettings['search_weight_frequency'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight1" class="search_weight">', $context['relative_weights']['search_weight_frequency'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight2_val">
 						', $txt['search_weight_age'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_age" id="weight2_val" value="', empty($modSettings['search_weight_age']) ? '0' : $modSettings['search_weight_age'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight2" class="search_weight">', $context['relative_weights']['search_weight_age'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight3_val">
 						', $txt['search_weight_length'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_length" id="weight3_val" value="', empty($modSettings['search_weight_length']) ? '0' : $modSettings['search_weight_length'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight3" class="search_weight">', $context['relative_weights']['search_weight_length'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight4_val">
 						', $txt['search_weight_subject'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_subject" id="weight4_val" value="', empty($modSettings['search_weight_subject']) ? '0' : $modSettings['search_weight_subject'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight4" class="search_weight">', $context['relative_weights']['search_weight_subject'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight5_val">
 						', $txt['search_weight_first_message'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_first_message" id="weight5_val" value="', empty($modSettings['search_weight_first_message']) ? '0' : $modSettings['search_weight_first_message'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight5" class="search_weight">', $context['relative_weights']['search_weight_first_message'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<a href="', $scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><label for="weight6_val">
 						', $txt['search_weight_sticky'], ':</label>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span class="search_weight"><input type="text" name="search_weight_sticky" id="weight6_val" value="', empty($modSettings['search_weight_sticky']) ? '0' : $modSettings['search_weight_sticky'], '" onchange="calculateNewValues()" size="3" class="input_text"></span>
 						<span id="weight6" class="search_weight">', $context['relative_weights']['search_weight_sticky'], '%</span>
 					</dd>
-					<dt class="large_caption">
+					<dt>
 						<strong>', $txt['search_weights_total'], '</strong>
 					</dt>
-					<dd class="large_caption">
+					<dd>
 						<span id="weighttotal" class="search_weight"><strong>', $context['relative_weights']['total'], '</strong></span>
 						<span class="search_weight"><strong>100%</strong></span>
 					</dd>
@@ -316,10 +316,10 @@ function template_spider_edit()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div class="information">
+			<div class="information winfo">
 				', $txt['add_spider_desc'], '
 			</div>
-			<div class="windowbg">
+			<div class="windowbg2">
 				<dl class="settings">
 					<dt>
 						<strong><label for="spider_name">', $txt['spider_name'], ':</label></strong><br>

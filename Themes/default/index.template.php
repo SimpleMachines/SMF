@@ -58,12 +58,12 @@ function template_init()
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
-		'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
-		'previous_page' => '<span class="previous_page"></span>',
+		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
+		'previous_page' => '<span class="generic_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">[%1$d]</span> ',
 		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-		'next_page' => '<span class="next_page"></span>',
+		'next_page' => '<span class="generic_icons next_page"></span>',
 		'extra_after' => '',
 	);
 }
@@ -73,7 +73,7 @@ function template_init()
  */
 function template_html_above()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings, $mbname;
 
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html>
@@ -104,7 +104,16 @@ function template_html_above()
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
 
-	// What is your Lollipop's color?
+	// Some Open Graph?
+	echo '
+	<meta property="og:site_name" content="', $mbname,'" />
+	<meta properly="og:title" content="', $context['page_title_html_safe'],'" />
+	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'" />' : '',
+	!empty($settings['og_image']) ? '<meta properly="og:image" content="'. $settings['og_image'].'" />' : '','
+	<meta properly="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'" />';
+
+	/* What is your Lollipop's color?
+	Theme Authors you can change here to make sure your theme's main color got visible on tab */
 	echo '
 	<meta name="theme-color" content="#557EA0">';
 
@@ -193,7 +202,7 @@ function template_body_above()
 		// Thirdly, alerts
 		echo '
 				<li>
-					<a href="', $scripturl, '?action=profile;area=showalerts"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'] ,'"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
 					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
@@ -443,7 +452,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								<span class="generic_icons ', $act, '" ', (!empty($button['custom']) ? ' ' . $button['custom'] : ''),'></span>', $button['title'], '
+								', $button['icon'], $button['title'], '
 							</a>';
 
 		if (!empty($button['sub_buttons']))

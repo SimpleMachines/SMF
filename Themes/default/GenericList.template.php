@@ -74,15 +74,8 @@ function template_show_list($list_id = null)
 				<tr class="title_bar">';
 
 		// Loop through each column and add a table header.
-		$i = 0;
 		foreach ($cur_list['headers'] as $col_header)
 		{
-			$i ++;
-			if ($i === 1)
-				$col_header['class'] = empty($col_header['class']) ? 'first_th' : 'first_th ' . $col_header['class'];
-			elseif ($i === $header_count)
-				$col_header['class'] = empty($col_header['class']) ? 'last_th' : 'last_th ' . $col_header['class'];
-
 			echo '
 					<th scope="col" id="header_', $list_id, '_', $col_header['id'], '"', empty($col_header['class']) ? '' : ' class="' . $col_header['class'] . '"', empty($col_header['style']) ? '' : ' style="' . $col_header['style'] . '"', empty($col_header['colspan']) ? '' : ' colspan="' . $col_header['colspan'] . '"', '>', empty($col_header['href']) ? '' : '<a href="' . $col_header['href'] . '" rel="nofollow">', empty($col_header['label']) ? '&nbsp;' : $col_header['label'], empty($col_header['href']) ? '' : (empty($col_header['sort_image']) ? '</a>' : ' <span class="generic_icons sort_' . $col_header['sort_image'] . '"></span></a>'), '</th>';
 		}
@@ -98,18 +91,17 @@ function template_show_list($list_id = null)
 	// Show a nice message informing there are no items in this list.
 	if (empty($cur_list['rows']) && !empty($cur_list['no_items_label']))
 		echo '
-				<tr>
-					<td class="windowbg" colspan="', $cur_list['num_columns'], '" align="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'center', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
+				<tr class="windowbg">
+					<td colspan="', $cur_list['num_columns'], '" align="', !empty($cur_list['no_items_align']) ? $cur_list['no_items_align'] : 'center', '"><div class="padding">', $cur_list['no_items_label'], '</div></td>
 				</tr>';
 
 	// Show the list rows.
 	elseif (!empty($cur_list['rows']))
 	{
-		$alternate = false;
 		foreach ($cur_list['rows'] as $id => $row)
 		{
 			echo '
-				<tr class="windowbg', $alternate ? '2' : '', $row['class'], '"', $row['style'], ' id="list_', $list_id, '_', $id, '">';
+				<tr class="windowbg', $row['class'], '"', $row['style'], ' id="list_', $list_id, '_', $id, '">';
 
 			foreach ($row['data'] as $row_data)
 				echo '
@@ -117,8 +109,6 @@ function template_show_list($list_id = null)
 
 			echo '
 				</tr>';
-
-			$alternate = !$alternate;
 		}
 	}
 

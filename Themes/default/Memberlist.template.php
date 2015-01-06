@@ -61,13 +61,12 @@ function template_main()
 			<tbody>';
 
 	// Assuming there are members loop through each one displaying their data.
-	$alternate = true;
 	if (!empty($context['members']))
 	{
 		foreach ($context['members'] as $member)
 		{
 			echo '
-				<tr class="windowbg', $alternate ? '2' : '', '"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
+				<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
 					<td>
 						', $context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', $settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], $context['can_send_pm'] ? '</a>' : '', '
 					</td>
@@ -108,8 +107,6 @@ function template_main()
 
 		echo '
 				</tr>';
-
-			$alternate = !$alternate;
 		}
 	}
 	// No members?

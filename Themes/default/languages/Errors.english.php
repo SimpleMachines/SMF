@@ -81,6 +81,7 @@ $txt['cannot_manage_membergroups'] = 'You don\'t have permission to modify or as
 $txt['cannot_manage_permissions'] = 'You don\'t have permission to manage permissions.';
 $txt['cannot_manage_smileys'] = 'You\'re not allowed to manage smileys and message icons.';
 $txt['cannot_merge_any'] = 'You aren\'t allowed to merge topics on one of the selected board(s).';
+$txt['cannot_merge_redirect'] = 'One or more of the topics you have selected is a redirect topic and cannot be merged.';
 $txt['cannot_moderate_forum'] = 'You are not allowed to moderate this forum.';
 $txt['cannot_moderate_board'] = 'You are not allowed to moderate this board.';
 $txt['cannot_modify_any'] = 'You aren\'t allowed to modify just any post.';

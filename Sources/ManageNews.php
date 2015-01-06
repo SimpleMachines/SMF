@@ -155,8 +155,7 @@ function EditNews()
 					'function' => function ($news)
 					{
 						if (is_numeric($news['id']))
-							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width 100%;margin 0 5em') . ';">' . $news['unparsed'] . '</textarea>
-							<br>
+							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
 							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
 							return $news['unparsed'];
@@ -249,7 +248,7 @@ function EditNews()
 						$("#list_news_lists_last").before(' . javaScriptEscape('
 						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
 							<td style="width: 50%;">
-									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 95%') . ';"></textarea>
+									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="width: 95%;"></textarea>
 									<br>
 									<div class="floatleft" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
 							</td>
@@ -291,7 +290,7 @@ function list_getNews()
 	$admin_current_news['last'] = array(
 		'id' => 'last',
 		'unparsed' => '<div id="moreNewsItems"></div>
-		<noscript><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea></noscript>',
+		<noscript><textarea rows="3" cols="65" name="news[]" style="width: 85%;"></textarea></noscript>',
 		'parsed' => '<div id="moreNewsItems_preview"></div>',
 	);
 

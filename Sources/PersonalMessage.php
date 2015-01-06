@@ -1119,7 +1119,6 @@ function prepareMessageContext($type = 'subject', $reset = false)
 
 	// Send the array.
 	$output = array(
-		'alternate' => $counter % 2,
 		'id' => $message['id_pm'],
 		'member' => &$memberContext[$message['id_member_from']],
 		'subject' => $message['subject'],
