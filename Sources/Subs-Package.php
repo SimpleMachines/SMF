@@ -253,7 +253,7 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 	// Get all the basic zip file info since we are here
 	$zip_info = unpack('vdisks/vrecords/vfiles/Vsize/Voffset/vcomment_length/', $data_ecr[1]);
 
-	// Cut file at the central directory file header signature -- 0x02015b50, use unpack if you want any of the data, we don't
+	// Cut file at the central directory file header signature -- 0x02014b50, use unpack if you want any of the data, we don't
 	$file_sections = explode("\x50\x4b\x01\x02", $data);
 
 	// Cut the result on each local file header -- 0x04034b50 so we have each file in the archive as an element.
