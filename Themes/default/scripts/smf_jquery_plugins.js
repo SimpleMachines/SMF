@@ -11,7 +11,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
@@ -304,7 +304,7 @@
 
 /*
  * jQuery Superfish Menu Plugin - v1.7.5
- * Copyright (c) 2014 Joel Birch
+ * Copyright (c) 2015 Joel Birch
  *
  * Dual licensed under the MIT and GPL licenses:
  *	http://www.opensource.org/licenses/mit-license.php
