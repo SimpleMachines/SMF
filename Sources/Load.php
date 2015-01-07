@@ -234,9 +234,6 @@ function reloadSettings()
 		}
 	}
 
-	// Call pre load integration functions.
-	call_integration_hook('integrate_pre_load');
-
 	// This determines the server... not used in many places, except for login fixing.
 	$context['server'] = array(
 		'is_iis' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false,
@@ -254,8 +251,16 @@ function reloadSettings()
 	// Define a list of icons used across multiple places.
 	$context['stable_icons'] = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 
-	// Add your own icons.
-	call_integration_hook('integrate_stable_icons');
+	// Define an array for custom profile fields placements.
+	$context['cust_profile_fields_placement'] = array(
+		'standard',
+		'icons',
+		'above_signature',
+		'below_signature',
+		'below_avatar',
+		'above_member',
+		'bottom_poster',
+	);
 
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
@@ -269,6 +274,9 @@ function reloadSettings()
 		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
 		$smcFunc['db_free_result']($query);
 	}
+
+	// Call pre load integration functions.
+	call_integration_hook('integrate_pre_load');
 }
 
 /**

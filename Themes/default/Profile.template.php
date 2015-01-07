@@ -144,12 +144,52 @@ function template_summary()
 	// Display the basic information about the user
 	echo '
 	<div id="profileview" class="roundframe flow_auto">
-		<div id="basicinfo">
-			<div class="username">
+		<div id="basicinfo">';
+
+	// Are there any custom profile fields for above the name?
+	if (!empty($context['print_custom_fields']['above_member']))
+	{
+		echo '
+			<div class="custom_fields_above_name">
+				<ul >';
+
+		foreach ($context['print_custom_fields']['above_member'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+					<li>', $field['output_html'], '</li>';
+
+		echo '
+				</ul>
+			</div>
+			<br>';
+	}
+
+	echo '
+			<div class="username clear">
 				<h4>', $context['member']['name'], '<span class="position">', (!empty($context['member']['group']) ? $context['member']['group'] : $context['member']['post_group']), '</span></h4>
 			</div>
-			', $context['member']['avatar']['image'], '
-			<ul class="reset">';
+			', $context['member']['avatar']['image'];
+
+	// Are there any custom profile fields for below the avatar?
+	if (!empty($context['print_custom_fields']['below_avatar']))
+	{
+		echo '
+			<div class="custom_fields_below_avatar">
+				<ul >';
+
+		foreach ($context['print_custom_fields']['below_avatar'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+					<li>', $field['output_html'], '</li>';
+
+		echo '
+				</ul>
+			</div>
+			<br>';
+	}
+
+		echo '
+			<ul class="reset clear">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -160,11 +200,11 @@ function template_summary()
 		echo '
 				<li><a href="', $context['member']['website']['url'], '" title="' . $context['member']['website']['title'] . '" target="_blank" class="new_win">', ($settings['use_image_buttons'] ? '<span class="generic_icons www" title="' . $context['member']['website']['title'] . '"></span>' : $txt['www']), '</a></li>';
 
-	// Are there any custom profile fields for the summary?
-	if (!empty($context['custom_fields']))
+	// Are there any custom profile fields as icons?
+	if (!empty($context['print_custom_fields']['icons']))
 	{
-		foreach ($context['custom_fields'] as $field)
-			if (($field['placement'] == 1 || empty($field['output_html'])) && !empty($field['value']))
+		foreach ($context['print_custom_fields']['icons'] as $field)
+			if (!empty($field['output_html']))
 				echo '
 					<li class="custom_field">', $field['output_html'], '</li>';
 	}
@@ -195,8 +235,27 @@ function template_summary()
 	echo '
 			<a href="', $scripturl, '?action=profile;area=statistics;u=', $context['id_member'], '" class="infolinks">', $txt['statPanel'], '</a>';
 
+	// Are there any custom profile fields for bottom?
+	if (!empty($context['print_custom_fields']['bottom_poster']))
+	{
+		echo '
+			<div class="custom_fields_bottom">
+				<ul class="reset nolist">';
+
+		foreach ($context['print_custom_fields']['bottom_poster'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+					<li>', $field['output_html'], '</li>';
+
+		echo '
+				</ul>
+			</div>';
+	}
+
 	echo '
-		</div>
+		</div>';
+
+	echo '
 		<div id="detailedinfo">
 			<dl>';
 
@@ -235,28 +294,18 @@ function template_summary()
 			</dl>';
 
 	// Any custom fields for standard placement?
-	if (!empty($context['custom_fields']))
+	if (!empty($context['print_custom_fields']['standard']))
 	{
-		$shown = false;
-		foreach ($context['custom_fields'] as $field)
-		{
-			if ($field['placement'] != 0 || empty($field['output_html']))
-				continue;
-
-			if (empty($shown))
-			{
-				echo '
+		echo '
 				<dl>';
-				$shown = true;
-			}
 
-			echo '
+		foreach ($context['print_custom_fields']['standard'] as $field)
+			if (!empty($field['output_html']))
+				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
-		}
 
-		if (!empty($shown))
-			echo '
+		echo '
 				</dl>';
 	}
 
@@ -341,26 +390,19 @@ function template_summary()
 	echo '
 				</dl>';
 
-	// Are there any custom profile fields for the summary?
-	if (!empty($context['custom_fields']))
+	// Are there any custom profile fields for above the signature?
+	if (!empty($context['print_custom_fields']['above_signature']))
 	{
-		$shown = false;
-		foreach ($context['custom_fields'] as $field)
-		{
-			if ($field['placement'] != 2 || empty($field['output_html']))
-				continue;
-			if (empty($shown))
-			{
-				$shown = true;
-				echo '
+		echo '
 				<div class="custom_fields_above_signature">
 					<ul class="reset nolist">';
-			}
-			echo '
-						<li>', $field['output_html'], '</li>';
-		}
-		if ($shown)
+
+		foreach ($context['print_custom_fields']['above_signature'] as $field)
+			if (!empty($field['output_html']))
 				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
 					</ul>
 				</div>';
 	}
@@ -372,6 +414,23 @@ function template_summary()
 					<h5>', $txt['signature'], ':</h5>
 					', $context['member']['signature'], '
 				</div>';
+
+	// Are there any custom profile fields for below the signature?
+	if (!empty($context['print_custom_fields']['below_signature']))
+	{
+		echo '
+				<div class="custom_fields_below_signature">
+					<ul class="reset nolist">';
+
+		foreach ($context['print_custom_fields']['below_signature'] as $field)
+			if (!empty($field['output_html']))
+				echo '
+						<li>', $field['output_html'], '</li>';
+
+		echo '
+					</ul>
+				</div>';
+	}
 
 	echo '
 		</div>
