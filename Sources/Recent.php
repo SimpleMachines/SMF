@@ -817,7 +817,7 @@ function UnreadTopics()
 			WHERE t.' . $query_this_board . (!empty($earliest_msg) ? '
 				AND t.id_last_msg > {int:earliest_msg}' : '') . '
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1',
+				AND t.approved = {int:is_approved}' : ''),
 			array_merge($query_parameters, array(
 				'current_member' => $user_info['id'],
 				'earliest_msg' => !empty($earliest_msg) ? $earliest_msg : 0,
