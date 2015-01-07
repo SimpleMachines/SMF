@@ -241,7 +241,7 @@ function SplitSelectTopics()
 			WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
 				AND id_msg NOT IN ({array_int:no_split_msgs})') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-			ORDER BY id_msg DESC
+			' . (empty($settings['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 			array(
 				'current_topic' => $topic,
@@ -265,7 +265,7 @@ function SplitSelectTopics()
 				WHERE id_topic = {int:current_topic}
 					AND id_msg IN ({array_int:split_msgs})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 					AND approved = {int:is_approved}') . '
-				ORDER BY id_msg DESC
+				' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 				LIMIT {int:start}, {int:messages_per_page}',
 				array(
 					'current_topic' => $topic,
@@ -349,7 +349,7 @@ function SplitSelectTopics()
 		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
 			AND id_msg NOT IN ({array_int:no_split_msgs})') . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 			AND approved = {int:is_approved}') . '
-		ORDER BY m.id_msg DESC
+		' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 		LIMIT {int:start}, {int:messages_per_page}',
 		array(
 			'current_topic' => $topic,
@@ -389,7 +389,7 @@ function SplitSelectTopics()
 			WHERE m.id_topic = {int:current_topic}
 				AND m.id_msg IN ({array_int:split_msgs})' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : '
 				AND approved = {int:is_approved}') . '
-			ORDER BY m.id_msg DESC
+			' . (empty($options['view_newest_first']) ? '' : 'ORDER BY m.id_msg DESC') . '
 			LIMIT {int:start}, {int:messages_per_page}',
 			array(
 				'current_topic' => $topic,
