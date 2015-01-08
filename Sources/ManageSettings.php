@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
@@ -1446,18 +1446,11 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => function ($rowData) use ($txt)
+					'function' => function ($rowData)
 					{
-						$placement = array(
-							'standard',
-							'with_icons',
-							'above_signature',
-							'below_signature',
-							'below_avatar',
-							'above_name',
-							'bottom',
-						);
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
+						global $txt, $context;
+
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $context['cust_profile_fields_placement'][$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
 				),

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
@@ -191,6 +191,14 @@ function summary($memID)
 	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
 		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
+
+	$context['print_custom_fields'] = array();
+
+	// Any custom profile fields?
+	if (!empty($context['custom_fields']))
+		foreach ($context['custom_fields'] as $custom)
+			$context['print_custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
+
 }
 
 /**

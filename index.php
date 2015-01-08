@@ -14,14 +14,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
  */
 
 $forum_version = 'SMF 2.1 Beta 1';
-$software_year = '2014';
+$software_year = '2015';
 
 // Get everything started up...
 define('SMF', 1);

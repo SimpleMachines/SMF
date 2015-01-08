@@ -4,7 +4,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
@@ -1072,14 +1072,13 @@ function template_edit_profile_field()
 											<strong><label for="placement">', $txt['custom_edit_placement'], ':</label></strong>
 										</dt>
 										<dd>
-											<select name="placement" id="placement">
-												<option value="0"', $context['field']['placement'] == '0' ? ' selected' : '', '>', $txt['custom_edit_placement_standard'], '</option>
-												<option value="1"', $context['field']['placement'] == '1' ? ' selected' : '', '>', $txt['custom_edit_placement_with_icons'], '</option>
-												<option value="2"', $context['field']['placement'] == '2' ? ' selected' : '', '>', $txt['custom_edit_placement_above_signature'], '</option>
-												<option value="3"', $context['field']['placement'] == '3' ? ' selected' : '', '>', $txt['custom_profile_placement_below_signature'], '</option>
-												<option value="4"', $context['field']['placement'] == '4' ? ' selected' : '', '>', $txt['custom_profile_placement_below_avatar'], '</option>
-												<option value="5"', $context['field']['placement'] == '5' ? ' selected' : '', '>', $txt['custom_profile_placement_above_name'], '</option>
-												<option value="6"', $context['field']['placement'] == '6' ? ' selected' : '', '>', $txt['custom_profile_placement_bottom'], '</option>
+											<select name="placement" id="placement">';
+
+	foreach ($context['cust_profile_fields_placement'] as $order => $name)
+		echo '
+												<option value="', $order ,'"', $context['field']['placement'] == $order ? ' selected' : '', '>', $txt['custom_profile_placement_'. $name], '</option>';
+
+	echo '
 											</select>
 										</dd>
 										<dt>

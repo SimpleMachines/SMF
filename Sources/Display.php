@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1 Beta 1
@@ -1434,33 +1434,10 @@ function prepareDisplayContext($reset = false)
 	if (!empty($output['modified']['name']) && !empty($output['modified']['reason']))
 		$output['modified']['last_edit_text'] .= '&nbsp;' . sprintf($txt['last_edit_reason'], $output['modified']['reason']);
 
-
 	// Any custom profile fields?
 	if (!empty($memberContext[$message['id_member']]['custom_fields']))
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
-			switch ($custom['placement'])
-			{
-				case 1:
-					$output['custom_fields']['icons'][] = $custom;
-					break;
-				case 2:
-					$output['custom_fields']['above_signature'][] = $custom;
-					break;
-				case 3:
-					$output['custom_fields']['below_signature'][] = $custom;
-					break;
-				case 4:
-					$output['custom_fields']['below_avatar'][] = $custom;
-					break;
-				case 5:
-					$output['custom_fields']['above_member'][] = $custom;
-					break;
-				case 6:
-					$output['custom_fields']['bottom_poster'][] = $custom;
-					break;
-				default:
-					$output['custom_fields']['standard'][] = $custom;
-			}
+			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
 	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
 
