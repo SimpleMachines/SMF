@@ -100,6 +100,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 			elseif (in_array($type, array('reply', 'topic')) && $member == $posterOptions['id'])
 				continue;
+			elseif (!in_array($type, array('reply', 'topic')) && $notify_types == 3)
+				continue;
+			elseif ($notify_types == 4)
+				continue;
 
 			if ($frequency > 2 || (!empty($frequency) && $data['sent']) || in_array($member, $done_members)
 				|| (!empty($this->_details['members_only']) && !in_array($member, $this->_details['members_only'])))
