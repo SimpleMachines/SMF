@@ -4648,7 +4648,7 @@ function smf_list_timezones()
 		'UTC' => '[UTC] UTC',
 		'Pacific/Midway' => '[UTC-11:00] Midway Island, Samoa',
 		'America/Adak' => '[UTC-10:00] Hawaii-Aleutian',
-		'America/Honolulu' => '[UTC-10:00] Hawaii',
+		'Pacific/Honolulu' => '[UTC-10:00] Hawaii',
 		'Pacific/Marquesas' => '[UTC-09:30] Marquesas Islands',
 		'Pacific/Gambier' => '[UTC-09:00] Gambier Islands',
 		'America/Anchorage' => '[UTC-09:00] Alaska',
