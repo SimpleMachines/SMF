@@ -807,7 +807,7 @@ function un_htmlspecialchars($string)
 {
 	global $context;
 	static $translation = array();
-	
+
 	// Determine the character set... Default to UTF-8
 	if (empty($context['character_set']))
 		$charset = 'UTF-8';
