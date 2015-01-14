@@ -3851,6 +3851,9 @@ h3.profile_hd {
 #reported_posts .generic_icons {
 	margin: -3px 3px 0 0;
 }
+#reported_posts .quickbuttons li a {
+	background: none;
+}
 #modcenter .generic_icons {
 	margin: -3px -3px 0 0;
 }
