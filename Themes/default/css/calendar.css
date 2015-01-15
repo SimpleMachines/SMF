@@ -3,6 +3,10 @@
 #calendar {
 	overflow: hidden;
 }
+#calendar .windowbg, #calendar .windowbg2 {
+	box-shadow: none;
+	border-radius: 0;
+}
 /* Used to indicate the current day in the grid. */
 #main_grid .calendar_today span.day_text, #month_grid .calendar_today, .calendar_week tr.days_wrapper td.calendar_today:first-child {
 	font-weight: bold;
