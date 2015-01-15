@@ -156,20 +156,18 @@ function DisplayStats()
 		if (($context['gender'] = cache_get_data('stats_gender', 240)) == null)
 		{
 			$result = $smcFunc['db_query']('', '
-				SELECT COUNT(*) AS total_members, c.value AS gender
-				FROM {db_prefix}members AS m
-				INNER JOIN {db_prefix}themes AS c ON c.variable = "cust_gender"
-				GROUP BY c.value',
-				array()
+				SELECT COUNT(id_member) AS total_members, value AS gender
+				FROM {db_prefix}themes
+				WHERE variable = {string:gender_var}
+				GROUP BY value',
+				array(
+					'gender_var' => 'cust_gender',
+				)
 			);
 			$context['gender'] = array();
 			while ($row = $smcFunc['db_fetch_assoc']($result))
 			{
-				$context['gender'][$row['gender']] = 0;
-
-				// Assuming we're telling the genders in the forum...
-				if (!empty($row['gender']))
-					$context['gender'][$row['gender']]++;
+				$context['gender'][$row['gender']] = $row['total_members'];
 			}
 			$smcFunc['db_free_result']($result);
 
