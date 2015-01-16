@@ -459,13 +459,6 @@ a img {
 .pages::after, .jump_to::after {
 	content: ": ";
 }
-.current_page, .navPages {
-	border: 1px solid #000;
-	background: #475ACD;
-	padding: 3px 6px !important;
-	border-radius: 3px;
-	margin: 0;
-}
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
