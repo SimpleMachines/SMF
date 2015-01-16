@@ -459,6 +459,13 @@ a img {
 .pages::after, .jump_to::after {
 	content: ": ";
 }
+.current_page, .navPages {
+	border: 1px solid #000;
+	background: #475ACD;
+	padding: 3px 6px !important;
+	border-radius: 3px;
+	margin: 0;
+}
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
 }
@@ -2717,6 +2724,9 @@ dl.addrules dt.floatleft {
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
 	background: #FFFFFF;
+	top: 25%;
+	left: 50%;
+	margin: -50px 0 0 -250px;
 }
 .popup_heading {
 	margin: 0;
