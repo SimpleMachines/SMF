@@ -939,7 +939,7 @@ You have been quoted in the post titled "{CONTENTSUBJECT}" by {QUOTENAME}, you c
 	@description: A notification email sent to the members who've been mentioned in a post
  */
 $txt['msg_mention_subject'] = 'You have been mentioned in the post: {CONTENTSUBJECT}';
-$txt['msg_mention_body'] = 'Hello {MENTIONNAME},
+$txt['msg_mention_body'] = 'Hello {MEMBERNAME},
 
 You have been mentioned in the post titled "{CONTENTSUBJECT}" by {MENTIONNAME}, you can see the post here:
 {CONTENTLINK}
