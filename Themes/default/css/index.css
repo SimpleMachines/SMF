@@ -47,6 +47,9 @@ textarea, textarea.editor {
 .sceditor-container textarea, .sceditor-container textarea:focus  {
 	box-shadow: none;
 }
+#quick_edit_body_container textarea {
+	width: 100%;
+}
 /* Apply the font only to these elements. */
 input, button, select {
 	font-size: 0.9em;
