@@ -51,11 +51,11 @@ function template_reminder_pick()
 				<p><strong>', $txt['authentication_options'], ':</strong></p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked class="input_radio"></dt>
-					<label for="reminder_type_email">', $txt['authentication_' . $context['account_type'] . '_email'], '</label></dd>
+					<label for="reminder_type_email">', $txt['authentication_password_email'], '</label></dd>
 				</p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret" class="input_radio">
-					<label for="reminder_type_secret">', $txt['authentication_' . $context['account_type'] . '_secret'], '</label>
+					<label for="reminder_type_secret">', $txt['authentication_password_secret'], '</label>
 				</p>
 				<div class="flow_auto">
 					<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit">
