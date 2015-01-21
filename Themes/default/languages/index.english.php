@@ -670,7 +670,7 @@ $txt['merge_check'] = 'Merge?';
 $txt['merge_no_poll'] = 'No poll';
 $txt['merge_why'] = 'Please entere a brief description as to<br>why these topics are being merged.';
 $txt['merged_subject'] = '[MERGED] %1$s';
-$txt['merge_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
+$txt['mergetopic_default'] = 'This topic has been merged into ' . $txt['movetopic_auto_topic'] . '.';
 
 $txt['response_prefix'] = 'Re: ';
 $txt['current_icon'] = 'Current Icon';
