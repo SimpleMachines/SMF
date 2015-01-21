@@ -114,6 +114,8 @@ function MoveTopic()
 		$txt['movetopic_default'] = $temp;
 	}
 
+	$context['sub_template'] = 'move';
+
 	moveTopicConcurrence();
 
 	// Register this form and get a sequence number in $context.
