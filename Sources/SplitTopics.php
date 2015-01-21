@@ -1410,12 +1410,6 @@ function MergeExecute($topics = array())
 			)
 		);
 	}
-	else
-	{
-		// Remove any remaining info about these topics...
-		include_once($sourcedir . '/RemoveTopic.php');
-		removeTopics($deleted_topics, true, true);
-	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
 	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
@@ -1639,12 +1633,10 @@ function MergeExecute($topics = array())
 					approved = 1,
 					num_replies = 0,
 					unapproved_posts = 0,
-					id_redirect_topic = {int:new_topic}
 				WHERE id_topic = {int:old_topic}',
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
-					'new_topic' => $id_topic,
 				)
 			);
 		}
@@ -1665,6 +1657,15 @@ function MergeExecute($topics = array())
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'topicMerge')))
 		$searchAPI->topicMerge($id_topic, $topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : array($context['response_prefix'], $target_subject));
+
+	// Last but not least, delete any remaining data regarding these topics...
+	if (!isset($_POST['postRedirect']))
+	{
+		// Remove any remaining info about these topics...
+		include_once($sourcedir . '/RemoveTopic.php');
+		removeTopics($deleted_topics, false, true);
+	}
+
 	// Send them to the all done page.
 	redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
 }
