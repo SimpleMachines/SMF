@@ -1261,6 +1261,9 @@ function MergeExecute($topics = array())
 	}
 	$smcFunc['db_free_result']($request);
 
+	// Need this for the template...
+	$context['is_approved'] = $topic_approved;
+
 	// Ensure we have a board stat for the target board.
 	if (!isset($boardTotals[$target_board]))
 	{
