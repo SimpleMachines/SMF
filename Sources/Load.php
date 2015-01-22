@@ -2212,7 +2212,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * @param string $filename THe name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a external located file
+ * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
@@ -2261,7 +2261,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a external located file
+ * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
