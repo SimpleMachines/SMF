@@ -1033,6 +1033,7 @@ function MergeExecute($topics = array())
 	$boards = array();
 	$polls = array();
 	$firstTopic = 0;
+	$context['is_approved'] = 1;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Sorry, redirection topics can't be merged
@@ -1076,7 +1077,8 @@ function MergeExecute($topics = array())
 				'timestamp' => forum_time(true, $row['time_updated']),
 				'href' => empty($row['id_member_updated']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member_updated'],
 				'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>'
-			)
+			),
+			'approved' => $row['approved']
 		);
 		$num_views += $row['num_views'];
 		$boards[] = $row['id_board'];
@@ -1095,6 +1097,9 @@ function MergeExecute($topics = array())
 	// If we didn't get any topics then they've been messing with unapproved stuff.
 	if (empty($topic_data))
 		fatal_lang_error('no_topic_id');
+
+	// Will this be approved?
+	$context['is_approved'] = $topic_data[$firstTopic]['approved'];
 
 	$boards = array_values(array_unique($boards));
 
@@ -1260,9 +1265,6 @@ function MergeExecute($topics = array())
 		}
 	}
 	$smcFunc['db_free_result']($request);
-
-	// Need this for the template...
-	$context['is_approved'] = $topic_approved;
 
 	// Ensure we have a board stat for the target board.
 	if (!isset($boardTotals[$target_board]))
