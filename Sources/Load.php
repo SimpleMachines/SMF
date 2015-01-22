@@ -2212,7 +2212,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * @param string $filename THe name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['local'] (true/false): define if the file is local
+ * 	- ['external'] (true/false): define if the file is a external located file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
@@ -2232,7 +2232,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
 	// Is this a local file?
-	if (strpos($filename, 'http') === false || !empty($params['local']))
+	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
