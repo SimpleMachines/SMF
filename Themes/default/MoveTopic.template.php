@@ -101,20 +101,31 @@ function template_redirect_options($type)
 							</dt>
 							<dd>
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked class="input_check">
-							</dd>
+							</dd>';
+	if (!empty($modSettings['allow_expire_redirect']))
+	{
+		echo '
 							<dt>
 								', $txt['redirect_topic_expires'], '
 							</dt>
 							<dd>
 								<select name="redirect_expires">
-									<option value="0" selected>', $txt['never'], '</option>
+									<option value="0">', $txt['never'], '</option>
 									<option value="1440">', $txt['one_day'], '</option>
-									<option value="10080">', $txt['one_week'], '</option>
+									<option value="10080" selected>', $txt['one_week'], '</option>
 									<option value="20160">', $txt['two_weeks'], '</option>
 									<option value="43200">', $txt['one_month'], '</option>
 									<option value="86400">', $txt['two_months'], '</option>
 								</select>
-							</dd>
+							</dd>';
+	}
+	else
+	{
+		echo '
+							<input type="hidden" name="redirect_expires" value="0">';
+	}
+
+	echo '
 						</dl>
 					</fieldset>';
 }

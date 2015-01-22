@@ -105,6 +105,20 @@ function ScheduledTasks()
 			)
 		);
 
+		// Update the "allow_expire_redirect" setting...
+		$get_info = $smcFunc['db_query']('', '
+			SELECT disabled
+			FROM {db_prefix}scheduled_tasks
+			WHERE task = {string:remove_redirect}',
+			array(
+				'remove_redirect' => 'remove_topic_redirect'
+			)
+		);
+
+		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		$smcFunc['db_free_result']($get_info);
+		updateSettings(array('allow_expire_redirect', !$task_disabled));
+
 		// Pop along...
 		CalculateNextTrigger();
 	}
