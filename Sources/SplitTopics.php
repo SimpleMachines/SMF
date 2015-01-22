@@ -1348,8 +1348,8 @@ function MergeExecute($topics = array())
 		preparsecode($_POST['reason']);
 
 		// Add a URL onto the message.
-		$_POST['reason'] = strtr($_POST['reason'], array(
-			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]'
+		$reason = strtr($_POST['reason'], array(
+			$txt['movetopic_auto_topic'] => '[iurl=' . $scripturl . '?topic=' . $id_topic . '.0]' . $target_subject . '[/iurl]'
 		));
 
 		// Automatically remove this MERGED redirection topic in the future?
@@ -1371,8 +1371,7 @@ function MergeExecute($topics = array())
 				'is_approved' => true,
 				'lock_mode' => 1,
 				'board' => $topic_data[$this_old_topic]['board'],
-				'redirect_topic' => $redirect_topic,
-				'redirect_expires' => $redirect_expires,
+				'mark_as_read' => true,
 			);
 	
 			// So we have to make the post. We need to do *this* here so we don't foul up indexes later
@@ -1638,10 +1637,14 @@ function MergeExecute($topics = array())
 					approved = 1,
 					num_replies = 0,
 					unapproved_posts = 0,
+					redirect_topic = {int:redirect_topic},
+					redirect_expires = {int:redirect_expires}
 				WHERE id_topic = {int:old_topic}',
 				array(
 					'current_user' => $user_info['id'],
 					'old_topic' => $old_topic,
+					'redirect_topic' => $redirect_topic,
+					'redirect_expires' => $redirect_expires
 				)
 			);
 		}
