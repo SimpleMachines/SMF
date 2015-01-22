@@ -2353,6 +2353,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('loginHistoryDays', '30');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('httponlyCookies', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('tfa_mode', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_expire_redirect', '1');
 
 # --------------------------------------------------------
 
