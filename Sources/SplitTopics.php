@@ -1637,7 +1637,7 @@ function MergeExecute($topics = array())
 					approved = 1,
 					num_replies = 0,
 					unapproved_posts = 0,
-					redirect_topic = {int:redirect_topic},
+					id_redirect_topic = {int:redirect_topic},
 					redirect_expires = {int:redirect_expires}
 				WHERE id_topic = {int:old_topic}',
 				array(
