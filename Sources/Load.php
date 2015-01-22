@@ -2261,7 +2261,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['local'] (true/false): define if the file is local
+ * 	- ['external'] (true/false): define if the file is a external located file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
@@ -2285,7 +2285,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
 	// Is this a local file?
-	if (strpos($filename, 'http') === false || !empty($params['local']))
+	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
