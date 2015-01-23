@@ -1,7 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Profile
-
-global $scripturl, $context;
+// Version: 2.1 Beta 1; Drafts
 
 // profile
 $txt['drafts_show'] = 'Show Drafts';
