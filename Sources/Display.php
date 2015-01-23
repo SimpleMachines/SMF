@@ -192,10 +192,11 @@ function Display()
 		);
 	}
 
-	// Is this a moved topic that we are redirecting to?
+	// Is this a moved or merged topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
 	{
-		if ($topicinfo['new_from'] === 0 && !$user_info['is_guest'])
+		// Mark this as read...
+		if (!$user_info['is_guest'] && $topicinfo['new_from'] != $topicinfo['id_first_msg'])
 		{
 			// Mark this as read first
 			$smcFunc['db_insert']($topicinfo['new_from'] == 0 ? 'ignore' : 'replace',
@@ -204,7 +205,7 @@ function Display()
 					'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
 				),
 				array(
-					$user_info['id'], $topicinfo['id'], $topicinfo['id_first_msg'], $topicinfo['unwatched'],
+					$user_info['id'], $topic, $topicinfo['id_first_msg'], $topicinfo['unwatched'],
 				),
 				array('id_member', 'id_topic')
 			);
