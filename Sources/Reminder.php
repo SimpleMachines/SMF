@@ -124,7 +124,7 @@ function RemindPick()
 		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
-	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
+	if (empty($row['secret_question']))
 	{
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
 		require_once($sourcedir . '/Subs-Members.php');
