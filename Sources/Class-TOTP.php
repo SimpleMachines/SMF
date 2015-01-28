@@ -12,6 +12,15 @@ namespace TOTP;
  * @author Chris Cornutt <ccornutt@phpdeveloper.org>
  * @package GAuth
  * @license MIT
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2015 Simple Machines and individual contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Beta 1
  */
 
 class Auth
