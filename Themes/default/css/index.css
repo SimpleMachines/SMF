@@ -2748,37 +2748,35 @@ dl.addrules dt.floatleft {
 /* Styles for the progress bar */
 .progress_bar {
 	height: 15pt;
-	border: 1px solid black;
+	border: 1px solid #DDD;
 	background-color: white;
-	padding: 3px;
 	width: 80%;
 	margin: 20px auto 0 auto; /* Top padding should get rid of the <br /> tags in admin for these bars. */
 	position: relative;
-	border-radius: 5px;
+	border-radius: 2px;
 	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
-.progress_bar.full_bar {
-	padding-top: 1pt;
+.progress_bar .full_bar {
 	width: 100%;
 	color: black;
 	position: absolute;
 	text-align: center;
 	font-weight: bold;
-	border-radius: 3px;
+	border-radius: 2px;
 	z-index: 2;
 }
-.progress_bar.green_percent {
+.progress_bar .green_percent {
 	height: 15pt;
 	background-color: #c1ffc1;
 	background-image: linear-gradient(to bottom, #c1ffc1, green);
-	border-radius: 3px;
+	border-radius: 2px;
 	z-index: 1;
 }
-.progress_bar.blue_percent {
+.progress_bar .blue_percent {
 	height: 15pt;
 	background-color: #98b8f4;
 	background-image: linear-gradient(to bottom, #98b8f4, blue);
-	border-radius: 3px;
+	border-radius: 2px;
 	z-index: 1;
 }
 
