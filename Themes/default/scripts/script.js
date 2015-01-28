@@ -438,7 +438,7 @@ smc_Popup.prototype.show = function ()
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.css({}).parent().fadeIn(300);
+	this.popup_body.parent().fadeIn(300);
 
 	// Trigger hide on escape or mouse click
 	var popup_instance = this;
