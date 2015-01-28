@@ -1612,6 +1612,10 @@ ul li.greeting {
 div.move_topic fieldset {
 	padding: 6px;
 }
+.move_topic textarea {
+	width: 100%;
+	min-height: 100px;
+}
 /* Styles for the report topic/user section. */
 #report_form dl.settings dt {
 	width: 20%;
