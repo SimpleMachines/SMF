@@ -1271,12 +1271,27 @@ WHERE filename IN ('latest-packages.js', 'latest-smileys.js', 'latest-support.js
 
 ---# But we do need new files.
 ---{
-$smcFunc['db_insert']('',
-	'{db_prefix}admin_info_files',
-	array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
-	array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
-	array('id_file')
+// Don't insert the info if it's already there...
+$file_check = $smcFunc['db_query']('', '
+	SELECT id_file
+	FROM {db_prefix}admin_info_files
+	WHERE filename = {string:latest-versions}',
+	array(
+		'latest-versions' => 'latest-versions.txt',
+	)
 );
+
+if ($smcFunc['db_num_rows']($file_check) == 0)
+{
+	$smcFunc['db_insert']('',
+		'{db_prefix}admin_info_files',
+		array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
+		array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+		array('id_file')
+	);
+}
+
+$smcFunc['db_free_result']($file_check);
 ---}
 ---#
 

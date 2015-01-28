@@ -808,12 +808,17 @@ function un_htmlspecialchars($string)
 	global $context;
 	static $translation = array();
 
-	// Just in case...
+	// Determine the character set... Default to UTF-8
 	if (empty($context['character_set']))
-		$context['character_set'] = 'UTF-8';
+		$charset = 'UTF-8';
+	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
+	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
+		$charset = 'ISO-8859-1';
+	else
+		$charset = $context['character_set'];
 
 	if (empty($translation))
-		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $context['character_set'])) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
+		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $charset)) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
 }
@@ -4672,7 +4677,7 @@ function smf_list_timezones()
 		'UTC' => '[UTC] UTC',
 		'Pacific/Midway' => '[UTC-11:00] Midway Island, Samoa',
 		'America/Adak' => '[UTC-10:00] Hawaii-Aleutian',
-		'America/Honolulu' => '[UTC-10:00] Hawaii',
+		'Pacific/Honolulu' => '[UTC-10:00] Hawaii',
 		'Pacific/Marquesas' => '[UTC-09:30] Marquesas Islands',
 		'Pacific/Gambier' => '[UTC-09:00] Gambier Islands',
 		'America/Anchorage' => '[UTC-09:00] Alaska',
