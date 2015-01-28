@@ -66,7 +66,7 @@ function template_main()
 								', $txt['moved_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason" rows="3" cols="40">', $txt['movetopic_default'], '</textarea>
+								<textarea name="reason">', $txt['movetopic_default'], '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt['movetopic_redirect'], '</label>

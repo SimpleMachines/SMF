@@ -1604,15 +1604,6 @@ ul li.greeting {
 }
 
 /* Styles for the move topic section. */
-#move_topic dl {
-	margin-bottom: 0;
-}
-#move_topic dl.settings dt {
-	width: 40%;
-}
-#move_topic dl.settings dd {
-	width: 59%;
-}
 .move_topic {
 	width: 710px;
 	margin: auto;

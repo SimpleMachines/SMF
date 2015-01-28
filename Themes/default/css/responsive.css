@@ -117,8 +117,17 @@
 		padding: 0;
 	}
 	#poll_options dl.options dt,
-	#poll_options dl.options dd {
+	#poll_options dl.options dd,
+	dl.settings dt, dl.settings dd {
 		width: 100%;
+		float: none;
+	}
+	.move_topic {
+		width: 100%;
+	}
+	textarea {
+		width: 100%;
+		min-height: 100px;
 	}
 	/* Stats Center */
 	.half_content {
