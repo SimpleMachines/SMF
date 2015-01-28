@@ -1666,6 +1666,7 @@ function VersionDetail()
 	$versionOptions = array(
 		'include_ssi' => true,
 		'include_subscriptions' => true,
+		'include_tasks' => true,
 		'sort_results' => true,
 	);
 	$version_info = getFileVersions($versionOptions);
