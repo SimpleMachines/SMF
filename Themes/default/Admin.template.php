@@ -455,7 +455,7 @@ function template_view_versions()
 								</tbody>
 							</table>';
 
-	// Finally, display the version information for the currently selected theme - if it is not the default one.
+	// Display the version information for the currently selected theme - if it is not the default one.
 	if (!empty($context['template_versions']))
 	{
 		echo '
@@ -497,6 +497,48 @@ function template_view_versions()
 							</table>';
 	}
 
+	// Display the tasks files version.
+	if (!empty($context['tasks_versions']))
+	{
+		echo '
+							<table class="table_grid">
+								<tbody>
+									<tr class="windowbg">
+										<td class="half_table">
+											<a href="#" id="Tasks-link">', $txt['dvc_tasks'] ,'</a>
+										</td>
+										<td class="quarter_table">
+											<em id="yourTemplates">??</em>
+										</td>
+										<td class="quarter_table">
+											<em id="currentTemplates">??</em>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<table id="Tasks" class="table_grid">
+								<tbody>';
+
+		foreach ($context['tasks_versions'] as $filename => $version)
+			echo '
+									<tr class="windowbg">
+										<td class="half_table">
+											', $filename, '
+										</td>
+										<td class="quarter_table">
+											<em id="yourTemplates', $filename, '">', $version, '</em>
+										</td>
+										<td class="quarter_table">
+											<em id="currentTemplates', $filename, '">??</em>
+										</td>
+									</tr>';
+
+		echo '
+								</tbody>
+							</table>';
+	}
+
 	echo '
 						</div>
 						</div>';
@@ -517,7 +559,8 @@ function template_view_versions()
 									Sources: \'Sources\',
 									Default: \'Default\',
 									Languages: \'Languages\',
-									Templates: \'Templates\'
+									Templates: \'Templates\',
+									Tasks: \'Tasks\'
 								}
 							});
 						// ]]></script>';
