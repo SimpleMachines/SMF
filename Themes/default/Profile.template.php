@@ -48,7 +48,7 @@ function template_profile_popup()
 
 	echo '
 		<div class="profile_user_avatar">
-			', $context['member']['avatar']['image'],'
+			<a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['member']['avatar']['image'],'</a>
 		</div>
 		<div class="profile_user_info">
 			<span class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></span>
