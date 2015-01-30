@@ -804,7 +804,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 function MergeTopics()
 {
 	// Load the template....
-	loadTemplate('SplitTopics');
+	loadTemplate('MoveTopic');
 
 	$subActions = array(
 		'done' => 'MergeDone',
@@ -825,7 +825,7 @@ function MergeTopics()
  * allows to pick a topic to merge the current topic with.
  * is accessed with ?action=mergetopics;sa=index
  * default sub action for ?action=mergetopics.
- * uses 'merge' sub template of the SplitTopics template.
+ * uses 'merge' sub template of the MoveTopic template.
  * allows to set a different target board.
  */
 function MergeIndex()
@@ -969,7 +969,7 @@ function MergeIndex()
  * the merge options screen:
  * * shows topics to be merged and allows to set some merge options.
  * * is accessed by ?action=mergetopics;sa=options.and can also internally be called by QuickModeration() (Subs-Boards.php).
- * * uses 'merge_extra_options' sub template of the SplitTopics template.
+ * * uses 'merge_extra_options' sub template of the MoveTopic template.
  *
  * the actual merge:
  * * is accessed with ?action=mergetopics;sa=execute.
@@ -1033,6 +1033,7 @@ function MergeExecute($topics = array())
 	$boards = array();
 	$polls = array();
 	$firstTopic = 0;
+	$context['is_approved'] = 1;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Sorry, redirection topics can't be merged
@@ -1076,7 +1077,8 @@ function MergeExecute($topics = array())
 				'timestamp' => forum_time(true, $row['time_updated']),
 				'href' => empty($row['id_member_updated']) ? '' : $scripturl . '?action=profile;u=' . $row['id_member_updated'],
 				'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>'
-			)
+			),
+			'approved' => $row['approved']
 		);
 		$num_views += $row['num_views'];
 		$boards[] = $row['id_board'];
@@ -1096,13 +1098,16 @@ function MergeExecute($topics = array())
 	if (empty($topic_data))
 		fatal_lang_error('no_topic_id');
 
+	// Will this be approved?
+	$context['is_approved'] = $topic_data[$firstTopic]['approved'];
+
 	$boards = array_values(array_unique($boards));
 
 	// The parameters of MergeExecute were set, so this must've been an internal call.
 	if (!empty($topics))
 	{
 		isAllowedTo('merge_any', $boards);
-		loadTemplate('SplitTopics');
+		loadTemplate('MoveTopic');
 	}
 
 	// Get the boards a user is allowed to merge in.
@@ -1335,60 +1340,80 @@ function MergeExecute($topics = array())
 		'id' => $user_info['id'],
 		'update_post_count' => false,
 	);
-	foreach ($deleted_topics as $this_old_topic)
+
+	// We only need to do this if we're posting redirection topics...
+	if (isset($_POST['postRedirect']))
 	{
-		$msgOptions = array(
-			'icon' => 'moved',
-			'subject' => sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']),
-			'body' => sprintf($txt['merged_body'], $scripturl . '?topic=' . $id_topic . '.0', $target_subject),
-			'approved' => 1,
-		);
-		$topicOptions = array(
-			'id' => $this_old_topic,
-			'is_approved' => true,
-			'lock_mode' => 1,
-			'board' => $topic_data[$this_old_topic]['board'],
-		);
+		$_POST['reason'] = $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES);
+		preparsecode($_POST['reason']);
 
-		// So we have to make the post. We need to do *this* here so we don't foul up indexes later
-		// and we have to fix them up later once everything else has happened.
-		if (createPost($msgOptions, $topicOptions, $posterOptions))
+		// Add a URL onto the message.
+		$reason = strtr($_POST['reason'], array(
+			$txt['movetopic_auto_topic'] => '[iurl=' . $scripturl . '?topic=' . $id_topic . '.0]' . $target_subject . '[/iurl]'
+		));
+
+		// Automatically remove this MERGED redirection topic in the future?
+		$redirect_expires = !empty($_POST['redirect_expires']) ? ((int) ($_POST['redirect_expires'] * 60) + time()) : 0;
+
+		// Redirect to the MERGED topic from topic list?
+		$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
+
+		foreach ($deleted_topics as $this_old_topic)
 		{
-			$updated_topics[$this_old_topic] = $msgOptions['id'];
+			$msgOptions = array(
+				'icon' => 'moved',
+				'subject' => sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']),
+				'body' => $reason,
+				'approved' => 1,
+			);
+			$topicOptions = array(
+				'id' => $this_old_topic,
+				'is_approved' => true,
+				'lock_mode' => 1,
+				'board' => $topic_data[$this_old_topic]['board'],
+				'mark_as_read' => true,
+			);
+	
+			// So we have to make the post. We need to do *this* here so we don't foul up indexes later
+			// and we have to fix them up later once everything else has happened.
+			if (createPost($msgOptions, $topicOptions, $posterOptions))
+			{
+				$updated_topics[$this_old_topic] = $msgOptions['id'];
+			}
 		}
+	
+		// Asssign the properties of the newly merged topic.
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}topics
+			SET
+				id_board = {int:id_board},
+				id_member_started = {int:id_member_started},
+				id_member_updated = {int:id_member_updated},
+				id_first_msg = {int:id_first_msg},
+				id_last_msg = {int:id_last_msg},
+				id_poll = {int:id_poll},
+				num_replies = {int:num_replies},
+				unapproved_posts = {int:unapproved_posts},
+				num_views = {int:num_views},
+				is_sticky = {int:is_sticky},
+				approved = {int:approved}
+			WHERE id_topic = {int:id_topic}',
+			array(
+				'id_board' => $target_board,
+				'is_sticky' => $is_sticky,
+				'approved' => $topic_approved,
+				'id_topic' => $id_topic,
+				'id_member_started' => $member_started,
+				'id_member_updated' => $member_updated,
+				'id_first_msg' => $first_msg,
+				'id_last_msg' => $last_msg,
+				'id_poll' => $target_poll,
+				'num_replies' => $num_replies,
+				'unapproved_posts' => $num_unapproved,
+				'num_views' => $num_views,
+			)
+		);
 	}
-
-	// Asssign the properties of the newly merged topic.
-	$smcFunc['db_query']('', '
-		UPDATE {db_prefix}topics
-		SET
-			id_board = {int:id_board},
-			id_member_started = {int:id_member_started},
-			id_member_updated = {int:id_member_updated},
-			id_first_msg = {int:id_first_msg},
-			id_last_msg = {int:id_last_msg},
-			id_poll = {int:id_poll},
-			num_replies = {int:num_replies},
-			unapproved_posts = {int:unapproved_posts},
-			num_views = {int:num_views},
-			is_sticky = {int:is_sticky},
-			approved = {int:approved}
-		WHERE id_topic = {int:id_topic}',
-		array(
-			'id_board' => $target_board,
-			'is_sticky' => $is_sticky,
-			'approved' => $topic_approved,
-			'id_topic' => $id_topic,
-			'id_member_started' => $member_started,
-			'id_member_updated' => $member_updated,
-			'id_first_msg' => $first_msg,
-			'id_last_msg' => $last_msg,
-			'id_poll' => $target_poll,
-			'num_replies' => $num_replies,
-			'unapproved_posts' => $num_unapproved,
-			'num_views' => $num_views,
-		)
-	);
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
 	if (!isset($context['response_prefix']) && !($context['response_prefix'] = cache_get_data('response_prefix')))
@@ -1595,28 +1620,34 @@ function MergeExecute($topics = array())
 	list($id_board) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Having done all that, now make sure we fix the merge/redirect topics upp before we
-	// leave here. Specifically: that there are no replies, no unapproved stuff, that the first
-	// and last posts are the same and so on and so forth.
-	foreach ($updated_topics as $old_topic => $id_msg)
+	// Again, only do this if we're redirecting - otherwise delete
+	if (isset($_POST['postRedirect']))
 	{
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET id_first_msg = id_last_msg,
-				id_member_started = {int:current_user},
-				id_member_updated = {int:current_user},
-				id_poll = 0,
-				approved = 1,
-				num_replies = 0,
-				unapproved_posts = 0,
-				id_redirect_topic = {int:new_topic}
-			WHERE id_topic = {int:old_topic}',
-			array(
-				'current_user' => $user_info['id'],
-				'old_topic' => $old_topic,
-				'new_topic' => $id_topic,
-			)
-		);
+		// Having done all that, now make sure we fix the merge/redirect topics upp before we
+		// leave here. Specifically: that there are no replies, no unapproved stuff, that the first
+		// and last posts are the same and so on and so forth.
+		foreach ($updated_topics as $old_topic => $id_msg)
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}topics
+				SET id_first_msg = id_last_msg,
+					id_member_started = {int:current_user},
+					id_member_updated = {int:current_user},
+					id_poll = 0,
+					approved = 1,
+					num_replies = 0,
+					unapproved_posts = 0,
+					id_redirect_topic = {int:redirect_topic},
+					redirect_expires = {int:redirect_expires}
+				WHERE id_topic = {int:old_topic}',
+				array(
+					'current_user' => $user_info['id'],
+					'old_topic' => $old_topic,
+					'redirect_topic' => $redirect_topic,
+					'redirect_expires' => $redirect_expires
+				)
+			);
+		}
 	}
 
 	// Update all the statistics.
@@ -1634,6 +1665,15 @@ function MergeExecute($topics = array())
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'topicMerge')))
 		$searchAPI->topicMerge($id_topic, $topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : array($context['response_prefix'], $target_subject));
+
+	// Last but not least, delete any remaining data regarding these topics...
+	if (!isset($_POST['postRedirect']))
+	{
+		// Remove any remaining info about these topics...
+		include_once($sourcedir . '/RemoveTopic.php');
+		removeTopics($deleted_topics, false, true);
+	}
+
 	// Send them to the all done page.
 	redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
 }
