@@ -1990,14 +1990,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array(), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array('external' => true), 'jquery');
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
 		loadJavascriptFile('jquery-2.1.3.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'jquery');
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array(), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array('external' => true), 'jquery');
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
@@ -2212,7 +2212,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * @param string $filename THe name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['local'] (true/false): define if the file is local
+ * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
@@ -2232,7 +2232,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
 	// Is this a local file?
-	if (strpos($filename, 'http') === false || !empty($params['local']))
+	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
@@ -2261,7 +2261,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['local'] (true/false): define if the file is local
+ * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
@@ -2285,7 +2285,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
 	// Is this a local file?
-	if (strpos($filename, 'http') === false || !empty($params['local']))
+	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
 		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
