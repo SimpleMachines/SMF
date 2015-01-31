@@ -217,6 +217,9 @@ function template_main()
 	if ($context['can_reply'])
 	template_quickreply();
 
+		echo '
+				<script><!-- // --><![CDATA[';
+
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
 		echo '
 					var oInTopicModeration = new InTopicModeration({
@@ -929,9 +932,7 @@ function template_quickreply()
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script><!-- // --><![CDATA[';
-
-	echo '
+				<script><!-- // --><![CDATA[
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,
 						iTopicId: ', $context['current_topic'], ',
@@ -944,6 +945,7 @@ function template_quickreply()
 						sClassExpanded: "toggle_down",
 						sJumpAnchor: "quickreply",
 						bIsFull: true
-					});';
+					});
+				// ]]></script>';
 }
 ?>
