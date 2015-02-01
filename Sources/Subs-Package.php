@@ -146,9 +146,6 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 			continue;
 		}
 
-		if ($current['type'] == 5 && substr($current['filename'], -1) != '/')
-			$current['filename'] .= '/';
-
 		foreach ($current as $k => $v)
 		{
 			if (in_array($k, $octdec))
@@ -156,6 +153,9 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 			else
 				$current[$k] = trim($v);
 		}
+
+		if ($current['type'] == 5 && substr($current['filename'], -1) != '/')
+			$current['filename'] .= '/';
 
 		$checksum = 256;
 		for ($i = 0; $i < 148; $i++)
