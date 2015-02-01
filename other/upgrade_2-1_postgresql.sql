@@ -532,7 +532,7 @@ VALUES
 			)
 		);
 
-		list($task_disabled) = $smcFunc['db_feach_assoc']($get_info);
+		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
 		$smcFunc['db_free_result']($get_info);
 
 		$smcFunc['db_insert']('replace',
