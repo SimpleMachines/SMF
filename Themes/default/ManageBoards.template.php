@@ -172,9 +172,7 @@ function template_modify_category()
 					<input type="submit" name="edit" value="', $txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', $context['tabindex']++, '" class="button_submit">
 					<input type="submit" name="delete" value="', $txt['mboards_delete_cat'], '" onclick="return confirm(\'', $txt['catConfirm'], '\');" class="button_submit">';
 	echo '
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">';
-	if (!empty($context['token_check']))
-		echo '
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">';
 
 	// If this category is empty we don't bother with the next confirmation screen.
@@ -233,6 +231,7 @@ function template_confirm_category_delete()
 				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button_submit">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context[$context['token_check'] . '_token_var'], '" value="', $context[$context['token_check'] . '_token'], '">
 			</div>
 		</form>
 	</div>';
@@ -687,6 +686,7 @@ function template_confirm_board_delete()
 				<input type="submit" name="cancel" value="', $txt['mboards_delete_cancel'], '" class="button_submit">
 				<input type="hidden" name="confirmation" value="1">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+				<input type="hidden" name="', $context['admin-be-' . $context['board']['id'] . '_token_var'], '" value="', $context['admin-be-' . $context['board']['id'] . '_token'], '"
 			</div>
 		</form>
 	</div>';
