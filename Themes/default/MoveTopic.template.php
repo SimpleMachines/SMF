@@ -94,7 +94,7 @@ function template_redirect_options($type)
 								', $txt[$type . '_why'], '
 							</dt>
 							<dd>
-								<textarea name="reason" rows="3" cols="40">', $txt[$type . 'topic_default'], '</textarea>
+								<textarea name="reason">', $txt[$type . 'topic_default'], '</textarea>
 							</dd>
 							<dt>
 								<label for="redirect_topic">', $txt[$type . 'topic_redirect'], '</label>
