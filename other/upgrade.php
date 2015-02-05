@@ -1070,7 +1070,7 @@ function WelcomeLogin()
 		fclose($fp);
 	}
 
-	// We're going to check that their board dir setting is right incase they've been moving stuff around.
+	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr($boarddir, array('/' => '', '\\' => '')) != strtr(dirname(__FILE__), array('/' => '', '\\' => '')))
 		$upcontext['warning'] = '
 			It looks as if your board directory settings <em>might</em> be incorrect. Your board directory is currently set to &quot;' . $boarddir . '&quot; but should probably be &quot;' . dirname(__FILE__) . '&quot;. Settings.php currently lists your paths as:<br>
@@ -1447,6 +1447,10 @@ function UpgradeOptions()
 	// Maybe we haven't had this option yet?
 	if (empty($packagesdir))
 		$changes['packagesdir'] = '\'' . fixRelativePath($boarddir) . '/Packages\'';
+
+	// Add support for $tasksdir var.
+	if (empty($tasksdir))
+		$changes['tasksdir'] = '\'' . fixRelativePath($sourcedir) . '/tasks\'';
 
 	// @todo Maybe change the cookie name if going to 1.1, too?
 
