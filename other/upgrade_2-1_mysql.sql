@@ -485,6 +485,32 @@ VALUES
 	(0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 ---#
 
+---# Adding a new task-related setting...
+---{
+	if (!isset($modSettings['allow_expire_redirect']))
+	{
+		$get_info = $smcFunc['db_query']('', '
+			SELECT disabled
+			FROM {db_prefix}scheduled_tasks
+			WHERE task = {string:remove_redirect}',
+			array(
+				'remove_redirect' => 'remove_topic_redirect'
+			)
+		);
+
+		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		$smcFunc['db_free_result']($get_info);
+
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('allow_expire_redirect', !$task_disabled),
+			array('variable')
+		);
+	}
+---}
+---#
+
 /******************************************************************************/
 ---- Adding background tasks support
 /******************************************************************************/

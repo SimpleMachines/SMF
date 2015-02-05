@@ -181,19 +181,25 @@ function RemoveOldTopics2()
 	);
 
 	// Just moved notice topics?
+	// Note that this ignores redirection topics unless it's a non-expiring one
 	if ($_POST['delete_type'] == 'moved')
 	{
 		$condition .= '
 			AND m.icon = {string:icon}
-			AND t.locked = {int:locked}';
+			AND t.locked = {int:locked}
+			AND t.redirect_expires = {int:not_expiring}';
 		$condition_params['icon'] = 'moved';
 		$condition_params['locked'] = 1;
+		$condition_params['not_expiring'] = 0;
 	}
 	// Otherwise, maybe locked topics only?
 	elseif ($_POST['delete_type'] == 'locked')
 	{
+		// Exclude moved/merged notices since we have another option for those...
 		$condition .= '
+			AND t.icon != {string:icon}
 			AND t.locked = {int:locked}';
+		$condition_params['icon'] = 'moved';
 		$condition_params['locked'] = 1;
 	}
 

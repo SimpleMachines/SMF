@@ -141,10 +141,10 @@ function createMenu($menuData, $menuOptions = array())
 							elseif ((substr($area['icon'], -4) === '.png' || substr($area['icon'], -4) === '.gif') && file_exists($settings['default_theme_dir'] . '/images/admin/big/' . $area['icon']))
 								$menu_context['sections'][$section_id]['areas'][$area_id]['icon_file'] = $settings['default_theme_url'] . '/images/admin/big/' . $area['icon'];
 
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = str_replace(array('.png', '.gif'), '', $area['icon']);
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area['icon']);
 						}
 						else
-							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = str_replace(array('.png', '.gif'), '', $area_id);
+							$menu_context['sections'][$section_id]['areas'][$area_id]['icon_class'] = $menu_context['current_action'] . '_menu_icon ' . str_replace(array('.png', '.gif'), '', $area_id);
 
 						// Some areas may be listed but not active, which we show as greyed out.
 						$menu_context['sections'][$section_id]['areas'][$area_id]['inactive'] = !empty($area['inactive']);
