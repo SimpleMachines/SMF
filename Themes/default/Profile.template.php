@@ -564,8 +564,8 @@ function template_showAlerts()
 				<td>', $alert['time'], '</td>
 				<td>
 					<ul class="quickbuttons">
-						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', $txt['delete'] ,'</a></li>
-						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="remove_button">', $txt['delete'] ,'</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
 						<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
 					</ul>
 				</td>
