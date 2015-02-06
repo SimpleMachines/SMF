@@ -1413,7 +1413,6 @@ ul li.greeting {
 .quickbuttons li a.approve_button,
 .quickbuttons li a.read_button {
 	background-position: 2px -88px;
-	padding: 0 4px 0 22px;
 }
 .quickbuttons li a.restore_button {
 	background-position: 0 -120px;
@@ -1423,23 +1422,25 @@ ul li.greeting {
 }
 .quickbuttons li a.reply_button {
 	background-position: 0 -180px;
-	padding: 0px 4px 0px 22px;
 }
 .quickbuttons li a.reply_all_button {
 	background-position: 0 -180px;
-	padding: 0px 4px 0px 22px;
 }
 .quickbuttons li a.notify_button {
 	background-position: 1px -210px;
-	padding: 0 4px 0 22px;
 }
 .quickbuttons li a.unapprove_button,
 .quickbuttons li a.unread_button {
 	background-position: 2px -238px;
-	padding: 0 4px 0 22px;
 }
 .quickbuttons li a.warn_button {
 	background-position: 2px -270px;
+}
+/* Some extra padding for some buttons */
+.quickbuttons li a.read_button, .quickbuttons li a.reply_button,
+.quickbuttons li a.reply_all_button, .quickbuttons li a.notify_button,
+.quickbuttons li a.unread_button {
+	padding: 0 4px 0 22px;
 }
 .quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
