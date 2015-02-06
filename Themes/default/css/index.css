@@ -2799,7 +2799,7 @@ dl.addrules dt.floatleft {
 	background: #f0f4f7;
 }
 .windowbg:nth-of-type(odd) {
-	background: #EEEEEE;
+	background: #fdfdfd;
 }
 
 /* Special treatment for #forumposts area */
