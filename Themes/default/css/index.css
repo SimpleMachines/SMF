@@ -1410,7 +1410,8 @@ ul li.greeting {
 .quickbuttons li a.modify_button {
 	background-position: 2px -59px;
 }
-.quickbuttons li a.approve_button {
+.quickbuttons li a.approve_button,
+.quickbuttons li a.read_button {
 	background-position: 2px -88px;
 }
 .quickbuttons li a.restore_button {
@@ -1421,21 +1422,25 @@ ul li.greeting {
 }
 .quickbuttons li a.reply_button {
 	background-position: 0 -180px;
-	padding: 0px 4px 0px 22px;
 }
 .quickbuttons li a.reply_all_button {
 	background-position: 0 -180px;
-	padding: 0px 4px 0px 22px;
 }
 .quickbuttons li a.notify_button {
 	background-position: 1px -210px;
-	padding: 0 4px 0 22px;
 }
-.quickbuttons li a.unapprove_button {
+.quickbuttons li a.unapprove_button,
+.quickbuttons li a.unread_button {
 	background-position: 2px -238px;
 }
 .quickbuttons li a.warn_button {
 	background-position: 2px -270px;
+}
+/* Some extra padding for some buttons */
+.quickbuttons li a.read_button, .quickbuttons li a.reply_button,
+.quickbuttons li a.reply_all_button, .quickbuttons li a.notify_button,
+.quickbuttons li a.unread_button {
+	padding: 0 4px 0 22px;
 }
 .quickbuttons li.inline_mod_check {
 	padding: 1px 1px 1px 1px;
@@ -2794,7 +2799,7 @@ dl.addrules dt.floatleft {
 	background: #f0f4f7;
 }
 .windowbg:nth-of-type(odd) {
-	background: #fdfdfd; /* needs new color */
+	background: #fdfdfd;
 }
 
 /* Special treatment for #forumposts area */
@@ -3101,6 +3106,7 @@ span.postby {
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 	border-bottom: 0;
+	box-shadow: none;
 }
 .lastpost span.last_post {
 	float: right;
@@ -3678,7 +3684,8 @@ p.information img {
 	border-radius: 0;
 	margin: 0;
 }
-#topic_icons .information {
+#topic_icons .information,
+#messageindex .information {
 	border-top: 1px solid #ddd;
 }
 /* Mentions */
