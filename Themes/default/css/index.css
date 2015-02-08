@@ -30,6 +30,7 @@ table {
 	empty-cells: show;
 }
 input, button, select, textarea, textarea.editor {
+	color: #222;
 	box-sizing: border-box;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	background: #fff;
