@@ -1666,6 +1666,7 @@ function VersionDetail()
 	$versionOptions = array(
 		'include_ssi' => true,
 		'include_subscriptions' => true,
+		'include_tasks' => true,
 		'sort_results' => true,
 	);
 	$version_info = getFileVersions($versionOptions);
@@ -1677,6 +1678,7 @@ function VersionDetail()
 		'template_versions' => $version_info['template_versions'],
 		'default_language_versions' => $version_info['default_language_versions'],
 		'default_known_languages' => array_keys($version_info['default_language_versions']),
+		'tasks_versions' => $version_info['tasks_versions'],
 	);
 
 	// Make it easier to manage for the template.

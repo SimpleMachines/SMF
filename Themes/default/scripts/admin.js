@@ -191,26 +191,30 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oHighCurrent = {
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oLowVersion = {
 		Sources: false,
 		Default: false,
 		Languages: false,
-		Templates: false
+		Templates: false,
+		Tasks: false
 	};
 
 	var sSections = [
 		'Sources',
 		'Default',
 		'Languages',
-		'Templates'
+		'Templates',
+		'Tasks'
 	];
 
 	for (var i = 0, n = sSections.length; i < n; i++)

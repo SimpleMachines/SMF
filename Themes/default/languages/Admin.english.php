@@ -263,6 +263,7 @@ $txt['dvc_sources'] = 'Sources';
 $txt['dvc_default'] = 'Default Templates';
 $txt['dvc_templates'] = 'Current Templates';
 $txt['dvc_languages'] = 'Language Files';
+$txt['dvc_tasks'] = 'Background Tasks';
 
 $txt['smileys_default_set_for_theme'] = 'Select default smiley set for this theme';
 $txt['smileys_no_default'] = '(use global default smiley set)';

@@ -262,6 +262,12 @@ function reloadSettings()
 		'bottom_poster',
 	);
 
+	// Define an array of allowed HTML tags.
+	$context['allowed_html_tags'] = array(
+		'<img>',
+		'<div>',
+	);
+
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
 	{
