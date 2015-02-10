@@ -386,8 +386,6 @@ function trackStats($stats = array())
  * You should use {@link logActions()} instead.
  * @example logAction('remove', array('starter' => $id_member_started));
  *
- * @deprecated deprecated since version 2.1
- *
  * @param string $action
  * @param array $extra = array()
  * @param string $log_type options: 'moderate', 'admin', ...etc.
