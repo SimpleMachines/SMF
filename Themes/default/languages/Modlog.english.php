@@ -108,10 +108,11 @@ $txt['modlog_ac_open_user_report'] = 'Reopened {report} on profile of {member}';
 $txt['modlog_ac_unignore_user_report'] = 'Undone disregard of {report} on profile of {member}';
 
 // Poll stuff
-$txt['modlog_add_poll'] = 'Added a poll to &quot;{topic}&quot;';
-$txt['modlog_edit_poll'] = 'Edited the poll in &quot;{topic}&quot;';
-$txt['modlog_lock_poll'] = 'Locked voting in the poll in &quot;{topic}&quot;';
-$txt['modlog_remove_poll'] = 'Removed the poll from &quot;{topic}&quot;';
-$txt['modlog_reset_poll'] = 'Reset votes in the poll in &quot;{topic}&quot;';
-$txt['modlog_unlock_poll'] = 'Unlocked voting in the poll in &quot;{topic}&quot;';
+$txt['modlog_ac_add_poll'] = 'Added a poll to &quot;{topic}&quot;';
+$txt['modlog_ac_edit_poll'] = 'Edited the poll in &quot;{topic}&quot;';
+$txt['modlog_ac_lock_poll'] = 'Locked voting in the poll in &quot;{topic}&quot;';
+$txt['modlog_ac_remove_poll'] = 'Removed the poll from &quot;{topic}&quot;';
+$txt['modlog_ac_reset_poll'] = 'Reset votes in the poll in &quot;{topic}&quot;';
+$txt['modlog_ac_unlock_poll'] = 'Unlocked voting in the poll in &quot;{topic}&quot;';
+
 ?>
