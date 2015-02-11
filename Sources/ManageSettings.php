@@ -90,7 +90,7 @@ function ModifyFeatureSettings()
 			'mentions' => array(
 			),
 			'alerts' => array(
-				'description' => $txt['alert_defaults_desc'],
+				'description' => $txt['notifications_desc'],
 			),
 		),
 	);
