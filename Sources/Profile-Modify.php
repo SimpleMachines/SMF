@@ -1844,6 +1844,10 @@ function alert_configuration($memID)
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_extra_any');
 
+	// Set the post action if we're coming from the profile...
+	if (!isset($context['action']))
+		$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . $memID;
+
 	// What options are set?
 	$context['member'] += array(
 		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
@@ -1855,6 +1859,7 @@ function alert_configuration($memID)
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
 	$prefs = getNotifyPrefs($memID);
+
 	// And we might as well now perform the splicing of default values.
 	if (!empty($prefs[0]))
 		foreach ($prefs[0] as $this_pref => $value)
@@ -1956,53 +1961,56 @@ function alert_configuration($memID)
 	// passing content to hooks, not expecting hooks to splatter everything everywhere.
 	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options, &$disabled_options));
 
-	// Now we have to do some permissions testing.
-	require_once($sourcedir . '/Subs-Members.php');
-	$perms_cache = array();
-	foreach ($alert_types as $group => $items)
+	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
+	if (!empty($memID))
 	{
-		foreach ($items as $alert_key => $alert_value)
+		require_once($sourcedir . '/Subs-Members.php');
+		$perms_cache = array();
+		foreach ($alert_types as $group => $items)
 		{
-			if (!isset($alert_value['permission']))
-				continue;
-			if (!isset($perms_cache[$alert_value['permission']['name']]))
+			foreach ($items as $alert_key => $alert_value)
 			{
-				$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
-				$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
-				$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
+				if (!isset($alert_value['permission']))
+					continue;
+				if (!isset($perms_cache[$alert_value['permission']['name']]))
+				{
+					$in_board = !empty($alert_value['permission']['is_board']) ? 0 : null;
+					$members = membersAllowedTo($alert_value['permission']['name'], $in_board);
+					$perms_cache[$alert_value['permission']['name']] = in_array($memID, $members);
+				}
+
+				if (!$perms_cache[$alert_value['permission']['name']])
+				{
+					$disabled_options[] = $alert_key;
+					unset ($alert_types[$group][$alert_key]);
+				}
 			}
 
-			if (!$perms_cache[$alert_value['permission']['name']])
-			{
-				$disabled_options[] = $alert_key;
-				unset ($alert_types[$group][$alert_key]);
-			}
+			if (empty($alert_types[$group]))
+				unset ($alert_types[$group]);
 		}
 
-		if (empty($alert_types[$group]))
-			unset ($alert_types[$group]);
+		// Slightly different for group requests
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(*)
+			FROM {db_prefix}group_moderators
+			WHERE id_member = {int:memID}',
+			array(
+				'memID' => $memID,
+			)
+		);
+
+		list($can_mod) = $smcFunc['db_fetch_row']($request);
+
+		if (!isset($perms_cache['manage_membergroups']))
+		{
+			$members = membersAllowedTo('manage_membergroups');
+			$perms_cache['manage_membergroups'] = in_array($memID, $members);
+		}
+
+		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
+			unset($alert_types['members']['request_group']);
 	}
-
-	// Slightly different for group requests
-	$request = $smcFunc['db_query']('', '
-		SELECT COUNT(*)
-		FROM {db_prefix}group_moderators
-		WHERE id_member = {int:memID}',
-		array(
-			'memID' => $memID,
-		)
-	);
-
-	list($can_mod) = $smcFunc['db_fetch_row']($request);
-
-	if (!isset($perms_cache['manage_membergroups']))
-	{
-		$members = membersAllowedTo('manage_membergroups');
-		$perms_cache['manage_membergroups'] = in_array($memID, $members);
-	}
-
-	if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-		unset($alert_types['members']['request_group']);
 
 	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
