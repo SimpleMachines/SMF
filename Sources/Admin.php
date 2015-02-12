@@ -112,6 +112,7 @@ function AdminMain()
 						'profile' => array($txt['custom_profile_shorttitle']),
 						'likes' => array($txt['likes']),
 						'mentions' => array($txt['mentions']),
+						'alerts' => array($txt['notifications']),
 					),
 				),
 				'antispam' => array(
