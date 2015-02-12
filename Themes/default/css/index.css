@@ -2641,15 +2641,6 @@ dl.addrules dt.floatleft {
 	text-align: left;
 }
 
-/* Styles for the search results page.
-------------------------------------------------- */
-.search_results_posts {
-	overflow: hidden;
-}
-.search_results_posts .buttons {
-	padding: 5px 12px 0 0;
-}
-
 /* Styles for the help section.
 ------------------------------------------------- */
 

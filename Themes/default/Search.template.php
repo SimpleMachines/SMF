@@ -309,7 +309,6 @@ function template_results()
 		{
 
 			echo '
-			<div class="search_results_posts">
 			<div class="windowbg">
 				<div class="flow_auto">';
 
@@ -367,8 +366,7 @@ function template_results()
 
 			echo '
 				</div>
-			</div>
-		</div>';
+			</div>';
 
 		}
 		if (!empty($context['topics']))
@@ -432,7 +430,6 @@ function template_results()
 			foreach ($topic['matches'] as $message)
 			{
 				echo '
-			<div class="search_results_posts">
 				<div class="windowbg">
 					<div class="counter">', $message['counter'], '</div>
 					<div class="topic_details">
@@ -460,8 +457,7 @@ function template_results()
 						</ul>';
 			echo '
 					<br class="clear">
-				</div>
-			</div>';
+				</div>';
 			}
 		}
 
