@@ -1064,7 +1064,6 @@ img.sort, .sort {
 /* These divisions wrap the forum sections when a forum width is set. */
 #wrapper, .frame {
 	margin: 0 auto;
-	min-width: 760px;
 }
 
 /* Box-shadow only on this one. */
@@ -1312,7 +1311,6 @@ ul li.greeting {
 #footer_section {
 	margin: 4em 0 0 0;
 	padding: 0;
-	overflow: auto;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
 
@@ -1320,7 +1318,6 @@ ul li.greeting {
 /* min-width should be equal to #wrapper min-width. */
 #footer_section div.frame {
 	padding: 10px 5px;
-	overflow: auto;
 }
 #footer_section ul li, #footer_section p,
 #footer_section ul li a, #footer_section p a {
