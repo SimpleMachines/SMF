@@ -356,8 +356,6 @@ smc_PopupMenu.prototype.add = function (sItem, sUrl)
 
 	$item.click({obj: this}, function (e) {
 		e.preventDefault();
-		if (e.target != this)
-			return;
 
 		e.data.obj.toggle(sItem);
 	});
