@@ -1590,7 +1590,12 @@ function editIgnoreList($memID)
 
 			// Add the new member to the buddies array.
 			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$ignoreArray[] = (int) $row['id_member'];
+			{
+				if (in_array($row['id_member'], $ignoreArray))
+					continue;
+				else
+					$ignoreArray[] = (int) $row['id_member'];
+			}
 			$smcFunc['db_free_result']($request);
 
 			// Now update the current users buddy list.
