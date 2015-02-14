@@ -229,9 +229,6 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 /**
  * Extract zip data. A functional copy of {@list read_zip_data()}.
  *
- * If single_file is true, destination can start with * and / to signify that the file may come from any directory.
- * Destination should not begin with a / if single_file is true.
- *
  * @param string $file Input filename
  * @param type $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
  * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
@@ -322,6 +319,17 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 }
 
 /**
+ * Extract zip data. .
+ *
+ * If single_file is true, destination can start with * and / to signify that the file may come from any directory.
+ * Destination should not begin with a / if single_file is true.
+ *
+ * @param string $data ZIP data
+ * @param type $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
+ * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
+ * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
+ * @param array $files_to_extract
+ * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
 function read_zip_data($data, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
@@ -523,7 +531,7 @@ function getPackageInfo($gzfilename)
 
 	// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 	if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false)
-		$packageInfo = read_tgz_data(fetch_web_data($gzfilename, '', true), '*/package-info.xml', true);
+		$packageInfo = read_tgz_data($gzfilename, 'package-info.xml', true);
 	else
 	{
 		if (!file_exists($packagesdir . '/' . $gzfilename))
