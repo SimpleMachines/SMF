@@ -3010,6 +3010,14 @@ function setupThemeContext($forceload = false)
 			});
 		});');
 
+	// Add a generic "Are you sure?" confirmation message.
+	addInlineJavascript('
+	$(function(){
+		$(\'.you_sure\').on(\'click\', function() {
+			return confirm(' . JavaScriptEscape($txt['quickmod_confirm']) . ');
+		});
+	});', true);
+
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
 	{

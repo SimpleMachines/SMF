@@ -564,7 +564,7 @@ function template_showAlerts()
 				<td>', $alert['time'], '</td>
 				<td>
 					<ul class="quickbuttons">
-						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="remove_button">', $txt['delete'] ,'</a></li>
+						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="remove_button you_sure">', $txt['delete'] ,'</a></li>
 						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
 						<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
 					</ul>
@@ -586,7 +586,7 @@ function template_showAlerts()
 						<option value="remove">', $txt['quick_mod_remove'] ,'</option>
 					</select>
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-					<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" onclick="return confirm(\'' . $txt['quickmod_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="req" value="', $txt['quick_mod_go'] ,'" class="button_submit you_sure">
 				</div>
 			</div>
 		</form>';
