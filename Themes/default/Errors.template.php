@@ -67,8 +67,8 @@ function template_error_log()
 					', $context['page_index'], '
 				</div>
 				<div class="floatright" style="margin-top: 1ex">
-					<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit">
-					<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit">
+					<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
+					<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
 				</div>
 			</div>
 			<table class="table_grid" id="error_log">
@@ -180,8 +180,8 @@ function template_error_log()
 
 	echo '
 			<div class="floatright" style="margin-top: 1ex">
-				<input type="submit" name="removeSelection" value="' . $txt['remove_selection'] . '" onclick="return confirm(\'' . $txt['remove_selection_confirm'] . '\');" class="button_submit">
-				<input type="submit" name="delall" value="', $context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all'], '" onclick="return confirm(\'', $context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove'], '\');" class="button_submit">
+				<input type="submit" name="removeSelection" value="', $txt['remove_selection'] ,'" data-confirm="', $txt['remove_selection_confirm'] ,'" class="button_submit you_sure">
+				<input type="submit" name="delall" value="', ($context['has_filter'] ? $txt['remove_filtered_results'] : $txt['remove_all']) ,'" data-confirm="', ($context['has_filter'] ? $txt['remove_filtered_results_confirm'] : $txt['sure_about_errorlog_remove']) ,'" class="button_submit you_sure">
 			</div>
 			<br>';
 
