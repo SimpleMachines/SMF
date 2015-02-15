@@ -45,6 +45,11 @@ function Post($post_errors = array())
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
 
+	// Get notification preferences for later
+	require_once($sourcedir . '/Subs-Notify.php');
+	$context['notify_prefs'] = (array) array_pop(getNotifyPrefs($user_info['id']));
+	$context['auto_notify'] = !empty($context['notify_prefs']['msg_auto_notify']);
+
 	// You must be posting to *some* board.
 	if (empty($board) && !$context['make_event'])
 		fatal_lang_error('no_board', false);
