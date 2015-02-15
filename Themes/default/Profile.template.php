@@ -533,15 +533,17 @@ function template_showAlerts()
 	// Do we have an update message?
 	if (!empty($context['update_message']))
 		echo '
-			<div class="infobox">
-				', $context['update_message'], '.
-			</div>';
+		<div class="infobox">
+			', $context['update_message'], '.
+		</div>';
 
 	echo '
-		<table id="alerts" class="table_grid">
-			<tr class="title_bar">
-				<th>', $txt['alerts'], ' - ', $context['member']['name'], '</th>
-			</tr>';
+		<div class="cat_bar">
+			<h3 class="catbg">
+			', $txt['alerts'], ' - ', $context['member']['name'], '
+			</h3>
+		</div>
+		<table id="alerts" class="table_grid">';
 
 	if (empty($context['alerts']))
 		echo '
@@ -549,6 +551,7 @@ function template_showAlerts()
 				<td>', $txt['alerts_none'], '</td>
 			</tr>
 		</table>';
+
 	else
 	{
 		// Start the form.
