@@ -155,8 +155,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$alert_rows[] = array(
 					'alert_time' => time(),
 					'id_member' => $member,
-					'id_member_started' => $posterOptions['id'],
-					'member_name' => $posterOptions['name'],
+					// Only tell sender's information for new topics and replies
+					'id_member_started' => in_array($type, array('topic', 'reply')) ? $posterOptions['id'] : 0,
+					'member_name' => in_array($type, array('topic', 'reply')) ? $posterOptions['name'] : '',
 					'content_type' => $content_type,
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
