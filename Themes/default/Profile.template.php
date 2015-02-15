@@ -558,7 +558,6 @@ function template_showAlerts()
 		echo '
 		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
 
-		$counter = 1;
 		foreach ($context['alerts'] as $id => $alert)
 		{
 			echo '
