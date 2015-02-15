@@ -447,7 +447,7 @@ function template_folder()
 					<li><a href="', $scripturl, '?action=pm;sa=send;f=', $context['folder'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';pmsg=', $message['id'], ';quote" class="quote_button">', $txt['reply_quote'], '</a></li>';
 			}
 			echo '
-					<li><a href="', $scripturl, '?action=pm;sa=pmactions;pm_actions%5b', $message['id'], '%5D=delete;f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', addslashes($txt['remove_message']), '?" class="remove_button you_sure">', $txt['delete'], '</a></li>';
+					<li><a href="', $scripturl, '?action=pm;sa=pmactions;pm_actions%5b', $message['id'], '%5D=delete;f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', ';', $context['session_var'], '=', $context['session_id'], '" data-confirm="', addslashes($txt['remove_message_question']), '" class="remove_button you_sure">', $txt['delete'], '</a></li>';
 
 			if (empty($context['display_mode']))
 				echo '
