@@ -228,7 +228,7 @@ function MaintainTopics()
 				'boards' => array()
 			);
 
-		$context['categories'][$row['id_cat']]['boards'][] = array(
+		$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'child_level' => $row['child_level']
