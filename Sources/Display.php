@@ -179,19 +179,6 @@ function Display()
 	$topicinfo = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	// Get notification preferences
-	$topicinfo['notify_prefs'] = array();
-	if (!empty($user_info['id']))
-	{
-		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . $context['current_topic']), true);
-		$pref = !empty($prefs[$user_info['id']]) ? $prefs[$user_info['id']] : array();
-		$topicinfo['notify_prefs'] = array(
-			'is_custom' => isset($pref['topic_notify_' . $topic]),
-			'pref' => isset($pref['topic_notify_' . $context['current_topic']]) ? $pref['topic_notify_' . $context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
-		);
-	}
-
 	// Is this a moved or merged topic that we are redirecting to?
 	if (!empty($topicinfo['id_redirect_topic']))
 	{
@@ -220,9 +207,6 @@ function Display()
 	$context['topic_first_message'] = $topicinfo['id_first_msg'];
 	$context['topic_last_message'] = $topicinfo['id_last_msg'];
 	$context['topic_unwatched'] = isset($topicinfo['unwatched']) ? $topicinfo['unwatched'] : 0;
-	$context['topic_notification'] = !empty($user_info['id']) ? $topicinfo['notify_prefs'] : array();
-	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
-	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
 
 	// Add up unapproved replies to get real number of replies...
 	if ($modSettings['postmod_active'] && allowedTo('approve_posts'))
@@ -961,6 +945,23 @@ function Display()
 		}
 	}
 
+	// Get notification preferences
+	$topicinfo['notify_prefs'] = array();
+	if (!empty($user_info['id']))
+	{
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs($user_info['id'], array('topic_notify', 'topic_notify_' . $context['current_topic']), true);
+		$pref = !empty($prefs[$user_info['id']]) && $context['is_marked_notify'] ? $prefs[$user_info['id']] : array();
+		$topicinfo['notify_prefs'] = array(
+			'is_custom' => isset($pref['topic_notify_' . $topic]),
+			'pref' => isset($pref['topic_notify_' . $context['current_topic']]) ? $pref['topic_notify_' . $context['current_topic']] : (!empty($pref['topic_notify']) ? $pref['topic_notify'] : 0),
+		);
+	}
+
+	$context['topic_notification'] = !empty($user_info['id']) ? $topicinfo['notify_prefs'] : array();
+	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
+	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
+	
 	$attachments = array();
 
 	// If there _are_ messages here... (probably an error otherwise :!)
