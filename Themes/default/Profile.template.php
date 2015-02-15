@@ -542,40 +542,39 @@ function template_showAlerts()
 			<h3 class="catbg">
 			', $txt['alerts'], ' - ', $context['member']['name'], '
 			</h3>
-		</div>
-		<table id="alerts" class="table_grid">';
+		</div>';
 
 	if (empty($context['alerts']))
 		echo '
-			<tr class="windowbg centertext">
-				<td>', $txt['alerts_none'], '</td>
-			</tr>
-		</table>';
+		<div class="information">
+			', $txt['alerts_none'], '
+		</div>';
 
 	else
 	{
 		// Start the form.
 		echo '
-		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">';
+		<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;save" method="post" accept-charset="', $context['character_set'], '" id="mark_all">
+			<table id="alerts" class="table_grid">';
 
 		foreach ($context['alerts'] as $id => $alert)
 		{
 			echo '
-			<tr class="windowbg">
-				<td>', $alert['text'], '</td>
-				<td>', $alert['time'], '</td>
-				<td>
-					<ul class="quickbuttons">
-						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="remove_button you_sure">', $txt['delete'] ,'</a></li>
-						<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
-						<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
-					</ul>
-				</td>
-			</tr>';
+				<tr class="windowbg">
+					<td>', $alert['text'], '</td>
+					<td>', $alert['time'], '</td>
+					<td>
+						<ul class="quickbuttons">
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=remove;aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="remove_button you_sure">', $txt['delete'] ,'</a></li>
+							<li><a href="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=showalerts;do=', ($alert['is_read'] != 0 ? 'unread' : 'read') ,';aid= ', $id ,';', $context['session_var'], '=', $context['session_id'], '" class="', $alert['is_read'] != 0 ? 'unread_button' : 'read_button','">', ($alert['is_read'] != 0 ? $txt['mark_unread'] : $txt['mark_read_short']),'</a></li>
+							<li><input type="checkbox" name="mark[', $id ,']" value="', $id ,'"></li>
+						</ul>
+					</td>
+				</tr>';
 		}
 
 		echo '
-		</table>
+			</table>
 			<div class="pagesection">
 				<div class="floatleft">
 					', $context['pagination'] ,'
