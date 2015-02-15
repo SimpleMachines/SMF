@@ -1247,7 +1247,7 @@ function template_edit_profile_field()
 
 	if ($context['fid'])
 		echo '
-									<input type="submit" name="delete" value="', $txt['delete'], '" onclick="return confirm(\'', $txt['custom_edit_delete_sure'], '\');" class="button_submit">';
+									<input type="submit" name="delete" value="', $txt['delete'], '" data-confirm="', $txt['custom_edit_delete_sure'], '" class="button_submit you_sure">';
 
 	echo '
 							</div>
