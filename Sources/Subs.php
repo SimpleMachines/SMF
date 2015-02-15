@@ -3015,7 +3015,6 @@ function setupThemeContext($forceload = false)
 	$(function(){
 		$(\'.you_sure\').on(\'click\', function() {
 
-			// Using a custom message?
 			var custom_message = $(this).attr(\'data-confirm\');
 
 			return confirm(custom_message ? custom_message : ' . JavaScriptEscape($txt['quickmod_confirm']) . ');
