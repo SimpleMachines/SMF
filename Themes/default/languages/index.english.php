@@ -161,6 +161,7 @@ $txt['msg_alert_one_new'] = '1 is new';
 $txt['msg_alert_many_new'] = '%1$d are new';
 $txt['new_alert'] = 'New Alert';
 $txt['remove_message'] = 'Remove this post';
+$txt['remove_message_question'] = 'Remove this post?';
 
 $txt['topic_alert_none'] = 'No messages...';
 $txt['pm_alert_none'] = 'No messages...';

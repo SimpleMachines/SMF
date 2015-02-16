@@ -3014,7 +3014,10 @@ function setupThemeContext($forceload = false)
 	addInlineJavascript('
 	$(function(){
 		$(\'.you_sure\').on(\'click\', function() {
-			return confirm(' . JavaScriptEscape($txt['quickmod_confirm']) . ');
+
+			var custom_message = $(this).attr(\'data-confirm\');
+
+			return confirm(custom_message ? custom_message : ' . JavaScriptEscape($txt['quickmod_confirm']) . ');
 		});
 	});', true);
 
