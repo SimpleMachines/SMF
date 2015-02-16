@@ -2022,7 +2022,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		updateLastMessages($topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? $msgOptions['id'] : 0);
 
 	// Queue createPost background notification
-	if ($msgOptions['send_notifications'])
+	if ($msgOptions['send_notifications'] && $msgOptions['approved'])
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
