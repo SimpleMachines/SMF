@@ -298,16 +298,16 @@ Unsubscribe to new topics from this board by using this link:
 
 /**
 	@additional_params: alert_unapproved_post
-		TOPICSUBJECT: The subject of the topic causing the notification
-		TOPICLINK: A link to the topic.
-		UNSUBSCRIBELINK: Link to unsubscribe from notifications.
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
 	@description:
 */
-$txt['alert_unapproved_post_subject'] = 'New Topic: {TOPICSUBJECT}';
-$txt['alert_unapproved_post_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+$txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
+$txt['alert_unapproved_post_body'] = 'A new post, \'{SUBJECT}\', has been made which needs approved.
 
-Unsubscribe to new topics from this board by using this link:
-{UNSUBSCRIBELINK}
+You can approve or reject this post by clicking the link below:
+
+{LINK}
 
 {REGARDS}';
 
