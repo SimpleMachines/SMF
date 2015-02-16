@@ -297,6 +297,21 @@ Unsubscribe to new topics from this board by using this link:
 {REGARDS}';
 
 /**
+	@additional_params: alert_unapproved_post
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
+	@description:
+*/
+$txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
+$txt['alert_unapproved_post_body'] = 'A new post, \'{SUBJECT}\', has been made which needs approved.
+
+You can approve or reject this post by clicking the link below:
+
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: request_membership
 		RECPNAME: The name of the person recieving the email
 		APPYNAME: The name of the person applying for group membership
