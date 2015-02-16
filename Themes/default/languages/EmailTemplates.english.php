@@ -297,6 +297,21 @@ Unsubscribe to new topics from this board by using this link:
 {REGARDS}';
 
 /**
+	@additional_params: alert_unapproved_post
+		TOPICSUBJECT: The subject of the topic causing the notification
+		TOPICLINK: A link to the topic.
+		UNSUBSCRIBELINK: Link to unsubscribe from notifications.
+	@description:
+*/
+$txt['alert_unapproved_post_subject'] = 'New Topic: {TOPICSUBJECT}';
+$txt['alert_unapproved_post_body'] = 'A new topic, \'{TOPICSUBJECT}\', has been made on a board you are watching.
+
+Unsubscribe to new topics from this board by using this link:
+{UNSUBSCRIBELINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: request_membership
 		RECPNAME: The name of the person recieving the email
 		APPYNAME: The name of the person applying for group membership

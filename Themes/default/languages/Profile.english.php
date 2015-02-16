@@ -144,6 +144,7 @@ $txt['alert_group_pm'] = 'Personal Messages';
 $txt['alert_pm_new'] = 'When I receive a new personal message';
 $txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
 $txt['alert_group_moderation'] = 'Moderation';
+$txt['alert_unapproved_topic'] = 'When an unapproved topic is posted';
 $txt['alert_msg_report'] = 'When a message is reported';
 $txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets replied to';
 $txt['alert_group_members'] = 'Members';

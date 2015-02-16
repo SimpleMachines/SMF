@@ -1945,6 +1945,19 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 			),
 			array()
 		);
+
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array(
+				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', serialize(array(
+					'msgOptions' => $msgOptions,
+					'topicOptions' => $topicOptions,
+					'posterOptions' => $posterOptions
+				)), 0
+			),
+			array('id_task')
+		);
 	}
 
 	// Mark inserted topic as read (only for the user calling this function).
@@ -2009,7 +2022,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		updateLastMessages($topicOptions['board'], $new_topic || !empty($topicOptions['is_approved']) ? $msgOptions['id'] : 0);
 
 	// Queue createPost background notification
-	if ($msgOptions['send_notifications'] && $msgOptions['approved'])
+	if ($msgOptions['send_notifications'])
 		$smcFunc['db_insert']('',
 			'{db_prefix}background_tasks',
 			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
