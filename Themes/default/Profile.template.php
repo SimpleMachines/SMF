@@ -1790,8 +1790,8 @@ function template_alert_configuration()
 			<table class="table_grid">
 				<tr>
 					<td></td>
-					<td>', $txt['receive_alert'], '</td>
-					<td>', $txt['receive_mail'], '</td>
+					<td class="centercol">', $txt['receive_alert'], '</td>
+					<td class="centercol">', $txt['receive_mail'], '</td>
 				</tr>';
 
 	foreach ($context['alert_types'] as $alert_group => $alerts)
