@@ -19,6 +19,7 @@ $txt['alert_topic_merge'] = 'One or more topics have been merged into {topic_msg
 $txt['alert_topic_sticky'] = 'The topic {topic_msg} has been stickied';
 $txt['alert_board_topic'] = '{member_link} started a new topic {topic_msg} in {board_msg}';
 $txt['alert_unapproved_post'] = '{member_link} started a new unapproved topic {topic_msg} in {board_msg}';
+$txt['alert_unapproved_reply'] = '{member_link} has replied to your unapproved topic {topic_msg} in {board_msg}';
 $txt['alert_msg_quote'] = '{member_link} quoted you in the post {msg_msg}';
 $txt['alert_msg_mention'] = '{member_link} mentioned you in the post {msg_msg}';
 $txt['alert_msg_like'] = '{member_link} liked your post {msg_msg}';

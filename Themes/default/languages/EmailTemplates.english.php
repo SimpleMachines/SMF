@@ -297,6 +297,20 @@ Unsubscribe to new topics from this board by using this link:
 {REGARDS}';
 
 /**
+	@additional_params: alert_unapproved_reply
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
+	@description:
+*/
+$txt['alert_unapproved_reply_subject'] = 'Topic reply: {SUBJECT}';
+$txt['alert_unapproved_reply_body'] = 'A reply has been posted to \'{SUBJECT}\' by {POSTERNAME}.
+
+You can see it at
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: alert_unapproved_post
 		SUBJECT: The subject of the topic causing the notification
 		LINK: A link to the topic.

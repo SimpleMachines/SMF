@@ -1894,6 +1894,7 @@ function alert_configuration($memID)
 			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_like' => array('alert' => 'yes', 'email' => 'never'),
+			'unapproved_reply' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'pm' => array(
 			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
