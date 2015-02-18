@@ -9,8 +9,6 @@
 
 // Do not use block comments in this file, they will have special meaning.
 
-global $context, $txtBirthdayEmails;
-
 $txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
 $txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
 $txt['scheduled_approval_email_attach'] = 'The following attachments are awaiting approval:';
