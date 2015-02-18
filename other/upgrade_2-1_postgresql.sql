@@ -118,10 +118,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Adding new "loginHistoryDays" setting
 ---{
 	if (!isset($modSettings['loginHistoryDays']))
-		$smcFunc['db_insert']('insert', 
-			'{db_prefix}settings', 
-			array('variable' => 'string', 'value' => 'string'), 
-			array('loginHistoryDays', '30'), 
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('loginHistoryDays', '30'),
 			array()
 		);
 ---}
@@ -825,7 +825,7 @@ foreach ($toMove as $move)
 	$image = $image[1];
 
 	// PHP won't suppress errors when running things from shell, so make sure it exists first...
-	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))  
+	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
 ---}
