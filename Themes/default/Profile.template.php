@@ -1787,7 +1787,7 @@ function template_alert_configuration()
 					', $txt['notify_what_how'], '
 				</h3>
 			</div>
-			<table class="table_grid" style="width: 100%">
+			<table class="table_grid">
 				<tr>
 					<td></td>
 					<td>', $txt['receive_alert'], '</td>
