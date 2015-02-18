@@ -118,10 +118,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Adding new "loginHistoryDays" setting
 ---{
 	if (!isset($modSettings['loginHistoryDays']))
-		$smcFunc['db_insert']('insert', 
-			'{db_prefix}settings', 
-			array('variable' => 'string', 'value' => 'string'), 
-			array('loginHistoryDays', '30'), 
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('loginHistoryDays', '30'),
 			array()
 		);
 ---}
@@ -696,6 +696,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3);
 ---#
 
 /******************************************************************************/
@@ -824,7 +825,7 @@ foreach ($toMove as $move)
 	$image = $image[1];
 
 	// PHP won't suppress errors when running things from shell, so make sure it exists first...
-	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))  
+	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
 ---}

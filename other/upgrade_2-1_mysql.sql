@@ -116,10 +116,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---# Adding new "loginHistoryDays" setting
 ---{
 	if (!isset($modSettings['loginHistoryDays']))
-		$smcFunc['db_insert']('insert', 
-			'{db_prefix}settings', 
-			array('variable' => 'string', 'value' => 'string'), 
-			array('loginHistoryDays', '30'), 
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}settings',
+			array('variable' => 'string', 'value' => 'string'),
+			array('loginHistoryDays', '30'),
 			array()
 		);
 ---}
@@ -641,7 +641,8 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
-	(0, 'msg_report_reply', 1);
+	(0, 'msg_report_reply', 1),
+	(0, 'unapproved_reply', 3);
 ---#
 
 /******************************************************************************/
@@ -770,9 +771,9 @@ foreach ($toMove as $move)
 	// Get the actual image.
 	$image = explode('#', $move);
 	$image = $image[1];
-	
+
 	// PHP won't suppress errors when running things from shell, so make sure it exists first...
-	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))  
+	if (file_exists($modSettings['theme_dir'] . '/images/' . $image))
 		@rename($modSettings['theme_dir'] . '/images/' . $image, $modSettings['theme_dir'] . '/images/membericons/'. $image);
 }
 ---}
@@ -943,7 +944,7 @@ ALTER TABLE `{$db_prefix}members`
 			FROM {db_prefix}custom_fields',
 			array()
 		);
-	
+
 		$fields = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
@@ -958,16 +959,16 @@ ALTER TABLE `{$db_prefix}members`
 				'mlist' => $row['show_mlist'],
 			);
 		}
-	
+
 		$smcFunc['db_free_result']($request);
-	
+
 		$smcFunc['db_insert']('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
 			array('displayFields', serialize($fields)),
 			array('id_theme', 'id_member', 'variable')
 		);
-	}	
+	}
 ---}
 ---#
 

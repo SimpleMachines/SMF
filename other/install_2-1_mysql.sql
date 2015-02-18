@@ -2088,7 +2088,8 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'member_register', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
-	(0, 'msg_report_reply', 1);
+	(0, 'msg_report_reply', 1),
+	(0, 'unapproved_reply', 3);
 # --------------------------------------------------------
 
 #

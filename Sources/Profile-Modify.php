@@ -1894,6 +1894,7 @@ function alert_configuration($memID)
 			'msg_mention' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_quote' => array('alert' => 'yes', 'email' => 'yes'),
 			'msg_like' => array('alert' => 'yes', 'email' => 'never'),
+			'unapproved_reply' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'pm' => array(
 			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
@@ -1977,6 +1978,26 @@ function alert_configuration($memID)
 	{
 		require_once($sourcedir . '/Subs-Members.php');
 		$perms_cache = array();
+		$request = $smcFunc['db_query']('', '
+			SELECT COUNT(*)
+			FROM {db_prefix}group_moderators
+			WHERE id_member = {int:memID}',
+			array(
+				'memID' => $memID,
+			)
+		);
+
+		list ($can_mod) = $smcFunc['db_fetch_row']($request);
+
+		if (!isset($perms_cache['manage_membergroups']))
+		{
+			$members = membersAllowedTo('manage_membergroups');
+			$perms_cache['manage_membergroups'] = in_array($memID, $members);
+		}
+
+		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
+			unset($alert_types['members']['request_group']);
+
 		foreach ($alert_types as $group => $items)
 		{
 			foreach ($items as $alert_key => $alert_value)
@@ -2000,27 +2021,6 @@ function alert_configuration($memID)
 			if (empty($alert_types[$group]))
 				unset ($alert_types[$group]);
 		}
-
-		// Slightly different for group requests
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}group_moderators
-			WHERE id_member = {int:memID}',
-			array(
-				'memID' => $memID,
-			)
-		);
-
-		list($can_mod) = $smcFunc['db_fetch_row']($request);
-
-		if (!isset($perms_cache['manage_membergroups']))
-		{
-			$members = membersAllowedTo('manage_membergroups');
-			$perms_cache['manage_membergroups'] = in_array($memID, $members);
-		}
-
-		if (!($perms_cache['manage_membergroups'] || $can_mod != 0))
-			unset($alert_types['members']['request_group']);
 	}
 
 	// And finally, exporting it to be useful later.

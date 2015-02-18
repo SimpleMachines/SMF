@@ -1992,6 +1992,20 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 		}
 	}
 
+	if ($msgOptions['approved'] && empty($topicOptions['is_approved']))
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array(
+				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', serialize(array(
+					'msgOptions' => $msgOptions,
+					'topicOptions' => $topicOptions,
+					'posterOptions' => $posterOptions
+				)), 0
+			),
+			array('id_task')
+		);
+
 	// If there's a custom search index, it may need updating...
 	require_once($sourcedir . '/Search.php');
 	$searchAPI = findSearchAPI();
