@@ -190,58 +190,6 @@ function preparsecode(&$message, $previewing = false)
 			for ($j = 0; $j < 3; $j++)
 				$parts[$i] = preg_replace(array_keys($mistake_fixes), $mistake_fixes, $parts[$i]);
 
-			// Now we're going to do full scale table checking...
-			$table_check = $parts[$i];
-			$table_offset = 0;
-			$table_array = array();
-			$table_order = array(
-				'table' => 'td',
-				'tr' => 'table',
-				'td' => 'tr',
-			);
-			while (preg_match('~\[(/)*(table|tr|td)\]~', $table_check, $matches) != false)
-			{
-				// Keep track of where this is.
-				$offset = strpos($table_check, $matches[0]);
-				$remove_tag = false;
-
-				// Is it opening?
-				if ($matches[1] != '/')
-				{
-					// If the previous table tag isn't correct simply remove it.
-					if ((!empty($table_array) && $table_array[0] != $table_order[$matches[2]]) || (empty($table_array) && $matches[2] != 'table'))
-						$remove_tag = true;
-					// Record this was the last tag.
-					else
-						array_unshift($table_array, $matches[2]);
-				}
-				// Otherwise is closed!
-				else
-				{
-					// Only keep the tag if it's closing the right thing.
-					if (empty($table_array) || ($table_array[0] != $matches[2]))
-						$remove_tag = true;
-					else
-						array_shift($table_array);
-				}
-
-				// Removing?
-				if ($remove_tag)
-				{
-					$parts[$i] = substr($parts[$i], 0, $table_offset + $offset) . substr($parts[$i], $table_offset + strlen($matches[0]) + $offset);
-					// We've lost some data.
-					$table_offset -= strlen($matches[0]);
-				}
-
-				// Remove everything up to here.
-				$table_offset += $offset + strlen($matches[0]);
-				$table_check = substr($table_check, $offset + strlen($matches[0]));
-			}
-
-			// Close any remaining table tags.
-			foreach ($table_array as $tag)
-				$parts[$i] .= '[/' . $tag . ']';
-
 			// Remove empty bbc from the sections outside the code tags
 			$parts[$i] = preg_replace('~\[[bisu]\]\s*\[/[bisu]\]~', '', $parts[$i]);
 			$parts[$i] = preg_replace('~\[quote\]\s*\[/quote\]~', '', $parts[$i]);
