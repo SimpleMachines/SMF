@@ -1613,4 +1613,12 @@ $(function()
 			$(item).css('display', 'none');
 		});
 	});
+
+	// Generic confirmation message.
+	$('.you_sure').on('click', function() {
+
+		var custom_message = $(this).attr('data-confirm');
+
+		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
+	});
 })
