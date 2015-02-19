@@ -3017,7 +3017,7 @@ function setupThemeContext($forceload = false)
 
 			var custom_message = $(this).attr(\'data-confirm\');
 
-			return confirm(custom_message ? custom_message : ' . JavaScriptEscape($txt['quickmod_confirm']) . ');
+			return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : ' . JavaScriptEscape($txt['quickmod_confirm']) .');
 		});
 	});', true);
 

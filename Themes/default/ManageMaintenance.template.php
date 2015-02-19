@@ -428,7 +428,7 @@ function template_maintain_topics()
 	echo '
 						</div>
 					</div>
-					<input type="submit" value="', $txt['maintain_old_remove'], '" data-confirm="', $txt['maintain_old_confirm'], '" class="button_submit you_sure">
+					<input type="submit" value="', $txt['maintain_old_remove'] ,'" data-confirm="', $txt['maintain_old_confirm'] ,'" class="button_submit you_sure">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['admin-maint_token_var'], '" value="', $context['admin-maint_token'], '">
 				</form>
