@@ -1302,10 +1302,11 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'parameters' => array(
 					'alt' => array('optional' => true),
+					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
-				'content' => '<img src="$1" alt="{alt}"{width}{height} class="bbc_img resized">',
+				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					global $image_proxy_enabled, $image_proxy_secret, $boardurl;

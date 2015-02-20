@@ -114,8 +114,10 @@ function ScheduledTasks()
 				'remove_redirect' => 'remove_topic_redirect'
 			)
 		);
-
-		list($task_disabled) = $smcFunc['db_fetch_assoc']($get_info);
+		
+		$task_disabled = 0;
+		$task_disabled = (int)$smcFunc['db_fetch_assoc']($get_info);
+		
 		$smcFunc['db_free_result']($get_info);
 		updateSettings(array('allow_expire_redirect', !$task_disabled));
 
