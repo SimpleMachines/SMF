@@ -1049,7 +1049,7 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 
 	// Create a login token
 	createToken('login');
-		
+
 	echo '
 		<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
 			<table style="border: none" class="ssi_table">
