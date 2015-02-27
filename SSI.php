@@ -1063,7 +1063,8 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 				<tr>
 					<td>
 						<input type="hidden" name="cookielength" value="-1">
-						<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+						<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token', '">
 					</td>
 					<td><input type="submit" value="', $txt['login'], '" class="button_submit"></td>
 				</tr>
