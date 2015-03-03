@@ -84,7 +84,7 @@ function template_move()
  */
 function template_redirect_options($type)
 {
-    global $txt, $context;
+    global $txt, $context, $modSettings;
 
     echo '
 					<label for="postRedirect"><input type="checkbox" name="postRedirect" id="postRedirect"', $context['is_approved'] ? ' checked' : '', ' onclick="', $context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . $txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').style.display = this.checked ? \'block\' : \'none\';" class="input_check"> ', $txt['post_redirection'], '.</label>

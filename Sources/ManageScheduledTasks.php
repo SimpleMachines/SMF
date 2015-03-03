@@ -115,11 +115,11 @@ function ScheduledTasks()
 			)
 		);
 		
-		$task_disabled = 0;
-		$task_disabled = (int)$smcFunc['db_fetch_assoc']($get_info);
-		
+		$temp = $smcFunc['db_fetch_assoc']($get_info);
+		$task_disabled = !empty($temp['disabled']) ? 0 : 1;
 		$smcFunc['db_free_result']($get_info);
-		updateSettings(array('allow_expire_redirect', !$task_disabled));
+
+		updateSettings(array('allow_expire_redirect' => $task_disabled));
 
 		// Pop along...
 		CalculateNextTrigger();
