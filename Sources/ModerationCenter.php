@@ -485,12 +485,6 @@ function ModBlockNotes()
 		);
 	}
 
-	// Add a confirm on deleting a modnote
-	addInlineJavascript('
-	$(\'.delete_modnote\').on(\'click\', function(){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
-	});', true);
-
 	// Couple tokens for add/delete modnotes
 	createToken('mod-modnote-add');
 	createToken('mod-modnote-del', 'get');
