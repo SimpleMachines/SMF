@@ -364,11 +364,6 @@ function ReportDetails()
 	if ($context['report']['closed'])
 		$context[$context['moderation_menu_name']]['current_subsection'] = 'closed';
 
-	addInlineJavascript('
-	$(\'.deleteModComment\').on(\'click\', function() {
-		return confirm('. (JavaScriptEscape($txt['mc_reportedp_delete_confirm'])) .');
-});', true);
-
 	// Finally we are done :P
 	if ($context['report_type'] == 'members')
 	{
