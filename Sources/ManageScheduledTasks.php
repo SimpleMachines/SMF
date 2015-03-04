@@ -550,7 +550,7 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" onclick="return confirm(\'' . $txt['scheduled_log_empty_log_confirm'] . '\');" class="button_submit">',
+					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" data-confirm="' . $txt['scheduled_log_empty_log_confirm'] . '" class="button_submit you_sure">',
 			),
 			array(
 				'position' => 'after_title',
