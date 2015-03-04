@@ -125,7 +125,7 @@ $txt['themeadmin_reset_members'] = 'Change current options for all members using
 $txt['themeadmin_reset_remove'] = 'Remove all members\' options and use the defaults';
 $txt['themeadmin_reset_remove_current'] = 'members currently using their own options.';
 // Don't use entities in the below string.
-$txt['themeadmin_reset_remove_confirm'] = 'Are you sure you want to remove all theme options?\\nThis may reset some custom profile fields as well.';
+$txt['themeadmin_reset_remove_confirm'] = 'Are you sure you want to remove all theme options?-n-This may reset some custom profile fields as well.';
 $txt['themeadmin_reset_options_info'] = 'The options below will reset options for <em>everyone</em>. To change an option, select &quot;change&quot; in the box next to it, and then select a value for it. To use the default, select &quot;default&quot;. Otherwise, use &quot;don\'t change&quot; to keep it as-is.';
 $txt['themeadmin_reset_options_change'] = 'Change';
 $txt['themeadmin_reset_options_none'] = 'Don\'t change';
