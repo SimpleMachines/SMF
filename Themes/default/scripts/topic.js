@@ -836,6 +836,9 @@ $(function() {
 					ajax_indicator(false);
 				}
 			});
+
+			// The process has been done, hide the button.
+			$('#quoteSelected_' + oSelectedID).hide();
 		});
 
 		return false;
