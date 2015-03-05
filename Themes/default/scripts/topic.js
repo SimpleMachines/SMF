@@ -257,6 +257,7 @@ QuickReply.prototype.quote = function (iMessageId, xDeprecated)
 			ajax_indicator(true);
 			if (this.bIsFull)
 				insertQuoteFast(iMessageId);
+
 			else
 				getXMLDocument(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';xml', this.onQuoteReceived);
 		}
@@ -760,18 +761,91 @@ function ignore_toggles(msgids, text)
 	}
 }
 
-// Likes count for messages.
+function getSelectedText()
+{
+    var text = '';
+    if (window.getSelection)
+	{
+		text = window.getSelection().toString();
+	}
+	else if(document.getSelection){
+		return document.getSelection();
+	}
+	else if (document.selection && document.selection.type != 'Control')
+	{
+		text = document.selection.createRange().text;
+	}
+
+	return text;
+}
+
+// On document ready.
 $(function() {
+
+	// Event for handling selected quotes.
+	$(document).on('mouseup', '.inner', function() {
+
+		// Get any selected text.
+		var oSelectedText = getSelectedText();
+
+		// Get the message ID.
+		var oSelectedID = $(this).attr('id').replace('msg_','');
+
+		// If the button is already visible, hide it!
+		$('#quoteSelected_' + oSelectedID).hide();
+
+		// Do we have some selected text?
+		if (!oSelectedText)
+			return false;
+
+		// Show the "quote this" button.
+		$('#quoteSelected_' + oSelectedID).show();
+
+		// append an onclick event to this very own anchor tag.
+		$(document).one('click', '#quoteSelected_' + oSelectedID + ' a', function(e){
+			e.preventDefault();
+			var text = '';
+
+			$.ajax({
+				url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oSelectedID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject.bRichTextEnabled ? 1 : 0),
+				type: 'GET',
+				dataType: 'xml',
+				beforeSend: function () {
+					ajax_indicator(true);
+				},
+				success: function (data, textStatus, xhr) {
+					text = $(data).find('quote').text();
+
+					text = text.match(/^\[quote(.*)]/ig) + oSelectedText + '[/quote]' + '\n\n';
+
+					$('#' + oEditorID).data('sceditor').InsertText(text);
+
+					// Move the view to the quick reply box.
+					if (navigator.appName == 'Microsoft Internet Explorer')
+						window.location.hash = oJumpAnchor;
+					else
+						window.location.hash = '#' + oJumpAnchor;
+
+					ajax_indicator(false);
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					ajax_indicator(false);
+				}
+			});
+		});
+
+		return false;
+	});
+
+	// Likes count for messages.
 	$(document).on('click', '.like_count a', function(e){
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
 		return reqOverlayDiv(url, title);
 	});
-});
 
-// Message likes.
-$(function() {
+	// Message likes.
 	$(document).on('click', '.msg_like', function(event){
 		var obj = $(this);
 		event.preventDefault();

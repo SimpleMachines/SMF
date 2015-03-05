@@ -697,6 +697,11 @@ function template_single_post($message)
 		echo '
 								<ul class="quickbuttons">';
 
+		// Selected quote.
+		if ($context['can_quote'])
+			echo '
+									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)" data-msg_id="', $message['id'], '" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>';
+
 		// Can they reply?
 		if ($context['can_quote'])
 			echo '
@@ -946,6 +951,9 @@ function template_quickreply()
 						sJumpAnchor: "quickreply",
 						bIsFull: true
 					});
+					var oEditorID = "', $context['post_box_name'] ,'";
+					var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
+					var oJumpAnchor = "quickreply";
 				// ]]></script>';
 }
 ?>
