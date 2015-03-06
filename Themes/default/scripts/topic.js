@@ -769,7 +769,7 @@ function getSelectedText()
 		text = window.getSelection().toString();
 	}
 	else if(document.getSelection){
-		return document.getSelection();
+		text = document.getSelection();
 	}
 	else if (document.selection && document.selection.type != 'Control')
 	{
