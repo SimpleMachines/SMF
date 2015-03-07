@@ -142,6 +142,7 @@ a:hover, a.new_win:hover {
 /* Deprecated? */
 body#help_popup {
 	padding: 12px;
+	box-sizing: border-box;
 }
 
 ul#likes li {
