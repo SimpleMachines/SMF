@@ -917,8 +917,8 @@ function ViewSubscribedUsers()
 				'position' => 'below_table_data',
 				'value' => '
 					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit">
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit">
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit">
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button_submit you_sure">
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button_submit you_sure">
 				',
 			),
 			array(

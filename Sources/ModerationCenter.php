@@ -485,12 +485,6 @@ function ModBlockNotes()
 		);
 	}
 
-	// Add a confirm on deleting a modnote
-	addInlineJavascript('
-	$(\'.delete_modnote\').on(\'click\', function(){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
-	});', true);
-
 	// Couple tokens for add/delete modnotes
 	createToken('mod-modnote-add');
 	createToken('mod-modnote-del', 'get');
@@ -1771,7 +1765,7 @@ function ViewWarningTemplates()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit">',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" data-confirm="' . $txt['mc_warning_template_delete_confirm'] . '" class="button_submit you_sure">',
 			),
 			array(
 				'position' => 'bottom_of_list',

@@ -129,19 +129,6 @@ function ShowReports()
 		redirectexit($scripturl . '?action=moderate;area=reported' . $context['report_type']);
 	}
 
-	// Show a confirmation if the user wants to ignore a report.
-	if (!$context['view_closed'])
-		addInlineJavascript('
-	$(\'.delete_message\').on(\'click\', function(){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
-	});
-	$(\'.report_ignore\').on(\'click\', function(){
-		// Need to make sure to only show this when ignoring.
-		if ($(this).data(\'ignore\') == \'1\'){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
-		}
-	});', true);
-
 	createToken('mod-report-close-all');
 	createToken('mod-report-ignore', 'get');
 	createToken('mod-report-closed', 'get');
@@ -173,18 +160,6 @@ function ShowClosedReports()
 
 	// Get the reports at once!
 	$context['reports'] = getReports($context['view_closed']);
-
-	// Show a confirmation if the user wants to ignore a report.
-	addInlineJavascript('
-	$(\'.delete_message\').on(\'click\', function(){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
-	});
-	$(\'.report_ignore\').on(\'click\', function(){
-		// Need to make sure to only show this when ignoring.
-		if ($(this).data(\'ignore\') == \'1\'){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
-		}
-	});', true);
 
 	createToken('mod-report-ignore', 'get');
 	createToken('mod-report-closed', 'get');
@@ -389,11 +364,6 @@ function ReportDetails()
 	if ($context['report']['closed'])
 		$context[$context['moderation_menu_name']]['current_subsection'] = 'closed';
 
-	addInlineJavascript('
-	$(\'.deleteModComment\').on(\'click\', function() {
-		return confirm('. (JavaScriptEscape($txt['mc_reportedp_delete_confirm'])) .');
-});', true);
-
 	// Finally we are done :P
 	if ($context['report_type'] == 'members')
 	{
@@ -405,15 +375,6 @@ function ReportDetails()
 		$context['page_title'] = sprintf($txt['mc_viewmodreport'], $context['report']['subject'], $context['report']['author']['name']);
 		$context['sub_template'] = 'viewmodreport';
 	}
-
-	// We can ignore a report from this page too so show the confirmation on here as well.
-	addInlineJavascript('
-	$(\'.report_ignore\').on(\'click\', function(){
-		// Need to make sure to only show this when ignoring.
-		if ($(this).data(\'ignore\') == \'1\'){
-			return confirm('. JavaScriptEscape($txt['mc_reportedp_ignore_confirm']) .');
-		}
-	});', true);
 
 	createToken('mod-reportC-add');
 	createToken('mod-reportC-delete', 'get');

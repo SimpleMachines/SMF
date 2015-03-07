@@ -267,7 +267,7 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_confirm'] . '\');" class="button_submit">',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);
@@ -1823,7 +1823,7 @@ function BanBrowseTriggers()
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_triggers_confirm'] . '\');" class="button_submit">',
+				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" data-confirm="' . $txt['ban_remove_selected_triggers_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);
@@ -2116,8 +2116,8 @@ function BanLog()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_selected_confirm'] . '\');" class="button_submit">
-					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_all_confirm'] . '\');" class="button_submit">',
+					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button_submit you_sure">
+					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);

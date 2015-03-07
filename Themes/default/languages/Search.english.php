@@ -133,7 +133,7 @@ $txt['spider_ip_info'] = 'IP Addresses';
 $txt['spiders_add'] = 'Add New Spider';
 $txt['spiders_edit'] = 'Edit Spider';
 $txt['spiders_remove_selected'] = 'Remove Selected';
-$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?\\n\\nAll associated statistics will also be deleted!';
+$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?-n-All associated statistics will also be deleted!';
 $txt['spiders_no_entries'] = 'There are currently no spiders configured.';
 
 $txt['add_spider_desc'] = 'From this page you can edit the parameters against which a spider is categorized. If a guest\'s user agent/IP address matches those entered below it will be detected as a search engine spider and tracked as per the forum preferences.';
