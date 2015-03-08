@@ -806,6 +806,9 @@ $(function() {
 			e.preventDefault();
 			var text = '';
 
+			// The process has been started, hide the button.
+			$('#quoteSelected_' + oSelectedID).hide();
+
 			// Do a call to make sure this is a valid message.
 			$.ajax({
 				url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oSelectedID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject.bRichTextEnabled ? 1 : 0),
@@ -836,9 +839,6 @@ $(function() {
 					ajax_indicator(false);
 				}
 			});
-
-			// The process has been done, hide the button.
-			$('#quoteSelected_' + oSelectedID).hide();
 		});
 
 		return false;
