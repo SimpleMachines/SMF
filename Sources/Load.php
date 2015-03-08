@@ -413,13 +413,40 @@ function loadUserSettings()
 			$context['tfa_member'] = $user_settings;
 			$user_settings = array();
 		}
-		// Are we forcing 2FA?
-		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2 && $id_member && empty($user_settings['tfa_secret']))
+		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
+		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']))
 		{
+			if ($modSettings['tfa_mode'] == 2) //only do this if we are just forcing SOME membergroups
+			{
+				//Build an array of ALL user membergroups.
+				$full_groups = array($user_settings['id_group']);
+				if (!empty($user_settings['additional_groups']))
+				{
+					$full_groups = array_merge($full_groups, explode(',', $user_settings['additional_groups']));
+					$full_groups = array_unique($full_groups); //duplicates, maybe?
+				}
+				
+				//Find out if any group requires 2FA
+				$request = $smcFunc['db_query']('', '
+					SELECT COUNT(id_group) AS total
+					FROM {db_prefix}membergroups
+					WHERE tfa_required = {int:tfa_required}
+						AND id_group IN ({array_int:full_groups})',
+					array(
+						'tfa_required' => 1,
+						'full_groups' => $full_groups,
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($request);
+				$smcFunc['db_free_result']($request);
+			}
+			else
+				$row['total'] = 1; //simplifies logics in the next "if"
+
 			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
 			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-			if (!in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
 				redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
