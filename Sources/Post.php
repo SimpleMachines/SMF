@@ -36,6 +36,8 @@ function Post($post_errors = array())
 	global $sourcedir, $smcFunc, $language;
 
 	loadLanguage('Post');
+	if (!empty($modSettings['drafts_post_enabled']))
+		loadLanguage('Drafts');
 
 	// You can't reply with a poll... hacker.
 	if (isset($_REQUEST['poll']) && !empty($topic) && !isset($_REQUEST['msg']))
