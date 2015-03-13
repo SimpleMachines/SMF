@@ -1276,6 +1276,9 @@ function Display()
 	// topic.js
 	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 
+	// quotedText.js
+	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
