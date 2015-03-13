@@ -3013,14 +3013,7 @@ function setupThemeContext($forceload = false)
 
 	// Add a generic "Are you sure?" confirmation message.
 	addInlineJavascript('
-	$(function(){
-		$(\'.you_sure\').on(\'click\', function() {
-
-			var custom_message = $(this).attr(\'data-confirm\');
-
-			return confirm(custom_message ? custom_message : ' . JavaScriptEscape($txt['quickmod_confirm']) . ');
-		});
-	});', true);
+	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
 
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')

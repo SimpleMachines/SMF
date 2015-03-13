@@ -161,11 +161,11 @@ $txt['maintain_old_are_not_stickied'] = 'But don\'t count stickied topics.';
 $txt['maintain_old_all'] = 'All boards (click to select specific boards)';
 $txt['maintain_old_choose'] = 'Specific boards (click to select all)';
 $txt['maintain_old_remove'] = 'Remove now';
-$txt['maintain_old_confirm'] = 'Are you really sure you want to delete old posts now?\\n\\nThis cannot be undone!';
+$txt['maintain_old_confirm'] = 'Are you really sure you want to delete old posts now?-n-This cannot be undone!';
 
 $txt['maintain_old_drafts'] = 'Remove old drafts';
 $txt['maintain_old_drafts_days'] = 'Remove all drafts older than';
-$txt['maintain_old_drafts_confirm'] = 'Are you really sure you want to delete old drafts now?\\n\\nThis cannot be undone!';
+$txt['maintain_old_drafts_confirm'] = 'Are you really sure you want to delete old drafts now?-n-This cannot be undone!';
 $txt['maintain_members'] = 'Remove Inactive Members';
 $txt['maintain_members_ungrouped'] = 'Ungrouped Members <span class="smalltext">(Members with no assigned groups)</span>';
 $txt['maintain_members_since1'] = 'Remove all members who have not';
@@ -175,7 +175,7 @@ $txt['maintain_members_activated'] = 'activated their account';
 $txt['maintain_members_logged_in'] = 'logged in';
 $txt['maintain_members_all'] = 'All Membergroups';
 $txt['maintain_members_choose'] = 'Selected Groups';
-$txt['maintain_members_confirm'] = 'Are you sure you really want to delete these member accounts?\\n\\nThis cannot be undone!';
+$txt['maintain_members_confirm'] = 'Are you sure you really want to delete these member accounts?-n-This cannot be undone!';
 
 $txt['utf8_title'] = 'Convert the database and data to UTF-8';
 $txt['utf8_introduction'] = 'UTF-8 is an international character set covering nearly all languages around the world. Converting your database and data to UTF-8 can make it easier to support multiple languages on the same board. It also can enhance search and sorting capabilities for languages with non-latin characters.';
