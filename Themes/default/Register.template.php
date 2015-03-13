@@ -311,8 +311,6 @@ function template_registration_form()
 				"password_valid": "', $txt['registration_password_valid'], '"
 			};
 			var verificationHandle = new smfRegister("registration", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-			// Update the authentication status.
-			updateAuthMethod();
 		// ]]></script>';
 }
 
