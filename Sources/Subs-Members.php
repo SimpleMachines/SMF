@@ -1271,8 +1271,8 @@ function BuddyListToggle()
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', serialize(array(
 					'receiver_id' => $userReceiver,
-					'sender_id' => $user_info['id'],
-					'sender_username' => $user_info['username'],
+					'id_member' => $user_info['id'],
+					'member_name' => $user_info['username'],
 					'time' => time(),
 				)), 0),
 				array('id_task')
