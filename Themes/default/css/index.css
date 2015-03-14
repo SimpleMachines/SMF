@@ -1389,7 +1389,7 @@ ul li.greeting {
 .quickbuttons a:hover {
 	color: #a70;
 }
-.quickbuttons li a.quote_button {
+.quickbuttons li a.quote_button, .quickbuttons li a.quote_selected_button {
 	background-position: 0 -1px;
 	padding: 0 2px 0 20px;
 }
