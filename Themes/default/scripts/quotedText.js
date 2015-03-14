@@ -58,11 +58,13 @@ function quotedTextClick(oOptions)
 				// Add the whole text to the editor's instance.
 				$('#' + oEditorID).data('sceditor').InsertText(text);
 
-				// Move the view to the quick reply box.
-				if (navigator.appName == 'Microsoft Internet Explorer')
-					window.location.hash = oJumpAnchor;
-				else
-					window.location.hash = '#' + oJumpAnchor;
+				// Move the view to the quick reply box. If available.
+				if (typeof oJumpAnchor != 'undefined'){
+					if (navigator.appName == 'Microsoft Internet Explorer')
+						window.location.hash = oJumpAnchor;
+					else
+						window.location.hash = '#' + oJumpAnchor;
+				}
 
 				ajax_indicator(false);
 			},
@@ -75,7 +77,7 @@ function quotedTextClick(oOptions)
 $(function() {
 
 	// Event for handling selected quotes.
-	$(document).on('mouseup', '.inner', function() {
+	$(document).on('mouseup', '.inner, .list_posts', function() {
 
 		// Get everything we need.
 		var oSelected = {
@@ -96,7 +98,7 @@ $(function() {
 
 		// Show the "quote this" button.
 		$('#quoteSelected_' + oSelected.msgID).show();
-		
+
 			$(document).one('click', '#quoteSelected_' + oSelected.msgID + ' a', function(e){
 				e.preventDefault();
 				quotedTextClick(oSelected);

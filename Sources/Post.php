@@ -1172,6 +1172,9 @@ function Post($post_errors = array())
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
+	// quotedText.js
+	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_post';

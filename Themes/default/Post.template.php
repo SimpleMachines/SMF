@@ -804,6 +804,8 @@ function template_main()
 			});';
 
 	echo '
+			var oEditorID = "', $context['post_box_name'] ,'";
+			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 		// ]]></script>';
 
 	// If the user is replying to a topic show the previous posts.
@@ -834,6 +836,7 @@ function template_main()
 			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
+						<li style="display:none;" id="quoteSelected_', $post['id'], '"><a href="javascript:void(0)" data-msg_id="', $post['id'], '" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>
 						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">', $txt['quote'], '</a></li>
 					</ul>';
 			}
