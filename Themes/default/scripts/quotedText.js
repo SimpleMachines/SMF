@@ -94,7 +94,7 @@ $(function() {
 		// Do we have some selected text?
 		if (typeof oSelected.text == 'undefined' || oSelected.text == false)
 			return false;
-console.log(oSelected);
+
 		// Show the "quote this" button.
 		$('#quoteSelected_' + oSelected.msgID).show();
 
