@@ -86,7 +86,7 @@ $(function() {
 		};
 
 		// If the button is already visible, hide it!
-		$('#quoteSelected_' + oSelected.divID).hide();
+		$('#quoteSelected_' + oSelected.msgID).hide();
 
 		// Get any selected text.
 		oSelected.text = getSelectedText(oSelected.divID);
