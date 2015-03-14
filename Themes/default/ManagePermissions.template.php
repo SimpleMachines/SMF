@@ -712,6 +712,10 @@ function template_inline_permissions()
 
 	if (empty($modSettings['permission_enable_deny']))
 		echo '
+													<li>
+														<input type="checkbox" class="input_check" onclick="invertAll(this, this.form, \''. $context['current_permission']. '[\');">
+														<span>', $txt['check_all'], '</span>
+													</li>
 												</ul>';
 	else
 		echo '
