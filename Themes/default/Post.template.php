@@ -836,7 +836,7 @@ function template_main()
 			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '"><a href="javascript:void(0)" data-msg_id="', $post['id'], '" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>
 						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">', $txt['quote'], '</a></li>
 					</ul>';
 			}
@@ -854,7 +854,7 @@ function template_main()
 			}
 
 			echo '
-					<div class="list_posts smalltext" id="msg_', $post['id'], '_body">', $post['message'], '</div>
+					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>
 				</div>
 			</div>';
 		}

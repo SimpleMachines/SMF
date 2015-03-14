@@ -568,7 +568,7 @@ function template_single_post($message)
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '
-								<div class="inner" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
+								<div class="inner" data-msgid="', $post['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
 							</div>';
 
 	// Assuming there are attachments...
@@ -700,7 +700,7 @@ function template_single_post($message)
 		// Selected quote.
 		if ($context['can_quote'])
 			echo '
-									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)" data-msg_id="', $message['id'], '" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>';
+									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>';
 
 		// Can they reply?
 		if ($context['can_quote'])
