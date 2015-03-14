@@ -717,3 +717,19 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		}
 	}
 );
+
+$.sceditor.plugins.bbcode.bbcode.set('font', {
+	format: function ($element, content) {
+		var font;
+
+		// Get the raw font value from the DOM
+		if (!$element.is('font') || !(font = $element.attr('face'))) {
+			font = $element.css('font-family');
+		}
+
+		// Strip all quotes
+		font = font.replace(/['"]/g, '');
+
+		return '[font=' + font + ']' + content + '[/font]';
+	}
+});
