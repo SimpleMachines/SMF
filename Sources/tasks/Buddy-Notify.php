@@ -21,9 +21,9 @@ class Buddy_Notify_Background extends SMF_BackgroundTask
 
 		// Figure out if the user wants to be notified.
 		require_once($sourcedir . '/Subs-Notify.php');
-		$prefs = getNotifyPrefs($this->_details['receiver_id'], 'request_buddy', true);
+		$prefs = getNotifyPrefs($this->_details['receiver_id'], 'buddy_request', true);
 
-		if ($prefs[$this->_details['receiver_id']]['request_buddy'])
+		if ($prefs[$this->_details['receiver_id']]['buddy_request'])
 		{
 			$alert_row = array(
 				'alert_time' => $this->_details['time'],

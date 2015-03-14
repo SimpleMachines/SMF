@@ -151,6 +151,7 @@ $txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets repli
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
+$txt['alert_buddy_request'] = 'When other members adds me as their buddy';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
