@@ -568,7 +568,7 @@ function template_single_post($message)
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '
-								<div class="inner" data-msgid="', $post['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
+								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
 							</div>';
 
 	// Assuming there are attachments...
