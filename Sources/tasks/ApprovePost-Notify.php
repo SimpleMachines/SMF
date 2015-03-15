@@ -52,10 +52,10 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 
 		require_once($sourcedir . '/Subs-Notify.php');
 		$members = array_unique($members);
-		$prefs = getNotifyPrefs($members, 'alert_unapproved_post');
+		$prefs = getNotifyPrefs($members, 'unapproved_post');
 		foreach ($watched as $member => $data)
 		{
-			$pref = !empty($prefs[$member]['alert_unapproved_post']) ? $prefs[$member]['alert_unapproved_post'] : 0;
+			$pref = !empty($prefs[$member]['unapproved_post']) ? $prefs[$member]['unapproved_post'] : 0;
 
 			if ($pref & 0x02)
 			{
