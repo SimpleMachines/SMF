@@ -2268,8 +2268,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  *   or for scripts that require help from PHP/whatever, this can be useful.
  * - all code added with this function is added to the same <style> tag so do make sure your css is valid!
  *
- * @param string $javascript Some JS code
- * @param bool Whether the script should load in <head> or before the closing <html> tag
+ * @param string $css Some css code
  */
 function addInlineCss($css)
 {
