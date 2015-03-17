@@ -2279,7 +2279,7 @@ function addInlineCss($css)
 	if (empty($css))
 		return false;
 
-	$context['css_header'][] = $javascript;
+	$context['css_header'][] = $css;
 }
 
 /**

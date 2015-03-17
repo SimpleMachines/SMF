@@ -3017,12 +3017,8 @@ function setupThemeContext($forceload = false)
 
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
-	{
-		if (!isset($context['css_header']))
-			$context['css_header'] = '';
-		$context['css_header'] .= '
-img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }';
-	}
+		addInlineCss('
+img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
@@ -3390,8 +3386,17 @@ function template_css()
 	}
 
 	if (!empty($context['css_header']))
+	{
 		echo '
-	<style>', $context['css_header'], '</style>';
+	<style>';
+
+		foreach ($context['css_header'] as $css)
+			echo $css .'
+	';
+
+		echo'
+	</style>';
+	}
 }
 
 /**
