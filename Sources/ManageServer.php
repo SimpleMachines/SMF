@@ -259,7 +259,7 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl;
+	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl, $smcFunc;
 
 	// Define the variables we want to edit.
 	$config_vars = array(
@@ -283,6 +283,8 @@ function ModifyCookieSettings($return_config = false)
 			1 => $txt['tfa_mode_enabled'],
 		) + (empty($user_settings['tfa_secret']) ? array() : array(
 			2 => $txt['tfa_mode_forced'],
+		)) + (empty($user_settings['tfa_secret']) ? array() : array(
+			3 => $txt['tfa_mode_forcedall'],
 		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : '')),
 	);
 
@@ -342,6 +344,25 @@ function ModifyCookieSettings($return_config = false)
 			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
+		}
+		
+		//If we disabled 2FA, reset all members and membergroups settings.
+		if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}membergroups
+				SET tfa_required = {int:zero}',
+				array(
+					'zero' => 0,
+				)
+			);
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}members
+				SET tfa_secret = {string:empty}, tfa_backup = {string:empty}',
+				array(
+					'empty' => '',
+				)
+			);
 		}
 
 		$_SESSION['adm-save'] = true;

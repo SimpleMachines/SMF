@@ -1550,6 +1550,7 @@ CREATE TABLE {$db_prefix}membergroups (
   group_type smallint NOT NULL default '0',
   hidden smallint NOT NULL default '0',
   id_parent smallint NOT NULL default '-2',
+  tfa_required smallint NOT NULL default '0',
   PRIMARY KEY (id_group)
 );
 

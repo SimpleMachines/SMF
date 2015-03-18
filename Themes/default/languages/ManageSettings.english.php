@@ -366,8 +366,9 @@ $txt['topic_move_any'] = 'Allow moving of topics to read-only boards';
 $txt['defaultMaxListItems'] = 'Maximum number of items per page in lists';
 
 $txt['tfa_mode'] = 'Two-Factor Authentication';
-$txt['tfa_mode_forced'] = 'Force on all users';
-$txt['tfa_mode_forced_help'] = 'Please enable 2FA in your account in order to be able to force 2FA on all users';
+$txt['tfa_mode_forced'] = 'Force on selected membergroups';
+$txt['tfa_mode_forcedall'] = 'Force for ALL users';
+$txt['tfa_mode_forced_help'] = 'Please enable 2FA in your account in order to be able to force 2FA on other users!';
 $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
