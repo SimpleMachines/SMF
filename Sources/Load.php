@@ -1813,7 +1813,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!isset($context['css_files']))
 		$context['css_files'] = array();
 	if (!isset($context['css_header']))
-		$context['css_header'] = '';
+		$context['css_header'] = array();
 	if (!isset($context['javascript_inline']))
 		$context['javascript_inline'] = array('standard' => array(), 'defer' => array());
 	if (!isset($context['javascript_vars']))
@@ -2262,6 +2262,26 @@ function loadCSSFile($filename, $params = array(), $id = '')
 }
 
 /**
+ * Add a block of inline css code to be executed later
+ *
+ * - only use this if you have to, generally external css files are better, but for very small changes
+ *   or for scripts that require help from PHP/whatever, this can be useful.
+ * - all code added with this function is added to the same <style> tag so do make sure your css is valid!
+ *
+ * @param string $css Some css code
+ */
+function addInlineCss($css)
+{
+	global $context;
+
+	// Gotta add something...
+	if (empty($css))
+		return false;
+
+	$context['css_header'][] = $css;
+}
+
+/**
  * Add a Javascript file for output later
 
  * @param string $filename The name of the file to load
@@ -2340,6 +2360,10 @@ function addJavascriptVar($key, $value, $escape = false)
 function addInlineJavascript($javascript, $defer = false)
 {
 	global $context;
+
+	if (empty($javascript))
+		return false;
+
 	$context['javascript_inline'][($defer === true ? 'defer' : 'standard')][] = $javascript;
 }
 
