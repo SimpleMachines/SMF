@@ -1242,29 +1242,52 @@ function reattributePosts($memID, $email = false, $membername = false, $post_cou
  */
 function BuddyListToggle()
 {
-	global $user_info;
+	global $user_info, $smcFunc;
 
 	checkSession('get');
 
 	isAllowedTo('profile_identity_own');
 	is_not_guest();
 
-	if (empty($_REQUEST['u']))
+	$userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
+
+	if (empty($userReceiver))
 		fatal_lang_error('no_access', false);
-	$_REQUEST['u'] = (int) $_REQUEST['u'];
 
 	// Remove if it's already there...
-	if (in_array($_REQUEST['u'], $user_info['buddies']))
-		$user_info['buddies'] = array_diff($user_info['buddies'], array($_REQUEST['u']));
+	if (in_array($userReceiver, $user_info['buddies']))
+		$user_info['buddies'] = array_diff($user_info['buddies'], array($userReceiver));
+
 	// ...or add if it's not and if it's not you.
-	elseif ($user_info['id'] != $_REQUEST['u'])
-		$user_info['buddies'][] = (int) $_REQUEST['u'];
+	elseif ($user_info['id'] != $userReceiver)
+	{
+		$user_info['buddies'][] = $userReceiver;
+
+		// And add a nice alert. Don't abuse though!
+		if ((cache_get_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, 86400)) == null)
+		{
+			$smcFunc['db_insert']('insert',
+				'{db_prefix}background_tasks',
+				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/Buddy-Notify.php', 'Buddy_Notify_Background', serialize(array(
+					'receiver_id' => $userReceiver,
+					'id_member' => $user_info['id'],
+					'member_name' => $user_info['username'],
+					'time' => time(),
+				)), 0),
+				array('id_task')
+			);
+
+			// Store this in a cache entry to avoid creating multiple alerts. Give it a long life cycle.
+			cache_put_data('Buddy-sent-'. $user_info['id'] .'-'. $userReceiver, '1', 86400);
+		}
+	}
 
 	// Update the settings.
 	updateMemberData($user_info['id'], array('buddy_list' => implode(',', $user_info['buddies'])));
 
 	// Redirect back to the profile
-	redirectexit('action=profile;u=' . $_REQUEST['u']);
+	redirectexit('action=profile;u=' . $userReceiver);
 }
 
 /**
