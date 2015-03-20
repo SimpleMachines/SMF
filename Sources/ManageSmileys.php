@@ -1081,7 +1081,7 @@ function EditSmileys()
 					'value' => '
 						<select name="smiley_action" onchange="makeChanges(this.value);">
 							<option value="-1">' . $txt['smileys_with_selected'] . ':</option>
-							<option value="-1">--------------</option>
+							<option value="-1" disabled>--------------</option>
 							<option value="hidden">' . $txt['smileys_make_hidden'] . '</option>
 							<option value="post">' . $txt['smileys_show_on_post'] . '</option>
 							<option value="popup">' . $txt['smileys_show_on_popup'] . '</option>

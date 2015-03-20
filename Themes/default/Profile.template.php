@@ -2347,7 +2347,7 @@ function template_issueWarning()
 				<dd>
 					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();" style="font-size: x-small;">
 						<option value="-1">', $txt['profile_warning_notify_template'], '</option>
-						<option value="-1">------------------------------</option>';
+						<option value="-1" disabled>------------------------------</option>';
 
 		foreach ($context['notification_templates'] as $id_template => $template)
 			echo '

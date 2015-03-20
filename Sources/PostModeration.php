@@ -511,7 +511,7 @@ function UnapprovedAttachments()
 				'value' => '
 					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . $txt['mc_unapproved_sure'] . '\')) submit();">
 						<option value="0">' . $txt['with_selected'] . ':</option>
-						<option value="0">-------------------</option>
+						<option value="0" disabled>-------------------</option>
 						<option value="approve">&nbsp;--&nbsp;' . $txt['approve'] . '</option>
 						<option value="delete">&nbsp;--&nbsp;' . $txt['delete'] . '</option>
 					</select>
