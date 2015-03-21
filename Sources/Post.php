@@ -1174,6 +1174,17 @@ function Post($post_errors = array())
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
+	// File Upload.
+	loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/canvas-to-blob.min.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/jquery.iframe-transport.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/jquery.iframe-transport', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/fileupload.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/process.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/image.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('fileUpload/validate.js', array('default_theme' => true, 'defer' => true));
+
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
 		$context['sub_template'] = WIRELESS_PROTOCOL . '_post';
