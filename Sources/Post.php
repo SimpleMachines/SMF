@@ -1175,11 +1175,10 @@ function Post($post_errors = array())
 	}
 
 	// File Upload.
-	loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('default_theme' => true, 'defer' => true));
+	loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('external' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/canvas-to-blob.min.js', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/jquery.iframe-transport.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/jquery.iframe-transport', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/fileupload.js', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/process.js', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/image.js', array('default_theme' => true, 'defer' => true));
@@ -1187,9 +1186,7 @@ function Post($post_errors = array())
 	addInlineJavascript('
 $(function () {
 	\'use strict\';
-	// Change this to the location of your server-side upload handler:
-	var url = window.location.hostname === \'blueimp.github.io\' ?
-				\'//jquery-file-upload.appspot.com/\' : \'server/php/\',
+	var url = '. $scripturl . '?action=uploadAttach,sa=add,
 		uploadButton = $(\'<button/>\')
 			.addClass(\'btn btn-primary\')
 			.prop(\'disabled\', true)

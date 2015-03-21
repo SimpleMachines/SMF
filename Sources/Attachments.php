@@ -51,6 +51,24 @@ class Attachments
 		if ($this->_sa && in_array($this->_sa, $this->_subActions))
 			$this->{$this->_sa}();
 	}
+
+	public function add()
+	{
+		global $modSettings;
+
+		ob_end_clean();
+
+		if (!empty($modSettings['CompressedOutput']))
+			@ob_start('ob_gzhandler');
+
+		else
+			ob_start();
+
+		// Set the header.
+		header('Content-Type: application/json');
+
+		echo 'hello!';
+	}
 }
 
 ?>
