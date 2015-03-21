@@ -429,7 +429,20 @@ function template_main()
 	if ($context['can_post_attachment'])
 	{
 		echo '
-						<dl id="postAttachment2">';
+						<dl id="postAttachment2">
+							<span class="btn btn-success fileinput-button">
+								<i class="glyphicon glyphicon-plus"></i>
+								<span>Add files...</span>
+								<input id="fileupload" type="file" name="files[]" multiple>
+							</span>
+							<br>
+							<br>
+							<!-- The global progress bar -->
+							<div id="progress" class="progress">
+								<div class="progress-bar progress-bar-success"></div>
+							</div>
+							<!-- The container for the uploaded files -->
+							<div id="files" class="files"></div>';
 
 		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
 		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
