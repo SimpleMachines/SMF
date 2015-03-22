@@ -84,7 +84,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
 			echo ',
-					toolbar: "emoticon,';
+					toolbar: "';
 			$count_tags = count($context['bbc_tags']);
 			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
