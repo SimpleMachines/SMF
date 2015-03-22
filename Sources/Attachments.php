@@ -30,9 +30,9 @@ class Attachments
 
 	public function __construct()
 	{
-		global $modSettings;
+		global $modSettings, $context;
 
-		$this->_msg = $_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
+		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
 
 		$this->_currentAttachmentUploadDir = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : '';
 
@@ -44,7 +44,7 @@ class Attachments
 
 	public function call()
 	{
-			global $smcFunc;
+		global $smcFunc;
 
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
@@ -67,7 +67,13 @@ class Attachments
 		// Set the header.
 		header('Content-Type: application/json');
 
-		echo 'hello!';
+		$r = !empty($_FILES) ? $_FILES : 'lol';
+
+		echo json_encode($r);
+
+		// Done
+		obExit(false);
+		die;
 	}
 }
 

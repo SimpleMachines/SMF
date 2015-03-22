@@ -1186,12 +1186,12 @@ function Post($post_errors = array())
 	addInlineJavascript('
 $(function () {
 	\'use strict\';
-	var url = '. $scripturl . '?action=uploadAttach,sa=add,
-		uploadButton = $(\'<button/>\')
-			.addClass(\'btn btn-primary\')
+	var uploadButton = $(\'<button/>\')
+			.addClass(\'button_submit addButton\')
 			.prop(\'disabled\', true)
 			.text(\'Processing...\')
-			.on(\'click\', function () {
+			.on(\'click\', function (e) {
+				e.preventDefault();
 				var $this = $(this),
 					data = $this.data();
 				$this
@@ -1204,10 +1204,24 @@ $(function () {
 				data.submit().always(function () {
 					$this.remove();
 				});
+			}),
+		cancelButton = $(\'<button/>\')
+			.addClass(\'button_submit cancelButton\')
+			.prop(\'disabled\', false)
+			.text(\'Delete\')
+			.on(\'click\', function (e) {
+				e.preventDefault();
+				var $this = $(this),
+					data = $this.data();
+
+				$this.closest(\'div\').remove();
+				data.abort();
+				$this.remove();
 			});
 	$(\'#fileupload\').fileupload({
-		url: url,
+		url: \''. $scripturl . '?action=uploadAttach;sa=add\',
 		dataType: \'json\',
+		forceIframeTransport: false,
 		autoUpload: false,
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		maxFileSize: 5000000, // 5 MB
@@ -1227,6 +1241,7 @@ $(function () {
 			if (!index) {
 				node
 					.append(\'<br>\')
+					.append(cancelButton.clone(true).data(data))
 					.append(uploadButton.clone(true).data(data));
 			}
 			node.appendTo(data.context);
@@ -1246,7 +1261,7 @@ $(function () {
 				.append($(\'<span class="text-danger"/>\').text(file.error));
 		}
 		if (index + 1 === data.files.length) {
-			data.context.find(\'button\')
+			data.context.find(\'.addButton\')
 				.text(\'Upload\')
 				.prop(\'disabled\', !!data.files.error);
 		}
@@ -1257,7 +1272,7 @@ $(function () {
 			progress + \'%\'
 		);
 	}).on(\'fileuploaddone\', function (e, data) {
-		$.each(data.result.files, function (index, file) {
+		$.each(data.result.files, function (index, file) {console.log(data);
 			if (file.url) {
 				var link = $(\'<a>\')
 					.attr(\'target\', \'_blank\')
@@ -1271,7 +1286,7 @@ $(function () {
 					.append(error);
 			}
 		});
-	}).on(\'fileuploadfail\', function (e, data) {
+	}).on(\'fileuploadfail\', function (e, data) {console.log(data);
 		$.each(data.files, function (index) {
 			var error = $(\'<span class="text-danger"/>\').text(\'File upload failed.\');
 			$(data.context.children()[index])
