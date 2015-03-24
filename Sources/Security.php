@@ -1130,9 +1130,10 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  * The time taken depends on error_type - generally uses the modSetting.
  *
  * @param string $error_type used also as a $txt index. (not an actual string.)
+ * @param boolean $only_return_result True if you don't want the function to die with a fatal_lang_error.
  * @return boolean
  */
-function spamProtection($error_type)
+function spamProtection($error_type, $only_return_result = false)
 {
 	global $modSettings, $user_info, $smcFunc;
 
@@ -1178,7 +1179,9 @@ function spamProtection($error_type)
 	if ($smcFunc['db_affected_rows']() != 1)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
-		fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+		if (!$only_return_result)
+			fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+
 		return true;
 	}
 
