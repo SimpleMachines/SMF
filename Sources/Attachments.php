@@ -68,7 +68,7 @@ class Attachments
 			redirectexit();
 
 		// Back to the future, oh, to the browser!
-		$this->setResponse();
+		$this->sendResponse();
 	}
 
 	public function add()
@@ -87,7 +87,7 @@ class Attachments
 			$result = $this->createAtttach();
 
 		// Set the response.
-		$this->setResponse(!empty($this->attachErrors) ? $this->attachErrors : $result);
+		$this->setResponse($result);
 	}
 
 	/**
@@ -141,15 +141,6 @@ class Attachments
 
 		if (!isset($this->_attachments))
 			$this->_attachments = array();
-
-		// Remember where we are at. If it's anywhere at all.
-		if (!$ignore_temp)
-			$this->_attachments['post'] = array(
-				'msg' => !empty($this->_msg) ? $this->_msg : 0,
-				'last_msg' => !empty($_REQUEST['last_msg']) ? $_REQUEST['last_msg'] : 0,
-				'topic' => !empty($topic) ? $topic : 0,
-				'board' => !empty($board) ? $board : 0,
-			);
 
 		// If we have an initial error, lets just display it.
 		if (!empty($this->_initialError))
@@ -239,7 +230,8 @@ class Attachments
 
 	protected function createAtttach()
 	{
-		global $context, $txt;
+		global $context, $txt, $user_info;
+
 		$attachIDs = array();
 		$this->_attachErrors = array();
 		if (!empty($context['we_are_history']))
@@ -304,15 +296,14 @@ class Attachments
 			}
 		}
 
-		return !empty($this->_attachErrors) ? $this->_attachErrors : $attachmentOptions;
+		return !empty($attachmentOptions) ? $attachmentOptions : array();
 	}
 
 	protected function setResponse($data = false)
 	{
 		$this->_response = array(
-			'error' => true,
-			'data' => array(),
-			'extra' => '',
+			'error' => $this->_attachErrors ? true : false,
+			'file' => !empty($data) && !$this->_attachErrors ? $data : $this->_attachErrors,
 		);
 	}
 

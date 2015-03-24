@@ -1223,7 +1223,7 @@ $(function () {
 		dataType: \'json\',
 		forceIframeTransport: false,
 		autoUpload: false,
-		paramName: \'attachment\',
+		paramName: \'attachment[]\',
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		maxFileSize: 5000000, // 5 MB
 		// Enable image resizing, except for Android and Opera,
@@ -1272,7 +1272,7 @@ $(function () {
 			\'width\',
 			progress + \'%\'
 		);
-	}).on(\'fileuploaddone\', function (e, data) {console.log(data);
+	}).on(\'fileuploaddone\', function (e, data) {
 		$.each(data.result.files, function (index, file) {
 			if (file.url) {
 				var link = $(\'<a>\')
@@ -1287,7 +1287,7 @@ $(function () {
 					.append(error);
 			}
 		});
-	}).on(\'fileuploadfail\', function (e, data) {console.log(data);
+	}).on(\'fileuploadfail\', function (e, data) {
 		$.each(data.files, function (index) {
 			var error = $(\'<span class="errorbox"/>\').text(\'File upload failed.\');
 			$(data.context.children()[index])
