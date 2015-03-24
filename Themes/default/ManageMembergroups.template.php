@@ -146,7 +146,7 @@ function template_new_group()
 
 function template_edit_group()
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -304,6 +304,17 @@ function template_edit_group()
 					<dd>
 						<input type="text" name="max_messages" id="max_messages_input" value="', $context['group']['id'] == 1 ? 0 : $context['group']['max_messages'], '" size="6"', $context['group']['id'] == 1 ? ' disabled' : '', ' class="input_text">
 					</dd>';
+	//Force 2FA for this membergroup?
+	if (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2)
+	echo '
+					<dt>
+						<label for="group_tfa_force_input"><strong>', $txt['membergroups_tfa_force'], ':</strong></label><br>
+						<span class="smalltext">', $txt['membergroups_tfa_force_note'], '</span>
+					</dt>
+					<dd>
+						<input type="checkbox" name="group_tfa_force"', $context['group']['tfa_required'] ? ' checked' : '', ' class="input_check">
+					</dd>';
+
 	if (!empty($context['categories']))
 	{
 		echo '
