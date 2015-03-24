@@ -568,7 +568,7 @@ function template_single_post($message)
 									', $txt['post_awaiting_approval'], '
 								</div>';
 	echo '
-								<div class="inner" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
+								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>', $message['body'], '</div>
 							</div>';
 
 	// Assuming there are attachments...
@@ -696,6 +696,11 @@ function template_single_post($message)
 	{
 		echo '
 								<ul class="quickbuttons">';
+
+		// Selected quote.
+		if ($context['can_quote'])
+			echo '
+									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>';
 
 		// Can they reply?
 		if ($context['can_quote'])
@@ -946,6 +951,9 @@ function template_quickreply()
 						sJumpAnchor: "quickreply",
 						bIsFull: true
 					});
+					var oEditorID = "', $context['post_box_name'] ,'";
+					var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
+					var oJumpAnchor = "quickreply";
 				// ]]></script>';
 }
 ?>

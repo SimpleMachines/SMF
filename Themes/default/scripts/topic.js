@@ -257,6 +257,7 @@ QuickReply.prototype.quote = function (iMessageId, xDeprecated)
 			ajax_indicator(true);
 			if (this.bIsFull)
 				insertQuoteFast(iMessageId);
+
 			else
 				getXMLDocument(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';xml', this.onQuoteReceived);
 		}
@@ -760,18 +761,18 @@ function ignore_toggles(msgids, text)
 	}
 }
 
-// Likes count for messages.
+// On document ready.
 $(function() {
+
+	// Likes count for messages.
 	$(document).on('click', '.like_count a', function(e){
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
 		return reqOverlayDiv(url, title);
 	});
-});
 
-// Message likes.
-$(function() {
+	// Message likes.
 	$(document).on('click', '.msg_like', function(event){
 		var obj = $(this);
 		event.preventDefault();
