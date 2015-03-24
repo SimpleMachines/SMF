@@ -298,7 +298,6 @@ class Attachments
 					unlink($attachment['tmp_name']);
 			}
 		}
-		unset($this->_attachments);
 
 		return !empty($this->_attachErrors) ? $this->_attachErrors : $attachmentOptions;
 	}
