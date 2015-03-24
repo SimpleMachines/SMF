@@ -2176,36 +2176,6 @@ function Post2()
 	if (!empty($_POST['move']) && allowedTo('move_any'))
 		redirectexit('action=movetopic;topic=' . $topic . '.0' . (empty($_REQUEST['goback']) ? '' : ';goback'));
 
-	// If there are attachment errors. Let's show a list to the user.
-	if (!empty($attach_errors))
-	{
-		global $settings, $scripturl;
-
-		loadTemplate('Errors');
-		$context['sub_template'] = 'attachment_errors';
-		$context['page_title'] = $txt['error_occured'];
-
-		$context['error_message'] = '<dl>';
-		$context['error_message'] .= implode("\n", $attach_errors);
-		$context['error_message'] .= '</dl>';
-		$context['error_title'] = $txt['attach_error_title'];
-
-		$context['linktree'][] = array(
-			'url' => $scripturl . '?topic=' . $topic . '.0',
-			'name' => $_POST['subject'],
-			'extra_before' => !empty($settings['linktree_inline']) ? $txt['topic'] . ':' : ''
-		);
-
-		if (isset($_REQUEST['msg']))
-			$context['redirect_link'] = '?topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'];
-		else
-			$context['redirect_link'] = '?topic=' . $topic . '.new#new';
-
-		$context['back_link'] = '?action=post;msg=' . $msgOptions['id'] . ';topic=' . $topic . ';additionalOptions#postAttachment';
-
-		obExit(null, true);
-	}
-
 	// Return to post if the mod is on.
 	if (isset($_REQUEST['msg']) && !empty($_REQUEST['goback']))
 		redirectexit('topic=' . $topic . '.msg' . $_REQUEST['msg'] . '#msg' . $_REQUEST['msg'], isBrowser('ie'));

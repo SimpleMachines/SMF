@@ -68,22 +68,21 @@ class Attachments
 
 	public function add()
 	{
+		$result = array();
+
 		// You gotta be able to post attachments.
 		if (!$this->_canPostAttachment)
 			return $this->_response = 'some error indicating you cannot upload attachments';
 
 		// Process them at once!
 		$this->processAttachments();
-		
+
+		// The attachments was created and moved the the right folder, time to update the DB.
 		if (!empty($this->_attachments))
-		$this->createAtttach();
+			$result = $this->createAtttach();
 
-		// Any errors?
-		if (!empty($this->attachErrors))
-			$this->_response = $this->_attachErrors;
-
-		// All good!
-		elseif()
+		// Set the response.
+		$this->_response = !empty($this->attachErrors) ? : $result;
 	}
 
 	/**
@@ -269,14 +268,13 @@ class Attachments
 			);
 
 			if (empty($attachment['errors']))
-			{
 				if (createAttachment($attachmentOptions))
 				{
 					$attachIDs[] = $attachmentOptions['id'];
 					if (!empty($attachmentOptions['thumb']))
 						$attachIDs[] = $attachmentOptions['thumb'];
 				}
-			}
+
 			else
 				$this->_attachErrors[] = '<dt>&nbsp;</dt>';
 
