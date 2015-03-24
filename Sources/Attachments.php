@@ -23,6 +23,9 @@ class Attachments
 	protected $_attchDir = '';
 	protected $_currentAttachmentUploadDir;
 	protected $_canPostAttachment;
+	protected $_attachErrors = array();
+	protected $_initialError;
+	protected $_attachments = array();
 	protected $_subActions = array(
 		'add',
 		'delete',
@@ -55,6 +58,12 @@ class Attachments
 
 		if ($this->_sa && in_array($this->_sa, $this->_subActions))
 			$this->{$this->_sa}();
+
+		else
+			redirectexit();
+
+		// Back to the future, oh, to the browser!
+		$this->setResponse();
 	}
 
 	public function add()
@@ -65,10 +74,20 @@ class Attachments
 
 		// Process them at once!
 		$this->processAttachments();
+		
+		if (!empty($this->_attachments))
+		$this->createAtttach();
+
+		// Any errors?
+		if (!empty($this->attachErrors))
+			$this->_response = $this->_attachErrors;
+
+		// All good!
+		elseif()
 	}
 
 	/**
-	 * Moves an attachment to the proper directory and set the relevant data into $_SESSION['temp_attachments']
+	 * Moves an attachment to the proper directory and set the relevant data into $this->_attachments
 	 */
 	protected function processAttachments()
 	{
@@ -78,24 +97,20 @@ class Attachments
 		if (!empty($modSettings['automanage_attachments']))
 			automanage_attachments_check_directory();
 
-		if (!is_array($this->_attachmentUploadDir))
-			$this->_attachmentUploadDir = unserialize($this->_attachmentUploadDir);
-
-		$this->_attchDir = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
-
 		// Is the attachments folder actually there?
 		if (!empty($context['dir_creation_error']))
-			$initial_error = $context['dir_creation_error'];
+			$this->_initialError = $context['dir_creation_error'];
+
 		elseif (!is_dir($this->_attchDir))
 		{
-			$initial_error = 'attach_folder_warning';
+			$this->_initialError = 'attach_folder_warning';
 			log_error(sprintf($txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
 		}
 
-		if (!isset($initial_error) && !isset($context['attachments']))
+		if (empty($this->_initialError) && !isset($context['attachments']))
 		{
 			// If this isn't a new post, check the current attachments.
-			if (isset($_REQUEST['msg']))
+			if (isset($this->_msg))
 			{
 				$request = $smcFunc['db_query']('', '
 					SELECT COUNT(*), SUM(size)
@@ -103,7 +118,7 @@ class Attachments
 					WHERE id_msg = {int:id_msg}
 						AND attachment_type = {int:attachment_type}',
 					array(
-						'id_msg' => (int) $_REQUEST['msg'],
+						'id_msg' => (int) $this->_msg,
 						'attachment_type' => 0,
 					)
 				);
@@ -117,51 +132,25 @@ class Attachments
 				);
 		}
 
-		// Hmm. There are still files in session.
-		$ignore_temp = false;
-		if (!empty($_SESSION['temp_attachments']['post']['files']) && count($_SESSION['temp_attachments']) > 1)
-		{
-			// Let's try to keep them. But...
-			$ignore_temp = true;
-			// If new files are being added. We can't ignore those
-			foreach ($_FILES['attachment']['tmp_name'] as $dummy)
-				if (!empty($dummy))
-				{
-					$ignore_temp = false;
-					break;
-				}
-
-			// Need to make space for the new files. So, bye bye.
-			if (!$ignore_temp)
-			{
-				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment)
-					if (strpos($attachID, 'post_tmp_' . $user_info['id']) !== false)
-						unlink($attachment['tmp_name']);
-
-				$context['we_are_history'] = $txt['error_temp_attachments_flushed'];
-				$_SESSION['temp_attachments'] = array();
-			}
-		}
-
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
 
-		if (!isset($_SESSION['temp_attachments']))
-			$_SESSION['temp_attachments'] = array();
+		if (!isset($this->_attachments))
+			$this->_attachments = array();
 
 		// Remember where we are at. If it's anywhere at all.
 		if (!$ignore_temp)
-			$_SESSION['temp_attachments']['post'] = array(
-				'msg' => !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0,
+			$this->_attachments['post'] = array(
+				'msg' => !empty($this->_msg) ? $this->_msg : 0,
 				'last_msg' => !empty($_REQUEST['last_msg']) ? $_REQUEST['last_msg'] : 0,
 				'topic' => !empty($topic) ? $topic : 0,
 				'board' => !empty($board) ? $board : 0,
 			);
 
 		// If we have an initial error, lets just display it.
-		if (!empty($initial_error))
+		if (!empty($this->_initialError))
 		{
-			$_SESSION['temp_attachments']['initial_error'] = $initial_error;
+			$this->_attachments['initial_error'] = $this->_initialError;
 
 			// And delete the files 'cos they ain't going nowhere.
 			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy)
@@ -196,7 +185,7 @@ class Attachments
 			$destName = $this->_attchDir . '/' . $attachID;
 			if (empty($errors))
 			{
-				$_SESSION['temp_attachments'][$attachID] = array(
+				$this->_attachments[$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'size' => $_FILES['attachment']['size'][$n],
@@ -210,14 +199,14 @@ class Attachments
 					@chmod($destName, 0644);
 				else
 				{
-					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
+					$this->_attachments[$attachID]['errors'][] = 'attach_timeout';
 					if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 						unlink($_FILES['attachment']['tmp_name'][$n]);
 				}
 			}
 			else
 			{
-				$_SESSION['temp_attachments'][$attachID] = array(
+				$this->_attachments[$attachID] = array(
 					'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 					'tmp_name' => $destName,
 					'errors' => $errors,
@@ -227,12 +216,12 @@ class Attachments
 					unlink($_FILES['attachment']['tmp_name'][$n]);
 			}
 			// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
-			if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
+			if (empty($this->_attachments[$attachID]['errors']))
 				attachmentChecks($attachID);
 		}
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
 		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . $user_info['id'] . '_' . md5(mt_rand())
-		// Populate $_SESSION['temp_attachments'][$attachID] with the following:
+		// Populate $this->_attachments[$attachID] with the following:
 		//   name => The file name
 		//   tmp_name => Path to the temp file ($this->_attchDir . '/' . $attachID).
 		//   size => File size (required).
@@ -240,7 +229,7 @@ class Attachments
 		//   id_folder => $modSettings['currentAttachmentUploadDir']
 		//   errors => An array of errors (use the index of the $txt variable for that error).
 		// Template changes can be done using "integrate_upload_template".
-		call_integration_hook('integrate_attachment_upload', array());
+		call_integration_hook('integrate_attachment_upload', array($this->_attachments));
 	}
 
 
@@ -248,11 +237,11 @@ class Attachments
 	{
 		global $context, $txt;
 		$attachIDs = array();
-		$attach_errors = array();
+		$this->_attachErrors = array();
 		if (!empty($context['we_are_history']))
-			$attach_errors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
+			$this->_attachErrors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
 
-		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
+		foreach ($this->_attachments as  $attachID => $attachment)
 		{
 			if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . $user_info['id']) === false)
 				continue;
@@ -260,15 +249,15 @@ class Attachments
 			// If there was an initial error just show that message.
 			if ($attachID == 'initial_error')
 			{
-				$attach_errors[] = '<dt>' . $txt['attach_no_upload'] . '</dt>';
-				$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</dd>';
+				$this->_attachErrors[] = '<dt>' . $txt['attach_no_upload'] . '</dt>';
+				$this->_attachErrors[] = '<dd>' . (is_array($attachment) ? vsprintf($txt[$attachment[0]], $attachment[1]) : $txt[$attachment]) . '</dd>';
 
-				unset($_SESSION['temp_attachments']);
+				unset($this->_attachments);
 				break;
 			}
 
 			$attachmentOptions = array(
-				'post' => isset($_REQUEST['msg']) ? $_REQUEST['msg'] : 0,
+				'post' => isset($this->_msg) ? $this->_msg : 0,
 				'poster' => $user_info['id'],
 				'name' => $attachment['name'],
 				'tmp_name' => $attachment['tmp_name'],
@@ -289,29 +278,31 @@ class Attachments
 				}
 			}
 			else
-				$attach_errors[] = '<dt>&nbsp;</dt>';
+				$this->_attachErrors[] = '<dt>&nbsp;</dt>';
 
 			if (!empty($attachmentOptions['errors']))
 			{
 				// Sort out the errors for display and delete any associated files.
-				$attach_errors[] = '<dt>' . vsprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
+				$this->_attachErrors[] = '<dt>' . vsprintf($txt['attach_warning'], $attachment['name']) . '</dt>';
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
 				foreach ($attachmentOptions['errors'] as $error)
 				{
 					if (!is_array($error))
 					{
-						$attach_errors[] = '<dd>' . $txt[$error] . '</dd>';
+						$this->_attachErrors[] = '<dd>' . $txt[$error] . '</dd>';
 						if (in_array($error, $log_these))
 							log_error($attachment['name'] . ': ' . $txt[$error], 'critical');
 					}
 					else
-						$attach_errors[] = '<dd>' . vsprintf($txt[$error[0]], $error[1]) . '</dd>';
+						$this->_attachErrors[] = '<dd>' . vsprintf($txt[$error[0]], $error[1]) . '</dd>';
 				}
 				if (file_exists($attachment['tmp_name']))
 					unlink($attachment['tmp_name']);
 			}
 		}
-		unset($_SESSION['temp_attachments']);
+		unset($this->_attachments);
+
+		return !empty($this->_attachErrors) ? $this->_attachErrors : $attachmentOptions;
 	}
 
 	protected function setResponse()
