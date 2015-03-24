@@ -1321,9 +1321,12 @@ function AdminAccount()
 		$_POST['username'] = '';
 	if (!isset($_POST['email']))
 		$_POST['email'] = '';
+	if (!isset($_POST['server_email']))
+		$_POST['server_email'] = '';
 
 	$incontext['username'] = htmlspecialchars(stripslashes($_POST['username']));
 	$incontext['email'] = htmlspecialchars(stripslashes($_POST['email']));
+	$incontext['server_email'] = htmlspecialchars(stripslashes($_POST['server_email']));
 
 	$incontext['require_db_confirm'] = empty($db_type);
 
@@ -1369,9 +1372,9 @@ function AdminAccount()
 			return false;
 		}
 
-		// Update the main contact email?
-		if (!empty($_POST['email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
-			updateSettingsFile(array('webmaster_email' => $_POST['email']));
+		// Update the webmaster's email?
+		if (!empty($_POST['server_email']) && (empty($webmaster_email) || $webmaster_email == 'noreply@myserver.com'))
+			updateSettingsFile(array('webmaster_email' => $_POST['server_email']));
 
 		// Work out whether we're going to have dodgy characters and remove them.
 		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
@@ -1409,8 +1412,14 @@ function AdminAccount()
 		}
 		elseif (empty($_POST['email']) || !filter_var(stripslashes($_POST['email']), FILTER_VALIDATE_EMAIL) || strlen(stripslashes($_POST['email'])) > 255)
 		{
-			// One step back, this time fill out a proper email address.
-			$incontext['error'] = sprintf($txt['error_valid_email_needed'], $_POST['username']);
+			// One step back, this time fill out a proper admin email address.
+			$incontext['error'] = sprintf($txt['error_valid_admin_email_needed'], $_POST['username']);
+			return false;
+		}
+		elseif (empty($_POST['server_email']) || !filter_var(stripslashes($_POST['server_email']), FILTER_VALIDATE_EMAIL) || strlen(stripslashes($_POST['server_email'])) > 255)
+		{
+			// One step back, this time fill out a proper admin email address.
+			$incontext['error'] = $txt['error_valid_server_email_needed'];
 			return false;
 		}
 		elseif ($_POST['username'] != '')
@@ -2631,10 +2640,16 @@ function template_admin_account()
 					<div class="smalltext block">', $txt['user_settings_again_info'], '</div>
 				</td>
 			</tr><tr>
-				<td valign="top" class="textbox"><label for="email">', $txt['user_settings_email'], ':</label></td>
+				<td valign="top" class="textbox"><label for="email">', $txt['user_settings_admin_email'], ':</label></td>
 				<td>
 					<input type="text" name="email" id="email" value="', $incontext['email'], '" size="40" class="input_text" />
-					<div class="smalltext block">', $txt['user_settings_email_info'], '</div>
+					<div class="smalltext block">', $txt['user_settings_admin_email_info'], '</div>
+				</td>
+			</tr><tr>
+				<td valign="top" class="textbox"><label for="server_email">', $txt['user_settings_server_email'], ':</label></td>
+				<td>
+					<input type="text" name="server_email" id="server_email" value="', $incontext['server_email'], '" size="40" class="input_text" />
+					<div class="smalltext block">', $txt['user_settings_server_email_info'], '</div>
 				</td>
 			</tr>
 		</table>';
