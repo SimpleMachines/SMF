@@ -1208,7 +1208,7 @@ $(function () {
 		cancelButton = $(\'<button/>\')
 			.addClass(\'button_submit cancelButton\')
 			.prop(\'disabled\', false)
-			.text(\'Delete\')
+			.text(\'Cancel\')
 			.on(\'click\', function (e) {
 				e.preventDefault();
 				var $this = $(this),
@@ -1223,6 +1223,7 @@ $(function () {
 		dataType: \'json\',
 		forceIframeTransport: false,
 		autoUpload: false,
+		paramName: \'attachment\',
 		acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
 		maxFileSize: 5000000, // 5 MB
 		// Enable image resizing, except for Android and Opera,
@@ -1258,7 +1259,7 @@ $(function () {
 		if (file.error) {
 			node
 				.append(\'<br>\')
-				.append($(\'<span class="text-danger"/>\').text(file.error));
+				.append($(\'<span class="errorbox"/>\').text(file.error));
 		}
 		if (index + 1 === data.files.length) {
 			data.context.find(\'.addButton\')
@@ -1271,8 +1272,8 @@ $(function () {
 			\'width\',
 			progress + \'%\'
 		);
-	}).on(\'fileuploaddone\', function (e, data) {
-		$.each(data.result.files, function (index, file) {console.log(data);
+	}).on(\'fileuploaddone\', function (e, data) {console.log(data);
+		$.each(data.result.files, function (index, file) {
 			if (file.url) {
 				var link = $(\'<a>\')
 					.attr(\'target\', \'_blank\')
@@ -1280,7 +1281,7 @@ $(function () {
 				$(data.context.children()[index])
 					.wrap(link);
 			} else if (file.error) {
-				var error = $(\'<span class="text-danger"/>\').text(file.error);
+				var error = $(\'<span class="errorbox"/>\').text(file.error);
 				$(data.context.children()[index])
 					.append(\'<br>\')
 					.append(error);
@@ -1288,7 +1289,7 @@ $(function () {
 		});
 	}).on(\'fileuploadfail\', function (e, data) {console.log(data);
 		$.each(data.files, function (index) {
-			var error = $(\'<span class="text-danger"/>\').text(\'File upload failed.\');
+			var error = $(\'<span class="errorbox"/>\').text(\'File upload failed.\');
 			$(data.context.children()[index])
 				.append(\'<br>\')
 				.append(error);
