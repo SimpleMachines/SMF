@@ -26,6 +26,11 @@ class Attachments
 	protected $_attachErrors = array();
 	protected $_initialError;
 	protected $_attachments = array();
+	protected $_response = array(
+		'error' => true,
+		'data' => array(),
+		'extra' => '',
+	);
 	protected $_subActions = array(
 		'add',
 		'delete',
@@ -82,7 +87,7 @@ class Attachments
 			$result = $this->createAtttach();
 
 		// Set the response.
-		$this->_response = !empty($this->attachErrors) ? : $result;
+		$this->setResponse(!empty($this->attachErrors) ? $this->attachErrors : $result);
 	}
 
 	/**
@@ -302,7 +307,16 @@ class Attachments
 		return !empty($this->_attachErrors) ? $this->_attachErrors : $attachmentOptions;
 	}
 
-	protected function setResponse()
+	protected function setResponse($data = false)
+	{
+		$this->_response = array(
+			'error' => true,
+			'data' => array(),
+			'extra' => '',
+		);
+	}
+
+	protected function sendResponse()
 	{
 		global $modSettings;
 
