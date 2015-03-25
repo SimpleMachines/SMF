@@ -1861,7 +1861,7 @@ ADD COLUMN tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 
 ---# Force 2FA per membergroup?
 ALTER TABLE {$db_prefix}membergroups
-ADD COLUMN tfa_required smallint NOT NULL default '0',
+ADD COLUMN tfa_required smallint NOT NULL default '0';
 ---#
 
 ---# Add tfa_mode setting
