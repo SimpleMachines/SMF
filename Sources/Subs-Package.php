@@ -240,10 +240,6 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
-	global $sourcedir;
-
-	require_once($sourcedir . '/Class-ZipExtract.php');
-
 	try
 	{
 		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO | Phar::KEY_AS_FILENAME);
