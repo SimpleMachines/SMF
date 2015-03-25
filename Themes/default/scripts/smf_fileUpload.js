@@ -12,12 +12,13 @@ function smf_fileUpload(oOptions)
 			.test(window.navigator.userAgent),
 		previewMaxWidth: 100,
 		previewMaxHeight: 100,
-		previewCrop: false
+		previewCrop: false,
 		smf_mainDiv: '#fileupload',
-		smf_text: {},
+		smf_containerDiv: '#files',
+		smf_text: {}
 	};
 
-	$.extend(dOptions, oOptions);
+	$.extend(true, dOptions, oOptions);
 
 	var uploadButton = $('<button/>')
 		.addClass('button_submit uploadButton')
@@ -54,9 +55,10 @@ function smf_fileUpload(oOptions)
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
-			data.context = $('<div/>').addClass('attach_place_holder').appendTo('#files');
+			data.context = $('<div/>').addClass('attach_holder').appendTo(dOptions.smf_containerDiv);
 			$.each(data.files, function (index, file) {
 				var node = $('<p/>')
+						.addClass('attach_node')
 						.append($('<span/>').text(file.name));
 				if (!index) {
 					node
@@ -65,6 +67,52 @@ function smf_fileUpload(oOptions)
 						.append(uploadButton.clone(true).data(data));
 				}
 				node.appendTo(data.context);
+			});
+		})
+		.on('fileuploadprocessalways', function (e, data) {
+			var index = data.index,
+				file = data.files[index],
+				node = $(data.context.children()[index]);
+			if (file.preview) {
+				node
+					.prepend('<br>')
+					.prepend(file.preview);
+			}
+			if (file.error) {
+				node
+					.append('<br>')
+					.append($('<span/>').text(file.error));
+
+				node.addClass('errorbox');
+			}
+			if (index + 1 === data.files.length) {
+				data.context.find('.uploadButton')
+					.text(dOptions.smf_text.processing.upload)
+					.prop('disabled', !!data.files.error);
+			}
+		})
+		.on('fileuploaddone', function (e, data) {
+			$.each(data.result.files, function (index, file) {
+				node = $(data.context.children()[index]);
+				if (file.id) {
+					var bbcTag = $('<span/>').text('[attach=' + file.id + ']');
+
+					node
+						.append(bbcTag)
+						.addClass('infobox');
+
+				} else if (file.errors) {
+					var error = $('<span/>');
+
+					$.each(file.errors, function (index, e) {
+
+						error += e;
+					});
+
+					node.addClass('errorbox')
+						.append('<br>')
+						.append(error);
+				}
 			});
 		});
 }

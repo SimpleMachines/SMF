@@ -430,18 +430,7 @@ function template_main()
 	{
 		echo '
 						<dl id="postAttachment2">
-							<span class="btn btn-success fileinput-button">
-								<i class="glyphicon glyphicon-plus"></i>
-								<span>Add files...</span>
-								<input id="fileupload" type="file" name="files[]" multiple>
-							</span>
-							<br>
-							<br>
-							<!-- The global progress bar -->
-							<div id="progress" class="progress">
-								<div class="progress-bar progress-bar-success"></div>
-							</div>
-							<!-- The container for the uploaded files -->
+							<input id="fileupload" type="file" name="files[]" multiple>
 							<div id="files" class="files"></div>';
 
 		// Add any template changes for an alternative upload system here.
