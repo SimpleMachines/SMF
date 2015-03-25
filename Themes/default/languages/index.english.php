@@ -40,6 +40,7 @@ $txt['moderate'] = 'Moderate';
 
 $txt['save'] = 'Save';
 $txt['upload'] = 'Upload';
+$txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
 $txt['forum_index'] = '%1$s - Index';
