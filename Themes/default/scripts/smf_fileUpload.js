@@ -23,7 +23,7 @@ function smf_fileUpload(oOptions)
 	var uploadButton = $('<button/>')
 		.addClass('button_submit uploadButton')
 		.prop('disabled', true)
-		.text(dOptions.smf_text.processing)
+		.text(dOptions.smf_text.upload)
 		.on('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
@@ -42,7 +42,7 @@ function smf_fileUpload(oOptions)
 	cancelButton = $('<button/>')
 		.addClass('button_submit cancelButton')
 		.prop('disabled', false)
-		.text(dOptions.smf_text.processing)
+		.text(dOptions.smf_text.cancel)
 		.on('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
@@ -50,12 +50,14 @@ function smf_fileUpload(oOptions)
 
 			data.abort();
 			$this.remove();
-			$this.closest('div').remove();
-		});
+			$('#attach_holder_' + data.numberOfTimes).remove();
+		}),
+	numberOfTimes = 0;
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
-			data.context = $('<div/>').addClass('attach_holder').appendTo(dOptions.smf_containerDiv);
+			data.numberOfTimes = ++numberOfTimes;
+			data.context = $('<div/>').attr('id', 'attach_holder_' + data.numberOfTimes).appendTo(dOptions.smf_containerDiv);
 			$.each(data.files, function (index, file) {
 				var node = $('<p/>')
 						.addClass('attach_node')
@@ -84,10 +86,12 @@ function smf_fileUpload(oOptions)
 					.append($('<span/>').text(file.error));
 
 				node.addClass('errorbox');
+
+				data.context.find('.uploadButton').remove();
 			}
 			if (index + 1 === data.files.length) {
 				data.context.find('.uploadButton')
-					.text(dOptions.smf_text.processing.upload)
+					.text(dOptions.smf_text.processing)
 					.prop('disabled', !!data.files.error);
 			}
 		})
@@ -114,5 +118,12 @@ function smf_fileUpload(oOptions)
 						.append(error);
 				}
 			});
-		});
+		})
+		.on('fileuploadprogress', function (e, data) {
+		var progress = parseInt(data.loaded / data.total * 100, 10);
+		$('#progress .progress-bar').css(
+			'width',
+			progress + '%'
+		);
+	});
 }
