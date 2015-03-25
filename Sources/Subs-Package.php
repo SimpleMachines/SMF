@@ -246,60 +246,58 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 
 	try
 	{
-		$zip = new ZipExtract($file);
+		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO | Phar::KEY_AS_FILENAME);
 
 		// go though each file in the archive
-		foreach ($zip->list_contents() as $i => $file_info)
-			if (!$file_info['is_folder'])
+		foreach ($archive as $i => $file_info)
 			{
 				// If this is a file, and it doesn't exist.... happy days!
-				if (substr($file_info['filename'], -1) != '/' && !file_exists($destination . '/' . $file_info['filename']))
+				if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
 					$write_this = true;
 				// If the file exists, we may not want to overwrite it.
-				elseif (substr($file_info['filename'], -1) != '/')
+				elseif (substr($i, -1) != '/')
 					$write_this = $overwrite;
 				// This is a directory, so we're gonna want to create it. (probably...)
 				elseif ($destination !== null && !$single_file)
 				{
 					// Just a little accident prevention, don't mind me.
-					$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
+					$i = strtr($i, array('../' => '', '/..' => ''));
 
-					if (!file_exists($destination . '/' . $file_info['filename']))
-						mktree($destination . '/' . $file_info['filename'], 0777);
+					if (!file_exists($destination . '/' . $i))
+						mktree($destination . '/' . $i, 0777);
 					$write_this = false;
 				}
 				else
 					$write_this = false;
 
 				// Get the actual compressed data.
-				$file = $zip->extractByIndex(array($i));
-				$file_info['data'] = $file[$i]['content'];
+				$file_data = file_get_contents($file_info);
 
 				// Okay!  We can write this file, looks good from here...
 				if ($write_this && $destination !== null)
 				{
-					if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!$single_file && !is_dir(dirname($file_info['filename']))))
-						mktree(dirname($file_info['filename']), 0777);
+					if ((strpos($i, '/') !== false && !$single_file) || (!$single_file && !is_dir(dirname($i))))
+						mktree(dirname($i), 0777);
 
 					// If we're looking for a specific file, and this is it... ka-bam, baby.
-					if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename'])))
-						return $file_info['data'];
+					if ($single_file && ($destination == $i || $destination == '*/' . basename($i)))
+						return $file_data;
 					// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
 					elseif ($single_file)
 						continue;
 					// Don't really want this?
-					elseif ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract))
+					elseif ($files_to_extract !== null && !in_array($i, $files_to_extract))
 						continue;
 
-					package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
+					package_put_contents($destination . '/' . $i, $file_data);
 				}
 
-				if (substr($file_info['filename'], -1, 1) != '/')
+				if (substr($i, -1, 1) != '/')
 					$return[] = array(
-						'filename' => $file_info['filename'],
-						'md5' => md5($file_info['data']),
-						'preview' => substr($file_info['data'], 0, 100),
-						'size' => $file_info['uncompressed_size'],
+						'filename' => $i,
+						'md5' => md5($file_data),
+						'preview' => substr($file_data, 0, 100),
+						'size' => strlen($file_data),
 						'skipped' => false
 					);
 			}
