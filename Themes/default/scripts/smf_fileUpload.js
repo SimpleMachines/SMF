@@ -46,53 +46,62 @@ function smf_fileUpload(oOptions)
 		.on('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
-				data = $this.data();
+				data = $this.data(),
+				node = $(data.context);
 
 			data.abort();
 			$this.remove();
-			$('#attach_holder_' + data.numberOfTimes).remove();
+			node.fadeOut();
 		}),
 	numberOfTimes = 0;
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
+
+			// Keep track of the number of files.
 			data.numberOfTimes = ++numberOfTimes;
-			data.context = $('<div/>').attr('id', 'attach_holder_' + data.numberOfTimes).appendTo(dOptions.smf_containerDiv);
+
+			// Create a unique div holder for this file.
+			data.context = $('<div/>').addClass('attach_holder descbox')
+				.attr('id', 'attach_holder_' + data.numberOfTimes)
+				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>')
+				.appendTo(dOptions.smf_containerDiv);
+
+			// Hide the progress bar, we don't want to show it just yet!
+			data.context.find('.progressBar').hide();
+
+			// Append the file.
 			$.each(data.files, function (index, file) {
-				var node = $('<p/>')
-						.addClass('attach_node')
-						.append($('<span/>').text(file.name));
+				data.context.find('.file_details')
+						.append($('<p/>').text(file.name));
 				if (!index) {
-					node
-						.append('<br>')
+					data.context.find('.file_buttons')
 						.append(cancelButton.clone(true).data(data))
 						.append(uploadButton.clone(true).data(data));
 				}
-				node.appendTo(data.context);
 			});
 		})
 		.on('fileuploadprocessalways', function (e, data) {
 			var index = data.index,
 				file = data.files[index],
-				node = $(data.context.children()[index]);
+				node = $(data.context);
 			if (file.preview) {
 				node
-					.prepend('<br>')
-					.prepend(file.preview);
+					.find('.file_details')
+					.append($('<p/>').prepend(file.preview));
 			}
 			if (file.error) {
 				node
-					.append('<br>')
-					.append($('<span/>').text(file.error));
+					.find('.file_info')
+					.append($('<p/>').text(file.error));
 
-				node.addClass('errorbox');
+				node.removeClass('descbox').addClass('errorbox');
 
-				data.context.find('.uploadButton').remove();
+				node.find('.uploadButton').remove();
 			}
 			if (index + 1 === data.files.length) {
-				data.context.find('.uploadButton')
-					.text(dOptions.smf_text.processing)
-					.prop('disabled', !!data.files.error);
+				// append some text here to tell the user what to do, hit Upload or hit Cancel...
+				// or add some other indication that the file passed the client test.
 			}
 		})
 		.on('fileuploaddone', function (e, data) {
@@ -120,10 +129,14 @@ function smf_fileUpload(oOptions)
 			});
 		})
 		.on('fileuploadprogress', function (e, data) {
-		var progress = parseInt(data.loaded / data.total * 100, 10);
-		$('#progress .progress-bar').css(
-			'width',
-			progress + '%'
-		);
-	});
+			data.context.find('.uploadButton')
+				.text(dOptions.smf_text.processing)
+				.prop('disabled', !!data.files.error);
+
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			data.context.find('.progressBar').children().css(
+				'width',
+				progress + '%'
+			);
+		});
 }

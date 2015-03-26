@@ -3882,12 +3882,12 @@ h3.profile_hd {
 /* Progress bars */
 .progressBar {
 	height: 20px;
-	padding: 2px;
 	margin: 1px;
 	background: #F8F8F8;
 	border: 1px solid #C5C5C5;
 	border-radius: 7px;
 	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
+	width:70%;
 }
 
 .progressBar span {
@@ -3899,8 +3899,37 @@ h3.profile_hd {
 	background-color: #34c2e3;
 	background-size: 30px 30px;
 	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+	width:0px;
 }
 
 @keyframes animate-stripes {
 	0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
+
+/* fileUpload css */
+.attach_holder{
+	margin:5px;
+	min-height:100px;
+	display:inline-block;
+	overflow: hidden;
+	width:90%;
+}
+.attach_holder div.file_details{
+	float:left;
+	max-width:40%;
+	display:inline-block;
+	overflow: hidden;
+}
+.attach_holder div.file_details p{
+	margin:5px;
+}
+.attach_holder div.file_info{
+	float:right;
+	max-width:59%
+}
+.attach_holder div.file_buttons{
+	padding:10px;
+}
+.attach_holder div.file_buttons div.progressBar{
+	float:left;
 }
