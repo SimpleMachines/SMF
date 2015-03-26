@@ -1185,23 +1185,25 @@ function Post($post_errors = array())
 	loadJavascriptFile('fileUpload/validate.js', array('default_theme' => true, 'defer' => true));
 	loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true));
 	addInlineJavascript('
-smf_fileUpload({
-	smf_text : {
-		cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
-		upload :'. JavaScriptEscape($txt['upload']) .',
-		processing: '. JavaScriptEscape($txt['processing']) .',
-	},
-	messages: {
-		maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
-		acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
-		maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .'
-	},
-	acceptFileTypes: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
-	maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
-	previewMaxWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
-	previewMaxHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
-	maxNumberOfFiles: '. $context['num_allowed_attachments'] .'
-});', true);
+	smf_fileUpload({
+		smf_text : {
+			cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
+			upload :'. JavaScriptEscape($txt['upload']) .',
+			processing: '. JavaScriptEscape($txt['processing']) .',
+		},
+		messages: {
+			maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
+			acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
+			maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .'
+		},
+		acceptFileTypes: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
+		maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
+		previewMaxWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
+		previewMaxHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
+		maxNumberOfFiles: '. $context['num_allowed_attachments'] .',
+		limitMultiFileUploads: '. $context['num_allowed_attachments'] .',
+		limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) .'000
+	});', true);
 
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')

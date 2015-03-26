@@ -497,10 +497,13 @@ function attachmentChecks($attachID)
 	// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
 	if ( empty($_SESSION['temp_attachments'][$attachID]))
 		$errror = '$_SESSION[\'temp_attachments\'][$attachID]';
+
 	elseif (empty($attachID))
 		$errror = '$attachID';
+
 	elseif (empty($context['attachments']))
 		$errror = '$context[\'attachments\']';
+
 	elseif (empty($context['attach_dir']))
 		$errror = '$context[\'attach_dir\']';
 
@@ -528,7 +531,7 @@ function attachmentChecks($attachID)
 		return false;
 	}
 
-	// First, the dreaded security check. Sorry folks, but this should't be avoided
+	// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
 	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 	if (isset($validImageTypes[$size[2]]))
 	{

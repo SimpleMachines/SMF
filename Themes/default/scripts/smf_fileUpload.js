@@ -15,6 +15,9 @@ function smf_fileUpload(oOptions)
 		previewMaxWidth: 100,
 		previewMaxHeight: 100,
 		previewCrop: false,
+		maxNumberOfFiles: 10,
+		limitMultiFileUploads: 10,
+		limitMultiFileUploadSize: 1000000,
 		smf_mainDiv: '#fileupload',
 		smf_containerDiv: '#files',
 		smf_text: {}
@@ -81,7 +84,7 @@ function smf_fileUpload(oOptions)
 			data.numberOfTimes = ++numberOfTimes;
 
 			// Create a master and empty div.
-			data.context = $('<div/>').appendTo(dOptions.smf_containerDiv);
+			data.context = $('<div/>').addClass('attach_container').html('<div class="errorbox" id="genericErrors"></div>').appendTo(dOptions.smf_containerDiv);
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
@@ -151,37 +154,57 @@ function smf_fileUpload(oOptions)
 			}
 		})
 		.on('fileuploaddone', function (e, data) {
+console.log(data);
 
-			node = $(data.context);
-			// Hide the progress bar.
-			node.find('.progressBar').fadeOut();
-console.log(data.result);
-				if (!data.result.error && data.result.data) {
-					var bbcTag = $('<p/>').append('<input type="text" name="attachBBC" value="[attach=' + data.result.data.id + ']" />');
+			// Check out the general errors first...
+			if (data.result.generalErrors){
 
-					node
-						.find('.file_info')
-						.append(bbcTag);
+				// Show the big fat generic error div!
+				genericErrors = data.context.find('.genericErrors');
+				genericErrors.fadeIn();
+				genericErrors.append('<ul>');
+				$.each(data.result.generalErrors, function (index, error) {
+					genericErrors.append('<li>'+ error + '</li>');
+				});
+				genericErrors.append('</ul>');
+			}
 
-					node.removeClass('descbox').addClass('infobox');
+			else{
+				$.each(data.result.files, function (index, file) {
 
-				}
-				else if (data.result.error) {
-					var errors = $('<p/>').html('<dl>');
+					var node = $(data.context);
 
-					$.each(data.result.error, function (index, singleError) {
-						errors.append(singleError.toString());
-					});
+					// Hide the progress bar.
+					node.find('.progressBar').fadeOut();
 
-					// Close the dl
-					errors.append('</dl>');
+					if (file.id) {
+						var bbcTag = $('<p/>').append('<input type="text" name="attachBBC" value="[attach=' + data.result.data.id + ']" />');
 
-					node
-						.find('.file_info')
-						.append(errors);
+						node
+							.find('.file_info')
+							.append(bbcTag);
 
-					node.removeClass('descbox').addClass('errorbox');
-				}
+						node.removeClass('descbox').addClass('infobox');
+
+					}
+					else if (file.errors) {
+						var errors = $('<p/>').html('<dl>');
+
+						$.each(data.result.error, function (index, singleError) {
+							errors.append(singleError.toString());
+						});
+
+						// Close the dl
+						errors.append('</dl>');
+
+						node
+							.find('.file_info')
+							.append(errors);
+
+						node.removeClass('descbox').addClass('errorbox');
+					}
+				});
+			}
 		})
 		.on('fileuploadprogress', function (e, data) {
 			data.context.find('.uploadButton')
