@@ -274,7 +274,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 				// Okay!  We can write this file, looks good from here...
 				if ($write_this && $destination !== null)
 				{
-					if ((strpos($i, '/') !== false && !$single_file) || (!$single_file && !is_dir(dirname($i))))
+					if (!$single_file && !is_dir(dirname($i)))
 						mktree(dirname($i), 0777);
 
 					// If we're looking for a specific file, and this is it... ka-bam, baby.
