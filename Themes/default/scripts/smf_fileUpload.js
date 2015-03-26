@@ -3,6 +3,7 @@ function smf_fileUpload(oOptions)
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
 		dataType: 'json',
+		singleFileUploads:true,
 		forceIframeTransport: false,
 		autoUpload: false,
 		paramName: 'attachment[]',
@@ -27,11 +28,12 @@ function smf_fileUpload(oOptions)
 		.on('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
-				data = $this.data();
+				data = $this.data(),
+				node = $(data.context);
 			$this
 				.off('click')
 				.text(dOptions.smf_text.cancel)
-				.on('click', function () {
+				.one('click', function () {
 					$this.remove();
 					data.abort();
 				});
@@ -49,14 +51,33 @@ function smf_fileUpload(oOptions)
 				data = $this.data(),
 				node = $(data.context);
 
+			// Gotta remove this from the number of files.
+			--numberOfFiles;
+
 			data.abort();
 			$this.remove();
 			node.fadeOut();
 		}),
-	numberOfTimes = 0;
+	numberOfTimes = 0,
+	numberOfFiles = 0;
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
+
+			// Gotta keep track of the number of file you are planing to upload.
+			data.numberOfFiles = 0;
+
+			// Check if the user hasn't reach the attach limit.
+			if (numberOfFiles >= dOptions.maxNumberOfFiles)
+			{
+				// Finish the current upload process.
+				data.abort();
+
+				// Tell the user about it.
+				alert(dOptions.messages.maxNumberOfFiles);
+
+				return;
+			}
 
 			// Keep track of the number of files.
 			data.numberOfTimes = ++numberOfTimes;
@@ -81,6 +102,12 @@ function smf_fileUpload(oOptions)
 				}
 			});
 		})
+		.on('fileuploadsend', function (e, data) {
+
+			// Show the progress bar.
+			data.context.find('.progressBar').fadeIn();
+
+		})
 		.on('fileuploadprocessalways', function (e, data) {
 			var index = data.index,
 				file = data.files[index],
@@ -100,38 +127,47 @@ function smf_fileUpload(oOptions)
 				node.find('.uploadButton').remove();
 			}
 			if (index + 1 === data.files.length) {
+				// "un-disable" the upload button :P
+				data.context.find('.uploadButton')
+					.prop('disabled', !!data.files.error);
+
+				// The file has been appended, lets keep track of it!
+				++numberOfFiles;
+
 				// append some text here to tell the user what to do, hit Upload or hit Cancel...
 				// or add some other indication that the file passed the client test.
 			}
 		})
 		.on('fileuploaddone', function (e, data) {
 			$.each(data.result.files, function (index, file) {
-				node = $(data.context.children()[index]);
+				node = $(data.context);
 				if (file.id) {
-					var bbcTag = $('<span/>').text('[attach=' + file.id + ']');
+					var bbcTag = $('<p/>').text('[attach=' + file.id + ']');
 
 					node
-						.append(bbcTag)
-						.addClass('infobox');
+						.find('.file_info')
+						.append(bbcTag);
+
+					node.removeClass('descbox').addClass('infobox');
 
 				} else if (file.errors) {
-					var error = $('<span/>');
+					var errors = $('<p/>');
 
-					$.each(file.errors, function (index, e) {
-
-						error += e;
+					$.each(file.errors, function (index, error) {
+						errors.append($('<span/>').text(error));
 					});
 
-					node.addClass('errorbox')
-						.append('<br>')
-						.append(error);
+					node
+						.find('.file_info')
+						.append(errors);
+
+					node.removeClass('descbox').addClass('errorbox');
 				}
 			});
 		})
-		.on('fileuploadprogress', function (e, data) {
+		.on('fileuploadprogress', function (e, data) {console.log(data.files);
 			data.context.find('.uploadButton')
-				.text(dOptions.smf_text.processing)
-				.prop('disabled', !!data.files.error);
+				.text(dOptions.smf_text.processing);
 
 			var progress = parseInt(data.loaded / data.total * 100, 10);
 			data.context.find('.progressBar').children().css(

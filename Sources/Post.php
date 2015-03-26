@@ -1200,7 +1200,7 @@ smf_fileUpload({
 	maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
 	previewMaxWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
 	previewMaxHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
-	smf_maxNumber: '. $context['num_allowed_attachments'] .'
+	maxNumberOfFiles: '. $context['num_allowed_attachments'] .'
 });', true);
 
 	// Finally, load the template.
