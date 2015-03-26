@@ -269,7 +269,10 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 					$write_this = false;
 
 				// Get the actual compressed data.
-				$file_data = file_get_contents($file_info);
+				if (!is_dir($file_info))
+					$file_data = file_get_contents($file_info);
+				else
+					$file_data = null;
 
 				// Okay!  We can write this file, looks good from here...
 				if ($write_this && $destination !== null)
