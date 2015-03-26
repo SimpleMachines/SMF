@@ -242,11 +242,13 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 {
 	try
 	{
-		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO | Phar::KEY_AS_FILENAME);
+		$archive = new PharData($file, Phar::NEW_CURRENT_AND_KEY);
+		$Iterator = new RecursiveIteratorIterator($archive);
 
 		// go though each file in the archive
-		foreach ($archive as $i => $file_info)
+		foreach ($Iterator as $file_info)
 			{
+				$i = $Iterator->getSubPathname();
 				// If this is a file, and it doesn't exist.... happy days!
 				if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
 					$write_this = true;
