@@ -1,9 +1,10 @@
 function smf_fileUpload(oOptions)
 {
+	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
 		dataType: 'json',
-		singleFileUploads:true,
+		singleFileUploads:false,
 		forceIframeTransport: false,
 		autoUpload: false,
 		paramName: 'attachment[]',
@@ -56,16 +57,13 @@ function smf_fileUpload(oOptions)
 
 			data.abort();
 			$this.remove();
-			node.fadeOut();
+			data.currentNode.fadeOut();
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0;
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
-
-			// Gotta keep track of the number of file you are planing to upload.
-			data.numberOfFiles = 0;
 
 			// Check if the user hasn't reach the attach limit.
 			if (numberOfFiles >= dOptions.maxNumberOfFiles)
@@ -79,27 +77,40 @@ function smf_fileUpload(oOptions)
 				return;
 			}
 
-			// Keep track of the number of files.
+			// Keep track of the number of times this event was fired.
 			data.numberOfTimes = ++numberOfTimes;
 
-			// Create a unique div holder for this file.
-			data.context = $('<div/>').addClass('attach_holder descbox')
-				.attr('id', 'attach_holder_' + data.numberOfTimes)
-				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>')
-				.appendTo(dOptions.smf_containerDiv);
-
-			// Hide the progress bar, we don't want to show it just yet!
-			data.context.find('.progressBar').hide();
+			// Create a master and empty div.
+			data.context = $('<div/>').appendTo(dOptions.smf_containerDiv);
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
-				data.context.find('.file_details')
+				var node = $('<div/>').addClass('attach_holder descbox')
+				.attr('id', 'attach_holder_' + data.numberOfTimes)
+				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
+
+				// Hide the progress bar, we don't want to show it just yet!
+				node.find('.progressBar').hide();
+
+				node.find('.file_details')
 						.append($('<p/>').text(file.name));
+
+				// Got something, show some buttons.
 				if (!index) {
-					data.context.find('.file_buttons')
+
+					// Append the current node info so it would be easier for the buttons to target it.
+					data.currentNode = node;
+
+					node.find('.file_buttons')
 						.append(cancelButton.clone(true).data(data))
 						.append(uploadButton.clone(true).data(data));
 				}
+
+				node.appendTo(data.context);
+			});
+
+			// Append the file.
+			$.each(data.files, function (index, file) {
 			});
 		})
 		.on('fileuploadsend', function (e, data) {
@@ -111,7 +122,8 @@ function smf_fileUpload(oOptions)
 		.on('fileuploadprocessalways', function (e, data) {
 			var index = data.index,
 				file = data.files[index],
-				node = $(data.context);
+				node = $(data.context.children()[index]);
+
 			if (file.preview) {
 				node
 					.find('.file_details')
@@ -143,9 +155,9 @@ function smf_fileUpload(oOptions)
 			node = $(data.context);
 			// Hide the progress bar.
 			node.find('.progressBar').fadeOut();
-
-				if (data.result.files) {
-					var bbcTag = $('<p/>').append('<input type="hidden" name="attachBBC" value="[attach=' + data.result.files.id + ']" />');
+console.log(data.result);
+				if (!data.result.error && data.result.data) {
+					var bbcTag = $('<p/>').append('<input type="text" name="attachBBC" value="[attach=' + data.result.data.id + ']" />');
 
 					node
 						.find('.file_info')
@@ -153,15 +165,16 @@ function smf_fileUpload(oOptions)
 
 					node.removeClass('descbox').addClass('infobox');
 
-				} else if (data.result.errors) {
+				}
+				else if (data.result.error) {
 					var errors = $('<p/>').html('<dl>');
 
-					$.each(data.result.errors, function (index, singleError) {
+					$.each(data.result.error, function (index, singleError) {
 						errors.append(singleError.toString());
 					});
 
 					// Close the dl
-					error.append('</dl>');
+					errors.append('</dl>');
 
 					node
 						.find('.file_info')

@@ -235,6 +235,7 @@ class Attachments
 		global $context, $txt, $user_info, $modSettings;
 
 		$attachIDs = array();
+		$this->_attachResults = array();
 		$this->_attachErrors = array();
 		if (!empty($context['we_are_history']))
 			$this->_attachErrors[] = '<dd>' . $txt['error_temp_attachments_flushed'] . '<br><br></dd>';
@@ -272,6 +273,8 @@ class Attachments
 					$attachIDs[] = $attachmentOptions['id'];
 					if (!empty($attachmentOptions['thumb']))
 						$attachIDs[] = $attachmentOptions['thumb'];
+
+					$this->_attachResults[] = $attachmentOptions;
 				}
 
 			else
@@ -299,14 +302,13 @@ class Attachments
 		}
 
 		unset($_SESSION['temp_attachments']);
-		return !empty($attachmentOptions) ? $attachmentOptions : array();
 	}
 
-	protected function setResponse($data = false)
+	protected function setResponse()
 	{
 		$this->_response = array(
-			'files' => !empty($data) ? $data : false,
-			'errors' => $this->_attachErrors ? $this->_attachErrors : false,
+			'files' => $this->_attachResults ? $this->_attachResults : false,
+			'error' => $this->_attachErrors ? $this->_attachErrors : false,
 		);
 	}
 
