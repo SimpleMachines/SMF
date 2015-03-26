@@ -139,10 +139,13 @@ function smf_fileUpload(oOptions)
 			}
 		})
 		.on('fileuploaddone', function (e, data) {
-			$.each(data.result.files, function (index, file) {
-				node = $(data.context);
-				if (file.id) {
-					var bbcTag = $('<p/>').text('[attach=' + file.id + ']');
+
+			node = $(data.context);
+			// Hide the progress bar.
+			node.find('.progressBar').fadeOut();
+
+				if (data.result.files) {
+					var bbcTag = $('<p/>').append('<input type="hidden" name="attachBBC" value="[attach=' + data.result.files.id + ']" />');
 
 					node
 						.find('.file_info')
@@ -150,12 +153,15 @@ function smf_fileUpload(oOptions)
 
 					node.removeClass('descbox').addClass('infobox');
 
-				} else if (file.errors) {
-					var errors = $('<p/>');
+				} else if (data.result.errors) {
+					var errors = $('<p/>').html('<dl>');
 
-					$.each(file.errors, function (index, error) {
-						errors.append($('<span/>').text(error));
+					$.each(data.result.errors, function (index, singleError) {
+						errors.append(singleError.toString());
 					});
+
+					// Close the dl
+					error.append('</dl>');
 
 					node
 						.find('.file_info')
@@ -163,9 +169,8 @@ function smf_fileUpload(oOptions)
 
 					node.removeClass('descbox').addClass('errorbox');
 				}
-			});
 		})
-		.on('fileuploadprogress', function (e, data) {console.log(data.files);
+		.on('fileuploadprogress', function (e, data) {
 			data.context.find('.uploadButton')
 				.text(dOptions.smf_text.processing);
 

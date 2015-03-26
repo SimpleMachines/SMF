@@ -59,6 +59,8 @@ class Attachments
 
 		require_once($sourcedir . '/Subs-Attachments.php');
 
+		loadLanguage('Post');
+
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_sa && in_array($this->_sa, $this->_subActions))
@@ -303,8 +305,8 @@ class Attachments
 	protected function setResponse($data = false)
 	{
 		$this->_response = array(
-			'error' => $this->_attachErrors ? true : false,
-			'files' => !empty($data) && !$this->_attachErrors ? $data : $this->_attachErrors,
+			'files' => !empty($data) ? $data : false,
+			'errors' => $this->_attachErrors ? $this->_attachErrors : false,
 		);
 	}
 
