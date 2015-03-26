@@ -392,7 +392,6 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		else
 			$write_this = false;
 
-
 		// Get the actual compressed data.
 		$file_info['data'] = substr($data, 26 + $file_info['filename_length'] + $file_info['extrafield_length']);
 
