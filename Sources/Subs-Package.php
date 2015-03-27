@@ -3042,15 +3042,7 @@ function package_create_backup($id = 'backup')
 
 	try {
 		$a = new PharData($output_file);
-
-		foreach ($files as $real_file => $file)
-		{
-			if (!file_exists($real_file))
-				continue;
-
-			$a->addFile($real_file);
-		}
-
+		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
 	} catch (Exception $e) {
 		return false;
