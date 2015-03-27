@@ -160,7 +160,7 @@ function ModifyGeneralSettings($return_config = false)
 		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl'),
 		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
 		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
-		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null),
+		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -285,7 +285,7 @@ function ModifyCookieSettings($return_config = false)
 			2 => $txt['tfa_mode_forced'],
 		)) + (empty($user_settings['tfa_secret']) ? array() : array(
 			3 => $txt['tfa_mode_forcedall'],
-		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : '')),
+		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavascript('
