@@ -618,9 +618,6 @@ function loadUserSettings()
 	{
 		$languages = getLanguages();
 
-		if (count($context['languages']) == 1)
-			unset($context['languages']);
-
 		// Is it valid?
 		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
 		{

@@ -961,10 +961,11 @@ function ModifyLanguage()
 		if (file_exists($boarddir . '/agreement.' . $context['lang_id'] . '.txt'))
 			unlink($boarddir . '/agreement.' . $context['lang_id'] . '.txt');
 
-		// Fourth, a related images folder?
-		foreach ($images_dirs as $curPath)
-			if (is_dir($curPath))
-				deltree($curPath);
+		// Fourth, a related images folder, if it exists...
+		if (!empty($images_dirs))
+			foreach ($images_dirs as $curPath)
+				if (is_dir($curPath))
+					deltree($curPath);
 
 		// Members can no longer use this language.
 		$smcFunc['db_query']('', '
