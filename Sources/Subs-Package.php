@@ -3014,6 +3014,7 @@ function package_create_backup($id = 'backup')
 			$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
 		}
 	}
+	$obj = new ArrayObject($files);
 
 	if (!file_exists($packagesdir . '/backups'))
 		mktree($packagesdir . '/backups', 0777);
