@@ -2977,10 +2977,7 @@ function package_create_backup($id = 'backup')
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))
-			$files[realpath($boarddir . '/' . $file)] = array(
-				empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file,
-				stat($boarddir . '/' . $file)
-			);
+			$files[empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file] = $boarddir . '/' . $file;
 	}
 
 	$dirs = array(
