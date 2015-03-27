@@ -3015,6 +3015,7 @@ function package_create_backup($id = 'backup')
 		}
 	}
 	$obj = new ArrayObject($files);
+	$iterator = $obj->getIterator();
 
 	if (!file_exists($packagesdir . '/backups'))
 		mktree($packagesdir . '/backups', 0777);
