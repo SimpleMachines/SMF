@@ -31,6 +31,9 @@ function smf_fileUpload(oOptions)
 		.text(dOptions.smf_text.upload)
 		.on('click', function (e) {
 			e.preventDefault();
+			var $this = $(this),
+				data = $this.data();
+
 			data.submit().always(function () {
 				$this.remove();
 			});
@@ -118,7 +121,7 @@ function smf_fileUpload(oOptions)
 
 				// append some text here to tell the user what to do, hit Upload or hit Cancel...
 				// or add some other indication that the file passed the client test.
-			}console.log(numberOfFiles);
+			}
 		})
 		.on('fileuploaddone', function (e, data) {
 
