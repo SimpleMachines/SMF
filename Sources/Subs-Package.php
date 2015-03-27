@@ -3035,7 +3035,7 @@ function package_create_backup($id = 'backup')
 	if (!is_writable($packagesdir . '/backups'))
 		package_chmod($packagesdir . '/backups');
 	$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-	$output_ext = '.tar' . (function_exists('gzopen') ? '.gz' : '');
+	$output_ext = '.tar';
 
 	if (file_exists($output_file . $output_ext))
 	{
