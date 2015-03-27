@@ -31,16 +31,6 @@ function smf_fileUpload(oOptions)
 		.text(dOptions.smf_text.upload)
 		.on('click', function (e) {
 			e.preventDefault();
-			var $this = $(this),
-				data = $this.data(),
-				node = $(data.context);
-			$this
-				.off('click')
-				.text(dOptions.smf_text.cancel)
-				.one('click', function () {
-					$this.remove();
-					data.abort();
-				});
 			data.submit().always(function () {
 				$this.remove();
 			});
@@ -58,7 +48,6 @@ function smf_fileUpload(oOptions)
 			// Gotta remove this from the number of files.
 			--numberOfFiles;
 
-			data.abort();
 			$this.remove();
 			data.currentNode.fadeOut();
 		}),
@@ -68,28 +57,15 @@ function smf_fileUpload(oOptions)
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
 
-			// Check if the user hasn't reach the attach limit.
-			if (numberOfFiles >= dOptions.maxNumberOfFiles)
-			{
-				// Finish the current upload process.
-				data.abort();
-
-				// Tell the user about it.
-				alert(dOptions.messages.maxNumberOfFiles);
-
-				return;
-			}
-
-			// Keep track of the number of times this event was fired.
-			data.numberOfTimes = ++numberOfTimes;
+			++numberOfTimes;
 
 			// Create a master and empty div.
-			data.context = $('<div/>').addClass('attach_container').html('<div class="errorbox" id="genericErrors"></div>').appendTo(dOptions.smf_containerDiv);
+			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
 				var node = $('<div/>').addClass('attach_holder descbox')
-				.attr('id', 'attach_holder_' + data.numberOfTimes)
+				.attr('id', 'attach_holder_' + numberOfTimes)
 				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
 
 				// Hide the progress bar, we don't want to show it just yet!
@@ -98,22 +74,15 @@ function smf_fileUpload(oOptions)
 				node.find('.file_details')
 						.append($('<p/>').text(file.name));
 
-				// Got something, show some buttons.
-				if (!index) {
+				// Append the current node info so it would be easier for the buttons to target it.
+				data.currentNode = node;
 
-					// Append the current node info so it would be easier for the buttons to target it.
-					data.currentNode = node;
-
-					node.find('.file_buttons')
+				node.find('.file_buttons')
 						.append(cancelButton.clone(true).data(data))
 						.append(uploadButton.clone(true).data(data));
-				}
+
 
 				node.appendTo(data.context);
-			});
-
-			// Append the file.
-			$.each(data.files, function (index, file) {
 			});
 		})
 		.on('fileuploadsend', function (e, data) {
@@ -132,14 +101,12 @@ function smf_fileUpload(oOptions)
 					.find('.file_details')
 					.append($('<p/>').prepend(file.preview));
 			}
-			if (file.error) {
-				node
-					.find('.file_info')
-					.append($('<p/>').text(file.error));
+			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles) {
+				// There isn't an error with the actual file, must be something else then!
+				if (!file.error && numberOfFiles >= dOptions.maxNumberOfFiles)
+					file.error = dOptions.messages.maxNumberOfFiles;
 
-				node.removeClass('descbox').addClass('errorbox');
-
-				node.find('.uploadButton').remove();
+				data.abort();
 			}
 			if (index + 1 === data.files.length) {
 				// "un-disable" the upload button :P
@@ -151,28 +118,26 @@ function smf_fileUpload(oOptions)
 
 				// append some text here to tell the user what to do, hit Upload or hit Cancel...
 				// or add some other indication that the file passed the client test.
-			}
+			}console.log(numberOfFiles);
 		})
 		.on('fileuploaddone', function (e, data) {
-console.log(data);
 
 			// Check out the general errors first...
 			if (data.result.generalErrors){
 
-				// Show the big fat generic error div!
-				genericErrors = data.context.find('.genericErrors');
-				genericErrors.fadeIn();
-				genericErrors.append('<ul>');
+				// Show the big fat generic error list!
+				genericErrors = $('#attachGenericErrors ul');
 				$.each(data.result.generalErrors, function (index, error) {
 					genericErrors.append('<li>'+ error + '</li>');
 				});
-				genericErrors.append('</ul>');
+
+				genericErrors.fadeIn();
 			}
 
 			else{
 				$.each(data.result.files, function (index, file) {
 
-					var node = $(data.context);
+					var node = $(data.context.children()[index]);
 
 					// Hide the progress bar.
 					node.find('.progressBar').fadeOut();
@@ -215,5 +180,19 @@ console.log(data);
 				'width',
 				progress + '%'
 			);
+		})
+		.on('fileuploadfail', function (e, data) {
+			$.each(data.files, function (index, file) {
+				var node = $(data.context.children()[index]);
+
+				// Hide the progress bar.
+				node.find('.progressBar').fadeOut();
+				node
+					.find('.file_info')
+					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+
+				node.removeClass('descbox').addClass('errorbox');
+				node.find('.uploadButton').remove();
+			});
 		});
 }

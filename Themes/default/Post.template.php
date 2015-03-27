@@ -430,7 +430,8 @@ function template_main()
 	{
 		echo '
 						<dl id="postAttachment2">
-							<input id="fileupload" type="file" name="files[]" multiple>
+							<input id="fileupload" type="file" name="files[]">
+							<div class="errorbox" id="attachGenericErrors"><ul></ul></div>
 							<div id="files" class="files"></div>';
 
 		// Add any template changes for an alternative upload system here.

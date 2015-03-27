@@ -3933,3 +3933,6 @@ h3.profile_hd {
 .attach_holder div.file_buttons div.progressBar{
 	float:left;
 }
+#attachGenericErrors{
+	display:none;
+}

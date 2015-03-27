@@ -95,7 +95,7 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $context, $modSettings, $smcFunc, $txt, $user_info;
+		global $context, $modSettings, $smcFunc, $user_info;
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
@@ -310,6 +310,8 @@ class Attachments
 
 	protected function setResponse()
 	{
+		global $txt;
+
 		loadLanguage('Post');
 
 		// Is there any generic errors? made some snese out of them!

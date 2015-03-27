@@ -1190,6 +1190,7 @@ function Post($post_errors = array())
 			cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
 			upload :'. JavaScriptEscape($txt['upload']) .',
 			processing: '. JavaScriptEscape($txt['processing']) .',
+			genericError: '. JavaScriptEscape($txt['attach_php_error']) .'
 		},
 		messages: {
 			maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
