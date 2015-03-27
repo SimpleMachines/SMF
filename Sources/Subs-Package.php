@@ -3001,33 +3001,21 @@ function package_create_backup($id = 'backup')
 		$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
 	$smcFunc['db_free_result']($request);
 
-	while (!empty($dirs))
+	foreach ($dirs as $dir => $dest)
 	{
-		list ($dir, $dest) = each($dirs);
-		unset($dirs[$dir]);
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST,
+			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+		);
 
-		$listing = @dir($dir);
-		if (!$listing)
-			continue;
-		while ($entry = $listing->read())
-		{
+				continue;
+
 			if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
 				continue;
 
-			$filepath = realpath($dir . '/' . $entry);
-			if (isset($files[$filepath]))
-				continue;
-
-			$stat = stat($dir . '/' . $entry);
-			if ($stat['mode'] & 040000)
-			{
-				$files[$filepath] = array($dest . $entry . '/', $stat);
-				$dirs[$dir . '/' . $entry] = $dest . $entry . '/';
-			}
-			else
-				$files[$filepath] = array($dest . $entry, $stat);
+			$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
 		}
-		$listing->close();
 	}
 
 	if (!file_exists($packagesdir . '/backups'))
