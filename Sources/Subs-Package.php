@@ -255,16 +255,6 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 				// If the file exists, we may not want to overwrite it.
 				elseif (substr($i, -1) != '/')
 					$write_this = $overwrite;
-				// This is a directory, so we're gonna want to create it. (probably...)
-				elseif ($destination !== null && !$single_file)
-				{
-					// Just a little accident prevention, don't mind me.
-					$i = strtr($i, array('../' => '', '/..' => ''));
-
-					if (!file_exists($destination . '/' . $i))
-						mktree($destination . '/' . $i, 0777);
-					$write_this = false;
-				}
 				else
 					$write_this = false;
 
