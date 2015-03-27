@@ -3051,43 +3051,22 @@ function package_create_backup($id = 'backup')
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
-	if (function_exists('gzopen'))
-	{
-		$fwrite = 'gzwrite';
-		$fclose = 'gzclose';
-		$output = @gzopen($output_file, 'wb');
-	}
-	else
-	{
-		$fwrite = 'fwrite';
-		$fclose = 'fclose';
-		$output = @fopen($output_file, 'wb');
-	}
+	try {
+		$a = new PharData($output_file);
 
-	// If we don't have a file handle, that means for whatever reason the file could not be opened.
-	// Could be permissions, could be a file already exists that shouldn't, etc.
-	if (!$output)
+		foreach ($files as $real_file => $file)
+		{
+			if (!file_exists($real_file))
+				continue;
+
+			$a->addFile($real_file);
+		}
+
+		$a->compress(Phar::GZ);
+	} catch (Exception $e) {
 		return false;
+	}
 
-	foreach ($files as $real_file => $file)
-	{
-		if (!file_exists($real_file))
-			continue;
-
-		$stat = $file[1];
-		if (substr($file[0], -1) == '/')
-			$stat['size'] = 0;
-
-		$current = pack('a100a8a8a8a12a12a8a1a100a6a2a32a32a8a8a155a12', $file[0], decoct($stat['mode']), sprintf('%06d', decoct($stat['uid'])), sprintf('%06d', decoct($stat['gid'])), decoct($stat['size']), decoct($stat['mtime']), '', 0, '', '', '', '', '', '', '', '', '');
-
-		$checksum = 256;
-		for ($i = 0; $i < 512; $i++)
-			$checksum += ord($current{$i});
-
-		$fwrite($output, substr($current, 0, 148) . pack('a8', decoct($checksum)) . substr($current, 156, 511));
-
-		if ($stat['size'] == 0)
-			continue;
 
 		$fp = @fopen($real_file, 'rb');
 		while ($fp && !feof($fp))
