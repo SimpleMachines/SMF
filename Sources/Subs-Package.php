@@ -3067,23 +3067,6 @@ function package_create_backup($id = 'backup')
 		return false;
 	}
 
-
-		$fp = @fopen($real_file, 'rb');
-		while ($fp && !feof($fp))
-		{
-			$buffer = fread($fp, 16384);
-			if (strlen($buffer) == 0)
-				break;
-			$fwrite($output, $buffer);
-		}
-		@fclose($fp);
-
-		$fwrite($output, pack('a' . (512 - $stat['size'] % 512), ''));
-	}
-
-	$fwrite($output, pack('a1024', ''));
-	$fclose($output);
-
 	return true;
 }
 
