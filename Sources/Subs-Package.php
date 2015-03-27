@@ -3006,6 +3006,8 @@ function package_create_backup($id = 'backup')
 			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
 		);
 
+		foreach ($iter as $entry => $dir) {
+			if ($dir->isDir())
 				continue;
 
 			if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
