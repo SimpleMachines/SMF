@@ -317,7 +317,7 @@ class Attachments
 		// Is there any generic errors? made some snese out of them!
 		if ($this->_generalErrors)
 			foreach ($this->_generalErrors as $k => $v)
-				$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v])
+				$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
 
 		$this->_response = array(
 			'files' => $this->_attachResults ? $this->_attachResults : false,
