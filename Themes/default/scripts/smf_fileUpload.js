@@ -55,11 +55,27 @@ function smf_fileUpload(oOptions)
 			data.currentNode.fadeOut();
 		}),
 	deleteButton = $('<button />')
-		.addClass('button_submit deleteButton')
+		.addClass('button_submit deleteButton you_sure')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.deleteAttach)
 		.one('click', function (e) {
-			// An ajax call here... coming soon!
+			e.preventDefault();
+			var $this = $(this),
+				data = $this.data(),
+				node = $(data.context);
+
+			// Let the server know you want to delete the file you just recently uploaded...
+			$.ajax({
+				url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ data.currentFile.id +';' + smf_session_var + '=' + smf_session_id,
+				type: 'GET',
+				dataType: 'json',
+				success: function (data, textStatus, xhr) {
+					// Some indication that the file was successfully deleted.
+				},
+				error: function (xhr, textStatus, errorThrown) {
+					// Some indication that the action failed miserably...
+				}
+			});
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0;

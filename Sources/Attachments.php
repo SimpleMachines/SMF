@@ -71,6 +71,31 @@ class Attachments
 		$this->sendResponse();
 	}
 
+	public function delete()
+	{
+		global $sourcedir;
+
+		// Need this, don't ask why just nod your head.
+		require_once($sourcedir . '/ManageAttachments.php');
+
+		$attachID = (int) !empty($_REQUEST['attach']) && ctype_digit($_REQUEST['attach']) ? $_REQUEST['attach'] : 0;
+
+		// Need something to work with.
+		if (!$attachID || !is_int($attachID))
+		{
+			// Send some error here.
+
+			// Be done with it.
+			return;
+		}
+
+		// Lets pass some params and see what happens :P
+		$affectedMessages = removeAttachments(array('id_attach' => $attachID), '', true, true);
+
+		// $affectedMessage should never be filled, if so, something terrible just happen...
+		$this->_response = !empty($affectedMessage) ? 'some error string here' : 'some confirmation string here';
+	}
+
 	public function add()
 	{
 		$result = array();
@@ -84,10 +109,10 @@ class Attachments
 
 		// The attachments was created and moved the the right folder, time to update the DB.
 		if (!empty($_SESSION['temp_attachments']))
-			$result = $this->createAtttach();
+			$this->createAtttach();
 
 		// Set the response.
-		$this->setResponse($result);
+		$this->setResponse();
 	}
 
 	/**
