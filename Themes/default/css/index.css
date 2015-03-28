@@ -2093,6 +2093,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.merge {
 	background-position: -57px -239px;
 }
+.generic_icons.folder {
+	background-position: -82px -239px;
+}
 
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
