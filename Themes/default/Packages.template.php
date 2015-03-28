@@ -1262,13 +1262,6 @@ function template_file_permissions()
 	// This will handle expanding the selection.
 	echo '
 	<script><!-- // --><![CDATA[
-		var oRadioColors = {
-			0: "#D1F7BF",
-			1: "#FFBBBB",
-			2: "#FDD7AF",
-			3: "#C2C6C0",
-			4: "#EEEEEE"
-		}
 		var oRadioValues = {
 			0: "read",
 			1: "writable",
