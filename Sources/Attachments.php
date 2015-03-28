@@ -62,6 +62,7 @@ class Attachments
 		// Guest aren't welcome, sorry.
 		is_not_guest();
 
+		checkSession();
 		validateToken('inline-attach');
 
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;

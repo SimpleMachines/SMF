@@ -51,6 +51,9 @@ function smf_fileUpload(oOptions)
 			// Gotta remove this from the number of files.
 			--numberOfFiles;
 
+			// And remove this file's size from the total.
+			totalSize = totalSize - data.currentFile.size;
+
 			$this.remove();
 			data.currentNode.fadeOut();
 		}),
@@ -103,6 +106,7 @@ function smf_fileUpload(oOptions)
 
 				// Append the current node info so it would be easier for the buttons to target it.
 				data.currentNode = node;
+				data.currentFile = file;
 
 				node.find('.file_buttons')
 						.append(cancelButton.clone(true).data(data))
