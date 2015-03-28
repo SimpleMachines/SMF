@@ -1389,7 +1389,7 @@ function template_file_permissions()
 					for (j = 0; j < 5; j++)
 					{
 						curCol = document.createElement("td");
-						curCol.style.backgroundColor = oRadioColors[j];
+						curCol.className = "centertext perm_" + oRadioValues[j];
 						curCol.align = "center";
 
 						var curInput = createNamedElement("input", "permStatus[" + curPath + "/" + fileItems[i].firstChild.nodeValue + "]", j == 4 ? "checked" : "");
