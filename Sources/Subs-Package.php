@@ -3045,6 +3045,7 @@ function package_create_backup($id = 'backup')
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
 	} catch (Exception $e) {
+		log_error($e->getMessage(), 'backup');
 		return false;
 	}
 
