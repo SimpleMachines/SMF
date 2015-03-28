@@ -1510,7 +1510,7 @@ function template_file_permissions()
 					<td class="centertext perm_writable"><input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext input_radio"></td>
 					<td class="centertext perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext input_radio"></td>
 					<td class="centertext perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext input_radio"></td>
-					<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext input_radio"></td>
+					<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext input_radio"></td>
 				</tr>
 			';
 
@@ -1615,7 +1615,7 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 				<td class="centertext perm_writable"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable" class="input_radio"></td>
 				<td class="centertext perm_execute"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="execute" class="input_radio"></td>
 				<td class="centertext perm_custom"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="custom" class="input_radio"></td>
-				<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
+				<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
 			</tr>
 			<tr id="insert_div_loc_' . $cur_ident . '" style="display: none;"><td></td></tr>';
 
