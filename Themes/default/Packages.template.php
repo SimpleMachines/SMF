@@ -1357,8 +1357,7 @@ function template_file_permissions()
 						linkData.onclick = dynamicExpandFolder;
 
 						var folderImage = document.createElement("span");
-						folderImage.className ="generic_icons folder";
-						\';
+						folderImage.className = "generic_icons folder";
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
