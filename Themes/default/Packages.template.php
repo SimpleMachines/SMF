@@ -1366,7 +1366,7 @@ function template_file_permissions()
 					curCol.className = "smalltext";
 
 					var writeSpan = document.createElement("span");
-					writeSpan.style.color = fileItems[i].getAttribute(\'writable\') ? "green" : "red";
+					writeSpan.className = fileItems[i].getAttribute(\'writable\') ? "green" : "red";
 					setInnerHTML(writeSpan, fileItems[i].getAttribute(\'writable\') ? \'', $txt['package_file_perms_writable'], '\' : \'', $txt['package_file_perms_not_writable'], '\');
 					curCol.appendChild(writeSpan);
 
