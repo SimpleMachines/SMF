@@ -107,7 +107,6 @@ function smf_fileUpload(oOptions)
 						.append(cancelButton.clone(true).data(data))
 						.append(uploadButton.clone(true).data(data));
 
-
 				node.appendTo(data.context);
 			});
 		})

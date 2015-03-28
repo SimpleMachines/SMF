@@ -93,7 +93,11 @@ class Attachments
 		$affectedMessages = removeAttachments(array('id_attach' => $attachID), '', true, true);
 
 		// $affectedMessage should never be filled, if so, something terrible just happen...
-		$this->_response = !empty($affectedMessage) ? 'some error string here' : 'some confirmation string here';
+		$this->setResponse(array(
+			'text' => 'attached_file_deleted'. (!empty($affectedMessage) ? 'error' : ''),
+			'type' => !empty($affectedMessage) ? 'error' : 'info',
+			'data' => false,
+		));
 	}
 
 	public function add()
@@ -334,21 +338,37 @@ class Attachments
 		unset($_SESSION['temp_attachments']);
 	}
 
-	protected function setResponse()
+	protected function setResponse($data = array())
 	{
 		global $txt;
 
 		loadLanguage('Post');
 
-		// Is there any generic errors? made some sense out of them!
-		if ($this->_generalErrors)
-			foreach ($this->_generalErrors as $k => $v)
-				$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
-
+		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
-			'files' => $this->_attachResults ? $this->_attachResults : false,
-			'generalErrors' => $this->_generalErrors ? $this->_generalErrors : false,
+			'text' => 'attached_file_deleted_error',
+			'type' => 'error',
+			'data' => false,
 		);
+
+		// Adding needs some VIP treatment.
+		if ($this->_sa == 'add')
+		{
+			// Is there any generic errors? made some sense out of them!
+			if ($this->_generalErrors)
+				foreach ($this->_generalErrors as $k => $v)
+					$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+
+			$this->_response = array(
+				'files' => $this->_attachResults ? $this->_attachResults : false,
+				'generalErrors' => $this->_generalErrors ? $this->_generalErrors : false,
+			);
+		}
+
+		// Rest of us mere mortals gets no special treatment...
+		elseif (!empty($data))
+			if (!empty($data['text']) && !empty($txt[$data['text']]))
+				$this->_response['text'] = $txt[$data['text']];
 	}
 
 	protected function sendResponse()
@@ -366,7 +386,7 @@ class Attachments
 		// Set the header.
 		header('Content-Type: application/json');
 
-		echo json_encode($this->_response);
+		echo json_encode($this->_response ? $this->_response : array());
 
 		// Done.
 		obExit(false);
