@@ -62,11 +62,6 @@
 						e.preventDefault();
 					})
 				);
-
-			if (line.children().length > 0)
-				content.append(line);
-
-			$(".sceditor-toolbar").append(content);
 		},
 		storeLastState: function (){
 			this.wasSource = this.inSourceMode();
@@ -161,6 +156,9 @@
 				});
 			}
 			$.each(emoticons, base.appendEmoticon);
+			if (line.children().length > 0)
+				content.append(line);
+			$(".sceditor-toolbar").append(content);
 			if (typeof moreButton !== "undefined")
 				content.append(moreButton);
 		}
