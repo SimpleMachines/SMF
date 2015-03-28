@@ -160,6 +160,7 @@ $txt['attach_error_title'] = 'Error uploading attachments.';
 $txt['attach_warning'] = 'There was a problem during the uploading of <strong>%1$s</strong>.';
 $txt['attach_check_nag'] = 'Unable to continue due to incomplete data (%1$s).';
 $txt['attach_max_total_file_size'] = 'Sorry, you are out of attachment space. The total attachment size allowed per post is %1$s KB. Space remaining is %2$s kB.';
+$txt['attach_max_total_file_size_current'] = 'Sorry, you are out of attachment space. The current total attachment size allowed per post is {currentTotal} KB. The total amount of the selected files is {currentRemain} kB.';
 $txt['attach_folder_warning'] = 'The attachments directory can not be located. Please notify an administrator of this problem.';
 $txt['attach_folder_admin_warning'] = 'The path to the attachments directory (%1$s) is incorrect. Please correct it in the attachment settings area of your admin panel.';
 $txt['attach_limit_nag'] = 'You have reached the maximum number of attachments allowed per post.';
@@ -171,6 +172,8 @@ $txt['attach_0_byte_file'] = 'The file appears to be empty. Please contact your 
 $txt['attached_files_in_session'] = '<em>The above underlined file(s) have been uploaded but will not be attached to this post until it is submitted.</em>';
 $txt['attached_file_insert'] = 'BBc tag to insert attachment in the post:';
 $txt['attached_file_delete'] = 'Delete this attachment';
+$txt['attached_file_deleted'] = 'The attachment was successfully deleted.';
+$txt['attached_file_deleted_error'] = 'There was an error while performing the deletion.';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';

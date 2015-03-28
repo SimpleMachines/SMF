@@ -59,6 +59,11 @@ class Attachments
 
 		require_once($sourcedir . '/Subs-Attachments.php');
 
+		// Guest aren't welcome, sorry.
+		is_not_guest();
+
+		validateToken('inline-attach');
+
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_sa && in_array($this->_sa, $this->_subActions))
@@ -346,7 +351,7 @@ class Attachments
 
 		// Some default values in case something is missed or neglected :P
 		$this->_response = array(
-			'text' => 'attached_file_deleted_error',
+			'text' => 'attach_php_error',
 			'type' => 'error',
 			'data' => false,
 		);

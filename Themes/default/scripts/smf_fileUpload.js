@@ -78,7 +78,8 @@ function smf_fileUpload(oOptions)
 			});
 		}),
 	numberOfTimes = 0,
-	numberOfFiles = 0;
+	numberOfFiles = 0,
+	totalSize = 0;
 
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
@@ -121,20 +122,31 @@ function smf_fileUpload(oOptions)
 				file = data.files[index],
 				node = $(data.context.children()[index]);
 
+			// Track the file size.
+			totalSize = totalSize + file.size;
+
 			if (file.preview) {
 				node
 					.find('.file_details')
 					.append($('<p/>').prepend(file.preview));
 			}
-			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles) {
+			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles || totalSize >= dOptions.limitMultiFileUploadSize) {
 				// There isn't an error with the actual file, must be something else then!
 				if (!file.error && numberOfFiles >= dOptions.maxNumberOfFiles)
 					file.error = dOptions.messages.maxNumberOfFiles;
 
-				// @todo don't forget to also warn about limitMultiFileUploadSize
+				// You reached the uploads total size.
+				else if (totalSize >= dOptions.limitMultiFileUploadSize){
+					file.error = dOptions.messages.maxTotalSize
+						.replace('{currentTotal}', smf_fileUpload_bytesToSize(dOptions.limitMultiFileUploadSize))
+						.replace('{currentRemain}', smf_fileUpload_bytesToSize(totalSize));
+				}
 
+				// Cancel the current upload.
 				data.abort();
 			}
+
+			// The file was added.
 			if (index + 1 === data.files.length) {
 				// "un-disable" the upload button :P
 				data.context.find('.uploadButton')
@@ -233,4 +245,11 @@ function smf_fileUpload(oOptions)
 				node.find('.uploadButton').remove();
 			});
 		});
+}
+
+function smf_fileUpload_bytesToSize(bytes) {
+   if(bytes == 0) return '0 Byte';
+   var k = 1000; // change to 1024 for binary stuff
+   var i = Math.floor(Math.log(bytes) / Math.log(k));
+   return (bytes / Math.pow(k, i)).toPrecision(3);
 }

@@ -1197,7 +1197,8 @@ function Post($post_errors = array())
 		messages: {
 			maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
 			acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
-			maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .'
+			maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
+			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .'
 		},
 		acceptFileTypes: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
 		maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
@@ -1207,6 +1208,7 @@ function Post($post_errors = array())
 		limitMultiFileUploads: '. $context['num_allowed_attachments'] .',
 		limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) .'000
 	});', true);
+	createToken('inline-attach');
 
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
