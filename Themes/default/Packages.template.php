@@ -1356,8 +1356,9 @@ function template_file_permissions()
 						linkData.ident = my_ident;
 						linkData.onclick = dynamicExpandFolder;
 
-						var folderImage = document.createElement("img");
-						folderImage.src = \'', addcslashes($settings['default_images_url'], "\\"), '/board.png\';
+						var folderImage = document.createElement("span");
+						folderImage.className ="generic_icons folder";
+						\';
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
@@ -1504,7 +1505,7 @@ function template_file_permissions()
 
 				if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 					echo '
-						<img src="', $settings['default_images_url'], '/board.png" alt="*">';
+						<span class="generic_icons folder"></span>';
 
 				echo '
 						', $name, '
@@ -1607,7 +1608,8 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 					', (!empty($dir['type']) && $dir['type'] == 'dir_recursive') || !empty($dir['list_contents']) ? '<a id="link_' . $cur_ident . '" href="' . $scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident . '/' . $name) . ';back_look=' . $context['back_look_data'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '#fol_' . $cur_ident . '" onclick="return expandFolder(\'' . $cur_ident . '\', \'' . addcslashes($ident . '/' . $name, "'\\") . '\');">' : '';
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
-				echo '<img src="', $settings['default_images_url'], '/board.png" alt="*">';
+				echo '
+						<span class="generic_icons folder"></span>';
 
 			echo '
 					', $name, '
