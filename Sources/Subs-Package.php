@@ -3006,7 +3006,8 @@ function package_create_backup($id = 'backup')
 			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
 		);
 
-		foreach ($iter as $entry => $dir) {
+		foreach ($iter as $entry => $dir)
+		{
 			if ($dir->isDir())
 				continue;
 
@@ -3040,12 +3041,16 @@ function package_create_backup($id = 'backup')
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
-	try {
+	try
+	{
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);
-	} catch (Exception $e) {
+	}
+	catch (Exception $e)
+	{
 		log_error($e->getMessage(), 'backup');
+
 		return false;
 	}
 
