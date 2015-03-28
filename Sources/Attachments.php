@@ -284,6 +284,7 @@ class Attachments
 			{
 				// Sort out the errors for display and delete any associated files.
 				$log_these = array('attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file');
+
 				foreach ($attachmentOptions['errors'] as $error)
 				{
 					$attachmentOptions['errors'][] = vsprintf($txt['attach_warning'], $attachment['name']);
@@ -314,7 +315,7 @@ class Attachments
 
 		loadLanguage('Post');
 
-		// Is there any generic errors? made some snese out of them!
+		// Is there any generic errors? made some sense out of them!
 		if ($this->_generalErrors)
 			foreach ($this->_generalErrors as $k => $v)
 				$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
