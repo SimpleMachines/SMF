@@ -128,6 +128,8 @@ $txt['errortype_cron'] = 'Cron';
 $txt['errortype_cron_desc'] = 'Errors resulting from background tasks.';
 $txt['errortype_paidsubs'] = 'Paid Subs';
 $txt['errortype_paidsubs_desc'] = 'Errors resulting from paid subscriptions, which can include notification of payment failures.';
+$txt['errortype_backup'] = 'Backups';
+$txt['errortype_backup_desc'] = 'Errors resulting from backing up files, which are usually messages explaining why the proceedure failed.';
 
 $txt['maintain_recount'] = 'Recount all forum totals and statistics';
 $txt['maintain_recount_info'] = 'Should the total replies of a topic or the number of PMs in your inbox be incorrect: this function will recount all saved counts and statistics for you.';

@@ -84,6 +84,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'debug',
 		'cron',
 		'paidsubs',
+		'backup',
 	);
 
 	// This prevents us from infinite looping if the hook or call produces an error.
