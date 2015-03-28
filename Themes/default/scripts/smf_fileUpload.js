@@ -248,8 +248,12 @@ function smf_fileUpload(oOptions)
 }
 
 function smf_fileUpload_bytesToSize(bytes) {
-   if(bytes == 0) return '0 Byte';
-   var k = 1000; // change to 1024 for binary stuff
-   var i = Math.floor(Math.log(bytes) / Math.log(k));
-   return (bytes / Math.pow(k, i)).toPrecision(3);
+
+	if(typeof bytes == 'undefined' || bytes == 0){
+		return 0;
+	}
+
+	var k = 1000; // change to 1024 for binary stuff
+	var i = Math.floor(Math.log(bytes) / Math.log(k));
+	return (bytes / Math.pow(k, i)).toPrecision(3);
 }
