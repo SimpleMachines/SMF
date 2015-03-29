@@ -121,16 +121,6 @@
 
 						dropdownIgnoreLastClick = true;
 						adjheight = closeButton.height() + titlebar.height();
-						$dropdown.css({
-							position: "fixed",
-							top: $(window).height() * 0.2,
-							left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
-							"max-width": "50%",
-							"max-height": "50%",
-						}).find('#sceditor-popup-smiley').css({
-							height: $dropdown.height() - adjheight,
-							"overflow": "auto"
-						});
 						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
 							.append(popupContent)
 							.appendTo($('body'));
