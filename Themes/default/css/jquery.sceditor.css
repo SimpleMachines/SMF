@@ -269,37 +269,13 @@ div.sceditor-dropdown label {
 	padding: 4px 0;
 }
 div.sceditor-dropdown input, div.sceditor-dropdown textarea {
-	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-	outline: 0;
-	padding: 4px;
-	border: 1px solid #ccc;
-	border-top-color: #888;
 	margin: 0 0 .75em;
-	border-radius: 1px;
-	background-clip: padding-box;
 }
 div.sceditor-dropdown textarea {
 	padding: 6px;
 }
-div.sceditor-dropdown input:focus, div.sceditor-dropdown textarea:focus {
-	border-color: #aaa;
-	border-top-color: #666;
-	box-shadow: inset 0 1px 5px rgba(0, 0, 0, .1);
-}
 div.sceditor-dropdown .button {
-	font-weight: 700;
-	color: #444;
-	padding: 6px 12px;
-	background: #ececec;
-	border: solid 1px #ccc;
-	border-radius: 2px;
-	background-clip: padding-box;
-	cursor: pointer;
-	margin: .3em 0 0;
-}
-div.sceditor-dropdown .button:hover {
-	background: #f3f3f3;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, .15);
+	height: auto;
 }
 div.sceditor-font-picker, div.sceditor-fontsize-picker, div.sceditor-format {
 	padding: 6px 0;
