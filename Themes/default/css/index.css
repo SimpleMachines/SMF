@@ -3878,3 +3878,9 @@ h3.profile_hd {
 #alerts tr.windowbg2 td {
 	border-right: 1px solid #DDD;
 }
+
+.centerbox {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
