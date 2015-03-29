@@ -87,6 +87,7 @@ function smf_fileUpload(oOptions)
 	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
 
+			// Track the number of times this event has been fired.
 			++numberOfTimes;
 
 			// Create a master and empty div.
@@ -129,11 +130,13 @@ function smf_fileUpload(oOptions)
 			// Track the file size.
 			totalSize = totalSize + file.size;
 
+			// Show a nice preview.
 			if (file.preview) {
 				node
 					.find('.file_details')
 					.append($('<p/>').prepend(file.preview));
 			}
+
 			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles || totalSize >= dOptions.limitMultiFileUploadSize) {
 				// There isn't an error with the actual file, must be something else then!
 				if (!file.error && numberOfFiles >= dOptions.maxNumberOfFiles)
@@ -160,7 +163,7 @@ function smf_fileUpload(oOptions)
 				++numberOfFiles;
 
 				// append some text here to tell the user what to do, hit Upload or hit Cancel...
-				// or add some other indication that the file passed the client test.
+				// or add some other indication that the file passed the client tests.
 			}
 		})
 		.on('fileuploaddone', function (e, data) {
@@ -187,7 +190,7 @@ function smf_fileUpload(oOptions)
 
 					// Show the brand new attach ID bbc tag.
 					if (file.id) {
-						var bbcTag = $('<p/>').append('<input type="text" name="attachBBC" value="[attach=' + file.id + ']" readonly>');
+						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach=' + file.id + ']" readonly>');
 
 						node
 							.find('.file_info')

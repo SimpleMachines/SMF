@@ -311,8 +311,9 @@ class Attachments
 					if (!empty($attachmentOptions['thumb']))
 						$attachIDs[] = $attachmentOptions['thumb'];
 
-					// Super duper important! pass the already attached files.
-					$SESSION['already_attached'][$attachmentOptions['id']] = $attachmentOptions;
+					// Super duper important! pass the already attached files if this was a newly created message.
+					if (!$this->_msg)
+						$SESSION['already_attached'][$attachmentOptions['id']] = $attachmentOptions;
 				}
 
 			elseif (!empty($attachmentOptions['errors']))
