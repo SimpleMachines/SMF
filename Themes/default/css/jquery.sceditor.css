@@ -221,8 +221,7 @@ html.sceditor-maximize, body.sceditor-maximize {
 	border-radius: 0;
 	background-clip: padding-box;
 }
-div.sceditor-dropdown {
-	position: absolute;
+div.sceditor-smileyPopup,  div.sceditor-dropdown {
 	border: 1px solid #ccc;
 	background: #fff;
 	color: #333;
@@ -232,6 +231,9 @@ div.sceditor-dropdown {
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
+}
+div.sceditor-dropdown {
+	position: absolute;
 	min-width: 10%;
 }
 div.sceditor-dropdown a, div.sceditor-dropdown a:link {
