@@ -71,7 +71,7 @@
 				this.toggleSourceMode();
 		},
 		createPermanentDropDown: function () {
-			var	emoticons	= $.extend({}, this.opts.emoticons.dropdown);
+			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
 			content = $('<div class="sceditor-insertemoticon">');
 			line = $('<div>');
