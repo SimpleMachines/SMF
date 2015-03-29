@@ -119,9 +119,6 @@
 							content.find(':not(input,textarea)').filter(function () { return this.nodeType===1; }).attr('unselectable', 'on');
 						}
 
-						$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup">').append(popupContent);
-
-						$dropdown.appendTo($('body'));
 						dropdownIgnoreLastClick = true;
 						adjheight = closeButton.height() + titlebar.height();
 						$dropdown.css({
@@ -134,6 +131,9 @@
 							height: $dropdown.height() - adjheight,
 							"overflow": "auto"
 						});
+						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
+							.append(popupContent)
+							.appendTo($('body'));
 
 						$('.sceditor-smileyPopup').animaDrag({
 							speed: 150,
