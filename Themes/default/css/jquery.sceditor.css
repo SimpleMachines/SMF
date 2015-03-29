@@ -232,17 +232,25 @@ div.sceditor-smileyPopup,  div.sceditor-dropdown {
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 }
-div.sceditor-smileyPopup {
-	height: 50%;
-	width: 50%;
-	position: fixed;
+@media screen and (min-width: 1024px) {
+	div.sceditor-smileyPopup {
+		height: 50%;
+		width: 50%;
+		position: fixed;
+	}
+	#sceditor-popup {
+		height: 100%;
+	}
+	#sceditor-popup-smiley {
+		height: 90%;
+		overflow: auto;
+	}
 }
-#sceditor-popup {
-	height: 100%;
-}
-#sceditor-popup-smiley {
-	height: 90%;
-	overflow: auto;
+@media screen and (max-width: 1024px) {
+	div.sceditor-smileyPopup {
+		width: 90%;
+		position: absolute;
+	}
 }
 div.sceditor-dropdown {
 	position: absolute;
