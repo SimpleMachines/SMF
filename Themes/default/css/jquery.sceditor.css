@@ -237,6 +237,13 @@ div.sceditor-smileyPopup {
   width: 50%;
   position: fixed;
 }
+#sceditor-popup {
+  height: 100%;
+}
+#sceditor-popup-smiley {
+  height: 90%;
+  overflow: auto;
+}
 div.sceditor-dropdown {
 	position: absolute;
 	min-width: 10%;
