@@ -186,14 +186,6 @@ function Post($post_errors = array())
 	// An array to hold all the attachments for this topic.
 	$context['current_attachments'] = array();
 
-	// Get the already attached files info.
-	if (!empty($modSettings['already_attached']) && !isset($context['already_attached']))
-			$context['already_attached'] = unserialize($modSettings['already_attached']);
-
-	// And right next to it, are they any already uploaded attachments?
-	if (!empty($context['already_attached']))
-		$context['current_attachments'] = array_merge($context['current_attachments'], $context['already_attached']);
-
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
 		fatal_lang_error('topic_locked', false);
@@ -1945,20 +1937,11 @@ function Post2()
 			$topic = $topicOptions['id'];
 	}
 
-	// Get the already attached files info.
-	if (!empty($modSettings['already_attached']) && !isset($context['already_attached']))
-			$context['already_attached'] = unserialize($modSettings['already_attached']);
-
 	// Assign the previously uploaded attachments to the brand new message.
-	if (!empty($msgOptions['id']) && !empty($context['already_attached']))
+	if (!empty($msgOptions['id']))
 	{
 		require_once($sourcedir . '/Subs-Attachments.php');
-		assignAttachments($context['already_attached'], $msgOptions['id']);
-
-		// No longer needed.
-		updateSettings(array(
-			'already_attached' => '',
-		));
+		assignAttachments(array(), $msgOptions['id']);
 	}
 
 	// If we had a draft for this, its time to remove it since it was just posted
