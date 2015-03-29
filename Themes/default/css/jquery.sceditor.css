@@ -232,6 +232,11 @@ div.sceditor-smileyPopup,  div.sceditor-dropdown {
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 }
+div.sceditor-smileyPopup {
+  height: 50%;
+  width: 50%;
+  position: fixed;
+}
 div.sceditor-dropdown {
 	position: absolute;
 	min-width: 10%;
