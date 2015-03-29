@@ -856,7 +856,7 @@ function createAttachment(&$attachmentOptions)
  *
  * @return boolean false on error or missing params.
  */
-function assignAttachments($attachments = array(), (int) $msgID = 0)
+function assignAttachments($attachments = array(), $msgID = 0)
 {
 	global $smcFunc;
 
@@ -877,7 +877,7 @@ function assignAttachments($attachments = array(), (int) $msgID = 0)
 		$attachIDs[] = $k;
 
 		// Any thumbnails?
-		if !empty($attach['thumb'])
+		if (!empty($attach['thumb']))
 			$attachIDs[] = $attach['thumb'];
 	}
 

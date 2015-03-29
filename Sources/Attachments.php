@@ -63,7 +63,6 @@ class Attachments
 		is_not_guest();
 
 		checkSession();
-		validateToken('inline-attach');
 
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
@@ -286,6 +285,7 @@ class Attachments
 
 		$attachIDs = array();
 		$this->_attachResults = array();
+		$this->_attachSuccess = array();
 
 		// Create an empty session var to keep track of all the files we attached.
 		$SESSION['already_attached'] = array();
@@ -313,7 +313,7 @@ class Attachments
 
 					// Super duper important! pass the already attached files if this was a newly created message.
 					if (!$this->_msg)
-						$SESSION['already_attached'][$attachmentOptions['id']] = $attachmentOptions;
+						$this->_attachSuccess[$attachmentOptions['id']] = $attachmentOptions;
 				}
 
 			elseif (!empty($attachmentOptions['errors']))
@@ -341,6 +341,12 @@ class Attachments
 			// Regardless of errors, pass the results.
 			$this->_attachResults[] = $attachmentOptions;
 		}
+
+		// Temp save this on the db.
+		if ($this->_attachSuccess)
+			updateSettings(array(
+				'already_attached' => serialize($this->_attachSuccess),
+			));
 
 		unset($_SESSION['temp_attachments']);
 	}
