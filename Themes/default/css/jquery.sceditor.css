@@ -232,7 +232,6 @@ div.sceditor-dropdown {
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
-	min-height: 10%;
 	min-width: 10%;
 }
 div.sceditor-dropdown a, div.sceditor-dropdown a:link {
