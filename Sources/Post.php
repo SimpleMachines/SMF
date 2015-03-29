@@ -1310,8 +1310,8 @@ function Post2()
 	$context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
 	if ($context['can_post_attachment'] && empty($_POST['from_qr']))
 	{
-		 require_once($sourcedir . '/Subs-Attachments.php');
-		 processAttachments();
+		require_once($sourcedir . '/Subs-Attachments.php');
+		processAttachments();
 	}
 
 	// If this isn't a new topic load the topic info that we need.
@@ -1565,7 +1565,7 @@ function Post2()
 		}
 	}
 
-	// Incase we want to override
+	// In case we want to override
 	if (allowedTo('approve_posts'))
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
@@ -1936,6 +1936,13 @@ function Post2()
 
 		if (isset($topicOptions['id']))
 			$topic = $topicOptions['id'];
+	}
+
+	// Assign the previously uploaded attachments to the brand new message.
+	if (!empty($msgOptions['id']) && !empty($SESSION['already_attached']))
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		assignAttachments($SESSION['already_attached'], $msgOptions['id']);
 	}
 
 	// If we had a draft for this, its time to remove it since it was just posted

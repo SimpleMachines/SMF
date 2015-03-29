@@ -848,4 +848,55 @@ function createAttachment(&$attachmentOptions)
 	return true;
 }
 
+/**
+ * Assigns the given attachments to the given message ID.
+ *
+ * @param $attachments array the attachments to be assigned with the attachment ID as key.
+ * @param $msgID integer the message ID.
+ *
+ * @return boolean false on error or missing params.
+ */
+function assignAttachments($attachments = array(), (int) $msgID = 0)
+{
+	global $smcFunc;
+
+	// Oh, come on!
+	if (empty($attachments) || $msgID)
+		return false;
+
+	// Work with arrays would ya?
+	$attachments = (array) $attachments;
+	$attachIDs = array();
+
+	// "I see what is right and approve, but I do what is wrong."
+	call_integration_hook('integrate_assign_attachments', array(&$attachments, &$msgID));
+
+	// Get the IDs.
+	foreach ($attachments as $k => $attach)
+	{
+		$attachIDs[] = $k;
+
+		// Any thumbnails?
+		if !empty($attach['thumb'])
+			$attachIDs[] = $attach['thumb'];
+	}
+
+	// One last check
+	if (empty($attachIDs))
+		return false;
+
+	// Perform
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}attachments
+		SET id_msg = {int:id_msg}
+		WHERE id_attach IN ({array_int:attach_ids})',
+		array(
+			'id_msg' => $msgID,
+			'attach_ids' => $attachIDs,
+		)
+	);
+
+	return true;
+}
+
 ?>
