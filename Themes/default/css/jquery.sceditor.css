@@ -221,7 +221,7 @@ html.sceditor-maximize, body.sceditor-maximize {
 	border-radius: 0;
 	background-clip: padding-box;
 }
-div.sceditor-smileyPopup,  div.sceditor-dropdown {
+div.sceditor-smileyPopup, div.sceditor-dropdown {
 	border: 1px solid #ccc;
 	background: #fff;
 	color: #333;
