@@ -1945,7 +1945,7 @@ function Post2()
 	if (!empty($msgOptions['id']) && !empty($_SESSION['already_attached']))
 	{
 		require_once($sourcedir . '/Subs-Attachments.php');
-		assignAttachments(array(), $msgOptions['id']);print_r($_SESSION['already_attached']);die;
+		assignAttachments($_SESSION['already_attached'], $msgOptions['id']);
 		unset($_SESSION['already_attached']);
 	}
 

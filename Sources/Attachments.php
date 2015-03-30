@@ -62,8 +62,6 @@ class Attachments
 		// Guest aren't welcome, sorry.
 		is_not_guest();
 
-		checkSession();
-
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_sa && in_array($this->_sa, $this->_subActions))
