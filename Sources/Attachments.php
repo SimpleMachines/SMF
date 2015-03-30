@@ -344,9 +344,7 @@ class Attachments
 
 		// Temp save this on the db.
 		if ($this->_attachSuccess)
-			updateSettings(array(
-				'already_attached' => serialize($this->_attachSuccess),
-			));
+			$_SESSION['already_attached'] = $this->_attachSuccess;
 
 		unset($_SESSION['temp_attachments']);
 	}
