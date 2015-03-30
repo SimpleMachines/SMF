@@ -861,7 +861,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
 	global $smcFunc;
 
 	// Oh, come on!
-	if (empty($attachments) || $msgID)
+	if (empty($attachments) || empty($msgID))
 		return false;
 
 	// Work with arrays would ya?
