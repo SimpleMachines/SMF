@@ -667,7 +667,6 @@ function cache_getMembergroupList()
 			'min_posts' => -1,
 			'not_hidden' => 0,
 			'mod_group' => 3,
-			'blank_string' => '',
 		)
 	);
 	$groupCache = array();
