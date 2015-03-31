@@ -1089,6 +1089,23 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</span>',
 			),
 			array(
+				'tag' => 'attach',
+				'type' => 'unparsed_equals_content',
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context)
+				{
+					global $topic, $board, $sourcedir;
+
+					// BBC or the entire attachments feature is disabled
+					if (!empty($disabled) || empty($modSettings['attachmentEnable']))
+						return $data;
+
+					// Kinda need this.
+					require_once($sourcedir . '/Attachments.php');
+
+				},
+				'content' => '$1',
+			),
+			array(
 				'tag' => 'b',
 				'before' => '<span class="bbc_bold">',
 				'after' => '</span>',

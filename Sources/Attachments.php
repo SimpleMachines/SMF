@@ -36,6 +36,7 @@ class Attachments
 		'delete',
 	);
 	protected $_sa = false;
+	public static $inlineAttachments = array();
 
 	public function __construct()
 	{
@@ -400,6 +401,16 @@ class Attachments
 		// Done.
 		obExit(false);
 		die;
+	}
+
+	public static loadAttachments($msgID)
+	{
+
+	}
+
+	public static getMsgData($msgID)
+	{
+
 	}
 }
 
