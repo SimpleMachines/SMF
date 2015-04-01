@@ -325,6 +325,9 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	height: 24px;
 	width: 24px;
 }
+.sceditor-color-picker {
+	width: 130px;
+}
 .sceditor-color-option:hover {
 	border: 1px solid #333;
 }
