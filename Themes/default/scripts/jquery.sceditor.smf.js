@@ -122,7 +122,7 @@
 						adjheight = closeButton.height() + titlebar.height();
 						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
 							.append(popupContent)
-							.appendTo($('body'));
+							.appendTo($('.sceditor-container'));
 
 						$('.sceditor-smileyPopup').animaDrag({
 							speed: 150,
