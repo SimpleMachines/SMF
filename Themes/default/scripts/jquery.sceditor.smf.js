@@ -84,6 +84,7 @@
 			}
 			if (popup_exists)
 			{
+				this.opts.emoticons.more = this.opts.emoticons.popup;
 				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
 					if ($(".sceditor-smileyPopup").length > 0)
 					{
