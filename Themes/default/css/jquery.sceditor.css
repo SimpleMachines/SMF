@@ -320,7 +320,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	float: left;
 }
 .sceditor-color-option {
-	display: block;
+	display: inline-block;
 	border: 1px solid #fff;
 	height: 10px;
 	width: 10px;
