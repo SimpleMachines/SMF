@@ -322,7 +322,6 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 .sceditor-color-option {
 	display: inline-block;
 	border: 1px solid #fff;
-	overflow: hidden;
 	height: 24px;
 	width: 24px;
 }
