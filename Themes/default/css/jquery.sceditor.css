@@ -329,7 +329,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 		width: 24px;
 	}
 	.sceditor-color-picker {
-		width: 130px;
+		width: 131px;
 	}
 }
 @media screen and (max-width: 1024px) {
@@ -338,7 +338,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 		width: 48px;
 	}
 	.sceditor-color-picker {
-		width: 260px;
+		width: 251px;
 	}
 }
 .sceditor-color-option:hover {
