@@ -102,14 +102,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 		echo '
 				});
-				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();',
-				$editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
-				if (!(is_ie || is_ie11 || is_ff || is_opera || is_safari || is_chrome))
-				{
-					$("#' . $editor_id . '").data("sceditor").setTextMode();
-					$(".sceditor-button-source").hide();
-				}', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();', $editor_context['rich_active'] ? '' : '
+				$("#' . $editor_id . '").data("sceditor").toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';
