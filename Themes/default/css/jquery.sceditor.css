@@ -322,11 +322,24 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 .sceditor-color-option {
 	display: inline-block;
 	border: 1px solid #fff;
-	height: 24px;
-	width: 24px;
 }
-.sceditor-color-picker {
-	width: 130px;
+@media screen and (min-width: 1024px) {
+	.sceditor-color-option {
+		height: 24px;
+		width: 24px;
+	}
+	.sceditor-color-picker {
+		width: 130px;
+	}
+}
+@media screen and (max-width: 1024px) {
+	.sceditor-color-option {
+		height: 48px;
+		width: 48px;
+	}
+	.sceditor-color-picker {
+		width: 260px;
+	}
 }
 .sceditor-color-option:hover {
 	border: 1px solid #333;
