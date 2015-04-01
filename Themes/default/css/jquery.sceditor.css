@@ -304,6 +304,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 }
 .sceditor-dropdown a:hover {
 	background: #eee;
+	text-decoration: none;
 }
 .sceditor-fontsize-option, .sceditor-font-option, .sceditor-format a {
 	display: block;
