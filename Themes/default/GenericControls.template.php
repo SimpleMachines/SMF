@@ -28,9 +28,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").sceditor({
 					',( $editor_id != 'quickReply' ? 'autofocus : true,' : '' ),'
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,',
-					!empty($editor_context['locale']) ? '
-					locale: \'' . $editor_context['locale'] . '\',' : '', '
+					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
+					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
+					rtl: true,' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
 					plugins: "bbcode",
 					parserOptions: {
