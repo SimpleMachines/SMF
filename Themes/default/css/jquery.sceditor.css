@@ -254,7 +254,7 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 }
 div.sceditor-dropdown {
 	position: absolute;
-	min-width: 10%;
+	min-width: 5%;
 }
 div.sceditor-dropdown a, div.sceditor-dropdown a:link {
 	color: #333;
