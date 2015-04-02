@@ -95,14 +95,7 @@ smf_AdminIndex.prototype.checkUpdateAvailable = function ()
 	// Parse in the package download URL if it exists in the string.
 	document.getElementById('update-link').href = this.opt.sUpdateNotificationLink.replace('%package%', window.smfUpdatePackage);
 
-	// If we decide to override life into "red" mode, do it.
-	if ('smfUpdateCritical' in window)
-	{
-		document.getElementById('update_title').style.backgroundColor = '#dd2222';
-		document.getElementById('update_title').style.color = 'white';
-		document.getElementById('update_message').style.backgroundColor = '#eebbbb';
-		document.getElementById('update_message').style.color = 'black';
-	}
+	oContainer.className = ('smfUpdateCritical' in window) ? 'errorbox' : 'noticebox';
 }
 
 
@@ -198,26 +191,30 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oHighCurrent = {
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oLowVersion = {
 		Sources: false,
 		Default: false,
 		Languages: false,
-		Templates: false
+		Templates: false,
+		Tasks: false
 	};
 
 	var sSections = [
 		'Sources',
 		'Default',
 		'Languages',
-		'Templates'
+		'Templates',
+		'Tasks'
 	];
 
 	for (var i = 0, n = sSections.length; i < n; i++)
@@ -268,7 +265,7 @@ smf_ViewVersions.prototype.determineVersions = function ()
 			if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
 			{
 				oLowVersion[sCurVersionType] = sYourVersion;
-				document.getElementById('your' + sFilename).style.color = 'red';
+				document.getElementById('your' + sFilename).className = 'alert';
 			}
 		}
 		else if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
@@ -309,12 +306,12 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	setInnerHTML(document.getElementById('yourSources'), oLowVersion.Sources ? oLowVersion.Sources : oHighYour.Sources);
 	setInnerHTML(document.getElementById('currentSources'), oHighCurrent.Sources);
 	if (oLowVersion.Sources)
-		document.getElementById('yourSources').style.color = 'red';
+		document.getElementById('yourSources').className = 'alert';
 
 	setInnerHTML(document.getElementById('yourDefault'), oLowVersion.Default ? oLowVersion.Default : oHighYour.Default);
 	setInnerHTML(document.getElementById('currentDefault'), oHighCurrent.Default);
 	if (oLowVersion.Default)
-		document.getElementById('yourDefault').style.color = 'red';
+		document.getElementById('yourDefault').className = 'alert';
 
 	if (document.getElementById('Templates'))
 	{
@@ -322,18 +319,18 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		setInnerHTML(document.getElementById('currentTemplates'), oHighCurrent.Templates);
 
 		if (oLowVersion.Templates)
-			document.getElementById('yourTemplates').style.color = 'red';
+			document.getElementById('yourTemplates').className = 'alert';
 	}
 
 	setInnerHTML(document.getElementById('yourLanguages'), oLowVersion.Languages ? oLowVersion.Languages : oHighYour.Languages);
 	setInnerHTML(document.getElementById('currentLanguages'), oHighCurrent.Languages);
 	if (oLowVersion.Languages)
-		document.getElementById('yourLanguages').style.color = 'red';
+		document.getElementById('yourLanguages').className = 'alert';
 }
 
 function addNewWord()
 {
-	setOuterHTML(document.getElementById('moreCensoredWords'), '<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="30" class="input_text" /> => <input type="text" name="censor_proper[]" size="30" class="input_text" /><' + '/div><div id="moreCensoredWords"><' + '/div>');
+	setOuterHTML(document.getElementById('moreCensoredWords'), '<div style="margin-top: 1ex;"><input type="text" name="censor_vulgar[]" size="30" class="input_text"> => <input type="text" name="censor_proper[]" size="30" class="input_text"><' + '/div><div id="moreCensoredWords"><' + '/div>');
 }
 
 function toggleBBCDisabled(section, disable)
@@ -365,8 +362,8 @@ function updateInputBoxes()
 	document.getElementById("default_dd").style.display = curType == "check" ? "" : "none";
 	document.getElementById("mask_dt").style.display = curType == "text" ? "" : "none";
 	document.getElementById("mask").style.display = curType == "text" ? "" : "none";
-	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
+	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
 	document.getElementById("regex_div").style.display = curType == "text" && document.getElementById("mask").value == "regex" ? "" : "none";
 	document.getElementById("display").disabled = false;
 	// Cannot show this on the topic
@@ -379,7 +376,7 @@ function updateInputBoxes()
 
 function addOption()
 {
-	setOuterHTML(document.getElementById("addopt"), '<br /><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '" class="input_radio" /><input type="text" name="select_option[' + startOptID + ']" value="" class="input_text" /><span id="addopt"></span>');
+	setOuterHTML(document.getElementById("addopt"), '<br><input type="radio" name="default_select" value="' + startOptID + '" id="' + startOptID + '" class="input_radio"><input type="text" name="select_option[' + startOptID + ']" value="" class="input_text"><span id="addopt"></span>');
 	startOptID++;
 }
 
@@ -450,34 +447,6 @@ function toggleDuration(toChange)
 	}
 }
 
-function toggleBreakdown(id_group, forcedisplayType)
-{
-	displayType = document.getElementById("group_hr_div_" + id_group).style.display == "none" ? "" : "none";
-	if (typeof(forcedisplayType) != "undefined")
-		displayType = forcedisplayType;
-
-	// swap the image
-	document.getElementById("group_toggle_img_" + id_group).src = smf_images_url + "/" + (displayType == "none" ? "selected" : "selected_open") + ".png";
-
-	// show or hide the elements
-	var aContainer = new Array();
-	for (i = 0; i < groupPermissions[id_group].length; i++)
-	{
-		var oContainerTemp = document.getElementById("perm_div_" + id_group + "_" + groupPermissions[id_group][i]);
-		if (typeof(oContainerTemp) == 'object' && oContainerTemp != null)
-			aContainer[i] = oContainerTemp;
-	}
-	if (displayType == "none")
-		$(aContainer).fadeOut();
-	else
-		$(aContainer).show();
-
-	// remove or add the separators
-	document.getElementById("group_hr_div_" + id_group).style.display = displayType
-
-	return false;
-}
-
 function calculateNewValues()
 {
 	var total = 0;
@@ -513,7 +482,7 @@ function selectMethod(element)
 function updatePreview()
 {
 	var currentImage = document.getElementById("preview");
-	currentImage.src = smf_images_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
+	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
 }
 
 function swap_database_changes()

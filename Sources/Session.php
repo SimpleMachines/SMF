@@ -11,10 +11,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadSession()
 {
-	global $HTTP_SESSION_VARS, $modSettings, $boardurl, $sc;
+	global $modSettings, $boardurl, $sc;
 
 	// Attempt to change a few PHP settings.
 	@ini_set('session.use_cookies', true);
@@ -71,14 +71,7 @@ function loadSession()
 
 		// Use cache setting sessions?
 		if (empty($modSettings['databaseSession_enable']) && !empty($modSettings['cache_enable']) && php_sapi_name() != 'cli')
-		{
 			call_integration_hook('integrate_session_handlers');
-			// @todo move these to a plugin.
-			if (function_exists('mmcache_set_session_handlers'))
-				mmcache_set_session_handlers();
-			elseif (function_exists('eaccelerator_set_session_handlers'))
-				eaccelerator_set_session_handlers();
-		}
 
 		session_start();
 

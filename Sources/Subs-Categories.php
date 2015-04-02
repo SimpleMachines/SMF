@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -87,6 +87,12 @@ function modifyCategory($category_id, $catOptions)
 		$catParameters['cat_name'] = $catOptions['cat_name'];
 	}
 
+	if (isset($catOptions['cat_desc']))
+	{
+		$catUpdates[] = 'description = {string:cat_desc}';
+		$catParameters['cat_desc'] = $catOptions['cat_desc'];
+	}
+
 	// Can a user collapse this category or is it too important?
 	if (isset($catOptions['is_collapsible']))
 	{
@@ -133,6 +139,8 @@ function createCategory($catOptions)
 		trigger_error('createCategory(): A category name is required', E_USER_ERROR);
 
 	// Set default values.
+	if (!isset($catOptions['cat_desc']))
+		$catOptions['cat_desc'] = '';
 	if (!isset($catOptions['move_after']))
 		$catOptions['move_after'] = 0;
 	if (!isset($catOptions['is_collapsible']))
@@ -142,9 +150,11 @@ function createCategory($catOptions)
 
 	$cat_columns = array(
 		'name' => 'string-48',
+		'description' => 'string',
 	);
 	$cat_parameters = array(
 		$catOptions['cat_name'],
+		$catOptions['cat_desc'],
 	);
 
 	call_integration_hook('integrate_create_category', array(&$catOptions, &$cat_columns, &$cat_parameters));
@@ -173,7 +183,7 @@ function createCategory($catOptions)
  * Remove one or more categories.
  * general function to delete one or more categories.
  * allows to move all boards in the categories to a different category before deleting them.
- * if moveChildrenTo is set to null, all boards inside the given categorieswill be deleted.
+ * if moveChildrenTo is set to null, all boards inside the given categories will be deleted.
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
  *
@@ -226,15 +236,6 @@ function deleteCategories($categories, $moveBoardsTo = null)
 			)
 		);
 
-	// Noone will ever be able to collapse these categories anymore.
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}collapsed_categories
-		WHERE id_cat IN ({array_int:category_list})',
-		array(
-			'category_list' => $categories,
-		)
-	);
-
 	// Do the deletion of the category itself
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}categories
@@ -250,103 +251,6 @@ function deleteCategories($categories, $moveBoardsTo = null)
 
 	// Get all boards back into the right order.
 	reorderBoards();
-}
-
-/**
- * Collapse, expand or toggle one or more categories for one or more members.
- * if members is null, the category is collapsed/expanded for all members.
- * allows three changes to the status: 'expand', 'collapse' and 'toggle'.
- * if check_collapsable is set, only category allowed to be collapsed, will be collapsed.
- *
- * @param array $categories
- * @param string $new_status
- * @param array $members = null
- * @param bool $check_collapsable = true
- */
-function collapseCategories($categories, $new_status, $members = null, $check_collapsable = true)
-{
-	global $smcFunc;
-
-	// Collapse or expand the categories.
-	if ($new_status === 'collapse' || $new_status === 'expand')
-	{
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}collapsed_categories
-			WHERE id_cat IN ({array_int:category_list})' . ($members === null ? '' : '
-				AND id_member IN ({array_int:member_list})'),
-			array(
-				'category_list' => $categories,
-				'member_list' => $members,
-			)
-		);
-
-		if ($new_status === 'collapse')
-			$smcFunc['db_query']('', '
-				INSERT INTO {db_prefix}collapsed_categories
-					(id_cat, id_member)
-				SELECT c.id_cat, mem.id_member
-				FROM {db_prefix}categories AS c
-					INNER JOIN {db_prefix}members AS mem ON (' . ($members === null ? '1=1' : '
-						mem.id_member IN ({array_int:member_list})') . ')
-				WHERE c.id_cat IN ({array_int:category_list})' . ($check_collapsable ? '
-					AND c.can_collapse = {int:is_collapsible}' : ''),
-				array(
-					'member_list' => $members,
-					'category_list' => $categories,
-					'is_collapsible' => 1,
-				)
-			);
-	}
-
-	// Toggle the categories: collapsed get expanded and expanded get collapsed.
-	elseif ($new_status === 'toggle')
-	{
-		// Get the current state of the categories.
-		$updates = array(
-			'insert' => array(),
-			'remove' => array(),
-		);
-		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, c.id_cat, IFNULL(cc.id_cat, 0) AS is_collapsed, c.can_collapse
-			FROM {db_prefix}members AS mem
-				INNER JOIN {db_prefix}categories AS c ON (c.id_cat IN ({array_int:category_list}))
-				LEFT JOIN {db_prefix}collapsed_categories AS cc ON (cc.id_cat = c.id_cat AND cc.id_member = mem.id_member)
-			' . ($members === null ? '' : '
-				WHERE mem.id_member IN ({array_int:member_list})'),
-			array(
-				'category_list' => $categories,
-				'member_list' => $members,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-		{
-			if (empty($row['is_collapsed']) && (!empty($row['can_collapse']) || !$check_collapsable))
-				$updates['insert'][] = array($row['id_member'], $row['id_cat']);
-			elseif (!empty($row['is_collapsed']))
-				$updates['remove'][] = '(id_member = ' . $row['id_member'] . ' AND id_cat = ' . $row['id_cat'] . ')';
-		}
-		$smcFunc['db_free_result']($request);
-
-		// Collapse the ones that were originally expanded...
-		if (!empty($updates['insert']))
-			$smcFunc['db_insert']('replace',
-				'{db_prefix}collapsed_categories',
-				array(
-					'id_cat' => 'int', 'id_member' => 'int',
-				),
-				$updates['insert'],
-				array('id_cat', 'id_member')
-			);
-
-		// And expand the ones that were originally collapsed.
-		if (!empty($updates['remove']))
-			$smcFunc['db_query']('', '
-				DELETE FROM {db_prefix}collapsed_categories
-				WHERE ' . implode(' OR ', $updates['remove']),
-				array(
-				)
-			);
-	}
 }
 
 ?>

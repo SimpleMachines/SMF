@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -24,15 +24,15 @@ if (!defined('SMF'))
  * Example use:
  *  die(log_error($msg));
  *
- * @param string $error_message
- * @param string $error_type = 'general'
- * @param string $file = null
- * @param int $line = null
- * @return string, the error message
+ * @param string $error_message The message to log
+ * @param string $error_type The type of error
+ * @param string $file The name of the file where this error occurred
+ * @param int $line The line where the error occurred
+ * @return string The message that was logged
  */
 function log_error($error_message, $error_type = 'general', $file = null, $line = null)
 {
-	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error;
+	global $modSettings, $sc, $user_info, $smcFunc, $scripturl, $last_error, $context;
 	static $tried_hook = false;
 
 	// Check if error logging is actually on.
@@ -41,7 +41,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Basically, htmlspecialchars it minus &. (for entities!)
 	$error_message = strtr($error_message, array('<' => '&lt;', '>' => '&gt;', '"' => '&quot;'));
-	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br />', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br />'));
+	$error_message = strtr($error_message, array('&lt;br /&gt;' => '<br>', '&lt;br&gt;' => '<br>', '&lt;b&gt;' => '<strong>', '&lt;/b&gt;' => '</strong>', "\n" => '<br>'));
 
 	// Add a file and line to the error message?
 	// Don't use the actual txt entries for file and line but instead use %1$s for file and %2$s for line
@@ -66,7 +66,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 	$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace($scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
 	// Don't log the session hash in the url twice, it's a waste.
-	$query_string = htmlspecialchars((SMF == 'SSI' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
+	$query_string = $smcFunc['htmlspecialchars']((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(array('~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'), array(';sesc', ''), $query_string));
 
 	// Just so we know what board error messages are from.
 	if (isset($_POST['board']) && !isset($_GET['board']))
@@ -82,6 +82,9 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		'ban',
 		'template',
 		'debug',
+		'cron',
+		'paidsubs',
+		'backup',
 	);
 
 	// This prevents us from infinite looping if the hook or call produces an error.
@@ -109,6 +112,9 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 		$last_error = $error_info;
 	}
 
+	// Increment our error count for the menu
+	$context['num_errors']++;
+
 	// Return the message to make things simpler.
 	return $error_message;
 }
@@ -116,18 +122,24 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 /**
  * An irrecoverable error. This function stops execution and displays an error message.
  * It logs the error message if $log is specified.
- * @param string $error
- * @param string $log = 'general'
+ * @param string $error The error message
+ * @param string $log = 'general' What type of error to log this as (false to not log it))
+ * @param int $status The HTTP status code associated with this error
  */
-function fatal_error($error, $log = 'general')
+function fatal_error($error, $log = 'general', $status = 500)
 {
-	global $txt, $modSettings;
+	global $txt;
+
+	// Send the appropriate HTTP status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// We don't have $txt yet, but that's okay...
 	if (empty($txt))
 		die($error);
 
-	setup_fatal_error_context($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2) ? log_error($error, $log) : $error, $error);
+	log_error_online($error, false);
+	setup_fatal_error_context($log ? log_error($error, $log) : $error);
 }
 
 /**
@@ -140,14 +152,19 @@ function fatal_error($error, $log = 'general')
  *  - uses Errors language file and applies the $sprintf information if specified.
  *  - the information is logged if log is specified.
  *
- * @param $error
- * @param $log
- * @param $sprintf
+ * @param string $error The error message
+ * @param string $log The type of error, or false to not log it
+ * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ * @param int $status = false The HTTP status code associated with this error
  */
-function fatal_lang_error($error, $log = 'general', $sprintf = array())
+function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status = 403)
 {
-	global $txt, $language, $modSettings, $user_info, $context;
+	global $txt, $language, $user_info, $context;
 	static $fatal_error_called = false;
+
+	// Send the status header - set this to 0 or false if you don't want to send one at all
+	if (!empty($status))
+		send_http_status($status);
 
 	// Try to load a theme if we don't have one.
 	if (empty($context['theme_loaded']) && empty($fatal_error_called))
@@ -162,7 +179,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 
 	$reload_lang_file = true;
 	// Log the error in the forum's language, but don't waste the time if we aren't logging
-	if ($log || (!empty($modSettings['enableErrorLogging']) && $modSettings['enableErrorLogging'] == 2))
+	if ($log)
 	{
 		loadLanguage('Errors', $language);
 		$reload_lang_file = $language != $user_info['language'];
@@ -177,23 +194,24 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array())
 		$error_message = empty($sprintf) ? $txt[$error] : vsprintf($txt[$error], $sprintf);
 	}
 
+	log_error_online($error, true, $sprintf);
 	setup_fatal_error_context($error_message, $error);
 }
 
 /**
  * Handler for standard error messages, standard PHP error handler replacement.
  * It dies with fatal_error() if the error_level matches with error_reporting.
- * @param int $error_level
- * @param string $error_string
- * @param string $file
- * @param int $line
+ * @param int $error_level A pre-defined error-handling constant (see {@link http://www.php.net/errorfunc.constants})
+ * @param string $error_string The error message
+ * @param string $file The file where the error occurred
+ * @param int $line The line where the error occurred
  */
 function error_handler($error_level, $error_string, $file, $line)
 {
 	global $settings, $modSettings, $db_show_debug;
 
 	// Ignore errors if we're ignoring them or they are strict notices from PHP 5 (which cannot be solved without breaking PHP 4.)
-	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && (empty($modSettings['enableErrorLogging']) || $modSettings['enableErrorLogging'] != 2)))
+	if (error_reporting() == 0 || (defined('E_STRICT') && $error_level == E_STRICT && !empty($modSettings['enableErrorLogging'])))
 		return;
 
 	if (strpos($file, 'eval()') !== false && !empty($settings['current_include_filename']))
@@ -227,8 +245,8 @@ function error_handler($error_level, $error_string, $file, $line)
 		}
 
 		// Debugging!  This should look like a PHP error message.
-		echo '<br />
-<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br />';
+		echo '<br>
+<strong>', $error_level % 255 == E_ERROR ? 'Error' : ($error_level % 255 == E_WARNING ? 'Warning' : 'Notice'), '</strong>: ', $error_string, ' in <strong>', $file, '</strong> on line <strong>', $line, '</strong><br>';
 	}
 
 	$error_type = stripos($error_string, 'undefined') !== false ? 'undefined_vars' : 'general';
@@ -258,13 +276,13 @@ function error_handler($error_level, $error_string, $file, $line)
 }
 
 /**
- * It is called by fatal_error() and fatal_lang_error().
+ * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
  * @uses Errors template, fatal_error sub template, or Wireless template, error sub template.
  *
- * @param string $error_message
- * @param type $error_code
+ * @param string $error_message The error message
+ * @param string $error_code An error code
  */
-function setup_fatal_error_context($error_message, $error_code)
+function setup_fatal_error_context($error_message, $error_code = null)
 {
 	global $context, $txt, $ssi_on_error_method;
 	static $level = 0;
@@ -275,7 +293,7 @@ function setup_fatal_error_context($error_message, $error_code)
 		return false;
 
 	// Maybe they came from dlattach or similar?
-	if (SMF != 'SSI' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && SMF != 'BACKGROUND' && empty($context['theme_loaded']))
 		loadTheme();
 
 	// Don't bother indexing errors mate...
@@ -312,6 +330,16 @@ function setup_fatal_error_context($error_message, $error_code)
 		if (empty($ssi_on_error_method) || $ssi_on_error_method !== true)
 			exit;
 	}
+	// Alternatively from the cron call?
+	elseif (SMF == 'BACKGROUND')
+	{
+		// We can't rely on even having language files available.
+		if (defined('FROM_CLI') && FROM_CLI)
+			echo 'cron error: ', $context['error_message'];
+		else
+			echo 'An error occurred. More information may be available in your logs.';
+		exit;
+	}
 
 	// We want whatever for the header, and a footer. (footer includes sub template!)
 	obExit(null, true, false, true);
@@ -338,10 +366,10 @@ function display_maintenance_message()
 	set_fatal_error_headers();
 
 	if (!empty($maintenance))
-		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+		echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>', $mtitle, '</title>
 	</head>
 	<body>
@@ -362,8 +390,9 @@ function display_maintenance_message()
 function display_db_error()
 {
 	global $mbname, $modSettings, $maintenance;
-	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc;
+	global $db_connection, $webmaster_email, $db_last_error, $db_error_send, $smcFunc, $sourcedir;
 
+	require_once($sourcedir . '/Logging.php');
 	set_fatal_error_headers();
 
 	// For our purposes, we're gonna want this on if at all possible.
@@ -385,10 +414,10 @@ function display_db_error()
 	}
 
 	// What to do?  Language files haven't and can't be loaded yet...
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Connection Problems</title>
 	</head>
 	<body>
@@ -412,10 +441,10 @@ function display_loadavg_error()
 
 	set_fatal_error_headers();
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+	echo '<!DOCTYPE html>
+<html>
 	<head>
-		<meta name="robots" content="noindex" />
+		<meta name="robots" content="noindex">
 		<title>Temporarily Unavailable</title>
 	</head>
 	<body>
@@ -443,6 +472,77 @@ function set_fatal_error_headers()
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 3600');
+}
+
+
+/**
+ * Small utility function for fatal error pages.
+ * Used by fatal_error(), fatal_lang_error()
+ *
+ * @param string $error The error
+ * @param array $sprintf An array of data to be sprintf()'d into the specified message
+ */
+function log_error_online($error, $sprintf = array())
+{
+	global $smcFunc, $user_info, $modSettings;
+
+	// Don't bother if Who's Online is disabled.
+	if (empty($modSettings['who_enabled']))
+		return;
+
+	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
+
+	// First, we have to get the online log, because we need to break apart the serialized string.
+	$request = $smcFunc['db_query']('', '
+		SELECT url
+		FROM {db_prefix}log_online
+		WHERE session = {string:session}',
+		array(
+			'session' => $session_id,
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) != 0)
+	{
+		list ($url) = $smcFunc['db_fetch_row']($request);
+		$url = unserialize($url);
+		$url['error'] = $error;
+
+		if (!empty($sprintf))
+			$url['error_params'] = $sprintf;
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}log_online
+			SET url = {string:url}
+			WHERE session = {string:session}',
+			array(
+				'url' => serialize($url),
+				'session' => $session_id,
+			)
+		);
+	}
+	$smcFunc['db_free_result']($request);
+}
+
+/**
+ * Sends an appropriate HTTP status header based on a given status code
+ * @param int $code The status code
+ */
+function send_http_status($code)
+{
+	$statuses = array(
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		410 => 'Gone',
+		500 => 'Internal Server Error',
+		503 => 'Service Unavailable'
+	);
+
+	$protocol = preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+
+	if (!isset($statuses[$code]))
+		header($protocol . ' 500 Internal Server Error');
+	else
+		header($protocol . ' ' . $code . ' ' . $statuses[$code]);
 }
 
 ?>

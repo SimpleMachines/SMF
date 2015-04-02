@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function CalendarMain()
 {
-	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir;
+	global $txt, $context, $modSettings, $scripturl, $options, $sourcedir, $user_info, $smcFunc;
 
 	// Permissions, permissions, permissions.
 	isAllowedTo('calendar_view');
@@ -47,14 +47,47 @@ function CalendarMain()
 	);
 
 	if (isset($_GET['sa']) && isset($subActions[$_GET['sa']]) && !WIRELESS)
-		return $subActions[$_GET['sa']]();
-
-	// This is gonna be needed...
-	loadTemplate('Calendar');
+		return call_helper($subActions[$_GET['sa']]);
 
 	// You can't do anything if the calendar is off.
 	if (empty($modSettings['cal_enabled']))
 		fatal_lang_error('calendar_off', false);
+
+	// This is gonna be needed...
+	loadTemplate('Calendar');
+	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'));
+
+	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
+	if (isset($_GET['event']))
+	{
+		$evid = (int) $_GET['event'];
+		if ($evid > 0)
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT start_date
+				FROM {db_prefix}calendar
+				WHERE id_event = {int:event_id}',
+				array(
+					'event_id' => $evid,
+				)
+			);
+			if ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				// We know the format is going to be in yyyy-mm-dd from the database, so let's run with that.
+				list($_REQUEST['year'], $_REQUEST['month']) = explode('-', $row['start_date']);
+				$_REQUEST['year'] = (int) $_REQUEST['year'];
+				$_REQUEST['month'] = (int) $_REQUEST['month'];
+
+				// And we definitely don't want weekly view.
+				unset ($_GET['viewweek']);
+
+				// We might use this later.
+				$context['selected_event'] = $evid;
+			}
+			$smcFunc['db_free_result']($request);
+		}
+		unset ($_GET['event']);
+	}
 
 	// Set the page title to mention the calendar ;).
 	$context['page_title'] = $txt['calendar'];
@@ -103,7 +136,6 @@ function CalendarMain()
 			'birthdays' => isset($modSettings['cal_highlight_birthdays']) ? $modSettings['cal_highlight_birthdays'] : 0,
 		),
 		'show_week_num' => true,
-		'tpl_show_week_num' => !empty($modSettings['cal_week_numbers']),
 		'short_day_titles' => !empty($modSettings['cal_short_days']),
 		'short_month_titles' => !empty($modSettings['cal_short_months']),
 		'show_next_prev' => !empty($modSettings['cal_prev_next_links']),
@@ -118,24 +150,34 @@ function CalendarMain()
 
 	// Load up the previous and next months.
 	$context['calendar_grid_current'] = getCalendarGrid($curPage['month'], $curPage['year'], $calendarOptions);
+
 	// Only show previous month if it isn't pre-January of the min-year
 	if ($context['calendar_grid_current']['previous_calendar']['year'] > $modSettings['cal_minyear'] || $curPage['month'] != 1)
 		$context['calendar_grid_prev'] = getCalendarGrid($context['calendar_grid_current']['previous_calendar']['month'], $context['calendar_grid_current']['previous_calendar']['year'], $calendarOptions, true);
+
 	// Only show next month if it isn't post-December of the max-year
 	if ($context['calendar_grid_current']['next_calendar']['year'] < $modSettings['cal_maxyear'] || $curPage['month'] != 12)
 		$context['calendar_grid_next'] = getCalendarGrid($context['calendar_grid_current']['next_calendar']['month'], $context['calendar_grid_current']['next_calendar']['year'], $calendarOptions);
 
 	// Basic template stuff.
-	$context['can_post'] = allowedTo('calendar_post');
+	$context['allow_calendar_event'] = allowedTo('calendar_post');
+
+	// If you don't allow events not linked to posts and you're not an admin, we have more work to do...
+	if ($context['allow_calendar_event'] && empty($modSettings['cal_allow_unlinked']) && !$user_info['is_admin'])
+	{
+		$boards_can_post = boardsAllowedTo('post_new');
+		$context['allow_calendar_event'] &= !empty($boards_can_post);
+	}
+
+	$context['can_post'] = $context['allow_calendar_event'];
 	$context['current_day'] = $curPage['day'];
 	$context['current_month'] = $curPage['month'];
 	$context['current_year'] = $curPage['year'];
 	$context['show_all_birthdays'] = isset($_GET['showbd']);
 	$context['blocks_disabled'] = !empty($modSettings['cal_disable_prev_next']) ? 1 : 0;
-	$context['tpl_show_week_num'] = !empty($calendarOptions['tpl_show_week_num']) ? 1 : 0;
 
 	// Set the page title to mention the month or week, too
-	$context['page_title'] .= ' - ' . ($context['view_week'] ? sprintf($txt['calendar_week_title'], $context['calendar_grid_main']['week_number'], ($context['calendar_grid_main']['week_number'] == 53 ? $context['current_year'] - 1 : $context['current_year'])) : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
+	$context['page_title'] .= ' - ' . ($context['view_week'] ? $context['calendar_grid_main']['week_title'] : $txt['months'][$context['current_month']] . ' ' . $context['current_year']);
 
 	// Load up the linktree!
 	$context['linktree'][] = array(
@@ -151,7 +193,7 @@ function CalendarMain()
 	if ($context['view_week'])
 		$context['linktree'][] = array(
 			'url' => $scripturl . '?action=calendar;viewweek;year=' . $context['current_year'] . ';month=' . $context['current_month'] . ';day=' . $context['current_day'],
-			'name' => $txt['calendar_week'] . ' ' . $context['calendar_grid_main']['week_number']
+			'name' => $context['calendar_grid_main']['week_title'],
 		);
 
 	// Build the calendar button array.
@@ -166,8 +208,8 @@ function CalendarMain()
 /**
  * This function processes posting/editing/deleting a calendar event.
  *
- * 	- calls Post() function if event is linked to a post.
- *  - calls insertEvent() to insert the event if not linked to post.
+ * 	- calls {@link Post.php|Post() Post()} function if event is linked to a post.
+ *  - calls {@link Subs-Calendar.php|insertEvent() insertEvent()} to insert the event if not linked to post.
  *
  * It requires the calendar_post permission to use.
  * It uses the event_post sub template in the Calendar template.
@@ -202,7 +244,7 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_' . (!empty($user_info['id']) && getEventPoster($_REQUEST['eventid']) == $user_info['id'] ? 'own' : 'any'));
 
 		// New - and directing?
-		if ($_REQUEST['eventid'] == -1 && isset($_POST['link_to_board']))
+		if (isset($_POST['link_to_board']) || empty($modSettings['cal_allow_unlinked']))
 		{
 			$_REQUEST['calendar'] = 1;
 			require_once($sourcedir . '/Post.php');
@@ -229,21 +271,6 @@ function CalendarPost()
 		// ... or just update it?
 		else
 		{
-			// There could be already a topic you are not allowed to modify
-			if (!allowedTo('post_new') && empty($modSettings['disableNoPostingCalendarEdits']))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT id_board, id_topic
-					FROM {db_prefix}calendar
-					WHERE id_event = {int:id_event}
-					LIMIT 1',
-					array(
-						'id_event' => $_REQUEST['eventid'],
-				));
-				list ($id_board, $id_topic) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
-			}
-
 			$eventOptions = array(
 				'title' => $smcFunc['substr']($_REQUEST['evtitle'], 0, 100),
 				'span' => empty($modSettings['cal_allowspan']) || empty($_POST['span']) || $_POST['span'] == 1 || empty($modSettings['cal_maxspan']) || $_POST['span'] > $modSettings['cal_maxspan'] ? 0 : min((int) $modSettings['cal_maxspan'], (int) $_POST['span'] - 1),
@@ -286,21 +313,6 @@ function CalendarPost()
 			'span' => 1,
 		);
 		$context['event']['last_day'] = (int) strftime('%d', mktime(0, 0, 0, $context['event']['month'] == 12 ? 1 : $context['event']['month'] + 1, 0, $context['event']['month'] == 12 ? $context['event']['year'] + 1 : $context['event']['year']));
-
-		// Get list of boards that can be posted in.
-		$boards = boardsAllowedTo('post_new');
-		if (empty($boards))
-			fatal_lang_error('cannot_post_new', 'permission');
-
-		// Load the list of boards and categories in the context.
-		require_once($sourcedir . '/Subs-MessageIndex.php');
-		$boardListOptions = array(
-			'included_boards' => in_array(0, $boards) ? null : $boards,
-			'not_redirection' => true,
-			'use_permissions' => true,
-			'selected_board' => $modSettings['cal_defaultboard'],
-		);
-		$context['event']['categories'] = getBoardList($boardListOptions);
 	}
 	else
 	{
@@ -322,6 +334,26 @@ function CalendarPost()
 			isAllowedTo('calendar_edit_any');
 		elseif (!allowedTo('calendar_edit_any'))
 			isAllowedTo('calendar_edit_own');
+	}
+
+	// Get list of boards that can be posted in.
+	$boards = boardsAllowedTo('post_new');
+	if (empty($boards))
+	{
+		// You can post new events but can't link them to anything...
+		$context['event']['categories'] = array();
+	}
+	else
+	{
+		// Load the list of boards and categories in the context.
+		require_once($sourcedir . '/Subs-MessageIndex.php');
+		$boardListOptions = array(
+			'included_boards' => in_array(0, $boards) ? null : $boards,
+			'not_redirection' => true,
+			'use_permissions' => true,
+			'selected_board' => $modSettings['cal_defaultboard'],
+		);
+		$context['event']['categories'] = getBoardList($boardListOptions);
 	}
 
 	// Template, sub template, etc.

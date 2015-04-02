@@ -1,12 +1,9 @@
 <?php
-// Version: 2.1 Alpha 1; Profile
-
-global $scripturl, $context;
+// Version: 2.1 Beta 1; Drafts
 
 // profile
 $txt['drafts_show'] = 'Show Drafts';
 $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently have saved. From here you can edit them before posting, or you can remove them';
-$txt['drafts_autosave_enabled'] = 'Enable the automatic saving of drafts.';
 $txt['drafts_show_saved_enabled'] = 'Enable selection of drafts from posting screens.';
 
 // misc
@@ -28,7 +25,7 @@ $txt['draft_save_warning'] = 'Please note that all drafts will be automatically 
 
 // Admin options
 $txt['drafts_autosave_enabled'] = 'Enable automatic saving of drafts';
-$txt['drafts_autosave_enabled_subnote'] = 'This will automatically save user drafts in the background on a given frequency.  The user must also have the proper permissions';
+$txt['drafts_autosave_enabled_subnote'] = 'This will automatically save user drafts in the background on a given frequency. The user must also have the proper permissions';
 $txt['drafts_show_saved_enabled'] = 'Enable the selection of drafts from the posting screen';
 $txt['drafts_show_saved_enabled_subnote'] = 'This will allow the user to select and load appropriate drafts from the posting screen. The user must also have the proper permissions';
 $txt['drafts_keep_days'] = 'Maximum number of days to keep a draft';
@@ -38,6 +35,6 @@ $txt['drafts_autosave_frequency_subnote'] = 'The minimum allowable value is 30 s
 $txt['drafts_pm_enabled'] = 'Enable the saving of PM drafts';
 $txt['drafts_post_enabled'] = 'Enable the saving of Post drafts';
 $txt['drafts_none'] = 'No Subject';
-$txt['drafts_saved'] = 'Draft was sucessfuly saved';
+$txt['drafts_saved'] = 'Draft was successfully saved';
 
 ?>

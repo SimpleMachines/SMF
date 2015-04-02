@@ -7,12 +7,11 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
- *
- * @copyright 2013 Simple Machines and individual contributors
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -213,13 +212,13 @@ function automanage_attachments_create_directory($updir)
  */
 function automanage_attachments_by_space()
 {
-	global $modSettings, $boarddir, $context;
+	global $modSettings, $boarddir;
 
 	if (!isset($modSettings['automanage_attachments']) || (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] != 1))
 		return;
 
 	$basedirectory = !empty($modSettings['use_subdirectories_for_attachments']) ? $modSettings['basedirectory_for_attachments'] : $boarddir;
-	//Just to be sure: I don't want directory separators at the end
+	// Just to be sure: I don't want directory separators at the end
 	$sep = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '\/' : DIRECTORY_SEPARATOR;
 	$basedirectory = rtrim($basedirectory, $sep);
 
@@ -400,7 +399,7 @@ function processAttachments()
 			'board' => !empty($board) ? $board : 0,
 		);
 
-	// If we have an itital error, lets just display it.
+	// If we have an initial error, lets just display it.
 	if (!empty($initial_error))
 	{
 		$_SESSION['temp_attachments']['initial_error'] = $initial_error;
@@ -439,7 +438,7 @@ function processAttachments()
 		if (empty($errors))
 		{
 			$_SESSION['temp_attachments'][$attachID] = array(
-				'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
+				'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 				'tmp_name' => $destName,
 				'size' => $_FILES['attachment']['size'][$n],
 				'type' => $_FILES['attachment']['type'][$n],
@@ -460,7 +459,7 @@ function processAttachments()
 		else
 		{
 			$_SESSION['temp_attachments'][$attachID] = array(
-				'name' => htmlspecialchars(basename($_FILES['attachment']['name'][$n])),
+				'name' => $smcFunc['htmlspecialchars'](basename($_FILES['attachment']['name'][$n])),
 				'tmp_name' => $destName,
 				'errors' => $errors,
 			);
@@ -468,7 +467,7 @@ function processAttachments()
 			if (file_exists($_FILES['attachment']['tmp_name'][$n]))
 				unlink($_FILES['attachment']['tmp_name'][$n]);
 		}
-		// If there's no errors to this pont. We still do need to apply some addtional checks before we are finished.
+		// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
 		if (empty($_SESSION['temp_attachments'][$attachID]['errors']))
 			attachmentChecks($attachID);
 	}
@@ -546,7 +545,7 @@ function attachmentChecks($attachID)
 			// Success! However, successes usually come for a price:
 			// we might get a new format for our image...
 			$old_format = $size[2];
-			$size = @getimagesize($attachmentOptions['tmp_name']);
+			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
 			{
 				if (isset($validImageTypes[$size[2]]))
@@ -587,7 +586,7 @@ function attachmentChecks($attachID)
 		}
 
 		// // No room left.... What to do now???
-		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] + 2 > $modSettings['attachmentDirFileLimit']
+		if (!empty($modSettings['attachmentDirFileLimit']) && $context['dir_files'] > $modSettings['attachmentDirFileLimit']
 			|| (!empty($modSettings['attachmentDirSizeLimit']) && $context['dir_size'] > $modSettings['attachmentDirSizeLimit'] * 1024))
 		{
 			if (!empty($modSettings['automanage_attachments']) && $modSettings['automanage_attachments'] == 1)
@@ -665,7 +664,7 @@ function attachmentChecks($attachID)
 
 /**
  * Create an attachment, with the given array of parameters.
- * - Adds any addtional or missing parameters to $attachmentOptions.
+ * - Adds any additional or missing parameters to $attachmentOptions.
  * - Renames the temporary file.
  * - Creates a thumbnail if the file is an image and the option enabled.
  *
@@ -674,7 +673,6 @@ function attachmentChecks($attachID)
 function createAttachment(&$attachmentOptions)
 {
 	global $modSettings, $sourcedir, $smcFunc, $context;
-	global $txt, $boarddir;
 
 	require_once($sourcedir . '/Subs-Graphics.php');
 
@@ -704,6 +702,14 @@ function createAttachment(&$attachmentOptions)
 		// Otherwise a valid one?
 		elseif (isset($validImageTypes[$size[2]]))
 			$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
+	}
+
+	// It is possible we might have a MIME type that isn't actually an image but still have a size.
+	// For example, Shockwave files will be able to return size but be 'application/shockwave' or similar.
+	if (!empty($attachmentOptions['mime_type']) && strpos($attachmentOptions['mime_type'], 'image/') !== 0)
+	{
+		$attachmentOptions['width'] = 0;
+		$attachmentOptions['height'] = 0;
 	}
 
 	// Get the hash if no hash has been given yet.

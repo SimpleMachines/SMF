@@ -11,10 +11,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  *
  */
  
@@ -190,264 +190,6 @@
 })(jQuery);
 
 /**
- * hoverIntent is similar to jQuery's built-in "hover" function except that
- * instead of firing the onMouseOver event immediately, hoverIntent checks
- * to see if the user's mouse has slowed down (beneath the sensitivity
- * threshold) before firing the onMouseOver event.
- * 
- * hoverIntent r6 // 2011.02.26 // jQuery 1.5.1+
- * <http://cherne.net/brian/resources/jquery.hoverIntent.html>
- * 
- * hoverIntent is currently available for use in all personal or commercial 
- * projects under MIT license.
- * 
- * // basic usage (just like .hover) receives onMouseOver and onMouseOut functions
- * $("ul li").hoverIntent( showNav , hideNav );
- * 
- * // advanced usage receives configuration object only
- * $("ul li").hoverIntent({
- *	sensitivity: 7, // number = sensitivity threshold (must be 1 or higher)
- *	interval: 100,   // number = milliseconds of polling interval
- *	over: showNav,  // function = onMouseOver callback (required)
- *	timeout: 0,   // number = milliseconds delay before onMouseOut function call
- *	out: hideNav    // function = onMouseOut callback (required)
- * });
- * 
- * @param  f  onMouseOver function || An object with configuration options
- * @param  g  onMouseOut function  || Nothing (use configuration options object)
- * @author    Brian Cherne brian(at)cherne(dot)net
- */
-
- /*
-  * PLEASE READ THE FOLLOWING BEFORE PLAYING AROUND WITH ANYTHING. KTHNX.
-  * SMF Dev copy - Antechinus - 20th October 2011.
-  * Code has been tweaked to give responsive menus without compromising a11y.
-  * If contemplating changes, testing for full functionality is essential or a11y will be degraded.
-  * Since a11y is the whole point of this system, degradation is not at all desirable regardless of personal preferences.
-  * If you do not understand the a11y advantages of this system, please ask before making changes.
-  *
-  * Full functionality means:
-  * 1/ hoverIntent plugin functions so that drop menus do NOT open or close instantly when cursor touches first level anchor.
-  * 2/ The drop menus should only open when the cursor actually stops on the first level anchor, or is moving very slowly.
-  * 3/ There should be a delay before the drop menus close on mouseout, for people with less than perfect tracking ability.
-  * 4/ Settings for custom tooltips will be done separately in another file.
-  */
- 
-(function($) {
-	$.fn.hoverIntent = function(f,g) {
-		// default configuration options
-		var cfg = {
-			sensitivity: 7,
-			interval: 100,
-			timeout: 0
-		};
-		// override configuration options with user supplied object
-		cfg = $.extend(cfg, g ? { over: f, out: g } : f );
-
-		// instantiate variables
-		// cX, cY = current X and Y position of mouse, updated by mousemove event
-		// pX, pY = previous X and Y position of mouse, set by mouseover and polling interval
-		var cX, cY, pX, pY;
-
-		// A private function for getting mouse position
-		var track = function(ev) {
-			cX = ev.pageX;
-			cY = ev.pageY;
-		};
-
-		// A private function for comparing current and previous mouse position
-		var compare = function(ev,ob) {
-			ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
-			// compare mouse positions to see if they've crossed the threshold
-			if ( ( Math.abs(pX-cX) + Math.abs(pY-cY) ) < cfg.sensitivity ) {
-				$(ob).unbind("mousemove",track);
-				// set hoverIntent state to true (so mouseOut can be called)
-				ob.hoverIntent_s = 1;
-				return cfg.over.apply(ob,[ev]);
-			} else {
-				// set previous coordinates for next time
-				pX = cX; pY = cY;
-				// use self-calling timeout, guarantees intervals are spaced out properly (avoids JavaScript timer bugs)
-				ob.hoverIntent_t = setTimeout( function(){compare(ev, ob);} , cfg.interval );
-			}
-		};
-
-		// A private function for delaying the mouseOut function
-		var delay = function(ev,ob) {
-			ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
-			ob.hoverIntent_s = 0;
-			return cfg.out.apply(ob,[ev]);
-		};
-
-		// A private function for handling mouse 'hovering'
-		var handleHover = function(e) {
-
-			// next three lines copied from jQuery.hover, ignore children onMouseOver/onMouseOut
-			var p = (e.type == "mouseenter" ? e.fromElement : e.toElement) || e.relatedTarget;
-			while ( p && p != this ) { try { p = p.parentNode; } catch(e) { p = this; } }
-			if ( p == this ) { return false; }
-
-			// copy objects to be passed into t (required for event object to be passed in IE)
-			var ev = jQuery.extend({},e);
-			var ob = this;
-
-			// cancel hoverIntent timer if it exists
-			if (ob.hoverIntent_t) { ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t); }
-
-			// if e.type == "mouseenter"
-			if (e.type == "mouseenter") {
-				// set "previous" X and Y position based on initial entry point
-				pX = ev.pageX; pY = ev.pageY;
-				// update "current" X and Y position based on mousemove
-				$(ob).bind("mousemove",track);
-				// start polling interval (self-calling timeout) to compare mouse coordinates over time
-				if (ob.hoverIntent_s != 1) { ob.hoverIntent_t = setTimeout( function(){compare(ev,ob);} , cfg.interval );}
-
-			// else e.type == "mouseleave"
-			} else {
-				// unbind expensive mousemove event
-				$(ob).unbind("mousemove",track);
-				// if hoverIntent state is true, then call the mouseOut function after the specified delay
-				if (ob.hoverIntent_s == 1) { ob.hoverIntent_t = setTimeout( function(){delay(ev,ob);} , cfg.timeout );}
-			}
-		};
-
-		// bind the function to the two event listeners
-		return this.bind('mouseenter',handleHover).bind('mouseleave',handleHover);
-	};
-})(jQuery);
-
-/*
- * Superfish v1.4.8 - jQuery menu widget
- * Copyright (c) 2008 Joel Birch
- *
- * Licensed under the MIT license:
- * 	http://www.opensource.org/licenses/mit-license.php
- *
- * CHANGELOG: http://users.tpg.com.au/j_birch/plugins/superfish/changelog.txt
- */
- 
- /*
-  * PLEASE READ THE FOLLOWING BEFORE PLAYING AROUND WITH ANYTHING. KTHNX.
-  * Dev copy. Antechinus - 20th October 2011.
-  * Code has been tweaked to remove stuff we do not need (IE7 fix, etc).
-  * Remaining code appears to be essential for full functionality.
-  * If contemplating changes, testing for full functionality is essential or a11y will be degraded.
-  * Since a11y is the whole point of this system, degradation is not at all desirable regardless of personal preferences.
-  * If you do not understand the a11y advantages of this system, please ask before making changes.
-  *
-  * Full functionality means:
-  * 1/ hoverIntent plugin functions so that drop menus do NOT open or close instantly when cursor touches first level anchor.
-  * 2/ The drop menus should only open when the cursor actually stops on the first level anchor, or is moving very slowly.
-  * 3/ There should be a delay before the drop menus close on mouseout, for people with less than perfect tracking ability.
-  * 4/ The drop menus must remain fully accessible via keyboard navigation (eg: the Tab key).
-  */
-
-;(function($){
-	$.fn.superfish = function(op){
-
-		var sf = $.fn.superfish,
-			c = sf.c,
-			over = function(){
-				var $$ = $(this), menu = getMenu($$);
-				clearTimeout(menu.sfTimer);
-				$$.showSuperfishUl().siblings().hideSuperfishUl();
-			},
-			out = function(){
-				var $$ = $(this), menu = getMenu($$), o = sf.op;
-				clearTimeout(menu.sfTimer);
-				menu.sfTimer=setTimeout(function(){
-					o.retainPath=($.inArray($$[0],o.$path)>-1);
-					$$.hideSuperfishUl();
-					if (o.$path.length && $$.parents(['li.',o.hoverClass].join('')).length<1){over.call(o.$path);}
-				},o.delay);	
-			},
-			getMenu = function($menu){
-				var menu = $menu.parents(['ul.',c.menuClass,':first'].join(''))[0];
-				sf.op = sf.o[menu.serial];
-				return menu;
-			},
-			// This next line is essential, despite the other code for arrows being removed.
-			// Changing the next line WILL break hoverIntent functionality. Very bad.
-			addArrow = function($a){$a.addClass(c.anchorClass)};
-
-		return this.each(function() {
-			var s = this.serial = sf.o.length;
-			var o = $.extend({},sf.defaults,op);
-			var h = $.extend({},sf.hoverdefaults,{over: over, out: out},op);
-			
-			o.$path = $('li.'+o.pathClass,this).slice(0,o.pathLevels).each(function(){
-				$(this).addClass([o.hoverClass,c.bcClass].join(' '))
-					.filter('li:has(ul)').removeClass(o.pathClass);
-			});
-			sf.o[s] = sf.op = o;
-			$('li:has(ul)',this)[($.fn.hoverIntent && !o.disableHI) ? 'hoverIntent' : 'hover'](($.fn.hoverIntent && !o.disableHI) ? (h) : (over,out)).each(function() {})
-			.not('.'+c.bcClass)
-				.hideSuperfishUl();
-
-			var $a = $('a',this);
-			$a.each(function(i){
-				var $li = $a.eq(i).parents('li');
-				$a.eq(i).focus(function(){over.call($li);}).blur(function(){out.call($li);});
-			});
-			o.onInit.call(this);
-			
-		}).each(function() {
-			var menuClasses = [c.menuClass];
-			$(this).addClass(menuClasses.join(' '));
-		});
-	};
-
-	var sf = $.fn.superfish;
-	sf.o = [];
-	sf.op = {};
-	sf.c = {
-		bcClass     : 'sf-breadcrumb',
-		menuClass   : 'sf-js-enabled',
-		anchorClass : 'sf-with-ul',
-	};
-	sf.defaults = {
-		hoverClass	: 'sfhover',
-		pathClass	: 'current',
-		pathLevels	: 1,
-		delay		: 700,
-		animation	: {opacity:'show', height:'show'},
-		speed		: 300,
-		disableHI	: false,		// Leave as false. True disables hoverIntent detection (not good).
-		onInit		: function(){}, // callback functions
-		onBeforeShow: function(){},
-		onShow		: function(){},
-		onHide		: function(){}
-	};
-	sf.hoverdefaults = {
-		sensitivity : 10,
-		interval    : 40,
-		timeout     : 1
-	};
-	$.fn.extend({
-		hideSuperfishUl : function(){
-			var o = sf.op,
-				not = (o.retainPath===true) ? o.$path : '';
-			o.retainPath = false;
-			var $ul = $(['li.',o.hoverClass].join(''),this).add(this).not(not).removeClass(o.hoverClass)
-					.find('>ul').hide().css('opacity','0');
-			o.onHide.call($ul);
-			return this;
-		},
-		showSuperfishUl : function(){
-			var o = sf.op,
-				sh = sf.c,
-				$ul = this.addClass(o.hoverClass)
-					.find('>ul:hidden').css('opacity','1');
-			o.onBeforeShow.call($ul);
-			$ul.animate(o.animation,o.speed,function(){o.onShow.call($ul);});
-			return this;
-		}
-	});
-
-})(jQuery);
-
-/**
  * AnimaDrag
  * Animated jQuery Drag and Drop Plugin
  * Version 0.5.1 beta
@@ -559,3 +301,409 @@
 		});
 	}
 })(jQuery);
+
+/*
+ * jQuery Superfish Menu Plugin - v1.7.5
+ * Copyright (c) 2015 Joel Birch
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *	http://www.opensource.org/licenses/mit-license.php
+ *	http://www.gnu.org/licenses/gpl.html
+ */
+
+;(function ($, w) {
+	"use strict";
+
+	var methods = (function () {
+		// private properties and methods go here
+		var c = {
+				bcClass: 'sf-breadcrumb',
+				menuClass: 'sf-js-enabled',
+				anchorClass: 'sf-with-ul',
+				menuArrowClass: 'sf-arrows'
+			},
+			ios = (function () {
+				var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+				if (ios) {
+					// iOS clicks only bubble as far as body children
+					$(w).load(function () {
+						$('body').children().on('click', $.noop);
+					});
+				}
+				return ios;
+			})(),
+			wp7 = (function () {
+				var style = document.documentElement.style;
+				return ('behavior' in style && 'fill' in style && /iemobile/i.test(navigator.userAgent));
+			})(),
+			unprefixedPointerEvents = (function () {
+				return (!!w.PointerEvent);
+			})(),
+			toggleMenuClasses = function ($menu, o) {
+				var classes = c.menuClass;
+				if (o.cssArrows) {
+					classes += ' ' + c.menuArrowClass;
+				}
+				$menu.toggleClass(classes);
+			},
+			setPathToCurrent = function ($menu, o) {
+				return $menu.find('li.' + o.pathClass).slice(0, o.pathLevels)
+					.addClass(o.hoverClass + ' ' + c.bcClass)
+						.filter(function () {
+							return ($(this).children(o.popUpSelector).hide().show().length);
+						}).removeClass(o.pathClass);
+			},
+			toggleAnchorClass = function ($li) {
+				$li.children('a').toggleClass(c.anchorClass);
+			},
+			toggleTouchAction = function ($menu) {
+				var msTouchAction = $menu.css('ms-touch-action');
+				var touchAction = $menu.css('touch-action');
+				touchAction = touchAction || msTouchAction;
+				touchAction = (touchAction === 'pan-y') ? 'auto' : 'pan-y';
+				$menu.css({
+					'ms-touch-action': touchAction,
+					'touch-action': touchAction
+				});
+			},
+			applyHandlers = function ($menu, o) {
+				var targets = 'li:has(' + o.popUpSelector + ')';
+				if ($.fn.hoverIntent && !o.disableHI) {
+					$menu.hoverIntent(over, out, targets);
+				}
+				else {
+					$menu
+						.on('mouseenter.superfish', targets, over)
+						.on('mouseleave.superfish', targets, out);
+				}
+				var touchevent = 'MSPointerDown.superfish';
+				if (unprefixedPointerEvents) {
+					touchevent = 'pointerdown.superfish';
+				}
+				if (!ios) {
+					touchevent += ' touchend.superfish';
+				}
+				if (wp7) {
+					touchevent += ' mousedown.superfish';
+				}
+				$menu
+					.on('focusin.superfish', 'li', over)
+					.on('focusout.superfish', 'li', out)
+					.on(touchevent, 'a', o, touchHandler);
+			},
+			touchHandler = function (e) {
+				var $this = $(this),
+					$ul = $this.siblings(e.data.popUpSelector);
+
+				if ($ul.length > 0 && $ul.is(':hidden')) {
+					$this.one('click.superfish', false);
+					if (e.type === 'MSPointerDown' || e.type === 'pointerdown') {
+						$this.trigger('focus');
+					} else {
+						$.proxy(over, $this.parent('li'))();
+					}
+				}
+			},
+			over = function () {
+				var $this = $(this),
+					o = getOptions($this);
+				clearTimeout(o.sfTimer);
+				$this.siblings().superfish('hide').end().superfish('show');
+			},
+			out = function () {
+				var $this = $(this),
+					o = getOptions($this);
+				if (ios) {
+					$.proxy(close, $this, o)();
+				}
+				else {
+					clearTimeout(o.sfTimer);
+					o.sfTimer = setTimeout($.proxy(close, $this, o), o.delay);
+				}
+			},
+			close = function (o) {
+				o.retainPath = ($.inArray(this[0], o.$path) > -1);
+				this.superfish('hide');
+
+				if (!this.parents('.' + o.hoverClass).length) {
+					o.onIdle.call(getMenu(this));
+					if (o.$path.length) {
+						$.proxy(over, o.$path)();
+					}
+				}
+			},
+			getMenu = function ($el) {
+				return $el.closest('.' + c.menuClass);
+			},
+			getOptions = function ($el) {
+				return getMenu($el).data('sf-options');
+			};
+
+		return {
+			// public methods
+			hide: function (instant) {
+				if (this.length) {
+					var $this = this,
+						o = getOptions($this);
+					if (!o) {
+						return this;
+					}
+					var not = (o.retainPath === true) ? o.$path : '',
+						$ul = $this.find('li.' + o.hoverClass).add(this).not(not).removeClass(o.hoverClass).children(o.popUpSelector),
+						speed = o.speedOut;
+
+					if (instant) {
+						$ul.show();
+						speed = 0;
+					}
+					o.retainPath = false;
+					o.onBeforeHide.call($ul);
+					$ul.stop(true, true).animate(o.animationOut, speed, function () {
+						var $this = $(this);
+						o.onHide.call($this);
+					});
+				}
+				return this;
+			},
+			show: function () {
+				var o = getOptions(this);
+				if (!o) {
+					return this;
+				}
+				var $this = this.addClass(o.hoverClass),
+					$ul = $this.children(o.popUpSelector);
+
+				o.onBeforeShow.call($ul);
+				$ul.stop(true, true).animate(o.animation, o.speed, function () {
+					o.onShow.call($ul);
+				});
+				return this;
+			},
+			destroy: function () {
+				return this.each(function () {
+					var $this = $(this),
+						o = $this.data('sf-options'),
+						$hasPopUp;
+					if (!o) {
+						return false;
+					}
+					$hasPopUp = $this.find(o.popUpSelector).parent('li');
+					clearTimeout(o.sfTimer);
+					toggleMenuClasses($this, o);
+					toggleAnchorClass($hasPopUp);
+					toggleTouchAction($this);
+					// remove event handlers
+					$this.off('.superfish').off('.hoverIntent');
+					// clear animation's inline display style
+					$hasPopUp.children(o.popUpSelector).attr('style', function (i, style) {
+						return style.replace(/display[^;]+;?/g, '');
+					});
+					// reset 'current' path classes
+					o.$path.removeClass(o.hoverClass + ' ' + c.bcClass).addClass(o.pathClass);
+					$this.find('.' + o.hoverClass).removeClass(o.hoverClass);
+					o.onDestroy.call($this);
+					$this.removeData('sf-options');
+				});
+			},
+			init: function (op) {
+				return this.each(function () {
+					var $this = $(this);
+					if ($this.data('sf-options')) {
+						return false;
+					}
+					var o = $.extend({}, $.fn.superfish.defaults, op),
+						$hasPopUp = $this.find(o.popUpSelector).parent('li');
+					o.$path = setPathToCurrent($this, o);
+
+					$this.data('sf-options', o);
+
+					toggleMenuClasses($this, o);
+					toggleAnchorClass($hasPopUp);
+					toggleTouchAction($this);
+					applyHandlers($this, o);
+
+					$hasPopUp.not('.' + c.bcClass).superfish('hide', true);
+
+					o.onInit.call(this);
+				});
+			}
+		};
+	})();
+
+	$.fn.superfish = function (method, args) {
+		if (methods[method]) {
+			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+		}
+		else if (typeof method === 'object' || ! method) {
+			return methods.init.apply(this, arguments);
+		}
+		else {
+			return $.error('Method ' +  method + ' does not exist on jQuery.fn.superfish');
+		}
+	};
+
+	$.fn.superfish.defaults = {
+		popUpSelector: 'ul,.sf-mega', // within menu context
+		hoverClass: 'sfHover',
+		pathClass: 'overrideThisToUse',
+		pathLevels: 1,
+		delay: 800,
+		animation: {opacity: 'show'},
+		animationOut: {opacity: 'hide'},
+		speed: 'normal',
+		speedOut: 'fast',
+		cssArrows: true,
+		disableHI: false,
+		onInit: $.noop,
+		onBeforeShow: $.noop,
+		onShow: $.noop,
+		onBeforeHide: $.noop,
+		onHide: $.noop,
+		onIdle: $.noop,
+		onDestroy: $.noop
+	};
+
+})(jQuery, window);
+
+/**
+ * hoverIntent is similar to jQuery's built-in "hover" method except that
+ * instead of firing the handlerIn function immediately, hoverIntent checks
+ * to see if the user's mouse has slowed down (beneath the sensitivity
+ * threshold) before firing the event. The handlerOut function is only
+ * called after a matching handlerIn.
+ *
+ * hoverIntent r7 // 2013.03.11 // jQuery 1.9.1+
+ * http://cherne.net/brian/resources/jquery.hoverIntent.html
+ *
+ * You may use hoverIntent under the terms of the MIT license. Basically that
+ * means you are free to use hoverIntent as long as this header is left intact.
+ * Copyright 2007, 2013 Brian Cherne
+ *
+ * // basic usage ... just like .hover()
+ * .hoverIntent( handlerIn, handlerOut )
+ * .hoverIntent( handlerInOut )
+ *
+ * // basic usage ... with event delegation!
+ * .hoverIntent( handlerIn, handlerOut, selector )
+ * .hoverIntent( handlerInOut, selector )
+ *
+ * // using a basic configuration object
+ * .hoverIntent( config )
+ *
+ * @param  handlerIn   function OR configuration object
+ * @param  handlerOut  function OR selector for delegation OR undefined
+ * @param  selector    selector OR undefined
+ * @author Brian Cherne <brian(at)cherne(dot)net>
+ **/
+(function($) {
+    $.fn.hoverIntent = function(handlerIn,handlerOut,selector) {
+
+        // default configuration values
+        var cfg = {
+            interval: 100,
+            sensitivity: 7,
+            timeout: 0
+        };
+
+        if ( typeof handlerIn === "object" ) {
+            cfg = $.extend(cfg, handlerIn );
+        } else if ($.isFunction(handlerOut)) {
+            cfg = $.extend(cfg, { over: handlerIn, out: handlerOut, selector: selector } );
+        } else {
+            cfg = $.extend(cfg, { over: handlerIn, out: handlerIn, selector: handlerOut } );
+        }
+
+        // instantiate variables
+        // cX, cY = current X and Y position of mouse, updated by mousemove event
+        // pX, pY = previous X and Y position of mouse, set by mouseover and polling interval
+        var cX, cY, pX, pY;
+
+        // A private function for getting mouse position
+        var track = function(ev) {
+            cX = ev.pageX;
+            cY = ev.pageY;
+        };
+
+        // A private function for comparing current and previous mouse position
+        var compare = function(ev,ob) {
+            ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
+            // compare mouse positions to see if they've crossed the threshold
+            if ( ( Math.abs(pX-cX) + Math.abs(pY-cY) ) < cfg.sensitivity ) {
+                $(ob).off("mousemove.hoverIntent",track);
+                // set hoverIntent state to true (so mouseOut can be called)
+                ob.hoverIntent_s = 1;
+                return cfg.over.apply(ob,[ev]);
+            } else {
+                // set previous coordinates for next time
+                pX = cX; pY = cY;
+                // use self-calling timeout, guarantees intervals are spaced out properly (avoids JavaScript timer bugs)
+                ob.hoverIntent_t = setTimeout( function(){compare(ev, ob);} , cfg.interval );
+            }
+        };
+
+        // A private function for delaying the mouseOut function
+        var delay = function(ev,ob) {
+            ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
+            ob.hoverIntent_s = 0;
+            return cfg.out.apply(ob,[ev]);
+        };
+
+        // A private function for handling mouse 'hovering'
+        var handleHover = function(e) {
+            // copy objects to be passed into t (required for event object to be passed in IE)
+            var ev = jQuery.extend({},e);
+            var ob = this;
+
+            // cancel hoverIntent timer if it exists
+            if (ob.hoverIntent_t) { ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t); }
+
+            // if e.type == "mouseenter"
+            if (e.type == "mouseenter") {
+                // set "previous" X and Y position based on initial entry point
+                pX = ev.pageX; pY = ev.pageY;
+                // update "current" X and Y position based on mousemove
+                $(ob).on("mousemove.hoverIntent",track);
+                // start polling interval (self-calling timeout) to compare mouse coordinates over time
+                if (ob.hoverIntent_s != 1) { ob.hoverIntent_t = setTimeout( function(){compare(ev,ob);} , cfg.interval );}
+
+                // else e.type == "mouseleave"
+            } else {
+                // unbind expensive mousemove event
+                $(ob).off("mousemove.hoverIntent",track);
+                // if hoverIntent state is true, then call the mouseOut function after the specified delay
+                if (ob.hoverIntent_s == 1) { ob.hoverIntent_t = setTimeout( function(){delay(ev,ob);} , cfg.timeout );}
+            }
+        };
+
+        // listen for mouseenter and mouseleave
+        return this.on({'mouseenter.hoverIntent':handleHover,'mouseleave.hoverIntent':handleHover}, cfg.selector);
+    };
+})(jQuery);
+
+$(document).ready(function() {
+	if (smf_member_id > 0)
+		$('div.boardindex_table div.cat_bar').each(function(index, el)
+		{
+			var catid = el.id.replace('category_', '');
+			new smc_Toggle({
+				bToggleEnabled: true,
+				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
+				aSwappableContainers: [
+					'category_' + catid + '_boards'
+				],
+				aSwapImages: [
+					{
+						sId: 'category_' + catid + '_upshrink',
+						msgExpanded: '',
+						msgCollapsed: ''
+					}
+				],
+				oThemeOptions: {
+					bUseThemeSettings: true,
+					sOptionName: 'collapse_category_' + catid,
+					sSessionVar: smf_session_var,
+					sSessionId: smf_session_id
+				}
+			});
+		});
+});

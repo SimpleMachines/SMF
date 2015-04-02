@@ -1,15 +1,15 @@
 <?php
-// Version: 2.1 Alpha 1; EmailTemplates
+// Version: 2.1 Beta 1; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
 // Do not translate anything that is between {}, they are used as replacement variables and MUST remain exactly how they are.
-//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it.  You may
-//   translate the description of the variable.  Do not translate @description:, however you may translate the rest of that line.
+//   Additionally do not translate the @additioinal_parmas: line or the variable names in the lines that follow it. You may
+//   translate the description of the variable. Do not translate @description:, however you may translate the rest of that line.
 
 // Do not use block comments in this file, they will have special meaning.
 
-global $context, $txtBirthdayEmails;
+global $txtBirthdayEmails;
 
 $txt['scheduled_approval_email_topic'] = 'The following topics are awaiting approval:';
 $txt['scheduled_approval_email_msg'] = 'The following posts are awaiting approval:';
@@ -44,11 +44,11 @@ Should you have any problems with the activation, please visit {ACTIVATIONLINKWI
 	@description:
 */
 $txt['resend_pending_message_subject'] = 'Welcome to {FORUMNAME}';
-$txt['resend_pending_message_body'] = 'Your registration request at {FORUMNAME} has been received, {REALNAME}.
+$txt['resend_pending_message_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
 The username you registered with was {USERNAME}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
 
 {REGARDS}';
 
@@ -148,7 +148,7 @@ Regrettably, your application to join {FORUMNAME} has been rejected.
 $txt['admin_approve_delete_subject'] = 'Account Deleted';
 $txt['admin_approve_delete_body'] = '{USERNAME},
 
-Your account on {FORUMNAME} has been deleted.  This may be because you never activated your account, in which case you should be able to register again.
+Your account on {FORUMNAME} has been deleted. This may be because you never activated your account, in which case you should be able to register again.
 
 {REGARDS}';
 
@@ -297,6 +297,35 @@ Unsubscribe to new topics from this board by using this link:
 {REGARDS}';
 
 /**
+	@additional_params: alert_unapproved_reply
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
+	@description:
+*/
+$txt['alert_unapproved_reply_subject'] = 'Topic reply: {SUBJECT}';
+$txt['alert_unapproved_reply_body'] = 'A reply has been posted to \'{SUBJECT}\' by {POSTERNAME}.
+
+You can see it at
+{LINK}
+
+{REGARDS}';
+
+/**
+	@additional_params: alert_unapproved_post
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
+	@description:
+*/
+$txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
+$txt['alert_unapproved_post_body'] = 'A new post, \'{SUBJECT}\', has been made which needs approved.
+
+You can approve or reject this post by clicking the link below:
+
+{LINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: request_membership
 		RECPNAME: The name of the person recieving the email
 		APPYNAME: The name of the person applying for group membership
@@ -347,7 +376,7 @@ To edit your subscriptions visit the following URL:
 	@description:
 */
 $txt['activate_reactivate_subject'] = 'Welcome back to {FORUMNAME}';
-$txt['activate_reactivate_body'] = 'In order to re-validate your email address, your account has been deactivated.  Click the following link to activate it again:
+$txt['activate_reactivate_body'] = 'In order to re-validate your email address, your account has been deactivated. Click the following link to activate it again:
 {ACTIVATIONLINK}
 
 Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} and use the code "{ACTIVATIONCODE}".
@@ -373,23 +402,6 @@ Username: {MEMBERNAME}
 {REGARDS}';
 
 /**
-	@additional_params: forgot_password
-		REALNAME: The real (display) name of the person receiving the reminder.
-		IP: The IP address of the requester.
-		OPENID: The members OpenID identity.
-	@description:
-*/
-$txt['forgot_openid_subject'] = 'OpenID reminder for {FORUMNAME}';
-$txt['forgot_openid_body'] = 'Dear {REALNAME},
-This mail was sent because the \'forgot OpenID\' function has been applied to your account. Below is the OpenID that your account is associated with:
-{OPENID}
-
-IP: {IP}
-Username: {MEMBERNAME}
-
-{REGARDS}';
-
-/**
 	@additional_params: scheduled_approval
 		REALNAME: The real (display) name of the person receiving the email.
 		BODY: The generated body of the mail.
@@ -408,46 +420,6 @@ Please log in to the forum to review these items.
 {REGARDS}';
 
 /**
-	@additional_params: send_topic
-		TOPICSUBJECT: The subject of the topic being sent.
-		SENDERNAME: The name of the member sending the topic.
-		RECPNAME: The name of the person receiving the email.
-		TOPICLINK: A link to the topic being sent.
-	@description:
-*/
-$txt['send_topic_subject'] = 'Topic: {TOPICSUBJECT} (From: {SENDERNAME})';
-$txt['send_topic_body'] = 'Dear {RECPNAME},
-I want you to check out "{TOPICSUBJECT}" on {FORUMNAME}.  To view it, please click this link:
-
-{TOPICLINK}
-
-Thanks,
-
-{SENDERNAME}';
-
-/**
-	@additional_params: send_topic_comment
-		TOPICSUBJECT: The subject of the topic being sent.
-		SENDERNAME: The name of the member sending the topic.
-		RECPNAME: The name of the person receiving the email.
-		TOPICLINK: A link to the topic being sent.
-		COMMENT: A comment left by the sender.
-	@description:
-*/
-$txt['send_topic_comment_subject'] = 'Topic: {TOPICSUBJECT} (From: {SENDERNAME})';
-$txt['send_topic_comment_body'] = 'Dear {RECPNAME},
-I want you to check out "{TOPICSUBJECT}" on {FORUMNAME}.  To view it, please click this link:
-
-{TOPICLINK}
-
-A comment has also been added regarding this topic:
-{COMMENT}
-
-Thanks,
-
-{SENDERNAME}';
-
-/**
 	@additional_params: send_email
 		EMAILSUBJECT: The subject the user wants to email.
 		EMAILBODY: The body the user wants to email.
@@ -461,7 +433,7 @@ $txt['send_email_body'] = '{EMAILBODY}';
 /**
 	@additional_params: report_to_moderator
 		TOPICSUBJECT: The subject of the reported post.
-		POSTERNAME: The report post's author's name.
+		POSTERNAME: The reported post's author's name.
 		REPORTERNAME: The name of the person reporting the post.
 		TOPICLINK: The url of the post that is being reported.
 		REPORTLINK: The url of the moderation center report.
@@ -476,6 +448,61 @@ Moderation center: {REPORTLINK}
 
 The reporter has made the following comment:
 {COMMENT}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_to_moderator
+		TOPICSUBJECT: The subject of the reported post.
+		POSTERNAME: The reported post's author's name.
+		COMMENTERNAME: The name of the person who replied to the report.
+		TOPICLINK: The url of the post that is being reported.
+		REPORTLINK: The url of the moderation center report.
+	@description: When a moderator replies to a moderation report, this can be sent to the other moderators who previously replied.
+*/
+$txt['reply_to_moderator_subject'] = 'Follow-up to reported post: {TOPICSUBJECT} by {POSTERNAME}';
+$txt['reply_to_moderator_body'] = 'Previously, "{TOPICSUBJECT}" was reported to moderators.
+
+Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
+
+The topic: {TOPICLINK}
+Moderation center: {REPORTLINK}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_user_profile
+		MEMBERNAME: The display name of the reported user
+		REPORTERNAME: The name of the person reporting the profile
+		PROFILELINK: The link to the profile that was reported
+		COMMENT: The comment left by the reporter.
+ 	@description: When a user's profile is reported
+*/
+$txt['report_member_profile_subject'] = 'Reported profile: {MEMBERNAME}';
+$txt['report_member_profile_body'] = 'The profile of "{MEMBERNAME}" has been reported by {REPORTERNAME}.
+
+The profile: {PROFILELINK}
+Moderation center: {REPORTLINK}
+
+The reporter has made the following comment:
+{COMMENT}
+
+{REGARDS}';
+
+/**
+	@additional_params: report_user_profile
+		MEMBERNAME: The display name of the reported user
+		COMMENTERNAME: The name of the person who added the comment
+		PROFILELINK: The link to the profile that was reported
+ 	@description: When someone replies to a report about a profile, this can be sent to others who replied
+*/
+$txt['reply_to_member_report_subject'] = 'Follow-up to reported profile: {MEMBERNAME}';
+$txt['reply_to_member_report_body'] = 'Previously, the profile of {MEMBERNAME} was reported.
+
+Since then, {COMMENTERNAME} has added a comment to the report. More information can be found in the forum.
+
+The profile: {PROFILELINK}
+Moderation center: {REPORTLINK}
 
 {REGARDS}';
 
@@ -520,28 +547,6 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 {REGARDS}';
 
 /**
-	@additional_params: register_activate
-		REALNAME: The display name for the member receiving the email.
-		USERNAME: The user name for the member receiving the email.
-		OPENID: The openID identity for the member.
-		ACTIVATIONLINK:  The url link to reactivate the member's account.
-		ACTIVATIONLINKWITHOUTCODE: The url to the page where the activation code can be entered.
-		ACTIVATIONCODE:  The code needed to reactivate the member's account.
-	@description:
-*/
-$txt['register_openid_activate_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_openid_activate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. You have chosen to authenticate using the following OpenID identity:
-{OPENID}
-
-Before you can login, you first need to activate your account. To do so, please follow this link:
-
-{ACTIVATIONLINK}
-
-Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOUTCODE} and use the code "{ACTIVATIONCODE}".
-
-{REGARDS}';
-
-/**
 	@additional_params: register_coppa
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -552,26 +557,6 @@ Should you have any problems with activation, please visit {ACTIVATIONLINKWITHOU
 */
 $txt['register_coppa_subject'] = 'Welcome to {FORUMNAME}';
 $txt['register_coppa_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}
-
-Before you can login, the admin requires consent from your parent/guardian for you to join the community. You can obtain more information at the link below:
-
-{COPPALINK}
-
-{REGARDS}';
-
-/**
-	@additional_params: register_coppa
-		REALNAME: The display name for the member receiving the email.
-		USERNAME: The user name for the member receiving the email.
-		OPENID: The openID identity for the member.
-		COPPALINK:  The url link to the coppa form.
-	@description:
-*/
-$txt['register_openid_coppa_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_openid_coppa_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}.
-
-You have chosen to authenticate using the following OpenID identity:
-{OPENID}
 
 Before you can login, the admin requires consent from your parent/guardian for you to join the community. You can obtain more information at the link below:
 
@@ -593,25 +578,6 @@ $txt['register_immediate_body'] = 'Thank you for registering at {FORUMNAME}. You
 {REGARDS}';
 
 /**
-	@additional_params: register_immediate
-		REALNAME: The display name for the member receiving the email.
-		USERNAME: The user name for the member receiving the email.
-		OPENID: The openID identity for the member.
-	@description:
-*/
-$txt['register_openid_immediate_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_openid_immediate_body'] = 'Thank you for registering at {FORUMNAME}. Your username is {USERNAME}.
-
-You have chosen to authenticate using the following OpenID identity:
-{OPENID}
-
-You may update your profile by visiting this page after you login:
-
-{SCRIPTURL}?action=profile
-
-{REGARDS}';
-
-/**
 	@additional_params: register_pending
 		REALNAME: The display name for the member receiving the email.
 		USERNAME: The user name for the member receiving the email.
@@ -620,30 +586,11 @@ You may update your profile by visiting this page after you login:
 	@description:
 */
 $txt['register_pending_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_pending_body'] = 'Your registration request at {FORUMNAME} has been received, {REALNAME}.
+$txt['register_pending_body'] = 'Hello {REALNAME}, your registration request at {FORUMNAME} has been received.
 
 The username you registered with was {USERNAME}. If you forget your password, you can change it at {FORGOTPASSWORDLINK}.
 
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
-
-{REGARDS}';
-
-/**
-	@additional_params: register_pending
-		REALNAME: The display name for the member receiving the email.
-		USERNAME: The user name for the member receiving the email.
-		OPENID: The openID identity for the member.
-	@description:
-*/
-$txt['register_openid_pending_subject'] = 'Welcome to {FORUMNAME}';
-$txt['register_openid_pending_body'] = 'Your registration request at {FORUMNAME} has been received, {REALNAME}.
-
-The username you registered with was {USERNAME}.
-
-You have chosen to authenticate using the following OpenID identity:
-{OPENID}
-
-Before you can login and start using the forum, your request will be reviewed and approved.  When this happens, you will receive another email from this address.
+Before you can login and start using the forum, your request will be reviewed and approved. When this happens, you will receive another email from this address.
 
 {REGARDS}';
 
@@ -732,7 +679,7 @@ More replies may be posted, but you won\'t receive any more notifications until 
 	@description:
 */
 $txt['notification_sticky_subject'] = 'Topic stickied: {TOPICSUBJECT}';
-$txt['notification_sticky_body'] = 'A topic you are watching has been marked as a sticky topic by {POSTERNAME}.
+$txt['notification_sticky_body'] = 'A topic you are watching has been marked as a sticky topic.
 
 View the topic at: {TOPICLINK}
 
@@ -745,7 +692,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_lock_subject'] = 'Topic locked: {TOPICSUBJECT}';
-$txt['notification_lock_body'] = 'A topic you are watching has been locked by {POSTERNAME}.
+$txt['notification_lock_body'] = 'A topic you are watching has been locked.
 
 View the topic at: {TOPICLINK}
 
@@ -758,7 +705,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_unlock_subject'] = 'Topic unlocked: {TOPICSUBJECT}';
-$txt['notification_unlock_body'] = 'A topic you are watching has been unlocked by {POSTERNAME}.
+$txt['notification_unlock_body'] = 'A topic you are watching has been unlocked.
 
 View the topic at: {TOPICLINK}
 
@@ -771,7 +718,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_remove_subject'] = 'Topic removed: {TOPICSUBJECT}';
-$txt['notification_remove_body'] = 'A topic you are watching has been removed by {POSTERNAME}.
+$txt['notification_remove_body'] = 'A topic you are watching has been removed.
 
 {REGARDS}';
 
@@ -780,7 +727,7 @@ $txt['notification_remove_body'] = 'A topic you are watching has been removed by
 	@description:
 */
 $txt['notification_move_subject'] = 'Topic moved: {TOPICSUBJECT}';
-$txt['notification_move_body'] = 'A topic you are watching has been moved to another board by {POSTERNAME}.
+$txt['notification_move_body'] = 'A topic you are watching has been moved to another board.
 
 View the topic at: {TOPICLINK}
 
@@ -793,7 +740,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_merge_subject'] = 'Topic merged: {TOPICSUBJECT}';
-$txt['notification_merge_body'] = 'A topic you are watching has been merged with another topic by {POSTERNAME}.
+$txt['notification_merge_body'] = 'A topic you are watching has been merged with another topic.
 
 View the new merged topic at: {TOPICLINK}
 
@@ -806,7 +753,7 @@ Unsubscribe to this topic by using this link: {UNSUBSCRIBELINK}
 	@description:
 */
 $txt['notification_split_subject'] = 'Topic split: {TOPICSUBJECT}';
-$txt['notification_split_body'] = 'A topic you are watching has been split into two or more topics by {POSTERNAME}.
+$txt['notification_split_body'] = 'A topic you are watching has been split into two or more topics.
 
 View what remains of this topic at: {TOPICLINK}
 
@@ -997,21 +944,52 @@ The message they sent you was:
 Reply to this Personal Message (to the sender only) here: {REPLYLINK}';
 
 /**
+	@additional_params: msg_quote
+		CONTENTSUBJECT: The post subject.
+		QUOTENAME:  The user name for the member creating the quote
+		MEMBERNAME:  The user name for the member being quoted
+		CONTENTLINK:  The post's link
+	@description: A notification email sent to the members who've been quoted in a post
+ */
+$txt['msg_quote_subject'] = 'You have been quoted in the post: {CONTENTSUBJECT}';
+$txt['msg_quote_body'] = 'Hello {MEMBERNAME},
+
+You have been quoted in the post titled "{CONTENTSUBJECT}" by {QUOTENAME}, you can see the post here:
+{CONTENTLINK}
+
+{REGARDS}';
+
+/**
+	@additional_params: msg_mention
+		CONTENTSUBJECT: The post subject.
+		MENTIONNAME:  The user name for the member creating the mention
+		MEMBERNAME:  The user name for the member being mentioned
+		CONTENTLINK:  The post's link
+	@description: A notification email sent to the members who've been mentioned in a post
+ */
+$txt['msg_mention_subject'] = 'You have been mentioned in the post: {CONTENTSUBJECT}';
+$txt['msg_mention_body'] = 'Hello {MEMBERNAME},
+
+You have been mentioned in the post titled "{CONTENTSUBJECT}" by {MENTIONNAME}, you can see the post here:
+{CONTENTLINK}
+
+{REGARDS}';
+
+/**
 	@additional_params: happy_birthday
 		REALNAME: The real (display) name of the person receiving the birthday message.
 	@description: A message sent to members on their birthday.
 */
-
 $txtBirthdayEmails['happy_birthday_subject'] = 'Happy birthday from {FORUMNAME}.';
 $txtBirthdayEmails['happy_birthday_body'] = 'Dear {REALNAME},
 
-We here at {FORUMNAME} would like to wish you a happy birthday.  May this day and the year to follow be full of joy.
+We here at {FORUMNAME} would like to wish you a happy birthday. May this day and the year to follow be full of joy.
 
 {REGARDS}';
 $txtBirthdayEmails['happy_birthday_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=2676">Thantos</a>';
 
 $txtBirthdayEmails['karlbenson1_subject'] = 'On your Birthday...';
-$txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card.  We could have sent you some flowers or a cake.
+$txtBirthdayEmails['karlbenson1_body'] = 'We could have sent you a birthday card. We could have sent you some flowers or a cake.
 
 But we didn\'t.
 
@@ -1040,7 +1018,7 @@ $txtBirthdayEmails['nite0859_author'] = '<a href="http://www.simplemachines.org/
 $txtBirthdayEmails['zwaldowski_subject'] = 'Birthday Wishes to {REALNAME}';
 $txtBirthdayEmails['zwaldowski_body'] = 'Dear {REALNAME},
 
-Another year in your life has passed.  We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.
+Another year in your life has passed. We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.
 
 {REGARDS}';
 $txtBirthdayEmails['zwaldowski_author'] = '<a href="http://www.simplemachines.org/community/?action=profile;u=72038">zwaldowski</a>';

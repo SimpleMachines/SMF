@@ -71,10 +71,6 @@ $nameChanges = array(
 		'catOrder' => 'catOrder cat_order tinyint(4) NOT NULL default \'0\'',
 		'canCollapse' => 'canCollapse can_collapse tinyint(1) NOT NULL default \'1\'',
 	),
-	'collapsed_categories' => array(
-		'ID_MEMBER' => 'ID_MEMBER id_member mediumint(8) unsigned NOT NULL default \'0\'',
-		'ID_CAT' => 'ID_CAT id_cat tinyint(4) unsigned NOT NULL',
-	),
 	'custom_fields' => array(
 		'ID_FIELD' => 'ID_FIELD id_field smallint(5) NOT NULL auto_increment',
 		'colName' => 'colName col_name varchar(12) NOT NULL default \'\'',
@@ -1509,7 +1505,6 @@ INSERT IGNORE INTO {$db_prefix}scheduled_tasks
 	(next_time, time_offset, time_regularity, time_unit, disabled, task)
 VALUES
 	(0, 0, 2, 'h', 0, 'approval_notification'),
-	(0, 0, 7, 'd', 0, 'auto_optimize'),
 	(0, 60, 1, 'd', 0, 'daily_maintenance'),
 	(0, 0, 1, 'd', 0, 'daily_digest'),
 	(0, 0, 1, 'w', 0, 'weekly_digest'),
@@ -3022,16 +3017,4 @@ if ($admin_group_type != 1)
 UPDATE {$db_prefix}membergroups
 SET group_type = 1
 WHERE id_group = 1;
----#
-
-/******************************************************************************/
---- Final clean up...
-/******************************************************************************/
-
----# Sorting the boards...
-ALTER TABLE {$db_prefix}categories
-ORDER BY cat_order;
-
-ALTER TABLE {$db_prefix}boards
-ORDER BY board_order;
 ---#

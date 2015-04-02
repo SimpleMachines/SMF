@@ -1,10 +1,10 @@
 <?php
-// Version: 2.1 Alpha 1; ManageSmileys
+// Version: 2.1 Beta 1; ManageSmileys
 
 $txt['smiley_sets_save'] = 'Save Changes';
 $txt['smiley_sets_add'] = 'New smiley Set';
 $txt['smiley_sets_delete'] = 'Delete selected';
-$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?\\n\\nNote: This won\\\'t remove the images, just the choices.';
+$txt['smiley_sets_confirm'] = 'Are you sure you want to remove these smiley sets?-n-Note: This won\\\'t remove the images, just the choices.';
 $txt['smiley_sets_none'] = 'There are currently no smiley sets.';
 
 $txt['setting_smiley_sets_default'] = 'Default Smiley Set';
@@ -12,6 +12,7 @@ $txt['setting_smiley_sets_enable'] = 'Enable smiley set selection by members';
 $txt['setting_smiley_enable'] = 'Enable customized smileys';
 $txt['setting_smileys_url'] = 'Base URL to all smiley sets';
 $txt['setting_smileys_dir'] = 'Absolute path to all smiley sets';
+$txt['setting_smileys_dir_wrong'] = 'The path to all smiley sets is wrong. This will prevent smileys from working';
 $txt['setting_messageIcons_enable'] = 'Enable customized message icons';
 $txt['setting_messageIcons_enable_note'] = '(otherwise, the default message icons will be used.)';
 $txt['groups_manage_smileys'] = 'Groups allowed to manage smileys and message icons';
@@ -19,9 +20,6 @@ $txt['groups_manage_smileys'] = 'Groups allowed to manage smileys and message ic
 $txt['smiley_sets_name'] = 'Name';
 $txt['smiley_sets_url'] = 'URL';
 $txt['smiley_sets_default'] = 'Default';
-
-$txt['smiley_sets_latest'] = 'Smileys of the moment';
-$txt['smiley_sets_latest_fetch'] = 'Loading smiley information from simplemachines.org...';
 
 $txt['smileys_add_method'] = 'Image Source';
 $txt['smileys_add_existing'] = 'Use existing file';
@@ -47,8 +45,8 @@ $txt['smileys_show_on_post'] = 'Show on post form';
 $txt['smileys_show_on_popup'] = 'Show on popup';
 
 $txt['smiley_settings_explain'] = 'These settings allow you to change the default smiley set, allow people to select their own smileys, and set paths and configuration data.';
-$txt['smiley_editsets_explain'] = 'Smiley Sets are groups of smileys your users can choose between.  For example, you might have yellow and red smileys.<br />Here you can change the name and location of each smiley set - remember, however, that all sets share the same smileys.';
-$txt['smiley_editsmileys_explain'] = 'Change your smileys here by clicking on the smiley you want to modify. Remember that these smileys all have to exist in all the sets or some smileys won\'t show up.  Don\'t forget to save after you are done editing.';
+$txt['smiley_editsets_explain'] = 'Smiley Sets are groups of smileys your users can choose between. For example, you might have yellow and red smileys.<br>Here you can change the name and location of each smiley set - remember, however, that all sets share the same smileys.';
+$txt['smiley_editsmileys_explain'] = 'Change your smileys here by clicking on the smiley you want to modify. Remember that these smileys all have to exist in all the sets or some smileys won\'t show up. Don\'t forget to save after you are done editing.';
 $txt['smiley_setorder_explain'] = 'Change the order of the smileys here.';
 $txt['smiley_addsmiley_explain'] = 'Here you can add a new smiley - either from an existing file or by uploading new ones.';
 
@@ -63,7 +61,7 @@ $txt['smiley_set_import_multiple'] = 'There are %1$d smileys in the directory th
 $txt['smileys_location'] = 'Location';
 $txt['smileys_location_form'] = 'Post form';
 $txt['smileys_location_hidden'] = 'Hidden';
-$txt['smileys_location_popup'] = 'Popup';
+$txt['smileys_location_popup'] = 'More';
 $txt['smileys_modify'] = 'Modify';
 $txt['smileys_not_found_in_set'] = 'Smiley not found in set(s)';
 $txt['smileys_default_description'] = '(Insert a description)';
@@ -73,7 +71,7 @@ $txt['smiley_preview'] = 'Preview';
 $txt['smiley_preview_using'] = 'using smiley set';
 $txt['smileys_confirm'] = 'Are you sure you want to remove these smileys?\\n\\nNote: This won\\\'t remove the images, just the choices.';
 $txt['smileys_location_form_description'] = 'These smileys will appear above the text area, when posting a new forum message or Personal Message.';
-$txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'[more]\'';
+$txt['smileys_location_popup_description'] = 'These smileys will be shown in a popup, that is shown after a user has clicked \'more\' button.';
 $txt['smileys_move_select_destination'] = 'Select smiley destination';
 $txt['smileys_move_select_smiley'] = 'Select smiley to move';
 $txt['smileys_move_here'] = 'Move smiley to this location';

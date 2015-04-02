@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
@@ -70,7 +70,7 @@ function ManageNews()
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -85,7 +85,7 @@ function ManageNews()
  */
 function EditNews()
 {
-	global $txt, $modSettings, $context, $sourcedir, $user_info, $scripturl;
+	global $txt, $modSettings, $context, $sourcedir, $scripturl;
 	global $smcFunc;
 
 	require_once($sourcedir . '/Subs-Post.php');
@@ -105,6 +105,8 @@ function EditNews()
 
 		// Update the database.
 		updateSettings(array('news' => implode("\n", $temp_news)));
+
+		$context['saved_successful'] = true;
 
 		logAction('news');
 	}
@@ -127,6 +129,8 @@ function EditNews()
 		// Send the new news to the database.
 		updateSettings(array('news' => implode("\n", $_POST['news'])));
 
+		$context['saved_successful'] = true;
+
 		// Log this into the moderation log.
 		logAction('news');
 	}
@@ -148,15 +152,14 @@ function EditNews()
 					'value' => $txt['admin_edit_news'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<textarea id="data_\' . $news[\'id\'] . \'" rows="3" cols="50" name="news[]" style="\' . (isBrowser(\'is_ie8\') ? \'width: 635px; max-width: 85%; min-width: 85%\' : \'width 100%;margin 0 5em\') . \';">\' . $news[\'unparsed\'] . \'</textarea>
-							<br />
-							<div class="floatleft" id="preview_\' . $news[\'id\'] . \'"></div>\';
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
+							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
-							return $news[\'unparsed\'];
-					'),
+							return $news['unparsed'];
+					},
 					'style' => 'width: 50%;',
 				),
 			),
@@ -165,26 +168,26 @@ function EditNews()
 					'value' => $txt['preview'],
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						return \'<div id="box_preview_\' . $news[\'id\'] . \'" style="overflow: auto; width: 100%; height: 10ex;">\' . $news[\'parsed\'] . \'</div>\';
-					'),
+					'function' => function ($news)
+					{
+						return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
+					},
 					'style' => 'width: 45%;',
 				),
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$news', '
-
-						if (is_numeric($news[\'id\']))
-							return \'<input type="checkbox" name="remove[]" value="\' . $news[\'id\'] . \'" class="input_check" />\';
+					'function' => function ($news)
+					{
+						if (is_numeric($news['id']))
+							return '<input type="checkbox" name="remove[]" value="' . $news['id'] . '" class="input_check">';
 						else
-							return \'\';
-					'),
+							return '';
+					},
 					'class' => 'centercol',
 				),
 			),
@@ -202,8 +205,8 @@ function EditNews()
 				<span id="moreNewsItems_link" class="floatleft" style="display: none;">
 					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
-				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit" />
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit" />',
+				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit">
+				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 		'javascript' => '
@@ -245,8 +248,8 @@ function EditNews()
 						$("#list_news_lists_last").before(' . javaScriptEscape('
 						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
 							<td style="width: 50%;">
-									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 95%') . ';"></textarea>
-									<br />
+									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="width: 95%;"></textarea>
+									<br>
 									<div class="floatleft" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
 							</td>
 							<td style="width: 45%;">
@@ -261,8 +264,9 @@ function EditNews()
 	// Create the request list.
 	createList($listOptions);
 
-	$context['sub_template'] = 'show_list';
-	$context['default_list'] = 'news_lists';
+	// And go!
+	loadTemplate('ManageNews');
+	$context['sub_template'] = 'news_lists';
 }
 
 /**
@@ -286,7 +290,7 @@ function list_getNews()
 	$admin_current_news['last'] = array(
 		'id' => 'last',
 		'unparsed' => '<div id="moreNewsItems"></div>
-		<noscript><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea></noscript>',
+		<noscript><textarea rows="3" cols="65" name="news[]" style="width: 85%;"></textarea></noscript>',
 		'parsed' => '<div id="moreNewsItems_preview"></div>',
 	);
 
@@ -305,6 +309,9 @@ function list_getNews()
 function SelectMailingMembers()
 {
 	global $txt, $context, $modSettings, $smcFunc;
+
+	// Is there any confirm message?
+	$context['newsletter_sent'] = isset($_SESSION['newsletter_sent']) ? $_SESSION['newsletter_sent'] : '';
 
 	$context['page_title'] = $txt['admin_newsletters'];
 
@@ -416,6 +423,8 @@ function SelectMailingMembers()
 	$smcFunc['db_free_result']($request);
 
 	$context['can_send_pm'] = allowedTo('pm_send');
+
+	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 }
 
 /**
@@ -424,7 +433,7 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview ()
 {
-	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	global $context, $modSettings, $scripturl, $user_info, $txt;
 	loadLanguage('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
@@ -485,14 +494,14 @@ function prepareMailingForPreview ()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc, $scripturl, $modSettings;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Setup the template!
 	$context['page_title'] = $txt['admin_newsletters'];
 	$context['sub_template'] = 'email_members_compose';
 
-	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : htmlspecialchars($context['forum_name'] . ': ' . $txt['subject']);
-	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : htmlspecialchars($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
+	$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : $smcFunc['htmlspecialchars']($context['forum_name'] . ': ' . $txt['subject']);
+	$context['message'] = !empty($_POST['message']) ? $_POST['message'] : $smcFunc['htmlspecialchars']($txt['message'] . "\n\n" . $txt['regards_team'] . "\n\n" . '{$board_url}');
 
 	// Needed for the WYSIWYG editor.
 	require_once($sourcedir . '/Subs-Editor.php');
@@ -507,6 +516,7 @@ function ComposeMailing()
 			'post_button' => $txt['sendtopic_send'],
 		),
 		'preview_type' => 2,
+		'required' => true,
 	);
 	create_control_richedit($editorOptions);
 	// Store the ID for old compatibility.
@@ -676,7 +686,7 @@ function ComposeMailing()
  * Called by ?action=admin;area=news;sa=mailingsend
  * Requires the send_mail permission.
  * Redirects to itself when more batches need to be sent.
- * Redirects to ?action=admin after everything has been sent.
+ * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
  *
  * @param bool $clean_only = false; if set, it will only clean the variables, put them in context, then return.
  * @uses the ManageNews template and email_members_send sub template.
@@ -694,7 +704,7 @@ function SendMailing($clean_only = false)
 
 	// How many to send at once? Quantity depends on whether we are queueing or not.
 	// @todo Might need an interface? (used in Post.php too with different limits)
-	$num_at_once = empty($modSettings['mail_queue']) ? 60 : 1000;
+	$num_at_once = 1000;
 
 	// If by PM's I suggest we half the above number.
 	if (!empty($_POST['send_pm']))
@@ -711,7 +721,8 @@ function SendMailing($clean_only = false)
 	$context['parse_html'] = !empty($_POST['parse_html']) ? '1' : '0';
 
 	//One can't simply nullify things around
-	if(empty($_REQUEST['total_members'])) {
+	if (empty($_REQUEST['total_members']))
+	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}members',
@@ -720,7 +731,9 @@ function SendMailing($clean_only = false)
 		);
 		list ($context['total_members']) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
-	} else {
+	}
+	else
+	{
 		$context['total_members'] = (int) $_REQUEST['total_members'];
 	}
 
@@ -787,7 +800,7 @@ function SendMailing($clean_only = false)
 		foreach ($addressed as $curmem)
 		{
 			$curmem = trim($curmem);
-			if ($curmem != '' && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $curmem) !== 0)
+			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
 				$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}
@@ -803,15 +816,15 @@ function SendMailing($clean_only = false)
 	$_POST['message'] = !empty($_POST['message']) ? $_POST['message'] : '';
 
 	// Save the message and its subject in $context
-	$context['subject'] = htmlspecialchars($_POST['subject']);
-	$context['message'] = htmlspecialchars($_POST['message']);
+	$context['subject'] = $smcFunc['htmlspecialchars']($_POST['subject'], ENT_QUOTES);
+	$context['message'] = $smcFunc['htmlspecialchars']($_POST['message'], ENT_QUOTES);
 
 	// Prepare the message for sending it as HTML
 	if (!$context['send_pm'] && !empty($_POST['send_html']))
 	{
 		// Prepare the message for HTML.
 		if (!empty($_POST['parse_html']))
-			$_POST['message'] = str_replace(array("\n", '  '), array('<br />' . "\n", '&nbsp; '), $_POST['message']);
+			$_POST['message'] = str_replace(array("\n", '  '), array('<br>' . "\n", '&nbsp; '), $_POST['message']);
 
 		// This is here to prevent spam filters from tagging this as spam.
 		if (preg_match('~\<html~i', $_POST['message']) == 0)
@@ -890,7 +903,7 @@ function SendMailing($clean_only = false)
 			$email
 		);
 
-		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, null, !empty($_POST['send_html']), 5);
+		sendmail($email, str_replace($from_member, $to_member, $_POST['subject']), str_replace($from_member, $to_member, $_POST['message']), null, 'news', !empty($_POST['send_html']), 5);
 
 		// Done another...
 		$i++;
@@ -928,7 +941,11 @@ function SendMailing($clean_only = false)
 
 		// If we've not got a query then we must be done!
 		if ($sendQuery == '()')
-			redirectexit('action=admin');
+		{
+			// Set a confirmation message.
+			$_SESSION['newsletter_sent'] = 'queue_done';
+			redirectexit('action=admin;area=news;sa=mailingmembers');
+		}
 
 		// Anything to exclude?
 		if (!empty($context['recipients']['exclude_groups']) && in_array(0, $context['recipients']['exclude_groups']))
@@ -997,7 +1014,7 @@ function SendMailing($clean_only = false)
 
 			// Send the actual email - or a PM!
 			if (!$context['send_pm'])
-				sendmail($row['email_address'], $subject, $message, null, null, !empty($_POST['send_html']), 5);
+				sendmail($row['email_address'], $subject, $message, null, 'news', !empty($_POST['send_html']), 5);
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
@@ -1010,7 +1027,8 @@ function SendMailing($clean_only = false)
 	{
 		// Log this into the admin log.
 		logAction('newsletter', array(), 'admin');
-		redirectexit('action=admin');
+		$_SESSION['newsletter_sent'] = 'queue_done';
+		redirectexit('action=admin;area=news;sa=mailingmembers');
 	}
 
 	// Working out progress is a black art of sorts.
@@ -1032,7 +1050,7 @@ function SendMailing($clean_only = false)
  */
 function ModifyNewsSettings($return_config = false)
 {
-	global $context, $sourcedir, $modSettings, $txt, $scripturl;
+	global $context, $sourcedir, $txt, $scripturl;
 
 	$config_vars = array(
 		array('title', 'settings'),
@@ -1042,7 +1060,7 @@ function ModifyNewsSettings($return_config = false)
 		'',
 			// Just the remaining settings.
 			array('check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'),
-			array('text', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
+			array('int', 'xmlnews_maxlen', 'subtext' => $txt['xmlnews_maxlen_note'], 10),
 	);
 
 	call_integration_hook('integrate_modify_news_settings', array(&$config_vars));
@@ -1061,10 +1079,8 @@ function ModifyNewsSettings($return_config = false)
 	$context['permissions_excluded'] = array(-1);
 
 	// Add some javascript at the bottom...
-	$context['settings_insert_below'] = '
-		<script type="text/javascript"><!-- // --><![CDATA[
-			document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;
-		// ]]></script>';
+	addInlineJavascript('
+	document.getElementById("xmlnews_maxlen").disabled = !document.getElementById("xmlnews_enable").checked;', true);
 
 	// Saving the settings?
 	if (isset($_GET['save']))
@@ -1074,6 +1090,7 @@ function ModifyNewsSettings($return_config = false)
 		call_integration_hook('integrate_save_news_settings');
 
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=news;sa=settings');
 	}
 

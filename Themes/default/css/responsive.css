@@ -1,0 +1,454 @@
+/* iPhone Tests */
+@media (max-width: 320px) {
+	#pm_menu {
+		margin: 0 0 0 -60px;
+	}
+	#alerts_menu {
+		margin: 0 0 0 -150px;
+	}
+	#notify_dropdown {
+		margin: 5px 0 0 2px;
+	}
+	.dropmenu li a {
+		width: 80%;
+	}
+}
+
+/* I have a Lumia with 480px screen... so ^^ */
+@media (max-width: 480px) {
+	/* This is general */
+	.popup_window {
+		width: 93% !important;
+		min-height: 285px !important;
+	}
+	.button_submit {
+		min-width: 15%;
+		margin: 0 0 0 2px;
+	}
+	h1.forumtitle a, h1.forumtitle {
+		padding: 5px 0 0 4px !important;
+		max-width: 300px;
+		margin: 10px 0;
+	}
+	span.board_moderators {
+		display: none !important;
+	}
+	#alerts_menu {
+		margin: 0 0 0 -175px;
+	}
+	#pm_menu {
+		margin: 0 0 0 -85px;
+	}
+	.dropmenu li {
+		width: 50%;
+	}
+	.dropmenu li a {
+		width: 65%;
+	}
+	.dropmenu ul li a {
+		width: auto !important;
+	}
+	/* BoardIndex */
+	div.icon {
+		width: 15% !important;
+	}
+	div.lastpost {
+		display: none;
+	}
+	/* MessageIndex */
+	#main_content_section .pagelinks {
+		display: block;
+	}
+	#main_content_section .pagesection {
+		margin: 5px 0;
+		padding: 0;
+	}
+	#main_content_section .buttonlist {
+		margin: 0 0 5px 0;
+		padding: 0;
+		display: block;
+		clear: both;
+	}
+	#main_content_section .button {
+		padding: 0 6px;
+		margin: 5px 0 0 0;
+		font-size: 0.75em;
+	}
+	#topic_icons p {
+		display: block;
+		width: 100%;
+	}
+	/* Register Page */
+	#registration .button_submit {
+		font-size: 0.67em;
+	}
+	dl.register_form {
+		float: none !important;
+		max-width: 350px !important;
+	}
+	dl.register_form dt, dl.register_form dd {
+		float: none !important;
+		min-width: 250px !important;
+	}
+
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+
+	/* Post Section */
+	#post_header dd {
+		width: 55% !important;
+	}
+	#post_header dt {
+		width: 35% !important;
+	}
+	img#icons {
+		margin: 0 0 0 5px;
+	}
+	#quickReplyOptions #postmodify {
+		width: 100%;
+	}
+	/* Poll */
+	#poll_options dl.options {
+		padding: 0;
+	}
+	#poll_options dl.options dt,
+	#poll_options dl.options dd,
+	dl.settings dt, dl.settings dd	{
+		width: 100%;
+		float: none;
+	}
+	.move_topic {
+		width: 100%;
+	}
+	/* Stats Center */
+	.half_content {
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+	th.recentboard, th.recenttime,
+	td.recentboard, td.recenttime {
+		display: none;
+	}
+
+	/* Search */
+	#searchform .roundframe {
+		padding: 5px;
+	}
+	#advanced_search dt {
+		text-align: left;
+		float: left;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+	/* Memberlist */
+	th.website_url,
+	td.website_url, td.reg_group, td.reg_date, td.post_num, td.statsbar {
+		display: none;
+	}
+	#mlist .posts {
+		width: 50px;
+	}
+	#mlist_search dt {
+		width: 100%;
+		display: block;
+	}
+	#mlist_search dd {
+		float: left;
+	}
+	#mlist_search .input_check{
+		margin: 0 13px 0 0;
+	}
+	#mlist_search .input_text {
+		width: 93%;
+	}
+	/* Moderation */
+	.post_note input {
+		width: 75% !important;
+	}
+	.modbox .floatleft {
+		float: none;
+	}
+	/* Admin */
+	#live_news, #supportVersionsTable {
+		width: 100% !important;
+		padding: 0 !important;
+		margin: 0 0 5px 0;
+	}
+	.admin_group a {
+		width: 50% !important;
+		float: left;
+		margin: 0 0 5px 0;
+	}
+	.action_admin .navigate_section {
+		display: none;
+	}
+	/* Menu tests */
+	#adm_submenus {
+		padding: 0;
+	}
+	#adm_submenus .dropmenu li {
+		float: left;
+		margin: 0;
+	}
+	/* 3rd level menu tests */
+	.dropmenu li ul ul {
+		margin: 0 !important;
+	}
+	.dropmenu li li:hover ul, .dropmenu li li ul {
+		left: 1px !important;
+	}
+}
+
+@media (min-width: 481px) and (max-width: 720px) {
+	/* Display (Topic View) */
+	.poster {
+		float: none !important;
+	}
+	.postarea {
+		margin: 0 !important;
+	}
+	.moderatorbar {
+		margin: 0 !important;
+	}
+	img.bbc_img.resized {
+		max-width: 250px;
+		max-height: 300px;
+	}
+	img.icon, #forumposts .catbg img {
+		display:none;
+	}
+	.keyinfo h5 .modified {
+		float: none !important;
+	}
+
+	/* Stats Center */
+	#ic_recentposts {
+		margin: 0 !important;
+		width: 100% !important;
+	}
+	#upshrinkHeaderIC p.inline, #upshrinkHeaderIC p.last {
+		padding: 5px !important;
+	}
+
+	/* Search */
+	#advanced_search dt {
+		text-align: left;
+		width: 100%;
+		float: left;
+	}
+	#advanced_search dd {
+		width: 100%;
+	}
+	#advanced_search dl#search_options {
+		width: 100%;
+	}
+	INPUT#searchfor.input_text, INPUT#userspec.input_text {
+		width: 75%;
+	}
+}
+/* We have shared things... */
+@media screen and (max-width: 720px) {
+	/* Stuff */
+	.infolinks {
+		display: inline-block;
+		margin: 5px 7px 0 0;
+	}
+	#registration .field_icons {
+		float: left;
+		margin: 5px 0 0 3px;
+	}
+	dl.register_form dt span {
+		display: inline;
+	}
+	.button_submit.qaction {
+		width: 10%;
+		margin: 0;
+	}
+	.qaction {
+		width: 40%;
+		margin: 0 5px 0 0;
+	}
+
+	/* Menu */
+	.quickbuttons li:hover ul {
+		display: none;
+	}
+
+	/* General */
+	.action_home {
+		width: 100% !important;
+	}
+	#wrapper, .frame {
+		min-width: 100% !important;
+	}
+	#upper_section, #inner_section, #content_section {
+		border-radius: 0;
+	}
+	#boardindex_table .stats {
+		display: none;
+	}
+	.login {
+		width: 100%;
+	}
+	.top_menu {
+		width: 23em !important;
+	}
+	.unread_links {
+		width: 95%;
+		float: left !important;
+	}
+	.unread_links a {
+		padding: 5px 0 5px 0 !important;
+		margin-right: 3px;
+	}
+
+	/* BoardIndex */
+	div.icon span {
+		margin-top: 10px;
+	}
+	div.info {
+		width: 75% !important;
+	}
+	div.stats {
+		display: none;
+	}
+	div.lastpost {
+		width: 100%;
+		margin: 0 0 0 5px;
+		padding: 0;
+	}
+	span.postby {
+		float: none;
+	}
+
+	/* MessageIndex */
+	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
+		display: none;
+	}
+	#messageindex .info {
+		width: 95% !important;
+		margin: 0 5px 0 5px;
+	}
+
+	/* Display (Topics) */
+	.user_info {
+		display: none;
+	}
+	#moderationbuttons_strip a {
+		float: left;
+		width: 40%;
+		max-width: 90px;
+		margin: 0 5px 7px 0 !important; /* Extra margin for fat fingers like Kindred */
+	}
+	.button.button_strip_mark_unread {
+		display: none;
+	}
+	.button.mobile {
+		margin: 0 0 5px 0;
+	}
+
+	/* Profile */
+	#admin_content .content {
+		padding: 0;
+	}
+	#creator dt {
+		width: 33%;
+	}
+	#creator dd {
+		width: 65%;
+	}
+	#basicinfo, #detailedinfo {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	#basicinfo {
+		margin: 0 0 5px 0; /* For UX */
+	}
+	/* Post Screen */
+	form#postmodify .roundframe {
+		padding: 5px !important;
+	}
+	#post_header input {
+		width: 100%;
+	}
+	#post_confirm_buttons .smalltext {
+		display: none;
+	}
+	.sceditor-container {
+		width: 100% !important;
+	}
+	ul.post_options {
+		padding: 0;
+		margin: 0;
+	}
+	ul.post_options li {
+		margin: 2px 5px 0 0;
+		width: 48%;
+	}
+	/* Calendar */
+	#event_main .input_text {
+		width: 60%;
+	}
+	/* Hide me */
+	#inner_wrap, #search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
+	#siteslogan, th.id_group, th.registered,
+	td.lefttext.id_group, td.lefttext.registered, td.posts, td.statsbar.posts,
+	#main_content_section .navigate_section, a.topbottom, .pagesection.top, .time {
+		display: none !important;
+	}
+
+	/* Admin */
+	.table_grid.half_content {
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+}
+/* Still not enough data or people to test this... */
+/* This needs more data and this range is probably for iPad Air (alike) tablets... */
+@media (min-width: 721px) and (max-width: 855px) {
+	div.lastpost {
+		margin: 0 0 0 20px !important;
+	}
+	div.stats {
+		display: none;
+	}
+}
+
+/* Some very big stuff? Dunno... */
+@media (min-width: 856px) and (max-width: 1024px) {
+	div.lastpost {
+		width: 20% !important;
+		margin: 3px 0 0 5px;
+	}
+}

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -30,7 +30,7 @@ if (!defined('SMF'))
  */
 function MoveTopic()
 {
-	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $settings, $smcFunc, $modSettings;
+	global $txt, $board, $topic, $user_info, $context, $language, $scripturl, $smcFunc, $modSettings, $sourcedir;
 
 	if (empty($topic))
 		fatal_lang_error('no_access', false);
@@ -59,49 +59,38 @@ function MoveTopic()
 		if ($id_member_started == $user_info['id'])
 		{
 			isAllowedTo('move_own');
-			//$boards = array_merge(boardsAllowedTo('move_own'), boardsAllowedTo('move_any'));
 		}
 		else
 			isAllowedTo('move_any');
 	}
-	//else
-		//$boards = boardsAllowedTo('move_any');
+
+	$context['move_any'] = $user_info['is_admin'] || $modSettings['topic_move_any'];
+	$boards = array();
+
+	if (!$context['move_any'])
+	{
+		$boards = array_diff(boardsAllowedTo('post_new'), array($board));
+		if (empty($boards))
+		{
+			// No boards? Too bad...
+			fatal_lang_error('moveto_no_boards');
+		}
+	}
 
 	loadTemplate('MoveTopic');
 
-	// Get a list of boards this moderator can move to.
-	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
-		FROM {db_prefix}boards AS b
-			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-		WHERE {query_see_board}
-			AND b.redirect = {string:blank_redirect}',
-		array(
-			'blank_redirect' => '',
-			'current_board' => $board,
-		)
+	$options = array(
+		'not_redirection' => true,
 	);
-	$number_of_boards = $smcFunc['db_num_rows']($request);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (!isset($context['categories'][$row['id_cat']]))
-			$context['categories'][$row['id_cat']] = array (
-				'name' => strip_tags($row['cat_name']),
-				'boards' => array(),
-			);
 
-		$context['categories'][$row['id_cat']]['boards'][] = array(
-			'id' => $row['id_board'],
-			'name' => strip_tags($row['name']),
-			'category' => strip_tags($row['cat_name']),
-			'child_level' => $row['child_level'],
-			'selected' => !empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] == $row['id_board'] && $row['id_board'] != $board,
-		);
-	}
-	$smcFunc['db_free_result']($request);
+	if (!empty($_SESSION['move_to_topic']) && $_SESSION['move_to_topic'] != $board)
+		$options['selected_board'] = $_SESSION['move_to_topic'];
 
-	if (empty($context['categories']) || (!empty($number_of_boards) && $number_of_boards == 1))
-		fatal_lang_error('moveto_noboards', false);
+	if (!$context['move_any'])
+		$options['included_boards'] = $boards;
+
+	require_once($sourcedir . '/Subs-MessageIndex.php');
+	$context['categories'] = getBoardList($options);
 
 	$context['page_title'] = $txt['move_topic'];
 
@@ -124,6 +113,8 @@ function MoveTopic()
 
 		$txt['movetopic_default'] = $temp;
 	}
+
+	$context['sub_template'] = 'move';
 
 	moveTopicConcurrence();
 
@@ -390,13 +381,13 @@ function MoveTopic2()
  * Handles the moving of mark_read data
  * Updates the posts count of the affected boards
  *
- * @param type $topics
- * @param type $toBoard
- * @return type
+ * @param array $topics
+ * @param int $toBoard
+ * @return void
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc;
+	global $sourcedir, $user_info, $modSettings, $smcFunc, $sourcedir;
 
 	// Empty array?
 	if (empty($topics))
@@ -414,6 +405,12 @@ function moveTopics($topics, $toBoard)
 
 	// Are we moving to the recycle board?
 	$isRecycleDest = !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $toBoard;
+
+	// Callback for search APIs to do their thing
+	require_once($sourcedir . '/Search.php');
+	$searchAPI = findSearchAPI();
+	if ($searchAPI->supportsMethod('topicsMoved'))
+		$searchAPI->topicsMoved($topics, $toBoard);
 
 	// Determine the source boards...
 	$request = $smcFunc['db_query']('', '

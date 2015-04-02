@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -60,9 +60,9 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 		);
 
 	if (!empty($db_options['persist']))
-		$connection = @pg_pconnect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'');
+		$connection = @pg_pconnect('host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 	else
-		$connection = @pg_connect( 'host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'');
+		$connection = @pg_connect( 'host=' . $db_server . ' dbname=' . $db_name . ' user=\'' . $db_user . '\' password=\'' . $db_passwd . '\'' . (empty($db_options['port']) ? '' : ' port=\'' . $db_options['port'] . '\''));
 
 	// Something's wrong, show an error if its fatal (which we assume it is)
 	if (!$connection)
@@ -109,7 +109,7 @@ function db_fix_prefix (&$db_prefix, $db_name)
 }
 
 /**
- * Callback for preg_replace_calback on the query.
+ * Callback for preg_replace_callback on the query.
  * It allows to replace on the fly a few pre-defined strings, for
  * convenience ('query_see_board', 'query_wanna_see_board'), with
  * their current values from $user_info.
@@ -120,7 +120,7 @@ function db_fix_prefix (&$db_prefix, $db_name)
  */
 function smf_db_replacement__callback($matches)
 {
-	global $db_callback, $user_info, $db_prefix;
+	global $db_callback, $user_info, $db_prefix, $smcFunc;
 
 	list ($values, $connection) = $db_callback;
 
@@ -140,10 +140,10 @@ function smf_db_replacement__callback($matches)
 		smf_db_error_backtrace('Invalid value inserted or no type specified.', '', E_USER_ERROR, __FILE__, __LINE__);
 
 	if ($matches[1] === 'literal')
-		return pg_escape_string($matches[2]);
+		return '\'' . pg_escape_string($matches[2]) . '\'';
 
 	if (!isset($values[$matches[2]]))
-		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
+		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
 
 	$replacement = $values[$matches[2]];
 
@@ -273,18 +273,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Special queries that need processing.
 	$replacements = array(
-		'alter_table_boards' => array(
-			'~(.+)~' => '',
-		),
-		'alter_table_icons' => array(
-			'~(.+)~' => '',
-		),
-		'alter_table_smileys' => array(
-			'~(.+)~' => '',
-		),
-		'alter_table_spiders' => array(
-			'~(.+)~' => '',
-		),
 		'ban_suggest_error_ips' => array(
 			'~RLIKE~' => '~',
 			'~\\.~' => '\.',
@@ -296,8 +284,8 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
-		'delete_subscription' => array(
-			'~LIMIT 1~' => '',
+		'cron_find_task' => array(
+			'~ORDER BY null~' => 'ORDER BY null::int'
 		),
 		'display_get_post_poster' => array(
 			'~GROUP BY id_msg\s+HAVING~' => 'AND',
@@ -307,7 +295,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'boardindex_fetch_boards' => array(
 			'~IFNULL\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN IFNULL(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
-			'~(.)$~' => '$1 ORDER BY b.board_order',
 		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
@@ -321,12 +308,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'insert_log_search_results_subject' => array(
 			'~NOT RLIKE~' => '!~',
 		),
-		'messageindex_fetch_boards' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'select_message_icons' => array(
-			'~(.)$~' => '$1 ORDER BY icon_order',
-		),
 		'set_character_set' => array(
 			'~SET\\s+NAMES\\s([a-zA-Z0-9\\-_]+)~' => 'SET NAMES \'$1\'',
 		),
@@ -336,20 +317,14 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'top_topic_starters' => array(
 			'~ORDER BY FIND_IN_SET\(id_member,(.+?)\)~' => 'ORDER BY STRPOS(\',\' || $1 || \',\', \',\' || id_member|| \',\')',
 		),
-		'order_by_board_order' => array(
-			'~(.)$~' => '$1 ORDER BY b.board_order',
-		),
-		'spider_check' => array(
-			'~(.)$~' => '$1 ORDER BY LENGTH(user_agent) DESC',
-		),
 		'unread_replies' => array(
 			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',
 		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
-		'set_smiley_order' => array(
-			'~(.+)~' => '',
+		'case_insensitive' => array(
+			'~LIKE~' => 'ILIKE',
 		),
 	);
 
@@ -454,19 +429,13 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		$clean .= substr($db_string, $old_pos);
 		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
-		// We don't use UNION in SMF, at least so far.  But it's useful for injections.
-		if (strpos($clean, 'union') !== false && preg_match('~(^|[^a-z])union($|[^[a-z])~s', $clean) != 0)
-			$fail = true;
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
-		elseif (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
+		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
 			$fail = true;
 		// Trying to change passwords, slow us down, or something?
 		elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0)
 			$fail = true;
 		elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0)
-			$fail = true;
-		// Sub selects?  We don't use those either.
-		elseif (preg_match('~\([^)]*?select~s', $clean) != 0)
 			$fail = true;
 
 		if (!empty($fail) && function_exists('log_error'))
@@ -562,10 +531,9 @@ function smf_db_transaction($type = 'commit', $connection = null)
  */
 function smf_db_error($db_string, $connection = null)
 {
-	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $forum_version, $db_connection, $db_last_error, $db_persist;
-	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
-	global $smcFunc;
+	global $txt, $context, $modSettings;
+	global $db_connection;
+	global $db_show_debug;
 
 	// We'll try recovering the file and line number the original db query was called from.
 	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);
@@ -587,13 +555,13 @@ function smf_db_error($db_string, $connection = null)
 	// Show an error message, if possible.
 	$context['error_title'] = $txt['database_error'];
 	if (allowedTo('admin_forum'))
-		$context['error_message'] = nl2br($query_error) . '<br />' . $txt['file'] . ': ' . $file . '<br />' . $txt['line'] . ': ' . $line;
+		$context['error_message'] = nl2br($query_error) . '<br>' . $txt['file'] . ': ' . $file . '<br>' . $txt['line'] . ': ' . $line;
 	else
 		$context['error_message'] = $txt['try_again'];
 
 	if (allowedTo('admin_forum') && isset($db_show_debug) && $db_show_debug === true)
 	{
-		$context['error_message'] .= '<br /><br />' . nl2br($db_string);
+		$context['error_message'] .= '<br><br>' . nl2br($db_string);
 	}
 
 	// It's already been logged... don't log it again.
@@ -813,7 +781,7 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		// Found it?
 		if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
 		{
-			$log_message .= '<br />Function: ' . $step['function'];
+			$log_message .= '<br>Function: ' . $step['function'];
 			break;
 		}
 

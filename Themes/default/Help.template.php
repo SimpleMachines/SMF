@@ -3,31 +3,31 @@
  * Simple Machines Forum (SMF)
  *
  * @package SMF
- * @author Simple Machines
- * @copyright 2013 Simple Machines and individual contributors
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 function template_popup()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $txt, $modSettings;
 
 	// Since this is a popup of its own we need to start the html, etc.
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
+		<meta charset="', $context['character_set'], '">
+		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body id="help_popup">
 		<div class="windowbg description">
-			', $context['help_text'], '<br />
-			<br />
+			', $context['help_text'], '<br>
+			<br>
 			<a href="javascript:self.close();">', $txt['close_window'], '</a>
 		</div>
 	</body>
@@ -36,17 +36,17 @@ function template_popup()
 
 function template_find_members()
 {
-	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+	global $context, $settings, $scripturl, $modSettings, $txt;
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	echo '<!DOCTYPE html>
+<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $txt['find_members'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '" />
-		<meta name="robots" content="noindex" />
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21" />
-		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<meta charset="', $context['character_set'], '">
+		<meta name="robots" content="noindex">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
+		<script><!-- // --><![CDATA[
 			var membersAdded = [];
 			function addMember(name)
 			{
@@ -75,23 +75,23 @@ function template_find_members()
 					<h3 class="catbg">', $txt['find_members'], '</h3>
 				</div>
 				<div class="padding">
-					<strong>', $txt['find_username'], ':</strong><br />
-					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text" /><br />
-					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br />';
+					<strong>', $txt['find_username'], ':</strong><br>
+					<input type="text" name="search" id="search" value="', isset($context['last_search']) ? $context['last_search'] : '', '" style="margin-top: 4px; width: 96%;" class="input_text"><br>
+					<span class="smalltext"><em>', $txt['find_wildcards'], '</em></span><br>';
 
 	// Only offer to search for buddies if we have some!
 	if (!empty($context['show_buddies']))
 		echo '
-					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked="checked"' : '', ' /> ', $txt['find_buddies'], '</label></span><br />';
+					<span class="smalltext"><label for="buddies"><input type="checkbox" class="input_check" name="buddies" id="buddies"', !empty($context['buddy_search']) ? ' checked' : '', '> ', $txt['find_buddies'], '</label></span><br>';
 
 	echo '
 					<div class="padding righttext">
-						<input type="submit" value="', $txt['search'], '" class="button_submit" />
-						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit" />
+						<input type="submit" value="', $txt['search'], '" class="button_submit">
+						<input type="button" value="', $txt['find_close'], '" onclick="window.close();" class="button_submit">
 					</div>
 				</div>
 			</div>
-			<br />
+			<br>
 			<div class="roundframe">
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['find_results'], '</h3>
@@ -105,16 +105,13 @@ function template_find_members()
 		echo '
 				<ul class="reset padding">';
 
-		$alternate = true;
 		foreach ($context['results'] as $result)
 		{
 			echo '
-					<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
-						<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '" /></a>
+					<li class="windowbg">
+						<a href="', $result['href'], '" target="_blank" class="new_win"> <span class="generic_icons profile_sm"></span>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
-
-			$alternate = !$alternate;
 		}
 
 		echo '
@@ -127,14 +124,14 @@ function template_find_members()
 	echo '
 
 			</div>
-			<input type="hidden" name="input" value="', $context['input_box_name'], '" />
-			<input type="hidden" name="delim" value="', $context['delimiter'], '" />
-			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '" />
+			<input type="hidden" name="input" value="', $context['input_box_name'], '">
+			<input type="hidden" name="delim" value="', $context['delimiter'], '">
+			<input type="hidden" name="quote" value="', $context['quote_results'] ? '1' : '0', '">
 		</form>';
 
 	if (empty($context['results']))
 		echo '
-		<script type="text/javascript"><!-- // --><![CDATA[
+		<script><!-- // --><![CDATA[
 			document.getElementById("search").focus();
 		// ]]></script>';
 
@@ -153,21 +150,42 @@ function template_manual()
 				<h3 class="catbg">', $txt['manual_smf_user_help'], '</h3>
 			</div>
 			<div id="help_container">
-				<div id="helpmain" class="windowbg2 content">
-					<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
+				<div id="helpmain" class="windowbg2">
+					<p>', sprintf($txt['manual_welcome'], $context['forum_name_html_safe']), '</p>
 					<p>', $txt['manual_introduction'], '</p>
 					<ul>';
 
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
 	{
 		echo '
-						<li><a href="', $context['wiki_url'], '/', $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 	}
 
 	echo '
 					</ul>
 					<p>', sprintf($txt['manual_docs_and_credits'], $context['wiki_url'], $scripturl . '?action=credits'), '</p>
 				</div>
+			</div>';
+}
+
+function template_terms()
+{
+	global $txt, $context, $modSettings;
+
+	if (!empty($modSettings['requireAgreement']))
+		echo '
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['terms_and_rules'], ' - ', $context['forum_name_html_safe'], '
+				</h3>
+			</div>
+			<div class="roundframe">
+				', $context['agreement'], '
+			</div>';
+	else
+		echo '
+			<div class="noticebox">
+				', $txt['agreement_disabled'], '
 			</div>';
 }
 

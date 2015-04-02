@@ -12,10 +12,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -50,8 +50,8 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	require_once($sourcedir . '/ManageAttachments.php');
 	removeAttachments(array('id_member' => $memID));
 
-	$id_folder = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : 1;
-	$avatar_hash = empty($modSettings['custom_avatar_enabled']) ? getAttachmentFilename($destName, false, null, true) : '';
+	$id_folder = 1;
+	$avatar_hash = '';
 	$smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
@@ -59,7 +59,7 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 			'id_folder' => 'int',
 		),
 		array(
-			$memID, empty($modSettings['custom_avatar_enabled']) ? 0 : 1, $destName, $avatar_hash, $ext, 1,
+			$memID, 1, $destName, $avatar_hash, $ext, 1,
 			$id_folder,
 		),
 		array('id_attach')
@@ -70,10 +70,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 	$modSettings['new_avatar_data'] = array(
 		'id' => $attachID,
 		'filename' => $destName,
-		'type' => empty($modSettings['custom_avatar_enabled']) ? 0 : 1,
+		'type' => 1,
 	);
 
-	$destName = (empty($modSettings['custom_avatar_enabled']) ? (is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] : $modSettings['attachmentUploadDir']) : $modSettings['custom_avatar_dir']) . '/' . $destName . '.tmp';
+	$destName = $modSettings['custom_avatar_dir'] . '/' . $destName . '.tmp';
 
 	// Resize it.
 	if (!empty($modSettings['avatar_download_png']))
@@ -86,20 +86,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
 
 	if ($success)
 	{
-		// Walk the right path.
-		if (!empty($modSettings['currentAttachmentUploadDir']))
-		{
-			if (!is_array($modSettings['attachmentUploadDir']))
-				$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
-			$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
-		}
-		else
-			$path = $modSettings['attachmentUploadDir'];
-
 		// Remove the .tmp extension from the attachment.
-		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash))
+		if (rename($destName . '.tmp', empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat'))
 		{
-			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash;
+			$destName = empty($avatar_hash) ? $destName : $path . '/' . $attachID . '_' . $avatar_hash . '.dat';
 			list ($width, $height) = getimagesize($destName);
 			$mime_type = 'image/' . $ext;
 
@@ -173,7 +163,7 @@ function createThumbnail($source, $max_width, $max_height)
 }
 
 /**
- * Used to re-econodes an image to a specifed image format
+ * Used to re-econodes an image to a specified image format
  * - creates a copy of the file at the same location as fileName.
  * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
  * - the function makes sure that all non-essential image contents are disposed.
@@ -200,7 +190,7 @@ function reencodeImage($fileName, $preferred_format = 0)
 }
 
 /**
- * Searches through the file to see if there's potentialy harmful non-binary content.
+ * Searches through the file to see if there's potentially harmful non-binary content.
  * - if extensiveCheck is true, searches for asp/php short tags as well.
  *
  * @param string $fileName
@@ -275,6 +265,16 @@ function checkImagick()
 }
 
 /**
+ * Checks whether the MagickWand extension is present.
+ *
+ * @return whether or not MagickWand is available.
+ */
+ function checkMagickWand()
+ {
+ 	return function_exists('newMagickWand');
+ }
+
+/**
  * See if we have enough memory to thumbnail an image
  *
  * @param array $sizes image size
@@ -317,8 +317,8 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 {
 	global $sourcedir;
 
-	// Nothing to do without GD or IM
-	if (!checkGD() && !checkImagick())
+	// Nothing to do without GD or IM/MW
+	if (!checkGD() && !checkImagick() && !checkMagickWand())
 		return false;
 
 	static $default_formats = array(
@@ -333,7 +333,7 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 
 	// Get the image file, we have to work with something after all
 	$fp_destination = fopen($destination, 'wb');
-	if ($fp_destination && substr($source, 0, 7) == 'http://')
+	if ($fp_destination && (substr($source, 0, 7) == 'http://' || substr($source, 0, 8) == 'https://'))
 	{
 		$fileContents = fetch_web_data($source);
 
@@ -362,12 +362,13 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
 		$sizes = array(-1, -1, -1);
 
 	// See if we have -or- can get the needed memory for this operation
-	if (checkGD() && !imageMemoryCheck($sizes))
+	// ImageMagick isn't subject to PHP's memory limits :)
+	if (!(checkIMagick() || checkMagickWand()) && checkGD() && !imageMemoryCheck($sizes))
 		return false;
 
 	// A known and supported format?
 	// @todo test PSD and gif.
-	if (checkImagick() && isset($default_formats[$sizes[2]]))
+	if ((checkImagick() || checkMagickWand()) && isset($default_formats[$sizes[2]]))
 	{
 		return resizeImage(null, $destination, null, null, $max_width, $max_height, true, $preferred_format);
 	}
@@ -404,7 +405,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 {
 	global $gd2, $modSettings;
 
-	if (checkImagick())
+	if (checkImagick() || checkMagickWand())
 	{
 		static $default_formats = array(
 			'1' => 'gif',
@@ -415,15 +416,37 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		);
 		$preferred_format = empty($preferred_format) || !isset($default_formats[$preferred_format]) ? 2 : $preferred_format;
 
-		$imagick = New Imagick($destName);
-		$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
-		$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
-		$dest_width = empty($max_width) ? $src_width : $max_width;
-		$dest_height = empty($max_height) ? $src_height : $max_height;
+		if (checkImagick())
+		{
+			$imagick = New Imagick($destName);
+			$src_width = empty($src_width) ? $imagick->getImageWidth() : $src_width;
+			$src_height = empty($src_height) ? $imagick->getImageHeight() : $src_height;
+			$dest_width = empty($max_width) ? $src_width : $max_width;
+			$dest_height = empty($max_height) ? $src_height : $max_height;
 
-		$imagick->setImageFormat($default_formats[$preferred_format]);
-		$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
-		$success = $imagick->writeImage($destName);
+			if ($default_formats[$preferred_format] == 'jpeg')
+				$imagick->setCompressionQuality(!empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
+
+			$imagick->setImageFormat($default_formats[$preferred_format]);
+			$imagick->resizeImage($dest_width, $dest_height, Imagick::FILTER_LANCZOS, 1, true);
+			$success = $imagick->writeImage($destName);
+		}
+		else
+		{
+			$magick_wand = newMagickWand();
+			MagickReadImage($magick_wand, $destName);
+			$src_width = empty($src_width) ? MagickGetImageWidth($magick_wand) : $src_width;
+			$src_height = empty($src_height) ? MagickGetImageSize($magick_wand) : $src_height;
+			$dest_width = empty($max_width) ? $src_width : $max_width;
+			$dest_height = empty($max_height) ? $src_height : $max_height;
+
+			if ($default_formats[$preferred_format] == 'jpeg')
+				MagickSetCompressionQuality($magick_wand, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
+
+			MagickSetImageFormat($magick_wand, $default_formats[$preferred_format]);
+			MagickResizeImage($magick_wand, $dest_width, $dest_height, MW_LanczosFilter, 1, true);
+			$success = MagickWriteImage($magick_wand, $destName);
+		}
 
 		return !empty($success);
 	}
@@ -434,14 +457,14 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) || !empty($max_height))
 		{
-			if (!empty($max_width) && (empty($max_height) || $src_height * $max_width / $src_width <= $max_height))
+			if (!empty($max_width) && (empty($max_height) || round($src_height * $max_width / $src_width) <= $max_height))
 			{
 				$dst_width = $max_width;
-				$dst_height = floor($src_height * $max_width / $src_width);
+				$dst_height = round($src_height * $max_width / $src_width);
 			}
 			elseif (!empty($max_height))
 			{
-				$dst_width = floor($src_width * $max_height / $src_height);
+				$dst_width = round($src_width * $max_height / $src_height);
 				$dst_height = $max_height;
 			}
 
@@ -482,7 +505,7 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
 		elseif (!empty($preferred_format) && ($preferred_format == 1) && function_exists('imagegif'))
 			$success = imagegif($dst_img, $destName);
 		elseif (function_exists('imagejpeg'))
-			$success = imagejpeg($dst_img, $destName);
+			$success = imagejpeg($dst_img, $destName, !empty($modSettings['avatar_jpeg_quality']) ? $modSettings['avatar_jpeg_quality'] : 82);
 
 		// Free the memory.
 		imagedestroy($src_img);
@@ -580,7 +603,7 @@ if (!function_exists('imagecreatefrombmp'))
 		$info = unpack('Vsize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vncolor/Vcolorimportant', fread($fp, 40));
 
 		if ($header['type'] != 0x4D42)
-			false;
+			return false;
 
 		if ($gd2)
 			$dst_img = imagecreatetruecolor($info['width'], $info['height']);
@@ -832,10 +855,14 @@ function showCodeImage($code)
 	$font_dir = dir($settings['default_theme_dir'] . '/fonts');
 	$font_list = array();
 	$ttfont_list = array();
+	$endian = unpack('v', pack('S', 0x00FF)) === 0x00FF;
 	while ($entry = $font_dir->read())
 	{
 		if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1)
-			$font_list[] = $entry;
+		{
+			if ($endian ^ (strpos($entry, '_end.gdf') === false))
+				$font_list[] = $entry;
+		}
 		elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1)
 			$ttfont_list[] = $entry;
 	}
@@ -873,7 +900,12 @@ function showCodeImage($code)
 		$loaded_fonts[$font_index] = imageloadfont($settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 
 	// Determine the dimensions of each character.
-	$total_width = $character_spacing * strlen($code) + 40;
+	if ($imageType == 4 || $imageType == 5)
+		$extra = 80;
+	else
+		$extra = 45;
+
+	$total_width = $character_spacing * strlen($code) + $extra;
 	$max_height = 0;
 	foreach ($characters as $char_index => $character)
 	{
@@ -922,7 +954,6 @@ function showCodeImage($code)
 		{
 			// Can we use true type fonts?
 			$can_do_ttf = function_exists('imagettftext');
-
 
 			// How much rotation will we give?
 			if ($rotationType == 'none')

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -43,8 +43,6 @@ function Ban()
 		'list' => 'BanList',
 		'log' => 'BanLog',
 	);
-
-	call_integration_hook('integrate_manage_bans', array(&$subActions));
 
 	// Default the sub-action to 'view ban list'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
@@ -82,13 +80,15 @@ function Ban()
 		),
 	);
 
+	call_integration_hook('integrate_manage_bans', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
  * Shows a list of bans currently set.
- * It is accesssed by ?action=admin;area=ban;sa=list.
+ * It is accessed by ?action=admin;area=ban;sa=list.
  * It removes expired bans.
  * It allows sorting on different criteria.
  * It also handles removal of selected ban items.
@@ -97,8 +97,8 @@ function Ban()
  */
 function BanList()
 {
-	global $txt, $context, $ban_request, $ban_counts, $scripturl;
-	global $user_info, $smcFunc, $sourcedir;
+	global $txt, $context, $scripturl;
+	global $user_info, $sourcedir, $modSettings;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -128,7 +128,7 @@ function BanList()
 	$listOptions = array(
 		'id' => 'ban_list',
 		'title' => $txt['ban_title'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
 		'default_sort_dir' => 'desc',
@@ -183,11 +183,10 @@ function BanList()
 					'value' => $txt['ban_added'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $context;
-
-						return timeformat($rowData[\'ban_time\'], empty($context[\'ban_time_format\']) ? true : $context[\'ban_time_format\']);
-					'),
+					'function' => function ($rowData) use ($context)
+					{
+						return timeformat($rowData['ban_time'], empty($context['ban_time_format']) ? true : $context['ban_time_format']);
+					},
 				),
 				'sort' => array(
 					'default' => 'bg.ban_time',
@@ -199,21 +198,20 @@ function BanList()
 					'value' => $txt['ban_expires'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
+					'function' => function ($rowData) use ($txt)
+					{
 						// This ban never expires...whahaha.
-						if ($rowData[\'expire_time\'] === null)
-							return $txt[\'never\'];
+						if ($rowData['expire_time'] === null)
+							return $txt['never'];
 
 						// This ban has already expired.
-						elseif ($rowData[\'expire_time\'] < time())
-							return sprintf(\'<span style="color: red">%1$s</span>\', $txt[\'ban_expired\']);
+						elseif ($rowData['expire_time'] < time())
+							return sprintf('<span class="red">%1$s</span>', $txt['ban_expired']);
 
 						// Still need to wait a few days for this ban to expire.
 						else
-							return sprintf(\'%1$d&nbsp;%2$s\', ceil(($rowData[\'expire_time\'] - time()) / (60 * 60 * 24)), $txt[\'ban_days\']);
-					'),
+							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), $txt['ban_days']);
+					},
 				),
 				'sort' => array(
 					'default' => 'IFNULL(bg.expire_time, 1=1) DESC, bg.expire_time DESC',
@@ -249,12 +247,12 @@ function BanList()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id_ban_group' => false,
 						),
@@ -269,7 +267,7 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_confirm'] . '\');" class="button_submit" />',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);
@@ -339,16 +337,16 @@ function list_getNumBans()
 /**
  * This function is behind the screen for adding new bans and modifying existing ones.
  * Adding new bans:
- * 	- is accesssed by ?action=admin;area=ban;sa=add.
+ * 	- is accessed by ?action=admin;area=ban;sa=add.
  * 	- uses the ban_edit sub template of the ManageBans template.
  * Modifying existing bans:
- *  - is accesssed by ?action=admin;area=ban;sa=edit;bg=x
+ *  - is accessed by ?action=admin;area=ban;sa=edit;bg=x
  *  - uses the ban_edit sub template of the ManageBans template.
  *  - shows a list of ban triggers for the specified ban.
  */
 function BanEdit()
 {
-	global $txt, $modSettings, $context, $ban_request, $scripturl, $smcFunc, $sourcedir;
+	global $txt, $modSettings, $context, $scripturl, $smcFunc, $sourcedir;
 
 	if ((isset($_POST['add_ban']) || isset($_POST['modify_ban']) || isset($_POST['remove_selection'])) && empty($context['ban_errors']))
 		BanEdit2();
@@ -379,7 +377,7 @@ function BanEdit()
 				'id' => 'ban_items',
 				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxMessages'],
+				'items_per_page' => $modSettings['defaultMaxListItems'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -399,16 +397,15 @@ function BanEdit()
 							'style' => 'width: 60%;text-align: left;',
 						),
 						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt;
-
-								if (in_array($ban_item[\'type\'], array(\'ip\', \'hostname\', \'email\')))
-									return \'<strong>\' . $txt[$ban_item[\'type\']] . \':</strong>&nbsp;\' . $ban_item[$ban_item[\'type\']];
-								elseif ($ban_item[\'type\'] == \'user\')
-									return \'<strong>\' . $txt[\'username\'] . \':</strong>&nbsp;\' . $ban_item[\'user\'][\'link\'];
+							'function' => function ($ban_item) use ($txt)
+							{
+								if (in_array($ban_item['type'], array('ip', 'hostname', 'email')))
+									return '<strong>' . $txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
+								elseif ($ban_item['type'] == 'user')
+									return '<strong>' . $txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
 								else
-									return \'<strong>\' . $txt[\'unknown\'] . \':</strong>&nbsp;\' . $ban_item[\'no_bantype_selected\'];
-							'),
+									return '<strong>' . $txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
+							},
 							'style' => 'text-align: left;',
 						),
 					),
@@ -428,22 +425,21 @@ function BanEdit()
 							'style' => 'width: 15%; text-align: center;',
 						),
 						'data' => array(
-							'function' => create_function('$ban_item', '
-								global $txt, $context, $scripturl;
-
-								return \'<a href="\' . $scripturl . \'?action=admin;area=ban;sa=edittrigger;bg=\' . $context[\'ban\'][\'id\'] . \';bi=\' . $ban_item[\'id\'] . \'">\' . $txt[\'ban_edit_trigger\'] . \'</a>\';
-							'),
+							'function' => function ($ban_item) use ($txt, $context, $scripturl)
+							{
+								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+							},
 							'style' => 'text-align: center;',
 						),
 					),
 					'checkboxes' => array(
 						'header' => array(
-							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check" />',
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form, \'ban_items\');" class="input_check">',
 							'style' => 'width: 5%; text-align: center;',
 						),
 						'data' => array(
 							'sprintf' => array(
-								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check" />',
+								'format' => '<input type="checkbox" name="ban_items[]" value="%1$d" class="input_check">',
 								'params' => array(
 									'id' => false,
 								),
@@ -459,15 +455,15 @@ function BanEdit()
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit" /> <a class="button_link" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
 						'style' => 'text-align: right;',
 					),
 					array(
 						'position' => 'below_table_data',
 						'value' => '
-						<input type="hidden" name="bg" value="' . $ban_group_id . '" />
-						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '" />
-						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '" />',
+						<input type="hidden" name="bg" value="' . $ban_group_id . '">
+						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '">',
 					),
 				),
 			);
@@ -805,7 +801,7 @@ function banEdit2()
 		$ban_info['reason'] = !empty($_POST['reason']) ? $smcFunc['htmlspecialchars']($_POST['reason'], ENT_QUOTES) : '';
 		$ban_info['name'] = !empty($_POST['ban_name']) ? $smcFunc['htmlspecialchars']($_POST['ban_name'], ENT_QUOTES) : '';
 		$ban_info['notes'] = isset($_POST['notes']) ? $smcFunc['htmlspecialchars']($_POST['notes'], ENT_QUOTES) : '';
-		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br />', '&nbsp; '), $ban_info['notes']);
+		$ban_info['notes'] = str_replace(array("\r", "\n", '  '), array('', '<br>', '&nbsp; '), $ban_info['notes']);
 		$ban_info['cannot']['access'] = empty($ban_info['full_ban']) ? 0 : 1;
 		$ban_info['cannot']['post'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_post']) ? 0 : 1;
 		$ban_info['cannot']['register'] = !empty($ban_info['full_ban']) || empty($_POST['cannot_register']) ? 0 : 1;
@@ -918,7 +914,7 @@ function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id =
  */
 function removeBanTriggers($items_ids = array(), $group_id = false)
 {
-	global $smcFunc;
+	global $smcFunc, $scripturl;
 
 	if ($group_id !== false)
 		$group_id = (int) $group_id;
@@ -1289,7 +1285,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	global $smcFunc;
 
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_group_id_empty';
+		$context['ban_errors'][] = 'ban_id_empty';
 
 	// Preset all values that are required.
 	$values = array(
@@ -1385,7 +1381,7 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 	if (empty($ban_item))
 		$context['ban_errors'][] = 'ban_ban_item_empty';
 	if (empty($group_id))
-		$context['ban_errors'][] = 'ban_group_id_empty';
+		$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($trigger))
 		$context['ban_errors'][] = 'ban_no_triggers';
 
@@ -1538,7 +1534,7 @@ function updateBanGroup($ban_info = array())
 
 /**
  * Creates a new ban group
- * If a ban group with the same name already exists or the group s sucessfully created the ID is returned
+ * If a ban group with the same name already exists or the group s successfully created the ID is returned
  * On error the error code is returned or false
  *
  * Errors in $context['ban_errors']
@@ -1641,7 +1637,7 @@ function BanEditTrigger()
 		redirectexit('action=admin;area=ban;sa=edit' . (!empty($ban_group) ? ';bg=' . $ban_group : ''));
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
 
 	if (empty($ban_id))
 	{
@@ -1747,7 +1743,7 @@ function BanBrowseTriggers()
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
 		'title' => $txt['ban_trigger_browse'],
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
 		'no_items_label' => $txt['ban_no_triggers'],
@@ -1801,12 +1797,12 @@ function BanBrowseTriggers()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id_ban' => false,
 						),
@@ -1823,11 +1819,11 @@ function BanBrowseTriggers()
 		'additional_rows' => array(
 			array(
 				'position' => 'above_column_headers',
-				'value' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . ($context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . ($context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . ($context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . ($context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;" /> ' : '') . $txt['username'] . '</a>',
+				'value' => '<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . ($context['selected_entity'] == 'ip' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . ($context['selected_entity'] == 'hostname' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . ($context['selected_entity'] == 'email' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . $scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . ($context['selected_entity'] == 'member' ? '<img src="' . $settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . $txt['username'] . '</a>',
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_triggers_confirm'] . '\');" class="button_submit" />',
+				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" data-confirm="' . $txt['ban_remove_selected_triggers_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);
@@ -1836,27 +1832,28 @@ function BanBrowseTriggers()
 	if ($context['selected_entity'] === 'ip')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
+			'function' => function ($rowData)
+			{
 				return range2ip(array(
-					$rowData[\'ip_low1\'],
-					$rowData[\'ip_low2\'],
-					$rowData[\'ip_low3\'],
-					$rowData[\'ip_low4\'],
-					$rowData[\'ip_low5\'],
-					$rowData[\'ip_low6\'],
-					$rowData[\'ip_low7\'],
-					$rowData[\'ip_low8\']
+					$rowData['ip_low1'],
+					$rowData['ip_low2'],
+					$rowData['ip_low3'],
+					$rowData['ip_low4'],
+					$rowData['ip_low5'],
+					$rowData['ip_low6'],
+					$rowData['ip_low7'],
+					$rowData['ip_low8']
 				), array(
-					$rowData[\'ip_high1\'],
-					$rowData[\'ip_high2\'],
-					$rowData[\'ip_high3\'],
-					$rowData[\'ip_high4\'],
-					$rowData[\'ip_high5\'],
-					$rowData[\'ip_high6\'],
-					$rowData[\'ip_high7\'],
-					$rowData[\'ip_high8\']
+					$rowData['ip_high1'],
+					$rowData['ip_high2'],
+					$rowData['ip_high3'],
+					$rowData['ip_high4'],
+					$rowData['ip_high5'],
+					$rowData['ip_high6'],
+					$rowData['ip_high7'],
+					$rowData['ip_high8']
 				));
-			'),
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.ip_low1, bi.ip_high1, bi.ip_low2, bi.ip_high2, bi.ip_low3, bi.ip_high3, bi.ip_low4, bi.ip_high4, bi.ip_low5, bi.ip_high5, bi.ip_low6, bi.ip_high6, bi.ip_low7, bi.ip_high7, bi.ip_low8, bi.ip_high8',
@@ -1866,10 +1863,10 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'hostname')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
-				global $smcFunc;
-				return strtr($smcFunc[\'htmlspecialchars\']($rowData[\'hostname\']), array(\'%\' => \'*\'));
-			'),
+			'function' => function ($rowData) use ($smcFunc)
+			{
+				return strtr($smcFunc['htmlspecialchars']($rowData['hostname']), array('%' => '*'));
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.hostname',
@@ -1879,10 +1876,10 @@ function BanBrowseTriggers()
 	elseif ($context['selected_entity'] === 'email')
 	{
 		$listOptions['columns']['banned_entity']['data'] = array(
-			'function' => create_function('$rowData', '
-				global $smcFunc;
-				return strtr($smcFunc[\'htmlspecialchars\']($rowData[\'email_address\']), array(\'%\' => \'*\'));
-			'),
+			'function' => function ($rowData) use ($smcFunc)
+			{
+				return strtr($smcFunc['htmlspecialchars']($rowData['email_address']), array('%' => '*'));
+			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
 			'default' => 'bi.email_address',
@@ -1998,8 +1995,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $smcFunc, $sourcedir, $txt;
-	global $context;
+	global $scripturl, $context, $sourcedir, $txt, $modSettings;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
@@ -2021,7 +2017,7 @@ function BanLog()
 	$listOptions = array(
 		'id' => 'ban_log',
 		'title' => $txt['ban_log'],
-		'items_per_page' => 30,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -2084,9 +2080,10 @@ function BanLog()
 					'value' => $txt['ban_log_date'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						return timeformat($rowData[\'log_time\']);
-					'),
+					'function' => function ($rowData)
+					{
+						return timeformat($rowData['log_time']);
+					},
 				),
 				'sort' => array(
 					'default' => 'lb.log_time DESC',
@@ -2095,12 +2092,12 @@ function BanLog()
 			),
 			'check' => array(
 				'header' => array(
-					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check" />',
+					'value' => '<input type="checkbox" onclick="invertAll(this, this.form);" class="input_check">',
 					'class' => 'centercol',
 				),
 				'data' => array(
 					'sprintf' => array(
-						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check" />',
+						'format' => '<input type="checkbox" name="remove[]" value="%1$d" class="input_check">',
 						'params' => array(
 							'id_ban_log' => false,
 						),
@@ -2119,8 +2116,8 @@ function BanLog()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_selected_confirm'] . '\');" class="button_submit" />
-					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_all_confirm'] . '\');" class="button_submit" />',
+					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button_submit you_sure">
+					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);

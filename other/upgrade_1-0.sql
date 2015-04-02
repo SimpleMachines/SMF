@@ -33,13 +33,6 @@ VALUES (0, 1, 'name', 'SMF Default Theme'),
 	(0, 2, 'theme_dir', '{$sboarddir}/Themes/classic');
 ---#
 
----# Creating "collapsed_categories"...
-CREATE TABLE IF NOT EXISTS {$db_prefix}collapsed_categories (
-	ID_CAT tinyint(4) unsigned NOT NULL default '0',
-	ID_MEMBER mediumint(8) unsigned NOT NULL default '0',
-	PRIMARY KEY (ID_CAT, ID_MEMBER)
-) ENGINE=MyISAM;
----#
 
 ---# Creating and verifying "permissions"...
 CREATE TABLE IF NOT EXISTS {$db_prefix}permissions (
@@ -1284,7 +1277,7 @@ if ($result === false)
 		'profile_identity_own',
 		'profile_extra_own',
 		'profile_remote_avatar',
-		'profile_remove_own',
+		'profile_remove_own'
 	);
 
 	foreach ($permissions as $perm)

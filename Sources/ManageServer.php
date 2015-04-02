@@ -36,6 +36,9 @@
  * 		array('permissions', 'manage_groups'),
  * - A BBC selection box.
  * 		array('bbc', 'sig_bbc'),
+ * - A list of boards to choose from
+ *  	array('boards', 'likes_boards'),
+ *  	Note that the storage in the database is as 1,2,3,4
  *
  * For each option:
  * 	- type (see above), variable name, size/possible values.
@@ -50,10 +53,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -70,7 +73,7 @@ if (!defined('SMF'))
  */
 function ModifySettings()
 {
-	global $context, $txt, $scripturl, $boarddir;
+	global $context, $txt, $boarddir;
 
 	// This is just to keep the database password more secure.
 	isAllowedTo('admin_forum');
@@ -100,39 +103,31 @@ function ModifySettings()
 		'phpinfo' => 'ShowPHPinfoSettings',
 	);
 
-	call_integration_hook('integrate_server_settings', array(&$subActions));
-
 	// By default we're editing the core settings
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'general';
 	$context['sub_action'] = $_REQUEST['sa'];
 
-	// Any messages to speak of?
-	$context['settings_message'] = (isset($_REQUEST['msg']) && isset($txt[$_REQUEST['msg']])) ? $txt[$_REQUEST['msg']] : '';
-
 	// Warn the user if there's any relevant information regarding Settings.php.
-	if ($_REQUEST['sa'] != 'cache')
-	{
-		// Warn the user if the backup of Settings.php failed.
-		$settings_not_writable = !is_writable($boarddir . '/Settings.php');
-		$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+	$settings_not_writable = !is_writable($boarddir . '/Settings.php');
+	$settings_backup_fail = !@is_writable($boarddir . '/Settings_bak.php') || !@copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 
-		if ($settings_not_writable)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br />';
-		elseif ($settings_backup_fail)
-			$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br />';
+	if ($settings_not_writable)
+		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['settings_not_writable'] . '</strong></div><br>';
+	elseif ($settings_backup_fail)
+		$context['settings_message'] = '<div class="centertext"><strong>' . $txt['admin_backup_fail'] . '</strong></div><br>';
 
-		$context['settings_not_writable'] = $settings_not_writable;
-	}
+	$context['settings_not_writable'] = $settings_not_writable;
+
+	call_integration_hook('integrate_server_settings', array(&$subActions));
 
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
  * General forum settings - forum name, maintenance mode, etc.
  * Practically, this shows an interface for the settings in Settings.php to be changed.
  *
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Contains the actual array of settings to show from Settings.php.
@@ -146,7 +141,7 @@ function ModifyGeneralSettings($return_config = false)
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 	For each option:
-		variable name, description, type (constant), size/possible values, helptext.
+		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 	OR	an empty string for a horizontal rule.
 	OR	a string for a titled section. */
 	$config_vars = array(
@@ -161,6 +156,11 @@ function ModifyGeneralSettings($return_config = false)
 		array('enableCompressedOutput', $txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'),
 		array('disableTemplateEval', $txt['disableTemplateEval'], 'db', 'check', null, 'disableTemplateEval'),
 		array('disableHostnameLookup', $txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'),
+		'',
+		array('force_ssl', $txt['force_ssl'], 'db', 'select', array($txt['force_ssl_off'], $txt['force_ssl_auth'], $txt['force_ssl_complete']), 'force_ssl'),
+		array('image_proxy_enabled', $txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'),
+		array('image_proxy_secret', $txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'),
+		array('image_proxy_maxsize', $txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'),
 	);
 
 	call_integration_hook('integrate_general_settings', array(&$config_vars));
@@ -178,11 +178,25 @@ function ModifyGeneralSettings($return_config = false)
 		call_integration_hook('integrate_save_general_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=general;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Fill the config array.
 	prepareServerSettingsContext($config_vars);
+
+	// Some javascript for SSL
+	addInlineJavascript('
+$(function()
+{
+	$("#force_ssl").change(function()
+	{
+		var mode = $(this).val() == 2 ? false : true;
+		$("#image_proxy_enabled").prop("disabled", mode);
+		$("#image_proxy_secret").prop("disabled", mode);
+		$("#image_proxy_maxsize").prop("disabled", mode);
+	}).change();
+});');
 }
 
 /**
@@ -190,7 +204,6 @@ function ModifyGeneralSettings($return_config = false)
  *
  * - It shows an interface for the settings in Settings.php to be changed.
  * - It contains the actual array of settings to show from Settings.php.
- * - It uses the rawdata sub template (not theme-able.)
  * - Requires the admin_forum permission.
  * - Uses the edit_settings administration area.
  * - Accessed from ?action=admin;area=serversettings;sa=database.
@@ -199,31 +212,20 @@ function ModifyGeneralSettings($return_config = false)
  */
 function ModifyDatabaseSettings($return_config = false)
 {
-	global $scripturl, $context, $settings, $txt, $boarddir;
+	global $scripturl, $context, $txt;
 
 	/* If you're writing a mod, it's a bad idea to add things here....
 		For each option:
-		variable name, description, type (constant), size/possible values, helptext.
+		variable name, description, type (constant), size/possible values, helptext, optional 'min' (minimum value for float/int, defaults to 0), optional 'max' (maximum value for float/int), optional 'step' (amount to increment/decrement value for float/int)
 		OR an empty string for a horizontal rule.
 		OR a string for a titled section. */
 	$config_vars = array(
-		array('db_server', $txt['database_server'], 'file', 'text'),
-		array('db_user', $txt['database_user'], 'file', 'text'),
-		array('db_passwd', $txt['database_password'], 'file', 'password'),
-		array('db_name', $txt['database_name'], 'file', 'text'),
-		array('db_prefix', $txt['database_prefix'], 'file', 'text'),
 		array('db_persist', $txt['db_persist'], 'file', 'check', null, 'db_persist'),
 		array('db_error_send', $txt['db_error_send'], 'file', 'check'),
 		array('ssi_db_user', $txt['ssi_db_user'], 'file', 'text', null, 'ssi_db_user'),
 		array('ssi_db_passwd', $txt['ssi_db_passwd'], 'file', 'password'),
 		'',
-		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'),
-		array('autoOptMaxOnline', $txt['autoOptMaxOnline'], 'subtext' => $txt['zero_for_no_limit'], 'db', 'int'),
-		'',
-		array('boardurl', $txt['admin_url'], 'file', 'text', 36),
-		array('boarddir', $txt['boarddir'], 'file', 'text', 36),
-		array('sourcedir', $txt['sourcesdir'], 'file', 'text', 36),
-		array('cachedir', $txt['cachedir'], 'file', 'text', 36),
+		array('autoFixDatabase', $txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase')
 	);
 
 	call_integration_hook('integrate_database_settings', array(&$config_vars));
@@ -242,7 +244,8 @@ function ModifyDatabaseSettings($return_config = false)
 		call_integration_hook('integrate_save_database_settings');
 
 		saveSettings($config_vars);
-		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] . ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=database;' . $context['session_var'] . '=' . $context['session_id'] );
 	}
 
 	// Fill the config array.
@@ -256,7 +259,7 @@ function ModifyDatabaseSettings($return_config = false)
  */
 function ModifyCookieSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl;
+	global $context, $scripturl, $txt, $sourcedir, $modSettings, $cookiename, $user_settings, $boardurl, $smcFunc;
 
 	// Define the variables we want to edit.
 	$config_vars = array(
@@ -273,6 +276,16 @@ function ModifyCookieSettings($return_config = false)
 		array('databaseSession_enable', $txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'),
 		array('databaseSession_loose', $txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'),
 		array('databaseSession_lifetime', $txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => $txt['seconds']),
+		'',
+		// 2FA
+		array('tfa_mode', $txt['tfa_mode'], 'db', 'select', array(
+			0 => $txt['tfa_mode_disabled'],
+			1 => $txt['tfa_mode_enabled'],
+		) + (empty($user_settings['tfa_secret']) ? array() : array(
+			2 => $txt['tfa_mode_forced'],
+		)) + (empty($user_settings['tfa_secret']) ? array() : array(
+			3 => $txt['tfa_mode_forcedall'],
+		)), 'subtext' => $txt['tfa_mode_subtext'] . (empty($user_settings['tfa_secret']) ? '<br /><strong>' . $txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'),
 	);
 
 	addInlineJavascript('
@@ -291,6 +304,9 @@ function ModifyCookieSettings($return_config = false)
 	$("#localCookies, #globalCookies").click(function() {
 		hideGlobalCookies();
 	});', true);
+
+	if (empty($user_settings['tfa_secret']))
+		addInlineJavascript('');
 
 	call_integration_hook('integrate_cookie_settings', array(&$config_vars));
 
@@ -325,12 +341,32 @@ function ModifyCookieSettings($return_config = false)
 
 			// Set the new one.
 			$cookiename = $_POST['cookiename'];
-			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], sha1($user_settings['passwd'] . $user_settings['password_salt']));
+			setLoginCookie(60 * $modSettings['cookieTime'], $user_settings['id_member'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
+		
+		//If we disabled 2FA, reset all members and membergroups settings.
+		if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode']))
+		{
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}membergroups
+				SET tfa_required = {int:zero}',
+				array(
+					'zero' => 0,
+				)
+			);
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}members
+				SET tfa_secret = {string:empty}, tfa_backup = {string:empty}',
+				array(
+					'empty' => '',
+				)
+			);
+		}
 
-		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']. ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
+		$_SESSION['adm-save'] = true;
+		redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
 	// Fill the config array.
@@ -344,14 +380,11 @@ function ModifyCookieSettings($return_config = false)
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $sc, $modSettings;
+	global $txt, $scripturl, $context;
 
 	$config_vars = array(
-			array('check', 'guest_hideContacts'),
-			array('check', 'make_email_viewable'),
-		'',
 			array('int', 'failed_login_threshold'),
-			array('int', 'loginHistoryDays'),
+			array('int', 'loginHistoryDays', 'subtext' => $txt['zero_to_disable']),
 		'',
 			array('check', 'securityDisable'),
 			array('check', 'securityDisable_moderate'),
@@ -382,6 +415,7 @@ function ModifyGeneralSecuritySettings($return_config = false)
 	if (isset($_GET['save']))
 	{
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		call_integration_hook('integrate_save_general_security_settings');
 
@@ -402,14 +436,10 @@ function ModifyGeneralSecuritySettings($return_config = false)
  */
 function ModifyCacheSettings($return_config = false)
 {
-	global $context, $scripturl, $txt, $helptxt, $cache_enable;
+	global $context, $scripturl, $txt;
 
 	// Detect all available optimizers
 	$detected = array();
-	if (function_exists('eaccelerator_put'))
-		$detected['eaccelerator'] = $txt['eAccelerator_cache'];
-	if (function_exists('mmcache_put'))
-		$detected['mmcache'] = $txt['mmcache_cache'];
 	if (function_exists('apc_store'))
 		$detected['apc'] = $txt['apc_cache'];
 	if (function_exists('output_cache_put') || function_exists('zend_shm_cache_store'))
@@ -462,6 +492,7 @@ function ModifyCacheSettings($return_config = false)
 		call_integration_hook('integrate_save_cache_settings');
 
 		saveSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 
 		// we need to save the $cache_enable to $modSettings as well
 		updatesettings(array('cache_enable' => (int) $_POST['cache_enable']));
@@ -476,10 +507,15 @@ function ModifyCacheSettings($return_config = false)
 
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=cache;save';
 	$context['settings_title'] = $txt['caching_settings'];
-	$context['settings_message'] = $txt['caching_information'];
+
+	// Changing cache settings won't have any effect if Settings.php is not writeable.
+	$context['save_disabled'] = $context['settings_not_writable'];
+
+	// Decide what message to show.
+	if (!$context['save_disabled'])
+		$context['settings_message'] = $txt['caching_information'];
 
 	// Prepare the template.
-	createToken('admin-ssc');
 	prepareServerSettingsContext($config_vars);
 }
 
@@ -490,14 +526,18 @@ function ModifyCacheSettings($return_config = false)
  */
 function ModifyLoadBalancingSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $settings, $modSettings;
+	global $txt, $scripturl, $context, $modSettings;
 
 	// Setup a warning message, but disabled by default.
 	$disabled = true;
 	$context['settings_message'] = $txt['loadavg_disabled_conf'];
 
 	if (stripos(PHP_OS, 'win') === 0)
+	{
 		$context['settings_message'] = $txt['loadavg_disabled_windows'];
+		if (isset($_GET['save']))
+			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
+	}
 	else
 	{
 		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
@@ -508,7 +548,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 		else
 			unset($modSettings['load_average']);
 
-		if (!empty($modSettings['load_average']))
+		if (!empty($modSettings['load_average']) || $modSettings['load_average'] === 0.0)
 		{
 			$context['settings_message'] = sprintf($txt['loadavg_warning'], $modSettings['load_average']);
 			$disabled = false;
@@ -522,14 +562,14 @@ function ModifyLoadBalancingSettings($return_config = false)
 
 	// Set the default values for each option.
 	$default_values = array(
-		'loadavg_auto_opt' => '1.0',
-		'loadavg_search' => '2.5',
-		'loadavg_allunread' => '2.0',
-		'loadavg_unreadreplies' => '3.5',
-		'loadavg_show_posts' => '2.0',
-		'loadavg_userstats' => '10.0',
-		'loadavg_bbc' => '30.0',
-		'loadavg_forum' => '40.0',
+		'loadavg_auto_opt' => 1.0,
+		'loadavg_search' => 2.5,
+		'loadavg_allunread' => 2.0,
+		'loadavg_unreadreplies' => 3.5,
+		'loadavg_show_posts' => 2.0,
+		'loadavg_userstats' => 10.0,
+		'loadavg_bbc' => 30.0,
+		'loadavg_forum' => 40.0,
 	);
 
 	// Loop through the settings.
@@ -537,7 +577,7 @@ function ModifyLoadBalancingSettings($return_config = false)
 	{
 		// Use the default value if the setting isn't set yet.
 		$value = !isset($modSettings[$name]) ? $value : $modSettings[$name];
-		$config_vars[] = array('text', $name, 'value' => $value, 'disabled' => $disabled);
+		$config_vars[] = array('float', $name, 'value' => $value, 'disabled' => $disabled);
 	}
 
 	call_integration_hook('integrate_loadavg_settings', array(&$config_vars));
@@ -554,24 +594,27 @@ function ModifyLoadBalancingSettings($return_config = false)
 		// Stupidity is not allowed.
 		foreach ($_POST as $key => $value)
 		{
-			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable')
+			if (strpos($key, 'loadavg') === 0 || $key === 'loadavg_enable' || !in_array($key, array_keys($default_values)))
 				continue;
-			elseif ($key == 'loadavg_auto_opt' && $value <= 1)
-				$_POST['loadavg_auto_opt'] = '1.0';
+			else
+				$_POST[$key] = (float) $value;
+
+			if ($key == 'loadavg_auto_opt' && $value <= 1)
+				$_POST['loadavg_auto_opt'] = 1.0;
 			elseif ($key == 'loadavg_forum' && $value < 10)
-				$_POST['loadavg_forum'] = '10.0';
+				$_POST['loadavg_forum'] = 10.0;
 			elseif ($value < 2)
-				$_POST[$key] = '2.0';
+				$_POST[$key] = 2.0;
 		}
 
 		call_integration_hook('integrate_save_loadavg_settings');
 
 		saveDBSettings($config_vars);
+		if (!isset($_SESSION['adm-save']))
+			$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=serversettings;sa=loads;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
-	createToken('admin-ssc');
-	createToken('admin-dbsc');
 	prepareDBSettingContext($config_vars);
 }
 
@@ -589,13 +632,29 @@ function ModifyLoadBalancingSettings($return_config = false)
  *	)
  *
  * the following named keys are also permitted
- * 'disabled' => 'postinput' => 'preinput' =>
+ * 'disabled' => A string of code that will determine whether or not the setting should be disabled
+ * 'postinput' => Text to display after the input field
+ * 'preinput' => Text to display before the input field
+ * 'subtext' => Additional descriptive text to display under the field's label
+ * 'min' => minimum allowed value (for int/float). Defaults to 0 if not set.
+ * 'max' => maximum allowed value (for int/float)
+ * 'step' => how much to increment/decrement the value by (only for int/float - mostly used for float values).
  *
  * @param array $config_vars
  */
 function prepareServerSettingsContext(&$config_vars)
 {
-	global $context, $modSettings;
+	global $context, $modSettings, $smcFunc;
+
+	if (isset($_SESSION['adm-save']))
+	{
+		if ($_SESSION['adm-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['adm-save'];
+
+		unset($_SESSION['adm-save']);
+	}
 
 	$context['config_vars'] = array();
 	foreach ($config_vars as $identifier => $config_var)
@@ -624,7 +683,7 @@ function prepareServerSettingsContext(&$config_vars)
 				'size' => empty($config_var[4]) ? 0 : $config_var[4],
 				'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : array(),
 				'name' => $config_var[0],
-				'value' => $config_var[2] == 'file' ? htmlspecialchars($$varname) : (isset($modSettings[$config_var[0]]) ? htmlspecialchars($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
+				'value' => $config_var[2] == 'file' ? $smcFunc['htmlspecialchars']($$varname) : (isset($modSettings[$config_var[0]]) ? $smcFunc['htmlspecialchars']($modSettings[$config_var[0]]) : (in_array($config_var[3], array('int', 'float')) ? 0 : '')),
 				'disabled' => !empty($context['settings_not_writable']) || !empty($config_var['disabled']),
 				'invalid' => false,
 				'subtext' => !empty($config_var['subtext']) ? $config_var['subtext'] : $subtext,
@@ -632,6 +691,22 @@ function prepareServerSettingsContext(&$config_vars)
 				'preinput' => !empty($config_var['preinput']) ? $config_var['preinput'] : '',
 				'postinput' => !empty($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
+
+			// Handle min/max/step if necessary
+			if ($config_var[3] == 'int' || $config_var[3] == 'float')
+			{
+				// Default to a min of 0 if one isn't set
+				if (isset($config_var['min']))
+					$context['config_vars'][$config_var[0]]['min'] = $config_var['min'];
+				else
+					$context['config_vars'][$config_var[0]]['min'] = 0;
+
+				if (isset($config_var['max']))
+					$context['config_vars'][$config_var[0]]['max'] = $config_var['max'];
+
+				if (isset($config_var['step']))
+					$context['config_vars'][$config_var[0]]['step'] = $config_var['step'];
+			}
 
 			// If this is a select box handle any data.
 			if (!empty($config_var[4]) && is_array($config_var[4]))
@@ -662,13 +737,24 @@ function prepareServerSettingsContext(&$config_vars)
  */
 function prepareDBSettingContext(&$config_vars)
 {
-	global $txt, $helptxt, $context, $modSettings, $sourcedir;
+	global $txt, $helptxt, $context, $modSettings, $sourcedir, $smcFunc;
 
 	loadLanguage('Help');
+
+	if (isset($_SESSION['adm-save']))
+	{
+		if ($_SESSION['adm-save'] === true)
+			$context['saved_successful'] = true;
+		else
+			$context['saved_failed'] = $_SESSION['adm-save'];
+
+		unset($_SESSION['adm-save']);
+	}
 
 	$context['config_vars'] = array();
 	$inlinePermissions = array();
 	$bbcChoice = array();
+	$board_list = false;
 	foreach ($config_vars as $config_var)
 	{
 		// HR?
@@ -686,9 +772,47 @@ function prepareDBSettingContext(&$config_vars)
 			elseif ($config_var[0] == 'permissions')
 				continue;
 
+			if ($config_var[0] == 'boards')
+				$board_list = true;
+
 			// Are we showing the BBC selection box?
 			if ($config_var[0] == 'bbc')
 				$bbcChoice[] = $config_var[1];
+
+			// We need to do some parsing of the value before we pass it in.
+			if (isset($modSettings[$config_var[1]]))
+			{
+				switch ($config_var[0])
+				{
+					case 'select':
+						$value = $modSettings[$config_var[1]];
+						break;
+					case 'boards':
+						$value = explode(',', $modSettings[$config_var[1]]);
+						break;
+					default:
+						$value = $smcFunc['htmlspecialchars']($modSettings[$config_var[1]]);
+				}
+			}
+			else
+			{
+				// Darn, it's empty. What type is expected?
+				switch ($config_var[0])
+				{
+					case 'int':
+					case 'float':
+						$value = 0;
+						break;
+					case 'select':
+						$value = !empty($config_var['multiple']) ? serialize(array()) : '';
+						break;
+					case 'boards':
+						$value = array();
+						break;
+					default:
+						$value = '';
+				}
+			}
 
 			$context['config_vars'][$config_var[1]] = array(
 				'label' => isset($config_var['text_label']) ? $config_var['text_label'] : (isset($txt[$config_var[1]]) ? $txt[$config_var[1]] : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
@@ -697,7 +821,7 @@ function prepareDBSettingContext(&$config_vars)
 				'size' => !empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], array('int', 'float')) ? 6 : 0),
 				'data' => array(),
 				'name' => $config_var[1],
-				'value' => isset($modSettings[$config_var[1]]) ? ($config_var[0] == 'select' ? $modSettings[$config_var[1]] : htmlspecialchars($modSettings[$config_var[1]])) : (in_array($config_var[0], array('int', 'float')) ? 0 : (!empty($config_var['multiple']) ? serialize(array()) : '')),
+				'value' => $value,
 				'disabled' => false,
 				'invalid' => !empty($config_var['invalid']),
 				'javascript' => '',
@@ -706,6 +830,22 @@ function prepareDBSettingContext(&$config_vars)
 				'postinput' => isset($config_var['postinput']) ? $config_var['postinput'] : '',
 			);
 
+			// Handle min/max/step if necessary
+			if ($config_var[0] == 'int' || $config_var[0] == 'float')
+			{
+				// Default to a min of 0 if one isn't set
+				if (isset($config_var['min']))
+					$context['config_vars'][$config_var[1]]['min'] = $config_var['min'];
+				else
+					$context['config_vars'][$config_var[1]]['min'] = 0;
+
+				if (isset($config_var['max']))
+					$context['config_vars'][$config_var[1]]['max'] = $config_var['max'];
+
+				if (isset($config_var['step']))
+					$context['config_vars'][$config_var[1]]['step'] = $config_var['step'];
+			}
+
 			// If this is a select box handle any data.
 			if (!empty($config_var[2]) && is_array($config_var[2]))
 			{
@@ -713,7 +853,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
 					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = unserialize($context['config_vars'][$config_var[1]]['value']);
+					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? unserialize($context['config_vars'][$config_var[1]]['value']) : array();
 				}
 
 				// If it's associative
@@ -760,6 +900,12 @@ function prepareDBSettingContext(&$config_vars)
 	{
 		require_once($sourcedir . '/ManagePermissions.php');
 		init_inline_permissions($inlinePermissions, isset($context['permissions_excluded']) ? $context['permissions_excluded'] : array());
+	}
+
+	if ($board_list)
+	{
+		require_once($sourcedir . '/Subs-MessageIndex.php');
+		$context['board_list'] = getBoardList();
 	}
 
 	// What about any BBC selection boxes?
@@ -823,8 +969,7 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $boarddir, $sc, $cookiename, $modSettings, $user_settings;
-	global $sourcedir, $context, $cachedir;
+	global $smcFunc, $sourcedir, $context, $cachedir;
 
 	validateToken('admin-ssc');
 
@@ -858,42 +1003,61 @@ function saveSettings(&$config_vars)
 		'db_name', 'db_user', 'db_server', 'db_prefix', 'ssi_db_user',
 		'boarddir', 'sourcedir',
 		'cachedir', 'cache_accelerator', 'cache_memcached',
+		'image_proxy_secret',
 	);
 
 	// All the numeric variables.
 	$config_ints = array(
 		'cache_enable',
+		'image_proxy_maxsize',
 	);
 
-	// All the checkboxes.
-	$config_bools = array(
-		'db_persist', 'db_error_send',
-		'maintenance',
-	);
+	// All the checkboxes
+	$config_bools = array('db_persist', 'db_error_send', 'maintenance', 'image_proxy_enabled');
 
 	// Now sort everything into a big array, and figure out arrays and etc.
 	$new_settings = array();
-	foreach ($config_passwords as $config_var)
+	// Figure out which config vars we're saving here...
+	foreach ($config_vars as $var)
 	{
-		if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
-			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
-	}
-	foreach ($config_strs as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		if (!is_array($var) || $var[2] != 'file' || (!in_array($var[0], $config_bools) && !isset($_POST[$var[0]])))
+			continue;
+
+		$config_var = $var[0];
+
+		if (in_array($config_var, $config_passwords))
+		{
+			if (isset($_POST[$config_var][1]) && $_POST[$config_var][0] == $_POST[$config_var][1])
+				$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var][0], '\'\\') . '\'';
+		}
+		elseif (in_array($config_var, $config_strs))
+		{
 			$new_settings[$config_var] = '\'' . addcslashes($_POST[$config_var], '\'\\') . '\'';
-	}
-	foreach ($config_ints as $config_var)
-	{
-		if (isset($_POST[$config_var]))
+		}
+		elseif (in_array($config_var, $config_ints))
+		{
 			$new_settings[$config_var] = (int) $_POST[$config_var];
-	}
-	foreach ($config_bools as $key)
-	{
-		if (!empty($_POST[$key]))
-			$new_settings[$key] = '1';
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;
+			$new_settings[$config_var] = max($min, $new_settings[$config_var]);
+
+			// Is there a max value for this as well?
+			if (isset($var['max']))
+				$new_settings[$config_var] = min($var['max'], $new_settings[$config_var]);
+		}
+		elseif (in_array($config_var, $config_bools))
+		{
+			if (!empty($_POST[$config_var]))
+				$new_settings[$config_var] = '1';
+			else
+				$new_settings[$config_var] = '0';
+		}
 		else
-			$new_settings[$key] = '0';
+		{
+			// This shouldn't happen, but it might...
+			fatal_error('Unknown config_var \'' . $config_var . '\'');
+		}
 	}
 
 	// Save the relevant settings in the Settings.php file.
@@ -908,8 +1072,21 @@ function saveSettings(&$config_vars)
 		if (!is_array($config_var) || $config_var[2] == 'file')
 			continue;
 
+		$new_setting = array($config_var[3], $config_var[0]);
+
+		// Select options need carried over, too.
+		if (isset($config_var[4]))
+			$new_setting[] = $config_var[4];
+
+		// Include min and max if necessary
+		if (isset($config_var['min']))
+			$new_setting['min'] = $config_var['min'];
+
+		if (isset($config_var['max']))
+			$new_setting['max'] = $config_var['max'];
+
 		// Rewrite the definition a bit.
-		$new_settings[] = array($config_var[3], $config_var[0]);
+		$new_settings[] = $new_setting;
 	}
 
 	// Save the new database-based settings, if any.
@@ -925,7 +1102,8 @@ function saveSettings(&$config_vars)
  */
 function saveDBSettings(&$config_vars)
 {
-	global $sourcedir, $context;
+	global $sourcedir, $smcFunc;
+	static $board_list = null;
 
 	validateToken('admin-dbsc');
 
@@ -951,14 +1129,56 @@ function saveDBSettings(&$config_vars)
 
 			$setArray[$var[1]] = serialize($options);
 		}
+		// List of boards!
+		elseif ($var[0] == 'boards')
+		{
+			// We just need a simple list of valid boards, nothing more.
+			if ($board_list === null)
+			{
+				$board_list = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board
+					FROM {db_prefix}boards');
+				while ($row = $smcFunc['db_fetch_row']($request))
+					$board_list[$row[0]] = true;
+				$smcFunc['db_free_result']($request);
+			}
+
+			$options = array();
+			foreach ($_POST[$var[1]] as $invar => $dummy)
+				if (isset($board_list[$invar]))
+					$options[] = $invar;
+
+			$setArray[$var[1]] = implode(',', $options);
+		}
 		// Integers!
 		elseif ($var[0] == 'int')
+		{
 			$setArray[$var[1]] = (int) $_POST[$var[1]];
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;
+			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
+
+			// Do we have a max value for this as well?
+			if (isset($var['max']))
+				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
+		}
 		// Floating point!
 		elseif ($var[0] == 'float')
+		{
 			$setArray[$var[1]] = (float) $_POST[$var[1]];
+
+			// If no min is specified, assume 0. This is done to avoid having to specify 'min => 0' for all settings where 0 is the min...
+			$min = isset($var['min']) ? $var['min'] : 0;
+			$setArray[$var[1]] = max($min, $setArray[$var[1]]);
+
+			// Do we have a max value for this as well?
+			if (isset($var['max']))
+				$setArray[$var[1]] = min($var['max'], $setArray[$var[1]]);
+		}
 		// Text!
-		elseif ($var[0] == 'text' || $var[0] == 'large_text')
+		elseif (in_array($var[0], array('text', 'large_text', 'color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time')))
 			$setArray[$var[1]] = $_POST[$var[1]];
 		// Passwords!
 		elseif ($var[0] == 'password')

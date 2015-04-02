@@ -27,9 +27,9 @@ smf_DraftAutoSave.prototype.init = function ()
 		this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
 
 		// Set up window focus and blur events
-		this.oDraftHandle.instanceRef = this;
-		this.oDraftHandle.onblur = function (oEvent) {return this.instanceRef.draftBlur(oEvent, true);};
-		this.oDraftHandle.onfocus = function (oEvent) {return this.instanceRef.draftFocus(oEvent, true);};
+		var instanceRef = this;
+		this.oDraftHandle.onblur = function (oEvent) {return instanceRef.draftBlur(oEvent, true);};
+		this.oDraftHandle.onfocus = function (oEvent) {return instanceRef.draftFocus(oEvent, true);};
 
 		// If we found the iframe window, set body focus/blur events for it
 		if (oIframeWindow.document)
@@ -60,7 +60,7 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 	return;
 }
 
-// Since your back we resume the autosave timer
+// Since you're back we resume the autosave timer
 smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
 {
 	if ($('#' + this.opt.sSceditorID).data("sceditor").inSourceMode() == source)
@@ -91,7 +91,7 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	// Get the form elements that we want to save
 	var aSections = [
 		'topic=' + parseInt(document.forms.postmodify.elements['topic'].value),
-		'id_draft=' + parseInt(document.forms.postmodify.elements['id_draft'].value),
+		'id_draft=' + (('id_draft' in document.forms.postmodify.elements) ? parseInt(document.forms.postmodify.elements['id_draft'].value) : 0),
 		'subject=' + escape(document.forms.postmodify['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'message=' + escape(sPostdata.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'icon=' + escape(document.forms.postmodify['icon'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
@@ -102,9 +102,9 @@ smf_DraftAutoSave.prototype.draftSave = function ()
 	// Get the locked an/or sticky values if they have been selected or set that is
 	if (this.opt.sType == 'post')
 	{
-		if (document.getElementById('check_lock').checked)
+		if (document.getElementById('check_lock') && document.getElementById('check_lock').checked)
 			aSections[aSections.length] = 'lock=1';
-		if (document.getElementById('check_sticky').checked)
+		if (document.getElementById('check_sticky') && document.getElementById('check_sticky').checked)
 			aSections[aSections.length] = 'sticky=1';
 	}
 
@@ -142,7 +142,7 @@ smf_DraftAutoSave.prototype.draftPMSave = function ()
 	// Get the rest of the form elements that we want to save, and load them up
 	var aSections = [
 		'replied_to=' + parseInt(document.forms.postmodify.elements['replied_to'].value),
-		'id_pm_draft=' + parseInt(document.forms.postmodify.elements['id_pm_draft'].value),
+		'id_pm_draft=' + (('id_pm_draft' in document.forms.postmodify.elements) ? parseInt(document.forms.postmodify.elements['id_pm_draft'].value) : 0),
 		'subject=' + escape(document.forms.postmodify['subject'].value.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'message=' + escape(sPostdata.replace(/&#/g, "&#38;#").php_to8bit()).replace(/\+/g, "%2B"),
 		'recipient_to=' + aTo,

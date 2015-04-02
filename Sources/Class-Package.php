@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -29,7 +29,7 @@ class xmlArray
 
 	/**
 	 * holds debugging level
-	 * @var type
+	 * @var int
 	 */
 	public $debug_level;
 
@@ -80,6 +80,7 @@ class xmlArray
 	 * Get the root element's name.
 	 * Example use:
 	 *  echo $element->name();
+	 * @return string The root element's name
 	 */
 	public function name()
 	{
@@ -94,6 +95,7 @@ class xmlArray
 	 *  $data = $xml->fetch('html/head/title');
 	 * @param string $path - the path to the element to fetch
 	 * @param bool $get_elements - whether to include elements
+	 * @return string The value or attribute of the specified element
 	 */
 	public function fetch($path, $get_elements = false)
 	{
@@ -163,7 +165,7 @@ class xmlArray
 					$i = 0;
 					while ($i < count($trace) && isset($trace[$i]['class']) && $trace[$i]['class'] == get_class($this))
 						$i++;
-					$debug = ' from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'];
+					$debug = ' (from ' . $trace[$i - 1]['file'] . ' on line ' . $trace[$i - 1]['line'] . ')';
 
 					// Cause an error.
 					if ($this->debug_level & E_NOTICE)
@@ -228,7 +230,7 @@ class xmlArray
 	}
 
 	/**
-	 * Count the number of occurences of a path.
+	 * Count the number of occurrences of a path.
 	 * Example use:
 	 *  echo $xml->count('html/head/meta');
 	 * @param string $path - the path to search for.
@@ -315,6 +317,7 @@ class xmlArray
 	 *  print_r($xml->to_array());
 	 *
 	 * @param string $path the path to output.
+	 * @return array An array of XML data
 	 */
 	public function to_array($path = null)
 	{
@@ -340,6 +343,7 @@ class xmlArray
 	 * Parse data into an array. (privately used...)
 	 *
 	 * @param string $data to parse
+	 * @return array The parsed array
 	 */
 	protected function _parse($data)
 	{
@@ -487,8 +491,8 @@ class xmlArray
 	/**
 	 * Get a specific element's xml. (privately used...)
 	 *
-	 * @param $array
-	 * @param $indent
+	 * @param array $array An array of element data
+	 * @param null|int $indent How many levels to indent the elements (null = no indent)
 	 */
 	protected function _xml($array, $indent)
 	{
@@ -540,8 +544,8 @@ class xmlArray
 	/**
 	 * Return an element as an array
 	 *
-	 * @param type $array
-	 * @return type
+	 * @param array $array
+	 * @return string|array A string with the element's value or an array of element datas
 	 */
 	protected function _array($array)
 	{
@@ -567,7 +571,8 @@ class xmlArray
 	/**
 	 * Parse out CDATA tags. (htmlspecialchars them...)
 	 *
-	 * @param $data
+	 * @param string $data The data with CDATA tags included
+	 * @return string The data contained within CDATA tags
 	 */
 	function _to_cdata($data)
 	{
@@ -604,7 +609,8 @@ class xmlArray
 	/**
 	 * Turn the CDATAs back to normal text.
 	 *
-	 * @param $data
+	 * @param string $data
+	 * @return string The transformed data
 	 */
 	protected function _from_cdata($data)
 	{
@@ -612,7 +618,10 @@ class xmlArray
 		$trans_tbl = array_flip(get_html_translation_table(HTML_ENTITIES, ENT_QUOTES));
 
 		// Translate all the entities out.
-		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', create_function('$m', 'return chr("$m[1]");'), $data), $trans_tbl);
+		$data = strtr(preg_replace_callback('~&#(\d{1,4});~', function ($m)
+		{
+			return chr("$m[1]");
+		}, $data), $trans_tbl);
 
 		return $this->trim ? trim($data) : $data;
 	}
@@ -621,6 +630,7 @@ class xmlArray
 	 * Given an array, return the text from that array. (recursive and privately used.)
 	 *
 	 * @param array $array
+	 * @return string The text from the array
 	 */
 	protected function _fetch($array)
 	{
@@ -654,6 +664,7 @@ class xmlArray
 	 * @param string $path
 	 * @param int $level
 	 * @param bool $no_error
+	 * @return string|array The specified array (or the contents of said array if there's only one result)
 	 */
 	protected function _path($array, $path, $level, $no_error = false)
 	{
@@ -725,29 +736,29 @@ class ftp_connection
 
 	/**
 	 * holds any errors
-	 * @var type
+	 * @var string
 	 */
 	public $error;
 
 	/**
 	 * holds last message from the server
-	 * @var type
+	 * @var string
 	 */
 	public $last_message;
 
 	/**
 	 * Passive connection
-	 * @var type
+	 * @var boolean
 	 */
 	public $pasv;
 
 	/**
 	 * Create a new FTP connection...
 	 *
-	 * @param type $ftp_server
-	 * @param type $ftp_port
-	 * @param type $ftp_user
-	 * @param type $ftp_pass
+	 * @param string $ftp_server
+	 * @param int $ftp_port
+	 * @param string $ftp_user
+	 * @param string $ftp_pass
 	 */
 	public function __construct($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
@@ -763,11 +774,10 @@ class ftp_connection
 	/**
 	 * Connects to a server
 	 *
-	 * @param type $ftp_server
-	 * @param type $ftp_port
-	 * @param type $ftp_user
-	 * @param type $ftp_pass
-	 * @return type
+	 * @param string $ftp_server
+	 * @param int $ftp_port
+	 * @param string $ftp_user
+	 * @param string $ftp_pass
 	 */
 	public function connect($ftp_server, $ftp_port = 21, $ftp_user = 'anonymous', $ftp_pass = 'ftpclient@simplemachines.org')
 	{
@@ -777,6 +787,8 @@ class ftp_connection
 			$ftp_server = 'ssl://' . substr($ftp_server, 7);
 		if (strpos($ftp_server, 'http://') === 0)
 			$ftp_server = substr($ftp_server, 7);
+		elseif (strpos($ftp_server, 'https://') === 0)
+			$ftp_server = substr($ftp_server, 8);
 		$ftp_server = strtr($ftp_server, array('/' => '', ':' => '', '@' => ''));
 
 		// Connect to the FTP server.
@@ -814,8 +826,8 @@ class ftp_connection
 	/**
 	 * Changes to a directory (chdir) via the ftp connection
 	 *
-	 * @param type $ftp_path
-	 * @return boolean
+	 * @param string $ftp_path The path to the directory we want to change to
+	 * @return boolean Whether or not the operation was successful
 	 */
 	public function chdir($ftp_path)
 	{
@@ -839,9 +851,9 @@ class ftp_connection
 	/**
 	 * Changes a files atrributes (chmod)
 	 *
-	 * @param string $ftp_file
-	 * @param type $chmod
-	 * @return boolean
+	 * @param string $ftp_file The file to CHMOD
+	 * @param int|string $chmod The value for the CHMOD operation
+	 * @return boolean Whether or not the operation was successful
 	 */
 	public function chmod($ftp_file, $chmod)
 	{
@@ -865,8 +877,8 @@ class ftp_connection
 	/**
 	 * Deletes a file
 	 *
-	 * @param type $ftp_file
-	 * @return boolean
+	 * @param string $ftp_file The file to delete
+	 * @return boolean Whether or not the operation was successful
 	 */
 	public function unlink($ftp_file)
 	{
@@ -894,8 +906,8 @@ class ftp_connection
 	/**
 	 * Reads the response to the command from the server
 	 *
-	 * @param type $desired
-	 * @return type
+	 * @param string $desired The desired response
+	 * @return boolean Whether or not we got the desired response
 	 */
 	public function check_response($desired)
 	{
@@ -912,7 +924,7 @@ class ftp_connection
 	/**
 	 * Used to create a passive connection
 	 *
-	 * @return boolean
+	 * @return boolean Whether the passive connection was created successfully
 	 */
 	public function passive()
 	{
@@ -950,8 +962,8 @@ class ftp_connection
 	/**
 	 * Creates a new file on the server
 	 *
-	 * @param type $ftp_file
-	 * @return boolean
+	 * @param string $ftp_file The file to create
+	 * @return boolean Whether or not the file was created successfully
 	 */
 	public function create_file($ftp_file)
 	{
@@ -989,9 +1001,9 @@ class ftp_connection
 	/**
 	 * Generates a direcotry listing for the current directory
 	 *
-	 * @param type $ftp_path
-	 * @param type $search
-	 * @return boolean
+	 * @param string $ftp_path The path to the directory
+	 * @param type $search Whether or not to get a recursive directory listing
+	 * @return string|boolean The results of the command or false if unsuccessful
 	 */
 	public function list_dir($ftp_path = '', $search = false)
 	{
@@ -1032,10 +1044,10 @@ class ftp_connection
 	}
 
 	/**
-	 * Determins the current dirctory we are in
+	 * Determines the current directory we are in
 	 *
-	 * @param type $file
-	 * @param type $listing
+	 * @param string $file The name of a file
+	 * @param string $listing A directory listing or null to generate one
 	 * @return string|boolean
 	 */
 	public function locate($file, $listing = null)
@@ -1081,8 +1093,8 @@ class ftp_connection
 	/**
 	 * Creates a new directory on the server
 	 *
-	 * @param type $ftp_dir
-	 * @return boolean
+	 * @param string $ftp_dir The name of the directory to create
+	 * @return boolean Whether or not the operation was successful
 	 */
 	public function create_dir($ftp_dir)
 	{
@@ -1104,9 +1116,9 @@ class ftp_connection
 	/**
 	 * Detects the current path
 	 *
-	 * @param type $filesystem_path
-	 * @param type $lookup_file
-	 * @return type
+	 * @param string $filesystem_path The full path from the filesystem
+	 * @param string $lookup_file The name of a file in the specified path
+	 * @return array An array of detected info - username, path from FTP root and whether or not the current path was found
 	 */
 	public function detect_path($filesystem_path, $lookup_file = null)
 	{
@@ -1156,7 +1168,7 @@ class ftp_connection
 	/**
 	 * Close the ftp connection
 	 *
-	 * @return boolean
+	 * @return boolean Always returns true
 	 */
 	public function close()
 	{

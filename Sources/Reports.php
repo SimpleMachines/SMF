@@ -15,10 +15,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -40,7 +40,7 @@ if (!defined('SMF'))
  */
 function ReportsMain()
 {
-	global $txt, $modSettings, $context, $scripturl;
+	global $txt, $context, $scripturl;
 
 	// Only admins, only EVER admins!
 	isAllowedTo('admin_forum');
@@ -72,14 +72,13 @@ function ReportsMain()
 	foreach ($context['report_types'] as $k => $temp)
 		$context['report_types'][$k] = array(
 			'id' => $k,
-			// @todo what is $type? It is never set!
-			'title' => isset($txt['gr_type_' . $k]) ? $txt['gr_type_' . $k] : $type['id'],
+			'title' => isset($txt['gr_type_' . $k]) ? $txt['gr_type_' . $k] : $k,
 			'description' => isset($txt['gr_type_desc_' . $k]) ? $txt['gr_type_desc_' . $k] : null,
 			'function' => $temp,
 			'is_first' => $is_first++ == 0,
 		);
 
-	// If they haven't choosen a report type which is valid, send them off to the report type chooser!
+	// If they haven't chosen a report type which is valid, send them off to the report type chooser!
 	if (empty($_REQUEST['rt']) || !isset($context['report_types'][$_REQUEST['rt']]))
 	{
 		$context['sub_template'] = 'report_type';
@@ -185,6 +184,7 @@ function BoardReport()
 	$boardSettings = array(
 		'category' => $txt['board_category'],
 		'parent' => $txt['board_parent'],
+		'redirect' => $txt['board_redirect'],
 		'num_topics' => $txt['board_num_topics'],
 		'num_posts' => $txt['board_num_posts'],
 		'count_posts' => $txt['board_count_posts'],
@@ -204,11 +204,12 @@ function BoardReport()
 	// Go through each board!
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
-			c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
+			b.redirect, c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			LEFT JOIN {db_prefix}boards AS par ON (par.id_board = b.id_parent)
-			LEFT JOIN {db_prefix}themes AS th ON (th.id_theme = b.id_theme AND th.variable = {string:name})',
+			LEFT JOIN {db_prefix}themes AS th ON (th.id_theme = b.id_theme AND th.variable = {string:name})
+		ORDER BY b.board_order',
 		array(
 			'name' => 'name',
 			'text_none' => $txt['none'],
@@ -220,8 +221,12 @@ function BoardReport()
 		// Each board has it's own table.
 		newTable($row['name'], '', 'left', 'auto', 'left', 200, 'left');
 
+		$this_boardSettings = $boardSettings;
+		if (empty($row['redirect']))
+			unset($this_boardSettings['redirect']);
+
 		// First off, add in the side key.
-		addData($boardSettings);
+		addData($this_boardSettings);
 
 		// Format the profile name.
 		$profile_name = $context['profiles'][$row['id_profile']]['name'];
@@ -230,6 +235,7 @@ function BoardReport()
 		$boardData = array(
 			'category' => $row['cat_name'],
 			'parent' => $row['parent_name'],
+			'redirect' => $row['redirect'],
 			'num_posts' => $row['num_posts'],
 			'num_topics' => $row['num_topics'],
 			'count_posts' => empty($row['count_posts']) ? $txt['yes'] : $txt['no'],
@@ -263,6 +269,9 @@ function BoardReport()
 			$boardData['disallowed_groups'] = implode(', ', $disallowedGroups);
 		}
 
+		if (empty($row['redirect']))
+			unset ($boardData['redirect']);
+
 		// Next add the main data.
 		addData($boardData);
 	}
@@ -279,7 +288,7 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
@@ -371,6 +380,19 @@ function BoardPermissionsReport()
 	// Make sure that every group is represented - plus in rows!
 	setKeys('rows', $member_groups);
 
+	// Certain permissions should not really be shown.
+	$disabled_permissions = array();
+	if (!$modSettings['postmod_active'])
+	{
+		$disabled_permissions[] = 'approve_posts';
+		$disabled_permissions[] = 'post_unapproved_topics';
+		$disabled_permissions[] = 'post_unapproved_replies_own';
+		$disabled_permissions[] = 'post_unapproved_replies_any';
+		$disabled_permissions[] = 'post_unapproved_attachments';
+	}
+
+	call_integration_hook('integrate_reports_boardperm', array(&$disabled_permissions));
+
 	// Cache every permission setting, to make sure we don't miss any allows.
 	$permissions = array();
 	$board_permissions = array();
@@ -389,6 +411,9 @@ function BoardPermissionsReport()
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (in_array($row['permission'], $disabled_permissions))
+			continue;
+
 		foreach ($boards as $id => $board)
 			if ($board['profile'] == $row['id_profile'])
 				$board_permissions[$id][$row['id_group']][$row['permission']] = $row['add_deny'];
@@ -453,7 +478,7 @@ function BoardPermissionsReport()
 
 				// Now actually make the data for the group look right.
 				if (empty($curData[$id_group]))
-					$curData[$id_group] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 				elseif ($curData[$id_group] == 1)
 					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 				else
@@ -480,7 +505,7 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $context, $txt, $settings, $modSettings, $smcFunc;
+	global $txt, $settings, $modSettings, $smcFunc;
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
@@ -582,7 +607,7 @@ function MemberGroupsReport()
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*" />', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.
@@ -603,7 +628,7 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $context, $txt, $modSettings, $smcFunc;
+	global $txt, $modSettings, $smcFunc;
 
 	if (isset($_REQUEST['groups']))
 	{
@@ -654,6 +679,20 @@ function GroupPermissionsReport()
 	// Add a separator
 	addSeparator($txt['board_perms_permission']);
 
+	// Certain permissions should not really be shown.
+	$disabled_permissions = array();
+	if (empty($modSettings['cal_enabled']))
+	{
+		$disabled_permissions[] = 'calendar_view';
+		$disabled_permissions[] = 'calendar_post';
+		$disabled_permissions[] = 'calendar_edit_own';
+		$disabled_permissions[] = 'calendar_edit_any';
+	}
+	if (empty($modSettings['warning_settings']) || $modSettings['warning_settings'][0] == 0)
+		$disabled_permissions[] = 'issue_warning';
+
+	call_integration_hook('integrate_reports_groupperm', array(&$disabled_permissions));
+
 	// Now the big permission fetch!
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, add_deny, permission
@@ -671,6 +710,9 @@ function GroupPermissionsReport()
 	$curData = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (in_array($row['permission'], $disabled_permissions))
+			continue;
+
 		// If this is a new permission flush the last row.
 		if ($row['permission'] != $lastPermission)
 		{
@@ -688,7 +730,7 @@ function GroupPermissionsReport()
 		if ($row['add_deny'])
 			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 		else
-			$curData[$row['id_group']] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
+			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -706,7 +748,7 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $sourcedir, $context, $txt, $smcFunc;
+	global $sourcedir, $txt, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Members.php');
 
@@ -900,7 +942,7 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  * required key is present in the incoming data. If this data is missing
  * the current tables default value will be used.
  * if any key in the incoming data begins with '#sep#', the function
- * will add a separator accross the table at this point.
+ * will add a separator across the table at this point.
  * once the incoming data has been sanitized, it is added to the table.
  *
  * @param array $inc_data
@@ -1037,7 +1079,7 @@ function finishTables()
  * keys is an array whose keys are the keys for data being passed to
  * addData().
  * if reverse is set to true, then the values of the variable "keys"
- * are used as oppossed to the keys(!
+ * are used as opposed to the keys(!
  *
  * @param string $method = 'rows' rows or cols
  * @param array $keys = array()

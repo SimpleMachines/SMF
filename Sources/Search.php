@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Alpha 1',
+	'forum_version' => 'SMF 2.1 Beta 1',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
@@ -27,7 +27,7 @@ $GLOBALS['search_versions'] = array(
 /**
  * Ask the user what they want to search for.
  * What it does:
- * - shows the screen to search forum posts (action=search), and uses the simple version if the simpleSearch setting is enabled.
+ * - shows the screen to search forum posts (action=search)
  * - uses the main sub template of the Search template.
  * - uses the Search language file.
  * - requires the search_posts permission.
@@ -45,7 +45,10 @@ function PlushSearch1()
 	loadLanguage('Search');
 	// Don't load this in XML mode.
 	if (!isset($_REQUEST['xml']))
+	{
 		loadTemplate('Search');
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	}
 
 	// Check the user's permissions.
 	isAllowedTo('search_posts');
@@ -95,7 +98,7 @@ function PlushSearch1()
 	if (isset($context['search_params']['search']))
 		$context['search_params']['search'] = $smcFunc['htmlspecialchars']($context['search_params']['search']);
 	if (isset($context['search_params']['userspec']))
-		$context['search_params']['userspec'] = htmlspecialchars($context['search_params']['userspec']);
+		$context['search_params']['userspec'] = $smcFunc['htmlspecialchars']($context['search_params']['userspec']);
 	if (!empty($context['search_params']['searchtype']))
 		$context['search_params']['searchtype'] = 2;
 	if (!empty($context['search_params']['minage']))
@@ -160,6 +163,9 @@ function PlushSearch1()
 			$context['boards_check_all'] = false;
 	}
 	$smcFunc['db_free_result']($request);
+
+	require_once($sourcedir . '/Subs-Boards.php');
+	sortCategories($context['categories']);
 
 	// Now, let's sort the list of categories into the boards for templates that like that.
 	$temp_boards = array();
@@ -228,8 +234,6 @@ function PlushSearch1()
 		$context['search_topic']['link'] = '<a href="' . $context['search_topic']['href'] . '">' . $context['search_topic']['subject'] . '</a>';
 	}
 
-	// Simple or not?
-	$context['simple_search'] = isset($context['search_params']['advanced']) ? empty($context['search_params']['advanced']) : !empty($modSettings['simpleSearch']) && !isset($_REQUEST['advanced']);
 	$context['page_title'] = $txt['set_parameters'];
 
 	call_integration_hook('integrate_search');
@@ -247,7 +251,7 @@ function PlushSearch1()
  */
 function PlushSearch2()
 {
-	global $scripturl, $modSettings, $sourcedir, $txt, $db_connection;
+	global $scripturl, $modSettings, $sourcedir, $txt;
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc;
 
@@ -798,27 +802,19 @@ function PlushSearch2()
 	}
 
 	// *** Spell checking
-	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && function_exists('pspell_new');
+	$context['show_spellchecking'] = !empty($modSettings['enableSpellChecking']) && (function_exists('pspell_new') || (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv'))));
 	if ($context['show_spellchecking'])
 	{
-		// Windows fix.
-		ob_start();
-		$old = error_reporting(0);
+		require_once($sourcedir . '/Subs-Post.php');
 
-		pspell_new('en');
-		$pspell_link = pspell_new($txt['lang_dictionary'], $txt['lang_spelling'], '', strtr($txt['lang_character_set'], array('iso-' => 'iso', 'ISO-' => 'iso')), PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-		if (!$pspell_link)
-			$pspell_link = pspell_new('en', '', '', '', PSPELL_FAST | PSPELL_RUN_TOGETHER);
-
-		error_reporting($old);
-		ob_end_clean();
+		// Don't hardcode spellchecking functions!
+		$link = spell_init();
 
 		$did_you_mean = array('search' => array(), 'display' => array());
 		$found_misspelling = false;
 		foreach ($searchArray as $word)
 		{
-			if (empty($pspell_link))
+			if (empty($link))
 				continue;
 
 			// Don't check phrases.
@@ -835,14 +831,14 @@ function PlushSearch2()
 				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
 				continue;
 			}
-			elseif (pspell_check($pspell_link, $word))
+			elseif (spell_check($link, $word))
 			{
 				$did_you_mean['search'][] = $word;
 				$did_you_mean['display'][] = $smcFunc['htmlspecialchars']($word);
 				continue;
 			}
 
-			$suggestions = pspell_suggest($pspell_link, $word);
+			$suggestions = spell_suggest($link, $word);
 			foreach ($suggestions as $i => $s)
 			{
 				// Search is case insensitive.
@@ -1237,7 +1233,7 @@ function PlushSearch2()
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 							id_topic mediumint(8) unsigned NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_topic)
-						) TYPE=HEAP',
+						) ENGINE=MEMORY',
 						array(
 							'string_zero' => '0',
 							'db_error_skip' => true,
@@ -1415,7 +1411,7 @@ function PlushSearch2()
 						CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 							id_msg int(10) unsigned NOT NULL default {string:string_zero},
 							PRIMARY KEY (id_msg)
-						) TYPE=HEAP',
+						) ENGINE=MEMORY',
 						array(
 							'string_zero' => '0',
 							'db_error_skip' => true,
@@ -1727,7 +1723,7 @@ function PlushSearch2()
 	if (!empty($context['topics']))
 	{
 		// Create an array for the permissions.
-		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any', 'mark_any_notify'), true, false);
+		$boards_can = boardsAllowedTo(array('post_reply_own', 'post_reply_any'), true, false);
 
 		// How's about some quick moderation?
 		if (!empty($options['display_quick_mod']))
@@ -1735,7 +1731,7 @@ function PlushSearch2()
 			$boards_can = array_merge($boards_can, boardsAllowedTo(array('lock_any', 'lock_own', 'make_sticky', 'move_any', 'move_own', 'remove_any', 'remove_own', 'merge_any'), true, false));
 
 			$context['can_lock'] = in_array(0, $boards_can['lock_any']);
-			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']) && !empty($modSettings['enableStickyTopics']);
+			$context['can_sticky'] = in_array(0, $boards_can['make_sticky']);
 			$context['can_move'] = in_array(0, $boards_can['move_any']);
 			$context['can_remove'] = in_array(0, $boards_can['remove_any']);
 			$context['can_merge'] = in_array(0, $boards_can['merge_any']);
@@ -1832,17 +1828,15 @@ function PlushSearch2()
 	$context['key_words'] = &$searchArray;
 
 	// Setup the default topic icons... for checking they exist and the like!
-	$stable_icons = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
 	$context['icon_sources'] = array();
-	foreach ($stable_icons as $icon)
+	foreach ($context['stable_icons'] as $icon)
 		$context['icon_sources'][$icon] = 'images_url';
 
 	$context['sub_template'] = 'results';
 	$context['page_title'] = $txt['search_results'];
 	$context['get_topics'] = 'prepareSearchContext';
-	$context['can_send_pm'] = allowedTo('pm_send');
-	$context['can_send_email'] = allowedTo('send_email_to_members');
-	$context['can_restore'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] == $board;
+	$context['can_restore_perm'] = allowedTo('move_any') && !empty($modSettings['recycle_enable']);
+	$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 	$context['jump_to'] = array(
 		'label' => addslashes(un_htmlspecialchars($txt['jump_to'])),
@@ -1866,9 +1860,13 @@ function PlushSearch2()
  */
 function prepareSearchContext($reset = false)
 {
-	global $txt, $modSettings, $scripturl, $user_info, $sourcedir;
+	global $txt, $modSettings, $scripturl, $user_info;
 	global $memberContext, $context, $settings, $options, $messages_request;
 	global $boards_can, $participants, $smcFunc;
+	static $recycle_board = null;
+
+	if ($recycle_board === null)
+		$recycle_board = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']) ? (int) $modSettings['recycle_board'] : 0;
 
 	// Remember which message this is.  (ie. reply #83)
 	static $counter = null;
@@ -1919,9 +1917,9 @@ function prepareSearchContext($reset = false)
 		// Set the number of characters before and after the searched keyword.
 		$charLimit = 50;
 
-		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br />' => "\n"));
+		$message['body'] = strtr($message['body'], array("\n" => ' ', '<br>' => "\n"));
 		$message['body'] = parse_bbc($message['body'], $message['smileys_enabled'], $message['id_msg']);
-		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br />', '</li>' => '<br />')), '<br>');
+		$message['body'] = strip_tags(strtr($message['body'], array('</div>' => '<br>', '</li>' => '<br>')), '<br>');
 
 		if ($smcFunc['strlen']($message['body']) > $charLimit)
 		{
@@ -1942,7 +1940,7 @@ function prepareSearchContext($reset = false)
 				}
 				$matchString = un_htmlspecialchars(substr($matchString, 0, -1));
 
-				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br />' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
+				$message['body'] = un_htmlspecialchars(strtr($message['body'], array('&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@')));
 
 				if (empty($modSettings['search_method']) || $force_partial_word)
 					preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . ($context['utf8'] ? 'u' : ''), $message['body'], $matches);
@@ -1952,7 +1950,7 @@ function prepareSearchContext($reset = false)
 				$message['body'] = '';
 				foreach ($matches[0] as $index => $match)
 				{
-					$match = strtr(htmlspecialchars($match, ENT_QUOTES), array("\n" => '&nbsp;'));
+					$match = strtr($smcFunc['htmlspecialchars']($match, ENT_QUOTES), array("\n" => '&nbsp;'));
 					$message['body'] .= '<strong>......</strong>&nbsp;' . $match . '&nbsp;<strong>......</strong>';
 				}
 			}
@@ -1969,6 +1967,13 @@ function prepareSearchContext($reset = false)
 
 	// Make sure we don't end up with a practically empty message body.
 	$message['body'] = preg_replace('~^(?:&nbsp;)+$~', '', $message['body']);
+
+	if (!empty($recycle_board) && $message['id_board'] == $recycle_board)
+	{
+		$message['first_icon'] = 'recycled';
+		$message['last_icon'] = 'recycled';
+		$message['icon'] = 'recycled';
+	}
 
 	// Sadly, we need to check the icon ain't broke.
 	if (!empty($modSettings['messageIconChecks_enable']))
@@ -1995,17 +2000,14 @@ function prepareSearchContext($reset = false)
 
 	$output = array_merge($context['topics'][$message['id_msg']], array(
 		'id' => $message['id_topic'],
-		'is_sticky' => !empty($modSettings['enableStickyTopics']) && !empty($message['is_sticky']),
+		'is_sticky' => !empty($message['is_sticky']),
 		'is_locked' => !empty($message['locked']),
 		'is_poll' => $modSettings['pollMode'] == '1' && $message['id_poll'] > 0,
-		'is_hot' => $message['num_replies'] >= $modSettings['hotTopicPosts'],
-		'is_very_hot' => $message['num_replies'] >= $modSettings['hotTopicVeryPosts'],
 		'posted_in' => !empty($participants[$message['id_topic']]),
 		'views' => $message['num_views'],
 		'replies' => $message['num_replies'],
 		'can_reply' => in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any']),
 		'can_quote' => (in_array($message['id_board'], $boards_can['post_reply_any']) || in_array(0, $boards_can['post_reply_any'])) && $quote_enabled,
-		'can_mark_notify' => in_array($message['id_board'], $boards_can['mark_any_notify']) || in_array(0, $boards_can['mark_any_notify']) && !$context['user']['is_guest'],
 		'first_post' => array(
 			'id' => $message['first_msg'],
 			'time' => timeformat($message['first_poster_time']),
@@ -2051,10 +2053,6 @@ function prepareSearchContext($reset = false)
 			'link' => '<a href="' . $scripturl . '#c' . $message['id_cat'] . '">' . $message['cat_name'] . '</a>'
 		)
 	));
-	determineTopicClass($output);
-
-	if ($output['posted_in'])
-		$output['class'] = 'my_' . $output['class'];
 
 	$body_highlighted = $message['body'];
 	$subject_highlighted = $message['subject'];
@@ -2065,9 +2063,10 @@ function prepareSearchContext($reset = false)
 
 		$output['quick_mod'] = array(
 			'lock' => in_array(0, $boards_can['lock_any']) || in_array($output['board']['id'], $boards_can['lock_any']) || ($started && (in_array(0, $boards_can['lock_own']) || in_array($output['board']['id'], $boards_can['lock_own']))),
-			'sticky' => (in_array(0, $boards_can['make_sticky']) || in_array($output['board']['id'], $boards_can['make_sticky'])) && !empty($modSettings['enableStickyTopics']),
+			'sticky' => (in_array(0, $boards_can['make_sticky']) || in_array($output['board']['id'], $boards_can['make_sticky'])),
 			'move' => in_array(0, $boards_can['move_any']) || in_array($output['board']['id'], $boards_can['move_any']) || ($started && (in_array(0, $boards_can['move_own']) || in_array($output['board']['id'], $boards_can['move_own']))),
 			'remove' => in_array(0, $boards_can['remove_any']) || in_array($output['board']['id'], $boards_can['remove_any']) || ($started && (in_array(0, $boards_can['remove_own']) || in_array($output['board']['id'], $boards_can['remove_own']))),
+			'restore' => $context['can_restore_perm'] && ($modSettings['recycle_board'] == $output['board']['id']),
 		);
 
 		$context['can_lock'] |= $output['quick_mod']['lock'];
@@ -2075,6 +2074,7 @@ function prepareSearchContext($reset = false)
 		$context['can_move'] |= $output['quick_mod']['move'];
 		$context['can_remove'] |= $output['quick_mod']['remove'];
 		$context['can_merge'] |= in_array($output['board']['id'], $boards_can['merge_any']);
+		$context['can_restore'] |= $output['quick_mod']['restore'];
 		$context['can_markread'] = $context['user']['is_logged'];
 
 		$context['qmod_actions'] = array('remove', 'lock', 'sticky', 'move', 'merge', 'restore', 'markread');
@@ -2088,14 +2088,16 @@ function prepareSearchContext($reset = false)
 		$query = trim($query, "\*+");
 		$query = strtr($smcFunc['htmlspecialchars']($query), array('\\\'' => '\''));
 
-		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), create_function('$m', 'return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";'), $body_highlighted);
+		$body_highlighted = preg_replace_callback('/((<[^>]*)|' . preg_quote(strtr($query, array('\'' => '&#039;')), '/') . ')/i' . ($context['utf8'] ? 'u' : ''), function ($m)
+		{
+			return isset($m[2]) && "$m[2]" == "$m[1]" ? stripslashes("$m[1]") : "<strong class=\"highlight\">$m[1]</strong>";
+		}, $body_highlighted);
 		$subject_highlighted = preg_replace('/(' . preg_quote($query, '/') . ')/i' . ($context['utf8'] ? 'u' : ''), '<strong class="highlight">$1</strong>', $subject_highlighted);
 	}
 
 	$output['matches'][] = array(
 		'id' => $message['id_msg'],
 		'attachment' => loadAttachmentContext($message['id_msg']),
-		'alternate' => $counter % 2,
 		'member' => &$memberContext[$message['id_member']],
 		'icon' => $message['icon'],
 		'icon_url' => $settings[$context['icon_sources'][$message['icon']]] . '/post/' . $message['icon'] . '.png',
@@ -2123,12 +2125,14 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
+ * @return search_api_interface
  */
 function findSearchAPI()
 {
 	global $sourcedir, $modSettings, $search_versions, $searchAPI, $txt;
 
 	require_once($sourcedir . '/Subs-Package.php');
+	require_once($sourcedir . '/Class-SearchAPI.php');
 
 	// Search has a special database set.
 	db_extend('search');
@@ -2144,7 +2148,7 @@ function findSearchAPI()
 	$searchAPI = new $search_class_name();
 
 	// An invalid Search API.
-	if (!$searchAPI || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
+	if (!$searchAPI || !($searchAPI instanceof search_api_interface) || ($searchAPI->supportsMethod('isValid') && !$searchAPI->isValid()) || !matchPackageVersion($search_versions['forum_version'], $searchAPI->min_smf_version . '-' . $searchAPI->version_compatible))
 	{
 		// Log the error.
 		loadLanguage('Errors');

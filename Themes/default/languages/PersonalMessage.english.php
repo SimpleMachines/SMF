@@ -1,7 +1,17 @@
 <?php
-// Version: 2.1 Alpha 1; PersonalMessage
+// Version: 2.1 Beta 1; PersonalMessage
 
 global $context;
+
+// Things for the popup
+$txt['pm_unread'] = 'Unread';
+$txt['pm_sent_short'] = 'Sent';
+$txt['pm_new_short'] = 'New';
+$txt['pm_drafts_short'] = 'Drafts';
+$txt['pm_settings_short'] = 'Settings';
+$txt['pm_no_unread'] = 'No unread messages.';
+$txt['pm_was_sent_to_you'] = 'You received a message.';
+$txt['pm_you_were_replied_to'] = 'A message of yours was replied to.';
 
 $txt['pm_inbox'] = 'Personal Messages Index';
 $txt['send_message'] = 'Send message';
@@ -25,6 +35,7 @@ $txt['delete_selected_confirm'] = 'Are you sure you want to delete all selected 
 $txt['sent_to'] = 'Sent to';
 $txt['reply_to_all'] = 'Reply to All';
 $txt['delete_conversation'] = 'Delete Conversation';
+$txt['remove_conversation'] = 'Remove all messages in this conversation?';
 
 $txt['pm_capacity'] = 'Capacity';
 $txt['pm_currently_using'] = '%1$s messages, %2$s%% full.';
@@ -46,7 +57,10 @@ $txt['pm_replied'] = 'Replied To';
 $txt['pm_prune'] = 'Prune Messages';
 $txt['pm_prune_desc1'] = 'Delete all personal messages older than';
 $txt['pm_prune_desc2'] = 'days.';
-$txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages?';
+$txt['pm_prune_warning'] = 'Are you sure you wish to prune your personal messages? They cannot be recovered!';
+$txt['pm_remove_all'] = 'Delete all of your personal messages (this will wipe out your inbox and your outbox).';
+$txt['pm_remove_all_warning'] = 'Are you absolutely sure you wish to delete all of your personal messages? They cannot be recovered!';
+$txt['delete_all_prune'] = 'Delete all';
 
 // Actions Drop Down.
 $txt['pm_actions_title'] = 'Further actions';
@@ -132,7 +146,7 @@ $txt['pm_settings'] = 'Change settings';
 $txt['pm_change_view'] = 'Change view';
 
 $txt['pm_manage_rules'] = 'Manage Rules';
-$txt['pm_manage_rules_desc'] = 'Message rules allow you to automatically sort incoming messages dependant on a set of criteria you define. Below are all the rules you currently have setup. To edit a rule simply click the rule name.';
+$txt['pm_manage_rules_desc'] = 'Message rules allow you to automatically sort incoming messages dependent on a set of criteria you define. Below are all the rules you currently have setup. To edit a rule simply click the rule name.';
 $txt['pm_rules_none'] = 'You have not yet setup any message rules.';
 $txt['pm_rule_title'] = 'Rule';
 $txt['pm_add_rule'] = 'Add new rule';
@@ -184,5 +198,6 @@ $txt['pm_readable_buddy'] = 'sender is a buddy';
 $txt['pm_readable_label'] = 'apply label &quot;{LABEL}&quot;';
 $txt['pm_readable_delete'] = 'delete the message';
 $txt['pm_readable_then'] = '<strong>then</strong>';
+$txt['pm_remove_message'] = 'Remove this message';
 
 ?>

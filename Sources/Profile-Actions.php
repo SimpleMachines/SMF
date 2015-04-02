@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function activateAccount($memID)
 {
-	global $sourcedir, $context, $user_profile, $modSettings, $user_info;
+	global $sourcedir, $context, $user_profile, $modSettings;
 
 	isAllowedTo('moderate_forum');
 
@@ -48,7 +48,7 @@ function activateAccount($memID)
 		logAction('approve_member', array('member' => $memID), 'admin');
 
 		// If we are doing approval, update the stats for the member just in case.
-		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 13, 14)))
+		if (in_array($user_profile[$memID]['is_activated'], array(3, 4, 5, 13, 14, 15)))
 			updateSettings(array('unapprovedMembers' => ($modSettings['unapprovedMembers'] > 1 ? $modSettings['unapprovedMembers'] - 1 : 0)));
 
 		// Make sure we update the stats too.
@@ -67,7 +67,7 @@ function activateAccount($memID)
 function issueWarning($memID)
 {
 	global $txt, $scripturl, $modSettings, $user_info, $mbname;
-	global $context, $cur_profile, $memberContext, $smcFunc, $sourcedir;
+	global $context, $cur_profile, $smcFunc, $sourcedir;
 
 	// Get all the actual settings.
 	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
@@ -131,17 +131,13 @@ function issueWarning($memID)
 	if (isset($_POST['save']))
 	{
 		// Security is good here.
-		checkSession('post');
+		checkSession();
 
 		// This cannot be empty!
 		$_POST['warn_reason'] = isset($_POST['warn_reason']) ? trim($_POST['warn_reason']) : '';
 		if ($_POST['warn_reason'] == '' && !$context['user']['is_owner'])
 			$issueErrors[] = 'warning_no_reason';
 		$_POST['warn_reason'] = $smcFunc['htmlspecialchars']($_POST['warn_reason']);
-
-		// If the value hasn't changed it's either no JS or a real no change (Which this will pass)
-		if ($_POST['warning_level'] == 'SAME')
-			$_POST['warning_level'] = $_POST['warning_level_nojs'];
 
 		$_POST['warning_level'] = (int) $_POST['warning_level'];
 		$_POST['warning_level'] = max(0, min(100, $_POST['warning_level']));
@@ -164,8 +160,8 @@ function issueWarning($memID)
 				require_once($sourcedir . '/Subs-Post.php');
 				$from = array(
 					'id' => 0,
-					'name' => $context['forum_name'],
-					'username' => $context['forum_name'],
+					'name' => $context['forum_name_html_safe'],
+					'username' => $context['forum_name_html_safe'],
 				);
 				sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
@@ -252,7 +248,6 @@ function issueWarning($memID)
 			'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
 			'body_preview' => $warning_body,
 		);
-// 		print_r($context['warning_data']);die();
 	}
 
 	if (!empty($issueErrors))
@@ -284,7 +279,7 @@ function issueWarning($memID)
 	$listOptions = array(
 		'id' => 'view_warnings',
 		'title' => $txt['profile_viewwarning_previous_warnings'],
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
 		'base_href' => $scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
 		'default_sort_col' => 'log_time',
@@ -307,10 +302,10 @@ function issueWarning($memID)
 					'style' => 'width: 20%;',
 				),
 				'data' => array(
-					'function' => create_function('$warning', '
-						return $warning[\'issuer\'][\'link\'];
-					'
-					),
+					'function' => function ($warning)
+					{
+						return $warning['issuer']['link'];
+					},
 				),
 				'sort' => array(
 					'default' => 'lc.member_name DESC',
@@ -335,21 +330,21 @@ function issueWarning($memID)
 					'value' => $txt['profile_warning_previous_reason'],
 				),
 				'data' => array(
-					'function' => create_function('$warning', '
-						global $scripturl, $txt, $settings;
-
-						$ret = \'
+					'function' => function ($warning) use ($scripturl, $txt)
+					{
+						$ret = '
 						<div class="floatleft">
-							\' . $warning[\'reason\'] . \'
-						</div>\';
+							' . $warning['reason'] . '
+						</div>';
 
-						if (!empty($warning[\'id_notice\']))
-							$ret .= \'
+						if (!empty($warning['id_notice']))
+							$ret .= '
 						<div class="floatright">
-							<a href="\' . $scripturl . \'?action=moderate;area=notice;nid=\' . $warning[\'id_notice\'] . \'" onclick="window.open(this.href, \\\'\\\', \\\'scrollbars=yes,resizable=yes,width=400,height=250\\\');return false;" target="_blank" class="new_win" title="\' . $txt[\'profile_warning_previous_notice\'] . \'"><img src="\' . $settings[\'images_url\'] . \'/filter.png" alt="" /></a>
-						</div>\';
+							<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>
+						</div>';
 
-						return $ret;'),
+						return $ret;
+					},
 				),
 			),
 			'level' => array(
@@ -520,7 +515,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $user_info, $modSettings, $cur_profile, $smcFunc;
+	global $txt, $context, $modSettings, $cur_profile;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -590,9 +585,53 @@ function deleteAccount2($memID)
 	{
 		isAllowedTo('profile_remove_any');
 
+		// Before we go any further, handle possible poll vote deletion as well
+		if (!empty($_POST['deleteVotes']) && allowedTo('moderate_forum'))
+		{
+			// First we find any polls that this user has voted in...
+			$get_voted_polls = $smcFunc['db_query']('', '
+				SELECT DISTINCT id_poll
+				FROM {db_prefix}log_polls
+				WHERE id_member = {int:selected_member}',
+				array(
+					'selected_member' => $memID,
+				)
+			);
+
+			$polls_to_update = array();
+
+			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
+			{
+				$polls_to_update[] = $row['id_poll'];
+			}
+
+			$smcFunc['db_free_result']($get_voted_polls);
+
+			// Now we delete the votes and update the polls
+			if (!empty($polls_to_update))
+			{
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_polls
+					WHERE id_member = {int:selected_member}',
+					array(
+						'selected_member' => $memID,
+					)
+				);
+
+				$smcFunc['db_query']('', '
+					UPDATE {db_prefix}polls
+					SET votes = votes - 1
+					WHERE id_poll IN {array_int:polls_to_update}',
+					array(
+						'polls_to_update' => $polls_to_update
+					)
+				);
+			}
+		}
+
 		// Now, have you been naughty and need your posts deleting?
 		// @todo Should this check board permissions?
-		if ($_POST['remove_type'] != 'none' && allowedTo('moderate_forum'))
+		if (!empty($_POST['deletePosts']) && in_array($_POST['remove_type'], array('posts', 'topics')) && allowedTo('moderate_forum'))
 		{
 			// Include RemoveTopics - essential for this type of work!
 			require_once($sourcedir . '/RemoveTopic.php');

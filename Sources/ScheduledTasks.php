@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -21,18 +21,18 @@ if (!defined('SMF'))
  */
 function AutoTask()
 {
-	global $time_start, $modSettings, $smcFunc;
+	global $time_start, $smcFunc, $modSettings;
 
 	// Special case for doing the mail queue.
 	if (isset($_GET['scheduled']) && $_GET['scheduled'] == 'mailq')
 		ReduceMailQueue();
 	else
 	{
-		call_integration_hook('integrate_autotask_include');
+		$task_string = '';
 
 		// Select the next task to do.
 		$request = $smcFunc['db_query']('', '
-			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit
+			SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
 				AND next_time <= {int:current_time}
@@ -80,13 +80,32 @@ function AutoTask()
 			);
 			$affected_rows = $smcFunc['db_affected_rows']();
 
+			// What kind of task are we handling?
+			if (!empty($row['callable']))
+				$task_string = $row['callable'];
+
+			// Default SMF task or old mods?
+			elseif (function_exists('scheduled_' . $row['task']))
+				$task_string = 'scheduled_' . $row['task'];
+
+			// One last resource, the task name.
+			elseif (!empty($row['task']))
+				$task_string = $row['task'];
+
 			// The function must exist or we are wasting our time, plus do some timestamp checking, and database check!
-			if (function_exists('scheduled_' . $row['task']) && (!isset($_GET['ts']) || $_GET['ts'] == $row['next_time']) && $affected_rows)
+			if (!empty($task_string) && (!isset($_GET['ts']) || $_GET['ts'] == $row['next_time']) && $affected_rows)
 			{
 				ignore_user_abort(true);
 
-				// Do the task...
-				$completed = call_user_func('scheduled_' . $row['task']);
+				// Get the callable.
+				$callable_task = call_helper($task_string, true);
+
+				// Perform the task.
+				if (!empty($callable_task))
+					$completed = call_user_func($callable_task);
+
+				else
+					$completed = false;
 
 				// Log that we did it ;)
 				if ($completed)
@@ -144,7 +163,7 @@ function AutoTask()
  */
 function scheduled_approval_notification()
 {
-	global $scripturl, $modSettings, $mbname, $txt, $sourcedir, $smcFunc;
+	global $scripturl, $txt, $sourcedir, $smcFunc;
 
 	// Grab all the items awaiting approval and sort type then board - clear up any things that are no longer relevant.
 	$request = $smcFunc['db_query']('', '
@@ -348,7 +367,7 @@ function scheduled_approval_notification()
 		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
 
 		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', false, 2);
 	}
 
 	// All went well!
@@ -445,21 +464,6 @@ function scheduled_daily_maintenance()
 			)
 		);
 
-	// Regenerate the Diffie-Hellman keys if OpenID is enabled.
-	if (!empty($modSettings['enableOpenID']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		smf_openID_setup_DH(true);
-	}
-	elseif (!empty($modSettings['dh_keys']))
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}settings
-			WHERE variable = {string:dh_keys}',
-			array(
-				'dh_keys' => 'dh_keys',
-			)
-		);
-
 	// Clean up some old login history information.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}member_logins
@@ -469,56 +473,6 @@ function scheduled_daily_maintenance()
 	));
 
 	// Log we've done it...
-	return true;
-}
-
-/**
- * Auto optimize the database?
- */
-function scheduled_auto_optimize()
-{
-	global $modSettings, $smcFunc, $db_prefix, $db_type;
-
-	// By default do it now!
-	$delay = false;
-
-	// As a kind of hack, if the server load is too great delay, but only by a bit!
-	if (!empty($modSettings['load_average']) && !empty($modSettings['loadavg_auto_opt']) && $modSettings['load_average'] >= $modSettings['loadavg_auto_opt'])
-		$delay = true;
-
-	// Otherwise are we restricting the number of people online for this?
-	if (!empty($modSettings['autoOptMaxOnline']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT COUNT(*)
-			FROM {db_prefix}log_online',
-			array(
-			)
-		);
-		list ($dont_do_it) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-
-		if ($dont_do_it > $modSettings['autoOptMaxOnline'])
-			$delay = true;
-	}
-
-	// If we are gonna delay, do so now!
-	if ($delay)
-		return false;
-
-	db_extend();
-
-	// Get all the tables.
-	$tables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
-
-	// Actually do the optimisation.
-	if ($db_type == 'sqlite')
-		$smcFunc['db_optimize_table']($tables[0]);
-	else
-		foreach ($tables as $table)
-			$smcFunc['db_optimize_table']($table);
-
-	// Return for the log...
 	return true;
 }
 
@@ -769,7 +723,7 @@ function scheduled_daily_digest()
 		$email['body'] .= "\n\n" . $txt['regards_team'];
 
 		// Send it - low priority!
-		sendmail($email['email'], $email['subject'], $email['body'], null, null, false, 4);
+		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
 	}
 
 	// Clean up...
@@ -873,11 +827,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:next_mail_send}
-			WHERE variable = {string:mail_next_send}
+			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_send}',
 			array(
 				'next_mail_send' => time() + $delay,
-				'mail_next_send' => 'mail_next_send',
 				'last_send' => $modSettings['mail_next_send'],
 			)
 		);
@@ -912,7 +865,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Now we know how many we're sending, let's send them.
 	$request = $smcFunc['db_query']('', '
-		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent
+		SELECT /*!40001 SQL_NO_CACHE */ id_mail, recipient, body, subject, headers, send_html, time_sent, private
 		FROM {db_prefix}mail_queue
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT ' . $number,
@@ -932,6 +885,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			'headers' => $row['headers'],
 			'send_html' => $row['send_html'],
 			'time_sent' => $row['time_sent'],
+			'private' => $row['private'],
 		);
 	}
 	$smcFunc['db_free_result']($request);
@@ -953,11 +907,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:no_send}
-			WHERE variable = {string:mail_next_send}
+			WHERE variable = {literal:mail_next_send}
 				AND value = {string:last_mail_send}',
 			array(
 				'no_send' => '0',
-				'mail_next_send' => 'mail_next_send',
 				'last_mail_send' => $modSettings['mail_next_send'],
 			)
 		);
@@ -971,7 +924,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Send each email, yea!
 	$failed_emails = array();
-	foreach ($emails as $key => $email)
+	foreach ($emails as $email)
 	{
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{
@@ -995,7 +948,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 		// Hopefully it sent?
 		if (!$result)
-			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent']);
+			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private']);
 	}
 
 	// Any emails that didn't send?
@@ -1013,19 +966,18 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		if ($modSettings['mail_failed_attempts'] > 5)
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}settings
-				SET value = {string:mail_next_send}
-				WHERE variable = {string:next_mail_send}
+				SET value = {string:next_mail_send}
+				WHERE variable = {literal:mail_next_send}
 					AND value = {string:last_send}',
 				array(
 					'next_mail_send' => time() + 60,
-					'mail_next_send' => 'mail_next_send',
 					'last_send' => $modSettings['mail_next_send'],
 			));
 
 		// Add our email back to the queue, manually.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}mail_queue',
-			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string'),
+			array('recipient' => 'string', 'body' => 'string', 'subject' => 'string', 'headers' => 'string', 'send_html' => 'string', 'time_sent' => 'string', 'private' => 'int'),
 			$failed_emails,
 			array('id_mail')
 		);
@@ -1154,7 +1106,7 @@ function next_time($regularity, $unit, $offset)
 			$next_time = time() + 60 * ($off - $curMin);
 		}
 	}
-	// Otherwise, work out what the offset would be with todays date.
+	// Otherwise, work out what the offset would be with today's date.
 	else
 	{
 		$next_time = mktime(date('H', $offset), date('i', $offset), 0, date('m'), date('d'), date('Y'));
@@ -1191,7 +1143,7 @@ function next_time($regularity, $unit, $offset)
  */
 function loadEssentialThemeData()
 {
-	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir;
+	global $settings, $modSettings, $smcFunc, $mbname, $context, $sourcedir, $txt;
 
 	// Get all the default theme variables.
 	$result = $smcFunc['db_query']('', '
@@ -1201,7 +1153,7 @@ function loadEssentialThemeData()
 			AND id_theme IN (1, {int:theme_guests})',
 		array(
 			'no_member' => 0,
-			'theme_guests' => $modSettings['theme_guests'],
+			'theme_guests' => !empty($modSettings['theme_guests']) ? $modSettings['theme_guests'] : 1,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -1239,6 +1191,11 @@ function loadEssentialThemeData()
 	}
 
 	loadLanguage('index+Modifications');
+
+	// Just in case it wasn't already set elsewhere.
+	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
+	$context['right_to_left'] = !empty($txt['lang_rtl']);
 }
 
 /**
@@ -1246,7 +1203,7 @@ function loadEssentialThemeData()
  */
 function scheduled_fetchSMfiles()
 {
-	global $sourcedir, $txt, $language, $settings, $forum_version, $modSettings, $smcFunc, $context;
+	global $sourcedir, $txt, $language, $forum_version, $modSettings, $smcFunc, $context;
 
 	// What files do we want to get
 	$request = $smcFunc['db_query']('', '
@@ -1279,7 +1236,7 @@ function scheduled_fetchSMfiles()
 	foreach ($js_files as $ID_FILE => $file)
 	{
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'http://www.simplemachines.org' : '';
+		$server = empty($file['path']) || (substr($file['path'], 0, 7) != 'http://' && substr($file['path'], 0, 8) != 'https://') ? 'http://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
@@ -1312,7 +1269,7 @@ function scheduled_fetchSMfiles()
  */
 function scheduled_birthdayemails()
 {
-	global $modSettings, $sourcedir, $mbname, $txt, $smcFunc, $birthdayEmails;
+	global $modSettings, $sourcedir, $txt, $smcFunc, $txtBirthdayEmails;
 
 	// Need this in order to load the language files.
 	loadEssentialThemeData();
@@ -1372,7 +1329,7 @@ function scheduled_birthdayemails()
 
 			$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 
-			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, null, false, 4);
+			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
 
 			// Try to stop a timeout, this would be bad...
 			@set_time_limit(300);
@@ -1486,9 +1443,13 @@ function scheduled_weekly_maintenance()
 			$result = $smcFunc['db_query']('', '
 				SELECT id_report
 				FROM {db_prefix}log_reported
-				WHERE time_started < {int:time_started}',
+				WHERE time_started < {int:time_started}
+					AND closed = {int:closed}
+					AND ignore_all = {int:not_ignored}',
 				array(
 					'time_started' => $t,
+					'closed' => 1,
+					'not_ignored' => 0,
 				)
 			);
 
@@ -1579,7 +1540,7 @@ function scheduled_weekly_maintenance()
  */
 function scheduled_paid_subscriptions()
 {
-	global $txt, $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
+	global $sourcedir, $scripturl, $smcFunc, $modSettings, $language;
 
 	// Start off by checking for removed subscriptions.
 	$request = $smcFunc['db_query']('', '
@@ -1617,6 +1578,7 @@ function scheduled_paid_subscriptions()
 		)
 	);
 	$subs_reminded = array();
+	$members = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If this is the first one load the important bits.
@@ -1628,7 +1590,16 @@ function scheduled_paid_subscriptions()
 		}
 
 		$subs_reminded[] = $row['id_sublog'];
+		$members[$row['id_member']] = $row;
+	}
+	$smcFunc['db_free_result']($request);
 
+	// Load alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$notifyPrefs = getNotifyPrefs(array_keys($members), 'paidsubs_expiring', true);
+	$alert_rows = array();
+	foreach ($members as $row)
+	{
 		$replacements = array(
 			'PROFILE_LINK' => $scripturl . '?action=profile;area=subscriptions;u=' . $row['id_member'],
 			'REALNAME' => $row['member_name'],
@@ -1639,9 +1610,38 @@ function scheduled_paid_subscriptions()
 		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
 		// Send the actual email.
-		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, null, false, 2);
+		if ($notifyPrefs[$row['id_member']] & 0x02)
+			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
+
+		if ($notifyPrefs[$row['id_member']] & 0x01)
+		{
+			$alert_rows[] = array(
+				'alert_time' => time(),
+				'id_member' => $row['id_member'],
+				'id_member_started' => $row['id_member'],
+				'member_name' => $row['member_name'],
+				'content_type' => 'paidsubs',
+				'content_id' => $row['id_sublog'],
+				'content_action' => 'expiring',
+				'is_read' => 0,
+				'extra' => serialize(array(
+					'subscription_name' => $row['name'],
+					'end_time' => strip_tags(timeformat($row['end_time'])),
+				)),
+			);
+			updateMemberData($row['id_member'], array('alerts' => '+'));
+		}
 	}
-	$smcFunc['db_free_result']($request);
+
+	// Insert the alerts if any
+	if (!empty($alert_rows))
+		$smcFunc['db_insert']('',
+			'{db_prefix}user_alerts',
+			array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
+				'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+			$alert_rows,
+			array()
+		);
 
 	// Mark the reminder as sent.
 	if (!empty($subs_reminded))
@@ -1720,7 +1720,7 @@ function scheduled_remove_topic_redirect()
 	// init
 	$topics = array();
 
-	// We will need this for lanaguage files
+	// We will need this for language files
 	loadEssentialThemeData();
 
 	// Find all of the old MOVE topic notices that were set to expire
@@ -1761,7 +1761,7 @@ function scheduled_remove_old_drafts()
 	// init
 	$drafts = array();
 
-	// We need this for lanaguage items
+	// We need this for language items
 	loadEssentialThemeData();
 
 	// Find all of the old drafts

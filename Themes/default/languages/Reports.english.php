@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Reports
+// Version: 2.1 Beta 1; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -31,8 +31,6 @@ $txt['board_perms_name_delete_replies'] = 'Delete replies to own topics';
 $txt['board_perms_name_lock_any'] = 'Lock any topic';
 $txt['board_perms_name_lock_own'] = 'Lock own topic';
 $txt['board_perms_name_make_sticky'] = 'Make topics sticky';
-$txt['board_perms_name_mark_any_notify'] = 'Request notification on any topic';
-$txt['board_perms_name_mark_notify'] = 'Request notification on own topics';
 $txt['board_perms_name_merge_any'] = 'Merge topics';
 $txt['board_perms_name_moderate_board'] = 'Moderate the board';
 $txt['board_perms_name_modify_any'] = 'Modify any post';
@@ -59,10 +57,11 @@ $txt['board_perms_name_post_unapproved_attachments'] = 'Post unapproved attachme
 $txt['board_perms_name_post_unapproved_topics'] = 'Post unapproved topics';
 $txt['board_perms_name_post_unapproved_replies_any'] = 'Post unapproved replies in any topic';
 $txt['board_perms_name_post_unapproved_replies_own'] = 'Post unapproved replies in own topic';
+$txt['board_perms_name_post_draft'] = 'Save drafts of posts';
+$txt['board_perms_name_post_autosave_draft'] = 'Automatically save drafts of posts';
 $txt['board_perms_name_remove_any'] = 'Remove any topic';
 $txt['board_perms_name_remove_own'] = 'Remove own topics';
 $txt['board_perms_name_report_any'] = 'Report any post';
-$txt['board_perms_name_send_topic'] = 'Send topics to friends';
 $txt['board_perms_name_split_any'] = 'Split any topics';
 $txt['board_perms_name_view_attachments'] = 'View attachments';
 
@@ -82,6 +81,7 @@ $txt['member_group_access'] = 'Board Access';
 $txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
+$txt['board_redirect'] = 'Redirection Board, redirects to';
 $txt['board_num_topics'] = 'Number of Topics';
 $txt['board_num_posts'] = 'Number of Posts';
 $txt['board_count_posts'] = 'Count Posts';
@@ -89,7 +89,7 @@ $txt['board_theme'] = 'Board Theme';
 $txt['board_override_theme'] = 'Force Board Theme';
 $txt['board_profile'] = 'Permissions Profile';
 $txt['board_moderators'] = 'Moderators';
-$txt['board_moderatr_groups'] = 'Moderator Groups';
+$txt['board_moderator_groups'] = 'Moderator Groups';
 $txt['board_groups'] = 'Groups with Access';
 $txt['board_disallowed_groups'] = 'Groups with Access Denied';
 
@@ -102,7 +102,6 @@ $txt['group_perms_name_calendar_post'] = 'Post events';
 $txt['group_perms_name_calendar_view'] = 'View events';
 $txt['group_perms_name_edit_news'] = 'Edit forum news';
 $txt['group_perms_name_issue_warning'] = 'Issue warnings';
-$txt['group_perms_name_karma_edit'] = 'Edit user karma';
 $txt['group_perms_name_manage_attachments'] = 'Manage attachments';
 $txt['group_perms_name_manage_bans'] = 'Manage bans';
 $txt['group_perms_name_manage_boards'] = 'Manage boards';
@@ -112,6 +111,8 @@ $txt['group_perms_name_manage_smileys'] = 'Manage smileys and message icons';
 $txt['group_perms_name_moderate_forum'] = 'Moderate the forum';
 $txt['group_perms_name_pm_read'] = 'Read personal messages';
 $txt['group_perms_name_pm_send'] = 'Send personal messages';
+$txt['group_perms_name_pm_draft'] = 'Save draft personal messages';
+$txt['group_perms_name_pm_autosave_draft'] = 'Automatically save draft personal messages';
 $txt['group_perms_name_profile_extra_any'] = 'Edit any additional options';
 $txt['group_perms_name_profile_extra_own'] = 'Edit own additional options';
 $txt['group_perms_name_profile_identity_any'] = 'Edit any account settings';
@@ -123,10 +124,9 @@ $txt['group_perms_name_profile_remove_any'] = 'Delete any account';
 $txt['group_perms_name_profile_remove_own'] = 'Delete own account';
 $txt['group_perms_name_profile_title_any'] = 'Edit any custom title';
 $txt['group_perms_name_profile_title_own'] = 'Edit own custom title';
-$txt['group_perms_name_profile_view_any'] = 'View any profile';
-$txt['group_perms_name_profile_view_own'] = 'View  own profile';
+$txt['group_perms_name_profile_view'] = 'View any user\'s profile';
 $txt['group_perms_name_search_posts'] = 'Search for posts';
-$txt['group_perms_name_send_mail'] = 'Send a forum email to members';
+$txt['group_perms_name_send_email_to_members'] = 'Send a forum email to members';
 $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_who_view'] = 'See who\'s online';

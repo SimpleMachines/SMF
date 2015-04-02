@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function ManageSearch()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	isAllowedTo('admin_forum');
 
@@ -47,8 +47,6 @@ function ManageSearch()
 		'removefulltext' => 'EditSearchMethod',
 		'createmsgindex' => 'CreateMessageIndex',
 	);
-
-	call_integration_hook('integrate_manage_search', array(&$subActions));
 
 	// Default the sub-action to 'edit search settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
@@ -73,8 +71,10 @@ function ManageSearch()
 		),
 	);
 
+	call_integration_hook('integrate_manage_search', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -94,8 +94,6 @@ function EditSearchSettings($return_config = false)
 			// Permission...
 			array('permissions', 'search_posts'),
 			// Some simple settings.
-			array('check', 'simpleSearch'),
-			array('check', 'search_dropdown'),
 			array('int', 'search_results_per_page'),
 			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
 		'',
@@ -130,6 +128,7 @@ function EditSearchSettings($return_config = false)
 		if (empty($_POST['search_results_per_page']))
 			$_POST['search_results_per_page'] = !empty($modSettings['search_results_per_page']) ? $modSettings['search_results_per_page'] : $modSettings['defaultMaxMessages'];
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=managesearch;sa=settings;' . $context['session_var'] . '=' . $context['session_id']);
 	}
 
@@ -498,8 +497,8 @@ function CreateMessageIndex()
 		$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 		$context['step'] = isset($_REQUEST['step']) ? (int) $_REQUEST['step'] : 0;
 
-		// admin timeouts are painful when building these long indexes
-		if ($_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
+		// admin timeouts are painful when building these long indexes - but only if we actually have such things enabled
+		if (empty($modSettings['securityDisable']) && $_SESSION['admin_time'] + 3300 < time() && $context['step'] >= 1)
 			$_SESSION['admin_time'] = time();
 	}
 
@@ -753,6 +752,9 @@ function detectFulltextIndex()
 {
 	global $smcFunc, $context, $db_prefix;
 
+	// We need this for db_get_version
+	db_extend();
+
 	$request = $smcFunc['db_query']('', '
 		SHOW INDEX
 		FROM {db_prefix}messages',
@@ -793,7 +795,7 @@ function detectFulltextIndex()
 	if ($request !== false)
 	{
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			if ((isset($row['Type']) && strtolower($row['Type']) != 'myisam') || (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam'))
+			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'], '5.6.4', '>=')))
 				$context['cannot_create_fulltext'] = true;
 		$smcFunc['db_free_result']($request);
 	}

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -168,7 +168,7 @@ function ShowXmlFeed()
 	}
 
 	// Show in rss or proprietary format?
-	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf', 'webslice')) ? $_GET['type'] : 'smf';
+	$xml_format = isset($_GET['type']) && in_array($_GET['type'], array('smf', 'rss', 'rss2', 'atom', 'rdf')) ? $_GET['type'] : 'smf';
 
 	// @todo Birthdays?
 
@@ -186,17 +186,6 @@ function ShowXmlFeed()
 	if (empty($_GET['sa']) || !isset($subActions[$_GET['sa']]))
 		$_GET['sa'] = 'recent';
 
-	// @todo Temp - webslices doesn't do everything yet.
-	if ($xml_format == 'webslice' && $_GET['sa'] != 'recent')
-		$xml_format = 'rss2';
-	// If this is webslices we kinda cheat - we allow a template that we call direct for the HTML, and we override the CDATA.
-	elseif ($xml_format == 'webslice')
-	{
-		$context['user'] += $user_info;
-		$cdata_override = true;
-		loadTemplate('Xml');
-	}
-
 	// We only want some information, not all of it.
 	$cachekey = array($xml_format, $_GET['action'], $_GET['limit'], $_GET['sa']);
 	foreach (array('board', 'boards', 'c') as $var)
@@ -210,14 +199,17 @@ function ShowXmlFeed()
 		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	if (empty($xml))
 	{
-		$xml = $subActions[$_GET['sa']][0]($xml_format);
+		$call = call_helper($subActions[$_GET['sa']][0], true);
+
+		if (!empty($call))
+			$xml = call_user_func($call, $xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))
 			cache_put_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, $xml, 240);
 	}
 
-	$feed_title = htmlspecialchars(strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
 
 	// This is an xml file....
 	ob_end_clean();
@@ -228,7 +220,7 @@ function ShowXmlFeed()
 
 	if ($xml_format == 'smf' || isset($_REQUEST['debug']))
 		header('Content-Type: text/xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
-	elseif ($xml_format == 'rss' || $xml_format == 'rss2' || $xml_format == 'webslice')
+	elseif ($xml_format == 'rss' || $xml_format == 'rss2')
 		header('Content-Type: application/rss+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	elseif ($xml_format == 'atom')
 		header('Content-Type: application/atom+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
@@ -257,30 +249,6 @@ function ShowXmlFeed()
 	</channel>
 </rss>';
 	}
-	elseif ($xml_format == 'webslice')
-	{
-		$context['recent_posts_data'] = $xml;
-		$context['can_pm_read'] = allowedTo('pm_read');
-
-		// This always has RSS 2
-		echo '
-<rss version="2.0" xmlns:mon="http://www.microsoft.com/schemas/rss/monitoring/2007" xml:lang="', strtr($txt['lang_locale'], '_', '-'), '">
-	<channel>
-		<title>', $feed_title, ' - ', $txt['recent_posts'], '</title>
-		<link>', $scripturl, '?action=recent</link>
-		<description><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></description>
-		<item>
-			<title>', $feed_title, ' - ', $txt['recent_posts'], '</title>
-			<link>', $scripturl, '?action=recent</link>
-			<description><![CDATA[
-				', template_webslice_header_above(), '
-				', template_webslice_recent_posts(), '
-				', template_webslice_header_below(), '
-			]]></description>
-		</item>
-	</channel>
-</rss>';
-	}
 	elseif ($xml_format == 'atom')
 	{
 		foreach (array('board', 'boards', 'c') as $var)
@@ -291,7 +259,7 @@ function ShowXmlFeed()
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/atom+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -351,7 +319,7 @@ function ShowXmlFeed()
 
 /**
  * Called from dumpTags to convert data to xml
- * Finds urls for local sitte and santizes them
+ * Finds urls for local site and sanitizes them
  *
  * @param type $val
  * @return type
@@ -368,12 +336,15 @@ function fix_possible_url($val)
 	if (empty($modSettings['queryless_urls']) || ($context['server']['is_cgi'] && ini_get('cgi.fix_pathinfo') == 0 && @get_cfg_var('cgi.fix_pathinfo') == 0) || (!$context['server']['is_apache'] && !$context['server']['is_lighttpd']))
 		return $val;
 
-	$val = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', create_function('$m', 'global $scripturl; return $scripturl . \'/\' . strtr("$m[1]", \'&;=\', \'//,\') . \'.html\' . (isset($m[2]) ? $m[2] : "");'), $val);
+	$val = preg_replace_callback('~^' . preg_quote($scripturl, '/') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~', function ($m) use ($scripturl)
+		{
+			return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html' . (isset($m[2]) ? $m[2] : "");
+		}, $val);
 	return $val;
 }
 
 /**
- * Ensures supplied data is properly encpsulated in cdata xml tags
+ * Ensures supplied data is properly encapsulated in cdata xml tags
  * Called from getXmlProfile in News.php
  *
  * @param type $data
@@ -461,8 +432,6 @@ function cdata_parse($data, $ns = '')
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '')
 {
-	global $modSettings, $context, $scripturl;
-
 	// For every array in the data...
 	foreach ($data as $key => $val)
 	{
@@ -485,7 +454,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 
 		// If it's empty/0/nothing simply output an empty tag.
 		if ($val == '')
-			echo '<', $key, ' />';
+			echo '<', $key, '>';
 		elseif ($xml_format == 'atom' && $key == 'category')
 			echo '<', $key, ' term="', $val, '" />';
 		else
@@ -509,7 +478,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 				echo "\n", str_repeat("\t", $i), '</', $key, '>';
 			}
 			// A string with returns in it.... show this as a multiline element.
-			elseif (strpos($val, "\n") !== false || strpos($val, '<br />') !== false)
+			elseif (strpos($val, "\n") !== false || strpos($val, '<br>') !== false)
 				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i), '</', $key, '>';
 			// A simple string.
 			else
@@ -572,7 +541,7 @@ function getXmlMembers($xml_format)
 		else
 			$data[] = array(
 				'name' => cdata_parse($row['real_name']),
-				'time' => htmlspecialchars(strip_tags(timeformat($row['date_registered']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
 				'id' => $row['id_member'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member']
 			);
@@ -593,8 +562,8 @@ function getXmlMembers($xml_format)
  */
 function getXmlNews($xml_format)
 {
-	global $user_info, $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $settings, $context;
+	global $scripturl, $modSettings, $board, $user_info;
+	global $query_this_board, $smcFunc, $context;
 
 	/* Find the latest posts that:
 		- are the first post in their topic.
@@ -612,7 +581,7 @@ function getXmlNews($xml_format)
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 				m.icon, t.id_topic, t.id_board, t.num_replies,
 				b.name AS bname,
-				mem.hide_email, IFNULL(mem.id_member, 0) AS id_member,
+				IFNULL(mem.id_member, 0) AS id_member,
 				IFNULL(mem.email_address, m.poster_email) AS poster_email,
 				IFNULL(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
@@ -650,8 +619,8 @@ function getXmlNews($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Limit the length of the message, if the option is set.
-		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br />', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
-			$row['body'] = strtr($smcFunc['substr'](str_replace('<br />', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br />')) . '...';
+		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
+			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -664,7 +633,7 @@ function getXmlNews($xml_format)
 				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 				'description' => cdata_parse($row['body']),
-				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['posterEmail'] . ' ('.$row['posterName'].')' : null,
+				'author' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' ('.$row['poster_name'].')' : null,
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'category' => '<![CDATA[' . $row['bname'] . ']]>',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
@@ -684,8 +653,8 @@ function getXmlNews($xml_format)
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
-					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
+					'email' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -694,7 +663,7 @@ function getXmlNews($xml_format)
 		// The biggest difference here is more information.
 		else
 			$data[] = array(
-				'time' => htmlspecialchars(strip_tags(timeformat($row['poster_time']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_topic'],
 				'subject' => cdata_parse($row['subject']),
 				'body' => cdata_parse($row['body']),
@@ -727,8 +696,8 @@ function getXmlNews($xml_format)
  */
 function getXmlRecent($xml_format)
 {
-	global $user_info, $scripturl, $modSettings, $board;
-	global $query_this_board, $smcFunc, $settings, $context;
+	global $scripturl, $modSettings, $board;
+	global $query_this_board, $smcFunc, $context, $user_info;
 
 	$done = false;
 	$loops = 0;
@@ -780,7 +749,7 @@ function getXmlRecent($xml_format)
 			m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 			b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 			IFNULL(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
-			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name, mem.hide_email,
+			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name,
 			IFNULL(mem.email_address, m.poster_email) AS poster_email, m.modified_time
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -802,8 +771,8 @@ function getXmlRecent($xml_format)
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Limit the length of the message, if the option is set.
-		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br />', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
-			$row['body'] = strtr($smcFunc['substr'](str_replace('<br />', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br />')) . '...';
+		if (!empty($modSettings['xmlnews_maxlen']) && $smcFunc['strlen'](str_replace('<br>', "\n", $row['body'])) > $modSettings['xmlnews_maxlen'])
+			$row['body'] = strtr($smcFunc['substr'](str_replace('<br>', "\n", $row['body']), 0, $modSettings['xmlnews_maxlen'] - 3), array("\n" => '<br>')) . '...';
 
 		$row['body'] = parse_bbc($row['body'], $row['smileys_enabled'], $row['id_msg']);
 
@@ -816,7 +785,7 @@ function getXmlRecent($xml_format)
 				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'description' => cdata_parse($row['body']),
-				'author' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
+				'author' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
 				'category' => cdata_parse($row['bname']),
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
@@ -836,8 +805,8 @@ function getXmlRecent($xml_format)
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
-					'email' => in_array(showEmailAddress(!empty($row['hide_email']), $row['id_member']), array('yes', 'yes_permission_override')) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : ''
+					'email' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -846,7 +815,7 @@ function getXmlRecent($xml_format)
 		// A lot of information here.  Should be enough to please the rss-ers.
 		else
 			$data[] = array(
-				'time' => htmlspecialchars(strip_tags(timeformat($row['poster_time']))),
+				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_msg'],
 				'subject' => cdata_parse($row['subject']),
 				'body' => cdata_parse($row['body']),
@@ -888,7 +857,7 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $scripturl, $memberContext, $user_profile, $modSettings, $user_info;
+	global $scripturl, $memberContext, $user_profile, $user_info;
 
 	// You must input a valid user....
 	if (empty($_GET['u']) || loadMemberData((int) $_GET['u']) === false)
@@ -897,7 +866,7 @@ function getXmlProfile($xml_format)
 	// Make sure the id is a number and not "I like trying to hack the database".
 	$_GET['u'] = (int) $_GET['u'];
 	// Load the member's contextual information!
-	if (!loadMemberContext($_GET['u']) || !allowedTo('profile_view_any'))
+	if (!loadMemberContext($_GET['u']) || !allowedTo('profile_view'))
 		return array();
 
 	// Okay, I admit it, I'm lazy.  Stupid $_GET['u'] is long and hard to type.
@@ -925,8 +894,8 @@ function getXmlProfile($xml_format)
 			'summary' => cdata_parse(isset($profile['group']) ? $profile['group'] : $profile['post_group']),
 			'author' => array(
 				'name' => $profile['real_name'],
-				'email' => in_array(showEmailAddress(!empty($profile['hide_email']), $profile['id']), array('yes', 'yes_permission_override')) ? $profile['email'] : null,
-				'uri' => !empty($profile['website']) ? $profile['website']['url'] : ''
+				'email' => $profile['show_email'] ? $profile['email'] : null,
+				'uri' => !empty($profile['website']) ? $profile['website']['url'] : null,
 			),
 			'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['date_registered']),
 			'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['last_login']),
@@ -961,19 +930,8 @@ function getXmlProfile($xml_format)
 			$data['signature'] = cdata_parse($profile['signature']);
 		if ($profile['blurb'] != '')
 			$data['blurb'] = cdata_parse($profile['blurb']);
-		if ($profile['location'] != '')
-			$data['location'] = cdata_parse($profile['location']);
 		if ($profile['title'] != '')
 			$data['title'] = cdata_parse($profile['title']);
-
-		if (!empty($profile['icq']['name']) && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
-			$data['icq'] = $profile['icq']['name'];
-		if ($profile['aim']['name'] != '' && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
-			$data['aim'] = $profile['aim']['name'];
-		if ($profile['yim']['name'] != '' && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
-			$data['yim'] = $profile['yim']['name'];
-		if (!empty($profile['skype']['name']) && !(!empty($modSettings['guest_hideContacts']) && $user_info['is_guest']))
-			$data['skype'] = $profile['skype']['name'];
 
 		if ($profile['website']['title'] != '')
 			$data['website'] = array(
@@ -984,13 +942,7 @@ function getXmlProfile($xml_format)
 		if ($profile['group'] != '')
 			$data['position'] = cdata_parse($profile['group']);
 
-		if (!empty($modSettings['karmaMode']))
-			$data['karma'] = array(
-				'good' => $profile['karma']['good'],
-				'bad' => $profile['karma']['bad']
-			);
-
-		if (in_array($profile['show_email'], array('yes', 'yes_permission_override')))
+		if ($profile['show_email'])
 			$data['email'] = $profile['email'];
 
 		if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000')

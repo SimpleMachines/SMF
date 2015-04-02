@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Login
+// Version: 2.1 Beta 1; Login
 
 global $context;
 
@@ -13,7 +13,6 @@ $txt['agree_coppa_below'] = 'I am younger than %1$d years old.';
 
 // Registration form.
 $txt['registration_form'] = 'Registration Form';
-$txt['error_too_quickly'] = 'You went through registration a bit too quickly, faster than should normally be possible. Please give it a moment and try again.';
 $txt['need_username'] = 'You need to fill in a username.';
 $txt['no_password'] = 'You didn\'t enter your password.';
 $txt['incorrect_password'] = 'Password incorrect';
@@ -30,26 +29,25 @@ $txt['additional_information'] = 'Additional Information';
 $txt['warning'] = 'Warning!';
 $txt['only_members_can_access'] = 'Only registered members are allowed to access this section.';
 $txt['login_below'] = 'Please login below.';
-$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">register an account</a> with %2$s';
+$txt['login_below_or_register'] = 'Please login below or <a href="%1$s">sign up for an account</a> with %2$s';
 
 // Use numeric entities in the below two strings.
 $txt['may_change_in_profile'] = 'You may change it after you login by going to the profile page, or by visiting this page after you login:';
 $txt['your_username_is'] = 'Your username is: ';
 
-$txt['login_hash_error'] = 'Password security has recently been upgraded.  Please enter your password again.';
+$txt['login_hash_error'] = 'Password security has recently been upgraded. Please enter your password again.';
 
-$txt['ban_register_prohibited'] = 'Sorry, you are not allowed to register on this forum.';
-$txt['under_age_registration_prohibited'] = 'Sorry, but users under the age of %1$d are not allowed to register on this forum.';
+$txt['ban_register_prohibited'] = 'Sorry, you are not allowed to sign up on this forum.';
 
 $txt['activate_account'] = 'Account activation';
 $txt['activate_success'] = 'Your account has been successfully activated. You can now proceed to login.';
 $txt['activate_not_completed1'] = 'Your email address needs to be validated before you can login.';
 $txt['activate_not_completed2'] = 'Need another activation email?';
-$txt['activate_after_registration'] = 'Thank you for registering. You will receive an email soon with a link to activate your account.  If you don\'t receive an email after some time, check your spam folder.';
+$txt['activate_after_registration'] = 'Thank you for signing up. You will receive an email soon with a link to activate your account. If you don\'t receive an email after some time, check your spam folder.';
 $txt['invalid_userid'] = 'User does not exist';
 $txt['invalid_activation_code'] = 'Invalid activation code';
 $txt['invalid_activation_username'] = 'Username or email';
-$txt['invalid_activation_new'] = 'If you registered with the wrong email address, type a new one and your password here.';
+$txt['invalid_activation_new'] = 'If you signed up with the wrong email address, type a new one and your password here.';
 $txt['invalid_activation_new_email'] = 'New email address';
 $txt['invalid_activation_password'] = 'Old password';
 $txt['invalid_activation_resend'] = 'Resend activation code';
@@ -60,7 +58,7 @@ $txt['invalid_activation_submit'] = 'Activate';
 $txt['coppa_no_concent'] = 'The administrator has still not received parent/guardian consent for your account.';
 $txt['coppa_need_more_details'] = 'Need more details?';
 
-$txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br />If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
+$txt['awaiting_delete_account'] = 'Your account has been marked for deletion!<br>If you wish to restore your account, please check the &quot;Reactivate my account&quot; box, and login again.';
 $txt['undelete_account'] = 'Reactivate my account';
 
 // Use numeric entities in the below three strings.
@@ -71,25 +69,21 @@ $txt['change_password_new'] = 'have been changed and your password reset. Below 
 $txt['in_maintain_mode'] = 'This board is in Maintenance Mode.';
 
 // These two are used as a javascript alert; please use international characters directly, not as entities.
-$txt['register_agree'] = 'Please read and accept the agreement before registering.';
+$txt['register_agree'] = 'Please read and accept the agreement before signing up.';
 $txt['register_passwords_differ_js'] = 'The two passwords you entered are not the same!';
 
-$txt['approval_after_registration'] = 'Thank you for registering. The admin must approve your registration before you may begin to use your account, you will receive an email shortly advising you of the admins decision.';
+$txt['approval_after_registration'] = 'Thank you for signing up. The admin must approve your registration before you may begin to use your account, you will receive an email shortly advising you of the admins decision.';
 
 $txt['admin_settings_desc'] = 'Here you can change a variety of settings related to registration of new members.';
-
-$txt['setting_enableOpenID'] = 'Allow users to register using OpenID';
 
 $txt['setting_registration_method'] = 'Method of registration employed for new members';
 $txt['setting_registration_disabled'] = 'Registration Disabled';
 $txt['setting_registration_standard'] = 'Immediate Registration';
 $txt['setting_registration_activate'] = 'Email Activation';
 $txt['setting_registration_approval'] = 'Admin Approval';
-$txt['setting_notify_new_registration'] = 'Notify administrators when a new member joins';
 $txt['setting_send_welcomeEmail'] = 'Send welcome email to new members';
 
 $txt['setting_coppaAge'] = 'Age below which to apply registration restrictions';
-$txt['setting_coppaAge_desc'] = '(Set to 0 to disable)';
 $txt['setting_coppaType'] = 'Action to take when a user below minimum age registers';
 $txt['setting_coppaType_reject'] = 'Reject their registration';
 $txt['setting_coppaType_approval'] = 'Require parent/guardian approval';
@@ -115,8 +109,8 @@ $txt['admin_register_group_none'] = '(no primary membergroup)';
 $txt['admin_register_done'] = 'Member %1$s has been registered successfully!';
 
 $txt['coppa_title'] = 'Age Restricted Forum';
-$txt['coppa_after_registration'] = 'Thank you for registering with ' . $context['forum_name_html_safe'] . '.<br /><br />Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
-	to obtain your parent or guardian\'s permission before you may begin to use your account.  To arrange for account activation please print off the form below:';
+$txt['coppa_after_registration'] = 'Thank you for signing up with ' . $context['forum_name_html_safe'] . '.<br><br>Because you fall under the age of {MINIMUM_AGE}, it is a legal requirement
+	to obtain your parent or guardian\'s permission before you may begin to use your account. To arrange for account activation please print off the form below:';
 $txt['coppa_form_link_popup'] = 'Load Form In New Window';
 $txt['coppa_form_link_download'] = 'Download Form as Text File';
 $txt['coppa_send_to_one_option'] = 'Then arrange for your parent/guardian to send the completed form by:';
@@ -128,7 +122,7 @@ $txt['coppa_send_by_phone'] = 'Alternatively, arrange for them to phone the admi
 $txt['coppa_form_title'] = 'Permission form for registration at ' . $context['forum_name_html_safe'];
 $txt['coppa_form_address'] = 'Address';
 $txt['coppa_form_date'] = 'Date';
-$txt['coppa_form_body'] = 'I {PARENT_NAME},<br /><br />Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br /><br />I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br /><br />Signed:<br />{PARENT_NAME} (Parent/Guardian).';
+$txt['coppa_form_body'] = 'I {PARENT_NAME},<br><br>Give permission for {CHILD_NAME} (child name) to become a fully registered member of the forum: ' . $context['forum_name_html_safe'] . ', with the username: {USER_NAME}.<br><br>I understand that certain personal information entered by {USER_NAME} may be shown to other users of the forum.<br><br>Signed:<br>{PARENT_NAME} (Parent/Guardian).';
 
 $txt['visual_verification_sound_again'] = 'Play again';
 $txt['visual_verification_sound_close'] = 'Close window';
@@ -145,10 +139,5 @@ $txt['registration_password_no_match'] = 'Passwords do not match';
 $txt['registration_password_valid'] = 'Password is valid';
 
 $txt['registration_errors_occurred'] = 'The following errors were detected in your registration. Please correct them to continue:';
-
-$txt['authenticate_label'] = 'Authentication Method';
-$txt['authenticate_password'] = 'Password';
-$txt['authenticate_openid'] = 'OpenID';
-$txt['authenticate_openid_url'] = 'OpenID Authentication URL';
 
 ?>

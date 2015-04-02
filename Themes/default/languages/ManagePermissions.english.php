@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; ManagePermissions
+// Version: 2.1 Beta 1; ManagePermissions
 
 $txt['permissions_title'] = 'Manage Permissions';
 $txt['permissions_modify'] = 'Modify';
@@ -34,6 +34,23 @@ $txt['permissions_profile_used_by_many'] = '%1$d Boards';
 $txt['permissions_profile_used_by_none'] = 'No Boards';
 $txt['permissions_profile_do_edit'] = 'Edit';
 $txt['permissions_profile_do_delete'] = 'Delete';
+
+$txt['permissionname_profile_signature'] = 'Edit signature';
+$txt['permissionhelp_profile_signature'] = 'Allow the member to edit the signature field in their profile';
+$txt['permissionname_profile_signature_own'] = 'Own signature';
+$txt['permissionname_profile_signature_any'] = 'Any signature';
+$txt['permissionname_profile_forum'] = 'Allow Forum Profile edits';
+$txt['permissionhelp_profile_forum'] = 'This option will allow a member to edit their Forum Profile';
+$txt['permissionname_profile_forum_own'] = 'Own profile';
+$txt['permissionname_profile_forum_any'] = 'Any profile';
+$txt['permissionname_profile_other'] = 'Edit website';
+$txt['permissionhelp_profile_other'] = 'Allow the member to edit the website fields in their profile';
+$txt['permissionname_profile_other_own'] = 'Own profile';
+$txt['permissionname_profile_other_any'] = 'Any profile';
+$txt['permissionname_profile_blurb'] = 'Edit personal text';
+$txt['permissionhelp_profile_blurb'] = 'Allow the member to edit the personal text field in their profile';
+$txt['permissionname_profile_blurb_own'] = 'Own profile';
+$txt['permissionname_profile_blurb_any'] = 'Any profile';
 $txt['permissions_profile_copy_from'] = 'Copy Permissions From';
 
 $txt['permissions_includes_inherited'] = 'Inherited Groups';
@@ -67,13 +84,12 @@ $txt['permissions_board_desc'] = '<strong>Note</strong>: changing these board pe
 $txt['permissions_commit'] = 'Save changes';
 $txt['permissions_on'] = 'in profile';
 $txt['permissions_local_for'] = 'Permissions for group';
+$txt['permissions_option_own'] = 'Own';
+$txt['permissions_option_any'] = 'Any';
 $txt['permissions_option_on'] = 'A';
 $txt['permissions_option_off'] = 'X';
 $txt['permissions_option_deny'] = 'D';
-$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span style="color: red;">\'Deny\' (D)</span>.<br /><br />Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br />For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
-$txt['permissions_change_view'] = 'Change View';
-$txt['permissions_view_simple'] = 'Simple';
-$txt['permissions_view_classic'] = 'Classic';
+$txt['permissions_option_desc'] = 'For each permission you can pick either \'Allow\' (A), \'Disallow\' (X), or <span class="red">\'Deny\' (D)</span>.<br><br>Remember that if you deny a permission, any member - whether moderator or otherwise - that is in that group will be denied that as well.<br>For this reason, you should use deny carefully, only when <strong>necessary</strong>. Disallow, on the other hand, denies unless otherwise granted.';
 
 $txt['permissiongroup_general'] = 'General';
 $txt['permissionname_view_stats'] = 'View forum statistics';
@@ -84,16 +100,12 @@ $txt['permissionname_who_view'] = 'View Who\'s Online';
 $txt['permissionhelp_who_view'] = 'Who\'s online shows all members that are currently online and what they are doing at that moment. This permission will only work if you also have enabled it in \'Features and Options\'. You can access the \'Who\'s Online\' screen by clicking the link in the \'Users Online\' section of the board index. Even if this is denied, members will still be able to see who\'s online, just not where they are.';
 $txt['permissionname_search_posts'] = 'Search for posts and topics';
 $txt['permissionhelp_search_posts'] = 'The Search permission allows the user to search all boards he or she is allowed to access. When the search permission is enabled, a \'Search\' button will be added to the forum button bar.';
-$txt['permissionname_karma_edit'] = 'Change other people\'s karma';
-$txt['permissionhelp_karma_edit'] = 'Karma is a feature that shows the popularity of a member. In order to use this feature, you need to have it enabled in \'Features and Options\'. This permission will allow a membergroup to cast a vote. This permission has no effect on guests.';
 
 $txt['permissiongroup_pm'] = 'Personal Messaging';
 $txt['permissionname_pm_read'] = 'Read personal messages';
 $txt['permissionhelp_pm_read'] = 'This permission allows users to access the Personal Messages section and read their Personal Messages. Without this permission a user is unable to send Personal Messages.';
 $txt['permissionname_pm_send'] = 'Send personal messages';
 $txt['permissionhelp_pm_send'] = 'Send personal messages to other registered members. Requires the \'Read personal messages\' permission.';
-$txt['permissionname_send_email_to_members'] = 'Send emails';
-$txt['permissionhelp_send_email_to_members'] = 'Send emails to other registered members.';
 
 $txt['permissiongroup_calendar'] = 'Calendar';
 $txt['permissionname_calendar_view'] = 'View the calendar';
@@ -134,14 +146,8 @@ $txt['permissionname_issue_warning'] = 'Issue warnings to members';
 $txt['permissionhelp_issue_warning'] = 'Issue a warning to members of the forum and change that members\' warning level. Requires the warning system to be enabled.';
 
 $txt['permissiongroup_profile'] = 'Member Profiles';
-$txt['permissionname_profile_view'] = 'View profile summary and stats';
-$txt['permissionhelp_profile_view'] = 'This permission allows users clicking on a username to see a summary of profile settings, some statistics and all posts of the user.';
-$txt['permissionname_profile_view_own'] = 'Own profile';
-$txt['permissionname_profile_view_any'] = 'Any profile';
-$txt['permissionname_profile_identity'] = 'Edit account settings';
-$txt['permissionhelp_profile_identity'] = 'Account settings are the basic settings of a profile, like password, email address, membergroup and preferred language.';
-$txt['permissionname_profile_identity_own'] = 'Own profile';
-$txt['permissionname_profile_identity_any'] = 'Any profile';
+$txt['permissionname_profile_view'] = 'View other members\' profile summary and stats pages';
+$txt['permissionhelp_profile_view'] = 'This permission allows users clicking on a username to see a summary of other users\' profile settings, some statistics and their posts.';
 $txt['permissionname_profile_extra'] = 'Edit additional profile settings';
 $txt['permissionhelp_profile_extra'] = 'Additional profile settings include settings for avatars, theme preferences, notifications and Personal Messages.';
 $txt['permissionname_profile_extra_own'] = 'Own profile';
@@ -150,16 +156,37 @@ $txt['permissionname_profile_title'] = 'Edit custom title';
 $txt['permissionhelp_profile_title'] = 'The custom title is shown on the topic display page, under the profile of each user that has a custom title.';
 $txt['permissionname_profile_title_own'] = 'Own profile';
 $txt['permissionname_profile_title_any'] = 'Any profile';
-$txt['permissionname_profile_remove'] = 'Delete account';
-$txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete his account, when set to \'Own Account\'.';
-$txt['permissionname_profile_remove_own'] = 'Own account';
-$txt['permissionname_profile_remove_any'] = 'Any account';
 $txt['permissionname_profile_server_avatar'] = 'Select an avatar from the server';
 $txt['permissionhelp_profile_server_avatar'] = 'If enabled this will allow a user to select an avatar from the avatar collections installed on the server.';
 $txt['permissionname_profile_upload_avatar'] = 'Upload an avatar to the server';
 $txt['permissionhelp_profile_upload_avatar'] = 'This permission will allow a user to upload their personal avatar to the server.';
 $txt['permissionname_profile_remote_avatar'] = 'Choose a remotely stored avatar';
 $txt['permissionhelp_profile_remote_avatar'] = 'Because avatars might influence the page creation time negatively, it is possible to disallow certain membergroups to use avatars from external servers.';
+
+$txt['permissiongroup_profile_account'] = 'Member Accounts';
+$txt['permissionname_profile_identity'] = 'Edit account settings';
+$txt['permissionhelp_profile_identity'] = 'Account settings are the basic settings of a profile, like password, email address, membergroup and preferred language.';
+$txt['permissionname_profile_identity_own'] = 'Own profile';
+$txt['permissionname_profile_identity_any'] = 'Any profile';
+$txt['permissionname_profile_displayed_name'] = 'Edit displayed name';
+$txt['permissionhelp_profile_displayed_name'] = 'Allow the member to edit the displayed name field in their profile';
+$txt['permissionname_profile_displayed_name_own'] = 'Own displayed name';
+$txt['permissionname_profile_displayed_name_any'] = 'Any displayed name';
+$txt['permissionname_profile_password'] = 'Change password';
+$txt['permissionhelp_profile_password'] = 'Allow the member to change the password or the secret question fields';
+$txt['permissionname_profile_password_own'] = 'Own profile';
+$txt['permissionname_profile_password_any'] = 'Any profile';
+$txt['permissionname_profile_remove'] = 'Delete account';
+$txt['permissionhelp_profile_remove'] = 'This permission allows a user to delete his account, when set to \'Own Account\'.';
+$txt['permissionname_profile_remove_own'] = 'Own account';
+$txt['permissionname_profile_remove_any'] = 'Any account';
+$txt['permissionname_view_warning'] = 'View warning status';
+$txt['permissionname_view_warning_own'] = 'Own account';
+$txt['permissionname_view_warning_any'] = 'Any account';
+$txt['permissionhelp_view_warning'] = 'Allows users to view their own warning status and history (\'Own account\') or that of any user (\'Any account\')';
+
+$txt['permissionname_report_user'] = 'Report users\' profiles';
+$txt['permissionhelp_report_user'] = 'This permission will allow members to report other users\' profiles to the admins to alert them of spam or other inappropriate content in the profile.';
 
 $txt['permissiongroup_general_board'] = 'General';
 $txt['permissionname_moderate_board'] = 'Moderate board';
@@ -172,8 +199,6 @@ $txt['permissionname_merge_any'] = 'Merge any topic';
 $txt['permissionhelp_merge_any'] = 'Merge two or more topic into one. The order of messages within the merged topic will be based on the time the messages were created. A user can only merge topics on those boards a user is allowed to merge. In order to merge multiple topics at once, a user has to enable quickmoderation in their profile settings.';
 $txt['permissionname_split_any'] = 'Split any topic';
 $txt['permissionhelp_split_any'] = 'Split a topic into two separate topics.';
-$txt['permissionname_send_topic'] = 'Send topics to friends';
-$txt['permissionhelp_send_topic'] = 'This permission allows a user to mail a topic to a friend, by entering their email address and allows adding a message.';
 $txt['permissionname_make_sticky'] = 'Make topics sticky';
 $txt['permissionhelp_make_sticky'] = 'Sticky topics are topics that always remain on top of a board. They can be useful for announcements or other important messages.';
 $txt['permissionname_move'] = 'Move topic';
@@ -211,11 +236,21 @@ $txt['permissionname_modify_any'] = 'Any post';
 $txt['permissionname_report_any'] = 'Report posts to the moderators';
 $txt['permissionhelp_report_any'] = 'This permission adds a link to each message, allowing a user to report a post to a moderator. On reporting, all moderators on that board will receive an email with a link to the reported post and a description of the problem (as given by the reporting user).';
 
+$txt['permissiongroup_likes'] = 'Likes';
+$txt['permissionname_likes_view'] = 'View likes';
+$txt['permissionhelp_likes_view'] = 'This permission allows an user to view any likes. Without this permission, the user will only see the likes she/he has made.';
+$txt['permissionname_likes_like'] = 'Can like any content';
+$txt['permissionhelp_likes_like'] = 'This permission allows an user to like any content. Users aren\'t allowed to like their own content.';
+
+$txt['permissiongroup_mentions'] = 'Mentions';
+$txt['permissionname_mention'] = 'Mention others via @name';
+$txt['permissionhelp_mention'] = 'This permission allows a user to mention other users by @name. For example, user Jack could be mentioned using @Jack by a user when given this permission.';
+
 $txt['permissiongroup_poll'] = 'Polls';
 $txt['permissionname_poll_view'] = 'View polls';
 $txt['permissionhelp_poll_view'] = 'This permission allows a user to view a poll. Without this permission, the user will only see the topic.';
 $txt['permissionname_poll_vote'] = 'Vote in polls';
-$txt['permissionhelp_poll_vote'] = 'This permission allows a (registered) user to cast one vote. It doesn\'t apply to guests.';
+$txt['permissionhelp_poll_vote'] = 'This permission allows a user to cast one vote. <br><br><strong>Note on guest voting:</strong> SMF uses cookies to attempt to prevent guests from voting multiple times. However, it should be noted that nothing can be done to completely prevent guests from voting twice, and as such, results may not be reliable. Also note that guest voting must be enabled on a per-poll basis.';
 $txt['permissionname_poll_post'] = 'Post polls';
 $txt['permissionhelp_poll_post'] = 'This permission allows a user to post a new poll. The user needs to have the \'Post new topics\' permission.';
 $txt['permissionname_poll_add'] = 'Add poll to topics';
@@ -236,21 +271,9 @@ $txt['permissionname_poll_remove_own'] = 'Own poll';
 $txt['permissionname_poll_remove_any'] = 'Any poll';
 
 $txt['permissionname_post_draft'] = 'Save drafts of new posts';
-$txt['permissionname_simple_post_draft'] = 'Save drafts of new posts';
-$txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
-$txt['permissionhelp_simple_post_draft'] = 'This permission allows users to save drafts of thier posts so they can complete them later.';
-$txt['permissionname_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
-$txt['permissionname_simple_post_autosave_draft'] = 'Automaticaly save drafts of new posts';
-$txt['permissionhelp_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionname_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
-$txt['permissionname_simple_pm_autosave_draft'] = 'Automaticaly save drafts of new PM\'s';
-$txt['permissionhelp_pm_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
-$txt['permissionhelp_simple_post_autosave_draft'] = 'This permission allows users to have their posts autosaved as drafts so they can avoid loosing their work in the event of a timeout, disconnection or other error.  The autosave schedule is defined in the admin panel';
+$txt['permissionhelp_post_draft'] = 'This permission allows users to save drafts of their posts so they can complete them later.';
 $txt['permissionname_pm_draft'] = 'Save drafts of personal messages';
-$txt['permissionname_simple_pm_draft'] = 'Save drafts of personal messages';
-$txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
-$txt['permissionhelp_simple_pm_draft'] = 'This permission allows users to save drafts of thier personal messages so they can complete them later.';
+$txt['permissionhelp_pm_draft'] = 'This permission allows users to save drafts of their personal messages so they can complete them later.';
 
 $txt['permissiongroup_approval'] = 'Post Moderation';
 $txt['permissionname_approve_posts'] = 'Approve items awaiting moderation';
@@ -264,72 +287,11 @@ $txt['permissionhelp_post_unapproved_topics'] = 'This permission allows a user t
 $txt['permissionname_post_unapproved_attachments'] = 'Post attachments, but hide until approved';
 $txt['permissionhelp_post_unapproved_attachments'] = 'This permission allows a user to attach files to their posts. The attached files will then require approval before being shown to other users.';
 
-$txt['permissiongroup_notification'] = 'Notifications';
-$txt['permissionname_mark_any_notify'] = 'Request notification on replies';
-$txt['permissionhelp_mark_any_notify'] = 'This feature allows users to receive a notification whenever someone replies to a topic they subscribed to.';
-$txt['permissionname_mark_notify'] = 'Request notification on new topics';
-$txt['permissionhelp_mark_notify'] = 'Notification on new topics is a feature that allows a user to receive an email every time a new topic is created on the board they subscribe to.';
-
 $txt['permissiongroup_attachment'] = 'Attachments';
 $txt['permissionname_view_attachments'] = 'View attachments';
 $txt['permissionhelp_view_attachments'] = 'Attachments are files that are attached to posted messages. This feature can be enabled and configured in \'Attachments and avatars\'. Since attachments are not directly accessed, you can protect them from being downloaded by users that don\'t have this permission.';
 $txt['permissionname_post_attachment'] = 'Post attachments';
 $txt['permissionhelp_post_attachment'] = 'Attachments are files that are attached to posted messages. One message can contain multiple attachments.';
-
-$txt['permissiongroup_simple_disable_censor'] = 'Word Censor';
-$txt['permissiongroup_simple_view_basic_info'] = 'Use basic forum functionality';
-$txt['permissiongroup_simple_use_pm_system'] = 'Contact members using the personal messaging system';
-$txt['permissiongroup_simple_post_calendar'] = 'Post events onto the calendar';
-$txt['permissiongroup_simple_edit_profile'] = 'Personalize their profile';
-$txt['permissiongroup_simple_delete_account'] = 'Delete their account';
-$txt['permissiongroup_simple_use_avatar'] = 'Select or upload an avatar';
-$txt['permissiongroup_simple_moderate_general'] = 'Moderate the entire forum';
-$txt['permissiongroup_simple_administrate'] = 'Carry out administrative duties';
-
-$txt['permissionname_simple_calendar_edit_own'] = 'Edit their own calendar events';
-$txt['permissionname_simple_calendar_edit_any'] = 'Edit other people\'s calendar events';
-$txt['permissionname_simple_profile_view_own'] = 'View their own profile';
-$txt['permissionname_simple_profile_view_any'] = 'View other people\'s profiles';
-$txt['permissionname_simple_profile_identity_own'] = 'Edit their account settings';
-$txt['permissionname_simple_profile_identity_any'] = 'Edit other people\'s account settings';
-$txt['permissionname_simple_profile_extra_own'] = 'Edit their additional profile options';
-$txt['permissionname_simple_profile_extra_any'] = 'Edit other people\'s profile options';
-$txt['permissionname_simple_profile_title_own'] = 'Choose a custom title for themselves';
-$txt['permissionname_simple_profile_title_any'] = 'Edit other people\'s custom titles';
-$txt['permissionname_simple_profile_remove_own'] = 'Delete their own account';
-$txt['permissionname_simple_profile_remove_any'] = 'Delete other user\'s accounts';
-
-$txt['permissiongroup_simple_make_unapproved_posts'] = 'Post topics and replies to the board <span style="text-decoration: underline">only</span> after they have been approved';
-$txt['permissiongroup_simple_make_posts'] = 'Post topics and replies to the board';
-$txt['permissiongroup_simple_post_polls'] = 'Make new polls';
-$txt['permissiongroup_simple_participate'] = 'View additional board content';
-$txt['permissiongroup_simple_modify'] = 'Modify their posts';
-$txt['permissiongroup_simple_notification'] = 'Request notifications';
-$txt['permissiongroup_simple_attach'] = 'Post attachments';
-$txt['permissiongroup_simple_moderate'] = 'Moderate the board';
-
-$txt['permissionname_simple_post_unapproved_replies_own'] = 'Post replies to their own topic - but require approval';
-$txt['permissionname_simple_post_unapproved_replies_any'] = 'Post replies to any topic - but require approval';
-$txt['permissionname_simple_post_reply_own'] = 'Post replies to a topic they started';
-$txt['permissionname_simple_post_reply_any'] = 'Post replies to any topic';
-$txt['permissionname_simple_move_own'] = 'Move their own topics';
-$txt['permissionname_simple_move_any'] = 'Move anyone\'s topic';
-$txt['permissionname_simple_lock_own'] = 'Lock their own topic';
-$txt['permissionname_simple_lock_any'] = 'Lock anyone\'s topic';
-$txt['permissionname_simple_remove_own'] = 'Remove their own topic';
-$txt['permissionname_simple_remove_any'] = 'Remove anyone\'s topic';
-$txt['permissionname_simple_delete_own'] = 'Delete a post that they made';
-$txt['permissionname_simple_delete_any'] = 'Delete a post made by anyone';
-$txt['permissionname_simple_modify_own'] = 'Modify their own post';
-$txt['permissionname_simple_modify_any'] = 'Modify someone else\'s post';
-$txt['permissionname_simple_poll_add_own'] = 'Add a poll to a topic they created';
-$txt['permissionname_simple_poll_add_any'] = 'Add a poll to any topic';
-$txt['permissionname_simple_poll_edit_own'] = 'Edit a poll they created';
-$txt['permissionname_simple_poll_edit_any'] = 'Edit anyone\'s poll';
-$txt['permissionname_simple_poll_lock_own'] = 'Lock their own poll';
-$txt['permissionname_simple_poll_lock_any'] = 'Lock anyone\'s poll';
-$txt['permissionname_simple_poll_remove_own'] = 'Remove a poll they created';
-$txt['permissionname_simple_poll_remove_any'] = 'Remove anyone\'s poll';
 
 $txt['permissionicon'] = '';
 
@@ -345,7 +307,8 @@ $txt['permission_settings_enable_postgroups'] = 'Enable permissions for post cou
 // Escape any single quotes in here twice.. 'it\'s' -> 'it\\\'s'.
 $txt['permission_disable_postgroups_warning'] = 'Disabling this setting will remove permissions currently set to post count based groups.';
 
-$txt['permissions_post_moderation_desc'] = 'From this page you can easily change which groups have their posts moderated for a particular permissions profile.';
+$txt['permissions_post_moderation_desc'] = 'From this page, you can configure the ability to hold users\' posts before being visible to regular forum members, including which group or groups of users can approve them. Users whose posts are held for approval will still be able to see their posts, as well as replies from approvers, e.g. moderator feedback about making a post appropriate.';
+$txt['permissions_post_moderation_enable'] = 'Enable Post Moderation';
 $txt['permissions_post_moderation_deny_note'] = 'Note that while you have advanced permissions enabled you cannot apply the &quot;deny&quot; permission from this page. Please edit the permissions directly if you wish to apply a deny permission.';
 $txt['permissions_post_moderation_select'] = 'Select Profile';
 $txt['permissions_post_moderation_new_topics'] = 'New Topics';

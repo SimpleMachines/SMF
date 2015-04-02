@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -29,7 +29,7 @@ if (!defined('SMF'))
 */
 function ModifyMembergroups()
 {
-	global $context, $txt, $scripturl, $sourcedir;
+	global $context, $txt, $sourcedir;
 
 	$subActions = array(
 		'add' => array('AddMembergroup', 'manage_membergroups'),
@@ -39,8 +39,6 @@ function ModifyMembergroups()
 		'members' => array('MembergroupMembers', 'manage_membergroups', 'Groups.php'),
 		'settings' => array('ModifyMembergroupsettings', 'admin_forum'),
 	);
-
-	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
 
 	// Default to sub action 'index' or 'settings' depending on permissions.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('manage_membergroups') ? 'index' : 'settings');
@@ -63,8 +61,10 @@ function ModifyMembergroups()
 		'description' => $txt['membergroups_description'],
 	);
 
+	call_integration_hook('integrate_manage_membergroups', array(&$subActions));
+
 	// Call the right function.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -78,7 +78,7 @@ function ModifyMembergroups()
  */
 function MembergroupIndex()
 {
-	global $txt, $scripturl, $context, $settings, $smcFunc, $sourcedir;
+	global $txt, $scripturl, $context, $sourcedir;
 
 	$context['page_title'] = $txt['membergroups_title'];
 
@@ -101,26 +101,25 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
+					'function' => function ($rowData) use ($scripturl)
+					{
 						// Since the moderator group has no explicit members, no link is needed.
-						if ($rowData[\'id_group\'] == 3)
-							$group_name = $rowData[\'group_name\'];
+						if ($rowData['id_group'] == 3)
+							$group_name = $rowData['group_name'];
 						else
 						{
-							$color_style = empty($rowData[\'online_color\']) ? \'\' : sprintf(\' style="color: %1$s;"\', $rowData[\'online_color\']);
-							$group_name = sprintf(\'<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $color_style, $rowData[\'group_name\']);
+							$color_style = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+							$group_name = sprintf('<a href="%1$s?action=admin;area=membergroups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $color_style, $rowData['group_name']);
 						}
 
 						// Add a help option for moderator and administrator.
-						if ($rowData[\'id_group\'] == 1)
-							$group_name .= sprintf(\' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)\', $scripturl);
-						elseif ($rowData[\'id_group\'] == 3)
-							$group_name .= sprintf(\' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)\', $scripturl);
+						if ($rowData['id_group'] == 1)
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
+						elseif ($rowData['id_group'] == 3)
+							$group_name .= sprintf(' (<a href="%1$s?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);">?</a>)', $scripturl);
 
 						return $group_name;
-					'),
+					},
 				),
 				'sort' => array(
 					'default' => 'CASE WHEN mg.id_group < 4 THEN mg.id_group ELSE 4 END, mg.group_name',
@@ -145,12 +144,11 @@ function MembergroupIndex()
 					'class' => 'centercol',
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt;
-
+					'function' => function ($rowData) use ($txt)
+					{
 						// No explicit members for the moderator group.
-						return $rowData[\'id_group\'] == 3 ? $txt[\'membergroups_guests_na\'] : comma_format($rowData[\'num_members\']);
-					'),
+						return $rowData['id_group'] == 3 ? $txt['membergroups_guests_na'] : comma_format($rowData['num_members']);
+					},
 					'class' => 'centercol',
 				),
 				'sort' => array(
@@ -208,12 +206,11 @@ function MembergroupIndex()
 					'value' => $txt['membergroups_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $scripturl;
-
-						$colorStyle = empty($rowData[\'online_color\']) ? \'\' : sprintf(\' style="color: %1$s;"\', $rowData[\'online_color\']);
-						return sprintf(\'<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>\', $scripturl, $rowData[\'id_group\'], $colorStyle, $rowData[\'group_name\']);
-					'),
+					'function' => function ($rowData) use ($scripturl)
+					{
+						$colorStyle = empty($rowData['online_color']) ? '' : sprintf(' style="color: %1$s;"', $rowData['online_color']);
+						return sprintf('<a href="%1$s?action=moderate;area=viewgroups;sa=members;group=%2$d"%3$s>%4$s</a>', $scripturl, $rowData['id_group'], $colorStyle, $rowData['group_name']);
+					},
 				),
 				'sort' => array(
 					'default' => 'mg.group_name',
@@ -610,7 +607,10 @@ function DeleteMembergroup()
 	checkSession('get');
 
 	require_once($sourcedir . '/Subs-Membergroups.php');
-	deleteMembergroups((int) $_REQUEST['group']);
+	$result = deleteMembergroups((int) $_REQUEST['group']);
+	// Need to throw a warning if it went wrong, but this is the only one we have a message for...
+	if ($result === 'group_cannot_delete_sub')
+		fatal_lang_error('membergroups_cannot_delete_paid', false);
 
 	// Go back to the membergroup index.
 	redirectexit('action=admin;area=membergroups;');
@@ -635,7 +635,6 @@ function EditMembergroup()
 	if (!empty($modSettings['deny_boards_access']))
 		loadLanguage('ManagePermissions');
 
-
 	// Make sure this group is editable.
 	if (!empty($_REQUEST['group']))
 	{
@@ -659,6 +658,11 @@ function EditMembergroup()
 	if (empty($_REQUEST['group']))
 		fatal_lang_error('membergroup_does_not_exist', false);
 
+	// People who can manage boards are a bit special.
+	require_once($sourcedir . '/Subs-Members.php');
+	$board_managers = groupsAllowedTo('manage_boards', null);
+	$context['can_manage_boards'] = in_array($_REQUEST['group'], $board_managers['allowed']);
+
 	// Can this group moderate any boards?
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(id_board)
@@ -681,7 +685,10 @@ function EditMembergroup()
 		validateToken('admin-mmg');
 
 		require_once($sourcedir . '/Subs-Membergroups.php');
-		deleteMembergroups($_REQUEST['group']);
+		$result = deleteMembergroups($_REQUEST['group']);
+		// Need to throw a warning if it went wrong, but this is the only one we have a message for...
+		if ($result === 'group_cannot_delete_sub')
+			fatal_lang_error('membergroups_cannot_delete_paid', false);
 
 		redirectexit('action=admin;area=membergroups;');
 	}
@@ -693,7 +700,7 @@ function EditMembergroup()
 		validateToken('admin-mmg');
 
 		// Can they really inherit from this group?
-		if (isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
+		if ($_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && isset($_POST['group_inherit']) && $_POST['group_inherit'] != -2 && !allowedTo('admin_forum'))
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT group_type
@@ -717,6 +724,7 @@ function EditMembergroup()
 		$_POST['group_type'] = !isset($_POST['group_type']) || $_POST['group_type'] < 0 || $_POST['group_type'] > 3 || ($_POST['group_type'] == 1 && !allowedTo('admin_forum')) ? 0 : (int) $_POST['group_type'];
 		$_POST['group_hidden'] = empty($_POST['group_hidden']) || $_POST['min_posts'] != -1 || $_REQUEST['group'] == 3 ? 0 : (int) $_POST['group_hidden'];
 		$_POST['group_inherit'] = $_REQUEST['group'] > 1 && $_REQUEST['group'] != 3 && (empty($inherit_type) || $inherit_type != 1) ? (int) $_POST['group_inherit'] : -2;
+		$_POST['group_tfa_force'] = (empty($modSettings['tfa_mode']) || $modSettings['tfa_mode'] != 2 || empty($_POST['group_tfa_force'])) ? 0 : 1;
 
 		//@todo Don't set online_color for the Moderators group?
 
@@ -726,7 +734,7 @@ function EditMembergroup()
 			SET group_name = {string:group_name}, online_color = {string:online_color},
 				max_messages = {int:max_messages}, min_posts = {int:min_posts}, icons = {string:icons},
 				description = {string:group_desc}, group_type = {int:group_type}, hidden = {int:group_hidden},
-				id_parent = {int:group_inherit}
+				id_parent = {int:group_inherit}, tfa_required = {int:tfa_required}
 			WHERE id_group = {int:current_group}',
 			array(
 				'max_messages' => $_POST['max_messages'],
@@ -739,6 +747,7 @@ function EditMembergroup()
 				'online_color' => $_POST['online_color'],
 				'icons' => $_POST['icons'],
 				'group_desc' => $_POST['group_desc'],
+				'tfa_required' => $_POST['group_tfa_force'],
 			)
 		);
 
@@ -748,6 +757,19 @@ function EditMembergroup()
 		if ($_REQUEST['group'] == 2 || $_REQUEST['group'] > 3)
 		{
 			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? array() : $_POST['boardaccess'];
+
+			// If they can manage boards, the rules are a bit different. They can see everything.
+			if ($context['can_manage_boards'])
+			{
+				$accesses = array();
+				$request = $smcFunc['db_query']('', '
+					SELECT id_board
+					FROM {db_prefix}boards');
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$accesses[(int) $row['id_board']] = 'allow';
+				$smcFunc['db_free_result']($request);
+			}
+
 			$changed_boards['allow'] = array();
 			$changed_boards['deny'] = array();
 			$changed_boards['ignore'] = array();
@@ -858,7 +880,10 @@ function EditMembergroup()
 				$smcFunc['db_free_result']($request);
 
 				foreach ($updates as $additional_groups => $memberArray)
-					updateMemberData($memberArray, array('additional_groups' => implode(',', array_merge(explode(',', $additional_groups), array((int) $_REQUEST['group'])))));
+				{
+					$new_groups = (!empty($additional_groups) ? $additional_groups . ',' : '') . $_REQUEST['group']; // We already validated this a while ago.
+					updateMemberData($memberArray, array('additional_groups' => $new_groups));
+				}
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}members
@@ -918,7 +943,7 @@ function EditMembergroup()
 			// Get all the usernames from the string
 			if (!empty($moderator_string))
 			{
-				$moderator_string = strtr(preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', htmlspecialchars($moderator_string), ENT_QUOTES), array('&quot;' => '"'));
+				$moderator_string = strtr(preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $smcFunc['htmlspecialchars']($moderator_string, ENT_QUOTES)), array('&quot;' => '"'));
 				preg_match_all('~"([^"]+)"~', $moderator_string, $matches);
 				$moderators = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $moderator_string)));
 				for ($k = 0, $n = count($moderators); $k < $n; $k++)
@@ -1003,7 +1028,7 @@ function EditMembergroup()
 
 	// Fetch the current group information.
 	$request = $smcFunc['db_query']('', '
-		SELECT group_name, description, min_posts, online_color, max_messages, icons, group_type, hidden, id_parent
+		SELECT group_name, description, min_posts, online_color, max_messages, icons, group_type, hidden, id_parent, tfa_required
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:current_group}
 		LIMIT 1',
@@ -1021,7 +1046,7 @@ function EditMembergroup()
 	$context['group'] = array(
 		'id' => $_REQUEST['group'],
 		'name' => $row['group_name'],
-		'description' => htmlspecialchars($row['description']),
+		'description' => $smcFunc['htmlspecialchars']($row['description'], ENT_QUOTES),
 		'editable_name' => $row['group_name'],
 		'color' => $row['online_color'],
 		'min_posts' => $row['min_posts'],
@@ -1035,6 +1060,7 @@ function EditMembergroup()
 		'allow_post_group' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
 		'allow_delete' => $_REQUEST['group'] == 2 || $_REQUEST['group'] > 4,
 		'allow_protected' => allowedTo('admin_forum'),
+		'tfa_required' => $row['tfa_required'],
 	);
 
 	// Get any moderators for this group
@@ -1146,6 +1172,8 @@ function EditMembergroup()
 	if (!empty($context['possible_icons']))
 		loadJavascriptFile('icondropdown.js', array('validate' => true));
 
+		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+
 	// Finally, get all the groups this could be inherited off.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name
@@ -1186,7 +1214,7 @@ function EditMembergroup()
  */
 function ModifyMembergroupsettings()
 {
-	global $context, $sourcedir, $scripturl, $modSettings, $txt;
+	global $context, $sourcedir, $scripturl, $txt;
 
 	$context['sub_template'] = 'show_settings';
 	$context['page_title'] = $txt['membergroups_settings'];
@@ -1211,6 +1239,7 @@ function ModifyMembergroupsettings()
 
 		// Yeppers, saving this...
 		saveDBSettings($config_vars);
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=membergroups;sa=settings');
 	}
 

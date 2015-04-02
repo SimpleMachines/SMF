@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -309,7 +309,7 @@ function MarkRead()
 		if (isset($_REQUEST['children']) && !empty($boards))
 		{
 			// They want to mark the entire tree starting with the boards specified
-			// The easist thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
+			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 
 			$request = $smcFunc['db_query']('', '
 				SELECT b.id_board, b.id_parent
@@ -451,7 +451,7 @@ function getMsgMemberID($messageID)
  */
 function modifyBoard($board_id, &$boardOptions)
 {
-	global $sourcedir, $cat_tree, $boards, $boardList, $modSettings, $smcFunc;
+	global $cat_tree, $boards, $smcFunc;
 
 	// Get some basic information about all boards and categories.
 	getBoardTree();
@@ -810,7 +810,7 @@ function modifyBoard($board_id, &$boardOptions)
  */
 function createBoard($boardOptions)
 {
-	global $boards, $modSettings, $smcFunc;
+	global $boards, $smcFunc;
 
 	// Trigger an error if one of the required values is not set.
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
@@ -1079,14 +1079,8 @@ function reorderBoards()
 				);
 	}
 
-	// Sort the records of the boards table on the board_order value.
-	$smcFunc['db_query']('alter_table_boards', '
-		ALTER TABLE {db_prefix}boards
-		ORDER BY board_order',
-		array(
-			'db_error_skip' => true,
-		)
-	);
+	// Empty the board order cache
+	cache_put_data('board_order', null, -3600);
 }
 
 /**
@@ -1133,6 +1127,176 @@ function fixChildren($parent, $newLevel, $newParent)
 }
 
 /**
+ * Tries to load up the entire board order and category very very quickly
+ * Returns an array with two elements, cats and boards
+ *
+ * @return array
+ */
+function getTreeOrder()
+{
+	global $smcFunc;
+
+	static $tree_order = array(
+		'cats' => array(),
+		'boards' => array(),
+	);
+
+	if (!empty($tree_order['boards']))
+		return $tree_order;
+
+	if (($cached = cache_get_data('board_order', 86400)) !== null)
+	{
+		$tree_order = $cached;
+		return $cached;
+	}
+
+	$request = $smcFunc['db_query']('', '
+		SELECT b.id_board, b.id_cat
+		FROM {db_prefix}boards AS b
+		ORDER BY b.board_order',
+		array()
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!in_array($row['id_cat'], $tree_order['cats']))
+			$tree_order['cats'][] = $row['id_cat'];
+		$tree_order['boards'][] = $row['id_board'];
+	}
+	$smcFunc['db_free_result']($request);
+
+	cache_put_data('board_order', $tree_order, 86400);
+
+	return $tree_order;
+}
+
+/**
+ * Takes a board array and sorts it
+ *
+ * @param array &$boards
+ * @return void
+ */
+function sortBoards(array &$boards)
+{
+	$tree = getTreeOrder();
+
+	$ordered = array();
+	foreach ($tree['boards'] as $board)
+		if (!empty($boards[$board]))
+		{
+			$ordered[$board] = $boards[$board];
+
+			if (is_array($ordered[$board]) && !empty($ordered[$board]['boards']))
+				sortBoards($ordered[$board]['boards']);
+
+			if (is_array($ordered[$board]) && !empty($ordered[$board]['children']))
+				sortBoards($ordered[$board]['children']);
+		}
+
+	$boards = $ordered;
+}
+
+/**
+ * Takes a category array and sorts it
+ *
+ * @param array &$categories
+ * @return void
+ */
+function sortCategories(array &$categories)
+{
+	$tree = getTreeOrder();
+
+	$ordered = array();
+	foreach ($tree['cats'] as $cat)
+		if (!empty($categories[$cat]))
+		{
+			$ordered[$cat] = $categories[$cat];
+			if (!empty($ordered[$cat]['boards']))
+				sortBoards($ordered[$cat]['boards']);
+		}
+
+	$categories = $ordered;
+}
+
+/**
+ * Returns the given board's moderators, with their names and link
+ *
+ * @param array $boards
+ * @return array
+ */
+function getBoardModerators(array $boards)
+{
+	global $smcFunc, $scripturl, $txt;
+
+	if (empty($boards))
+		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT mem.id_member, mem.real_name, mo.id_board
+		FROM {db_prefix}moderators AS mo
+		  INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
+		WHERE mo.id_board IN ({array_int:boards})',
+		array(
+			'boards' => $boards,
+		)
+	);
+	$moderators = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (empty($moderators[$row['id_board']]))
+			$moderators[$row['id_board']] = array();
+
+		$moderators[$row['id_board']][] = array(
+			'id' => $row['id_member'],
+			'name' => $row['real_name'],
+			'href' => $scripturl . '?action=profile;u=' . $row['id_member'],
+			'link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '" title="' . $txt['board_moderator'] . '">' . $row['real_name'] . '</a>',
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	return $moderators;
+}
+
+/**
+ * Returns board's moderator groups with their names and link
+ *
+ * @param array $boards
+ * @return array
+ */
+function getBoardModeratorGroups(array $boards)
+{
+	global $smcFunc, $scripturl, $txt;
+
+	if (empty($boards))
+		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT mg.id_group, mg.group_name, bg.id_board
+		FROM {db_prefix}moderator_groups AS bg
+		  INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
+		WHERE bg.id_board IN ({array_int:boards})',
+		array(
+			'boards' => $boards,
+		)
+	);
+	$groups = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (empty($groups[$row['id_board']]))
+			$groups[$row['id_board']] = array();
+
+		$groups[$row['id_board']][] = array(
+			'id' => $row['id_group'],
+			'name' => $row['group_name'],
+			'href' => $scripturl . '?action=groups;sa=members;group=' . $row['id_group'],
+			'link' => '<a href="' . $scripturl . '?action=groups;sa=members;group=' . $row['id_group'] . '" title="' . $txt['board_moderator'] . '">' . $row['group_name'] . '</a>',
+		);
+	}
+
+	return $groups;
+}
+
+/**
  * Load a lot of useful information regarding the boards and categories.
  * The information retrieved is stored in globals:
  *  $boards		properties of each board.
@@ -1141,14 +1305,14 @@ function fixChildren($parent, $newLevel, $newParent)
  */
 function getBoardTree()
 {
-	global $cat_tree, $boards, $boardList, $txt, $modSettings, $smcFunc;
+	global $cat_tree, $boards, $boardList, $smcFunc;
 
 	// Getting all the board and category information you'd ever wanted.
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			IFNULL(b.id_board, 0) AS id_board, b.id_parent, b.name AS board_name, b.description, b.child_level,
 			b.board_order, b.count_posts, b.member_groups, b.id_theme, b.override_theme, b.id_profile, b.redirect,
-			b.num_posts, b.num_topics, b.deny_member_groups, c.id_cat, c.name AS cat_name, c.cat_order, c.can_collapse
+			b.num_posts, b.num_topics, b.deny_member_groups, c.id_cat, c.name AS cat_name, c.description AS cat_desc, c.cat_order, c.can_collapse
 		FROM {db_prefix}categories AS c
 			LEFT JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
 		ORDER BY c.cat_order, b.child_level, b.board_order',
@@ -1166,6 +1330,7 @@ function getBoardTree()
 				'node' => array(
 					'id' => $row['id_cat'],
 					'name' => $row['cat_name'],
+					'description' => $row['cat_desc'],
 					'order' => $row['cat_order'],
 					'can_collapse' => $row['can_collapse']
 				),

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
@@ -29,7 +29,7 @@ if (!defined('SMF'))
  */
 function Vote()
 {
-	global $topic, $txt, $user_info, $smcFunc, $sourcedir, $modSettings;
+	global $topic, $user_info, $smcFunc, $sourcedir, $modSettings;
 
 	// Make sure you can vote.
 	isAllowedTo('poll_vote');
@@ -197,7 +197,7 @@ function Vote()
 		// Time is stored in case the poll is reset later, plus what they voted for.
 		$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 		// ;id,timestamp,[vote,vote...]; etc
-		$_COOKIE['guest_poll_vote'] .= ';' . $row['id_poll'] . ',' . time() . ',' . (count($pollOptions) > 1 ? explode(',' . $pollOptions) : $pollOptions[0]);
+		$_COOKIE['guest_poll_vote'] .= ';' . $row['id_poll'] . ',' . time() . ',' . implode(',', $pollOptions);
 
 		// Increase num guest voters count by 1
 		$smcFunc['db_query']('', '
@@ -279,6 +279,8 @@ function LockVoting()
 			'id_poll' => $pollID,
 		)
 	);
+
+	logAction(($voting_locked ? '' : 'un') . 'lock_poll', array('topic' => $topic));
 
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -591,7 +593,7 @@ function EditPoll()
 function EditPoll2()
 {
 	global $txt, $topic, $board, $context;
-	global $modSettings, $user_info, $smcFunc, $sourcedir;
+	global $user_info, $smcFunc, $sourcedir;
 
 	// Sneaking off, are we?
 	if (empty($_POST))
@@ -885,6 +887,25 @@ function EditPoll2()
 
 	call_integration_hook('integrate_poll_add_edit', array($bcinfo['id_poll'], $isEdit));
 
+	/* Log this edit, but don't go crazy.
+		Only specifically adding a poll	or resetting votes is logged.
+		Everything else is simply an edit.*/
+	if (isset($_REQUEST['add']))
+	{
+		// Added a poll
+		logAction('add_poll', array('topic' => $topic));
+	}
+	elseif (isset($_REQUEST['deletevotes']))
+	{
+		// Reset votes
+		logAction('reset_poll', array('topic' => $topic));
+	}
+	else
+	{
+		// Something else
+		logAction('editpoll', array('topic' => $topic));
+	}
+
 	// Off we go.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
@@ -979,6 +1000,9 @@ function RemovePoll()
 
 	// A mod might have logged this (social network?), so let them remove, it too
 	call_integration_hook('integrate_poll_remove', array($pollID));
+
+	// Log this!
+	logAction('remove_poll', array('topic' => $topic));
 
 	// Take the moderator back to the topic.
 	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);

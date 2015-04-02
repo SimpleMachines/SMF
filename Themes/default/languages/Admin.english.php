@@ -1,10 +1,10 @@
 <?php
-// Version: 2.1 Alpha 1; Admin
+// Version: 2.1 Beta 1; Admin
 
 global $settings, $scripturl;
 
-$txt['forum_in_maintainence'] = 'Your forum is in Maintenance Mode. Only administrators can currently log in.';
-$txt['maintenance_page'] = 'You can turn off Maintenance Mode from the <a href="%1$s">Server Settings</a> area.';
+$txt['settings_saved'] = 'The settings were successfully saved';
+$txt['settings_not_saved'] = 'Your changes were not saved because: %1$s';
 
 $txt['admin_boards'] = 'Boards and Categories';
 $txt['admin_users'] = 'Members';
@@ -16,22 +16,18 @@ $txt['admin_members_list'] = 'Below is a listing of all the members currently re
 $txt['admin_next'] = 'Next';
 $txt['admin_censored_words'] = 'Censored Words';
 $txt['admin_censored_where'] = 'Put the word to be censored on the left, and what to change it to on the right.';
-$txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br />Clear a box to remove that word from the censor.';
+$txt['admin_censored_desc'] = 'Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member.<br>Clear a box to remove that word from the censor.';
 $txt['admin_reserved_names'] = 'Reserved Names';
 $txt['admin_template_edit'] = 'Edit your forum template';
 $txt['admin_modifications'] = 'Modification Settings';
-$txt['admin_security_moderation'] = 'Security and Moderation';
 $txt['admin_server_settings'] = 'Server Settings';
 $txt['admin_reserved_set'] = 'Set reserved names';
 $txt['admin_reserved_line'] = 'One reserved word per line.';
-$txt['admin_basic_settings'] = 'This page allows you to change the basic settings for your forum.  Be very careful with these settings, as they may render the forum dysfunctional.';
+$txt['admin_basic_settings'] = 'This page allows you to change the basic settings for your forum. Be very careful with these settings, as they may render the forum dysfunctional.';
 $txt['admin_maintain'] = 'Enable Maintenance Mode';
 $txt['admin_title'] = 'Forum Title';
-$txt['admin_url'] = 'Forum URL';
 $txt['cookie_name'] = 'Cookie name';
 $txt['admin_webmaster_email'] = 'Webmaster email address';
-$txt['boarddir'] = 'SMF Directory';
-$txt['sourcesdir'] = 'Sources Directory';
 $txt['cachedir'] = 'Cache Directory';
 $txt['admin_news'] = 'Enable News';
 $txt['admin_guest_post'] = 'Enable guest posting';
@@ -41,7 +37,7 @@ $txt['admin_config'] = 'Configuration';
 $txt['admin_version_check'] = 'Detailed version check';
 $txt['admin_smffile'] = 'SMF File';
 $txt['admin_smfpackage'] = 'SMF Package';
-$txt['admin_logoff'] = 'Admin End Session';
+$txt['admin_logoff'] = 'End Admin Session';
 $txt['admin_maintenance'] = 'Maintenance';
 $txt['admin_image_text'] = 'Show buttons as images instead of text';
 $txt['admin_credits'] = 'Credits';
@@ -49,9 +45,10 @@ $txt['admin_agreement'] = 'Show and require agreement letter when registering';
 $txt['admin_agreement_default'] = 'Default';
 $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
+$txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
 $txt['admin_repair'] = 'Repair All boards and topics';
-$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;.  From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br /><br />If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page.  If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br />You may also find answers to your questions or problems by clicking the <img src="' . $settings['images_url'] . '/helptopics.png" alt="%2$s" title="%3$s" /> symbols for more information on the related functions.';
+$txt['admin_main_welcome'] = 'This is your &quot;%1$s&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there doesn\'t help you, feel free to <a href="http://www.simplemachines.org/community/index.php" target="_blank" class="new_win">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="generic_icons help" title="%3$s"></span> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. BBC tags, such as <span title="Are you bold?">[b]</span>, <span title="I tall icks!!">[i]</span> and <span title="Brackets are great, no?">[u]</span> are allowed in your news, as well as smileys. Clear a news item\'s text box to remove it.';
 $txt['administrators'] = 'Forum Administrators';
 $txt['admin_reserved_desc'] = 'Reserved names will keep members from registering certain usernames or using these words in their displayed names. Choose the options you wish to use from the bottom before submitting.';
@@ -62,18 +59,13 @@ $txt['admin_check_user'] = 'Check username.';
 $txt['admin_check_display'] = 'Check display name.';
 $txt['admin_newsletter_send'] = 'You can email anyone from this page. The email addresses of the selected membergroups should appear below, but you may remove or add any email addresses you wish. Be sure that each address is separated in this fashion: \'address1; address2\'.';
 $txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
-$txt['admin_bbc'] = 'Show BBC Buttons on Posting and PM Send Pages';
+$txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
-$txt['zero_to_disable'] = '(0 to disable)';
+$txt['zero_to_disable'] = '(Set to 0 to disable.)';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['database_server'] = 'Database Server';
-$txt['database_user'] = 'Database Username';
-$txt['database_password'] = 'Database Password';
-$txt['database_name'] = 'Database Name';
 $txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
-$txt['database_prefix'] = 'Database Tables Prefix';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum';
 $txt['errors_fix'] = 'Would you like to attempt to fix these errors?';
@@ -139,20 +131,23 @@ $txt['unknown'] = 'unknown';
 $txt['security_wrong'] = 'Administration login attempt!' . "\n" . 'Referer: %1$s' . "\n" . 'User agent: %2$s' . "\n" . 'IP: %3$s';
 
 $txt['email_preview_warning'] = 'The preview is not 100% accurate. In order to preserve the functionality of the page only the basic html tags are represented';
-$txt['email_as_html'] = 'Send in HTML format.  (with this you can put normal HTML in the email.)';
+$txt['email_as_html'] = 'Send in HTML format. (with this you can put normal HTML in the email.)';
 $txt['email_parsed_html'] = 'Add &lt;br /&gt;s and &amp;nbsp;s to this message.';
-$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;.  Click <a href="' . $scripturl . '?action=helpadmin;help=emailmembers" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
+$txt['email_variables'] = 'In this message you can use a few &quot;variables&quot;. Click <a href="' . $scripturl . '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help">here</a> for more information.';
 $txt['email_force'] = 'Send this to members even if they have chosen not to receive announcements.';
 $txt['email_as_pms'] = 'Send this to these groups using personal messages.';
 $txt['email_continue'] = 'Continue';
 $txt['email_done'] = 'done.';
+
+$txt['warnings'] = 'Warnings';
+$txt['warnings_desc'] = 'This system allows administrators and moderators to issue warnings to users, and can automatically remove user rights as their warning level increases. To take full advantage of this system, &quot;Post Moderation&quot; should be enabled.';
 
 $txt['ban_title'] = 'Ban List';
 $txt['ban_ip'] = 'IP banning: (e.g. 192.168.12.213 or 128.0.*.*) - one entry per line';
 $txt['ban_email'] = 'Email banning: (e.g. badguy@somewhere.com) - one entry per line';
 $txt['ban_username'] = 'User name banning: (e.g. l33tuser) - one entry per line';
 
-$txt['ban_errors_detected'] = 'The following error or errors occurred while saving or editing the ban group or trigger';
+$txt['ban_errors_detected'] = 'The following error or errors occurred while saving or editing the ban';
 $txt['ban_description'] = 'Here you can ban troublesome people either by IP, hostname, username, or email.';
 $txt['ban_add_new'] = 'Add new ban';
 $txt['ban_banned_entity'] = 'Banned entity';
@@ -227,19 +222,22 @@ $txt['maintain_sub_routine'] = 'Routine';
 $txt['maintain_sub_members'] = 'Members';
 $txt['maintain_sub_topics'] = 'Topics';
 $txt['maintain_done'] = 'The maintenance task \'%1$s\' was executed successfully.';
-$txt['maintain_no_errors'] = 'Congratulations, no errors were found.  Thanks for checking.';
+$txt['maintain_no_errors'] = 'Congratulations, no errors were found. Thanks for checking.';
 
 $txt['maintain_tasks'] = 'Scheduled Tasks';
 $txt['maintain_tasks_desc'] = 'Manage all the tasks scheduled by SMF.';
 
 $txt['scheduled_log'] = 'Task Log';
-$txt['scheduled_log_desc'] = 'Lists logs of the tasks that have be ran.';
+$txt['scheduled_log_desc'] = 'This log shows all the scheduled tasks that have been run on your forum.';
 $txt['admin_log'] = 'Administration Log';
 $txt['admin_log_desc'] = 'Lists administrative tasks that have been performed by admins of your forum.';
 $txt['moderation_log'] = 'Moderation Log';
 $txt['moderation_log_desc'] = 'Lists moderation activities that have been performed by moderators on your forum.';
 $txt['spider_log_desc'] = 'Review the entries related to search engine spider activity on your forum.';
 $txt['log_settings_desc'] = 'Use these options to configure how logging works on your forum.';
+$txt['modlog_enabled'] = 'Enable the moderation log';
+$txt['adminlog_enabled'] = 'Enable the administration log';
+$txt['userlog_enabled'] = 'Enable the profile edits log';
 
 $txt['mailqueue_title'] = 'Mail';
 
@@ -253,7 +251,7 @@ $txt['default_language'] = 'Default forum language';
 $txt['maintenance_subject'] = 'Subject for display';
 $txt['maintenance_message'] = 'Message for display';
 
-$txt['errlog_desc'] = 'The error log tracks every error encountered by your forum.  To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
+$txt['errlog_desc'] = 'The error log tracks every error encountered by your forum. To delete any errors from the database, mark the checkbox, and click the %1$s button at the bottom of the page.';
 $txt['errlog_no_entries'] = 'There are currently no error log entries.';
 
 $txt['theme_settings'] = 'Theme Settings';
@@ -265,6 +263,7 @@ $txt['dvc_sources'] = 'Sources';
 $txt['dvc_default'] = 'Default Templates';
 $txt['dvc_templates'] = 'Current Templates';
 $txt['dvc_languages'] = 'Language Files';
+$txt['dvc_tasks'] = 'Background Tasks';
 
 $txt['smileys_default_set_for_theme'] = 'Select default smiley set for this theme';
 $txt['smileys_no_default'] = '(use global default smiley set)';
@@ -285,7 +284,6 @@ $txt['activated'] = 'Activated';
 $txt['not_activated'] = 'Not activated';
 $txt['primary'] = 'Primary';
 $txt['additional'] = 'Additional';
-$txt['messenger_address'] = 'Messenger Address';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
 $txt['search_for'] = 'Search for';
 $txt['search_match'] = 'Match';
@@ -301,7 +299,7 @@ $txt['support_versions_php'] = 'PHP version';
 $txt['support_versions_db'] = '%1$s version';
 $txt['support_versions_server'] = 'Server version';
 $txt['support_versions_gd'] = 'GD version';
-$txt['support_versions_imagick'] = 'Imagick version';
+$txt['support_versions_imagemagick'] = 'ImageMagick version';
 $txt['support_versions'] = 'Version Information';
 $txt['support_resources'] = 'Support Resources';
 $txt['support_resources_p1'] = 'Our <a href="%1$s">Online Manual</a> provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain <a href="%2$s">Features</a>, <a href="%3$s">Settings</a>, <a href="%4$s">Themes</a>, <a href="%5$s">Packages</a>, etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly.';
@@ -353,11 +351,11 @@ $txt['attachmentDirSizeLimit'] = 'Max attachment directory space';
 $txt['attachmentPostLimit'] = 'Max attachment size per post';
 $txt['attachmentSizeLimit'] = 'Max size per attachment';
 $txt['attachmentNumPerPostLimit'] = 'Max number of attachments per post';
-$txt['attachment_img_enc_warning'] = 'Neither the GD module nor ImageMagick are currently installed. Image re-encoding is not possible.';
+$txt['attachment_img_enc_warning'] = 'Neither the GD module nor the IMagick or MagickWand extensions are currently installed. Image re-encoding is not possible.';
 $txt['attachment_postsize_warning'] = 'The current php.ini setting \'post_max_size\' may not support this.';
 $txt['attachment_filesize_warning'] = 'The current php.ini setting \'upload_max_filesize\' may not support this.';
 $txt['attachment_image_reencode'] = 'Re-encode potentially dangerous image attachments';
-$txt['attachment_image_reencode_note'] = '(requires GD module or ImageMagick)';
+$txt['attachment_image_reencode_note'] = '(requires GD module or ImageMagick with IMagick or MagickWand extension)';
 $txt['attachment_image_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected attachments.';
 $txt['attachment_image_paranoid'] = 'Perform extensive security checks on uploaded image attachments';
 $txt['attachmentThumbnails'] = 'Resize images when showing under posts';
@@ -375,7 +373,7 @@ $txt['attach_dir_unused'] = 'Unused';
 $txt['attach_dir_empty'] = 'Empty';
 $txt['attach_dir_ok'] = 'OK';
 $txt['attach_dir_basedir'] = 'Base directory';
-$txt['attach_dir_desc'] = 'Create new directories or change the current directory below. <br />To create a new directory within the forum directory structure, use just the directory name. <br />To remove a directory, blank the path input field. Only empty directories can be removed. To see if a directory is empty, check for files or sub-directories in brackets next to the file count. <br /> To rename a directory, simply change its name in the input field. Only directories without sub-directories may be renamed. Directories can be renamed as long as they do not contain a sub-directory.';
+$txt['attach_dir_desc'] = 'Create new directories or change the current directory below. <br>To create a new directory within the forum directory structure, use just the directory name. <br>To remove a directory, blank the path input field. Only empty directories can be removed. To see if a directory is empty, check for files or sub-directories in brackets next to the file count. <br> To rename a directory, simply change its name in the input field. Only directories without sub-directories may be renamed. Directories can be renamed as long as they do not contain a sub-directory.';
 $txt['attach_dir_base_desc'] = 'You may use below to change the current base directory or create a new one. New base directories are also added to the Attachment Directory list. You may also designate an existing directory to be a base directory.';
 $txt['attach_dir_save_problem'] = 'Oops, there seems to be a problem.';
 $txt['attachments_no_create'] = 'Unable to create a new attachment directory. Please do so using a FTP client or your site file manager.';
@@ -389,6 +387,7 @@ $txt['attach_dir_no_delete'] = 'Is not empty and can not be deleted. Please do s
 $txt['attach_dir_no_remove'] = 'Still contains files or is a base directory and can not be deleted.';
 $txt['attach_dir_is_current'] = 'Unable to remove while it is selected as the current directory.';
 $txt['attach_dir_is_current_bd'] = 'Unable to remove while it is selected as the current base directory.';
+$txt['attach_dir_invalid'] = 'Invalid directory';
 $txt['attach_last_dir'] = 'Last active attachment directory';
 $txt['attach_current_dir'] = 'Current attachment directory';
 $txt['attach_current'] = 'Current';
@@ -409,7 +408,7 @@ $txt['max_image_width'] = 'Max display width of posted or attached images';
 $txt['max_image_height'] = 'Max display height of posted or attached images';
 
 $txt['automanage_attachments'] = 'Choose the method for the management of the attachment directories';
-$txt['attachments_normal'] = '(Manual) SMF default behaviour';
+$txt['attachments_normal'] = '(Manual) SMF default behavior';
 $txt['attachments_auto_years'] = '(Auto) Subdivide by years';
 $txt['attachments_auto_months'] = '(Auto) Subdivide by years and months';
 $txt['attachments_auto_days'] = '(Auto) Subdivide by years, months and days';
@@ -421,8 +420,8 @@ $txt['use_subdirectories_for_attachments'] = 'Create new directories within a ba
 $txt['use_subdirectories_for_attachments_note'] = 'Otherwise any new directories will be created within the forum\'s main directory.';
 $txt['basedirectory_for_attachments'] = 'Set a base directory for attachments';
 $txt['basedirectory_for_attachments_current'] = 'Current base directory';
-$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
-$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br />(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['basedirectory_for_attachments_warning'] = '<div class="smalltext">Please note that the directory is wrong. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
+$txt['attach_current_dir_warning'] = '<div class="smalltext">There seems to be a problem with this directory. <br>(<a href="' . $scripturl . '?action=admin;area=manageattachments;sa=attachpaths">Attempt to correct</a>)</div>';
 
 $txt['attachment_transfer'] = 'Transfer Attachments';
 $txt['attachment_transfer_desc'] = 'Transfer files betwen directories.';
@@ -437,28 +436,28 @@ $txt['attachment_transfer_no_base'] = 'No base directories available.';
 $txt['attachment_transfer_forum_root'] = 'Forum root directory.';
 $txt['attachment_transfer_no_room'] = 'Directory size or file count limit reached.';
 $txt['attachment_transfer_no_find'] = 'No files were found to transfer.';
-$txt['attachments_transfered'] = '%1$d files were transfered to %2$s';
-$txt['attachments_not_transfered'] = '%1$d files were not transfered.';
+$txt['attachments_transferred'] = '%1$d files were transferred to %2$s';
+$txt['attachments_not_transferred'] = '%1$d files were not transferred.';
 $txt['attachment_transfer_no_dir'] = 'Either the source directory or one of the target options were not selected.';
 $txt['attachment_transfer_same_dir'] = 'You cannot select the same directory as both the source and target.';
-$txt['attachment_transfer_progress'] = 'Please wait. Transfer in progess.';
+$txt['attachment_transfer_progress'] = 'Please wait. Transfer in progress.';
 
 $txt['mods_cat_avatars'] = 'Avatars';
 $txt['avatar_directory'] = 'Avatars directory';
+$txt['avatar_directory_wrong'] = 'The Avatars directory is not valid. This will cause several issues with your forum.';
 $txt['avatar_url'] = 'Avatars URL';
 $txt['avatar_max_width_external'] = 'Maximum width of external avatar';
 $txt['avatar_max_height_external'] = 'Maximum height of external avatar';
 $txt['avatar_action_too_large'] = 'If the avatar is too large...';
 $txt['option_refuse'] = 'Refuse it';
-$txt['option_html_resize'] = 'Let the HTML resize it';
-$txt['option_js_resize'] = 'Resize it with JavaScript';
-$txt['option_download_and_resize'] = 'Download and resize it (requires GD module)';
+$txt['option_css_resize'] = 'Resize it in the users\' browser';
+$txt['option_download_and_resize'] = 'Download and resize it on the server';
 $txt['avatar_max_width_upload'] = 'Maximum width of uploaded avatar';
 $txt['avatar_max_height_upload'] = 'Maximum height of uploaded avatar';
 $txt['avatar_resize_upload'] = 'Resize oversized large avatars';
-$txt['avatar_resize_upload_note'] = '(requires GD module)';
+$txt['avatar_resize_upload_note'] = '(requires GD module or ImageMagick with IMagick or MagickWand extension)';
 $txt['avatar_download_png'] = 'Use PNG for resized avatars';
-$txt['avatar_img_enc_warning'] = 'Neither the GD module nor ImageMagick are currently installed. Some avatar features are disabled.';
+$txt['avatar_img_enc_warning'] = 'Neither the GD module nor the Imagick or MagickWand extensions are currently installed. Some avatar features are disabled.';
 $txt['avatar_external'] = 'External avatars';
 $txt['avatar_upload'] = 'Uploadable avatars';
 $txt['avatar_server_stored'] = 'Server-stored avatars';
@@ -467,17 +466,33 @@ $txt['avatar_upload_groups'] = 'Membergroups allowed to upload an avatar to the 
 $txt['avatar_external_url_groups'] = 'Membergroups allowed to select an external URL';
 $txt['avatar_select_permission'] = 'Select permissions for each group';
 $txt['avatar_download_external'] = 'Download avatar at given URL';
-$txt['custom_avatar_enabled'] = 'Upload avatars to...';
 $txt['option_attachment_dir'] = 'Attachment directory';
 $txt['option_specified_dir'] = 'Specific directory...';
+$txt['custom_avatar_dir_wrong'] = 'The Attachments directory is not valid. This will prevent attachments from working properly.';
 $txt['custom_avatar_dir'] = 'Upload directory';
 $txt['custom_avatar_dir_desc'] = 'This should be a valid and writable directory, different than the server-stored directory.';
 $txt['custom_avatar_url'] = 'Upload URL';
 $txt['custom_avatar_check_empty'] = 'The custom avatar directory you have specified may be empty or invalid. Please ensure these settings are correct.';
 $txt['avatar_reencode'] = 'Re-encode potentially dangerous avatars';
-$txt['avatar_reencode_note'] = '(requires GD module)';
+$txt['avatar_reencode_note'] = '(requires GD module or ImageMagick with IMagick or MagickWand extension)';
 $txt['avatar_paranoid_warning'] = 'The extensive security checks can result in a large number of rejected avatars.';
 $txt['avatar_paranoid'] = 'Perform extensive security checks on uploaded avatars';
+$txt['gravatar_settings'] = 'Gravatars (Globally Recognized Avatars)';
+$txt['gravatarEnabled'] = 'Enable Gravatars for forum users?';
+$txt['gravatarOverride'] = 'Force Gravatars to be used instead of normal avatars?';
+$txt['gravatarAllowExtraEmail'] = 'Allow storing an extra email address for Gravatars?';
+$txt['gravatarMaxRating'] = 'Maximum allowed rating?';
+$txt['gravatar_maxG'] = 'G rated (Generally acceptable)';
+$txt['gravatar_maxPG'] = 'PG rated (Parental Guidance)';
+$txt['gravatar_maxR'] = 'R rated (Restricted)';
+$txt['gravatar_maxX'] = 'X rated (Explicit)';
+$txt['gravatarDefault'] = 'Default image to show when an email address has no matching Gravatar ';
+$txt['gravatar_mm'] = 'A simple, cartoon-style silhouetted outline of a person';
+$txt['gravatar_identicon'] = 'A geometric pattern based on an email hash';
+$txt['gravatar_monsterid'] = 'A generated \'monster\' with different colors, faces, etc';
+$txt['gravatar_wavatar'] = 'Generated faces with differing features and backgrounds';
+$txt['gravatar_retro'] = 'Awesome generated, 8-bit arcade-style pixelated faces';
+$txt['gravatar_blank'] = 'A transparent PNG image';
 
 $txt['repair_attachments'] = 'Maintain Attachments';
 $txt['repair_attachments_complete'] = 'Maintenance Complete';
@@ -561,10 +576,17 @@ $txt['topicSummaryPosts'] = 'Posts to show on topic summary';
 $txt['spamWaitTime'] = 'Time required between posts from the same IP';
 $txt['edit_wait_time'] = 'Courtesy edit wait time';
 $txt['edit_disable_time'] = 'Maximum time after posting to allow edit';
-$txt['edit_disable_time_zero'] = '0 to disable';
 $txt['preview_characters'] = 'Maximum length of last/first post preview';
 $txt['preview_characters_units'] = 'characters';
-$txt['preview_characters_zero'] = '0 to disable';
+$txt['message_index_preview_first'] = 'When using post previews, show the text of the first post';
+$txt['message_index_preview_first_desc'] = 'Leave un-checked to show the text of the last post instead';
+$txt['show_user_images'] = 'Show user avatars in message view';
+$txt['show_blurb'] = 'Show personal text in message view';
+$txt['hide_post_group'] = 'Hide post group titles for grouped members';
+$txt['hide_post_group_desc'] = 'Enabling this will not display a member\'s post group title on the message view if they are assigned to a non-post based group.';
+$txt['subject_toggle'] = 'Show subjects in topics.';
+$txt['show_profile_buttons'] = 'Show view profile button under post';
+$txt['show_modify'] = 'Show last modification date on modified posts';
 
 $txt['enableBBC'] = 'Enable bulletin board code (BBC)';
 $txt['enablePostHTML'] = 'Enable <em>basic</em> HTML in posts';
@@ -574,22 +596,18 @@ $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['bbcTagsToUse_select'] = 'Select the tags allowed to be used';
 $txt['bbcTagsToUse_select_all'] = 'Select all tags';
 
-$txt['enableStickyTopics'] = 'Enable sticky topics';
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';
-$txt['oldTopicDays_zero'] = '0 to disable';
 $txt['defaultMaxTopics'] = 'Number of topics per page in the message index';
 $txt['defaultMaxMessages'] = 'Number of posts per page in a topic page';
 $txt['disable_print_topic'] = 'Disable print topic feature';
-$txt['hotTopicPosts'] = 'Number of posts for a hot topic';
-$txt['hotTopicVeryPosts'] = 'Number of posts for a very hot topic';
 $txt['enableAllMessages'] = 'Max topic size to show &quot;All&quot; posts';
 $txt['enableAllMessages_zero'] = '0 to never show &quot;All&quot;';
 $txt['disableCustomPerPage'] = 'Disable user defined topic/message count per page';
 $txt['enablePreviousNext'] = 'Enable previous/next topic links';
 
 $txt['not_done_title'] = 'Not done yet';
-$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused.  It should automatically continue in a few seconds.  If it doesn\'t, please click continue below.';
+$txt['not_done_reason'] = 'To avoid overloading your server, the process has been temporarily paused. It should automatically continue in a few seconds. If it doesn\'t, please click continue below.';
 $txt['not_done_continue'] = 'Continue';
 
 $txt['general_settings'] = 'General';
@@ -608,10 +626,12 @@ $txt['language_description'] = 'This section allows you to edit languages instal
 $txt['language_edit'] = 'Edit Languages';
 $txt['language_add'] = 'Add Language';
 $txt['language_settings'] = 'Settings';
+$txt['could_not_language_backup'] = 'A backup could not be made before removing this language pack. No changes have been made at this time as a result (either change the permissions so Packages/backup can be written to, or turn off backups - not recommended)';
 
 $txt['advanced'] = 'Advanced';
 $txt['simple'] = 'Simple';
 
+$txt['admin_news_newsletter_queue_done'] = 'The newsletter has been added to the mail queue successfully.';
 $txt['admin_news_select_recipients'] = 'Please select who should receive a copy of the newsletter';
 $txt['admin_news_select_group'] = 'Membergroups';
 $txt['admin_news_select_group_desc'] = 'Select the groups to receive this newsletter.';
@@ -622,7 +642,7 @@ $txt['admin_news_select_excluded_members_desc'] = 'Members who should not receiv
 $txt['admin_news_select_excluded_groups'] = 'Excluded Groups';
 $txt['admin_news_select_excluded_groups_desc'] = 'Select groups who should definitely not receive the newsletter.';
 $txt['admin_news_select_email'] = 'Email Addresses';
-$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent newsletter. (i.e. address1; address2)';
+$txt['admin_news_select_email_desc'] = 'A semi-colon separated list of email addresses which should be sent a newsletter. (i.e. address1; address2) This is additional to the groups listed above.';
 $txt['admin_news_select_override_notify'] = 'Override notification settings';
 // Use entities in below.
 $txt['admin_news_cannot_pm_emails_js'] = 'You cannot send a personal message to an email address. If you continue all entered email addresses will be ignored.\\n\\nAre you sure you wish to do this?';
@@ -643,13 +663,10 @@ $txt['admin_search_results_none'] = 'No results found.';
 $txt['admin_search_section_sections'] = 'Section';
 $txt['admin_search_section_settings'] = 'Setting';
 
-$txt['core_settings_title'] = 'Core Features';
-$txt['core_settings_desc'] = 'This page allows you to turn on or off optional features of your forum.';
 $txt['mods_cat_features'] = 'General';
 $txt['antispam_title'] = 'Anti-Spam';
 $txt['mods_cat_modifications_misc'] = 'Miscellaneous';
 $txt['mods_cat_layout'] = 'Layout';
-$txt['karma'] = 'Karma';
 $txt['moderation_settings_short'] = 'Moderation';
 $txt['signature_settings_short'] = 'Signatures';
 $txt['custom_profile_shorttitle'] = 'Profile Fields';
@@ -657,10 +674,6 @@ $txt['pruning_title'] = 'Log Pruning';
 $txt['pruning_desc'] = 'The following options are useful for keeping your logs from growing too big, because most of the time older entries are not really of that much use.';
 $txt['log_settings'] = 'Log Settings';
 $txt['log_ban_hits'] = 'Log ban hits in the error log?';
-
-$txt['core_settings_activation_message'] = 'The feature {core_feature} has been activated, click on the title to configure it';
-$txt['core_settings_deactivation_message'] = 'The feature {core_feature} has been deactivated';
-$txt['core_settings_generic_error'] = 'An unforeseen error occurred, please relod the page and try again';
 
 $txt['boardsEdit'] = 'Modify Boards';
 $txt['mboards_new_cat'] = 'Create new category';
@@ -683,7 +696,7 @@ $txt['permissions_profiles'] = 'Edit Profiles';
 $txt['permissions_post_moderation'] = 'Post Moderation';
 
 $txt['browse_packages'] = 'Browse Packages';
-$txt['download_packages'] = 'Download Packages';
+$txt['download_packages'] = 'Add Packages';
 $txt['installed_packages'] = 'Installed Packages';
 $txt['package_file_perms'] = 'File Permissions';
 $txt['package_settings'] = 'Options';
@@ -704,6 +717,7 @@ $txt['paid_subs_view'] = 'View Subscriptions';
 $txt['hooks_title_list'] = 'Integration Hooks';
 $txt['hooks_field_hook_name'] = 'Hook Name';
 $txt['hooks_field_function_name'] = 'Function Name';
+$txt['hooks_field_function_method'] = 'Function is a method and its class is instantiated';
 $txt['hooks_field_function'] = 'Function';
 $txt['hooks_field_included_file'] = 'Included file';
 $txt['hooks_field_file_name'] = 'File Name';
@@ -711,18 +725,27 @@ $txt['hooks_field_hook_exists'] = 'Status';
 $txt['hooks_active'] = 'Exists';
 $txt['hooks_disabled'] = 'Disabled';
 $txt['hooks_missing'] = 'Not found';
-$txt['hooks_no_hooks'] = 'There are currenty no hooks in the system.';
+$txt['hooks_no_hooks'] = 'There are currently no hooks in the system.';
 $txt['hooks_button_remove'] = 'Remove';
 $txt['hooks_disable_instructions'] = 'Click on the status icon to enable or disable the hook';
 $txt['hooks_disable_legend'] = 'Legend';
 $txt['hooks_disable_legend_exists'] = 'the hook exists and is active';
 $txt['hooks_disable_legend_disabled'] = 'the hook exists but has been disabled';
 $txt['hooks_disable_legend_missing'] = 'the hook has not been found';
-$txt['hooks_reset_filter'] = 'Reset filter';
+$txt['hooks_reset_filter'] = 'No filter';
 
 $txt['board_perms_allow'] = 'Allow';
 $txt['board_perms_ignore'] = 'Ignore';
 $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
+
+$txt['likes_like'] = 'Membergroups allowed to like posts';
+$txt['likes_view'] = 'Membergroups allowed to view likes';
+
+$txt['mention'] = 'Membergroups allowed to mention users';
+
+$txt['notifications'] = 'Notifications';
+$txt['notify_settings'] = 'Notification Settings';
+$txt['notifications_desc'] = 'This page allows you to set the default notification options for users.';
 
 ?>

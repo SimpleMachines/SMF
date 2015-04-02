@@ -5,101 +5,75 @@
 		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21" />
 		<style type="text/css">#wrapper, .frame {width: 90%;}</style>
 		<style type="text/css">
-			h1.forumtitle
-			{
-				color: #346;
-			}
-			#upper_section .user
-			{
+			#upper_section .user {
 				height: 1em;
 			}
-			#upper_section .news
-			{
+			#upper_section .news {
 				height: 1em;
 			}
-			#main_screen
-			{
+			#main_screen {
 				padding: 0 40px;
 			}
-			#main_screen h2
-			{
+			#main_screen h2	{
 				font-size: 2em;
 				border-bottom: solid 1px #d05800;
 				line-height: 2em;
 				margin: 0 0 0.5em 0;
 				color: #d05800;
 			}
-			h3
-			{
+			h3 {
 				color: #d05800;
 			}
-			#main_content_section .panel
-			{
+			#main_content_section .panel {
 				padding: 1em 2em 1em 1em;
 				line-height: 1.6em;
 			}
-			#main_content_section h2
-			{
+			#main_content_section h2 {
 				font-size: 1.5em;
 				border-bottom: solid 1px #d05800;
 				line-height: 1.5em;
 				margin: 0 2em 0.5em 0;
 				color: #d05800;
 			}
-			#main_content_section li
-			{
+			#main_content_section li {
 				line-height: 1.6em;
 				font-weight: bold;
 				color: #555;
 			}
-			#main_content_section li ul
-			{
+			#main_content_section li ul {
 				padding-bottom: 0.7em;
 			}
-			#main_content_section li li
-			{
+			#main_content_section li li {
 				font-weight: normal;
 				line-height: 1.6em;
 			}
-			tt
-			{
+			tt {
 				font-family: verdana, sans-serif;
 				letter-spacing: 1px;
 				font-weight: bold;
 				font-size: 90%;
 				font-style: italic;
 			}
-			dt
-			{
+			dt {
 				font-weight: bold;
 				color: #555;
 				margin-bottom: .1em;
 			}
-			dl
-			{
+			dl {
 				margin-top: .2em;
 				margin-left: 2em;
 				margin-bottom: .5em;
 			}
-			dd
-			{
+			dd {
 				line-height: 1.5em;
 				margin-left: 2em;
 				margin-bottom: .1em;
-			}
-			a:link, a:visited
-			{
-				color: #3E5D8F;
-			}
-			a:hover
-			{
-				color: #346;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="header"><div class="frame">
-			<h1 class="forumtitle"><a>SMF 2.1 Installation Guide</a></h1>
+			<h1 class="forumtitle">SMF 2.1 Installation Guide</h1>
 			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum" />
 		</div></div>
 		<div id="wrapper">
@@ -125,7 +99,6 @@
 							<li>&raquo; <a href="#Set_File_Permissions">Set file permissions</a></li>
 							<li>&raquo; <a href="#Create_a_Database_and_a_Database_User">Create a database and a database user</a></li>
 							<li>&raquo; <a href="#Run_the_installer">Run the installer</a></li>
-							<li>&raquo; <a href="#webinstall">Upload files method 2: using webinstall.php</a></li>
 							<li>&raquo; <a href="#finishing">Finishing the installation and cleaning up.</a></li>
 						</ul>
 					</div>
@@ -135,7 +108,7 @@
 						<ul>
 							<li>Any webserver that properly supports PHP, such as <a href="http://httpd.apache.org/" target="_blank">Apache</a> or <a href="http://www.microsoft.com/iis" target="_blank">Internet Information Services (IIS)</a>.</li>
 							<li>
-								<a href="http://www.php.net" target="_blank">PHP</a> 5.1.0 or higher.  The following directives are required to be set correctly in php.ini:
+								<a href="http://www.php.net" target="_blank">PHP</a> 5.3.8 or higher.  The following directives are required to be set correctly in php.ini:
 								<ul>
 									<li>the engine directive must be On.</li>
 									<li>the <a href="http://www.php.net/sybase#ini.magic-quotes-sybase" target="_blank">magic_quotes_sybase</a> directive must be set to Off.</li>
@@ -146,9 +119,8 @@
 							</li>
 							<li>Any of the following database systems
 								<ul>
-									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 4.1.2 or higher.</li>
+									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 5.0.3 or higher.</li>
 									<li><a href="http://www.postgresql.org/" target="_blank">PostgreSQL</a> 8.0 or higher.</li>
-									<li><a href="http://www.sqlite.org/" target="_blank">SQLite</a> 1.x - 2.x.</li>
 								</ul>
 							</li>
 							<li>at least 2 megabytes of storage space in the database, although more is highly recommended.</li>
@@ -161,7 +133,7 @@
 							<li>the <a href="http://aspell.sf.net/" target="_blank">GNU Aspell</a> 0.50 or higher and <a href="http://ftp.gnu.org/gnu/aspell/dict/" target="_blank">its dictionaries</a> for spell checking functionality.</li>
 							<li><a href="http://httpd.apache.org/" target="_blank">Apache</a> 2.0.0 or higher with <a href="http://httpd.apache.org/docs-2.0/mod/core.html#acceptpathinfo" target="_blank">AcceptPathInfo</a> set to On (Apache 2 and later only) for queryless URL support.</li>
 							<li>
-								<a href="http://www.php.net" target="_blank">PHP</a> 5.2.0 or higher, with the following set in php.ini:
+								<a href="http://www.php.net" target="_blank">PHP</a> 5.3.8 or higher, with the following set in php.ini:
 								<ul>
 									<li>the <a href="http://www.php.net/manual/en/info.configuration.php#ini.max-input-time" target="_blank">max_input_time</a> directive is set to a value of at least 30.</li>
 									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.post-max-size" target="_blank">post_max_size</a> and <a href="http://www.php.net/configuration.directives#ini.upload-max-filesize" target="_blank">upload_max_filesize</a> directives set to the size of the largest attachments you wish to be able to upload.</li>
@@ -170,14 +142,12 @@
 									<li>the <a href="http://www.php.net/manual/en/info.configuration.php#ini.max-execution-time" target="_blank">max_execution_time</a> directive is set to at least 15.</li>
 									<li>the <a href="http://www.php.net/manual/en/ini.core.php#ini.register-globals" target="_blank">register_globals</a> directive is set to Off.</li>
 									<li>the <a href="http://www.php.net/manual/en/features.safe-mode.php" target="_blank">safe mode</a> disabled or <a href="http://httpd.apache.org/docs/2.0/suexec.html" target="_blank">suEXEC</a> ensabled.</li>
-									<li>the <a href="http://www.php.net/manual/en/book.bc.php" target="_blank">BCMath</a> library enabled for using the <a href="/smf/Registration#Settings" title="Registration">OpenID</a> registration method.</li>
 								</ul>
 							</li>
 							<li>Any of the following database systems
 								<ul>
 									<li><a href="http://www.mysql.com/" target="_blank">MySQL</a> 5.0 or higher.</li>
 									<li><a href="http://www.postgresql.org/" target="_blank">PostgreSQL</a> 8.3.3 or higher.</li>
-									<li><a href="http://www.sqlite.org/" target="_blank">SQLite</a> 2.8.</li>
 								</ul>
 							</li>
 							<li><a href="http://www.boutell.com/gd/" target="_blank">GD Graphics Library</a> 2.0 or higher.</li>
@@ -220,7 +190,7 @@
 						<h3>Creating a database using PHPMyAdmin</h3>
 						<p>Most shared hosting services disable this option. If the option to create databases through PHPMyAdmin is available through the hosting service you use, the database can be created from the PHPMyAdmin home page.</p>
 						<h3>Creating a database using a control panel</h3>
-						<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF starting from version 2.0 has the ability to support other database types, including PostgreSQL and SQLite. SMF 1.1 supports only MySQL database types.</p>
+						<p>Shared hosting services usually disable the ability to create a database through PHPMyAdmin. If the hosting service provides a control panel interface, then this can be used to create a database. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page prompting you to creating a MySQL database. With different hosts, these options may have different names.</p><p>SMF starting from version 2.0 has the ability to support other database types, including PostgreSQL. SMF 1.1 supports only MySQL database types.</p>
 						<h3>Creating a database user</h3>
 						<p>A database user can be created through the control panel provided by your hosting service. Selecting the &quot;MySQL Databases&quot; or &quot;Database Wizard&quot; options should take you to a page, prompting you to create a MySQL database user. With different hosts, these options may have different names.</p>
 						<p>The database user requires the following permissions: SELECT, INSERT, UPDATE, DELETE, ALTER, and INDEX. Additional permissions may be granted, if desired.</p>
@@ -248,7 +218,7 @@
 						<h3>Database server settings</h3>
 						<dl>
 							<dt>Database type</dt>
-							<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (starting from SMF 2.0) such as PostgreSQL and SQLite may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
+							<dd>The database schema can be selected here from a list of database schemas supported by the server being used. Newer schemas (starting from SMF 2.0) such as PostgreSQL may be listed here if available. MySQL and PostgreSQL are recommended.</dd>
 							<dt>Server name</dt>
 							<dd>The location of the database is specified here. 99% of the time this will be localhost.</dd>
 							<dt>Username</dt>
@@ -262,16 +232,6 @@
 						</dl>
 						<h3>Creating an administrator account</h3>
 						<p>The SMF installer will ask for information to create the forum's administrator account. This information includes username, password, and e-mail address, just like a regular account. Once created, this account can be used to visit the Administration Center to manage and configure the forum.</p>
-					</div>
-					<div class="panel">
-						<h2 id="webinstall">Upload files method 2: using webinstall.php</h2>
-						<p>Your server may support webinstall.php. This script will automatically download SMF to your server. This may not work on all servers and also may require providing it with FTP details.</p>
-						<p>The first thing you need to do is upload webinstall.php to the location of where SMF is to exist on your server.</p>
-						<p>After you have finished uploading the file, point your browser to http://www.yourdomain.tld/forum/webinstall.php - where www.yourdomain.tld/forum is the URL to where you uploaded it.  You should then see the webinstall interface.</p>
-						<p>The first page you see may request your FTP information.  If you see this screen, it is because the webinstaller found some files or folders with inadequate permissions for SMF to run properly.  If you enter your FTP information here, the webinstaller can automatically fix these permissions for you.  Please note that the path should be the same path you see in your FTP client.  For example, it might be &quot;public_html/forum&quot;.  And remember, the webinstaller will not save your FTP password anywhere.</p>
-						<p>On the webinstall interface you have an option to login, this is useful for charter members to easily download early releases. You may have an option to select multiple versions of SMF to download. It is up to you to decide which version of SMF you wish to install. Additionally you may have options of additional languages to download.</p>
-						<p>After specifying these options and agreeing to the agreement, webinstall will attempt to download al SMF files and decompress them in the same folder as webinstall.php. If successful you will be prompted to the SMF upgrade screen. If this fails you will need to follow the process below to upload files.</p>
-						<p>In most cases, you'll want to have &quot;Put the forum into maintenance mode during upgrade.&quot; checked, because it will ensure that nothing is messed with while the upgrader is working.  You may also wish to check &quot;Backup tables in your database...&quot;, which will make a backup of your old information and tables before making any changes in the database.</p>
 					</div>
 					<div class="panel">
 						<h2 id="finishing">Finishing everything up</h2>

@@ -13,15 +13,18 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
+/**
+ * An implementation of the LZW compression algorithm
+ */
 class gif_lzw_compression
 {
 	public $MAX_LZW_BITS;

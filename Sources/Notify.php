@@ -8,102 +8,19 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Turn off/on notification for a particular topic.
- * Must be called with a topic specified in the URL.
- * The sub-action can be 'on', 'off', or nothing for what to do.
- * Requires the mark_any_notify permission.
- * Upon successful completion of action will direct user back to topic.
- * Accessed via ?action=notify.
- *
- * @uses Notify template, main sub-template
- */
-function Notify()
-{
-	global $scripturl, $txt, $topic, $user_info, $context, $smcFunc;
-
-	// Make sure they aren't a guest or something - guests can't really receive notifications!
-	is_not_guest();
-	isAllowedTo('mark_any_notify');
-
-	// Make sure the topic has been specified.
-	if (empty($topic))
-		fatal_lang_error('not_a_topic', false);
-
-	// What do we do?  Better ask if they didn't say..
-	if (empty($_GET['sa']))
-	{
-		// Load the template, but only if it is needed.
-		loadTemplate('Notify');
-
-		// Find out if they have notification set for this topic already.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_topic = {int:current_topic}
-			LIMIT 1',
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-			)
-		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
-
-		// Set the template variables...
-		$context['topic_href'] = $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
-
-		return;
-	}
-	elseif ($_GET['sa'] == 'on')
-	{
-		checkSession('get');
-
-		// Attempt to turn notifications on.
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}log_notify',
-			array('id_member' => 'int', 'id_topic' => 'int'),
-			array($user_info['id'], $topic),
-			array('id_member', 'id_topic')
-		);
-	}
-	else
-	{
-		checkSession('get');
-
-		// Just turn notifications off.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_topic = {int:current_topic}',
-			array(
-				'current_member' => $user_info['id'],
-				'current_topic' => $topic,
-			)
-		);
-	}
-
-	// Send them back to the topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
-}
-
-/**
  * Turn off/on notification for a particular board.
  * Must be called with a board specified in the URL.
  * Only uses the template if no sub action is used. (on/off)
- * Requires the mark_notify permission.
  * Redirects the user back to the board after it is done.
  * Accessed via ?action=notifyboard.
  *
@@ -111,98 +28,89 @@ function Notify()
  */
 function BoardNotify()
 {
-	global $scripturl, $txt, $board, $user_info, $context, $smcFunc;
+	global $scripturl, $txt, $board, $user_info, $context, $smcFunc, $sourcedir;
 
 	// Permissions are an important part of anything ;).
 	is_not_guest();
-	isAllowedTo('mark_notify');
 
 	// You have to specify a board to turn notifications on!
 	if (empty($board))
 		fatal_lang_error('no_board', false);
 
 	// No subaction: find out what to do.
-	if (empty($_GET['sa']))
-	{
-		// We're gonna need the notify template...
-		loadTemplate('Notify');
-
-		// Find out if they have notification set for this board already.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member
-			FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
-				AND id_board = {int:current_board}
-			LIMIT 1',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
-		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
-		$smcFunc['db_free_result']($request);
-
-		// Set the template variables...
-		$context['board_href'] = $scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
-		$context['start'] = $_REQUEST['start'];
-		$context['page_title'] = $txt['notification'];
-		$context['sub_template'] = 'notify_board';
-
-		return;
-	}
-	// Turn the board level notification on....
-	elseif ($_GET['sa'] == 'on')
+	if (isset($_GET['mode']))
 	{
 		checkSession('get');
 
-		// Turn notification on.  (note this just blows smoke if it's already on.)
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}log_notify',
-			array('id_member' => 'int', 'id_board' => 'int'),
-			array($user_info['id'], $board),
-			array('id_member', 'id_board')
-		);
-	}
-	// ...or off?
-	else
-	{
-		checkSession('get');
+		$mode = (int) $_GET['mode'];
+		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		// Turn notification off for this board.
-		$smcFunc['db_query']('', '
-			DELETE FROM {db_prefix}log_notify
-			WHERE id_member = {int:current_member}
+		require_once($sourcedir . '/Subs-Notify.php');
+		setNotifyPrefs($user_info['id'], array('board_notify_' . $board => $alertPref));
+
+		if ($mode > 1)
+			// Turn notification on.  (note this just blows smoke if it's already on.)
+			$smcFunc['db_insert']('ignore',
+				'{db_prefix}log_notify',
+				array('id_member' => 'int', 'id_board' => 'int'),
+				array($user_info['id'], $board),
+				array('id_member', 'id_board')
+			);
+		else
+			$smcFunc['db_query']('', '
+				DELETE FROM {db_prefix}log_notify
+				WHERE id_member = {int:current_member}
 				AND id_board = {int:current_board}',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-			)
-		);
+				array(
+					'current_board' => $board,
+					'current_member' => $user_info['id'],
+				)
+			);
+
 	}
 
 	// Back to the board!
-	redirectexit('board=' . $board . '.' . $_REQUEST['start']);
+	if (isset($_GET['xml']))
+	{
+		$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array(
+				array(
+					'value' => 0,
+				),
+			),
+		);
+		$context['sub_template'] = 'generic_xml';
+	}
+	else
+		redirectexit('board=' . $board . '.' . $_REQUEST['start']);
 }
 
 /**
- * Turn off/on unread replies subscription for a topic
+ * Turn off/on unread replies subscription for a topic as well as sets individual topic's alert preferences
  * Must be called with a topic specified in the URL.
- * The sub-action can be 'on', 'off', or nothing for what to do.
- * Requires the mark_any_notify permission.
+ * The mode can be from 0 to 3
+ * 0 => unwatched, 1 => no alerts/emails, 2 => alerts, 3 => emails/alerts
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=unwatchtopic.
  */
-function TopicUnwatch()
+function TopicNotify()
 {
-	global $smcFunc, $user_info, $topic, $modSettings;
+	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir, $context;
 
 	// Let's do something only if the function is enabled
-	if (!$user_info['is_guest'] && $modSettings['enable_unwatch'])
+	if (!$user_info['is_guest'])
 	{
 		checkSession('get');
 
-		if (isset($_GET['sa']))
+		if (isset($_GET['mode']))
 		{
+			$mode = (int) $_GET['mode'];
+			$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
+
+			if (empty($mode))
+				$mode = 1;
+
 			$request = $smcFunc['db_query']('', '
 				SELECT id_member, id_topic, id_msg, unwatched
 				FROM {db_prefix}log_topics
@@ -218,17 +126,17 @@ function TopicUnwatch()
 			if (empty($log))
 			{
 				$insert = true;
-				$log['unwatched'] = $_GET['sa'] == 'on' ? 1 : 0;
-			}
-			else
-			{
-				$insert = false;
 				$log = array(
 					'id_member' => $user_info['id'],
 					'id_topic' => $topic,
 					'id_msg' => 0,
-					'unwatched' => $_GET['sa'] == 'on' ? 1 : 0,
+					'unwatched' => empty($mode) ? 1 : 0,
 				);
+			}
+			else
+			{
+				$insert = false;
+				$log['unwatched'] = empty($mode) ? 1 : 0;
 			}
 
 			$smcFunc['db_insert']($insert ? 'insert' : 'replace',
@@ -239,11 +147,48 @@ function TopicUnwatch()
 				$log,
 				array('id_member', 'id_topic')
 			);
+
+			require_once($sourcedir . '/Subs-Notify.php');
+			setNotifyPrefs($user_info['id'], array('topic_notify_' . $log['id_topic'] => $alertPref));
+
+			if ($mode > 1)
+			{
+				// Turn notification on.  (note this just blows smoke if it's already on.)
+				$smcFunc['db_insert']('ignore',
+					'{db_prefix}log_notify',
+					array('id_member' => 'int', 'id_topic' => 'int'),
+					array($user_info['id'], $log['id_topic']),
+					array('id_member', 'id_board')
+				);
+			}
+			else
+				$smcFunc['db_query']('', '
+					DELETE FROM {db_prefix}log_notify
+					WHERE id_topic = {int:topic}
+						AND id_member = {int:member}',
+					array(
+						'topic' => $log['id_topic'],
+						'member' => $user_info['id'],
+					));
+
 		}
 	}
 
 	// Back to the topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+	if (isset($_GET['xml']))
+	{
+		$context['xml_data']['errors'] = array(
+			'identifier' => 'error',
+			'children' => array(
+				array(
+					'value' => 0,
+				),
+			),
+		);
+		$context['sub_template'] = 'generic_xml';
+	}
+	else
+		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
 }
 
 ?>

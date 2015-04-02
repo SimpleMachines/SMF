@@ -8,17 +8,17 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2013 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Entrance point for the registration center, it checks permisions and forwards
+ * Entrance point for the registration center, it checks permissions and forwards
  * to the right function based on the subaction.
  * Accessed by ?action=admin;area=regcenter.
  * Requires either the moderate_forum or the admin_forum permission.
@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function RegCenter()
 {
-	global $modSettings, $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Old templates might still request this.
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'browse')
@@ -40,8 +40,6 @@ function RegCenter()
 		'reservednames' => array('SetReserved', 'admin_forum'),
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
-
-	call_integration_hook('integrate_manage_registrations', array(&$subActions));
 
 	// Work out which to call...
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
@@ -74,8 +72,10 @@ function RegCenter()
 		)
 	);
 
+	call_integration_hook('integrate_manage_registrations', array(&$subActions));
+
 	// Finally, get around to calling the function...
-	$subActions[$context['sub_action']][0]();
+	call_helper($subActions[$context['sub_action']][0]);
 }
 
 /**
@@ -89,6 +89,10 @@ function RegCenter()
 function AdminRegister()
 {
 	global $txt, $context, $sourcedir, $scripturl, $smcFunc;
+
+	// Are there any custom profile fields required during registration?
+	require_once($sourcedir . '/Profile.php');
+	loadCustomFields(0, 'register');
 
 	if (!empty($_POST['regSubmit']))
 	{
@@ -117,6 +121,13 @@ function AdminRegister()
 		$memberID = registerMember($regOptions);
 		if (!empty($memberID))
 		{
+			// We'll do custom fields after as then we get to use the helper function!
+			if (!empty($_POST['customfield']))
+			{
+				require_once($sourcedir . '/Profile-Modify.php');
+				makeCustomFieldChanges($memberID, 'register');
+			}
+
 			$context['new_member'] = array(
 				'id' => $memberID,
 				'name' => $_POST['user'],
@@ -156,10 +167,12 @@ function AdminRegister()
 	}
 	else
 		$context['member_groups'] = array();
+
 	// Basic stuff.
 	$context['sub_template'] = 'admin_register';
 	$context['page_title'] = $txt['registration_center'];
 	createToken('admin-regc');
+	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
 /**
@@ -174,7 +187,7 @@ function AdminRegister()
 function EditAgreement()
 {
 	// I hereby agree not to be a lazy bum.
-	global $txt, $boarddir, $context, $modSettings, $smcFunc, $settings;
+	global $txt, $boarddir, $context, $modSettings, $smcFunc;
 
 	// By default we look at agreement.txt.
 	$context['current_agreement'] = '';
@@ -205,14 +218,18 @@ function EditAgreement()
 		validateToken('admin-rega');
 
 		// Off it goes to the agreement file.
-		$fp = fopen($boarddir . '/agreement' . $context['current_agreement'] . '.txt', 'w');
-		fwrite($fp, str_replace("\r", '', $_POST['agreement']));
-		fclose($fp);
+		$to_write = str_replace("\r", '', $_POST['agreement']);
+		$bytes = file_put_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt', $to_write, LOCK_EX);
 
 		updateSettings(array('requireAgreement' => !empty($_POST['requireAgreement'])));
+
+		if ($bytes == strlen($to_write))
+			$context['saved_successful'] = true;
+		else
+			$context['could_not_save'] = true;
 	}
 
-	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? htmlspecialchars(file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
+	$context['agreement'] = file_exists($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? $smcFunc['htmlspecialchars'](file_get_contents($boarddir . '/agreement' . $context['current_agreement'] . '.txt')) : '';
 	$context['warning'] = is_writable($boarddir . '/agreement' . $context['current_agreement'] . '.txt') ? '' : $txt['agreement_not_writable'];
 	$context['require_agreement'] = !empty($modSettings['requireAgreement']);
 
@@ -246,6 +263,7 @@ function SetReserved()
 			'reserveName' => (isset($_POST['matchname']) ? '1' : '0'),
 			'reserveNames' => str_replace("\r", '', $_POST['reserved'])
 		));
+		$context['saved_successful'] = true;
 	}
 
 	// Get the reserved word options and words.
@@ -280,11 +298,9 @@ function ModifyRegistrationSettings($return_config = false)
 
 	$config_vars = array(
 			array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
-			array('check', 'enableOpenID'),
-			array('check', 'notify_new_registration'),
 			array('check', 'send_welcomeEmail'),
 		'',
-			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
+			array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
 			array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 			array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 			array('text', 'coppaFax'),
@@ -309,12 +325,12 @@ function ModifyRegistrationSettings($return_config = false)
 			fatal_lang_error('admin_setting_coppa_require_contact');
 
 		// Post needs to take into account line breaks.
-		$_POST['coppaPost'] = str_replace("\n", '<br />', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
+		$_POST['coppaPost'] = str_replace("\n", '<br>', empty($_POST['coppaPost']) ? '' : $_POST['coppaPost']);
 
 		call_integration_hook('integrate_save_registration_settings');
 
 		saveDBSettings($config_vars);
-
+		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=regcenter;sa=settings');
 	}
 
