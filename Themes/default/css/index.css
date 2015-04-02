@@ -3843,10 +3843,12 @@ h3.profile_hd {
 	margin-bottom: 0.25em;
 }
 
-#reported_posts .generic_icons {
-	margin: -3px 3px 0 0;
+#reported_posts .generic_icons,
+#reported_members .generic_icons {
+	margin: -3px 1px 0 0;
 }
-#reported_posts .quickbuttons li a {
+#reported_posts .quickbuttons li a,
+#reported_members .quickbuttons li a {
 	background: none;
 }
 #modcenter .generic_icons {
