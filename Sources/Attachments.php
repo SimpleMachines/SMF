@@ -63,13 +63,19 @@ class Attachments
 		// Guest aren't welcome, sorry.
 		is_not_guest();
 
+
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
-		if ($this->_sa && in_array($this->_sa, $this->_subActions))
+		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
 			$this->{$this->_sa}();
 
+		// Just send a generic message.
 		else
-			redirectexit();
+			$this->setResponse(array(
+				'text' => 'attach_error_title',
+				'type' => 'error',
+				'data' => false,
+			));
 
 		// Back to the future, oh, to the browser!
 		$this->sendResponse();
