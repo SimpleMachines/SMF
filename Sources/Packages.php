@@ -2519,7 +2519,7 @@ function PackagePermissionsAction()
 		if (empty($context['total_items']))
 		{
 			/**
-			 * Counts all the directoies under a given path
+			 * Counts all the directories under a given path
 			 *
 			 * @param type $dir
 			 * @return integer
