@@ -3408,7 +3408,6 @@ img.smiley {
 #quickReplyOptions .roundframe {
 	margin: 0;
 	padding: 8px 10% 12px 10%;
-	overflow: auto;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -3615,7 +3614,6 @@ h3.catbg .icon {
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
-	overflow: hidden;
 }
 /* TitleBar & SubBar */
 .title_bar {
@@ -3880,4 +3878,10 @@ h3.profile_hd {
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
 	border-right: 1px solid #DDD;
+}
+
+.centerbox {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
