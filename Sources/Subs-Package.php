@@ -2965,10 +2965,7 @@ function package_create_backup($id = 'backup')
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))
-			$files[realpath($boarddir . '/' . $file)] = array(
-				empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file,
-				stat($boarddir . '/' . $file)
-			);
+			$files[empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file] = $boarddir . '/' . $file;
 	}
 
 	$dirs = array(
@@ -2989,41 +2986,34 @@ function package_create_backup($id = 'backup')
 		$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
 	$smcFunc['db_free_result']($request);
 
-	while (!empty($dirs))
+	foreach ($dirs as $dir => $dest)
 	{
-		list ($dir, $dest) = each($dirs);
-		unset($dirs[$dir]);
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST,
+			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+		);
 
-		$listing = @dir($dir);
-		if (!$listing)
-			continue;
-		while ($entry = $listing->read())
+		foreach ($iter as $entry => $dir)
 		{
+			if ($dir->isDir())
+				continue;
+
 			if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
 				continue;
 
-			$filepath = realpath($dir . '/' . $entry);
-			if (isset($files[$filepath]))
-				continue;
-
-			$stat = stat($dir . '/' . $entry);
-			if ($stat['mode'] & 040000)
-			{
-				$files[$filepath] = array($dest . $entry . '/', $stat);
-				$dirs[$dir . '/' . $entry] = $dest . $entry . '/';
-			}
-			else
-				$files[$filepath] = array($dest . $entry, $stat);
+			$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
 		}
-		$listing->close();
 	}
+	$obj = new ArrayObject($files);
+	$iterator = $obj->getIterator();
 
 	if (!file_exists($packagesdir . '/backups'))
 		mktree($packagesdir . '/backups', 0777);
 	if (!is_writable($packagesdir . '/backups'))
 		package_chmod($packagesdir . '/backups');
 	$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-	$output_ext = '.tar' . (function_exists('gzopen') ? '.gz' : '');
+	$output_ext = '.tar';
 
 	if (file_exists($output_file . $output_ext))
 	{
@@ -3039,59 +3029,18 @@ function package_create_backup($id = 'backup')
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
-	if (function_exists('gzopen'))
+	try
 	{
-		$fwrite = 'gzwrite';
-		$fclose = 'gzclose';
-		$output = @gzopen($output_file, 'wb');
+		$a = new PharData($output_file);
+		$a->buildFromIterator($iterator);
+		$a->compress(Phar::GZ);
 	}
-	else
+	catch (Exception $e)
 	{
-		$fwrite = 'fwrite';
-		$fclose = 'fclose';
-		$output = @fopen($output_file, 'wb');
-	}
+		log_error($e->getMessage(), 'backup');
 
-	// If we don't have a file handle, that means for whatever reason the file could not be opened.
-	// Could be permissions, could be a file already exists that shouldn't, etc.
-	if (!$output)
 		return false;
-
-	foreach ($files as $real_file => $file)
-	{
-		if (!file_exists($real_file))
-			continue;
-
-		$stat = $file[1];
-		if (substr($file[0], -1) == '/')
-			$stat['size'] = 0;
-
-		$current = pack('a100a8a8a8a12a12a8a1a100a6a2a32a32a8a8a155a12', $file[0], decoct($stat['mode']), sprintf('%06d', decoct($stat['uid'])), sprintf('%06d', decoct($stat['gid'])), decoct($stat['size']), decoct($stat['mtime']), '', 0, '', '', '', '', '', '', '', '', '');
-
-		$checksum = 256;
-		for ($i = 0; $i < 512; $i++)
-			$checksum += ord($current{$i});
-
-		$fwrite($output, substr($current, 0, 148) . pack('a8', decoct($checksum)) . substr($current, 156, 511));
-
-		if ($stat['size'] == 0)
-			continue;
-
-		$fp = @fopen($real_file, 'rb');
-		while ($fp && !feof($fp))
-		{
-			$buffer = fread($fp, 16384);
-			if (strlen($buffer) == 0)
-				break;
-			$fwrite($output, $buffer);
-		}
-		@fclose($fp);
-
-		$fwrite($output, pack('a' . (512 - $stat['size'] % 512), ''));
 	}
-
-	$fwrite($output, pack('a1024', ''));
-	$fclose($output);
 
 	return true;
 }
