@@ -98,7 +98,6 @@ class Attachments
 				'data' => false,
 			));
 
-
 		// Lets pass some params and see what happens :P
 		$affectedMessages = removeAttachments(array('id_attach' => $attachID), '', true, true);
 
@@ -138,6 +137,22 @@ class Attachments
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
+
+		// If there are attachments, calculate the total size and how many.
+		$context['attachments']['total_size'] = 0;
+		$context['attachments']['quantity'] = 0;
+
+		// If this isn't a new post, check the current attachments.
+		if (isset($_REQUEST['msg']))
+		{
+			$context['attachments']['quantity'] = count($context['current_attachments']);
+			foreach ($context['current_attachments'] as $attachment)
+				$context['attachments']['total_size'] += $attachment['size'];
+		}
+
+		// A bit of house keeping first.
+		if (!empty($_SESSION['temp_attachments']) && count($_SESSION['temp_attachments']) == 1)
+			unset($_SESSION['temp_attachments']);
 
 		// Our infamous SESSION var, we are gonna have soo much fun with it!
 		if (!isset($_SESSION['temp_attachments']))
@@ -409,12 +424,12 @@ class Attachments
 		die;
 	}
 
-	public static loadAttachments($msgID)
+	public static function loadAttachments($msgID)
 	{
 
 	}
 
-	public static getMsgData($msgID)
+	public static function getMsgData($msgID)
 	{
 
 	}

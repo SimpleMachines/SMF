@@ -73,10 +73,10 @@ function smf_fileUpload(oOptions)
 				type: 'GET',
 				dataType: 'json',
 				success: function (data, textStatus, xhr) {
-					// Some indication that the file was successfully deleted.
+
 				},
 				error: function (xhr, textStatus, errorThrown) {
-					// Some indication that the action failed miserably...
+
 				}
 			});
 		}),
