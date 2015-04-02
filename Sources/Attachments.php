@@ -92,12 +92,12 @@ class Attachments
 
 		// Need something to work with.
 		if (!$attachID || !is_int($attachID))
-		{
-			// Send some error here.
+			return $this->setResponse(array(
+				'text' => 'attached_file_deleted_error',
+				'type' => 'error',
+				'data' => false,
+			));
 
-			// Be done with it.
-			return;
-		}
 
 		// Lets pass some params and see what happens :P
 		$affectedMessages = removeAttachments(array('id_attach' => $attachID), '', true, true);
