@@ -101,9 +101,9 @@ class Attachments
 		// Lets pass some params and see what happens :P
 		$affectedMessages = removeAttachments(array('id_attach' => $attachID), '', true, true);
 
-		// $affectedMessage should never be filled, if so, something terrible just happen...
+		// $affectedMessage returns an empty array array(0) which php treats as non empty... awesome...
 		$this->setResponse(array(
-			'text' => 'attached_file_deleted'. (!empty($affectedMessage) ? 'error' : ''),
+			'text' => 'attached_file_deleted'. (!empty($affectedMessage) && $affectedMessage !== array(0) ? 'error' : ''),
 			'type' => !empty($affectedMessage) ? 'error' : 'info',
 			'data' => false,
 		));
