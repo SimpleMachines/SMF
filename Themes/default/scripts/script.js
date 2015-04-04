@@ -425,7 +425,7 @@ function smc_Popup(oOptions)
 
 smc_Popup.prototype.show = function ()
 {
-	popup_class = 'popup_window ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
+	popup_class = 'popup_window centerbox ' + (this.opt.custom_class ? this.opt.custom_class : 'description');
 	if (this.opt.icon_class)
 		icon = '<span class="' + this.opt.icon_class + '"></span> ';
 	else
