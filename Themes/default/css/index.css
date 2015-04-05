@@ -2692,7 +2692,7 @@ dl.addrules dt.floatleft {
 /* Styles for popup windows */
 .popup_container {
 	display: none;
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -2711,7 +2711,7 @@ dl.addrules dt.floatleft {
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
 	background: #FFFFFF;
-	top: 5%;
+	top: 15%;
 	margin: 0 auto;
 }
 .popup_heading {
