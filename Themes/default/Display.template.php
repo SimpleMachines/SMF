@@ -697,20 +697,16 @@ function template_single_post($message)
 		echo '
 								<ul class="quickbuttons">';
 
-		// Selected quote.
+		// Can they quote? if so they can select and quote as well!
 		if ($context['can_quote'])
 			echo '
-									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)" class="quote_selected_button">', $txt['quote_selected_action'] ,'</a></li>';
-
-		// Can they reply?
-		if ($context['can_quote'])
-			echo '
-									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');" class="quote_button">', $txt['quote_action'], '</a></li>';
+									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons mail"></span>', $txt['quote_action'], '</a></li>
+									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons mail"></span>', $txt['quote_selected_action'] ,'</a></li>';
 
 		// Can the user modify the contents of this post?  Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
-									<li class="quick_edit"><a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')">', $txt['quick_edit'], '</a></li>';
+									<li><a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons mail"></span>', $txt['quick_edit'], '</a></li>';
 
 		if ($message['can_approve'] || $message['can_unapprove'] || $message['can_modify'] || $message['can_remove'] || $context['can_split'] || $context['can_restore_msg'])
 			echo '

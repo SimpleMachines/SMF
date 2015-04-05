@@ -1373,78 +1373,6 @@ ul li.greeting {
 	display: inline;
 	margin: 0;
 	font-size: 0.9em;
-}
-.quickbuttons li a {
-	padding: 0 4px 0 5px;
-	display: block;
-	line-height: 1.9em;
-	float: left;
-	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
-}
-.quickbuttons li a img {
-	padding-bottom: 2px;
-}
-.quickbuttons li input {
-	margin-top: 4px;
-}
-.quickbuttons a:hover {
-	color: #a70;
-}
-.quickbuttons li a.quote_button, .quickbuttons li a.quote_selected_button {
-	background-position: 0 -1px;
-	padding: 0 2px 0 20px;
-}
-/* Fix for quote on reply box */
-#post_modify {
-	border-radius: 4px;
-}
-.quickbuttons li a.modifybutton {
-	background-position: 0 -59px;
-	padding: 0 2px 0 20px;
-}
-.quickbuttons li a.remove_button {
-	background-position: 2px -29px;
-	padding: 0 2px 0 25px;
-}
-.quickbuttons li a.modify_button {
-	background-position: 2px -59px;
-}
-.quickbuttons li a.approve_button,
-.quickbuttons li a.read_button {
-	background-position: 2px -88px;
-}
-.quickbuttons li a.restore_button {
-	background-position: 0 -120px;
-}
-.quickbuttons li a.split_button {
-	background-position: 2px -149px;
-}
-.quickbuttons li a.reply_button {
-	background-position: 0 -180px;
-}
-.quickbuttons li a.reply_all_button {
-	background-position: 0 -180px;
-}
-.quickbuttons li a.notify_button {
-	background-position: 1px -210px;
-}
-.quickbuttons li a.unapprove_button,
-.quickbuttons li a.unread_button {
-	background-position: 2px -238px;
-}
-.quickbuttons li a.warn_button {
-	background-position: 2px -270px;
-}
-/* Some extra padding for some buttons */
-.quickbuttons li a.read_button, .quickbuttons li a.reply_button,
-.quickbuttons li a.reply_all_button, .quickbuttons li a.notify_button,
-.quickbuttons li a.unread_button {
-	padding: 0 4px 0 22px;
-}
-.quickbuttons li.inline_mod_check {
-	padding: 1px 1px 1px 1px;
-}
-.quickbuttons li {
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -1453,6 +1381,16 @@ ul li.greeting {
 	padding: 0 1px 0 1px;
 	color: #222;
 	overflow: visible;
+}
+.quickbuttons li a {
+	padding: 0 4px 0 5px;
+	display: block;
+	line-height: 1.9em;
+	float: left;
+}
+.quickbuttons li a, .quickbuttons li a:hover {
+	text-decoration: none;
+	color: #222;
 }
 .quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
@@ -1470,20 +1408,14 @@ ul li.greeting {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
-.quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	line-height: 1.9em;
-	position: relative;
+.quickbuttons li a img {
+	padding-bottom: 2px;
 }
-.quickbuttons li a, .quickbuttons li a:hover {
-	text-decoration: none;
-	color: #222;
+.quickbuttons li input {
+	margin-top: 4px;
 }
-.quickbuttons li.post_options {
-	padding: 0 4px 0 4px;
-}
-.quickbuttons li.post_options>a {
-	padding: 0 4px 0 4px;
-}
+
+/* Drop part of QuickButtons */
 .quickbuttons li ul {
 	position: absolute;
 	top: 1.9em;
@@ -1535,6 +1467,27 @@ ul li.greeting {
 /* Cancel for hover and/or js access. */
 .quickbuttons ul li:hover a:focus, .quickbuttons ul li a:focus {
 	margin: 0;
+}
+/* Fixes for quickbuttons
+   Fix for quote on reply box */
+#post_modify {
+	border-radius: 4px;
+}
+.quickbuttons span.generic_icons {
+	margin: -3px 3px 0 1px;
+}
+.quickbuttons li.inline_mod_check {
+	padding: 1px 1px 1px 1px;
+}
+.quickbuttons li.quick_edit, .quickbuttons li.post_options {
+	line-height: 1.9em;
+	position: relative;
+}
+.quickbuttons li.post_options {
+	padding: 0 4px 0 4px;
+}
+.quickbuttons li.post_options>a {
+	padding: 0 4px 0 4px;
 }
 
 /* The jump to box */
