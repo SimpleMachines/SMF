@@ -240,66 +240,55 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
 
 function read_zip_file($file, $destination, $single_file = false, $overwrite = false, $files_to_extract = null)
 {
-	global $sourcedir;
-
-	require_once($sourcedir . '/Class-ZipExtract.php');
-
 	try
 	{
-		$zip = new ZipExtract($file);
+		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO);
+		$iterator = new RecursiveIteratorIterator($archive);
 
 		// go though each file in the archive
-		foreach ($zip->list_contents() as $i => $file_info)
-			if (!$file_info['is_folder'])
+		foreach ($iterator as $file_info)
 			{
+				$i = $iterator->getSubPathname();
 				// If this is a file, and it doesn't exist.... happy days!
-				if (substr($file_info['filename'], -1) != '/' && !file_exists($destination . '/' . $file_info['filename']))
+				if (substr($i, -1) != '/' && !file_exists($destination . '/' . $i))
 					$write_this = true;
 				// If the file exists, we may not want to overwrite it.
-				elseif (substr($file_info['filename'], -1) != '/')
+				elseif (substr($i, -1) != '/')
 					$write_this = $overwrite;
-				// This is a directory, so we're gonna want to create it. (probably...)
-				elseif ($destination !== null && !$single_file)
-				{
-					// Just a little accident prevention, don't mind me.
-					$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
-
-					if (!file_exists($destination . '/' . $file_info['filename']))
-						mktree($destination . '/' . $file_info['filename'], 0777);
-					$write_this = false;
-				}
 				else
 					$write_this = false;
 
 				// Get the actual compressed data.
-				$file = $zip->extractByIndex(array($i));
-				$file_info['data'] = $file[$i]['content'];
+				if (!is_dir($file_info))
+					$file_data = file_get_contents($file_info);
+				else
+					$file_data = null;
 
 				// Okay!  We can write this file, looks good from here...
 				if ($write_this && $destination !== null)
 				{
-					if ((strpos($file_info['filename'], '/') !== false && !$single_file) || (!$single_file && !is_dir(dirname($file_info['filename']))))
-						mktree(dirname($file_info['filename']), 0777);
+					if (!$single_file && !is_dir($destination . '/' . dirname($i)))
+						mktree($destination . '/' . dirname($i), 0777);
 
 					// If we're looking for a specific file, and this is it... ka-bam, baby.
-					if ($single_file && ($destination == $file_info['filename'] || $destination == '*/' . basename($file_info['filename'])))
-						return $file_info['data'];
+					if ($single_file && ($destination == $i || $destination == '*/' . basename($i)))
+						return $file_data;
 					// Oh?  Another file.  Fine.  You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize.  I know this file's just not *good enough* for you.
 					elseif ($single_file)
 						continue;
 					// Don't really want this?
-					elseif ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract))
+					elseif ($files_to_extract !== null && !in_array($i, $files_to_extract))
 						continue;
 
-					package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
+					package_put_contents($destination . '/' . $i, $file_data);
 				}
 
-				if (substr($file_info['filename'], -1, 1) != '/')
+				if (substr($i, -1, 1) != '/')
 					$return[] = array(
-						'filename' => $file_info['filename'],
-						'md5' => md5($file_info['data']),
-						'preview' => substr($file_info['data'], 0, 100),
-						'size' => $file_info['uncompressed_size'],
+						'filename' => $i,
+						'md5' => md5($file_data),
+						'preview' => substr($file_data, 0, 100),
+						'size' => strlen($file_data),
 						'skipped' => false
 					);
 			}
@@ -395,7 +384,6 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 		}
 		else
 			$write_this = false;
-
 
 		// Get the actual compressed data.
 		$file_info['data'] = substr($data, 26 + $file_info['filename_length'] + $file_info['extrafield_length']);
@@ -2977,10 +2965,7 @@ function package_create_backup($id = 'backup')
 	foreach ($base_files as $file)
 	{
 		if (file_exists($boarddir . '/' . $file))
-			$files[realpath($boarddir . '/' . $file)] = array(
-				empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file,
-				stat($boarddir . '/' . $file)
-			);
+			$files[empty($_REQUEST['use_full_paths']) ? $file : $boarddir . '/' . $file] = $boarddir . '/' . $file;
 	}
 
 	$dirs = array(
@@ -3001,41 +2986,34 @@ function package_create_backup($id = 'backup')
 		$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
 	$smcFunc['db_free_result']($request);
 
-	while (!empty($dirs))
+	foreach ($dirs as $dir => $dest)
 	{
-		list ($dir, $dest) = each($dirs);
-		unset($dirs[$dir]);
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST,
+			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+		);
 
-		$listing = @dir($dir);
-		if (!$listing)
-			continue;
-		while ($entry = $listing->read())
+		foreach ($iter as $entry => $dir)
 		{
+			if ($dir->isDir())
+				continue;
+
 			if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
 				continue;
 
-			$filepath = realpath($dir . '/' . $entry);
-			if (isset($files[$filepath]))
-				continue;
-
-			$stat = stat($dir . '/' . $entry);
-			if ($stat['mode'] & 040000)
-			{
-				$files[$filepath] = array($dest . $entry . '/', $stat);
-				$dirs[$dir . '/' . $entry] = $dest . $entry . '/';
-			}
-			else
-				$files[$filepath] = array($dest . $entry, $stat);
+			$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
 		}
-		$listing->close();
 	}
+	$obj = new ArrayObject($files);
+	$iterator = $obj->getIterator();
 
 	if (!file_exists($packagesdir . '/backups'))
 		mktree($packagesdir . '/backups', 0777);
 	if (!is_writable($packagesdir . '/backups'))
 		package_chmod($packagesdir . '/backups');
 	$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-	$output_ext = '.tar' . (function_exists('gzopen') ? '.gz' : '');
+	$output_ext = '.tar';
 
 	if (file_exists($output_file . $output_ext))
 	{
@@ -3051,59 +3029,18 @@ function package_create_backup($id = 'backup')
 	if (function_exists('apache_reset_timeout'))
 		@apache_reset_timeout();
 
-	if (function_exists('gzopen'))
+	try
 	{
-		$fwrite = 'gzwrite';
-		$fclose = 'gzclose';
-		$output = @gzopen($output_file, 'wb');
+		$a = new PharData($output_file);
+		$a->buildFromIterator($iterator);
+		$a->compress(Phar::GZ);
 	}
-	else
+	catch (Exception $e)
 	{
-		$fwrite = 'fwrite';
-		$fclose = 'fclose';
-		$output = @fopen($output_file, 'wb');
-	}
+		log_error($e->getMessage(), 'backup');
 
-	// If we don't have a file handle, that means for whatever reason the file could not be opened.
-	// Could be permissions, could be a file already exists that shouldn't, etc.
-	if (!$output)
 		return false;
-
-	foreach ($files as $real_file => $file)
-	{
-		if (!file_exists($real_file))
-			continue;
-
-		$stat = $file[1];
-		if (substr($file[0], -1) == '/')
-			$stat['size'] = 0;
-
-		$current = pack('a100a8a8a8a12a12a8a1a100a6a2a32a32a8a8a155a12', $file[0], decoct($stat['mode']), sprintf('%06d', decoct($stat['uid'])), sprintf('%06d', decoct($stat['gid'])), decoct($stat['size']), decoct($stat['mtime']), '', 0, '', '', '', '', '', '', '', '', '');
-
-		$checksum = 256;
-		for ($i = 0; $i < 512; $i++)
-			$checksum += ord($current{$i});
-
-		$fwrite($output, substr($current, 0, 148) . pack('a8', decoct($checksum)) . substr($current, 156, 511));
-
-		if ($stat['size'] == 0)
-			continue;
-
-		$fp = @fopen($real_file, 'rb');
-		while ($fp && !feof($fp))
-		{
-			$buffer = fread($fp, 16384);
-			if (strlen($buffer) == 0)
-				break;
-			$fwrite($output, $buffer);
-		}
-		@fclose($fp);
-
-		$fwrite($output, pack('a' . (512 - $stat['size'] % 512), ''));
 	}
-
-	$fwrite($output, pack('a1024', ''));
-	$fclose($output);
 
 	return true;
 }

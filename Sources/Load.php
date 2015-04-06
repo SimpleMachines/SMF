@@ -413,13 +413,40 @@ function loadUserSettings()
 			$context['tfa_member'] = $user_settings;
 			$user_settings = array();
 		}
-		// Are we forcing 2FA?
-		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] == 2 && $id_member && empty($user_settings['tfa_secret']))
+		// Are we forcing 2FA? Need to check if the user groups actually require 2FA
+		elseif (!empty($modSettings['tfa_mode']) && $modSettings['tfa_mode'] >= 2 && $id_member && empty($user_settings['tfa_secret']))
 		{
+			if ($modSettings['tfa_mode'] == 2) //only do this if we are just forcing SOME membergroups
+			{
+				//Build an array of ALL user membergroups.
+				$full_groups = array($user_settings['id_group']);
+				if (!empty($user_settings['additional_groups']))
+				{
+					$full_groups = array_merge($full_groups, explode(',', $user_settings['additional_groups']));
+					$full_groups = array_unique($full_groups); //duplicates, maybe?
+				}
+				
+				//Find out if any group requires 2FA
+				$request = $smcFunc['db_query']('', '
+					SELECT COUNT(id_group) AS total
+					FROM {db_prefix}membergroups
+					WHERE tfa_required = {int:tfa_required}
+						AND id_group IN ({array_int:full_groups})',
+					array(
+						'tfa_required' => 1,
+						'full_groups' => $full_groups,
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($request);
+				$smcFunc['db_free_result']($request);
+			}
+			else
+				$row['total'] = 1; //simplifies logics in the next "if"
+
 			$area = !empty($_REQUEST['area']) ? $_REQUEST['area'] : '';
 			$action = !empty($_REQUEST['action']) ? $_REQUEST['action'] : '';
 
-			if (!in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
+			if ($row['total'] > 0 && !in_array($action, array('profile', 'logout')) || ($action == 'profile' && $area != 'tfasetup'))
 				redirectexit('action=profile;area=tfasetup;forced');
 		}
 	}
@@ -590,9 +617,6 @@ function loadUserSettings()
 	if (!empty($modSettings['userLanguage']))
 	{
 		$languages = getLanguages();
-
-		if (count($context['languages']) == 1)
-			unset($context['languages']);
 
 		// Is it valid?
 		if (!empty($_GET['language']) && isset($languages[strtr($_GET['language'], './\\:', '____')]))
@@ -1281,6 +1305,14 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// Setup the buddy status here (One whole in_array call saved :P)
 	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
 	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
+	
+	//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
+	if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
+		$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
+	elseif (isset($profile['icons'][1])) //icon is set and doesn't exist, fallback to default
+		$group_icon_url = $settings['default_images_url'] . '/membericons/' . $profile['icons'][1];
+	else //not set, bye bye
+		$group_icon_url = '';
 
 	// These minimal values are always loaded
 	$memberContext[$user] = array(
@@ -1336,7 +1368,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'group_id' => $profile['id_group'],
 			'post_group' => $profile['post_group'],
 			'post_group_color' => $profile['post_group_color'],
-			'group_icons' => str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($profile['icons'][1]) ? $settings['images_url'] . '/membericons/' . $profile['icons'][1] : '') . '" alt="*">', empty($profile['icons'][0]) || empty($profile['icons'][1]) ? 0 : $profile['icons'][0]),
+			'group_icons' => str_repeat('<img src="' . str_replace('$language', $context['user']['language'], isset($profile['icons'][1]) ? $group_icon_url : '') . '" alt="*">', empty($profile['icons'][0]) || empty($profile['icons'][1]) ? 0 : $profile['icons'][0]),
 			'warning' => $profile['warning'],
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),

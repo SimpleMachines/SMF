@@ -1262,13 +1262,6 @@ function template_file_permissions()
 	// This will handle expanding the selection.
 	echo '
 	<script><!-- // --><![CDATA[
-		var oRadioColors = {
-			0: "#D1F7BF",
-			1: "#FFBBBB",
-			2: "#FDD7AF",
-			3: "#C2C6C0",
-			4: "#EEEEEE"
-		}
 		var oRadioValues = {
 			0: "read",
 			1: "writable",
@@ -1356,8 +1349,8 @@ function template_file_permissions()
 						linkData.ident = my_ident;
 						linkData.onclick = dynamicExpandFolder;
 
-						var folderImage = document.createElement("img");
-						folderImage.src = \'', addcslashes($settings['default_images_url'], "\\"), '/board.png\';
+						var folderImage = document.createElement("span");
+						folderImage.className = "generic_icons folder";
 						linkData.appendChild(folderImage);
 
 						linkData.appendChild(fileName);
@@ -1373,7 +1366,7 @@ function template_file_permissions()
 					curCol.className = "smalltext";
 
 					var writeSpan = document.createElement("span");
-					writeSpan.style.color = fileItems[i].getAttribute(\'writable\') ? "green" : "red";
+					writeSpan.className = fileItems[i].getAttribute(\'writable\') ? "green" : "red";
 					setInnerHTML(writeSpan, fileItems[i].getAttribute(\'writable\') ? \'', $txt['package_file_perms_writable'], '\' : \'', $txt['package_file_perms_not_writable'], '\');
 					curCol.appendChild(writeSpan);
 
@@ -1389,7 +1382,7 @@ function template_file_permissions()
 					for (j = 0; j < 5; j++)
 					{
 						curCol = document.createElement("td");
-						curCol.style.backgroundColor = oRadioColors[j];
+						curCol.className = "centertext perm_" + oRadioValues[j];
 						curCol.align = "center";
 
 						var curInput = createNamedElement("input", "permStatus[" + curPath + "/" + fileItems[i].firstChild.nodeValue + "]", j == 4 ? "checked" : "");
@@ -1504,7 +1497,7 @@ function template_file_permissions()
 
 				if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
 					echo '
-						<img src="', $settings['default_images_url'], '/board.png" alt="*">';
+						<span class="generic_icons folder"></span>';
 
 				echo '
 						', $name, '
@@ -1514,10 +1507,10 @@ function template_file_permissions()
 						', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 					</td>
 					<td class="centertext perm_read"><input type="radio" name="permStatus[', $name, ']" value="read" class="centertext input_radio"></td>
-					<td class="centertext perm_write"><input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext input_radio"></td>
+					<td class="centertext perm_writable"><input type="radio" name="permStatus[', $name, ']" value="writable" class="centertext input_radio"></td>
 					<td class="centertext perm_execute"><input type="radio" name="permStatus[', $name, ']" value="execute" class="centertext input_radio"></td>
 					<td class="centertext perm_custom"><input type="radio" name="permStatus[', $name, ']" value="custom" class="centertext input_radio"></td>
-					<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext input_radio"></td>
+					<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $name, ']" value="no_change" checked class="centertext input_radio"></td>
 				</tr>
 			';
 
@@ -1607,7 +1600,8 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 					', (!empty($dir['type']) && $dir['type'] == 'dir_recursive') || !empty($dir['list_contents']) ? '<a id="link_' . $cur_ident . '" href="' . $scripturl . '?action=admin;area=packages;sa=perms;find=' . base64_encode($ident . '/' . $name) . ';back_look=' . $context['back_look_data'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '#fol_' . $cur_ident . '" onclick="return expandFolder(\'' . $cur_ident . '\', \'' . addcslashes($ident . '/' . $name, "'\\") . '\');">' : '';
 
 			if (!empty($dir['type']) && ($dir['type'] == 'dir' || $dir['type'] == 'dir_recursive'))
-				echo '<img src="', $settings['default_images_url'], '/board.png" alt="*">';
+				echo '
+						<span class="generic_icons folder"></span>';
 
 			echo '
 					', $name, '
@@ -1618,10 +1612,10 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 					', ($dir['perms']['perms'] ? '&nbsp;(' . $txt['package_file_perms_chmod'] . ': ' . substr(sprintf('%o', $dir['perms']['perms']), -4) . ')' : ''), '
 				</td>
 				<td class="centertext perm_read"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="read" class="input_radio"></td>
-				<td class="centertext perm_write"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable" class="input_radio"></td>
+				<td class="centertext perm_writable"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="writable" class="input_radio"></td>
 				<td class="centertext perm_execute"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="execute" class="input_radio"></td>
 				<td class="centertext perm_custom"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="custom" class="input_radio"></td>
-				<td class="centertext perm_nochange"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
+				<td class="centertext perm_no_change"><input type="radio" name="permStatus[', $ident . '/' . $name, ']" value="no_change" checked class="input_radio"></td>
 			</tr>
 			<tr id="insert_div_loc_' . $cur_ident . '" style="display: none;"><td></td></tr>';
 

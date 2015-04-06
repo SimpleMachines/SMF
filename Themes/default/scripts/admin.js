@@ -265,7 +265,7 @@ smf_ViewVersions.prototype.determineVersions = function ()
 			if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
 			{
 				oLowVersion[sCurVersionType] = sYourVersion;
-				document.getElementById('your' + sFilename).style.color = 'red';
+				document.getElementById('your' + sFilename).className = 'alert';
 			}
 		}
 		else if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
@@ -306,12 +306,12 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	setInnerHTML(document.getElementById('yourSources'), oLowVersion.Sources ? oLowVersion.Sources : oHighYour.Sources);
 	setInnerHTML(document.getElementById('currentSources'), oHighCurrent.Sources);
 	if (oLowVersion.Sources)
-		document.getElementById('yourSources').style.color = 'red';
+		document.getElementById('yourSources').className = 'alert';
 
 	setInnerHTML(document.getElementById('yourDefault'), oLowVersion.Default ? oLowVersion.Default : oHighYour.Default);
 	setInnerHTML(document.getElementById('currentDefault'), oHighCurrent.Default);
 	if (oLowVersion.Default)
-		document.getElementById('yourDefault').style.color = 'red';
+		document.getElementById('yourDefault').className = 'alert';
 
 	if (document.getElementById('Templates'))
 	{
@@ -319,13 +319,13 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		setInnerHTML(document.getElementById('currentTemplates'), oHighCurrent.Templates);
 
 		if (oLowVersion.Templates)
-			document.getElementById('yourTemplates').style.color = 'red';
+			document.getElementById('yourTemplates').className = 'alert';
 	}
 
 	setInnerHTML(document.getElementById('yourLanguages'), oLowVersion.Languages ? oLowVersion.Languages : oHighYour.Languages);
 	setInnerHTML(document.getElementById('currentLanguages'), oHighCurrent.Languages);
 	if (oLowVersion.Languages)
-		document.getElementById('yourLanguages').style.color = 'red';
+		document.getElementById('yourLanguages').className = 'alert';
 }
 
 function addNewWord()

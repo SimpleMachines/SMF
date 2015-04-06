@@ -1178,6 +1178,9 @@ function Post($post_errors = array())
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
+	// quotedText.js
+	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+
 	// File Upload.
 	loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('external' => true, 'defer' => true));
 	loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));

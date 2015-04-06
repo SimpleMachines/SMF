@@ -1390,7 +1390,7 @@ ul li.greeting {
 .quickbuttons a:hover {
 	color: #a70;
 }
-.quickbuttons li a.quote_button {
+.quickbuttons li a.quote_button, .quickbuttons li a.quote_selected_button {
 	background-position: 0 -1px;
 	padding: 0 2px 0 20px;
 }
@@ -2093,6 +2093,9 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.merge {
 	background-position: -57px -239px;
 }
+.generic_icons.folder {
+	background-position: -82px -239px;
+}
 
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
@@ -2698,7 +2701,7 @@ dl.addrules dt.floatleft {
 	z-index: 3;
 }
 .popup_window {
-	position: fixed;
+	position: relative;
 	width: 480px;
 	z-index: 99;
 	padding: 0 6px 6px 6px;
@@ -2708,9 +2711,8 @@ dl.addrules dt.floatleft {
 	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
 	overflow: visible!important;
 	background: #FFFFFF;
-	top: 25%;
-	left: 50%;
-	margin: -50px 0 0 -250px;
+	top: 15%;
+	margin: 0 auto;
 }
 .popup_heading {
 	margin: 0;
@@ -3405,7 +3407,6 @@ img.smiley {
 #quickReplyOptions .roundframe {
 	margin: 0;
 	padding: 8px 10% 12px 10%;
-	overflow: auto;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -3612,7 +3613,6 @@ h3.catbg .icon {
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
-	overflow: hidden;
 }
 /* TitleBar & SubBar */
 .title_bar {
@@ -3843,10 +3843,12 @@ h3.profile_hd {
 	margin-bottom: 0.25em;
 }
 
-#reported_posts .generic_icons {
-	margin: -3px 3px 0 0;
+#reported_posts .generic_icons,
+#reported_members .generic_icons {
+	margin: -3px 1px 0 0;
 }
-#reported_posts .quickbuttons li a {
+#reported_posts .quickbuttons li a,
+#reported_members .quickbuttons li a {
 	background: none;
 }
 #modcenter .generic_icons {
@@ -3877,6 +3879,12 @@ h3.profile_hd {
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
 	border-right: 1px solid #DDD;
+}
+
+.centerbox {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 /* Progress bars */

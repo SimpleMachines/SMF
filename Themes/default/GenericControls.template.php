@@ -28,9 +28,9 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 				$("#', $editor_id, '").sceditor({
 					',( $editor_id != 'quickReply' ? 'autofocus : true,' : '' ),'
 					style: "', $settings['default_theme_url'], '/css/jquery.sceditor.default.css",
-					emoticonsCompat: true,',
-					!empty($editor_context['locale']) ? '
-					locale: \'' . $editor_context['locale'] . '\',' : '', '
+					emoticonsCompat: true,', !empty($editor_context['locale']) ? '
+					locale: \'' . $editor_context['locale'] . '\',' : '', !empty($context['right_to_left']) ? '
+					rtl: true,' : '', '
 					colors: "black,red,yellow,pink,green,orange,purple,blue,beige,brown,teal,navy,maroon,limegreen,white",
 					plugins: "bbcode",
 					parserOptions: {
@@ -84,7 +84,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		if ($context['show_bbc'] && $bbcContainer !== null)
 		{
 			echo ',
-					toolbar: "emoticon,';
+					toolbar: "';
 			$count_tags = count($context['bbc_tags']);
 			foreach ($context['bbc_toolbar'] as $i => $buttonRow)
 			{
@@ -102,14 +102,8 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 
 		echo '
 				});
-				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();',
-				$editor_context['rich_active'] ? '' : '
-				$("#' . $editor_id . '").data("sceditor").setTextMode();', '
-				if (!(is_ie || is_ie11 || is_ff || is_opera || is_safari || is_chrome))
-				{
-					$("#' . $editor_id . '").data("sceditor").setTextMode();
-					$(".sceditor-button-source").hide();
-				}', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
+				$("#', $editor_id, '").data("sceditor").createPermanentDropDown();', $editor_context['rich_active'] ? '' : '
+				$("#' . $editor_id . '").data("sceditor").toggleSourceMode();', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? '
 				$(".sceditor-container").find("textarea").each(function() {$(this).css({border: "1px solid red"})});
 				$(".sceditor-container").find("iframe").each(function() {$(this).css({border: "1px solid red"})});' : '', '
 			});';

@@ -376,7 +376,7 @@ pre.file_content {
 	background-color: #d1f7bf;
 	width: 8%;
 }
-.perm_write {
+.perm_writable {
 	background-color: #ffbbbb;
 	width: 8%;
 }
@@ -388,7 +388,7 @@ pre.file_content {
 	background-color: #c2c6c0;
 	width: 8%;
 }
-.perm_nochange {
+.perm_no_change {
 	background-color: #eee;
 	width: 8%;
 }

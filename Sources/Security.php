@@ -1130,9 +1130,10 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  * The time taken depends on error_type - generally uses the modSetting.
  *
  * @param string $error_type used also as a $txt index. (not an actual string.)
+ * @param boolean $only_return_result True if you don't want the function to die with a fatal_lang_error.
  * @return boolean
  */
-function spamProtection($error_type)
+function spamProtection($error_type, $only_return_result = false)
 {
 	global $modSettings, $user_info, $smcFunc;
 
@@ -1145,13 +1146,15 @@ function spamProtection($error_type)
 		'reporttm' => $modSettings['spamWaitTime'] * 4,
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
-	call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
+
 
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
 	else
 		$timeLimit = 2;
+
+	call_integration_hook('integrate_spam_protection', array(&$timeOverrides, &$timeLimit));
 
 	// Delete old entries...
 	$smcFunc['db_query']('', '
@@ -1176,7 +1179,9 @@ function spamProtection($error_type)
 	if ($smcFunc['db_affected_rows']() != 1)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
-		fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+		if (!$only_return_result)
+			fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+
 		return true;
 	}
 

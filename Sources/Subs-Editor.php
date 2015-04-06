@@ -1606,8 +1606,7 @@ function create_control_richedit($editorOptions)
 
 		// JS makes the editor go round
 		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
-		loadJavascriptFile('jquery.sceditor.js', array('default_theme' => true));
-		loadJavascriptFile('jquery.sceditor.bbcode.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.bbcode.min.js', array('default_theme' => true));
 		loadJavascriptFile('jquery.sceditor.smf.js', array('default_theme' => true));
 		addInlineJavascript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';

@@ -961,7 +961,7 @@ function Display()
 	$context['topic_notification'] = !empty($user_info['id']) ? $topicinfo['notify_prefs'] : array();
 	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
 	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
-	
+
 	$attachments = array();
 
 	// If there _are_ messages here... (probably an error otherwise :!)
@@ -1275,6 +1275,9 @@ function Display()
 
 	// topic.js
 	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+
+	// quotedText.js
+	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
 
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))

@@ -62,21 +62,9 @@
 						e.preventDefault();
 					})
 				);
-
-			if (line.children().length > 0)
-				content.append(line);
-
-			$(".sceditor-toolbar").append(content);
-		},
-		storeLastState: function (){
-			this.wasSource = this.inSourceMode();
-		},
-		setTextMode: function () {
-			if (!this.inSourceMode())
-				this.toggleSourceMode();
 		},
 		createPermanentDropDown: function () {
-			var	emoticons	= $.extend({}, this.opts.emoticons.dropdown);
+			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
 			content = $('<div class="sceditor-insertemoticon">');
 			line = $('<div>');
@@ -89,7 +77,7 @@
 			}
 			if (popup_exists)
 			{
-				this.opts.emoticons.more = this.opts.emoticons.popup;
+				base.opts.emoticons.more = base.opts.emoticons.popup;
 				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
 					if ($(".sceditor-smileyPopup").length > 0)
 					{
@@ -124,21 +112,11 @@
 							content.find(':not(input,textarea)').filter(function () { return this.nodeType===1; }).attr('unselectable', 'on');
 						}
 
-						$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup">').append(popupContent);
-
-						$dropdown.appendTo($('body'));
 						dropdownIgnoreLastClick = true;
 						adjheight = closeButton.height() + titlebar.height();
-						$dropdown.css({
-							position: "fixed",
-							top: $(window).height() * 0.2,
-							left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
-							"max-width": "50%",
-							"max-height": "50%",
-						}).find('#sceditor-popup-smiley').css({
-							height: $dropdown.height() - adjheight,
-							"overflow": "auto"
-						});
+						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
+							.append(popupContent)
+							.appendTo($('.sceditor-container'));
 
 						$('.sceditor-smileyPopup').animaDrag({
 							speed: 150,
@@ -161,6 +139,9 @@
 				});
 			}
 			$.each(emoticons, base.appendEmoticon);
+			if (line.children().length > 0)
+				content.append(line);
+			$(".sceditor-toolbar").append(content);
 			if (typeof moreButton !== "undefined")
 				content.append(moreButton);
 		}

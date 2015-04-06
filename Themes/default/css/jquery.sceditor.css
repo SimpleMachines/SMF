@@ -221,8 +221,7 @@ html.sceditor-maximize, body.sceditor-maximize {
 	border-radius: 0;
 	background-clip: padding-box;
 }
-div.sceditor-dropdown {
-	position: absolute;
+div.sceditor-smileyPopup, div.sceditor-dropdown {
 	border: 1px solid #ccc;
 	background: #fff;
 	color: #333;
@@ -232,8 +231,30 @@ div.sceditor-dropdown {
 	border-radius: 2px;
 	background-clip: padding-box;
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
-	min-height: 10%;
-	min-width: 10%;
+}
+@media screen and (min-width: 1024px) {
+	div.sceditor-smileyPopup {
+		height: 50%;
+		width: 50%;
+		position: fixed;
+	}
+	#sceditor-popup {
+		height: 100%;
+	}
+	#sceditor-popup-smiley {
+		height: 90%;
+		overflow: auto;
+	}
+}
+@media screen and (max-width: 1024px) {
+	div.sceditor-smileyPopup {
+		width: 90%;
+		position: absolute;
+	}
+}
+div.sceditor-dropdown {
+	position: absolute;
+	min-width: 5%;
 }
 div.sceditor-dropdown a, div.sceditor-dropdown a:link {
 	color: #333;
@@ -248,37 +269,13 @@ div.sceditor-dropdown label {
 	padding: 4px 0;
 }
 div.sceditor-dropdown input, div.sceditor-dropdown textarea {
-	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-	outline: 0;
-	padding: 4px;
-	border: 1px solid #ccc;
-	border-top-color: #888;
 	margin: 0 0 .75em;
-	border-radius: 1px;
-	background-clip: padding-box;
 }
 div.sceditor-dropdown textarea {
 	padding: 6px;
 }
-div.sceditor-dropdown input:focus, div.sceditor-dropdown textarea:focus {
-	border-color: #aaa;
-	border-top-color: #666;
-	box-shadow: inset 0 1px 5px rgba(0, 0, 0, .1);
-}
 div.sceditor-dropdown .button {
-	font-weight: 700;
-	color: #444;
-	padding: 6px 12px;
-	background: #ececec;
-	border: solid 1px #ccc;
-	border-radius: 2px;
-	background-clip: padding-box;
-	cursor: pointer;
-	margin: .3em 0 0;
-}
-div.sceditor-dropdown .button:hover {
-	background: #f3f3f3;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, .15);
+	height: auto;
 }
 div.sceditor-font-picker, div.sceditor-fontsize-picker, div.sceditor-format {
 	padding: 6px 0;
@@ -307,6 +304,7 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 }
 .sceditor-dropdown a:hover {
 	background: #eee;
+	text-decoration: none;
 }
 .sceditor-fontsize-option, .sceditor-font-option, .sceditor-format a {
 	display: block;
@@ -322,11 +320,26 @@ div.sceditor-emoticons, div.sceditor-more-emoticons, div.sceditor-color-picker {
 	float: left;
 }
 .sceditor-color-option {
-	display: block;
+	display: inline-block;
 	border: 1px solid #fff;
-	height: 10px;
-	width: 10px;
-	overflow: hidden;
+}
+@media screen and (min-width: 1024px) {
+	.sceditor-color-option {
+		height: 24px;
+		width: 24px;
+	}
+	.sceditor-color-picker {
+		width: 131px;
+	}
+}
+@media screen and (max-width: 1024px) {
+	.sceditor-color-option {
+		height: 48px;
+		width: 48px;
+	}
+	.sceditor-color-picker {
+		width: 251px;
+	}
 }
 .sceditor-color-option:hover {
 	border: 1px solid #333;
