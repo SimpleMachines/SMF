@@ -80,7 +80,7 @@ function smf_fileUpload(oOptions)
 				}
 			});
 		}),
-	insertBBC = $('<button />')
+	insertBBC = $('<a />')
 		.addClass('button_submit insertBBC')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.insertBBC)
@@ -90,6 +90,10 @@ function smf_fileUpload(oOptions)
 				data = $this.data(),
 				node = $(data.context);
 
+			// Get the text field value.
+			oTag = node.find('input[name=attachBBC]').val();
+
+			$('#' + oEditorID).data('sceditor').InsertText(oTag);
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
@@ -201,7 +205,8 @@ function smf_fileUpload(oOptions)
 
 					// Show the brand new attach ID bbc tag.
 					if (file.id) {
-						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach=' + file.id + ']" readonly>');
+						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach=' + file.id + ']" readonly>')
+							.append(insertBBC.clone(true).data(data));
 
 						node
 							.find('.file_info')
