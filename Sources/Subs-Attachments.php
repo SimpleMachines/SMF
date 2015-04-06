@@ -901,17 +901,39 @@ function assignAttachments($attachments = array(), $msgID = 0)
 
 function parseAttachBBC($attachID = false)
 {
-	if (empty($attachID))
-		return false;
+	global $board, $modSettings;
+	static $attached = array();
+
+	// Basic checks first. Are attachments enable?
+	if (empty($modSettings['attachmentEnable']) || empty($attachID))
+		return false; // @todo return something, a nice message perhaps?
+
+	// If we are lucky enough to be in $board's scope then check it!
+	if (!empty($board) && !allowedTo('view_attachments', $board))
+		return false; // @todo return something, a nice  and specific message perhaps?
+
+	// Make it easy.
+	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
 	// Do we have a msg ID? if so save some precious cpu cycles.
-	if (isset($_REQUEST['msg']))
-		getAttachsByMsg($_REQUEST['msg'])
+	if (!empty($msgID) && !isset($attached[$msgID]))
+	{
+		$attached = getAttachsByMsg($_REQUEST['msg']);
 
-	// no? bummer...
-	$attachInfo = getAttachMsgInfo($attachID);
+		$attachInfo = $attached[$attachID];
+	}
 
+	// Do we already have this info? lucky us huh...
+	else if (!empty($msgID) && !empty($attached[$msgID]))
+		$attachInfo = $attached[$attachID];
+
+	// No? bummer...
+	else
+		$attachInfo = getAttachMsgInfo($attachID);
+
+	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachInfo['board']))
+		return false; // @todo return something, a nice message perhaps?
 }
 
 function getAttachMsgInfo($attachID)
