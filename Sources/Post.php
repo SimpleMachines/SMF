@@ -1199,7 +1199,8 @@ function Post($post_errors = array())
 			processing: '. JavaScriptEscape($txt['processing']) .',
 			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
 			insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',
-			deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .'
+			deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
+			insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .'
 		},
 		messages: {
 			maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',

@@ -80,6 +80,17 @@ function smf_fileUpload(oOptions)
 				}
 			});
 		}),
+	insertBBC = $('<button />')
+		.addClass('button_submit insertBBC')
+		.prop('disabled', false)
+		.text(dOptions.smf_text.insertBBC)
+		.one('click', function (e) {
+			e.preventDefault();
+			var $this = $(this),
+				data = $this.data(),
+				node = $(data.context);
+
+		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
 	totalSize = 0;

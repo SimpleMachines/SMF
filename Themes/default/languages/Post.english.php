@@ -174,6 +174,7 @@ $txt['attached_file_insert'] = 'BBC tag to insert attachment in the post:';
 $txt['attached_file_delete'] = 'Delete this attachment';
 $txt['attached_file_deleted'] = 'The attachment was successfully deleted.';
 $txt['attached_file_deleted_error'] = 'There was an error while performing the deletion.';
+$txt['attached_insertBBC'] = 'Insert the BBC tag';
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';
 $txt['php_upload_error_1'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini. Please contact your host if you are unable to correct this issue.';
