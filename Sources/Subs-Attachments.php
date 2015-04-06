@@ -899,4 +899,53 @@ function assignAttachments($attachments = array(), $msgID = 0)
 	return true;
 }
 
+function parseAttachBBC($attachID = false)
+{
+	if (empty($attachID))
+		return false;
+
+	// Do we have a msg ID? if so save some precious cpu cycles.
+	if (isset($_REQUEST['msg']))
+		getAttachsByMsg($_REQUEST['msg'])
+
+	// no? bummer...
+	$attachInfo = getAttachMsgInfo($attachID);
+
+	if (!allowedTo('view_attachments', $attachInfo['board']))
+}
+
+function getAttachMsgInfo($attachID)
+{
+	$attachInfo = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT m.id_topic, m.id_board, m.id_msg, a.id_msg
+		FROM {db_prefix}attachments AS a
+			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+		WHERE id_attach = {int:id_attach}
+		LIMIT 1',
+		array(
+			'id_attach' => (int) $attachID,
+		)
+	);
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+			$attachInfo[$row['id_attach']] = array(
+				'board' => $row['id_board'],
+				'msg' => $row['id_msg'],
+				'topic' => $row['id_topic'],
+			);
+
+	$smcFunc['db_free_result']($request);
+
+	return $attachInfo;
+}
+
+function getAttachsByMsg($msgID = 0)
+{
+	// The usual checks.
+	if (empty($msgID))
+		return array();
+}
+
 ?>

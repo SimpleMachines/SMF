@@ -423,16 +423,6 @@ class Attachments
 		obExit(false);
 		die;
 	}
-
-	public static function loadAttachments($msgID)
-	{
-
-	}
-
-	public static function getMsgData($msgID)
-	{
-
-	}
 }
 
 ?>

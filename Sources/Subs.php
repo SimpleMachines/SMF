@@ -1093,15 +1093,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals_content',
 				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context)
 				{
-					global $topic, $board, $sourcedir;
+					global $sourcedir;
 
 					// BBC or the entire attachments feature is disabled
 					if (!empty($disabled) || empty($modSettings['attachmentEnable']))
 						return $data;
 
 					// Kinda need this.
-					require_once($sourcedir . '/Attachments.php');
+					require_once($sourcedir . '/Subs-Attachments.php');
 
+					$data[0] = parseAttachBBC($data[0]);
 				},
 				'content' => '$1',
 			),
