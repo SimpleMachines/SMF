@@ -25,7 +25,7 @@ function smf_fileUpload(oOptions)
 
 	$.extend(true, dOptions, oOptions);
 
-	var uploadButton = $('<button/>')
+	var uploadButton = $('<a/>')
 		.addClass('button_submit uploadButton')
 		.prop('disabled', true)
 		.text(dOptions.smf_text.upload)
@@ -38,7 +38,7 @@ function smf_fileUpload(oOptions)
 				$this.remove();
 			});
 		}),
-	cancelButton = $('<button/>')
+	cancelButton = $('<a/>')
 		.addClass('button_submit cancelButton')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.cancel)
@@ -57,7 +57,7 @@ function smf_fileUpload(oOptions)
 			$this.remove();
 			data.currentNode.fadeOut();
 		}),
-	deleteButton = $('<button />')
+	deleteButton = $('<a />')
 		.addClass('button_submit deleteButton you_sure')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.deleteAttach)
@@ -84,7 +84,7 @@ function smf_fileUpload(oOptions)
 		.addClass('button_submit insertBBC')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.insertBBC)
-		.one('click', function (e) {
+		.on('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
 				data = $this.data(),
