@@ -2128,10 +2128,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 ------------------------------------------------- */
 
 .noticebox::before {
-	background-position: -213px -83px;
+	background-position: -83px -83px;
 }
 .infobox::before {
-	background-position: -5px -108px;
+	background-position: -161px -83px;
 }
 .noticebox {
 	color: #666;
