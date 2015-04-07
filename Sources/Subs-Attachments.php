@@ -901,7 +901,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
 
 function parseAttachBBC($attachID = false)
 {
-	global $board, $modSettings, $attachments;
+	global $board, $modSettings, $sourcedir, $attachments;
 	static $attached = array();
 
 	// Basic checks first. Are attachments enable?
@@ -931,23 +931,26 @@ function parseAttachBBC($attachID = false)
 	else
 	{
 		$attachInfo = getAttachMsgInfo($attachID);
-		$attached = getAttachsByMsg($attachInfo['msg']);
-		$attachInfo = $attached[$attachID];
+		$attached = getAttachsByMsg($attachInfo[$attachID]['msg']);
 	}
 
 	// No point in keep going further.
-	if (!allowedTo('view_attachments', $attachInfo['board']))
+	if (!allowedTo('view_attachments', $attachInfo[$attachID]['board']))
 		return false; // @todo return something, a nice message perhaps?
 
-	return loadAttachmentContext($attachID);
+	require_once($sourcedir . '/Display.php');
+
+	return loadAttachmentContext($attachInfo[$attachID]['msg']);
 }
 
 function getAttachMsgInfo($attachID)
 {
+	global $smcFunc;
+
 	$attachInfo = array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_topic, m.id_board, m.id_msg, a.id_msg
+		SELECT m.id_topic, m.id_board, m.id_msg, a.id_msg, a.id_attach
 		FROM {db_prefix}attachments AS a
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE id_attach = {int:id_attach}
@@ -971,7 +974,7 @@ function getAttachMsgInfo($attachID)
 
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $attachments;
+	global $modSettings, $smcFunc, $attachments;
 
 	// The usual checks.
 	if (empty($msgID))
@@ -979,7 +982,7 @@ function getAttachsByMsg($msgID = 0)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board
+			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
 			a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
 			IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
@@ -1010,7 +1013,9 @@ function getAttachsByMsg($msgID = 0)
 	ksort($temp);
 
 	foreach ($temp as $row)
-		$attachments[$row['id_msg']][] = $row;
+		$attachments[$row['id_msg']][$row['id_attach']] = $row;
+
+	return $attachments;
 }
 
 ?>
