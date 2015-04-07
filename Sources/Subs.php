@@ -1102,9 +1102,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
 
-					$data[0] = parseAttachBBC($data[0]);
+					$data[1] = parseAttachBBC($data[1]);
 				},
-				'content' => '$1',
+				'content' => '$1 $2',
 			),
 			array(
 				'tag' => 'b',

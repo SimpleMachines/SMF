@@ -901,7 +901,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
 
 function parseAttachBBC($attachID = false)
 {
-	global $board, $modSettings;
+	global $board, $modSettings, $attachments;
 	static $attached = array();
 
 	// Basic checks first. Are attachments enable?
@@ -929,11 +929,17 @@ function parseAttachBBC($attachID = false)
 
 	// No? bummer...
 	else
+	{
 		$attachInfo = getAttachMsgInfo($attachID);
+		$attached = getAttachsByMsg($attachInfo['msg']);
+		$attachInfo = $attached[$attachID];
+	}
 
 	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachInfo['board']))
 		return false; // @todo return something, a nice message perhaps?
+
+	return loadAttachmentContext($attachID);
 }
 
 function getAttachMsgInfo($attachID)
@@ -965,7 +971,7 @@ function getAttachMsgInfo($attachID)
 
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings;
+	global $modSettings, $attachments;
 
 	// The usual checks.
 	if (empty($msgID))
@@ -973,11 +979,12 @@ function getAttachsByMsg($msgID = 0)
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved,
+			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board
 			a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
 			IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE a.id_msg = {int:message_id}
 			AND a.attachment_type = {int:attachment_type}',
 		array(
