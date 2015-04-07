@@ -235,7 +235,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=database;save';
-	$context['settings_title'] = $txt['database_paths_settings'];
+	$context['settings_title'] = $txt['database_settings'];
 	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
