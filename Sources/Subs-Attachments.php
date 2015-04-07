@@ -965,9 +965,45 @@ function getAttachMsgInfo($attachID)
 
 function getAttachsByMsg($msgID = 0)
 {
+	global $modSettings;
+
 	// The usual checks.
 	if (empty($msgID))
 		return array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT
+			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved,
+			a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+			IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+		WHERE a.id_msg = {int:message_id}
+			AND a.attachment_type = {int:attachment_type}',
+		array(
+			'message_id' => $msgID,
+			'attachment_type' => 0,
+			'is_approved' => 1,
+		)
+	);
+	$temp = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && (!isset($all_posters[$row['id_msg']]) || $all_posters[$row['id_msg']] != $user_info['id']))
+			continue;
+
+		$temp[$row['id_attach']] = $row;
+
+		if (!isset($attachments[$row['id_msg']]))
+			$attachments[$row['id_msg']] = array();
+	}
+	$smcFunc['db_free_result']($request);
+
+	// This is better than sorting it with the query...
+	ksort($temp);
+
+	foreach ($temp as $row)
+		$attachments[$row['id_msg']][] = $row;
 }
 
 ?>
