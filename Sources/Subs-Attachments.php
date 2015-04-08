@@ -908,11 +908,11 @@ function parseAttachBBC($attachID = false)
 
 	// Basic checks first. Are attachments enable?
 	if (empty($modSettings['attachmentEnable']) || empty($attachID))
-		return false; // @todo return something, a nice message perhaps?
+		return 'attachments_not_enable';
 
 	// If we are lucky enough to be in $board's scope then check it!
 	if (!empty($board) && !allowedTo('view_attachments', $board))
-		return false; // @todo return something, a nice  and specific message perhaps?
+		return 'not_allowed_to_see';
 
 	// Make it easy.
 	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
@@ -942,7 +942,7 @@ function parseAttachBBC($attachID = false)
 
 	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachInfo[$attachID]['board']))
-		return false; // @todo return something, a nice message perhaps?
+		return 'not_allowed_to_see';
 
 	require_once($sourcedir . '/Display.php');
 
@@ -952,7 +952,7 @@ function parseAttachBBC($attachID = false)
 
 	// One last check, you know, gotta be paranoid...
 	if (empty($attachContext))
-		return false; // @todo return something, a nice message perhaps?
+		return 'no_data_loaded';
 
 	// You may or may not want to show this under the post.
 	if (!empty($modSettings['dont_show_attach_under']) && !isset($context['show_attach_under_post'][$attachID]))
