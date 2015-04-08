@@ -906,8 +906,12 @@ function parseAttachBBC($attachID = false)
 
 	$attachContext = array();
 
-	// Basic checks first. Are attachments enable?
-	if (empty($modSettings['attachmentEnable']) || empty($attachID))
+	// Meh...
+	if (empty($attachID))
+		return 'no_data_loaded';
+
+	//Are attachments enable?
+	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
 
 	// If we are lucky enough to be in $board's scope then check it!
