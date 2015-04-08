@@ -917,7 +917,7 @@ function parseAttachBBC($attachID = false)
 	// Make it easy.
 	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
-	// There is always the chance that this attachment has already been loaded
+	// There is always the chance that this attachment has already been loaded.
 	if (!empty($attachments) && !empty($attachments[$attachID]))
 		$attachContext = $attachments[$attachID];
 
@@ -957,6 +957,9 @@ function parseAttachBBC($attachID = false)
 	// You may or may not want to show this under the post.
 	if (!empty($modSettings['dont_show_attach_under']) && !isset($context['show_attach_under_post'][$attachID]))
 		$context['show_attach_under_post'][$attachID] = $attachID;
+
+	// Don't do any logic with the loaded data, leave it to whoever called this function.
+	return $attachContext;
 }
 
 function getAttachMsgInfo($attachID)
