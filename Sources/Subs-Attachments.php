@@ -917,8 +917,12 @@ function parseAttachBBC($attachID = false)
 	// Make it easy.
 	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
+	// There is always the chance that this attachment has already been loaded
+	if (!empty($attachments) && !empty($attachments[$attachID]))
+		$attachContext = $attachments[$attachID];
+
 	// Do we have a msg ID? if so save some precious cpu cycles.
-	if (!empty($msgID) && !isset($attached[$msgID]))
+	if (empty($attachContext) && !empty($msgID) && !isset($attached[$msgID]))
 	{
 		$attached = getAttachsByMsg($_REQUEST['msg']);
 
@@ -926,11 +930,11 @@ function parseAttachBBC($attachID = false)
 	}
 
 	// Do we already have this info? lucky us huh...
-	else if (!empty($msgID) && !empty($attached[$msgID]))
+	elseif (empty($attachContext) && !empty($msgID) && !empty($attached[$msgID]))
 		$attachInfo = $attached[$_REQUEST['msg']][$attachID];
 
 	// No? bummer...
-	else
+	elseif (empty($attachContext))
 	{
 		$attachInfo = getAttachMsgInfo($attachID);
 		$attached = getAttachsByMsg($attachInfo[$attachID]['msg']);
@@ -943,7 +947,8 @@ function parseAttachBBC($attachID = false)
 	require_once($sourcedir . '/Display.php');
 
 	// Load this particular attach's context.
-	$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg']);
+	if (empty($attachContext))
+		$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg']);
 
 	// One last check, you know, gotta be paranoid...
 	if (empty($attachContext))
