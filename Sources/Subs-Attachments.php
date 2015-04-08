@@ -904,6 +904,8 @@ function parseAttachBBC($attachID = false)
 	global $board, $modSettings, $sourcedir, $attachments;
 	static $attached = array();
 
+	$attachContext = array();
+
 	// Basic checks first. Are attachments enable?
 	if (empty($modSettings['attachmentEnable']) || empty($attachID))
 		return false; // @todo return something, a nice message perhaps?
@@ -925,7 +927,7 @@ function parseAttachBBC($attachID = false)
 
 	// Do we already have this info? lucky us huh...
 	else if (!empty($msgID) && !empty($attached[$msgID]))
-		$attachInfo = $attached[$attachID];
+		$attachInfo = $attached[$_REQUEST['msg']][$attachID];
 
 	// No? bummer...
 	else
@@ -940,7 +942,16 @@ function parseAttachBBC($attachID = false)
 
 	require_once($sourcedir . '/Display.php');
 
-	return loadAttachmentContext($attachInfo[$attachID]['msg']);
+	// Load this particular attach's context.
+	$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg']);
+
+	// One last check, you know, gotta be paranoid...
+	if (empty($attachContext))
+		return false; // @todo return something, a nice message perhaps?
+
+	// You may or may not want to show this under the post.
+	if (!empty($modSettings['dont_show_attach_under']) && !isset($context['show_attach_under_post'][$attachID]))
+		$context['show_attach_under_post'][$attachID] = $attachID;
 }
 
 function getAttachMsgInfo($attachID)
