@@ -918,7 +918,7 @@ function permute($array)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info;
+	global $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -1090,21 +1090,52 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'attach',
-				'type' => 'unparsed_equals_content',
-				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context)
+				'type' => 'unparsed_content',
+				'content' => 'fail $1',
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir)
 				{
-					global $sourcedir;
+					$returnContext = '';
 
 					// BBC or the entire attachments feature is disabled
-					if (!empty($disabled) || empty($modSettings['attachmentEnable']))
+					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
 						return $data;
+
+					// Save the attach ID.
+					$attachID = $data;
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
 
-					$attachContext = parseAttachBBC($data[1]);
+					$currentAttachment = parseAttachBBC($attachID);
+
+					// Do we have an error?
+					if (is_string($currentAttachment))
+					{
+						$data = $currentAttachment;
+					}
+
+					else
+						$currentAttachment = $currentAttachment[$attachID];
+
+					if ($currentAttachment['is_image'])
+					{
+						$returnContext .= '
+												<div class="lol">';
+
+						if ($currentAttachment['thumbnail']['has_thumb'])
+							$returnContext .= '
+													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
+						else
+							$returnContext .= '
+													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
+
+						$returnContext .= '
+												</div>';
+					}
+
+					// Gotta append what we just did.
+					$data = $returnContext;
 				},
-				'content' => '$1 $2',
 			),
 			array(
 				'tag' => 'b',

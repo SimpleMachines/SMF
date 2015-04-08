@@ -31,7 +31,7 @@ function Display()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings;
 	global $options, $sourcedir, $user_info, $board_info, $topic, $board;
-	global $attachments, $messages_request, $topicinfo, $language, $smcFunc;
+	global $messages_request, $topicinfo, $language, $smcFunc;
 
 	// What are you gonna display if these are empty?!
 	if (empty($topic))
@@ -962,7 +962,7 @@ function Display()
 	// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
 	$context['topic_notification_mode'] = !$user_info['is_guest'] ? ($context['topic_unwatched'] ? 0 : ($topicinfo['notify_prefs']['pref'] & 0x02 ? 3 : ($topicinfo['notify_prefs']['pref'] & 0x01 ? 2 : 1))) : 0;
 
-	$attachments = array();
+	$context['loaded_attachments'] = array();
 
 	// If there _are_ messages here... (probably an error otherwise :!)
 	if (!empty($messages))
@@ -993,8 +993,8 @@ function Display()
 
 				$temp[$row['id_attach']] = $row;
 
-				if (!isset($attachments[$row['id_msg']]))
-					$attachments[$row['id_msg']] = array();
+				if (!isset($context['loaded_attachments'][$row['id_msg']]))
+					$context['loaded_attachments'][$row['id_msg']] = array();
 			}
 			$smcFunc['db_free_result']($request);
 
@@ -1002,7 +1002,7 @@ function Display()
 			ksort($temp);
 
 			foreach ($temp as $row)
-				$attachments[$row['id_msg']][] = $row;
+				$context['loaded_attachments'][$row['id_msg']][] = $row;
 		}
 
 		$msg_parameters = array(
@@ -1393,7 +1393,7 @@ function prepareDisplayContext($reset = false)
 
 	// Compose the memory eat- I mean message array.
 	$output = array(
-		'attachment' => loadAttachmentContext($message['id_msg']),
+		'attachment' => loadAttachmentContext($message['id_msg'], $context['loaded_attachments']),
 		'id' => $message['id_msg'],
 		'href' => $scripturl . '?topic=' . $topic . '.msg' . $message['id_msg'] . '#msg' . $message['id_msg'],
 		'link' => '<a href="' . $scripturl . '?msg=' . $message['id_msg'] . '" rel="nofollow">' . $message['subject'] . '</a>',
@@ -1661,18 +1661,17 @@ function Download()
 
 /**
  * This loads an attachment's contextual data including, most importantly, its size if it is an image.
- * Pre-condition: $attachments array to have been filled with the proper attachment data, as Display() does.
- * (@todo change this pre-condition, too fragile and error-prone.)
  * It requires the view_attachments permission to calculate image size.
  * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
  * the max_image_width and max_image_height settings.
  *
  * @param int $id_msg ID of the post to load attachments for
+ * @param array $attachments  An array of already loaded attachments.
  * @return array An array of attachment info
  */
-function loadAttachmentContext($id_msg)
+function loadAttachmentContext($id_msg, $attachments)
 {
-	global $attachments, $modSettings, $txt, $scripturl, $topic, $sourcedir, $smcFunc;
+	global $modSettings, $txt, $scripturl, $topic, $sourcedir, $smcFunc;
 
 	// Set up the attachment info - based on code by Meriadoc.
 	$attachmentData = array();

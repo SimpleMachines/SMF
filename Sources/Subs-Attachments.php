@@ -901,7 +901,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
 
 function parseAttachBBC($attachID = false)
 {
-	global $board, $modSettings, $sourcedir, $attachments;
+	global $board, $modSettings, $sourcedir, $context;
 	static $attached = array();
 
 	$attachContext = array();
@@ -922,8 +922,8 @@ function parseAttachBBC($attachID = false)
 	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
 
 	// There is always the chance that this attachment has already been loaded.
-	if (!empty($attachments) && !empty($attachments[$attachID]))
-		$attachContext = $attachments[$attachID];
+	if (!empty($context['current_attachments']) && !empty($context['current_attachments'][$attachID]))
+		$attachContext = $context['current_attachments'][$attachID];
 
 	// Do we have a msg ID? if so save some precious cpu cycles.
 	if (empty($attachContext) && !empty($msgID) && !isset($attached[$msgID]))
@@ -935,7 +935,7 @@ function parseAttachBBC($attachID = false)
 
 	// Do we already have this info? lucky us huh...
 	elseif (empty($attachContext) && !empty($msgID) && !empty($attached[$msgID]))
-		$attachInfo = $attached[$_REQUEST['msg']][$attachID];
+		$attachInfo = $attached[$msgID][$attachID];
 
 	// No? bummer...
 	elseif (empty($attachContext))
@@ -952,7 +952,7 @@ function parseAttachBBC($attachID = false)
 
 	// Load this particular attach's context.
 	if (empty($attachContext))
-		$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg']);
+		$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg'], $attached);
 
 	// One last check, you know, gotta be paranoid...
 	if (empty($attachContext))
