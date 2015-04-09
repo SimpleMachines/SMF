@@ -930,7 +930,7 @@ function parseAttachBBC($attachID = false)
 	{
 		$attached = getAttachsByMsg($_REQUEST['msg']);
 
-		$attachInfo = $attached[$attachID];
+		$attachInfo = $attached[$_REQUEST['msg']][$attachID];
 	}
 
 	// Do we already have this info? lucky us huh...

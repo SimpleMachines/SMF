@@ -1091,7 +1091,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
-				'content' => 'fail $1',
+				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir)
 				{
 					$returnContext = '';
@@ -1112,6 +1112,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					if (is_string($currentAttachment))
 					{
 						$data = $currentAttachment;
+						return;
 					}
 
 					else
