@@ -1115,9 +1115,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return;
 					}
 
-					else
-						$currentAttachment = $currentAttachment[$attachID];
-
 					if ($currentAttachment['is_image'])
 					{
 						$returnContext .= '

@@ -902,9 +902,9 @@ function assignAttachments($attachments = array(), $msgID = 0)
 function parseAttachBBC($attachID = false)
 {
 	global $board, $modSettings, $sourcedir, $context;
-	static $attached = array();
 
 	$attachContext = array();
+	$allAttachments = array();
 
 	// Meh...
 	if (empty($attachID))
@@ -923,39 +923,43 @@ function parseAttachBBC($attachID = false)
 
 	// There is always the chance that this attachment has already been loaded.
 	if (!empty($context['current_attachments']) && !empty($context['current_attachments'][$attachID]))
-		$attachContext = $context['current_attachments'][$attachID];
-
-	// Do we have a msg ID? if so save some precious cpu cycles.
-	if (empty($attachContext) && !empty($msgID) && !isset($attached[$msgID]))
 	{
-		$attached = getAttachsByMsg($_REQUEST['msg']);
-
-		$attachInfo = $attached[$_REQUEST['msg']][$attachID];
+		$allAttachments = $context['current_attachments'];
+		$attachContext = $context['current_attachments'][$attachID];
 	}
 
-	// Do we already have this info? lucky us huh...
-	elseif (empty($attachContext) && !empty($msgID) && !empty($attached[$msgID]))
-		$attachInfo = $attached[$msgID][$attachID];
+	// Do we have a msg ID? if so save some precious cpu cycles.
+	if (empty($attachContext) && !empty($msgID))
+	{
+		$allAttachments = getAttachsByMsg($msgID);
+		$attachContext = $allAttachments[$msgID][$attachID];
+	}
 
 	// No? bummer...
 	elseif (empty($attachContext))
 	{
 		$attachInfo = getAttachMsgInfo($attachID);
-		$attached = getAttachsByMsg($attachInfo[$attachID]['msg']);
+
+		// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
+		if (empty($attachInfo))
+			return 'no_msg_associated';
+
+		$allAttachments = getAttachsByMsg($attachInfo['msg']);
+		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
 	}
 
 	// No point in keep going further.
-	if (!allowedTo('view_attachments', $attachInfo[$attachID]['board']))
+	if (!allowedTo('view_attachments', $attachContext['board']))
 		return 'not_allowed_to_see';
 
 	require_once($sourcedir . '/Display.php');
 
 	// Load this particular attach's context.
-	if (empty($attachContext))
-		$attachContext = loadAttachmentContext($attachInfo[$attachID]['msg'], $attached);
+	if (!empty($attachContext))
+		$attachContext = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
 
 	// One last check, you know, gotta be paranoid...
-	if (empty($attachContext))
+	else
 		return 'no_data_loaded';
 
 	// You may or may not want to show this under the post.
@@ -970,10 +974,11 @@ function getAttachMsgInfo($attachID)
 {
 	global $smcFunc;
 
-	$attachInfo = array();
+	if (empty($attachID))
+		return array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT m.id_topic, m.id_board, m.id_msg, a.id_msg, a.id_attach
+		SELECT a.id_msg AS msg, m.id_topic AS topic, m.id_board AS board
 		FROM {db_prefix}attachments AS a
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE id_attach = {int:id_attach}
@@ -983,62 +988,59 @@ function getAttachMsgInfo($attachID)
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-			$attachInfo[$row['id_attach']] = array(
-				'board' => $row['id_board'],
-				'msg' => $row['id_msg'],
-				'topic' => $row['id_topic'],
-			);
+	if ($smcFunc['db_num_rows']($request) != 1)
+		return array();
 
+	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	return $attachInfo;
+	return $row;
 }
 
 function getAttachsByMsg($msgID = 0)
 {
-	global $modSettings, $smcFunc, $attachments;
+	global $modSettings, $smcFunc;
+	static $attached = array();
 
 	// The usual checks.
 	if (empty($msgID))
 		return array();
 
-	$request = $smcFunc['db_query']('', '
-		SELECT
-			a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
-			a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-			IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
-		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
-			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
-			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-		WHERE a.id_msg = {int:message_id}
-			AND a.attachment_type = {int:attachment_type}',
-		array(
-			'message_id' => $msgID,
-			'attachment_type' => 0,
-			'is_approved' => 1,
-		)
-	);
-	$temp = array();
-	while ($row = $smcFunc['db_fetch_assoc']($request))
+	if (!isset($attached[$msgID]))
 	{
-		if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && (!isset($all_posters[$row['id_msg']]) || $all_posters[$row['id_msg']] != $user_info['id']))
-			continue;
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
+				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+				IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
+			WHERE a.id_msg = {int:message_id}
+				AND a.attachment_type = {int:attachment_type}',
+			array(
+				'message_id' => $msgID,
+				'attachment_type' => 0,
+				'is_approved' => 1,
+			)
+		);
+		$temp = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			if (!$row['approved'] && $modSettings['postmod_active'] && !allowedTo('approve_posts') && (!isset($all_posters[$row['id_msg']]) || $all_posters[$row['id_msg']] != $user_info['id']))
+				continue;
 
-		$temp[$row['id_attach']] = $row;
+			$temp[$row['id_attach']] = $row;
+		}
+		$smcFunc['db_free_result']($request);
 
-		if (!isset($attachments[$row['id_msg']]))
-			$attachments[$row['id_msg']] = array();
+		// This is better than sorting it with the query...
+		ksort($temp);
+
+		$attached[$msgID] = $temp;
 	}
-	$smcFunc['db_free_result']($request);
 
-	// This is better than sorting it with the query...
-	ksort($temp);
-
-	foreach ($temp as $row)
-		$attachments[$row['id_msg']][$row['id_attach']] = $row;
-
-	return $attachments;
+	return $attached;
 }
 
 ?>
