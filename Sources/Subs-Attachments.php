@@ -956,11 +956,17 @@ function parseAttachBBC($attachID = false)
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
-		$attachContext = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
+		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
 
 	// One last check, you know, gotta be paranoid...
 	else
 		return 'no_data_loaded';
+
+	if (empty($attachLoaded))
+		return 'no_data_loaded';
+
+	else
+		$attachContext = $attachLoaded[$attachID];
 
 	// You may or may not want to show this under the post.
 	if (!empty($modSettings['dont_show_attach_under']) && !isset($context['show_attach_under_post'][$attachID]))
