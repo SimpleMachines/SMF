@@ -42,26 +42,26 @@ function template_recent()
 					</div>
 					<div class="list_posts">', $post['message'], '</div>';
 
-		if ($post['can_reply'] || $post['can_delete'])
+		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 			echo '
-					<ul class="reset smalltext quickbuttons">';
+					<ul class="quickbuttons">';
 
 		// If they *can* reply?
 		if ($post['can_reply'])
 			echo '
-						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '" class="reply_button"><span>', $txt['reply'], '</span></a></li>';
+						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 		// If they *can* quote?
 		if ($post['can_quote'])
 			echo '
-						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '" class="quote_button"><span>', $txt['quote_action'], '</span></a></li>';
+						<li><a href="', $scripturl, '?action=post;topic=', $post['topic'], '.', $post['start'], ';quote=', $post['id'], '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 		// How about... even... remove it entirely?!
 		if ($post['can_delete'])
 			echo '
-						<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'] ,'" class="remove_button you_sure"><span>', $txt['remove'], '</span></a></li>';
+						<li><a href="', $scripturl, '?action=deletemsg;msg=', $post['id'], ';topic=', $post['topic'], ';recent;', $context['session_var'], '=', $context['session_id'], '" data-confirm="', $txt['remove_message'] ,'" class="you_sure"><span class="generic_icons remove_button"></span>', $txt['remove'], '</a></li>';
 
-		if ($post['can_reply'] || $post['can_delete'])
+		if ($post['can_reply'] || $post['can_quote'] || $post['can_delete'])
 			echo '
 					</ul>';
 

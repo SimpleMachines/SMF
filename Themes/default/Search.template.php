@@ -440,17 +440,17 @@ function template_results()
 
 			if ($topic['can_reply'])
 				echo '
-						<ul class="reset smalltext quickbuttons">';
+						<ul class="quickbuttons">';
 
 				// If they *can* reply?
 			if ($topic['can_reply'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '" class="reply_button">', $txt['reply'], '</a></li>';
+							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
 
 				// If they *can* quote?
 			if ($topic['can_quote'])
 				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '" class="quote_button">', $txt['quote_action'], '</a></li>';
+							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
 
 			if ($topic['can_reply'])
 				echo '
