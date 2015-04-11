@@ -334,6 +334,9 @@ class Attachments
 					// Super duper important! pass the already attached files if this was a newly created message.
 					if (!$this->_msg)
 						$this->_attachSuccess[$attachmentOptions['id']] = $attachmentOptions;
+
+					else
+						assignAttachments($attachmentOptions , $this->_msg);
 				}
 
 			elseif (!empty($attachmentOptions['errors']))
