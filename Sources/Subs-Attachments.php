@@ -1054,4 +1054,180 @@ function getAttachsByMsg($msgID = 0)
 	return $attached;
 }
 
+/**
+ * This loads an attachment's contextual data including, most importantly, its size if it is an image.
+ * It requires the view_attachments permission to calculate image size.
+ * It attempts to keep the "aspect ratio" of the posted image in line, even if it has to be resized by
+ * the max_image_width and max_image_height settings.
+ *
+ * @param int $id_msg ID of the post to load attachments for
+ * @param array $attachments  An array of already loaded attachments.
+ * @return array An array of attachment info
+ */
+function loadAttachmentContext($id_msg, $attachments)
+{
+	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+
+	// Set up the attachment info - based on code by Meriadoc.
+	$attachmentData = array();
+	$have_unapproved = false;
+	if (isset($attachments[$id_msg]) && !empty($modSettings['attachmentEnable']))
+	{
+		foreach ($attachments[$id_msg] as $i => $attachment)
+		{
+			$attachmentData[$i] = array(
+				'id' => $attachment['id_attach'],
+				'name' => preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($attachment['filename'])),
+				'downloads' => $attachment['downloads'],
+				'size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . $txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . $txt['megabyte'],
+				'byte_size' => $attachment['filesize'],
+				'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'],
+				'link' => '<a href="' . $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_attach'] . '">' . $smcFunc['htmlspecialchars']($attachment['filename']) . '</a>',
+				'is_image' => !empty($attachment['width']) && !empty($attachment['height']) && !empty($modSettings['attachmentShowImages']),
+				'is_approved' => $attachment['approved'],
+				'topic' => $attachment['topic'],
+				'board' => $attachment['board'],
+			);
+
+			// If something is unapproved we'll note it so we can sort them.
+			if (!$attachment['approved'])
+				$have_unapproved = true;
+
+			if (!$attachmentData[$i]['is_image'])
+				continue;
+
+			$attachmentData[$i]['real_width'] = $attachment['width'];
+			$attachmentData[$i]['width'] = $attachment['width'];
+			$attachmentData[$i]['real_height'] = $attachment['height'];
+			$attachmentData[$i]['height'] = $attachment['height'];
+
+			// Let's see, do we want thumbs?
+			if (!empty($modSettings['attachmentThumbnails']) && !empty($modSettings['attachmentThumbWidth']) && !empty($modSettings['attachmentThumbHeight']) && ($attachment['width'] > $modSettings['attachmentThumbWidth'] || $attachment['height'] > $modSettings['attachmentThumbHeight']) && strlen($attachment['filename']) < 249)
+			{
+				// A proper thumb doesn't exist yet? Create one!
+				if (empty($attachment['id_thumb']) || $attachment['thumb_width'] > $modSettings['attachmentThumbWidth'] || $attachment['thumb_height'] > $modSettings['attachmentThumbHeight'] || ($attachment['thumb_width'] < $modSettings['attachmentThumbWidth'] && $attachment['thumb_height'] < $modSettings['attachmentThumbHeight']))
+				{
+					$filename = getAttachmentFilename($attachment['filename'], $attachment['id_attach'], $attachment['id_folder']);
+
+					require_once($sourcedir . '/Subs-Graphics.php');
+					if (createThumbnail($filename, $modSettings['attachmentThumbWidth'], $modSettings['attachmentThumbHeight']))
+					{
+						// So what folder are we putting this image in?
+						if (!empty($modSettings['currentAttachmentUploadDir']))
+						{
+							if (!is_array($modSettings['attachmentUploadDir']))
+								$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+							$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
+							$id_folder_thumb = $modSettings['currentAttachmentUploadDir'];
+						}
+						else
+						{
+							$path = $modSettings['attachmentUploadDir'];
+							$id_folder_thumb = 1;
+						}
+
+						// Calculate the size of the created thumbnail.
+						$size = @getimagesize($filename . '_thumb');
+						list ($attachment['thumb_width'], $attachment['thumb_height']) = $size;
+						$thumb_size = filesize($filename . '_thumb');
+
+						// These are the only valid image types for SMF.
+						$validImageTypes = array(1 => 'gif', 2 => 'jpeg', 3 => 'png', 5 => 'psd', 6 => 'bmp', 7 => 'tiff', 8 => 'tiff', 9 => 'jpeg', 14 => 'iff');
+
+						// What about the extension?
+						$thumb_ext = isset($validImageTypes[$size[2]]) ? $validImageTypes[$size[2]] : '';
+
+						// Figure out the mime type.
+						if (!empty($size['mime']))
+							$thumb_mime = $size['mime'];
+						else
+							$thumb_mime = 'image/' . $thumb_ext;
+
+						$thumb_filename = $attachment['filename'] . '_thumb';
+						$thumb_hash = getAttachmentFilename($thumb_filename, false, null, true);
+
+						// Add this beauty to the database.
+						$smcFunc['db_insert']('',
+							'{db_prefix}attachments',
+							array('id_folder' => 'int', 'id_msg' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'size' => 'int', 'width' => 'int', 'height' => 'int', 'fileext' => 'string', 'mime_type' => 'string'),
+							array($id_folder_thumb, $id_msg, 3, $thumb_filename, $thumb_hash, (int) $thumb_size, (int) $attachment['thumb_width'], (int) $attachment['thumb_height'], $thumb_ext, $thumb_mime),
+							array('id_attach')
+						);
+						$old_id_thumb = $attachment['id_thumb'];
+						$attachment['id_thumb'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
+						if (!empty($attachment['id_thumb']))
+						{
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}attachments
+								SET id_thumb = {int:id_thumb}
+								WHERE id_attach = {int:id_attach}',
+								array(
+									'id_thumb' => $attachment['id_thumb'],
+									'id_attach' => $attachment['id_attach'],
+								)
+							);
+
+							$thumb_realname = getAttachmentFilename($thumb_filename, $attachment['id_thumb'], $id_folder_thumb, false, $thumb_hash);
+							rename($filename . '_thumb', $thumb_realname);
+
+							// Do we need to remove an old thumbnail?
+							if (!empty($old_id_thumb))
+							{
+								require_once($sourcedir . '/ManageAttachments.php');
+								removeAttachments(array('id_attach' => $old_id_thumb), '', false, false);
+							}
+						}
+					}
+				}
+
+				// Only adjust dimensions on successful thumbnail creation.
+				if (!empty($attachment['thumb_width']) && !empty($attachment['thumb_height']))
+				{
+					$attachmentData[$i]['width'] = $attachment['thumb_width'];
+					$attachmentData[$i]['height'] = $attachment['thumb_height'];
+				}
+			}
+
+			if (!empty($attachment['id_thumb']))
+				$attachmentData[$i]['thumbnail'] = array(
+					'id' => $attachment['id_thumb'],
+					'href' => $scripturl . '?action=dlattach;topic=' . $attachment['topic'] . '.0;attach=' . $attachment['id_thumb'] . ';image',
+				);
+			$attachmentData[$i]['thumbnail']['has_thumb'] = !empty($attachment['id_thumb']);
+
+			// If thumbnails are disabled, check the maximum size of the image.
+			if (!$attachmentData[$i]['thumbnail']['has_thumb'] && ((!empty($modSettings['max_image_width']) && $attachment['width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachment['height'] > $modSettings['max_image_height'])))
+			{
+				if (!empty($modSettings['max_image_width']) && (empty($modSettings['max_image_height']) || $attachment['height'] * $modSettings['max_image_width'] / $attachment['width'] <= $modSettings['max_image_height']))
+				{
+					$attachmentData[$i]['width'] = $modSettings['max_image_width'];
+					$attachmentData[$i]['height'] = floor($attachment['height'] * $modSettings['max_image_width'] / $attachment['width']);
+				}
+				elseif (!empty($modSettings['max_image_width']))
+				{
+					$attachmentData[$i]['width'] = floor($attachment['width'] * $modSettings['max_image_height'] / $attachment['height']);
+					$attachmentData[$i]['height'] = $modSettings['max_image_height'];
+				}
+			}
+			elseif ($attachmentData[$i]['thumbnail']['has_thumb'])
+			{
+				// If the image is too large to show inline, make it a popup.
+				if (((!empty($modSettings['max_image_width']) && $attachmentData[$i]['real_width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachmentData[$i]['real_height'] > $modSettings['max_image_height'])))
+					$attachmentData[$i]['thumbnail']['javascript'] = 'return reqWin(\'' . $attachmentData[$i]['href'] . ';image\', ' . ($attachment['width'] + 20) . ', ' . ($attachment['height'] + 20) . ', true);';
+				else
+					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
+			}
+
+			if (!$attachmentData[$i]['thumbnail']['has_thumb'])
+				$attachmentData[$i]['downloads']++;
+		}
+	}
+
+	// Do we need to instigate a sort?
+	if ($have_unapproved)
+		usort($attachmentData, 'approved_attach_sort');
+
+	return $attachmentData;
+}
+
 ?>
