@@ -956,8 +956,6 @@ function parseAttachBBC($attachID = false)
 	if (!allowedTo('view_attachments', $attachContext['board']))
 		return 'not_allowed_to_see';
 
-	require_once($sourcedir . '/Display.php');
-
 	// Load this particular attach's context.
 	if (!empty($attachContext))
 		$attachLoaded = loadAttachmentContext($attachContext['id_msg'], $allAttachments);
@@ -974,7 +972,7 @@ function parseAttachBBC($attachID = false)
 		$attachContext = $attachLoaded[$attachID];
 
 	// You may or may not want to show this under the post.
-	if (!empty($modSettings['dont_show_attach_under']) && !isset($context['show_attach_under_post'][$attachID]))
+	if (!empty($modSettings['dont_show_attach_under_post']) && !isset($context['show_attach_under_post'][$attachID]))
 		$context['show_attach_under_post'][$attachID] = $attachID;
 
 	// Don't do any logic with the loaded data, leave it to whoever called this function.
@@ -1061,12 +1059,15 @@ function getAttachsByMsg($msgID = 0)
  * the max_image_width and max_image_height settings.
  *
  * @param int $id_msg ID of the post to load attachments for
- * @param array $attachments  An array of already loaded attachments.
+ * @param array $attachments  An array of already loaded attachments. This function no longer depends on having $topic declared, thus, you need to load the actual topic ID for each attachment.
  * @return array An array of attachment info
  */
 function loadAttachmentContext($id_msg, $attachments)
 {
 	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
+
+	if (empty($attachments))
+		return array();
 
 	// Set up the attachment info - based on code by Meriadoc.
 	$attachmentData = array();

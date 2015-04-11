@@ -1301,7 +1301,7 @@ function Display()
 function prepareDisplayContext($reset = false)
 {
 	global $settings, $txt, $modSettings, $scripturl, $options, $user_info, $smcFunc;
-	global $memberContext, $context, $messages_request, $topic, $board_info;
+	global $memberContext, $context, $messages_request, $topic, $board_info, $sourcedir;
 
 	static $counter = null;
 
@@ -1392,6 +1392,8 @@ function prepareDisplayContext($reset = false)
 	// If it's in the recycle bin we need to override whatever icon we did have.
 	if (!empty($board_info['recycle']))
 		$message['icon'] = 'recycled';
+
+	require_once($sourcedir . '/Subs-Attachments.php');
 
 	// Compose the memory eat- I mean message array.
 	$output = array(
