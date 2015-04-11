@@ -333,10 +333,10 @@ class Attachments
 
 					// Super duper important! pass the already attached files if this was a newly created message.
 					if (!$this->_msg)
-						$this->_attachSuccess[$attachmentOptions['id']] = $attachmentOptions;
+						$_SESSION['already_attached'][$attachmentOptions['id']] = $attachmentOptions;
 
 					else
-						assignAttachments($attachmentOptions , $this->_msg);
+						assignAttachments($attachmentOptions, $this->_msg);
 				}
 
 			elseif (!empty($attachmentOptions['errors']))
@@ -366,8 +366,8 @@ class Attachments
 		}
 
 		// Temp save this on the db.
-		if ($this->_attachSuccess)
-			$_SESSION['already_attached'] = $this->_attachSuccess;
+		if (!empty($_SESSION['already_attached']))
+			$this->_attachSuccess = $_SESSION['already_attached'];
 
 		unset($_SESSION['temp_attachments']);
 	}
