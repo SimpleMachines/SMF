@@ -944,6 +944,10 @@ function parseAttachBBC($attachID = false)
 		if (empty($attachInfo))
 			return 'no_msg_associated';
 
+		// Hold it! got the info now check if you can see this attachment.
+		if (!allowedTo('view_attachments', $attachInfo['board']))
+			return 'not_allowed_to_see';
+
 		$allAttachments = getAttachsByMsg($attachInfo['msg']);
 		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
 	}
