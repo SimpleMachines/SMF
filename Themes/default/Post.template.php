@@ -430,7 +430,7 @@ function template_main()
 	{
 		echo '
 						<dl id="postAttachment2">
-							<input id="fileupload" type="file" name="files[]">
+							<div class="drop_zone descbox"><input id="fileupload" type="file" name="files[]"><h3>', $txt['attach_drop_zone'] ,'</h3></div>
 							<div class="errorbox" id="attachGenericErrors"><ul></ul></div>
 							<div id="files" class="files"></div>';
 

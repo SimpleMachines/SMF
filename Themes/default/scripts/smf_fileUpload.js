@@ -4,6 +4,7 @@ function smf_fileUpload(oOptions)
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
 		dataType: 'json',
+		dropZone: $('.drop_zone'),
 		singleFileUploads:false,
 		forceIframeTransport: false,
 		autoUpload: false,
