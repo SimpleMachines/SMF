@@ -1559,6 +1559,7 @@ function getMessageIcons($board_id)
 		else
 			$icons = $temp;
 	}
+	call_integration_hook('integrate_load_message_icons', array(&$icons));
 
 	return array_values($icons);
 }
