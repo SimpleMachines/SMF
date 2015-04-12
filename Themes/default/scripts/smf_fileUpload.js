@@ -56,14 +56,16 @@ function smf_fileUpload(oOptions)
 			totalSize = totalSize - data.currentFile.size;
 
 			$this.remove();
-			data.currentNode.fadeOut();
+			data.currentNode.fadeOut('slow', function() {
+				data.currentNode.remove();
+			});
 		}),
 	deleteButton = $('<a />')
-		.addClass('button_submit deleteButton you_sure')
+		.addClass('deleteButton you_sure')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.deleteAttach)
-		.one('click', function (e) {
-			e.preventDefault();
+		.on('click', function (e) {
+
 			var $this = $(this),
 				data = $this.data(),
 				node = $(data.context);
@@ -74,7 +76,17 @@ function smf_fileUpload(oOptions)
 				type: 'GET',
 				dataType: 'json',
 				success: function (data, textStatus, xhr) {
+					// Gotta remove this from the number of files.
+					--numberOfFiles;
 
+					// And remove this file's size from the total.
+					totalSize = totalSize - data.currentFile.size;
+
+					// Lastly, remove the entire node.
+					$this.remove();
+					data.currentNode.fadeOut('slow', function() {
+						data.currentNode.remove();
+					});
 				},
 				error: function (xhr, textStatus, errorThrown) {
 
