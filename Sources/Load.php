@@ -425,7 +425,7 @@ function loadUserSettings()
 					$full_groups = array_merge($full_groups, explode(',', $user_settings['additional_groups']));
 					$full_groups = array_unique($full_groups); //duplicates, maybe?
 				}
-				
+
 				//Find out if any group requires 2FA
 				$request = $smcFunc['db_query']('', '
 					SELECT COUNT(id_group) AS total
@@ -1305,7 +1305,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	// Setup the buddy status here (One whole in_array call saved :P)
 	$profile['buddy'] = in_array($profile['id_member'], $user_info['buddies']);
 	$buddy_list = !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : array();
-	
+
 	//We need a little fallback for the membergroup icons. If it doesn't exist in the current theme, fallback to default theme
 	if (isset($profile['icons'][1]) && file_exists($settings['actual_theme_dir'] . '/images/membericons/' . $profile['icons'][1])) //icon is set and exists
 		$group_icon_url = $settings['images_url'] . '/membericons/' . $profile['icons'][1];
@@ -2071,8 +2071,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 			addInlineJavascript('
 		function smfAutoTask()
 		{
-			var tempImage = new Image();
-			tempImage.src = smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '";
+			$.get(smf_scripturl + "?scheduled=' . $type . ';ts=' . $ts . '");
 		}
 		window.setTimeout("smfAutoTask();", 1);');
 		}
@@ -2084,9 +2083,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 		$ts = time();
 		$ts -= $ts % 15;
 		addInlineJavaScript('
-	function triggerCron() {
-		var tempImage = new Image();
-		tempImage.src = ' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '";
+	function triggerCron()
+	{
+		$.get(' . JavaScriptEscape($boardurl) . ' + "/cron.php?ts=' . $ts . '");
 	}
 	window.setTimeout(triggerCron, 1);', true);
 	}
