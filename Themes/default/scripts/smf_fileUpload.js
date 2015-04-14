@@ -67,12 +67,12 @@ function smf_fileUpload(oOptions)
 		.on('click', function (e) {
 
 			var $this = $(this),
-				data = $this.data(),
+				mainData = $this.data(),
 				node = $(data.context);
 
 			// Let the server know you want to delete the file you just recently uploaded...
 			$.ajax({
-				url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ data.currentFile['id'] +';' + smf_session_var + '=' + smf_session_id,
+				url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ mainData.currentFile['attachID'] +';' + smf_session_var + '=' + smf_session_id,
 				type: 'GET',
 				dataType: 'json',
 				success: function (data, textStatus, xhr) {
@@ -80,12 +80,12 @@ function smf_fileUpload(oOptions)
 					--numberOfFiles;
 
 					// And remove this file's size from the total.
-					totalSize = totalSize - data.currentFile['size'];
+					totalSize = totalSize - mainData.currentFile['size'];
 
 					// Lastly, remove the entire node.
 					$this.remove();
-					data.currentNode.fadeOut('slow', function() {
-						data.currentNode.remove();
+					mainData.currentNode.fadeOut('slow', function() {
+						mainData.currentNode.remove();
 					});
 				},
 				error: function (xhr, textStatus, errorThrown) {
@@ -217,8 +217,8 @@ function smf_fileUpload(oOptions)
 					node.find('.progressBar').fadeOut();
 
 					// Show the brand new attach ID bbc tag.
-					if (file.id) {
-						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.id + '[/attach]]" readonly>')
+					if (file.attachID) {
+						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]]" readonly>')
 							.append(insertBBC.clone(true).data(data));
 
 						node
