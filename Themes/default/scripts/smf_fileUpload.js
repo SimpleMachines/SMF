@@ -72,7 +72,7 @@ function smf_fileUpload(oOptions)
 
 			// Let the server know you want to delete the file you just recently uploaded...
 			$.ajax({
-				url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ data.currentFile.['id'] +';' + smf_session_var + '=' + smf_session_id,
+				url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ data.currentFile['id'] +';' + smf_session_var + '=' + smf_session_id,
 				type: 'GET',
 				dataType: 'json',
 				success: function (data, textStatus, xhr) {
