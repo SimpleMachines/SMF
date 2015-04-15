@@ -68,7 +68,7 @@ function smf_fileUpload(oOptions)
 
 			var $this = $(this),
 				mainData = $this.data(),
-				node = $(data.context);
+				node = $(mainData.context);
 
 			// Let the server know you want to delete the file you just recently uploaded...
 			$.ajax({
@@ -82,11 +82,13 @@ function smf_fileUpload(oOptions)
 					// And remove this file's size from the total.
 					totalSize = totalSize - mainData.currentFile['size'];
 
-					// Lastly, remove the entire node.
-					$this.remove();
-					mainData.currentNode.fadeOut('slow', function() {
-						mainData.currentNode.remove();
+					// Remove the delete button.
+					$this.fadeOut('slow', function() {
+						$this.remove();
 					});
+
+					// Don't remove the entire node, just leave a message.
+
 				},
 				error: function (xhr, textStatus, errorThrown) {
 

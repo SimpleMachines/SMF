@@ -1200,6 +1200,7 @@ function Post($post_errors = array())
 			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
 			insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',
 			deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
+			attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
 			insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .'
 		},
 		messages: {
