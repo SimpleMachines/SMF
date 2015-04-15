@@ -61,7 +61,7 @@ function smf_fileUpload(oOptions)
 			});
 		}),
 	deleteButton = $('<a />')
-		.addClass('deleteButton you_sure')
+		.addClass('button_submit deleteButton you_sure')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.deleteAttach)
 		.on('click', function (e) {
@@ -82,13 +82,18 @@ function smf_fileUpload(oOptions)
 					// And remove this file's size from the total.
 					totalSize = totalSize - mainData.currentFile['size'];
 
-					// Remove the delete button.
-					$this.fadeOut('slow', function() {
-						$this.remove();
-					});
+					// Replace the delete button with the "cancel" one.
+					$this.replaceWith(cancelButton.clone(true).data(data));
 
 					// Don't remove the entire node, just leave a message.
+					node.find('.file_details').fadeOut('slow', function() {
+						node.find('.file_details').fadeIn('slow', function() {
+							node.find('.file_details').text(dOptions.smf_text.attachDeleted);
+						});
+					});
 
+					// Lastly, abort the whole thing.
+					mainData.abort();
 				},
 				error: function (xhr, textStatus, errorThrown) {
 
