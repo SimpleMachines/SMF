@@ -101,6 +101,10 @@ class Attachments
 		// Lets pass some params and see what happens :P
 		removeAttachments(array('id_attach' => $attachID), '', true, true);
 
+		// Gotta also remove the attachment form the sesison var.
+		if (!empty($_SESSION['already_attached'][$attachID]))
+			unset($_SESSION['already_attached'][$attachID]);
+
 		// $affectedMessage returns an empty array array(0) which php treats as non empty... awesome...
 		$this->setResponse(array(
 			'text' => 'attached_file_deleted',
