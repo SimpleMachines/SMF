@@ -414,7 +414,7 @@ function template_main()
 			echo '
 							<dd class="smalltext">
 								<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
-								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
+								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label><p class="attached_BBC"><input type="text" name="attachBBC" value="[attach]', $attachment['id'], '[/attach]]" readonly></p>
 							</dd>';
 
 		echo '

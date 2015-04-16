@@ -101,7 +101,7 @@ class Attachments
 		// Lets pass some params and see what happens :P
 		removeAttachments(array('id_attach' => $attachID), '', true, true);
 
-		// Gotta also remove the attachment form the sesison var.
+		// Gotta also remove the attachment form the session var.
 		if (!empty($_SESSION['already_attached'][$attachID]))
 			unset($_SESSION['already_attached'][$attachID]);
 
