@@ -300,3 +300,15 @@ function smf_fileUpload_bytesToSize(bytes) {
 	var i = Math.floor(Math.log(bytes) / Math.log(k));
 	return (bytes / Math.pow(k, i)).toPrecision(3);
 }
+
+$(function() {
+	if (typeof oEditorID !== 'undefined'){
+		$('.editeIinsertBBC').on('click', function() {
+				// Get the text field value.
+				var oValue = $(this).data('attach'),
+					oTag = $('input[name=editedAttachBBC_'+ oValue +']').val();
+
+				$('#' + oEditorID).data('sceditor').InsertText(oTag);
+		});
+	}
+});
