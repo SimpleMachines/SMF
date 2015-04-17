@@ -96,7 +96,14 @@ function smf_fileUpload(oOptions)
 					mainData.abort();
 				},
 				error: function (xhr, textStatus, errorThrown) {
+					// Lastly, abort the whole thing.
+					mainData.abort();
 
+					node
+						.find('.file_info')
+						.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+
+					node.removeClass('descbox').addClass('errorbox');
 				}
 			});
 		}),

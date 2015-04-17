@@ -1182,16 +1182,18 @@ function Post($post_errors = array())
 	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
 
 	// File Upload.
-	loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('external' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/canvas-to-blob.min.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/jquery.iframe-transport.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/fileupload.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/process.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/image.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('fileUpload/validate.js', array('default_theme' => true, 'defer' => true));
-	loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true));
-	addInlineJavascript('
+	if ($context['can_post_attachment'])
+	{
+		loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('external' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/canvas-to-blob.min.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/jquery.iframe-transport.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/fileupload.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/process.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/image.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('fileUpload/validate.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true));
+		addInlineJavascript('
 	smf_fileUpload({
 		smf_text : {
 			cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
@@ -1217,6 +1219,7 @@ function Post($post_errors = array())
 		limitMultiFileUploads: '. $context['num_allowed_attachments'] .',
 		limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) .'000
 	});', true);
+	}
 
 	// Finally, load the template.
 	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
