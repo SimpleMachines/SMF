@@ -87,10 +87,13 @@ function smf_fileUpload(oOptions)
 
 					// Don't remove the entire node, just leave a message.
 					node.find('.file_details').fadeOut('slow', function() {
+						node.find('.file_details').text(dOptions.smf_text.attachDeleted);
 						node.find('.file_details').fadeIn('slow', function() {
-							node.find('.file_details').text(dOptions.smf_text.attachDeleted);
 						});
 					});
+
+					// Remove the BBC tag.
+					node.find('.file_info').empty();
 
 					// Lastly, abort the whole thing.
 					mainData.abort();
