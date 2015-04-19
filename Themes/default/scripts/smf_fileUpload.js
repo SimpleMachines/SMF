@@ -232,7 +232,7 @@ function smf_fileUpload(oOptions)
 
 					// Show the brand new attach ID bbc tag.
 					if (file.attachID) {
-						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]]" readonly>')
+						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]" readonly>')
 							.append(insertBBC.clone(true).data(data));
 
 						node
