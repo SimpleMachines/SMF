@@ -83,7 +83,7 @@ function smf_fileUpload(oOptions)
 					totalSize = totalSize - mainData.currentFile['size'];
 
 					// Replace the delete button with the "cancel" one.
-					$this.replaceWith(cancelButton.clone(true).data(data));
+					$this.replaceWith(cancelButton.clone(true).data(mainData));
 
 					// Don't remove the entire node, just leave a message.
 					node.find('.file_details').fadeOut('slow', function() {
@@ -324,11 +324,11 @@ $(function() {
 
 	// Since people will inevitably drop their files outside the drop area...
 	window.addEventListener('dragover', function(e){
-	  e = e || event;
-	  e.preventDefault();
+		e = e || event;
+		e.preventDefault();
 	},false);
 	window.addEventListener('drop', function(e){
-	  e = e || event;
-	  e.preventDefault();
+		e = e || event;
+		e.preventDefault();
 	},false);
 });
