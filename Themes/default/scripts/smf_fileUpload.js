@@ -321,4 +321,14 @@ $(function() {
 				$('#' + oEditorID).data('sceditor').InsertText(oTag);
 		});
 	}
+
+	// Since people will inevitably drop their files outside the drop area...
+	window.addEventListener('dragover', function(e){
+	  e = e || event;
+	  e.preventDefault();
+	},false);
+	window.addEventListener('drop', function(e){
+	  e = e || event;
+	  e.preventDefault();
+	},false);
 });
