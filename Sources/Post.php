@@ -1318,7 +1318,18 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		if ($topic_info['id_member_started'] != $user_info['id'])
+		$topicAndMessageBothUnapproved = false;
+
+		// If the topic is unapproved the message automatically becomes unapproved too.
+		if (empty($topic_info['approved']))
+		{
+			$becomesApproved = false;
+
+			// camelCase fan much? :P
+			$topicAndMessageBothUnapproved = true;
+		}
+
+		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
@@ -1532,8 +1543,8 @@ function Post2()
 		}
 	}
 
-	// Incase we want to override
-	if (allowedTo('approve_posts'))
+	// In case we want to override but still respect the unapproved topic rule.
+	if (allowedTo('approve_posts') && !$topicAndMessageBothUnapproved)
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
