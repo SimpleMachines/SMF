@@ -1327,6 +1327,9 @@ function Post2()
 
 			// camelCase fan much? :P
 			$topicAndMessageBothUnapproved = true;
+
+			// Set a nice session var...
+			$_SESSION['becomesUnapproved'] = true;
 		}
 
 		elseif ($topic_info['id_member_started'] != $user_info['id'])

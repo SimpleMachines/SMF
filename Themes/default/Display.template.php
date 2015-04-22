@@ -23,6 +23,15 @@ function template_main()
 			</div>';
 	}
 
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+	{
+		echo '
+			<div class="noticebox">
+				', $txt['post_becomesUnapproved'], '
+			</div>';
+	}
+
 	// Show new topic info here?
 	echo '
 		<div id="display_head" class="information">
