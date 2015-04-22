@@ -282,6 +282,7 @@ function MessageIndex()
 
 	$topic_ids = array();
 	$context['topics'] = array();
+	$colorClass = 'windowbg';
 
 	// Sequential pages are often not optimized, so we add an additional query.
 	$pre_query = $start > 0;
@@ -438,6 +439,18 @@ function MessageIndex()
 			if (!empty($board_info['recycle']))
 				$row['first_icon'] = 'recycled';
 
+			// Is this topic pending approval, or does it have any posts pending approval?
+			if ($context['can_approve_posts'] && $row['unapproved_posts'])
+				$colorClass = (!$row['approved'] ? 'approvetopic ' : 'approvepost ') . $colorClass;
+
+			// Sticky topics should get a different color, too.
+			if ($row['is_sticky'])
+				$colorClass = 'sticky ' . $colorClass;
+
+			// Locked topics get special treatment as well.
+			if ($row['locked'])
+				$colorClass = 'locked ' . $colorClass;
+
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
 				'id' => $row['id_topic'],
@@ -457,7 +470,7 @@ function MessageIndex()
 					'icon' => $row['first_icon'],
 					'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>'
+					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
 				),
 				'last_post' => array(
 					'id' => $row['id_last_msg'],
@@ -495,6 +508,8 @@ function MessageIndex()
 				'views' => comma_format($row['num_views']),
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
+				'css_class' => $colorClass,
+				'css_alternate' => $colorClass . '2';
 			);
 			if (!empty($settings['avatars_on_indexes']))
 			{
