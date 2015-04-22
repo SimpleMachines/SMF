@@ -14,6 +14,15 @@ function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
 
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+	{
+		echo '
+			<div class="noticebox">
+				', $txt['post_becomesUnapproved'], '
+			</div>';
+	}
+
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
 		echo '

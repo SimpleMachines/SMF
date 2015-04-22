@@ -714,6 +714,13 @@ function MessageIndex()
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
 
+	// Show a message in case a recently posted message became unapproved.
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
+
+	// Don't want to show this forever...
+	if ($context['becomesUnapproved'])
+		unset($_SESSION['becomesUnapproved']);
+
 	// Build the message index button array.
 	$context['normal_buttons'] = array(
 		'new_topic' => array('test' => 'can_post_new', 'text' => 'new_topic', 'image' => 'new_topic.png', 'lang' => true, 'url' => $scripturl . '?action=post;board=' . $context['current_board'] . '.0', 'active' => true),
