@@ -282,7 +282,6 @@ function MessageIndex()
 
 	$topic_ids = array();
 	$context['topics'] = array();
-	$colorClass = 'windowbg';
 
 	// Sequential pages are often not optimized, so we add an additional query.
 	$pre_query = $start > 0;
@@ -363,6 +362,9 @@ function MessageIndex()
 			if (!$pre_query)
 				$topic_ids[] = $row['id_topic'];
 
+			// Reference the main color class.
+			$colorClass = 'windowbg';
+
 			// Does the theme support message previews?
 			if (!empty($modSettings['preview_characters']))
 			{
@@ -441,15 +443,15 @@ function MessageIndex()
 
 			// Is this topic pending approval, or does it have any posts pending approval?
 			if ($context['can_approve_posts'] && $row['unapproved_posts'])
-				$colorClass = (!$row['approved'] ? 'approvetopic ' : 'approvepost ') . $colorClass;
+				$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
 
 			// Sticky topics should get a different color, too.
 			if ($row['is_sticky'])
-				$colorClass = 'sticky ' . $colorClass;
+				$colorClass .= ' sticky';
 
 			// Locked topics get special treatment as well.
 			if ($row['locked'])
-				$colorClass = 'locked ' . $colorClass;
+				$colorClass .= ' locked';
 
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
@@ -509,7 +511,7 @@ function MessageIndex()
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
 				'css_class' => $colorClass,
-				'css_alternate' => $colorClass . '2';
+				'css_alternate' => $colorClass . '2',
 			);
 			if (!empty($settings['avatars_on_indexes']))
 			{
