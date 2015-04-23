@@ -511,7 +511,6 @@ function MessageIndex()
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
 				'css_class' => $colorClass,
-				'css_alternate' => $colorClass . '2',
 			);
 			if (!empty($settings['avatars_on_indexes']))
 			{
