@@ -451,8 +451,8 @@ function template_menu()
 	{
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
-							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['icon'], $button['title'], '
+							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>';
+								if (!empty($settings['button_icon'])) {echo' ', $button['icon'],'';} echo ' ',$button['title'], '
 							</a>';
 
 		if (!empty($button['sub_buttons']))

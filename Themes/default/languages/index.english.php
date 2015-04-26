@@ -199,6 +199,8 @@ $txt['notify_deactivate'] = 'Would you like to deactivate notification on this t
 
 $txt['recent_posts'] = 'Recent Posts';
 
+$txt['button_icon_enabled'] = 'Show Icons in Navigation';
+
 $txt['location'] = 'Location';
 $txt['gender'] = 'Gender';
 $txt['personal_text'] = 'Personal Text';
