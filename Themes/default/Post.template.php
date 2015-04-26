@@ -430,8 +430,16 @@ function template_main()
 	{
 		echo '
 						<dl id="postAttachment2">
-							<div class="drop_zone descbox"><input id="fileupload" type="file" name="files[]"><h3>', $txt['attach_drop_zone'] ,'</h3></div>
-							<div class="errorbox" id="attachGenericErrors"><ul></ul></div>
+							<div class="drop_zone descbox">
+								<input id="fileupload" type="file" name="files[]">
+								<h3>', $txt['attach_drop_zone'] ,'</h3>
+							</div>
+							<div class="errorbox" id="attachGenericErrors">
+								<ul></ul>
+							</div>
+							<div class="attachControl">
+								<div clas="attachProgressAll"></div>
+							</div>
 							<div id="files" class="files"></div>';
 
 		// Add any template changes for an alternative upload system here.
