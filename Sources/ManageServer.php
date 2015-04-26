@@ -235,7 +235,7 @@ function ModifyDatabaseSettings($return_config = false)
 
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=serversettings;sa=database;save';
-	$context['settings_title'] = $txt['database_paths_settings'];
+	$context['settings_title'] = $txt['database_settings'];
 	$context['save_disabled'] = $context['settings_not_writable'];
 
 	// Saving settings?
@@ -401,6 +401,9 @@ function ModifyGeneralSecuritySettings($return_config = false)
 			array('check', 'enableReportPM'),
 		'',
 			array('select', 'frame_security', array('SAMEORIGIN' => $txt['setting_frame_security_SAMEORIGIN'], 'DENY' => $txt['setting_frame_security_DENY'], 'DISABLE' => $txt['setting_frame_security_DISABLE'])),
+		'',
+			array('select', 'proxy_ip_header', array('disabled' => $txt['setting_proxy_ip_header_disabled'], 'autodetect' => $txt['setting_proxy_ip_header_autodetect'], 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_REAL_IP', 'CF-Connecting-IP')),
+			array('text', 'proxy_ip_servers'),
 	);
 
 	call_integration_hook('integrate_general_security_settings', array(&$config_vars));

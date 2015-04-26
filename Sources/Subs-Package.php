@@ -2990,7 +2990,7 @@ function package_create_backup($id = 'backup')
 	{
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-			RecursiveIteratorIterator::SELF_FIRST,
+			RecursiveIteratorIterator::CHILD_FIRST,
 			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
 		);
 

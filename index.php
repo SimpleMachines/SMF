@@ -379,12 +379,10 @@ function smf_main()
 				return $call;
 		}
 
-		// No fallback action huh? then go to our good old BoardIndex.
+		// No fallback action, huh?
 		else
 		{
-			require_once($sourcedir . '/BoardIndex.php');
-
-			return 'BoardIndex';
+			fatal_lang_error('not_found', false, array(), 404);
 		}
 	}
 

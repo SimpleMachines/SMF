@@ -1373,78 +1373,6 @@ ul li.greeting {
 	display: inline;
 	margin: 0;
 	font-size: 0.9em;
-}
-.quickbuttons li a {
-	padding: 0 4px 0 5px;
-	display: block;
-	line-height: 1.9em;
-	float: left;
-	background: url(../images/quickbuttons.png) no-repeat 0 -1px;
-}
-.quickbuttons li a img {
-	padding-bottom: 2px;
-}
-.quickbuttons li input {
-	margin-top: 4px;
-}
-.quickbuttons a:hover {
-	color: #a70;
-}
-.quickbuttons li a.quote_button, .quickbuttons li a.quote_selected_button {
-	background-position: 0 -1px;
-	padding: 0 2px 0 20px;
-}
-/* Fix for quote on reply box */
-#post_modify {
-	border-radius: 4px;
-}
-.quickbuttons li a.modifybutton {
-	background-position: 0 -59px;
-	padding: 0 2px 0 20px;
-}
-.quickbuttons li a.remove_button {
-	background-position: 2px -29px;
-	padding: 0 2px 0 25px;
-}
-.quickbuttons li a.modify_button {
-	background-position: 2px -59px;
-}
-.quickbuttons li a.approve_button,
-.quickbuttons li a.read_button {
-	background-position: 2px -88px;
-}
-.quickbuttons li a.restore_button {
-	background-position: 0 -120px;
-}
-.quickbuttons li a.split_button {
-	background-position: 2px -149px;
-}
-.quickbuttons li a.reply_button {
-	background-position: 0 -180px;
-}
-.quickbuttons li a.reply_all_button {
-	background-position: 0 -180px;
-}
-.quickbuttons li a.notify_button {
-	background-position: 1px -210px;
-}
-.quickbuttons li a.unapprove_button,
-.quickbuttons li a.unread_button {
-	background-position: 2px -238px;
-}
-.quickbuttons li a.warn_button {
-	background-position: 2px -270px;
-}
-/* Some extra padding for some buttons */
-.quickbuttons li a.read_button, .quickbuttons li a.reply_button,
-.quickbuttons li a.reply_all_button, .quickbuttons li a.notify_button,
-.quickbuttons li a.unread_button {
-	padding: 0 4px 0 22px;
-}
-.quickbuttons li.inline_mod_check {
-	padding: 1px 1px 1px 1px;
-}
-.quickbuttons li {
 	border: 1px solid #ddd;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #aaa;
@@ -1453,6 +1381,16 @@ ul li.greeting {
 	padding: 0 1px 0 1px;
 	color: #222;
 	overflow: visible;
+}
+.quickbuttons li a {
+	padding: 0 4px 0 5px;
+	display: block;
+	line-height: 1.9em;
+	float: left;
+}
+.quickbuttons li a, .quickbuttons li a:hover {
+	text-decoration: none;
+	color: #222;
 }
 .quickbuttons li:first-child, .quickbuttons li:first-child:hover {
 	border-radius: 4px 1px 1px 4px;
@@ -1470,20 +1408,14 @@ ul li.greeting {
 	border-radius: 1px;
 	box-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
-.quickbuttons li.quick_edit, .quickbuttons li.post_options {
-	line-height: 1.9em;
-	position: relative;
+.quickbuttons li a img {
+	padding-bottom: 2px;
 }
-.quickbuttons li a, .quickbuttons li a:hover {
-	text-decoration: none;
-	color: #222;
+.quickbuttons li input {
+	margin-top: 4px;
 }
-.quickbuttons li.post_options {
-	padding: 0 4px 0 4px;
-}
-.quickbuttons li.post_options>a {
-	padding: 0 4px 0 4px;
-}
+
+/* Drop part of QuickButtons */
 .quickbuttons li ul {
 	position: absolute;
 	top: 1.9em;
@@ -1518,7 +1450,6 @@ ul li.greeting {
 	border-bottom: 1px solid #cbdae6;
 }
 .quickbuttons ul li a, .quickbuttons ul li a:focus {
-	padding: 0 6px 0 26px;
 	display: block;
 	line-height: 2.2em;
 	width: 12em;
@@ -1535,6 +1466,24 @@ ul li.greeting {
 /* Cancel for hover and/or js access. */
 .quickbuttons ul li:hover a:focus, .quickbuttons ul li a:focus {
 	margin: 0;
+}
+/* Fixes for quickbuttons
+   Fix for quote on reply box */
+#post_modify {
+	border-radius: 4px;
+}
+.quickbuttons li.inline_mod_check {
+	padding: 1px 1px 1px 1px;
+}
+.quickbuttons li.quick_edit, .quickbuttons li.post_options {
+	line-height: 1.9em;
+	position: relative;
+}
+.quickbuttons li.post_options {
+	padding: 0 4px 0 4px;
+}
+.quickbuttons li.post_options>a {
+	padding: 0 4px 0 4px;
 }
 
 /* The jump to box */
@@ -1802,6 +1751,15 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background: url(../images/generic_icons.png) no-repeat -5px -5px;
 	vertical-align: middle;
 }
+/* Small fix for topics */
+.quickbuttons span.generic_icons {
+	margin: -3px 3px 0 1px;
+}
+.quickbuttons span.generic_icons.quote,
+.quickbuttons span.generic_icons.quote_selected {
+	margin: -8px 3px 0 0;
+}
+
 .generic_icons.gender_None {
 	background: none;
 }
@@ -1815,244 +1773,246 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.help {
 	background-position: -5px -5px;
 }
-.generic_icons.gender_Male {
+.generic_icons.search, .generic_icons.engines {
 	background-position: -31px -5px;
 }
-.generic_icons.www {
+.generic_icons.quick_edit_button, .generic_icons.modify_button {
 	background-position: -57px -5px;
 }
-.generic_icons.mail_new {
+.generic_icons.check {
 	background-position: -83px -5px;
 }
-.generic_icons.unlike {
+.generic_icons.invalid {
 	background-position: -109px -5px;
 }
-.generic_icons.sort_down {
+.generic_icons.gender_Female {
 	background-position: -135px -5px;
 }
-.generic_icons.filter {
-	background-position: -161px -5px;
-	margin: 0 5px 0 0;
-}
-.generic_icons.lock, .generic_icons.security {
-	background-position: -187px -5px;
-}
-.generic_icons.valid {
+.generic_icons.watch {
 	background-position: -213px -5px;
 }
-.generic_icons.search, .generic_icons.engines {
-	background-position: -239px -5px;
-}
 /* 2nd row */
-.generic_icons.check {
+.generic_icons.move, .generic_icons.next_page {
 	background-position: -5px -31px;
 }
-.generic_icons.invalid {
+.generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
 	background-position: -31px -31px;
 }
-.generic_icons.gender_Female {
+.generic_icons.gender_Male {
 	background-position: -57px -31px;
 }
-.generic_icons.watch {
-	background-position: -161px -31px;
-}
-.generic_icons.move, .generic_icons.next_page {
-	background-position: -187px -31px;
-}
-.generic_icons.general, .generic_icons.boards, .generic_icons.topics_views {
-	background-position: -213px -31px;
-}
 .generic_icons.features {
-	background-position: -239px -31px;
+	background-position: -83px -31px;
 }
-/* 3rd row */
 .generic_icons.posters {
-	background-position: -5px -57px;
+	background-position: -109px -31px;
 }
 .generic_icons.replies, .generic_icons.topics_replies {
-	background-position: -31px -57px;
+	background-position: -135px -31px;
 }
 .generic_icons.history, .generic_icons.time_online, .generic_icons.scheduled {
-	background-position: -57px -57px;
+	background-position: -161px -31px;
 }
 .generic_icons.views {
-	background-position: -83px -57px;
+	background-position: -187px -31px;
 }
 .generic_icons.last_post {
-	background-position: -109px -57px;
+	background-position: -213px -31px;
 }
 .generic_icons.starters, .generic_icons.people, .generic_icons.membergroups, .generic_icons.mlist {
-	background-position: -135px -57px;
+	background-position: -239px -31px;
 }
+/* 3rd Street Saints */
 .generic_icons.poll {
-	background-position: -161px -57px;
+	background-position: -5px -57px;
 }
 .generic_icons.previous_page {
-	background-position: -187px -57px;
+	background-position: -31px -57px;
 }
 .generic_icons.inbox {
-	background-position: -213px -57px;
+	background-position: -57px -57px;
+}
+.generic_icons.www {
+	background-position: -83px -57px;
 }
 .generic_icons.exit, .generic_icons.logout {
-	background-position: -239px -57px;
+	background-position: -109px -57px;
 }
-/* 4th row */
 .generic_icons.switch {
-	background-position: -5px -83px;
+	background-position: -135px -57px;
 }
 .generic_icons.replied, .generic_icons.send {
-	background-position: -31px -83px;
+	background-position: -161px -57px;
 }
 .generic_icons.im_on {
-	background-position: -57px -83px;
+	background-position: -187px -57px;
 }
 .generic_icons.im_off {
-	background-position: -83px -83px;
+	background-position: -213px -57px;
 }
 .generic_icons.split_desel {
-	background-position: -109px -83px;
+	background-position: -239px -57px;
 }
+/* 4th Row */
 .generic_icons.split_sel {
-	background-position: -135px -83px;
+	background-position: -5px -83px;
 }
 .generic_icons.mail {
-	background-position: -161px -83px;
+	background-position: -31px -83px;
 }
 .generic_icons.warning_mute {
-	background-position: -187px -83px;
+	background-position: -57px -83px;
 }
-.generic_icons.alerts,
+.generic_icons.alerts, .generic_icons.warn_button,
 .generic_icons.warning_moderate {
-	background-position: -213px -83px;
+	background-position: -83px -83px;
 }
-.generic_icons.drafts {
-	background-position: -239px -83px;
+.generic_icons.mail_new {
+	background-position: -109px -83px;
 }
-/* 5th row */
+.generic_icons.drafts,
+.generic_icons.reply_button,
+.generic_icons.reply_all_button {
+	background-position: -135px -83px;
+}
 .generic_icons.warning_watch {
-	background-position: -5px -109px;
+	background-position: -161px -83px;
 }
 .generic_icons.calendar_export {
-	background-position: -31px -109px;
+	background-position: -187px -83px;
 }
 .generic_icons.calendar {
-	background-position: -57px -109px;
+	background-position: -213px -83px;
 }
 .generic_icons.calendar_modify {
-	background-position: -83px -109px;
+	background-position: -239px -83px;
 }
+/* 5th Row */
 .generic_icons.plus {
-	background-position: -109px -109px;
+	background-position: -5px -109px;
 }
 .generic_icons.warning, .generic_icons.moderate {
-	background-position: -135px -109px;
+	background-position: -31px -109px;
 }
 .generic_icons.themes {
-	background-position: -161px -109px;
+	background-position: -57px -109px;
 }
 .generic_icons.support {
-	background-position: -187px -109px;
+	background-position: -83px -109px;
 }
 .generic_icons.liked_users, .generic_icons.liked_messages, .generic_icons.like {
-	background-position: -213px -109px;
+	background-position: -109px -109px;
+}
+.generic_icons.unlike {
+	background-position: -135px -109px;
 }
 .generic_icons.current_theme {
-	background-position: -239px -109px;
+	background-position: -161px -109px;
 }
-/* 6th row */
 .generic_icons.stats {
-	background-position: -5px -135px;
+	background-position: -187px -109px;
 }
 .generic_icons.right_arrow {
-	background-position: -31px -135px;
+	background-position: -213px -109px;
 }
 .generic_icons.left_arrow {
-	background-position: -53px -135px;
+	background-position: -239px -109px;
 }
+/* 6th Row */
 .generic_icons.smiley {
-	background-position: -75px -135px;
+	background-position: -5px -135px;
 }
 .generic_icons.server {
-	background-position: -101px -135px;
+	background-position: -31px -135px;
 }
 .generic_icons.ban, .generic_icons.ignore {
-	background-position: -127px -135px;
+	background-position: -57px -135px;
 }
 .generic_icons.boards  {
-	background-position: -153px -135px;
+	background-position: -83px -135px;
 }
 .generic_icons.regcenter {
-	background-position: -179px -135px;
+	background-position: -109px -135px;
 }
 .generic_icons.posts {
-	background-position: -205px -135px;
+	background-position: -135px -135px;
+}
+.generic_icons.sort_down {
+	background-position: -161px -135px;
 }
 .generic_icons.change_menu2, .generic_icons.sent {
-	background-position: -231px -135px;
+	background-position: -187px -135px;
 }
-/* 7th row */
 .generic_icons.post_moderation_moderate {
-	background-position: -5px -161px;
+	background-position: -213px -135px;
 }
 .generic_icons.sort_up {
-	background-position: -31px -161px;
+	background-position: -239px -135px;
 }
+/* 7th Row */
 .generic_icons.post_moderation_deny {
-	background-position: -57px -161px;
+	background-position: -5px -161px;
 }
 .generic_icons.post_moderation_attach {
-	background-position: -83px -161px;
+	background-position: -31px -161px;
 }
 .generic_icons.post_moderation_allow {
-	background-position: -109px -161px;
+	background-position: -57px -161px;
 }
 .generic_icons.personal_message {
-	background-position: -135px -161px;
+	background-position: -83px -161px;
 }
 .generic_icons.permissions, .generic_icons.signup {
-	background-position: -161px -161px;
+	background-position: -109px -161px;
 }
 .generic_icons.paid {
-	background-position: -187px -161px;
+	background-position: -135px -161px;
 }
 .generic_icons.packages {
-	background-position: -213px -161px;
+	background-position: -161px -161px;
+}
+.generic_icons.filter {
+	background-position: -187px -161px;
+	margin: 0 5px 0 0;
 }
 .generic_icons.change_menu {
+	background-position: -213px -161px;
+}
+.generic_icons.package_ops {
 	background-position: -239px -161px;
 }
-/* 8th row */
-.generic_icons.package_ops {
+/* 8th Row */
+.generic_icons.reports {
 	background-position: -5px -187px;
 }
-.generic_icons.reports {
+.generic_icons.news {
 	background-position: -31px -187px;
 }
-.generic_icons.news {
+.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune, .generic_icons.remove_button {
 	background-position: -57px -187px;
 }
-.generic_icons.delete, .generic_icons.hide_popup, .generic_icons.prune {
+.generic_icons.modifications {
 	background-position: -83px -187px;
 }
-.generic_icons.modifications {
+.generic_icons.maintain, .generic_icons.admin {
 	background-position: -109px -187px;
 }
-.generic_icons.maintain, .generic_icons.admin {
+.generic_icons.administration, .generic_icons.home {
 	background-position: -135px -187px;
 }
-.generic_icons.administration, .generic_icons.home {
+.generic_icons.frenemy {
 	background-position: -161px -187px;
 }
-.generic_icons.frenemy {
+.generic_icons.attachment {
 	background-position: -187px -187px;
 }
-.generic_icons.attachment {
+.generic_icons.lock, .generic_icons.security {
 	background-position: -213px -187px;
 }
 .generic_icons.error, .generic_icons.disable {
 	background-position: -239px -187px;
 }
-/* 9th row */
+/* 9th Row */
 .generic_icons.languages {
 	background-position: -5px -213px;
 }
@@ -2080,23 +2040,43 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .generic_icons.logs {
 	background-position: -213px -213px;
 }
-.generic_icons.approve, .generic_icons.enable {
+.generic_icons.valid {
 	background-position: -239px -213px;
 }
-/* 10th row */
-.generic_icons.close {
+/* 10th Row */
+.generic_icons.approve, .generic_icons.enable,
+.generic_icons.approve_button,
+.generic_icons.read_button {
 	background-position: -5px -239px;
 }
-.generic_icons.details {
+.generic_icons.close {
 	background-position: -31px -239px;
 }
-.generic_icons.merge {
+.generic_icons.details {
 	background-position: -57px -239px;
 }
-.generic_icons.folder {
-	background-position: -82px -239px;
+.generic_icons.merge {
+	background-position: -83px -239px;
 }
-
+.generic_icons.folder {
+	background-position: -109px -239px;
+}
+.generic_icons.restore_button {
+	background-position: -135px -239px;
+}
+.generic_icons.split_button {
+	background-position: -161px -239px;
+}
+.generic_icons.unapprove_button,
+.generic_icons.unread_button {
+	background-position: -187px -239px;
+}
+.generic_icons.quote, .generic_icons.quote_selected {
+	background-position: -213px -239px;
+}
+.generic_icons.notify_button {
+	background-position: -239px -239px;
+}
 /* Styles for (fatal) errors.
 ------------------------------------------------- */
 
@@ -2107,7 +2087,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .errorbox::before, .noticebox::before, .infobox::before {
 	width: 16px;
 	height: 16px;
-	background: url(../images/generic_icons.png) no-repeat -187px -83px;
+	background: url(../images/generic_icons.png) no-repeat -57px -83px;
 	left: 10px;
 	content: '';
 	position: absolute;
@@ -2148,10 +2128,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 ------------------------------------------------- */
 
 .noticebox::before {
-	background-position: -213px -83px;
+	background-position: -83px -83px;
 }
 .infobox::before {
-	background-position: -5px -108px;
+	background-position: -161px -83px;
 }
 .noticebox {
 	color: #666;

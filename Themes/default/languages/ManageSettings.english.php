@@ -359,6 +359,11 @@ $txt['setting_frame_security_SAMEORIGIN'] = 'Allow Same Origin';
 $txt['setting_frame_security_DENY'] = 'Deny all frames';
 $txt['setting_frame_security_DISABLE'] = 'Disabled';
 
+$txt['setting_proxy_ip_header'] = 'Reverse Proxy IP Header';
+$txt['setting_proxy_ip_header_disabled'] = 'Do not allow any Proxy IP Headers';
+$txt['setting_proxy_ip_header_autodetect'] = 'Auto-detect Proxy IP header';
+$txt['setting_proxy_ip_servers'] = 'Reverse Proxy Servers IPs';
+
 $txt['select_boards_from_list'] = 'Select boards which apply';
 
 $txt['topic_move_any'] = 'Allow moving of topics to read-only boards';
@@ -372,4 +377,5 @@ $txt['tfa_mode_forced_help'] = 'Please enable 2FA in your account in order to be
 $txt['tfa_mode_enabled'] = 'Enabled';
 $txt['tfa_mode_disabled'] = 'Disabled';
 $txt['tfa_mode_subtext'] = 'Allows users to have a second layer of security while logging in, users would need an app like Google Authenticator paired with their account';
+
 ?>
