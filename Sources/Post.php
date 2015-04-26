@@ -1197,7 +1197,9 @@ function Post($post_errors = array())
 	smf_fileUpload({
 		smf_text : {
 			cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
+			cancelAll : '. JavaScriptEscape($txt['modify_cancel_all']) .',
 			upload :'. JavaScriptEscape($txt['upload']) .',
+			uploadAll :'. JavaScriptEscape($txt['upload_all']) .',
 			processing: '. JavaScriptEscape($txt['processing']) .',
 			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
 			insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',

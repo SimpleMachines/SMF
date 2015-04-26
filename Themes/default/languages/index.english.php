@@ -40,6 +40,7 @@ $txt['moderate'] = 'Moderate';
 
 $txt['save'] = 'Save';
 $txt['upload'] = 'Upload';
+$txt['upload_all'] = 'Upload All';
 $txt['processing'] = 'Processing...';
 
 $txt['modify'] = 'Modify';
@@ -742,6 +743,7 @@ $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after
 $txt['split_reset_selection'] = 'reset selection';
 
 $txt['modify_cancel'] = 'Cancel';
+$txt['modify_cancel_all'] = 'Cancel All';
 $txt['mark_read_short'] = 'Mark Read';
 
 $txt['alerts'] = 'Alerts';

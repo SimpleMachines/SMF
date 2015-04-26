@@ -125,6 +125,19 @@ function smf_fileUpload(oOptions)
 
 			$('#' + oEditorID).data('sceditor').InsertText(oTag);
 		}),
+	uploadAll = $('<a/>')
+		.addClass('button_submit uploadAllButton')
+		.prop('disabled', true)
+		.text(dOptions.smf_text.uploadAll)
+		.one('click', function (e) {
+			e.preventDefault();
+			var $this = $(this),
+				data = $this.data();
+
+			data.submit().always(function () {
+				// @todo Disable this while the process is still running.
+			});
+		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
 	totalSize = 0;
