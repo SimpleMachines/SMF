@@ -124,6 +124,11 @@ function template_options()
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
 		)
+		array(
+			'id' => 'button_icon',
+			'label'  => $txt['button_icon_enabled'],
+			'default' => true,
+		)
 	);
 }
 
