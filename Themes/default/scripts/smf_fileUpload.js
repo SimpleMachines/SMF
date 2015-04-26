@@ -49,6 +49,10 @@ function smf_fileUpload(oOptions)
 				data = $this.data(),
 				node = $(data.context);
 
+			data.abort().always(function () {
+				// @todo do stuff while aborting.
+			});
+
 			// Gotta remove this from the number of files.
 			--numberOfFiles;
 
@@ -136,6 +140,30 @@ function smf_fileUpload(oOptions)
 
 			data.submit().always(function () {
 				// @todo Disable this while the process is still running.
+			});
+		}),
+	cancelAll = $('<a/>')
+		.addClass('button_submit cancelAllButton')
+		.prop('disabled', false)
+		.text(dOptions.smf_text.cancel)
+		.one('click', function (e) {
+			e.preventDefault();
+			var $this = $(this),
+				data = $this.data(),
+				node = $(data.context);
+
+			// Gotta remove everything.
+			numberOfFiles = 0;
+
+			// And this stuff too!.
+			totalSize = 0;
+
+			data.abort().always(function () {
+				// @todo do stuff while aborting.
+			});
+
+			data.currentNode.fadeOut('slow', function() {
+				data.currentNode.remove();
 			});
 		}),
 	numberOfTimes = 0,
