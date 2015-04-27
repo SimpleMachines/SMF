@@ -135,42 +135,39 @@ function smf_fileUpload(oOptions)
 		.text(dOptions.smf_text.uploadAll)
 		.one('click', function (e) {
 			e.preventDefault();
-			var $this = $(this),
-				data = $this.data();
-
-			data.submit().always(function () {
-				// @todo Disable this while the process is still running.
-			});
+			for (i=0; i < fileUpload.length; i++) {
+				fileUpload[i].data.submit().always(function () {
+					// @todo do stuff while aborting.
+				});
+			}
 		}),
 	cancelAll = $('<a/>')
 		.addClass('button_submit cancelAllButton')
 		.prop('disabled', false)
-		.text(dOptions.smf_text.cancel)
-		.one('click', function (e) {
+		.text(dOptions.smf_text.cancelAll)
+		.on('click', function (e) {
 			e.preventDefault();
-			var $this = $(this),
-				data = $this.data(),
-				node = $(data.context);
-
 			// Gotta remove everything.
 			numberOfFiles = 0;
 
 			// And this stuff too!.
 			totalSize = 0;
 
-			data.abort().always(function () {
-				// @todo do stuff while aborting.
-			});
+			fileIndicator = false;
 
-			data.currentNode.fadeOut('slow', function() {
-				data.currentNode.remove();
-			});
+			for (i=0; i < fileUpload.track.length; i++) {
+				fileUpload.track[i].justCancel = true;
+				fileUpload.track[i].abort().always(function () {
+					// @todo do stuff while aborting.
+				});
+			}
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
-	totalSize = 0;
+	totalSize = 0,
+	fileIndicator = false,
 
-	$(dOptions.smf_mainDiv).fileupload(dOptions)
+	fileUpload = $(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
 
 			// Track the number of times this event has been fired.
@@ -178,6 +175,19 @@ function smf_fileUpload(oOptions)
 
 			// Create a master and empty div.
 			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
+
+			// Perhaps we just want to cancel...
+			data.justCancel = false;
+
+			// Show some general controls.
+			if (!fileIndicator){
+				fileIndicator = true;
+
+				$('.attachControl')
+					.append(cancelAll.clone(true))
+					.append(uploadAll.clone(true));
+					fileUpload.track = [];
+			}
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
@@ -199,7 +209,13 @@ function smf_fileUpload(oOptions)
 						.append(cancelButton.clone(true).data(data))
 						.append(uploadButton.clone(true).data(data));
 
+				// No longer needed.
+				delete data.currentNode,
+						data.currentFile;
+
 				node.appendTo(data.context);
+
+				fileUpload.track.push(data);
 			});
 		})
 		.on('fileuploadsend', function (e, data) {
@@ -331,9 +347,11 @@ function smf_fileUpload(oOptions)
 				// Hide the progress bar.
 				node.find('.progressBar').fadeOut();
 
+				if (!data.justCancel){
 				node
 					.find('.file_info')
 					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+				}
 
 				node.removeClass('descbox').addClass('errorbox');
 				node.find('.uploadButton').remove();
