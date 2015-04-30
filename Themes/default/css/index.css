@@ -463,7 +463,7 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after {
+.pages::after, .jump_to::after, .code::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
