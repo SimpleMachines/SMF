@@ -491,7 +491,12 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-
+.current_page::before {
+	content: "[";
+}
+.current_page::after {
+	content: "]";
+}
 /* Go up and go down links. */
 .topbottom {
 	display: block;
