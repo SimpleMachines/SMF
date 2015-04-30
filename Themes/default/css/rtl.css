@@ -737,3 +737,13 @@ span.pages {
 #userstatus .smalltext, .pm_icon {
 	margin: 0 20px 0 0 !important;
 }
+
+.profile_user_avatar {
+	float: right;
+}
+#profile_menu .profile_user_info {
+	margin: 3px 10px 5px 0;
+}
+#profile_menu .profile_user_avatar img {
+	margin: 5px 10px 0 0;
+}
