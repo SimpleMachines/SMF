@@ -491,10 +491,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-.current_page::before {
+.current_page::before, .codeoperation::before {
 	content: "[";
 }
-.current_page::after {
+.current_page::after, .codeoperation::after {
 	content: "]";
 }
 /* Go up and go down links. */

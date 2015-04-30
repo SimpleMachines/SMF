@@ -392,8 +392,9 @@ ul.post_options li {
 #to_item_list_container div, #bcc_item_list_container div {
 	float: right;
 	margin: 0;
-/* Styles for the move topic section.
----------------------------------------------------- */
+}
+
+/* Styles for the move topic section. */
 .move_topic {
 	text-align: right;
 }
@@ -738,12 +739,15 @@ span.pages {
 	margin: 0 20px 0 0 !important;
 }
 
-.profile_user_avatar {
-	float: right;
-}
+/* Profile drop it needs reverse on RTL */
 #profile_menu .profile_user_info {
 	margin: 3px 10px 5px 0;
 }
 #profile_menu .profile_user_avatar img {
 	margin: 5px 10px 0 0;
+}
+
+/* Code is a code do it LTR */
+code.bbc_code {
+	text-align: left;
 }
