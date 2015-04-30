@@ -1190,7 +1190,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_identity_any',
 		'profile_extra_any',
 		'profile_signature_any',
-		'profile_forum_own',
 		'profile_other_any',
 		'profile_displayed_name_any',
 		'profile_password_any',
