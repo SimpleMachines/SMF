@@ -112,7 +112,8 @@ function template_main()
 	if (!empty($context['search_params']['topic']))
 		echo '
 				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
-				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">';
+				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
+				<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">';
 
 	echo '
 			</div>
