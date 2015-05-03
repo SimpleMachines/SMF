@@ -309,7 +309,7 @@ function template_results()
 		{
 
 			echo '
-			<div class="windowbg">
+			<div class="', $topic['css_class'] ,'">
 				<div class="flow_auto">';
 
 			foreach ($topic['matches'] as $message)

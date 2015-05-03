@@ -194,24 +194,8 @@ function template_main()
 
 		foreach ($context['topics'] as $topic)
 		{
-			$color_class = 'windowbg';
-
-			// Is this topic pending approval, or does it have any posts pending approval?
-			if ($context['can_approve_posts'] && $topic['unapproved_posts'])
-				$color_class = (!$topic['approved'] ? 'approvetopic ' : 'approvepost ') . $color_class;
-
-			// Sticky topics should get a different color, too.
-			if ($topic['is_sticky'])
-				$color_class = 'sticky ' . $color_class;
-			// Locked topics get special treatment as well.
-			if ($topic['is_locked'])
-				$color_class = 'locked ' . $color_class;
-
-			// Some columns require a different shade of the color class.
-			$alternate_class = $color_class . '2';
-
 			echo '
-			<div class="', $color_class, '">
+			<div class="', $topic['css_class'], '">
 				<div class="icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '

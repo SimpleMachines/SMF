@@ -715,6 +715,7 @@ function showPosts($memID)
 			'can_delete' => false,
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty($modSettings['edit_disable_time']) || $row['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()),
 			'approved' => $row['approved'],
+			'css_class' => $row['approved'] ? 'windowbg' : 'approvebg',
 		);
 
 		if ($user_info['id'] == $row['id_member_started'])
@@ -782,6 +783,9 @@ function showPosts($memID)
 		$context['posts'][$counter]['can_delete'] &= $context['posts'][$counter]['delete_possible'];
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
 	}
+
+	// Allow last minute changes.
+	call_integration_hook('integrate_profile_showPosts');
 }
 
 /**
