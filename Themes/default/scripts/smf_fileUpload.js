@@ -47,7 +47,9 @@ function smf_fileUpload(oOptions)
 			e.preventDefault();
 			var $this = $(this),
 				data = $this.data(),
-				node = $(data.context);
+				fileIndex = data.fileIndex,
+				currentFile = data.context.files[fileIndex],
+				node = $(data.context.context);
 
 			data.abort().always(function () {
 				// @todo do stuff while aborting.
@@ -57,7 +59,7 @@ function smf_fileUpload(oOptions)
 			--numberOfFiles;
 
 			// And remove this file's size from the total.
-			totalSize = totalSize - data.currentFile.size;
+			totalSize = totalSize - currentFile.size;
 
 			$this.remove();
 			data.currentNode.fadeOut('slow', function() {
@@ -201,17 +203,9 @@ function smf_fileUpload(oOptions)
 				node.find('.file_details')
 						.append($('<p/>').text(file.name));
 
-				// Append the current node info so it would be easier for the buttons to target it.
-				data.currentNode = node;
-				data.currentFile = file;
-
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data(data))
-						.append(uploadButton.clone(true).data(data));
-
-				// No longer needed.
-				delete data.currentNode,
-						data.currentFile;
+						.append(cancelButton.clone(true).data({context: data, fileIndex: index }))
+						.append(uploadButton.clone(true).data({context: data, fileIndex: index }));
 
 				node.appendTo(data.context);
 
