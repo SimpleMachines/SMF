@@ -40,7 +40,11 @@
 		margin: 0 0 0 -85px;
 	}
 	.dropmenu li {
-		width: 50%;
+		width: 10%;
+	}
+	.dropmenu li span.textmenu
+	{
+		display:none;
 	}
 	.dropmenu li a {
 		width: 65%;
