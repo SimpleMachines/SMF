@@ -193,6 +193,7 @@ function Register($reg_errors = array())
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
 		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
+		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
 	// Were there any errors?
