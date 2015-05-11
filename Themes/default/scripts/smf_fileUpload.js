@@ -35,7 +35,7 @@ function smf_fileUpload(oOptions)
 			var $this = $(this),
 				data = $this.data();
 
-			data.submit().always(function () {
+			fileUpload.track[data.i].submit().always(function () {
 				$this.remove();
 			});
 		}),
@@ -129,7 +129,7 @@ function smf_fileUpload(oOptions)
 			// Get the text field value.
 			oTag = node.find('input[name=attachBBC]').val();
 
-			$('#' + oEditorID).data('sceditor').InsertText(oTag);
+			$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
 		}),
 	uploadAll = $('<a/>')
 		.addClass('button_submit uploadAllButton')
@@ -139,7 +139,7 @@ function smf_fileUpload(oOptions)
 			e.preventDefault();
 			for (i=0; i < fileUpload.length; i++) {
 				fileUpload[i].data.submit().always(function () {
-					// @todo do stuff while aborting.
+
 				});
 			}
 		}),
@@ -204,8 +204,8 @@ function smf_fileUpload(oOptions)
 						.append($('<p/>').text(file.name));
 
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data({context: data, fileIndex: index }))
-						.append(uploadButton.clone(true).data({context: data, fileIndex: index }));
+						.append(cancelButton.clone(true).data({i:index}))
+						.append(uploadButton.clone(true).data({i:index}));
 
 				node.appendTo(data.context);
 
@@ -371,7 +371,7 @@ $(function() {
 				var oValue = $(this).data('attach'),
 					oTag = $('input[name=editedAttachBBC_'+ oValue +']').val();
 
-				$('#' + oEditorID).data('sceditor').InsertText(oTag);
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
 		});
 	}
 
