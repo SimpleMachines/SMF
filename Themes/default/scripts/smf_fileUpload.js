@@ -35,7 +35,7 @@ function smf_fileUpload(oOptions)
 			var $this = $(this),
 				data = $this.data();
 
-			fileUpload.track[data.i].submit().always(function () {
+			data.submit().always(function () {
 				$this.remove();
 			});
 		}),
@@ -47,19 +47,13 @@ function smf_fileUpload(oOptions)
 			e.preventDefault();
 			var $this = $(this),
 				data = $this.data(),
-				fileIndex = data.fileIndex,
-				currentFile = data.context.files[fileIndex],
-				node = $(data.context.context);
-
-			data.abort().always(function () {
-				// @todo do stuff while aborting.
-			});
+				node = $(data.context);
 
 			// Gotta remove this from the number of files.
 			--numberOfFiles;
 
 			// And remove this file's size from the total.
-			totalSize = totalSize - currentFile.size;
+			totalSize = totalSize - data.currentFile.size;
 
 			$this.remove();
 			data.currentNode.fadeOut('slow', function() {
@@ -129,47 +123,13 @@ function smf_fileUpload(oOptions)
 			// Get the text field value.
 			oTag = node.find('input[name=attachBBC]').val();
 
-			$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
-		}),
-	uploadAll = $('<a/>')
-		.addClass('button_submit uploadAllButton')
-		.prop('disabled', true)
-		.text(dOptions.smf_text.uploadAll)
-		.one('click', function (e) {
-			e.preventDefault();
-			for (i=0; i < fileUpload.length; i++) {
-				fileUpload[i].data.submit().always(function () {
-
-				});
-			}
-		}),
-	cancelAll = $('<a/>')
-		.addClass('button_submit cancelAllButton')
-		.prop('disabled', false)
-		.text(dOptions.smf_text.cancelAll)
-		.on('click', function (e) {
-			e.preventDefault();
-			// Gotta remove everything.
-			numberOfFiles = 0;
-
-			// And this stuff too!.
-			totalSize = 0;
-
-			fileIndicator = false;
-
-			for (i=0; i < fileUpload.track.length; i++) {
-				fileUpload.track[i].justCancel = true;
-				fileUpload.track[i].abort().always(function () {
-					// @todo do stuff while aborting.
-				});
-			}
+			$('#' + oEditorID).data('sceditor').InsertText(oTag);
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
-	totalSize = 0,
-	fileIndicator = false,
+	totalSize = 0;
 
-	fileUpload = $(dOptions.smf_mainDiv).fileupload(dOptions)
+	$(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
 
 			// Track the number of times this event has been fired.
@@ -177,19 +137,6 @@ function smf_fileUpload(oOptions)
 
 			// Create a master and empty div.
 			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
-
-			// Perhaps we just want to cancel...
-			data.justCancel = false;
-
-			// Show some general controls.
-			if (!fileIndicator){
-				fileIndicator = true;
-
-				$('.attachControl')
-					.append(cancelAll.clone(true))
-					.append(uploadAll.clone(true));
-					fileUpload.track = [];
-			}
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
@@ -203,13 +150,15 @@ function smf_fileUpload(oOptions)
 				node.find('.file_details')
 						.append($('<p/>').text(file.name));
 
+				// Append the current node info so it would be easier for the buttons to target it.
+				data.currentNode = node;
+				data.currentFile = file;
+
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data({i:index}))
-						.append(uploadButton.clone(true).data({i:index}));
+						.append(cancelButton.clone(true).data(data))
+						.append(uploadButton.clone(true).data(data));
 
 				node.appendTo(data.context);
-
-				fileUpload.track.push(data);
 			});
 		})
 		.on('fileuploadsend', function (e, data) {
@@ -341,11 +290,9 @@ function smf_fileUpload(oOptions)
 				// Hide the progress bar.
 				node.find('.progressBar').fadeOut();
 
-				if (!data.justCancel){
 				node
 					.find('.file_info')
 					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
-				}
 
 				node.removeClass('descbox').addClass('errorbox');
 				node.find('.uploadButton').remove();
@@ -371,7 +318,7 @@ $(function() {
 				var oValue = $(this).data('attach'),
 					oTag = $('input[name=editedAttachBBC_'+ oValue +']').val();
 
-				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
+				$('#' + oEditorID).data('sceditor').InsertText(oTag);
 		});
 	}
 
