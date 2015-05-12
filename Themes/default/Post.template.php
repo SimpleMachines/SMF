@@ -874,11 +874,11 @@ function template_main()
 
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+				$("#', $context['post_box_name'], '").data("sceditor").sourceEditorInsertText(text);
 			}
 			function onReceiveOpener(text)
 			{
-				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
+				$("#', $context['post_box_name'], '").data("sceditor").sourceEditorInsertText(text);
 			}
 		// ]]></script>';
 	}

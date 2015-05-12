@@ -123,7 +123,7 @@ function smf_fileUpload(oOptions)
 			// Get the text field value.
 			oTag = node.find('input[name=attachBBC]').val();
 
-			$('#' + oEditorID).data('sceditor').InsertText(oTag);
+			$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
@@ -318,7 +318,7 @@ $(function() {
 				var oValue = $(this).data('attach'),
 					oTag = $('input[name=editedAttachBBC_'+ oValue +']').val();
 
-				$('#' + oEditorID).data('sceditor').InsertText(oTag);
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
 		});
 	}
 
