@@ -47,13 +47,18 @@ function smf_fileUpload(oOptions)
 			e.preventDefault();
 			var $this = $(this),
 				data = $this.data(),
-				node = $(data.context);
+				node = $(data.instance.context);
 
 			// Gotta remove this from the number of files.
 			--numberOfFiles;
 
 			// And remove this file's size from the total.
 			totalSize = totalSize - data.currentFile.size;
+
+			// Need to remove this entry from the track array
+			fileUpload.track = $.grep(fileUpload.track,
+				function(o,i) { return o === data.uniqueID; },
+			true);
 
 			$this.remove();
 			data.currentNode.fadeOut('slow', function() {
@@ -125,23 +130,88 @@ function smf_fileUpload(oOptions)
 
 			$('#' + oEditorID).data('sceditor').sourceEditorInsertText(oTag);
 		}),
+	uploadAll = $('<a/>')
+		.addClass('button_submit uploadAllButton')
+		.prop('disabled', true)
+		.text(dOptions.smf_text.uploadAll)
+		.one('click', function (e) {
+			e.preventDefault();
+			for (i=0; i < fileUpload.length; i++) {
+				fileUpload[i].data.submit().always(function () {
+
+				});
+			}
+		}),
+	cancelAll = $('<a/>')
+		.addClass('button_submit cancelAllButton')
+		.prop('disabled', false)
+		.text(dOptions.smf_text.cancelAll)
+		.on('click', function (e) {
+			e.preventDefault();
+
+			var $this = $(this),
+				data = $this.data(),
+				node = $(data.context);
+
+			// Gotta remove everything.
+			numberOfFiles = 0;
+
+			// And this stuff too!.
+			totalSize = 0;
+
+			fileIndicator = false;
+
+			for (i=0; i < fileUpload.track.length; i++) {
+
+				tempFile = fileUpload.track[i];
+
+				// Gotta remove this from the number of files.
+				--numberOfFiles;
+
+				// And remove this file's size from the total.
+				totalSize = totalSize - tempFile.currentFile.size;
+
+				$('#attach_holder_' + i).fadeOut('slow', function() {
+					$('#attach_holder_' + i).remove();
+				});
+
+				fileUpload.track[i].justCancel = true;
+				fileUpload.track[i].abort().always(function () {
+					// @todo do stuff while aborting.
+				});
+			}
+		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
-	totalSize = 0;
+	totalSize = 0,
+	fileIndicator = false,
+	uniqueID = 0
 
-	$(dOptions.smf_mainDiv).fileupload(dOptions)
+	fileUpload =  $(dOptions.smf_mainDiv).fileupload(dOptions)
 		.on('fileuploadadd', function (e, data) {
 
 			// Track the number of times this event has been fired.
 			++numberOfTimes;
 
+			// Show some general controls.
+			if (!fileIndicator){
+				fileUpload.track = [];
+			}
+
 			// Create a master and empty div.
 			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
 
+			// Perhaps we just want to cancel...
+			data.justCancel = false;
+
 			// Append the file.
 			$.each(data.files, function (index, file) {
+
+				// Set a unique identifier for this file.
+				++uniqueID;
+
 				var node = $('<div/>').addClass('attach_holder descbox')
-				.attr('id', 'attach_holder_' + numberOfTimes)
+				.attr('id', 'attach_holder_' + uniqueID)
 				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
 
 				// Hide the progress bar, we don't want to show it just yet!
@@ -155,11 +225,21 @@ function smf_fileUpload(oOptions)
 				data.currentFile = file;
 
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data(data))
-						.append(uploadButton.clone(true).data(data));
+						.append(cancelButton.clone(true).data({uniqueID: uniqueID, currentFile: file, instance: data}))
+						.append(uploadButton.clone(true).data({uniqueID: uniqueID, currentFile: file, instance: data}));
 
 				node.appendTo(data.context);
+				fileUpload.track.push(uniqueID);
 			});
+
+			// Show some general controls.
+			if (!fileIndicator){
+				fileIndicator = true;
+
+				$('.attachControl')
+					.append(cancelAll.clone(true).data(data))
+					.append(uploadAll.clone(true).data(data));
+			}
 		})
 		.on('fileuploadsend', function (e, data) {
 
@@ -290,9 +370,11 @@ function smf_fileUpload(oOptions)
 				// Hide the progress bar.
 				node.find('.progressBar').fadeOut();
 
+				if (!data.justCancel){
 				node
 					.find('.file_info')
 					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+				}
 
 				node.removeClass('descbox').addClass('errorbox');
 				node.find('.uploadButton').remove();
