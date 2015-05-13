@@ -60,9 +60,11 @@ function smf_fileUpload(oOptions)
 				function(o,i) { return o === data.uniqueID; },
 			true);
 
+			// And actually remove the button and the node.
 			$this.remove();
 			data.currentNode.fadeOut('slow', function() {
 				data.currentNode.remove();
+				data.instance.abort();
 			});
 		}),
 	deleteButton = $('<a />')
@@ -221,12 +223,9 @@ function smf_fileUpload(oOptions)
 						.append($('<p/>').text(file.name));
 
 				// Append the current node info so it would be easier for the buttons to target it.
-				data.currentNode = node;
-				data.currentFile = file;
-
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data({uniqueID: uniqueID, currentFile: file, instance: data}))
-						.append(uploadButton.clone(true).data({uniqueID: uniqueID, currentFile: file, instance: data}));
+						.append(cancelButton.clone(true).data({uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data}))
+						.append(uploadButton.clone(true).data({uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data}));
 
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
