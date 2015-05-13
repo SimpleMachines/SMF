@@ -57,7 +57,7 @@ function smf_fileUpload(oOptions)
 
 			// Need to remove this entry from the track array
 			fileUpload.track = $.grep(fileUpload.track,
-				function(o,i) { return o === data.uniqueID; },
+				function(o,i) { return o === data.index; },
 			true);
 
 			// And actually remove the button and the node.
@@ -222,6 +222,7 @@ function smf_fileUpload(oOptions)
 				node.find('.file_details')
 						.append($('<p/>').text(file.name));
 
+
 				// Append the current node info so it would be easier for the buttons to target it.
 				node.find('.file_buttons')
 						.append(cancelButton.clone(true).data({uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data}))
@@ -274,6 +275,12 @@ function smf_fileUpload(oOptions)
 				}
 
 				// Cancel the current upload.
+				node
+					.find('.file_info')
+					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+
+				node.removeClass('descbox').addClass('errorbox');
+				node.find('.uploadButton').remove();
 				data.abort();
 			}
 
@@ -361,23 +368,6 @@ function smf_fileUpload(oOptions)
 				'width',
 				progress + '%'
 			);
-		})
-		.on('fileuploadfail', function (e, data) {
-			$.each(data.files, function (index, file) {
-				var node = $(data.context.children()[index]);
-
-				// Hide the progress bar.
-				node.find('.progressBar').fadeOut();
-
-				if (!data.justCancel){
-				node
-					.find('.file_info')
-					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
-				}
-
-				node.removeClass('descbox').addClass('errorbox');
-				node.find('.uploadButton').remove();
-			});
 		});
 }
 
