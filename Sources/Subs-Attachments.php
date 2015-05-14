@@ -941,7 +941,7 @@ function parseAttachBBC($attachID = false)
 		$attachInfo = getAttachMsgInfo($attachID);
 
 		// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
-		if (empty($attachInfo))
+		if (empty($attachInfo) || empty($attachInfo['msg']))
 			return 'no_msg_associated';
 
 		// Hold it! got the info now check if you can see this attachment.
