@@ -35,7 +35,7 @@ function smf_fileUpload(oOptions)
 			var $this = $(this),
 				data = $this.data();
 
-			data.submit().always(function () {
+			data.instance.submit().always(function () {
 				$this.remove();
 			});
 		}),
@@ -161,27 +161,30 @@ function smf_fileUpload(oOptions)
 			// And this stuff too!.
 			totalSize = 0;
 
+			// Reset!
 			fileIndicator = false;
 
-			for (i=0; i < fileUpload.track.length; i++) {
-
-				tempFile = fileUpload.track[i];
-
-				// Gotta remove this from the number of files.
-				--numberOfFiles;
-
-				// And remove this file's size from the total.
-				totalSize = totalSize - tempFile.currentFile.size;
+			$(fileUpload.track).each(function(index, i) {
 
 				$('#attach_holder_' + i).fadeOut('slow', function() {
 					$('#attach_holder_' + i).remove();
 				});
+			});
 
-				fileUpload.track[i].justCancel = true;
-				fileUpload.track[i].abort().always(function () {
-					// @todo do stuff while aborting.
-				});
-			}
+			// Remove both upload and cancel all buttons.
+			$('.cancelAllButton').fadeOut('slow', function() {
+				$(this).remove();
+			});
+
+			$('.uploadAllButton').fadeOut('slow', function() {
+				$(this).remove();
+			});
+
+			// Reset the track array too!
+			fileUpload.track = [];
+
+			// Finally, abort all the things!
+			data.abort();
 		}),
 	numberOfTimes = 0,
 	numberOfFiles = 0,
@@ -197,6 +200,13 @@ function smf_fileUpload(oOptions)
 
 			// Show some general controls.
 			if (!fileIndicator){
+				fileIndicator = true;
+
+				$('.attachControl')
+					.append(cancelAll.clone(true).data(data))
+					.append(uploadAll.clone(true).data(data));
+
+				// Keep track of each unique file added
 				fileUpload.track = [];
 			}
 
@@ -222,24 +232,17 @@ function smf_fileUpload(oOptions)
 				node.find('.file_details')
 						.append($('<p/>').text(file.name));
 
+				// Need to pass some stuff to the upload and cancel buttons.
+				toButtons = {uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data};
 
 				// Append the current node info so it would be easier for the buttons to target it.
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data({uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data}))
-						.append(uploadButton.clone(true).data({uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data}));
+						.append(cancelButton.clone(true).data(toButtons))
+						.append(uploadButton.clone(true).data(toButtons));
 
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
 			});
-
-			// Show some general controls.
-			if (!fileIndicator){
-				fileIndicator = true;
-
-				$('.attachControl')
-					.append(cancelAll.clone(true).data(data))
-					.append(uploadAll.clone(true).data(data));
-			}
 		})
 		.on('fileuploadsend', function (e, data) {
 
@@ -361,7 +364,9 @@ function smf_fileUpload(oOptions)
 		})
 		.on('fileuploadprogress', function (e, data) {
 			data.context.find('.uploadButton')
-				.text(dOptions.smf_text.processing);
+				.text(dOptions.smf_text.processing).fadeOut('slow', function() {
+					data.context.find('.uploadButton').remove();
+				});
 
 			var progress = parseInt(data.loaded / data.total * 100, 10);
 			data.context.find('.progressBar').children().css(
