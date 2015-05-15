@@ -4773,4 +4773,22 @@ function smf_list_timezones()
 	);
 }
 
+/**
+ * Returns the content of a given file as an string encoded by the given encoding.
+ *
+ * @param string $file the file to load
+ * @oaram string $toEncoding The output encoding
+ * @param string $originalEncoding The file's original encoding.
+ * @return string the file as a string.
+ */
+function file_get_contents_encode($file, $toEncoding = 'UTF-8', $originalEncoding = 'ISO-8859-1')
+{
+	if (empty($file))
+		return false;
+
+	$content = file_get_contents($file);
+
+	return mb_convert_encoding($content, $toEncoding, mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
+}
+
 ?>
