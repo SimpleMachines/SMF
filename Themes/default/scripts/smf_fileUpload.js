@@ -33,11 +33,14 @@ function smf_fileUpload(oOptions)
 		.one('click', function (e) {
 			e.preventDefault();
 			var $this = $(this),
-				data = $this.data();
+				data = $this.data(),
+				node = $('#attach_holder_' + data.uniqueID);
 
-			data.instance.submit().always(function () {
-				$this.remove();
-			});
+			// Show the progress bar.
+			node.find('.progressBar').fadeIn();
+
+			data.instance.submit();
+			$this.remove();
 		}),
 	cancelButton = $('<a/>')
 		.addClass('button_submit cancelButton')
@@ -138,11 +141,13 @@ function smf_fileUpload(oOptions)
 		.text(dOptions.smf_text.uploadAll)
 		.one('click', function (e) {
 			e.preventDefault();
-			for (i=0; i < fileUpload.length; i++) {
-				fileUpload[i].data.submit().always(function () {
+			var $this = $(this),
+				data = $this.data();
 
-				});
-			}
+			// Show the progress bar.
+			data.context.find('.progressBar').fadeIn();
+
+			data.submit();
 		}),
 	cancelAll = $('<a/>')
 		.addClass('button_submit cancelAllButton')
@@ -198,23 +203,14 @@ function smf_fileUpload(oOptions)
 			// Track the number of times this event has been fired.
 			++numberOfTimes;
 
-			// Show some general controls.
-			if (!fileIndicator){
-				fileIndicator = true;
-
-				$('.attachControl')
-					.append(cancelAll.clone(true).data(data))
-					.append(uploadAll.clone(true).data(data));
-
-				// Keep track of each unique file added
-				fileUpload.track = [];
-			}
-
 			// Create a master and empty div.
 			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
 
-			// Perhaps we just want to cancel...
-			data.justCancel = false;
+			// Show some general controls.
+			if (!fileIndicator){
+				// Keep track of each unique file added
+				fileUpload.track = [];
+			}
 
 			// Append the file.
 			$.each(data.files, function (index, file) {
@@ -243,12 +239,15 @@ function smf_fileUpload(oOptions)
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
 			});
-		})
-		.on('fileuploadsend', function (e, data) {
 
-			// Show the progress bar.
-			data.context.find('.progressBar').fadeIn();
+			// Show some general controls.
+			if (!fileIndicator){
+				fileIndicator = true;
 
+				$('.attachControl')
+					.append(cancelAll.clone(true).data(data))
+					.append(uploadAll.clone(true).data(data));
+			}
 		})
 		.on('fileuploadprocessalways', function (e, data) {
 			var index = data.index,
