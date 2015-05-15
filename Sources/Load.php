@@ -2620,7 +2620,7 @@ function getBoardParents($id_parent)
  */
 function getLanguages($use_cache = true, $favor_utf8 = true)
 {
-	global $context, $smcFunc, $settings, $modSettings;
+	global $context, $smcFunc, $settings, $modSettings, $txt;
 
 	// Either we don't use the cache, or its expired.
 	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
@@ -2660,8 +2660,17 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 				if (!preg_match('~^index\.(.+)\.php$~', $entry, $matches))
 					continue;
 
+				// Get the file in the current encoding.
+				$indexFile = file_get_contents_encode($language_dir .'/'. $entry, $txt['lang_character_set']);
+
+				// Get the "Native name" var.
+				preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
+
+				// Set the language's name.
+				$langName = !empty($matchNative) && !empty($matchNative[1]) ? $matchNative[1] : $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+
 				$context['languages'][$matches[1]] = array(
-					'name' => $smcFunc['ucwords'](strtr($matches[1], array('_' => ' '))),
+					'name' => $langName,
 					'selected' => false,
 					'filename' => $matches[1],
 					'location' => $language_dir . '/index.' . $matches[1] . '.php',

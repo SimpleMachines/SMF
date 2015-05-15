@@ -4781,14 +4781,14 @@ function smf_list_timezones()
  * @param string $originalEncoding The file's original encoding.
  * @return string the file as a string.
  */
-function file_get_contents_encode($file, $toEncoding = 'UTF-8', $originalEncoding = 'ISO-8859-1')
+function file_get_contents_encode($file, $toEncoding = 'UTF-8', $originalEncoding = false)
 {
 	if (empty($file))
 		return false;
 
 	$content = file_get_contents($file);
 
-	return mb_convert_encoding($content, $toEncoding, mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
+	return mb_convert_encoding($content, $toEncoding, mb_detect_encoding($content, !empty($originalEncoding) ? $originalEncoding : 'auto', true));
 }
 
 ?>
