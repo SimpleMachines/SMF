@@ -393,6 +393,7 @@ function RecentPosts()
 			'can_reply' => false,
 			'can_delete' => false,
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty($modSettings['edit_disable_time']) || $row['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()),
+			'css_class' => 'windowbg',
 		);
 
 		if ($user_info['id'] == $row['id_first_member'])
@@ -449,6 +450,9 @@ function RecentPosts()
 		// And some cannot be quoted...
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
 	}
+
+	// Allow last minute changes.
+	call_integration_hook('integrate_recent_RecentPosts');
 }
 
 /**
@@ -1274,6 +1278,17 @@ function UnreadTopics()
 			$row['last_icon'] = 'recycled';
 		}
 
+		// Reference the main color class.
+		$colorClass = 'windowbg';
+
+		// Sticky topics should get a different color, too.
+		if ($row['is_sticky'])
+			$colorClass .= ' sticky';
+
+		// Locked topics get special treatment as well.
+		if ($row['locked'])
+			$colorClass .= ' locked';
+
 		// And build the array.
 		$context['topics'][$row['id_topic']] = array(
 			'id' => $row['id_topic'],
@@ -1317,6 +1332,7 @@ function UnreadTopics()
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['new_from']) . ';topicseen#msg' . $row['new_from'] . '" rel="nofollow">' . $row['first_subject'] . '</a>',
 			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
+			'css_class' => $colorClass,
 			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 			'is_posted_in' => false,
 			'icon' => $row['first_icon'],

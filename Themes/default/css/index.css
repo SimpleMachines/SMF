@@ -463,7 +463,7 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after {
+.pages::after, .jump_to::after, .code::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -491,7 +491,12 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-
+.current_page::before, .codeoperation::before {
+	content: "[";
+}
+.current_page::after, .codeoperation::after {
+	content: "]";
+}
 /* Go up and go down links. */
 .topbottom {
 	display: block;
@@ -805,10 +810,6 @@ img.sort, .sort {
 }
 #profile_menu .profile_user_info {
 	margin: 3px 0 5px 10px;
-	float: left;
-}
-#profile_menu .profile_user_avatar {
-	float: left;
 }
 #profile_menu .profile_user_avatar img {
 	margin: 5px 0 0 10px;

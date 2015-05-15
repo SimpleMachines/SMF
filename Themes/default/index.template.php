@@ -60,7 +60,7 @@ function template_init()
 	$settings['page_index'] = array(
 		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
 		'previous_page' => '<span class="generic_icons previous_page"></span>',
-		'current_page' => '<span class="current_page">[%1$d]</span> ',
+		'current_page' => '<span class="current_page">%1$d</span> ',
 		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 		'next_page' => '<span class="generic_icons next_page"></span>',

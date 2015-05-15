@@ -103,7 +103,8 @@ function getBoardIndex($boardIndexOptions)
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
-					'new' => false
+					'new' => false,
+					'css_class' => '',
 				);
 				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c='. $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], strip_tags($row_board['cat_name'])) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']);
 			}
@@ -149,6 +150,7 @@ function getBoardIndex($boardIndexOptions)
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
+					'css_class' => '',
 				);
 
 				// We can do some of the figuring-out-what-icon now.

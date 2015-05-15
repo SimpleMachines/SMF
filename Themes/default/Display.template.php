@@ -347,7 +347,7 @@ function template_single_post($message)
 
 	// Show the message anchor and a "new" anchor if this message is new.
 	echo '
-				<div class="', $message['approved'] ? 'windowbg' : 'approvebg', '">', $message['id'] != $context['first_message'] ? '
+				<div class="', $message['css_class'] ,'">', $message['id'] != $context['first_message'] ? '
 					<a id="msg' . $message['id'] . '"></a>' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 

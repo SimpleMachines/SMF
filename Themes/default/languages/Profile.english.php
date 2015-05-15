@@ -79,6 +79,7 @@ $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
 $txt['password_reminder_desc'] = 'If you\'ve forgotten your login details, don\'t worry, they can be retrieved. To start this process please enter your username or email address below.';
+$txt['authentication_options'] = 'Please select one of the two options below';
 $txt['authentication_password_email'] = 'Email me a new password';
 $txt['authentication_password_secret'] = 'Let me set a new password by answering my &quot;secret question&quot;';
 $txt['reminder_continue'] = 'Continue';

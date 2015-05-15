@@ -362,6 +362,9 @@ function MessageIndex()
 			if (!$pre_query)
 				$topic_ids[] = $row['id_topic'];
 
+			// Reference the main color class.
+			$colorClass = 'windowbg';
+
 			// Does the theme support message previews?
 			if (!empty($modSettings['preview_characters']))
 			{
@@ -438,6 +441,18 @@ function MessageIndex()
 			if (!empty($board_info['recycle']))
 				$row['first_icon'] = 'recycled';
 
+			// Is this topic pending approval, or does it have any posts pending approval?
+			if ($context['can_approve_posts'] && $row['unapproved_posts'])
+				$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
+
+			// Sticky topics should get a different color, too.
+			if ($row['is_sticky'])
+				$colorClass .= ' sticky';
+
+			// Locked topics get special treatment as well.
+			if ($row['locked'])
+				$colorClass .= ' locked';
+
 			// 'Print' the topic info.
 			$context['topics'][$row['id_topic']] = array(
 				'id' => $row['id_topic'],
@@ -457,7 +472,7 @@ function MessageIndex()
 					'icon' => $row['first_icon'],
 					'icon_url' => $settings[$context['icon_sources'][$row['first_icon']]] . '/post/' . $row['first_icon'] . '.png',
 					'href' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>'
+					'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['first_subject'] . '</a>',
 				),
 				'last_post' => array(
 					'id' => $row['id_last_msg'],
@@ -495,6 +510,7 @@ function MessageIndex()
 				'views' => comma_format($row['num_views']),
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
+				'css_class' => $colorClass,
 			);
 			if (!empty($settings['avatars_on_indexes']))
 			{
@@ -747,12 +763,12 @@ function MessageIndex()
 		),
 	);
 
+	// Javascript for inline editing.
+	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
+
 	// Allow adding new buttons easily.
 	// Note: $context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 	call_integration_hook('integrate_messageindex_buttons', array(&$context['normal_buttons']));
-
-	// Javascript for inline editing.
-	loadJavascriptFile('topic.js', array('default_theme' => true, 'defer' => false), 'smf_topic');
 }
 
 /**
