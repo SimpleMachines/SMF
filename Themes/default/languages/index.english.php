@@ -19,6 +19,9 @@ $txt['lang_rtl'] = false;
 // Number format.
 $txt['number_format'] = '1,234.00';
 
+// Native name
+$txt['native_name'] = 'English';
+
 $txt['days_title'] = 'Days';
 $txt['days'] = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 $txt['days_short'] = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
