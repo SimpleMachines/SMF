@@ -623,7 +623,7 @@ function loadUserSettings()
 		{
 			$user_info['language'] = strtr($_GET['language'], './\\:', '____');
 
-			// Make it permanent for memmbers.
+			// Make it permanent for members.
 			if (!empty($user_info['id']))
 				updateMemberData($user_info['id'], array('lngfile' => $user_info['language']));
 			else
@@ -1274,6 +1274,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	global $memberContext, $user_profile, $txt, $scripturl, $user_info;
 	global $context, $modSettings, $settings, $smcFunc;
 	static $dataLoaded = array();
+	static $loadedLanguages = array();
 
 	// If this person's data is already loaded, skip it.
 	if (isset($dataLoaded[$user]))
@@ -1329,6 +1330,11 @@ function loadMemberContext($user, $display_custom_fields = false)
 
 	// If the set isn't minimal then load the monstrous array.
 	if ($context['loadMemberContext_set'] != 'minimal')
+	{
+		// Go the extra mile and load the user's native language name.
+		if (empty($loadedLanguages))
+			$loadedLanguages = getLanguages();
+
 		$memberContext[$user] += array(
 			'username_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['member_name'] .'</span>',
 			'name_color' => '<span '. (!empty($profile['member_group_color']) ? 'style="color:'. $profile['member_group_color'] .';"' : '') .'>'. $profile['real_name'] .'</span>',
@@ -1358,7 +1364,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 				'link' => '<a href="' . $scripturl . '?action=pm;sa=send;u=' . $profile['id_member'] . '">' . $txt[$profile['is_online'] ? 'online' : 'offline'] . '</a>',
 				'label' => $txt[$profile['is_online'] ? 'online' : 'offline']
 			),
-			'language' => $smcFunc['ucwords'](strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
+			'language' => !empty($loadedLanguages[$profile['lngfile']]) && !empty($loadedLanguages[$profile['lngfile']]['name']) ? $loadedLanguages[$profile['lngfile']]['name'] : $smcFunc['ucwords'](strtr($profile['lngfile'], array('_' => ' ', '-utf8' => ''))),
 			'is_activated' => isset($profile['is_activated']) ? $profile['is_activated'] : 1,
 			'is_banned' => isset($profile['is_activated']) ? $profile['is_activated'] >= 10 : 0,
 			'options' => $profile['options'],
@@ -1373,6 +1379,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
 		);
+	}
 
 	// If the set isn't minimal then load their avatar as ell.
 	if ($context['loadMemberContext_set'] != 'minimal')
@@ -2676,6 +2683,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 					'location' => $language_dir . '/index.' . $matches[1] . '.php',
 				);
 
+				$indexFile = '';
 			}
 			$dir->close();
 		}
