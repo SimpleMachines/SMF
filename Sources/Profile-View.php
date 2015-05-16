@@ -94,7 +94,11 @@ function summary($memID)
 	else
 		$context['can_see_ip'] = false;
 
-	if (!empty($modSettings['who_enabled']))
+	// Are they hidden?
+	$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online']);
+	$context['member']['show_last_login'] = allowedTo('admin_forum') || !$context['member']['is_hidden'];
+
+	if (!empty($modSettings['who_enabled']) && $context['member']['show_last_login'])
 	{
 		include_once($sourcedir . '/Who.php');
 		$action = determineActions($user_profile[$memID]['url']);
@@ -186,10 +190,6 @@ function summary($memID)
 		}
 		$smcFunc['db_free_result']($request);
 	}
-
-	// Are they hidden?
-	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
-		$context['member']['is_hidden'] = true;
 	loadCustomFields($memID);
 
 	$context['print_custom_fields'] = array();
