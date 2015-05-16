@@ -188,8 +188,8 @@ function summary($memID)
 	}
 
 	// Are they hidden?
-	if ($context['member']['online']['is_online'] && empty($user_profile[$memID]['show_online']))
-		$context['member']['is_hidden'] = true;
+	$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online'];
+	$context['member']['show_last_login'] = allowedTo('admin_forum') ? true : !$context['member']['is_hidden'];
 	loadCustomFields($memID);
 
 	$context['print_custom_fields'] = array();

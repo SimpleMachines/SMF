@@ -382,7 +382,7 @@ function template_summary()
 					<dt>', $txt['language'], ':</dt>
 					<dd>', $context['member']['language'], '</dd>';
 
-	if ($context['member']['online']['is_online'])
+	if ($context['member']['show_last_login'])
 		echo '
 					<dt>', $txt['lastLoggedIn'], ': </dt>
 					<dd>', $context['member']['last_login'], (!empty($context['member']['is_hidden']) ? ' (' . $txt['hidden'] . ')' : ''), '</dd>';
