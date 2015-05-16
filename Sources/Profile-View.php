@@ -95,7 +95,7 @@ function summary($memID)
 		$context['can_see_ip'] = false;
 
 	// Are they hidden?
-	$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online'];
+	$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online']);
 	$context['member']['show_last_login'] = allowedTo('admin_forum') || !$context['member']['is_hidden'];
 
 	if (!empty($modSettings['who_enabled']) && $context['member']['show_last_login'])
