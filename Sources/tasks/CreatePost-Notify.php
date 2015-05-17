@@ -78,7 +78,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		$members = array_unique($members);
-		$prefs = getNotifyPrefs($members);
+		$prefs = getNotifyPrefs($members, '', true);
 
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))

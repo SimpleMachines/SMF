@@ -716,7 +716,7 @@ function MessageIndex()
 		}
 
 		require_once($sourcedir . '/Subs-Notify.php');
-		$pref = getNotifyPrefs($user_info['id'], array('board_notify', 'board_notify_' . $board));
+		$pref = getNotifyPrefs($user_info['id'], array('board_notify', 'board_notify_' . $board), true);
 		$pref = !empty($pref[$user_info['id']]) ? $pref[$user_info['id']] : array();
 		$pref = isset($pref['board_notify_' . $board]) ? $pref['board_notify_' . $board] : (!empty($pref['board_notify']) ? $pref['board_notify'] : 0);
 		$context['board_notification_mode'] = !$context['is_marked_notify'] ? 1 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
