@@ -1356,8 +1356,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1367,8 +1367,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['is_sticky']) ? 'un' : '') . 'sticky';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['is_sticky']) ? 'un' : '') . 'sticky';
 		}
 
 		// If drafts are enabled, then pass this off
@@ -1471,8 +1471,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1482,8 +1482,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'stickied';
 		}
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))

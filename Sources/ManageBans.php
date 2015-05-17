@@ -830,7 +830,7 @@ function banEdit2()
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
 	{
-		$context['ban_suggestions'] = $saved_triggers;
+		$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
 		$context['ban']['from_user'] = true;
 		$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
 
@@ -839,7 +839,7 @@ function banEdit2()
 			$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
-	$context['ban_suggestions']['saved_triggers'] = $saved_triggers;
+	$context['ban_suggestions']['saved_triggers'] = !empty($saved_triggers) ? $saved_triggers : array();
 
 	if (isset($_POST['ban_items']))
 	{
