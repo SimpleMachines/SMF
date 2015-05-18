@@ -200,6 +200,9 @@ function Display()
 		redirectexit('topic=' . $topicinfo['id_redirect_topic'] . '.0', false, true);
 	}
 
+	// Short-cut to know if this user can see unapproved messages.
+	$approve_posts = (allowedTo('approve_posts') || $topicinfo['id_member_started'] == $user_info['id']);
+
 	$context['real_num_replies'] = $context['num_replies'] = $topicinfo['num_replies'];
 	$context['topic_started_time'] = timeformat($topicinfo['topic_started_time']);
 	$context['topic_started_timestamp'] = $topicinfo['topic_started_time'];
@@ -209,11 +212,11 @@ function Display()
 	$context['topic_unwatched'] = isset($topicinfo['unwatched']) ? $topicinfo['unwatched'] : 0;
 
 	// Add up unapproved replies to get real number of replies...
-	if ($modSettings['postmod_active'] && allowedTo('approve_posts'))
+	if ($modSettings['postmod_active'] && $approve_posts)
 		$context['real_num_replies'] += $topicinfo['unapproved_posts'] - ($topicinfo['approved'] ? 0 : 1);
 
 	// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-	if ($modSettings['postmod_active'] && $topicinfo['unapproved_posts'] && !$user_info['is_guest'] && !allowedTo('approve_posts'))
+	if ($modSettings['postmod_active'] && $topicinfo['unapproved_posts'] && !$user_info['is_guest'] && !$approve_posts)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(id_member) AS my_unapproved_posts
@@ -813,7 +816,7 @@ function Display()
 	$request = $smcFunc['db_query']('display_get_post_poster', '
 		SELECT id_msg, id_member, approved
 		FROM {db_prefix}messages
-		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || allowedTo('approve_posts') ? '' : (!empty($modSettings['db_mysql_group_by_fix']) ? '' : '
+		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : (!empty($modSettings['db_mysql_group_by_fix']) ? '' : '
 		GROUP BY id_msg') . '
 		HAVING (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
