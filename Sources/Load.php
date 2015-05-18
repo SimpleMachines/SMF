@@ -2678,8 +2678,8 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 
 				else
 				{
-					// Get the file in the current encoding.
-					$indexFile = file_get_contents_utf8($language_dir .'/'. $entry);
+					// Get the entire file!.
+					$indexFile = file_get_contents($language_dir .'/'. $entry);
 
 					// Get the "Native name" var.
 					if (!empty($indexFile))

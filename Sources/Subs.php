@@ -4773,41 +4773,4 @@ function smf_list_timezones()
 	);
 }
 
-/**
- * Returns the content of a given file as an string encoded in utf8.
- *
- * @param string $file the file to load
- * @return string|boolean the file as a string, false if the file couldn't be encoded.
- */
-function file_get_contents_utf8($file)
-{
-	global $context;
-
-	if (empty($file))
-		return false;
-
-	// Determine the character set... Default to UTF-8
-	if (empty($context['character_set']))
-		$charset = 'UTF-8';
-
-	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
-	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
-		$charset = 'ISO-8859-1';
-	else
-		$charset = $context['character_set'];
-
-	$content = file_get_contents($file);
-
-	if(!mb_check_encoding($content, 'UTF-8') || !($content === mb_convert_encoding(mb_convert_encoding($content, 'UTF-32', 'UTF-8' ), 'UTF-8', 'UTF-32')))
-	{
-		$content = mb_convert_encoding($content, 'UTF-8');
-
-		// File  couldn't be encoded to utf-8
-		if (!mb_check_encoding($content, 'UTF-8'))
-			return false;
-	}
-
-	return $content;
-}
-
 ?>
