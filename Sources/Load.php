@@ -2627,7 +2627,7 @@ function getBoardParents($id_parent)
  */
 function getLanguages($use_cache = true, $favor_utf8 = true)
 {
-	global $context, $smcFunc, $settings, $modSettings, $txt;
+	global $context, $smcFunc, $settings, $modSettings;
 
 	// Either we don't use the cache, or its expired.
 	if (!$use_cache || ($context['languages'] = cache_get_data('known_languages' . ($favor_utf8 ? '' : '_all'), !empty($modSettings['cache_enable']) && $modSettings['cache_enable'] < 1 ? 86400 : 3600)) == null)
