@@ -21,7 +21,7 @@ function template_fatal_error()
 {
 	global $context, $txt;
 
-	if (SIMPLE_ACTION)
+	if (!empty($context['simple_action']))
 		echo '
 		<strong>
 			', $context['error_title'], '
