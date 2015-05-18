@@ -2668,13 +2668,19 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 					continue;
 
 				// Get the file in the current encoding.
-				$indexFile = file_get_contents_encode($language_dir .'/'. $entry, $txt['lang_character_set']);
+				$indexFile = file_get_contents_encode($language_dir .'/'. $entry);
 
 				// Get the "Native name" var.
-				preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
+				if (!empty($indexFile))
+				{
+					preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
 
-				// Set the language's name.
-				$langName = !empty($matchNative) && !empty($matchNative[1]) ? $matchNative[1] : $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+					// Set the language's name.
+					$langName = !empty($matchNative) && !empty($matchNative[1]) ? $matchNative[1] : $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+				}
+
+				else
+					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 				$context['languages'][$matches[1]] = array(
 					'name' => $langName,
