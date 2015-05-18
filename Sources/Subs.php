@@ -4598,7 +4598,7 @@ function fixchar__callback($matches)
 	// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text), 0x202D-E are left to right overrides
 	if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202D || $num === 0x202E)
 		return '';
-	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
+	// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
 	elseif ($num < 0x80)
 		return chr($num);
 	// <0x800 (2048)
@@ -4774,14 +4774,12 @@ function smf_list_timezones()
 }
 
 /**
- * Returns the content of a given file as an string encoded by the given encoding.
+ * Returns the content of a given file as an string encoded in utf8.
  *
  * @param string $file the file to load
- * @oaram string $toEncoding The output encoding
- * @param string $originalEncoding The file's original encoding.
- * @return string the file as a string.
+ * @return string|boolean the file as a string, false if the file couldn't be encoded.
  */
-function file_get_contents_encode($file, $originalEncoding = false)
+function file_get_contents_utf8($file)
 {
 	global $context;
 
@@ -4807,12 +4805,9 @@ function file_get_contents_encode($file, $originalEncoding = false)
 		// File  couldn't be encoded to utf-8
 		if (!mb_check_encoding($content, 'UTF-8'))
 			return false;
-
-			return un_htmlspecialchars($content);
 	}
 
-	else
-		return un_htmlspecialchars($content);
+	return $content;
 }
 
 ?>

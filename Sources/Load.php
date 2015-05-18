@@ -2654,6 +2654,12 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		// Remove any duplicates.
 		$language_directories = array_unique($language_directories);
 
+		// Get a list of languages.
+		$langList = !empty($modSettings['langList']) ? unserialize($modSettings['langList']) : array();
+		$langList = is_array($langList) ? $langList : false;
+
+		$catchLang = array();
+
 		foreach ($language_directories as $language_dir)
 		{
 			// Can't look in here... doesn't exist!
@@ -2667,21 +2673,31 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 				if (!preg_match('~^index\.(.+)\.php$~', $entry, $matches))
 					continue;
 
-				// Get the file in the current encoding.
-				$indexFile = file_get_contents_encode($language_dir .'/'. $entry);
-
-				// Get the "Native name" var.
-				if (!empty($indexFile))
-				{
-					preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
-
-					// Set the language's name.
-					$langName = !empty($matchNative) && !empty($matchNative[1]) ? $matchNative[1] : $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
-				}
+				if (!empty($langList) && !empty($langList[$matches[1]]))
+					$langName = $langList[$matches[1]];
 
 				else
-					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+				{
+					// Get the file in the current encoding.
+					$indexFile = file_get_contents_utf8($language_dir .'/'. $entry);
 
+					// Get the "Native name" var.
+					if (!empty($indexFile))
+					{
+						preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
+
+						// Set the language's name.
+						$langName = !empty($matchNative) && !empty($matchNative[1]) ? un_htmlspecialchars($matchNative[1]): $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+					}
+
+					else
+						$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+
+					// Catch the language name.
+					$catchLang[$matches[1]] = $langName;
+				}
+
+				// Build this language entry.
 				$context['languages'][$matches[1]] = array(
 					'name' => $langName,
 					'selected' => false,
@@ -2693,6 +2709,10 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 			}
 			$dir->close();
 		}
+
+		// Do we need to store the lang list?
+		if (empty($langList))
+			updateSettings(array('langList' => serialize($catchLang)));
 
 		// Favoring UTF8? Then prevent us from selecting non-UTF8 versions.
 		if ($favor_utf8)
