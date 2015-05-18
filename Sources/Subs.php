@@ -811,7 +811,7 @@ function un_htmlspecialchars($string)
 	// Determine the character set... Default to UTF-8
 	if (empty($context['character_set']))
 		$charset = 'UTF-8';
-	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
+	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
 	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
 		$charset = 'ISO-8859-1';
 	else
@@ -4790,7 +4790,7 @@ function file_get_contents_utf8($file)
 	if (empty($context['character_set']))
 		$charset = 'UTF-8';
 
-	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
+	// Use ISO-8859-1 in place of non-supported ISO-8859 charsets...
 	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
 		$charset = 'ISO-8859-1';
 	else

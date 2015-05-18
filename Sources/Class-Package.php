@@ -999,7 +999,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Generates a direcotry listing for the current directory
+	 * Generates a directory listing for the current directory
 	 *
 	 * @param string $ftp_path The path to the directory
 	 * @param type $search Whether or not to get a recursive directory listing
