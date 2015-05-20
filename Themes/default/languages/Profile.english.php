@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Profile
+// Version: 2.1 Beta 2; Profile
 
 global $scripturl, $context;
 

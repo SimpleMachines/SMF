@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Login
+// Version: 2.1 Beta 2; Login
 
 global $context;
 

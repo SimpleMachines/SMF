@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Editor
+// Version: 2.1 Beta 2; Editor
 global $editortxt;
 
 $editortxt['Bold'] = 'Bold';
