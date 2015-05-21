@@ -358,7 +358,7 @@ function PackageInstallTest()
 				$context['actions'][] = array(
 					'type' => $txt['execute_modification'],
 					'action' => $smcFunc['htmlspecialchars'](strtr($action['filename'], array($boarddir => '.'))),
-					'description' => $txt['package_action_error'],
+					'description' => $txt['package_action_missing'],
 					'failed' => true,
 				);
 			}
