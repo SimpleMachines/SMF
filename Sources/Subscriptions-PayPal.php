@@ -153,7 +153,7 @@ class paypal_payment
 		global $modSettings;
 
 		// Has the user set up an email address?
-		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || empty($modSettings['paypal_sandbox_email']))
+		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || (!empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_sandbox_email'])))
 			return false;
 		// Check the correct transaction types are even here.
 		if ((!isset($_POST['txn_type']) && !isset($_POST['payment_status'])) || (!isset($_POST['business']) && !isset($_POST['receiver_email'])))
