@@ -1051,14 +1051,20 @@ function MergeExecute($topics = array())
 
 		// We can't see unapproved topics here?
 		if ($modSettings['postmod_active'] && !$row['approved'] && $can_approve_boards != array(0) && in_array($row['id_board'], $can_approve_boards))
+		{
+			unset($topics[$row['id_topic']]); // If we can't see it, we should not merge it and not adjust counts! Instead skip it.
 			continue;
-		elseif (!$row['approved'])
+		}elseif (!$row['approved'])
 			$boardTotals[$row['id_board']]['unapproved_topics']++;
 		else
 			$boardTotals[$row['id_board']]['topics']++;
 
 		$boardTotals[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
 		$boardTotals[$row['id_board']]['posts'] += $row['num_replies'] + ($row['approved'] ? 1 : 0);
+		
+		// In the case of making a redirect, the topic count goes up by one due to the redirect topic.
+		if (isset($_POST['postRedirect']))
+			$boardTotals[$row['id_board']]['topics']--;
 
 		$topic_data[$row['id_topic']] = array(
 			'id' => $row['id_topic'],
@@ -1236,7 +1242,7 @@ function MergeExecute($topics = array())
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// If this is approved, or is fully unapproved.
-		if ($row['approved'] || !isset($first_msg))
+		if ($row['approved'] || !empty($first_msg))
 		{
 			$first_msg = $row['first_msg'];
 			$last_msg = $row['last_msg'];
@@ -1278,11 +1284,7 @@ function MergeExecute($topics = array())
 	}
 
 	// Fix the topic count stuff depending on what the new one counts as.
-	if (!$topic_approved)
-	{
-		$boardTotals[$target_board]['topics']++;
-		$boardTotals[$target_board]['unapproved_topics']--;
-	}
+	$boardTotals[$target_board][(!$topic_approved) ? 'unapproved_topics' : 'topics']--;
 
 	$boardTotals[$target_board]['unapproved_posts'] -= $num_unapproved;
 	$boardTotals[$target_board]['posts'] -= $topic_approved ? $num_replies + 1 : $num_replies;
@@ -1381,38 +1383,6 @@ function MergeExecute($topics = array())
 				$updated_topics[$this_old_topic] = $msgOptions['id'];
 			}
 		}
-	
-		// Asssign the properties of the newly merged topic.
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}topics
-			SET
-				id_board = {int:id_board},
-				id_member_started = {int:id_member_started},
-				id_member_updated = {int:id_member_updated},
-				id_first_msg = {int:id_first_msg},
-				id_last_msg = {int:id_last_msg},
-				id_poll = {int:id_poll},
-				num_replies = {int:num_replies},
-				unapproved_posts = {int:unapproved_posts},
-				num_views = {int:num_views},
-				is_sticky = {int:is_sticky},
-				approved = {int:approved}
-			WHERE id_topic = {int:id_topic}',
-			array(
-				'id_board' => $target_board,
-				'is_sticky' => $is_sticky,
-				'approved' => $topic_approved,
-				'id_topic' => $id_topic,
-				'id_member_started' => $member_started,
-				'id_member_updated' => $member_updated,
-				'id_first_msg' => $first_msg,
-				'id_last_msg' => $last_msg,
-				'id_poll' => $target_poll,
-				'num_replies' => $num_replies,
-				'unapproved_posts' => $num_unapproved,
-				'num_views' => $num_views,
-			)
-		);
 	}
 
 	// Grab the response prefix (like 'Re: ') in the default forum language.
@@ -1650,6 +1620,47 @@ function MergeExecute($topics = array())
 		}
 	}
 
+	// Delete any remaining data regarding these topics, this is done before changing the properties of the merged topic (else we get duplicate keys)...
+	if (!isset($_POST['postRedirect']))
+	{
+		// Remove any remaining info about these topics...
+		include_once($sourcedir . '/RemoveTopic.php');
+		// We do not need to remove the counts of the deleted topics, as we already removed these.
+		removeTopics($deleted_topics, false, true, false);
+	}
+
+	// Asssign the properties of the newly merged topic.
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics
+		SET
+			id_board = {int:id_board},
+			id_member_started = {int:id_member_started},
+			id_member_updated = {int:id_member_updated},
+			id_first_msg = {int:id_first_msg},
+			id_last_msg = {int:id_last_msg},
+			id_poll = {int:id_poll},
+			num_replies = {int:num_replies},
+			unapproved_posts = {int:unapproved_posts},
+			num_views = {int:num_views},
+			is_sticky = {int:is_sticky},
+			approved = {int:approved}
+		WHERE id_topic = {int:id_topic}',
+		array(
+			'id_board' => $target_board,
+			'is_sticky' => $is_sticky,
+			'approved' => $topic_approved,
+			'id_topic' => $id_topic,
+			'id_member_started' => $member_started,
+			'id_member_updated' => $member_updated,
+			'id_first_msg' => $first_msg,
+			'id_last_msg' => $last_msg,
+			'id_poll' => $target_poll,
+			'num_replies' => $num_replies,
+			'unapproved_posts' => $num_unapproved,
+			'num_views' => $num_views,
+		)
+	);
+	
 	// Update all the statistics.
 	updateStats('topic');
 	updateStats('subject', $id_topic, $target_subject);
@@ -1665,14 +1676,6 @@ function MergeExecute($topics = array())
 	$searchAPI = findSearchAPI();
 	if (is_callable(array($searchAPI, 'topicMerge')))
 		$searchAPI->topicMerge($id_topic, $topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : array($context['response_prefix'], $target_subject));
-
-	// Last but not least, delete any remaining data regarding these topics...
-	if (!isset($_POST['postRedirect']))
-	{
-		// Remove any remaining info about these topics...
-		include_once($sourcedir . '/RemoveTopic.php');
-		removeTopics($deleted_topics, false, true);
-	}
 
 	// Send them to the all done page.
 	redirectexit('action=mergetopics;sa=done;to=' . $id_topic . ';targetboard=' . $target_board);
