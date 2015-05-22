@@ -3235,7 +3235,20 @@ function get_memcached_server($level = 3)
 	global $memcached, $db_persist, $cache_memcached;
 
 	$servers = explode(',', $cache_memcached);
-	$server = explode(':', trim($servers[array_rand($servers)]));
+	$server = trim($servers[array_rand($servers)]);
+	
+	$port = 0;
+	
+	// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
+	if(strpos($server,'/') !== false)
+		$host = $server;
+	else
+	{
+		$server = explode(':', $server);
+		$host = $server[0];
+		$port = isset($server[1]) ? $server[1] : 11211;
+	}
+	
 	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
 
 	// Don't try more times than we have servers!
@@ -3245,16 +3258,16 @@ function get_memcached_server($level = 3)
 	if (empty($db_persist))
 	{
 		if ($cache === 'memcached')
-			$memcached = memcached_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcached_connect($host, $port);
 		if ($cache === 'memcache')
-			$memcached = memcache_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcache_connect($host, $port);
 	}
 	else
 	{
 		if ($cache === 'memcached')
-			$memcached = memcached_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcached_pconnect($host, $port);
 		if ($cache === 'memcache')
-			$memcached = memcache_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcache_pconnect($host, $port);
 	}
 
 	if (!$memcached && $level > 0)
