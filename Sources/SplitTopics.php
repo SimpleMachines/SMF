@@ -1278,11 +1278,10 @@ function MergeExecute($topics = array())
 	}
 
 	// Fix the topic count stuff depending on what the new one counts as.
-	if (!$topic_approved)
-	{
-		$boardTotals[$target_board]['topics']++;
+	if ($topic_approved)
+		$boardTotals[$target_board]['topics']--;
+	else
 		$boardTotals[$target_board]['unapproved_topics']--;
-	}
 
 	$boardTotals[$target_board]['unapproved_posts'] -= $num_unapproved;
 	$boardTotals[$target_board]['posts'] -= $topic_approved ? $num_replies + 1 : $num_replies;
