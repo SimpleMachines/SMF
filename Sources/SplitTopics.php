@@ -1034,6 +1034,8 @@ function MergeExecute($topics = array())
 	$polls = array();
 	$firstTopic = 0;
 	$context['is_approved'] = 1;
+	$lowestTopicId = 0;
+	$lowestTopicBoard = 0;
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Sorry, redirection topics can't be merged
@@ -1096,6 +1098,13 @@ function MergeExecute($topics = array())
 		if (empty($firstTopic))
 			$firstTopic = $row['id_topic'];
 
+		// Lowest topic id gets selected as surviving topic id. We need to store this board so we can adjust the topic count (This one will not have a redirect topic)
+		if($row['id_topic'] < $lowestTopicId || empty($lowestTopicId) )
+		{
+			$lowestTopicId = $row['id_topic'];
+			$lowestTopicBoard = $row['id_board'];
+		}
+
 		$is_sticky = max($is_sticky, $row['is_sticky']);
 	}
 	$smcFunc['db_free_result']($request);
@@ -1103,6 +1112,9 @@ function MergeExecute($topics = array())
 	// If we didn't get any topics then they've been messing with unapproved stuff.
 	if (empty($topic_data))
 		fatal_lang_error('no_topic_id');
+
+	if (isset($_POST['postRedirect']) && !empty($lowestTopicBoard))
+		$boardTotals[$lowestTopicBoard]['topics']++;
 
 	// Will this be approved?
 	$context['is_approved'] = $topic_data[$firstTopic]['approved'];
