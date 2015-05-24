@@ -596,16 +596,13 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'Kat',
+						'Margarett',
 						// Support Specialists
 						'Adam Tallon',
 						'Bigguy',
-						'ChalkCat',
 						'Chas Large',
 						'Justyne',
 						'Krash',
-						'Margarett',
-						'Mashby',
 						'Michael Colin Blaber',
 						'Storman&trade;',
 						'Wade &quot;s&eta;&sigma;&omega;&quot; Poulsen',
@@ -613,10 +610,13 @@ function Credits($in_admin = false)
 						// Former Support Specialists
 						'Aleksi &quot;Lex&quot; Kilpinen',
 						'CapadY',
+						'ChalkCat',
 						'Duncan85',
 						'gbsothere',
 						'JimM',
+						'Kat',
 						'Kevin &quot;greyknight17&quot; Hou',
+						'Mashby',
 						'Old Fossil',
 						'S-Ace',
 						'xenovanis',
@@ -630,12 +630,12 @@ function Credits($in_admin = false)
 						// Customizers
 						'Kays',
 						'Ricky.',
-						'Jack "akabugeyes" Thorsen',
 						'Colin Schoen',
 						'SA™',
 						'Diego Andrés',
 						// Former Customizers
 						'Brannon &quot;B&quot; Hall',
+						'Jack "akabugeyes" Thorsen',
 						'Joey &quot;Tyrsson&quot; Smith',
 					),
 				),
@@ -643,14 +643,14 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_docs'],
 					'members' => array(
 						// Doc Coordinator
-						'Michele &quot;Illori&quot; Davis',
+						'Irisado',
 						// Doc Writers
 						'Chainy',
-						'Irisado',
 						// Former Doc Writers
 						'AngelinaBelle',
 						'Graeme Spence',
 						'Joshua &quot;groundup&quot; Dickerson',
+						'Michele &quot;Illori&quot; Davis',
 					),
 				),
 				array(
