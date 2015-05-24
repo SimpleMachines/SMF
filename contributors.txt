@@ -7,11 +7,11 @@ Project Management, Support Specialists, Customizers, Doc Writers, Localizers, M
 Code Contributors;
 
 Aaron van Geffen, Adam Tallon, ahrasis, AngelinaBelle, Antechinus, Antes, beratdogan, Bjoern "Bloc" Kristiansen, Brad "IchBin™" Grow,
-Bryan "Runic" Deakin, butchs, Colin Schoen, Daniel15, Dr. Deejay, Diego Andrés, ElPlayer, emanuele, Feline, Graeme Spence, gnif,
+Bryan "Runic" Deakin, butchs, Colin Schoen, Daniel15, Dr. Deejay, Diego Andrés, ElPlayer, emanuele, FearThe1337,  Feline, Graeme Spence, gnif,
 Hendrik Jan "Compuart" Visser, hhy89, Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jonathan "vbgamer45" Valentin, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood,
 Juan "JayBachatero" Hernandez, Karl "RegularExpression" Benson, Kays, live627, Marcus "cσσкιє мσηѕтєя" Forsberg,
-Matt "Grudge" Wolf, Matthew "Labradoodle-360" Kerle, Michael Colin Blaber, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, motokochan, NIBOGO, nwsw, Norv,
-Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Selman "[SiNaN]" Eser, Shitiz "Dragooon" Garg, sicommnend, siddhartha-gupta, Spuds, SSPMark,
+Matt "Grudge" Wolf, Matthew "Labradoodle-360" Kerle, Michael Colin Blaber, Michael "Oldiesmann" Eshom, Michele "Illori" Davis, mikemill, motokochan, NIBOGO, nwsw, Norv,
+Peter "Arantor" Spicer, PierreLvx, René-Gilles "Nao 尚" Deberdt, Selman "[SiNaN]" Eser, sexwarrior, Shitiz "Dragooon" Garg, sicommnend, siddhartha-gupta, Spuds, SSPMark,
 Steven "Fustrate" Hoffman, Underdog-01, Unknown W. "[Unknown]" Brackets, tekkla, Theodore "Orstio" Hildebrandt, tinoest, The-Craw,
 Thorsten "TE" Eurich, Trekkie101, Wade "sησω" Poulsen, winrules, Xarcell, Yoshi2889, and zilladotexe.
 
