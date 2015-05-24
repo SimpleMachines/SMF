@@ -1003,7 +1003,7 @@ function MergeExecute($topics = array())
 	foreach ($topics as $id => $topic)
 		$topics[$id] = (int) $topic;
 
-	// Joy of all joys, make sure they're not pi**ing about with unapproved topics they can't see :P
+	// Joy of all joys, make sure they're not messing about with unapproved topics they can't see :P
 	if ($modSettings['postmod_active'])
 		$can_approve_boards = boardsAllowedTo('approve_posts');
 
