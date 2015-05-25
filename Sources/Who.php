@@ -596,7 +596,7 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_support'],
 					'members' => array(
 						// Lead Support Specialist
-						'Margarett',
+						'Bruno "margarett" Alves',
 						// Support Specialists
 						'Adam Tallon',
 						'Bigguy',

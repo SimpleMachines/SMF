@@ -6,7 +6,7 @@ Project Management, Support Specialists, Customizers, Doc Writers, Localizers, M
 
 Code Contributors;
 
-Aaron van Geffen, Adam Tallon, ahrasis, AngelinaBelle, Antechinus, Antes, beratdogan, Bjoern "Bloc" Kristiansen, Brad "IchBin™" Grow,
+Aaron van Geffen, Adam Tallon, ahrasis, AngelinaBelle, Antechinus, Antes, beratdogan, Bjoern "Bloc" Kristiansen, Brad "IchBin™" Grow, Bruno "margarett" Alves,
 Bryan "Runic" Deakin, butchs, Colin Schoen, Daniel15, Dr. Deejay, Diego Andrés, ElPlayer, emanuele, FearThe1337,  Feline, Graeme Spence, gnif,
 Hendrik Jan "Compuart" Visser, hhy89, Hristo-, islam2hamy, Jessica "Suki" González, Jeremy "SleePy" Darwood, Jonathan "vbgamer45" Valentin, Joshua "groundup" Dickerson, Jeremy "SleePy" Darwood,
 Juan "JayBachatero" Hernandez, Karl "RegularExpression" Benson, Kays, live627, Marcus "cσσкιє мσηѕтєя" Forsberg,
@@ -21,7 +21,7 @@ SMF Team and Friends;
 
 Aaron van Geffen, Adam "Bostasp" Southall, Adish "(F.L.A.M.E.R)" Patel, Akyhne, Alienine (Adrian),
 Aleksi "Lex" Kilpinen, Alexandre "Ap2" Patenaude, Amacythe, Andrea Hubacher, AngelinaBelle, Antechinus, Antes, A.M.A,
-babylonking, Ben Scott, Bigguy, Bjoern "Bloc" Kristiansen, BlackouT, Brad "IchBin™" Grow, Bryan "Runic" Deakin,
+babylonking, Ben Scott, Bigguy, Bjoern "Bloc" Kristiansen, BlackouT, Brad "IchBin™" Grow, Bruno "margarett" Alves, Bryan "Runic" Deakin,
 Bugo, Bulakbol, Burpee, Chas Large, Chris Cromer, M. Colin Blaber, Colin Schoen, Cristián "Anguz" Lávaque,
 Daniel15, Daniel Diehl, Dannii Willis, [darksteel], David Recordon, Derek Schwab, ディン1031, Diego Andrés, diplomat,
 Douglas "The Bear" Hazard, Dr. Deejay, dtm.exe, Duncan85, eldacar, Eliana Tamerin, emanuele, Eren Yasarkurt,
