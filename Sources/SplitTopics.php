@@ -1342,16 +1342,16 @@ function MergeExecute($topics = array())
 
 	// Create stub topics out of the remaining topics.
 	// We don't want the search index data though (For non-redirect merges).
-    if (!isset($_POST['postRedirect']))
-    {
-        $smcFunc['db_query']('', '
+	if (!isset($_POST['postRedirect']))
+	{
+		$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}log_search_subjects
 		WHERE id_topic IN ({array_int:deleted_topics})',
-            array(
-                'deleted_topics' => $deleted_topics,
-            )
-        );
-    }
+			array(
+				'deleted_topics' => $deleted_topics,
+			)
+		);
+	}
 
 	require_once($sourcedir . '/Subs-Post.php');
 	$posterOptions = array(
@@ -1378,7 +1378,7 @@ function MergeExecute($topics = array())
 
 		foreach ($deleted_topics as $this_old_topic)
 		{
-            $redirect_subject = sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']);
+			$redirect_subject = sprintf($txt['merged_subject'], $topic_data[$this_old_topic]['subject']);
 
 			$msgOptions = array(
 				'icon' => 'moved',
@@ -1401,8 +1401,8 @@ function MergeExecute($topics = array())
 				$updated_topics[$this_old_topic] = $msgOptions['id'];
 			}
 
-            // Update subject search index
-            updateStats('subject',$this_old_topic,$redirect_subject);
+			// Update subject search index
+			updateStats('subject',$this_old_topic,$redirect_subject);
 		}
 	}
 
