@@ -85,8 +85,7 @@ function RemindPick()
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		LIMIT 1',
-		array_merge($where_params, array(
-		))
+		$where_params
 	);
 	// Maybe email?
 	if ($smcFunc['db_num_rows']($request) == 0 && empty($_REQUEST['uid']))
@@ -98,8 +97,7 @@ function RemindPick()
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
 			LIMIT 1',
-			array_merge($where_params, array(
-			))
+			$where_params
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_user_with_email', false);
@@ -124,7 +122,7 @@ function RemindPick()
 		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
-	if (empty($row['secret_question']))
+	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
 	{
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
 		require_once($sourcedir . '/Subs-Members.php');
@@ -149,7 +147,7 @@ function RemindPick()
 		// Set up the template.
 		$context['sub_template'] = 'sent';
 
-		// Dont really.
+		// Don't really.
 		return;
 	}
 	// Otherwise are ready to answer the question?
