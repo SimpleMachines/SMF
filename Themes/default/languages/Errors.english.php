@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Errors
+// Version: 2.1 Beta 2; Errors
 
 global $scripturl, $modSettings;
 

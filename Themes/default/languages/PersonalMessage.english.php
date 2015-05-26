@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; PersonalMessage
+// Version: 2.1 Beta 2; PersonalMessage
 
 global $context;
 
