@@ -329,7 +329,7 @@ function MessageIndex()
 		);
 		$message_index_selects = array();
 		$message_index_tables = array();
-		call_integration_hook('integrate_message_index', array(&$topic_selects, &$topic_tables, &$message_index_parameters));
+		call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters));
 
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
