@@ -461,7 +461,7 @@ function MessageIndex()
 				$colorClass .= ' locked';
 
 			// 'Print' the topic info.
-			$context['topics'][$row['id_topic']] = array(
+			$context['topics'][$row['id_topic']] = array_merge($row, array(
 				'id' => $row['id_topic'],
 				'first_post' => array(
 					'id' => $row['id_first_msg'],
@@ -518,7 +518,7 @@ function MessageIndex()
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
 				'css_class' => $colorClass,
-			);
+			));
 			if (!empty($settings['avatars_on_indexes']))
 			{
 				if (!empty($modSettings['gravatarOverride']))
