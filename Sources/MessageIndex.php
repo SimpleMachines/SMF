@@ -318,6 +318,19 @@ function MessageIndex()
 		// For search engine effectiveness we'll link guests differently.
 		$context['pageindex_multiplier'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
+		$message_index_parameters = array(
+			'current_board' => $board,
+			'current_member' => $user_info['id'],
+			'topic_list' => $topic_ids,
+			'is_approved' => 1,
+			'find_set_topics' => implode(',', $topic_ids),
+			'start' => $start,
+			'maxindex' => $maxindex,
+		);
+		$message_index_selects = array();
+		$message_index_tables = array();
+		call_integration_hook('integrate_message_index', array(&$topic_selects, &$topic_tables, &$message_index_parameters));
+
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
@@ -331,6 +344,7 @@ function MessageIndex()
 				IFNULL(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
 				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
 				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
+				' . (!empty($message_index_selects) ? (', '. implode(', ', $message_index_selects)) : '') . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
@@ -338,19 +352,12 @@ function MessageIndex()
 				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
+				' . (!empty($message_index_tables) ? implode("\n\t", $message_index_tables) : '') . '
 			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
 			ORDER BY ' . ($pre_query ? 'FIND_IN_SET(t.id_topic, {string:find_set_topics})' : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
 			LIMIT ' . ($pre_query ? '' : '{int:start}, ') . '{int:maxindex}',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-				'topic_list' => $topic_ids,
-				'is_approved' => 1,
-				'find_set_topics' => implode(',', $topic_ids),
-				'start' => $start,
-				'maxindex' => $maxindex,
-			)
+			$message_index_parameters
 		);
 
 		// Begin 'printing' the message index for current board.
