@@ -1615,7 +1615,7 @@ $(function()
 	});
 
 	// Generic confirmation message.
-	$(document).on('click', '.you_sure', function(e) {
+	$('.you_sure').on('click', function(e) {
 
 		e.preventDefault();
 		var custom_message = $(this).attr('data-confirm');
