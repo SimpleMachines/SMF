@@ -240,8 +240,9 @@ function RemoveOldTopics2()
  * @param array/int $topics The topics to remove (can be an id or an array of ids).
  * @param bool $decreasePostCount if true users' post count will be reduced
  * @param bool $ignoreRecycling if true topics are not moved to the recycle board (if it exists).
+ * @param bool $updateBoardCount if true topics the board totals are adjusted.
  */
-function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = false)
+function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
 {
 	global $sourcedir, $modSettings, $smcFunc;
 
@@ -395,31 +396,33 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
 	}
 	$smcFunc['db_free_result']($request);
-
-	// Decrease the posts/topics...
-	foreach ($adjustBoards as $stats)
+	
+	if($updateBoardCount)
 	{
-		if (function_exists('apache_reset_timeout'))
-			@apache_reset_timeout();
+		// Decrease the posts/topics...
+		foreach ($adjustBoards as $stats)
+		{
+			if (function_exists('apache_reset_timeout'))
+				@apache_reset_timeout();
 
-		$smcFunc['db_query']('', '
-			UPDATE {db_prefix}boards
-			SET
-				num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
-				num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
-				unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
-				unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
-			WHERE id_board = {int:id_board}',
-			array(
-				'id_board' => $stats['id_board'],
-				'num_posts' => $stats['num_posts'],
-				'num_topics' => $stats['num_topics'],
-				'unapproved_posts' => $stats['unapproved_posts'],
-				'unapproved_topics' => $stats['unapproved_topics'],
-			)
-		);
+			$smcFunc['db_query']('', '
+				UPDATE {db_prefix}boards
+				SET
+					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
+					num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
+					unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
+					unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
+				WHERE id_board = {int:id_board}',
+				array(
+					'id_board' => $stats['id_board'],
+					'num_posts' => $stats['num_posts'],
+					'num_topics' => $stats['num_topics'],
+					'unapproved_posts' => $stats['unapproved_posts'],
+					'unapproved_topics' => $stats['unapproved_topics'],
+				)
+			);
+		}
 	}
-
 	// Remove Polls.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_poll
