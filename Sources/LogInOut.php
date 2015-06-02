@@ -115,6 +115,18 @@ function Login2()
 		$user_settings['password_salt'] = substr(md5(mt_rand()), 0, 4);
 		updateMemberData($user_info['id'], array('password_salt' => $user_settings['password_salt']));
 
+		// Preserve the 2FA cookie?
+		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
+		{
+			list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			// If we're preserving the cookie, reset it with updated salt
+			if ($preserve && time() < $exp)
+				setTFACookie(3153600, $user_info['password_salt'], hash_salt($user_settings['tfa_backup'], $user_settings['password_salt']), true);
+			else
+				setTFACookie(-3600, 0, '');
+		}
+
 		setLoginCookie($timeout - time(), $user_info['id'], hash_salt($user_settings['passwd'], $user_settings['password_salt']));
 
 		redirectexit('action=login2;sa=check;member=' . $user_info['id'], $context['server']['needs_login_fix']);
@@ -431,7 +443,7 @@ function LoginTFA()
 		{
 			updateMemberData($member['id_member'], array('last_login' => time()));
 
-			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']), !empty($_POST['tfa_preserve']));
 			redirectexit();
 		}
 		else
@@ -626,7 +638,7 @@ function DoLogin()
  */
 function Logout($internal = false, $redirect = true)
 {
-	global $sourcedir, $user_info, $user_settings, $context, $smcFunc;
+	global $sourcedir, $user_info, $user_settings, $context, $smcFunc, $cookiename, $modSettings;
 
 	// Make sure they aren't being auto-logged out.
 	if (!$internal)
@@ -660,13 +672,24 @@ function Logout($internal = false, $redirect = true)
 
 	// Empty the cookie! (set it in the past, and for id_member = 0)
 	setLoginCookie(-3600, 0);
-	if (!empty($modSettings['tfa_mode']))
-		setTFACookie(-3600, 0, '');
 
 	// And some other housekeeping while we're at it.
-	session_destroy();
+	$salt = substr(md5(mt_rand()), 0, 4);
 	if (!empty($user_info['id']))
-		updateMemberData($user_info['id'], array('password_salt' => substr(md5(mt_rand()), 0, 4)));
+		updateMemberData($user_info['id'], array('password_salt' => $salt));
+
+	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
+	{
+		list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+		// If we're preserving the cookie, reset it with updated salt
+		if ($preserve && time() < $exp)
+			setTFACookie(3153600, $user_info['id'], hash_salt($user_settings['tfa_backup'], $salt), true);
+		else
+			setTFACookie(-3600, 0, '');
+	}
+
+	session_destroy();
 
 	// Off to the merry board index we go!
 	if ($redirect)
