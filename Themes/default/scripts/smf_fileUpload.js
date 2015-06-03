@@ -30,7 +30,7 @@ function smf_fileUpload(oOptions)
 		$(dOptions.smf_mainDiv).prop('multiple', true);
 		dOptions.dropZone.show();
 	}
-	
+
 	var uploadButton = $('<a/>')
 		.addClass('button_submit uploadButton')
 		.prop('disabled', true)
@@ -326,42 +326,44 @@ function smf_fileUpload(oOptions)
 					var node = $(data.context.children('.attach_holder')[index]);
 
 					// Hide the progress bar.
-					node.find('.progressBar').fadeOut();
+					node.find('.progressBar').fadeOut(function() {
+						// Show the brand new attach ID bbc tag.
+						if (file.attachID) {
+							var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]" readonly>');
 
-					// Show the brand new attach ID bbc tag.
-					if (file.attachID) {
-						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]" readonly>')
-							.append(insertBBC.clone(true).data(data));
+							// Replace the cancel button with a lovely "Delete" one.
+							node.find('.cancelButton').replaceWith(deleteButton.clone(true).data(data));
 
-						node
-							.find('.file_info')
-							.append(bbcTag);
+							node
+								.find('.file_info')
+								.append(bbcTag);
+							node
+								.find('.file_buttons')
+								.prepend(insertBBC.clone(true).data(data));
 
-						// Append the current node/file to make it easier to handle it.
-						data.currentNode = node;
-						data.currentFile = file;
+							// Append the current node/file to make it easier to handle it.
+							data.currentNode = node;
+							data.currentFile = file;
+						}
 
-						// Replace the cancel button with a lovely "Delete" one.
-						node.find('.cancelButton').replaceWith(deleteButton.clone(true).data(data));
-					}
+						// Nope!
+						else if (file.errors) {
+							var errors = $('<p/>').html('<ul>');
 
-					// Nope!
-					else if (file.errors) {
-						var errors = $('<p/>').html('<ul>');
+							$.each(data.result.error, function (index, singleError) {
+								errors.append('<li>' + singleError + '</li>');
+							});
 
-						$.each(data.result.error, function (index, singleError) {
-							errors.append('<li>' + singleError + '</li>');
-						});
+							// Close the ul
+							errors.append('</ul>');
 
-						// Close the ul
-						errors.append('</ul>');
+							node
+								.find('.file_info')
+								.append(errors);
 
-						node
-							.find('.file_info')
-							.append(errors);
-
-						node.removeClass('descbox').addClass('errorbox');
-					}
+							node.removeClass('descbox').addClass('errorbox');
+						}
+					});
 				});
 			}
 		})
