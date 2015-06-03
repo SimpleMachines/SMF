@@ -25,6 +25,7 @@ function smf_fileUpload(oOptions)
 	};
 
 	$.extend(true, dOptions, oOptions);
+	$(dOptions.smf_mainDiv).prop('multiple', true);
 
 	var uploadButton = $('<a/>')
 		.addClass('button_submit uploadButton')
