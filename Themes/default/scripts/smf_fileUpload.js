@@ -28,7 +28,7 @@ function smf_fileUpload(oOptions)
 
 	if ($.support.fileInput) {
 		$(dOptions.smf_mainDiv).prop('multiple', true);
-		dOptions.dropZone.show();
+		dOptions.dropZone.find('h3').show();
 	}
 
 	var uploadButton = $('<a/>')
