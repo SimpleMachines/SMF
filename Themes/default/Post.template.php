@@ -428,6 +428,11 @@ function template_main()
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
+		if (empty($context['current-attachments']))
+			echo '
+						<dl id="postAttachment" style="display: none;">
+						</dl>';
+
 		echo '
 						<dl id="postAttachment2">
 							<div class="drop_zone descbox">
