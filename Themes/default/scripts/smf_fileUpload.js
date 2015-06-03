@@ -25,8 +25,12 @@ function smf_fileUpload(oOptions)
 	};
 
 	$.extend(true, dOptions, oOptions);
-	$(dOptions.smf_mainDiv).prop('multiple', true);
 
+	if ($.support.fileInput) {
+		$(dOptions.smf_mainDiv).prop('multiple', true);
+		dOptions.dropZone.show();
+	}
+	
 	var uploadButton = $('<a/>')
 		.addClass('button_submit uploadButton')
 		.prop('disabled', true)

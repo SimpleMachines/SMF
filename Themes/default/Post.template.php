@@ -435,7 +435,7 @@ function template_main()
 
 		echo '
 						<dl id="postAttachment2">
-							<div class="drop_zone descbox">
+							<div class="drop_zone descbox" style="display: none;">
 								<input id="fileupload" type="file" name="files[]">
 								<h3>', $txt['attach_drop_zone'] ,'</h3>
 							</div>
