@@ -40,12 +40,14 @@
 		margin: 0 0 0 -85px;
 	}
 	.dropmenu li {
-		width: auto;
+		width: 10%;
 	}
-	.dropmenu li > a {
-		width: 15px;
-		height: 24px;
-		overflow: hidden;
+	.dropmenu li span.textmenu
+	{
+		display:none;
+	}
+	.dropmenu li a {
+		width: 65%;
 	}
 	.dropmenu ul li a {
 		width: auto !important;
