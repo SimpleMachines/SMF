@@ -192,7 +192,7 @@ $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';
 $txt['impossible_insert_new_bangroup'] = 'An error occurred while inserting the new ban';
 
-$txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please choose a different name.';
+$txt['ban_name_exists'] = 'The name of this ban already exists. Please choose a different name.';
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
 $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';
