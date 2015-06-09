@@ -3264,4 +3264,93 @@ function get_memcached_server($level = 3)
 		get_memcached_server($level - 1);
 }
 
+/**
+ * Helper function to set an array of data for an user's avatar.
+ *
+ * Makes assumptions based on the data provided, the following keys are required:
+ * - avatar The raw "avatar" column in members table
+ * - email The user's email. Used to get the gravatar info
+ * - filename The attachment filename
+ *
+ * @param array $data An array of raw info
+ * @return array
+ */
+function set_avatar_data($data = array())
+{
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret;
+
+	// Come on!
+	if (empty($data))
+		return array();
+
+	// Set a nice default var.
+	$image = '';
+
+	// Gravatar has been set as mandatory!
+	if (!empty($modSettings['gravatarOverride']))
+	{
+		if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
+			$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
+
+		else if (!empty($data['email']))
+			$image = get_gravatar_url($data['email']);
+	}
+
+	// Look if the user has a gravatar field or has set an external url as avatar.
+	else
+	{
+		// So it's stored in the member table?
+		if (!empty($data['avatar']))
+		{
+			// Gravatar.
+			if (stristr($data['avatar'], 'gravatar://'))
+			{
+				if ($data['avatar'] == 'gravatar://')
+					$image = get_gravatar_url($data['email']);
+
+				elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+					$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
+			}
+
+			// External url.
+			else
+			{
+				// Using ssl?
+				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false)
+					$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
+
+				// Just a plain external url.
+				else
+					$image = stristr($data['avatar'], 'http://') ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
+			}
+		}
+
+		// Perhaps this user has an attachment as avatar...
+		else if (!empty($data['filename']))
+			$image = $modSettings['custom_avatar_url'] . '/' . $data['filename'];
+
+		// Right... no avatar... use our default image.
+		else
+			$image = $modSettings['avatar_url'] . '/default.png';
+	}
+
+	// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed...
+	if (!empty($image))
+		return array(
+			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
+			'image' => '<img class="avatar" src="' . $image . '" />',
+			'href' => $image,
+			'url' => $image,
+		);
+
+	// Fallback to make life easier for everyone...
+	else
+		return array(
+			'name' => '',
+			'image' => '',
+			'href' => '',
+			'url' => '',
+		);
+}
+
 ?>
