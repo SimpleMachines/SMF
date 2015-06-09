@@ -337,7 +337,7 @@ function MessageIndex()
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
+				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, IFNULL(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, IFNULL(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
@@ -349,7 +349,9 @@ function MessageIndex()
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = ml.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = mf.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
 				' . (!empty($message_index_tables) ? implode("\n\t", $message_index_tables) : '') . '
@@ -521,44 +523,19 @@ function MessageIndex()
 			));
 			if (!empty($settings['avatars_on_indexes']))
 			{
-				if (!empty($modSettings['gravatarOverride']))
-				{
-					if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
-						$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-					else
-						$image = get_gravatar_url($row['email_address']);
-				}
-				else
-				{
-					// So it's stored in the member table?
-					if (!empty($row['avatar']))
-					{
-						if (stristr($row['avatar'], 'gravatar://'))
-						{
-							if ($row['avatar'] == 'gravatar://')
-								$image = get_gravatar_url($row['email_address']);
-							elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-								$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-						}
-						else
-							$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
-					}
-					// Right... no avatar...
-					else
-						$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-							'name' => '',
-							'image' => '',
-							'href' => '',
-							'url' => '',
-						);
-				}
-				if (!empty($image))
-					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-						'name' => $row['avatar'],
-						'image' => '<img class="avatar" src="' . $image . '" />',
-						'href' => $image,
-						'url' => $image,
-					);
+				// Last post member avatar
+				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+					'avatar' => $row['avatar'],
+					'email' => $row['email_address'],
+					'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
+				));
+
+				// First post member avatar
+				$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+					'avatar' => $row['first_member_avatar'],
+					'email' => $row['first_member_mail'],
+					'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
+				));
 			}
 		}
 		$smcFunc['db_free_result']($result);
