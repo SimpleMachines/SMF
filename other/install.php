@@ -144,43 +144,39 @@ installExit();
 
 function initialize_inputs()
 {
-	global $databases, $incontext;
+    global $databases, $incontext;
 
-	// Just so people using older versions of PHP aren't left in the cold.
-	if (!isset($_SERVER['PHP_SELF']))
-		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
+    // Just so people using older versions of PHP aren't left in the cold.
+    if (!isset($_SERVER['PHP_SELF']))
+        $_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-	// Turn off magic quotes runtime and enable error reporting.
-	if (function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
-	error_reporting(E_ALL);
+    // Turn off magic quotes runtime and enable error reporting.
+    if (function_exists('set_magic_quotes_runtime'))
+        @set_magic_quotes_runtime(0);
+    error_reporting(E_ALL);
 
-	// Fun.  Low PHP version...
-	if (!isset($_GET))
-	{
-		$GLOBALS['_GET']['step'] = 0;
-		return;
-	}
+    // Fun.  Low PHP version...
+    if (!isset($_GET)) {
+        $GLOBALS['_GET']['step'] = 0;
+        return;
+    }
 
-	if (!isset($_GET['obgz']))
-	{
-		ob_start();
+    if (!isset($_GET['obgz'])) {
+        ob_start();
 
-		if (ini_get('session.save_handler') == 'user')
-			@ini_set('session.save_handler', 'files');
-		if (function_exists('session_start'))
-			@session_start();
-	}
-	else
-	{
-		ob_start('ob_gzhandler');
+        if (ini_get('session.save_handler') == 'user')
+            @ini_set('session.save_handler', 'files');
+        if (function_exists('session_start'))
+            @session_start();
+    } else {
+        ob_start('ob_gzhandler');
 
-		if (ini_get('session.save_handler') == 'user')
-			@ini_set('session.save_handler', 'files');
-		session_start();
+        if (ini_get('session.save_handler') == 'user')
+            @ini_set('session.save_handler', 'files');
+        session_start();
 
-		if (!headers_sent())
-			echo '<!DOCTYPE html>
+        if (!headers_sent())
+            echo '<!DOCTYPE html>
 <html>
 	<head>
 		<title>', htmlspecialchars($_GET['pass_string']), '</title>
@@ -189,24 +185,23 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
-		exit;
-	}
+        exit;
+    }
 
-	// Anybody home?
-	if (!isset($_GET['xml']))
-	{
-		$incontext['remote_files_available'] = false;
-		$test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
-		if ($test)
-			$incontext['remote_files_available'] = true;
-		@fclose($test);
-	}
+    // Anybody home?
+    if (!isset($_GET['xml'])) {
+        $incontext['remote_files_available'] = false;
+        $test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
+        if ($test)
+            $incontext['remote_files_available'] = true;
+        @fclose($test);
+    }
 
-	// Add slashes, as long as they aren't already being added.
-	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false)
-				$_POST[$k] = addslashes($v);
+    // Add slashes, as long as they aren't already being added.
+    if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
+        foreach ($_POST as $k => $v)
+            if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+                $_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
