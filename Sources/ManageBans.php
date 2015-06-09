@@ -1471,7 +1471,6 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 
 /**
  * Updates an existing ban group
- * If the name doesn't exists a new one is created
  *
  * Errors in $context['ban_errors']
  *
@@ -1486,24 +1485,48 @@ function updateBanGroup($ban_info = array())
 		$context['ban_errors'][] = 'ban_name_empty';
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'ban_id_empty';
+	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
+		$context['ban_errors'][] = 'ban_unknown_restriction_type';
+
+	if(!empty($ban_info['id']))
+	{
+		// Verify the ban group exists.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE id_ban_group = {int:ban_group}
+			LIMIT 1',
+			array(
+				'ban_group' => $ban_info['id']
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) == 0)
+			$context['ban_errors'][] = 'ban_not_found';
+		$smcFunc['db_free_result']($request);
+	}
+
+	if(!empty($ban_info['name']))
+	{
+		// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE name = {string:new_ban_name}
+				AND id_ban_group != {int:ban_group}
+			LIMIT 1',
+			array(
+				'ban_group' => empty($ban_info['id']) ? 0 : $ban_info['id'],
+				'new_ban_name' => $ban_info['name'],
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
+			$context['ban_errors'][] = 'ban_name_exists';
+		$smcFunc['db_free_result']($request);
+	}
 
 	if (!empty($context['ban_errors']))
 		return;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_ban_group
-		FROM {db_prefix}ban_groups
-		WHERE name = {string:new_ban_name}
-			AND id_ban_group = {int:ban_group}
-		LIMIT 1',
-		array(
-			'ban_group' => $ban_info['id'],
-			'new_ban_name' => $ban_info['name'],
-		)
-	);
-	if ($smcFunc['db_num_rows']($request) == 0)
-		return insertBanGroup($ban_info);
-	$smcFunc['db_free_result']($request);
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_groups
@@ -1534,7 +1557,7 @@ function updateBanGroup($ban_info = array())
 
 /**
  * Creates a new ban group
- * If a ban group with the same name already exists or the group s successfully created the ID is returned
+ * If the group is successfully created the ID is returned
  * On error the error code is returned or false
  *
  * Errors in $context['ban_errors']
@@ -1551,27 +1574,26 @@ function insertBanGroup($ban_info = array())
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
+	if(!empty($ban_info['name']))
+	{
+		// Check whether a ban with this name already exists.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE name = {string:new_ban_name}' . '
+			LIMIT 1',
+			array(
+				'new_ban_name' => $ban_info['name'],
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) == 1)
+			$context['ban_errors'][] = 'ban_name_exists';
+		$smcFunc['db_free_result']($request);
+	}
+
 	if (!empty($context['ban_errors']))
 		return;
-
-	// Check whether a ban with this name already exists.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_ban_group
-		FROM {db_prefix}ban_groups
-		WHERE name = {string:new_ban_name}' . '
-		LIMIT 1',
-		array(
-			'new_ban_name' => $ban_info['name'],
-		)
-	);
-
-	if ($smcFunc['db_num_rows']($request) == 1)
-	{
-		list($id_ban) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-		return $id_ban;
-	}
-	$smcFunc['db_free_result']($request);
 
 	// Yes yes, we're ready to add now.
 	$smcFunc['db_insert']('',
