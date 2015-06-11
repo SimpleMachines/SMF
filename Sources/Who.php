@@ -795,7 +795,7 @@ function Credits($in_admin = false)
 			$credit_info = unserialize($row['credits']);
 
 			$copyright = empty($credit_info['copyright']) ? '' : $txt['credits_copyright'] . ' &copy; ' . $smcFunc['htmlspecialchars']($credit_info['copyright']);
-			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . $smcFunc['htmlspecialchars']($credit_info['license']);
+			$license = empty($credit_info['license']) ? '' : $txt['credits_license'] . ': ' . (!empty($credit_info['licenseurl']) ? '<a href="'. $smcFunc['htmlspecialchars']($credit_info['licenseurl']) .'">'. $smcFunc['htmlspecialchars']($credit_info['license']) .'</a>' : $smcFunc['htmlspecialchars']($credit_info['license']));
 			$version = $txt['credits_version'] . ' ' . $row['version'];
 			$title = (empty($credit_info['title']) ? $row['name'] : $smcFunc['htmlspecialchars']($credit_info['title'])) . ': ' . $version;
 

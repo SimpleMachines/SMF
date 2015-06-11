@@ -1018,6 +1018,7 @@ function PackageInstall()
 				$credits_tag = array(
 					'url' => $action['url'],
 					'license' => $action['license'],
+					'licenseurl' => $action['licenseurl'],
 					'copyright' => $action['copyright'],
 					'title' => $action['title'],
 				);
@@ -1025,9 +1026,9 @@ function PackageInstall()
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
-					remove_integration_function($action['hook'], $action['function'], $action['include_file']);
+					remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 				else
-					add_integration_function($action['hook'], $action['function'], $action['include_file']);
+					add_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
