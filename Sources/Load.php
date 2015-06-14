@@ -1375,6 +1375,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'warning' => $profile['warning'],
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
+			'custom_fields' => array(),
 		);
 
 	// If the set isn't minimal then load their avatar as ell.
