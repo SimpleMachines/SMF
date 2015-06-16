@@ -1628,8 +1628,8 @@ $(function()
 		e.preventDefault();
 
 		// Do you want to target yourself?
-		var actOnElement = $(this).attr('data-actOnElement');
+		var actOnElement = $(this).attr('data-actonelement');
 
-		return typeof actOnElement !== "undefined" ? smfSelectText(this, true) : smfSelectText(this);
+		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
 	});
 });
