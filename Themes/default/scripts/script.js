@@ -1630,6 +1630,6 @@ $(function()
 		// Do you want to target yourself?
 		var actOnElement = $(this).attr('data-actOnElement');
 
-		return typeof div_target !== "undefined" ? smfSelectText(this, true) : smfSelectText(this);
+		return typeof actOnElement !== "undefined" ? smfSelectText(this, true) : smfSelectText(this);
 	});
 });

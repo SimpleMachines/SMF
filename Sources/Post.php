@@ -1548,7 +1548,7 @@ function Post2()
 	}
 
 	// In case we want to override but still respect the unapproved topic rule.
-	if (allowedTo('approve_posts') && !$topicAndMessageBothUnapproved)
+	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
