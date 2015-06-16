@@ -1621,4 +1621,15 @@ $(function()
 
 		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
 	});
+
+	// Generic event for smfSelectText()
+	$('.smf_select_text').on('click', function(e) {
+
+		e.preventDefault();
+
+		// Do you want to target yourself?
+		var actOnElement = $(this).attr('data-actOnElement');
+
+		return typeof div_target !== "undefined" ? smfSelectText(this, true) : smfSelectText(this);
+	});
 });
