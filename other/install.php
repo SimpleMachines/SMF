@@ -154,6 +154,7 @@ function initialize_inputs()
 	if (function_exists('set_magic_quotes_runtime'))
 		@set_magic_quotes_runtime(0);
 	error_reporting(E_ALL);
+	set_time_limit(60);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
@@ -1258,20 +1259,22 @@ function DatabasePopulation()
 			);
 	}
 
-	// Let's optimize those new tables.
-	db_extend();
-	$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
-	foreach ($tables as $table)
+	// Let's optimize those new tables, not on InnoDB, ok?
+	if (!in_array('InnoDB', $engines))
 	{
-		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
-
-		if (!empty($db_messed))
+		db_extend();
+		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
+		foreach ($tables as $table)
 		{
-			$incontext['failures'][-1] = $smcFunc['db_error']();
-			break;
+			$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+
+			if (!empty($db_messed))
+			{
+				$incontext['failures'][-1] = $smcFunc['db_error']();
+				break;
+			}
 		}
 	}
-
 	// Check for the ALTER privilege.
 	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
 	{
