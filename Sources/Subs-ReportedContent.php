@@ -181,7 +181,7 @@ function countReports($closed = 0)
  */
 function getReports($closed = 0)
 {
-	global $smcFunc, $context, $user_info, $scripturl;
+	global $smcFunc, $context, $user_info, $scripturl, $txt;
 
 	// Lonely, standalone var.
 	$reports = array();
