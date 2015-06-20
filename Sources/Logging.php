@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -137,7 +137,7 @@ function writeLog($force = false)
 		$_SESSION['timeOnlineUpdated'] = time();
 
 	// Set their login time, if not already done within the last minute.
-	if (SMF != 'SSI' && !empty($user_info['last_login']) && $user_info['last_login'] < time() - 60)
+	if (SMF != 'SSI' && !empty($user_info['last_login']) && $user_info['last_login'] < time() - 60 && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('.xml', 'login2', 'logintfa'))))
 	{
 		// Don't count longer than 15 minutes.
 		if (time() - $_SESSION['timeOnlineUpdated'] > 60 * 15)
@@ -201,7 +201,7 @@ function logLastDatabaseError()
  */
 function displayDebug()
 {
-	global $context, $scripturl, $boarddir, $sourcedir, $modSettings;
+	global $context, $scripturl, $boarddir, $sourcedir, $cachedir, $settings, $modSettings;
 	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
@@ -221,7 +221,7 @@ function displayDebug()
 	{
 		if (file_exists($files[$i]))
 			$total_size += filesize($files[$i]);
-		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)'));
+		$files[$i] = strtr($files[$i], array($boarddir => '.', $sourcedir => '(Sources)', $cachedir => '(Cache)', $settings['actual_theme_dir'] => '(Current Theme)'));
 	}
 
 	$warnings = 0;
@@ -386,8 +386,6 @@ function trackStats($stats = array())
  * You should use {@link logActions()} instead.
  * @example logAction('remove', array('starter' => $id_member_started));
  *
- * @deprecated deprecated since version 2.1
- *
  * @param string $action
  * @param array $extra = array()
  * @param string $log_type options: 'moderate', 'admin', ...etc.
@@ -476,6 +474,7 @@ function logActions($logs)
 			if ($smcFunc['db_num_rows']($request) > 0)
 			{
 				require_once($sourcedir . '/ModerationCenter.php');
+				require_once($sourcedir . '/Subs-ReportedContent.php');
 				updateSettings(array('last_mod_report_action' => time()));
 				recountOpenReports('posts');
 			}

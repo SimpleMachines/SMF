@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManageLanguages()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	loadTemplate('ManageLanguages');
 	loadLanguage('ManageSettings');
@@ -42,8 +42,6 @@ function ManageLanguages()
 		'editlang' => 'ModifyLanguage',
 	);
 
-	call_integration_hook('integrate_manage_languages', array(&$subActions));
-
 	// By default we're managing languages.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'edit';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -54,8 +52,10 @@ function ManageLanguages()
 		'description' => $txt['language_description'],
 	);
 
+	call_integration_hook('integrate_manage_languages', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -65,7 +65,7 @@ function ManageLanguages()
  */
 function AddLanguage()
 {
-	global $context, $sourcedir, $boarddir, $txt, $smcFunc, $scripturl;
+	global $context, $sourcedir, $txt, $smcFunc;
 
 	// Are we searching for new languages courtesy of Simple Machines?
 	if (!empty($_POST['smf_add_sub']))
@@ -561,8 +561,8 @@ function DownloadLanguage()
  */
 function ModifyLanguages()
 {
-	global $txt, $context, $scripturl;
-	global $smcFunc, $sourcedir, $language, $boarddir, $forum_version;
+	global $txt, $context, $scripturl, $modSettings;
+	global $sourcedir, $language, $boarddir;
 
 	// Setting a new default?
 	if (!empty($_POST['set_default']) && !empty($_POST['def_language']))
@@ -594,7 +594,7 @@ function ModifyLanguages()
 
 	$listOptions = array(
 		'id' => 'language_list',
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=languages',
 		'title' => $txt['edit_languages'],
 		'get_items' => array(
@@ -777,7 +777,7 @@ function list_getLanguages()
  */
 function ModifyLanguageSettings($return_config = false)
 {
-	global $scripturl, $context, $txt, $boarddir, $settings, $smcFunc, $sourcedir;
+	global $scripturl, $context, $txt, $boarddir, $sourcedir;
 
 	// We'll want to save them someday.
 	require_once $sourcedir . '/ManageServer.php';
@@ -961,10 +961,11 @@ function ModifyLanguage()
 		if (file_exists($boarddir . '/agreement.' . $context['lang_id'] . '.txt'))
 			unlink($boarddir . '/agreement.' . $context['lang_id'] . '.txt');
 
-		// Fourth, a related images folder?
-		foreach ($images_dirs as $curPath)
-			if (is_dir($curPath))
-				deltree($curPath);
+		// Fourth, a related images folder, if it exists...
+		if (!empty($images_dirs))
+			foreach ($images_dirs as $curPath)
+				if (is_dir($curPath))
+					deltree($curPath);
 
 		// Members can no longer use this language.
 		$smcFunc['db_query']('', '
@@ -1247,7 +1248,7 @@ function cleanLangString($string, $to_display = true)
 		$is_escape = false;
 		for ($i = 0; $i < strlen($string); $i++)
 		{
-			// Handle ecapes first.
+			// Handle escapes first.
 			if ($string{$i} == '\\')
 			{
 				// Toggle the escape.

@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; ManageBoards
+// Version: 2.1 Beta 2; ManageBoards
 
 $txt['boards_and_cats'] = 'Manage Boards and Categories';
 $txt['order'] = 'Order';
@@ -53,9 +53,9 @@ $txt['mboards_groups_desc'] = 'Groups allowed to access this board.<br><em>Note:
 $txt['mboards_groups_regular_members'] = 'This group contains all members that have no primary group set.';
 $txt['mboards_groups_post_group'] = 'This group is a post count based group.';
 $txt['mboards_moderators'] = 'Moderators';
-$txt['mboards_moderators_desc'] = 'Additional members to have moderation privileges on this board.  Note that administrators don\'t have to be listed here.';
+$txt['mboards_moderators_desc'] = 'Additional members to have moderation privileges on this board. Note that administrators don\'t have to be listed here.';
 $txt['mboards_moderator_groups'] = 'Moderator Groups';
-$txt['mboards_moderator_groups_desc'] = 'Groups whose members have moderation priveleges on this board. Note that this is limited to groups which are not post-based and not "hidden".';
+$txt['mboards_moderator_groups_desc'] = 'Groups whose members have moderation privileges on this board. Note that this is limited to groups which are not post-based and not "hidden".';
 $txt['mboards_count_posts'] = 'Count Posts';
 $txt['mboards_count_posts_desc'] = 'Makes new replies and topics raise members\' post counts.';
 $txt['mboards_unchanged'] = 'Unchanged';
@@ -87,7 +87,7 @@ $txt['mboards_settings_submit'] = 'Save';
 $txt['recycle_enable'] = 'Enable recycling of deleted topics';
 $txt['recycle_board'] = 'Board for recycled topics';
 $txt['redirect_board_desc'] = 'A board that redirects users if they visit it';
-$txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of topics without specifying a board to place them in.  This feature will not be enabled until you specify a board to place recycled topics into.';
+$txt['recycle_board_unselected_notice'] = 'You have enabled the recycling of topics without specifying a board to place them in. This feature will not be enabled until you specify a board to place recycled topics into.';
 $txt['countChildPosts'] = 'Count sub-board\'s posts in parent\'s totals';
 $txt['allow_ignore_boards'] = 'Allow boards to be ignored';
 $txt['deny_boards_access'] = 'Enable the option to deny board access based on membergroup';

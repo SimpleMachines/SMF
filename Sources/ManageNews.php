@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function ManageNews()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// First, let's do a quick permissions check for the best error message possible.
 	isAllowedTo(array('edit_news', 'send_mail', 'admin_forum'));
@@ -70,7 +70,7 @@ function ManageNews()
 	if (substr($_REQUEST['sa'], 0, 7) == 'mailing')
 		$context[$context['admin_menu_name']]['current_subsection'] = 'mailingmembers';
 
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -155,8 +155,7 @@ function EditNews()
 					'function' => function ($news)
 					{
 						if (is_numeric($news['id']))
-							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width 100%;margin 0 5em') . ';">' . $news['unparsed'] . '</textarea>
-							<br>
+							return '<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
 							<div class="floatleft" id="preview_' . $news['id'] . '"></div>';
 						else
 							return $news['unparsed'];
@@ -207,7 +206,7 @@ function EditNews()
 					<a class="button_link" href="javascript:void(0);" onclick="addNewsItem(); return false;">' . $txt['editnews_clickadd'] . '</a>
 				</span>
 				<input type="submit" name="save_items" value="' . $txt['save'] . '" class="button_submit">
-				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" onclick="return confirm(\'' . $txt['editnews_remove_confirm'] . '\');" class="button_submit">',
+				<input type="submit" name="delete_selection" value="' . $txt['editnews_remove_selected'] . '" data-confirm="' . $txt['editnews_remove_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 		'javascript' => '
@@ -249,7 +248,7 @@ function EditNews()
 						$("#list_news_lists_last").before(' . javaScriptEscape('
 						<tr class="windowbg') . ' + (last_preview % 2 == 0 ? \'\' : \'2\') + ' . javaScriptEscape('">
 							<td style="width: 50%;">
-									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 95%') . ';"></textarea>
+									<textarea id="data_') . ' + last_preview + ' . javaScriptEscape('" rows="3" cols="65" name="news[]" style="width: 95%;"></textarea>
 									<br>
 									<div class="floatleft" id="preview_') . ' + last_preview + ' . javaScriptEscape('"></div>
 							</td>
@@ -291,7 +290,7 @@ function list_getNews()
 	$admin_current_news['last'] = array(
 		'id' => 'last',
 		'unparsed' => '<div id="moreNewsItems"></div>
-		<noscript><textarea rows="3" cols="65" name="news[]" style="' . (isBrowser('is_ie8') ? 'width: 635px; max-width: 85%; min-width: 85%' : 'width: 85%') . ';"></textarea></noscript>',
+		<noscript><textarea rows="3" cols="65" name="news[]" style="width: 85%;"></textarea></noscript>',
 		'parsed' => '<div id="moreNewsItems_preview"></div>',
 	);
 
@@ -434,7 +433,7 @@ function SelectMailingMembers()
  */
 function prepareMailingForPreview ()
 {
-	global $context, $smcFunc, $modSettings, $scripturl, $user_info, $txt;
+	global $context, $modSettings, $scripturl, $user_info, $txt;
 	loadLanguage('Errors');
 
 	$processing = array('preview_subject' => 'subject', 'preview_message' => 'message');
@@ -495,7 +494,7 @@ function prepareMailingForPreview ()
  */
 function ComposeMailing()
 {
-	global $txt, $sourcedir, $context, $smcFunc, $scripturl;
+	global $txt, $sourcedir, $context, $smcFunc;
 
 	// Setup the template!
 	$context['page_title'] = $txt['admin_newsletters'];
@@ -801,7 +800,7 @@ function SendMailing($clean_only = false)
 		foreach ($addressed as $curmem)
 		{
 			$curmem = trim($curmem);
-			if ($curmem != '' && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $curmem) !== 0)
+			if ($curmem != '' && filter_var($curmem, FILTER_VALIDATE_EMAIL))
 				$context['recipients']['emails'][$curmem] = $curmem;
 		}
 	}

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function RegCenter()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt;
 
 	// Old templates might still request this.
 	if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'browse')
@@ -40,8 +40,6 @@ function RegCenter()
 		'reservednames' => array('SetReserved', 'admin_forum'),
 		'settings' => array('ModifyRegistrationSettings', 'admin_forum'),
 	);
-
-	call_integration_hook('integrate_manage_registrations', array(&$subActions));
 
 	// Work out which to call...
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (allowedTo('moderate_forum') ? 'register' : 'settings');
@@ -74,8 +72,10 @@ function RegCenter()
 		)
 	);
 
+	call_integration_hook('integrate_manage_registrations', array(&$subActions));
+
 	// Finally, get around to calling the function...
-	$subActions[$context['sub_action']][0]();
+	call_helper($subActions[$context['sub_action']][0]);
 }
 
 /**
@@ -298,10 +298,9 @@ function ModifyRegistrationSettings($return_config = false)
 
 	$config_vars = array(
 			array('select', 'registration_method', array($txt['setting_registration_standard'], $txt['setting_registration_activate'], $txt['setting_registration_approval'], $txt['setting_registration_disabled'])),
-			array('select', 'enableOpenID', array(0 => $txt['enableOpenID_disabled'], 1 => $txt['enableOpenID_enabled'], 2 => $txt['enableOpenID_enabled_login'])),
 			array('check', 'send_welcomeEmail'),
 		'',
-			array('int', 'coppaAge', 'subtext' => $txt['setting_coppaAge_desc'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
+			array('int', 'coppaAge', 'subtext' => $txt['zero_to_disable'], 'onchange' => 'checkCoppa();', 'onkeyup' => 'checkCoppa();'),
 			array('select', 'coppaType', array($txt['setting_coppaType_reject'], $txt['setting_coppaType_approval']), 'onchange' => 'checkCoppa();'),
 			array('large_text', 'coppaPost', 'subtext' => $txt['setting_coppaPost_desc']),
 			array('text', 'coppaFax'),

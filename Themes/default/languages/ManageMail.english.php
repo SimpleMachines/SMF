@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; ManageMail
+// Version: 2.1 Beta 2; ManageMail
 
 $txt['mailqueue_desc'] = 'From this page you can configure your mail settings, as well as viewing and administrating the current mail queue if it is enabled.';
 
@@ -11,7 +11,6 @@ $txt['smtp_username'] = 'SMTP username';
 $txt['smtp_password'] = 'SMTP password';
 
 $txt['mail_limit'] = 'Maximum emails to send per minute';
-$txt['mail_limit_desc'] = '(Set to 0 to disable)';
 $txt['mail_quantity'] = 'Maximum amount of emails to send per page load';
 
 $txt['mailqueue_stats'] = 'Mail queue statistics';

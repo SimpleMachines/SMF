@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Search
+// Version: 2.1 Beta 2; Search
 
 $txt['set_parameters'] = 'Set Search Parameters';
 $txt['choose_board'] = 'Choose a board to search in, or search all';
@@ -28,7 +28,6 @@ $txt['search_specific_topic'] = 'Searching only posts in the topic';
 
 $txt['mods_cat_search'] = 'Search';
 $txt['groups_search_posts'] = 'Membergroups with access to the search function';
-$txt['search_dropdown'] = 'Enable the Quick Search dropdown';
 $txt['search_results_per_page'] = 'Number of search results per page';
 $txt['search_weight_frequency'] = 'Relative search weight for number of matching messages within a topic';
 $txt['search_weight_age'] = 'Relative search weight for age of last matching message';
@@ -109,11 +108,11 @@ $txt['search_example'] = '<em>e.g.</em> Orwell "Animal Farm" -movie';
 
 $txt['search_engines_description'] = 'From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs.';
 $txt['spider_mode'] = 'Search Engine Tracking Level';
-$txt['spider_mode_note'] = 'Note higher level tracking increases server resource requirement.';
+$txt['spider_mode_note'] = 'Note that logging of every spider action only occurs if tracking is set to either "high" or "very high". Detail of every spiders action is only logged if tracking is set to "very high".';
 $txt['spider_mode_off'] = 'Disabled';
 $txt['spider_mode_standard'] = 'Standard';
 $txt['spider_mode_high'] = 'Moderate';
-$txt['spider_mode_vhigh'] = 'Agressive';
+$txt['spider_mode_vhigh'] = 'Aggressive';
 $txt['spider_settings_desc'] = 'You can change settings for spider tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up <a href="%1$s">here</a>';
 
 $txt['spider_group'] = 'Apply restrictive permissions from group';
@@ -134,10 +133,10 @@ $txt['spider_ip_info'] = 'IP Addresses';
 $txt['spiders_add'] = 'Add New Spider';
 $txt['spiders_edit'] = 'Edit Spider';
 $txt['spiders_remove_selected'] = 'Remove Selected';
-$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?\\n\\nAll associated statistics will also be deleted!';
+$txt['spider_remove_selected_confirm'] = 'Are you sure you want to remove these spiders?-n-All associated statistics will also be deleted!';
 $txt['spiders_no_entries'] = 'There are currently no spiders configured.';
 
-$txt['add_spider_desc'] = 'From this page you can edit the parameters against which a spider is categorised. If a guest\'s user agent/IP address matches those entered below it will be detected as a search engine spider and tracked as per the forum preferences.';
+$txt['add_spider_desc'] = 'From this page you can edit the parameters against which a spider is categorized. If a guest\'s user agent/IP address matches those entered below it will be detected as a search engine spider and tracked as per the forum preferences.';
 $txt['spider_name_desc'] = 'Name by which the spider will be referred.';
 $txt['spider_agent_desc'] = 'User agent associated with this spider.';
 $txt['spider_ip_info_desc'] = 'Comma separated list of IP addresses associated with this spider.';

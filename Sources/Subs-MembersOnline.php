@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -20,7 +20,7 @@ if (!defined('SMF'))
  * Retrieve a list and several other statistics of the users currently online.
  * Used by the board index and SSI.
  * Also returns the membergroups of the users that are currently online.
- * (optionally) hides members that chose to hide their online presense.
+ * (optionally) hides members that chose to hide their online presence.
  * @param array $membersOnlineOptions
  * @return array
  */

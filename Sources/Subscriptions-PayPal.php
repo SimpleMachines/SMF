@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 // This won't be dedicated without this - this must exist in each gateway!
@@ -153,7 +153,7 @@ class paypal_payment
 		global $modSettings;
 
 		// Has the user set up an email address?
-		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || empty($modSettings['paypal_sandbox_email']))
+		if ((empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_email'])) || (!empty($modSettings['paidsubs_test']) && empty($modSettings['paypal_sandbox_email'])))
 			return false;
 		// Check the correct transaction types are even here.
 		if ((!isset($_POST['txn_type']) && !isset($_POST['payment_status'])) || (!isset($_POST['business']) && !isset($_POST['receiver_email'])))
@@ -171,7 +171,7 @@ class paypal_payment
 	}
 
 	/**
-	 * Post the IPN data received back to paypal for validaion
+	 * Post the IPN data received back to paypal for validation
 	 * Sends the complete unaltered message back to PayPal. The message must contain the same fields
 	 * in the same order and be encoded in the same way as the original message
 	 * PayPal will respond back with a single word, which is either VERIFIED if the message originated with PayPal or INVALID

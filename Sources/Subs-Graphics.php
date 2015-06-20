@@ -12,10 +12,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -163,7 +163,7 @@ function createThumbnail($source, $max_width, $max_height)
 }
 
 /**
- * Used to re-econodes an image to a specifed image format
+ * Used to re-econodes an image to a specified image format
  * - creates a copy of the file at the same location as fileName.
  * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
  * - the function makes sure that all non-essential image contents are disposed.
@@ -190,7 +190,7 @@ function reencodeImage($fileName, $preferred_format = 0)
 }
 
 /**
- * Searches through the file to see if there's potentialy harmful non-binary content.
+ * Searches through the file to see if there's potentially harmful non-binary content.
  * - if extensiveCheck is true, searches for asp/php short tags as well.
  *
  * @param string $fileName
@@ -900,7 +900,12 @@ function showCodeImage($code)
 		$loaded_fonts[$font_index] = imageloadfont($settings['default_theme_dir'] . '/fonts/' . $font_list[$font_index]);
 
 	// Determine the dimensions of each character.
-	$total_width = $character_spacing * strlen($code) + 40;
+	if ($imageType == 4 || $imageType == 5)
+		$extra = 80;
+	else
+		$extra = 45;
+
+	$total_width = $character_spacing * strlen($code) + $extra;
 	$max_height = 0;
 	foreach ($characters as $char_index => $character)
 	{

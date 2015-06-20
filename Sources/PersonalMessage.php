@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -182,7 +182,7 @@ function MessageMain()
 
 	// Are PM drafts enabled?
 	$context['drafts_pm_save'] = !empty($modSettings['drafts_pm_enabled']) && allowedTo('pm_draft');
-	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']) && allowedTo('pm_autosave_draft');
+	$context['drafts_autosave'] = !empty($context['drafts_pm_save']) && !empty($modSettings['drafts_autosave_enabled']);
 
 	// Build the linktree for all the actions...
 	$context['linktree'][] = array(
@@ -220,7 +220,7 @@ function MessageMain()
 	{
 		if (!isset($_REQUEST['xml']) && $_REQUEST['sa'] != 'popup')
 			messageIndexBar($_REQUEST['sa']);
-		$subActions[$_REQUEST['sa']]();
+		call_helper($subActions[$_REQUEST['sa']]);
 	}
 }
 
@@ -231,7 +231,7 @@ function MessageMain()
  */
 function messageIndexBar($area)
 {
-	global $txt, $context, $scripturl, $sourcedir, $sc, $modSettings, $user_info;
+	global $txt, $context, $scripturl, $sourcedir, $modSettings, $user_info;
 
 	$pm_areas = array(
 		'folders' => array(
@@ -465,7 +465,7 @@ function MessagePopup()
 function MessageFolder()
 {
 	global $txt, $scripturl, $modSettings, $context, $subjects_request;
-	global $messages_request, $user_info, $recipients, $options, $smcFunc, $memberContext, $user_settings;
+	global $messages_request, $user_info, $recipients, $options, $smcFunc, $user_settings;
 
 	// Changing view?
 	if (isset($_GET['view']))
@@ -582,10 +582,11 @@ function MessageFolder()
 
 	// Only show the button if there are messages to delete.
 	$context['show_delete'] = $max_messages > 0;
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Start on the last page.
 	if (!is_numeric($_GET['start']) || $_GET['start'] >= $max_messages)
-		$_GET['start'] = ($max_messages - 1) - (($max_messages - 1) % $modSettings['defaultMaxMessages']);
+		$_GET['start'] = ($max_messages - 1) - (($max_messages - 1) % $maxPerPage);
 	elseif ($_GET['start'] < 0)
 		$_GET['start'] = 0;
 
@@ -601,7 +602,7 @@ function MessageFolder()
 		$context['current_pm'] = $pmID;
 
 		// With only one page of PM's we're gonna want page 1.
-		if ($max_messages <= $modSettings['defaultMaxMessages'])
+		if ($max_messages <= $maxPerPage)
 			$_GET['start'] = 0;
 		// If we pass kstart we assume we're in the right place.
 		elseif (!isset($_GET['kstart']))
@@ -638,7 +639,7 @@ function MessageFolder()
 			$smcFunc['db_free_result']($request);
 
 			// To stop the page index's being abnormal, start the page on the page the message would normally be located on...
-			$_GET['start'] = $modSettings['defaultMaxMessages'] * (int) ($_GET['start'] / $modSettings['defaultMaxMessages']);
+			$_GET['start'] = $maxPerPage * (int) ($_GET['start'] / $maxPerPage);
 		}
 	}
 
@@ -652,20 +653,20 @@ function MessageFolder()
 	}
 
 	// Set up the page index.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;f=' . $context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . $context['sort_by'] . ($descending ? ';desc' : ''), $_GET['start'], $max_messages, $modSettings['defaultMaxMessages']);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;f=' . $context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . $context['sort_by'] . ($descending ? ';desc' : ''), $_GET['start'], $max_messages, $maxPerPage);
 	$context['start'] = $_GET['start'];
 
 	// Determine the navigation context (especially useful for the wireless template).
 	$context['links'] = array(
-		'first' => $_GET['start'] >= $modSettings['defaultMaxMessages'] ? $scripturl . '?action=pm;start=0' : '',
-		'prev' => $_GET['start'] >= $modSettings['defaultMaxMessages'] ? $scripturl . '?action=pm;start=' . ($_GET['start'] - $modSettings['defaultMaxMessages']) : '',
-		'next' => $_GET['start'] + $modSettings['defaultMaxMessages'] < $max_messages ? $scripturl . '?action=pm;start=' . ($_GET['start'] + $modSettings['defaultMaxMessages']) : '',
-		'last' => $_GET['start'] + $modSettings['defaultMaxMessages'] < $max_messages ? $scripturl . '?action=pm;start=' . (floor(($max_messages - 1) / $modSettings['defaultMaxMessages']) * $modSettings['defaultMaxMessages']) : '',
+		'first' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=0' : '',
+		'prev' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=' . ($_GET['start'] - $maxPerPage) : '',
+		'next' => $_GET['start'] + $maxPerPage < $max_messages ? $scripturl . '?action=pm;start=' . ($_GET['start'] + $maxPerPage) : '',
+		'last' => $_GET['start'] + $maxPerPage < $max_messages ? $scripturl . '?action=pm;start=' . (floor(($max_messages - 1) / $maxPerPage) * $maxPerPage) : '',
 		'up' => $scripturl,
 	);
 	$context['page_info'] = array(
-		'current_page' => $_GET['start'] / $modSettings['defaultMaxMessages'] + 1,
-		'num_pages' => floor(($max_messages - 1) / $modSettings['defaultMaxMessages']) + 1
+		'current_page' => $_GET['start'] / $maxPerPage + 1,
+		'num_pages' => floor(($max_messages - 1) / $maxPerPage) + 1
 	);
 
 	// First work out what messages we need to see - if grouped is a little trickier...
@@ -698,7 +699,7 @@ function MessageFolder()
 					AND pm.id_pm = {int:id_pm}') . $labelQuery2 . '
 				GROUP BY pm.id_pm_head
 				ORDER BY sort_param' . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxMessages'] : ''),
+				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
 					'current_member' => $user_info['id'],
 					'not_deleted' => 0,
@@ -724,7 +725,7 @@ function MessageFolder()
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})') : '') . '
 				WHERE ' . (empty($sub_pms) ? '0=1' : 'pm.id_pm IN ({array_int:pm_list})') . $labelQuery2 . '
 				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxMessages'] : ''),
+				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
 					'current_member' => $user_info['id'],
 					'pm_list' => array_keys($sub_pms),
@@ -750,7 +751,7 @@ function MessageFolder()
 					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
 				GROUP BY pm.id_pm_head
 				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxMessages'] : ''),
+				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
 					'current_member' => $user_info['id'],
 					'deleted_by' => 0,
@@ -778,7 +779,7 @@ function MessageFolder()
 				AND pm.deleted_by_sender = {int:is_deleted}' : '1=1') . (empty($pmsg) ? '' : '
 				AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
 			ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'pmr.id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-			LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxMessages'] : ''),
+			LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 			array(
 				'current_member' => $user_info['id'],
 				'is_deleted' => 0,
@@ -979,7 +980,7 @@ function MessageFolder()
 		if ($context['display_mode'] == 2)
 		{
 			$context['conversation_buttons'] = array(
-				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'onclick="return confirm(\'' . addslashes($txt['remove_conversation']) . '?\');"'),
+				'delete' => array('text' => 'delete_conversation', 'image' => 'delete.png', 'lang' => true, 'url' => $scripturl . '?action=pm;sa=pmactions;pm_actions[' . $context['current_pm'] . ']=delete;conversation;f=' . $context['folder'] . ';start=' . $context['start'] . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '') . ';' . $context['session_var'] . '=' . $context['session_id'], 'custom' => 'data-confirm="' . $txt['remove_conversation'] . '"', 'class' => 'you_sure'),
 			);
 
 			// Allow mods to add additional buttons here
@@ -1015,7 +1016,7 @@ function MessageFolder()
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
-	global $txt, $scripturl, $modSettings, $settings, $context, $messages_request, $memberContext, $recipients, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $messages_request, $memberContext, $recipients, $smcFunc;
 	global $user_info, $subjects_request;
 
 	// Count the current message number....
@@ -1093,7 +1094,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 		$memberContext[$message['id_member_from']]['id'] = 0;
 
 		// Sometimes the forum sends messages itself (Warnings are an example) - in this case don't label it from a guest.
-		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == $context['forum_name'] ? '' : $txt['guest_title'];
+		$memberContext[$message['id_member_from']]['group'] = $message['from_name'] == $context['forum_name_html_safe'] ? '' : $txt['guest_title'];
 		$memberContext[$message['id_member_from']]['link'] = $message['from_name'];
 		$memberContext[$message['id_member_from']]['email'] = '';
 		$memberContext[$message['id_member_from']]['show_email'] = false;
@@ -1103,9 +1104,11 @@ function prepareMessageContext($type = 'subject', $reset = false)
 	{
 		$memberContext[$message['id_member_from']]['can_view_profile'] = allowedTo('profile_view') || ($message['id_member_from'] == $user_info['id'] && !$user_info['is_guest']);
 		$memberContext[$message['id_member_from']]['can_see_warning'] = !isset($context['disabled_fields']['warning_status']) && $memberContext[$message['id_member_from']]['warning_status'] && ($context['user']['can_mod'] || (!empty($modSettings['warning_show']) && ($modSettings['warning_show'] > 1 || $message['id_member_from'] == $user_info['id'])));
+		// Show the email if it's your own PM
+		$memberContext[$message['id_member_from']]['show_email'] |= $message['id_member_from'] == $user_info['id'];
 	}
 
-	$memberContext[$message['id_member_from']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset($context['disabled_fields']['website'])) || (in_array($memberContext[$message['id_member_from']]['show_email'], array('yes', 'yes_permission_override', 'no_through_forum'))) || $context['can_send_pm']);
+	$memberContext[$message['id_member_from']]['show_profile_buttons'] = $modSettings['show_profile_buttons'] && (!empty($memberContext[$message['id_member_from']]['can_view_profile']) || (!empty($memberContext[$message['id_member_from']]['website']['url']) && !isset($context['disabled_fields']['website'])) || $memberContext[$message['id_member_from']]['show_email'] || $context['can_send_pm']);
 
 	// Censor all the important text...
 	censorText($message['body']);
@@ -1116,7 +1119,6 @@ function prepareMessageContext($type = 'subject', $reset = false)
 
 	// Send the array.
 	$output = array(
-		'alternate' => $counter % 2,
 		'id' => $message['id_pm'],
 		'member' => &$memberContext[$message['id_member_from']],
 		'subject' => $message['subject'],
@@ -1138,6 +1140,33 @@ function prepareMessageContext($type = 'subject', $reset = false)
 
 	$counter++;
 
+	// Any custom profile fields?
+	if (!empty($memberContext[$message['id_member_from']]['custom_fields']))
+		foreach ($memberContext[$message['id_member_from']]['custom_fields'] as $custom)
+			switch ($custom['placement'])
+			{
+				case 1:
+					$output['custom_fields']['icons'][] = $custom;
+					break;
+				case 2:
+					$output['custom_fields']['above_signature'][] = $custom;
+					break;
+				case 3:
+					$output['custom_fields']['below_signature'][] = $custom;
+					break;
+				case 4:
+					$output['custom_fields']['below_avatar'][] = $custom;
+					break;
+				case 5:
+					$output['custom_fields']['above_member'][] = $custom;
+					break;
+				case 6:
+					$output['custom_fields']['bottom_poster'][] = $custom;
+					break;
+				default:
+					$output['custom_fields']['standard'][] = $custom;
+			}
+
 	return $output;
 }
 
@@ -1146,7 +1175,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
  */
 function MessageSearch()
 {
-	global $context, $txt, $scripturl, $modSettings, $smcFunc;
+	global $context, $txt, $scripturl, $smcFunc;
 
 	if (isset($_REQUEST['params']))
 	{
@@ -2236,7 +2265,7 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 function MessagePost2()
 {
 	global $txt, $context, $sourcedir;
-	global $user_info, $modSettings, $scripturl, $smcFunc;
+	global $user_info, $modSettings, $smcFunc;
 
 	isAllowedTo('pm_send');
 	require_once($sourcedir . '/Subs-Auth.php');
@@ -2567,7 +2596,7 @@ function WirelessAddBuddy()
  */
 function MessageActionsApply()
 {
-	global $txt, $context, $user_info, $options, $smcFunc;
+	global $context, $user_info, $options, $smcFunc;
 
 	checkSession('request');
 
@@ -3493,7 +3522,7 @@ function ManageLabels()
  */
 function MessageSettings()
 {
-	global $txt, $user_settings, $user_info, $context, $sourcedir, $smcFunc;
+	global $txt, $user_info, $context, $sourcedir;
 	global $scripturl, $profile_vars, $cur_profile, $user_profile;
 
 	// Need this for the display.
@@ -3564,7 +3593,7 @@ function MessageSettings()
  */
 function ReportMessage()
 {
-	global $txt, $context, $scripturl, $sourcedir;
+	global $txt, $context, $scripturl;
 	global $user_info, $language, $modSettings, $smcFunc;
 
 	// Check that this feature is even enabled!

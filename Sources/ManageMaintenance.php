@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  */
 function ManageMaintenance()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $context;
 
 	// You absolutely must be an admin by here!
 	isAllowedTo('admin_forum');
@@ -111,11 +111,11 @@ function ManageMaintenance()
 	$context['sub_template'] = !empty($subActions[$subAction]['template']) ? $subActions[$subAction]['template'] : '';
 
 	// Finally fall through to what we are doing.
-	$subActions[$subAction]['function']();
+	call_helper($subActions[$subAction]['function']);
 
 	// Any special activity?
 	if (isset($activity))
-		$subActions[$subAction]['activities'][$activity]();
+		call_helper($subActions[$subAction]['activities'][$activity]);
 
 	//converted to UTF-8? show a small maintenance info
 	if (isset($_GET['done']) && $_GET['done'] == 'convertutf8')
@@ -130,7 +130,7 @@ function ManageMaintenance()
  */
 function MaintainDatabase()
 {
-	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt, $maintenance;
+	global $context, $db_type, $db_character_set, $modSettings, $smcFunc, $txt;
 
 	// Show some conversion options?
 	$context['convert_utf8'] = ($db_type == 'mysql' || $db_type == 'mysqli') && (!isset($db_character_set) || $db_character_set !== 'utf8' || empty($modSettings['global_character_set']) || $modSettings['global_character_set'] !== 'UTF-8') && version_compare('4.1.2', preg_replace('~\-.+?$~', '', $smcFunc['db_server_info']()), '<=');
@@ -228,7 +228,7 @@ function MaintainTopics()
 				'boards' => array()
 			);
 
-		$context['categories'][$row['id_cat']]['boards'][] = array(
+		$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['name'],
 			'child_level' => $row['child_level']
@@ -346,7 +346,7 @@ function Destroy()
  */
 function ConvertUtf8()
 {
-	global $scripturl, $context, $txt, $language, $db_character_set;
+	global $context, $txt, $language, $db_character_set;
 	global $modSettings, $user_info, $sourcedir, $smcFunc, $db_prefix;
 
 	// Show me your badge!
@@ -712,7 +712,7 @@ function ConvertUtf8()
  * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT and vice versa.
  * It requires the admin_forum permission.
  * This is needed only for MySQL.
- * During the convertion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
+ * During the conversion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
  * This action is linked from the maintenance screen (if it's applicable).
  * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
  *
@@ -720,8 +720,8 @@ function ConvertUtf8()
  */
 function ConvertMsgBody()
 {
-	global $scripturl, $context, $txt, $language, $db_character_set, $db_type;
-	global $modSettings, $sourcedir, $smcFunc, $time_start;
+	global $scripturl, $context, $txt, $db_type;
+	global $modSettings, $smcFunc, $time_start;
 
 	// Show me your badge!
 	isAllowedTo('admin_forum');
@@ -1067,7 +1067,7 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $db_type, $db_name, $db_prefix, $txt, $context, $scripturl, $sourcedir, $smcFunc;
+	global $db_prefix, $txt, $context, $smcFunc;
 
 	isAllowedTo('admin_forum');
 
@@ -1104,10 +1104,6 @@ function OptimizeTables()
 		// Optimize the table!  We use backticks here because it might be a custom table.
 		$data_freed = $smcFunc['db_optimize_table']($table['table_name']);
 
-		// Optimizing one sqlite table optimizes them all.
-		if ($db_type == 'sqlite')
-			break;
-
 		if ($data_freed > 0)
 			$context['optimized_tables'][] = array(
 				'name' => $table['table_name'],
@@ -1138,7 +1134,7 @@ function OptimizeTables()
  */
 function AdminBoardRecount()
 {
-	global $txt, $context, $scripturl, $modSettings, $sourcedir;
+	global $txt, $context, $modSettings, $sourcedir;
 	global $time_start, $smcFunc;
 
 	isAllowedTo('admin_forum');
@@ -1670,6 +1666,7 @@ function VersionDetail()
 	$versionOptions = array(
 		'include_ssi' => true,
 		'include_subscriptions' => true,
+		'include_tasks' => true,
 		'sort_results' => true,
 	);
 	$version_info = getFileVersions($versionOptions);
@@ -1681,6 +1678,7 @@ function VersionDetail()
 		'template_versions' => $version_info['template_versions'],
 		'default_language_versions' => $version_info['default_language_versions'],
 		'default_known_languages' => array_keys($version_info['default_language_versions']),
+		'tasks_versions' => $version_info['tasks_versions'],
 	);
 
 	// Make it easier to manage for the template.
@@ -1811,7 +1809,7 @@ function MaintainPurgeInactiveMembers()
  */
 function MaintainRemoveOldPosts()
 {
-	global $sourcedir, $context, $txt;
+	global $sourcedir;
 
 	validateToken('admin-maint');
 
@@ -2009,9 +2007,9 @@ function MaintainMassMoveTopics()
  * it requires the admin_forum permission.
  *
  * - recounts all posts for members found in the message table
- * - updates the members post count record in the members talbe
+ * - updates the members post count record in the members table
  * - honors the boards post count flag
- * - does not count posts in the recyle bin
+ * - does not count posts in the recycle bin
  * - zeros post counts for all members with no posts in the message table
  * - runs as a delayed loop to avoid server overload
  * - uses the not_done template in Admin.template
@@ -2177,7 +2175,7 @@ function MaintainRecountPosts()
  */
 function list_integration_hooks()
 {
-	global $sourcedir, $scripturl, $context, $txt, $settings;
+	global $sourcedir, $scripturl, $context, $txt;
 
 	$context['filter_url'] = '';
 	$context['current_filter'] = '';
@@ -2217,6 +2215,8 @@ function list_integration_hooks()
 		}
 	}
 
+	createToken('admin-hook', 'request');
+
 	$list_options = array(
 		'id' => 'list_integration_hooks',
 		'title' => $txt['hooks_title_list'],
@@ -2250,10 +2250,13 @@ function list_integration_hooks()
 				'data' => array(
 					'function' => function ($data) use ($txt)
 					{
+						// Show a nice icon to indicate this is instance.
+						$instance = (!empty($data['instance']) ? '<span class="generic_icons news" title="'. $txt['hooks_field_function_method'] .'"></span> ' : '');
+
 						if (!empty($data['included_file']))
-							return $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'] . (!empty($data['instance']) ? '<br>'. $txt['hooks_field_function_method'] : '');
+							return $instance . $txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . $txt['hooks_field_included_file'] . ': ' . $data['included_file'];
 						else
-							return $data['real_function'];
+							return $instance . $data['real_function'];
 					},
 				),
 				'sort' =>  array(
@@ -2279,15 +2282,15 @@ function list_integration_hooks()
 					'style' => 'width:3%;',
 				),
 				'data' => array(
-					'function' => function ($data) use ($txt, $settings, $scripturl, $context)
+					'function' => function ($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
 						if ($data['can_be_disabled'] && $data['status'] != 'deny')
 						{
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . $data['real_function'] . (!empty($data['included_file']) ? ';includedfile=' . urlencode($data['included_file']) : '') . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . javaScriptEscape($txt['quickmod_confirm']) . ');">';
+							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . $data['real_function'] . (!empty($data['included_file']) ? ';includedfile=' . urlencode($data['included_file']) : '') . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
 							$change_status['after'] = '</a>';
 						}
-						return $change_status['before'] . '<img src="' . $settings['images_url'] . '/admin/post_moderation_' . $data['status'] . '.png" alt="' . $data['img_text'] . '" title="' . $data['img_text'] . '">' . $change_status['after'];
+						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
 				),
@@ -2302,16 +2305,14 @@ function list_integration_hooks()
 				'position' => 'after_title',
 				'value' => $txt['hooks_disable_instructions'] . '<br>
 					' . $txt['hooks_disable_legend'] . ':
-									<ul style="list-style: none;">
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_allow.png" alt="' . $txt['hooks_active'] . '" title="' . $txt['hooks_active'] . '"> ' . $txt['hooks_disable_legend_exists'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_moderate.png" alt="' . $txt['hooks_disabled'] . '" title="' . $txt['hooks_disabled'] . '"> ' . $txt['hooks_disable_legend_disabled'] . '</li>
-					<li><img src="' . $settings['images_url'] . '/admin/post_moderation_deny.png" alt="' . $txt['hooks_missing'] . '" title="' . $txt['hooks_missing'] . '"> ' . $txt['hooks_disable_legend_missing'] . '</li>
+				<ul style="list-style: none;">
+					<li><span class="generic_icons post_moderation_allow"></span> ' . $txt['hooks_disable_legend_exists'] . '</li>
+					<li><span class="generic_icons post_moderation_moderate"></span> ' . $txt['hooks_disable_legend_disabled'] . '</li>
+					<li><span class="generic_icons post_moderation_deny"></span> ' . $txt['hooks_disable_legend_missing'] . '</li>
 				</ul>'
 			),
 		),
 	);
-
-	createToken('admin-hook', 'request');
 
 	$list_options['columns']['remove'] = array(
 		'header' => array(
@@ -2323,7 +2324,7 @@ function list_integration_hooks()
 			{
 				if (!$data['hook_exists'])
 					return '
-					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(' . JavaScriptEscape($txt['quickmod_confirm']) . ');">
+					<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">
 						<span class="generic_icons delete" title="' . $txt['hooks_button_remove'] . '"></span>
 					</a>';
 			},

@@ -191,26 +191,30 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oHighCurrent = {
 		Sources: '??',
 		Default: '??',
 		Languages: '??',
-		Templates: '??'
+		Templates: '??',
+		Tasks: '??'
 	};
 	var oLowVersion = {
 		Sources: false,
 		Default: false,
 		Languages: false,
-		Templates: false
+		Templates: false,
+		Tasks: false
 	};
 
 	var sSections = [
 		'Sources',
 		'Default',
 		'Languages',
-		'Templates'
+		'Templates',
+		'Tasks'
 	];
 
 	for (var i = 0, n = sSections.length; i < n; i++)
@@ -261,7 +265,7 @@ smf_ViewVersions.prototype.determineVersions = function ()
 			if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
 			{
 				oLowVersion[sCurVersionType] = sYourVersion;
-				document.getElementById('your' + sFilename).style.color = 'red';
+				document.getElementById('your' + sFilename).className = 'alert';
 			}
 		}
 		else if (this.compareVersions(sYourVersion, smfVersions[sFilename]))
@@ -302,12 +306,12 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	setInnerHTML(document.getElementById('yourSources'), oLowVersion.Sources ? oLowVersion.Sources : oHighYour.Sources);
 	setInnerHTML(document.getElementById('currentSources'), oHighCurrent.Sources);
 	if (oLowVersion.Sources)
-		document.getElementById('yourSources').style.color = 'red';
+		document.getElementById('yourSources').className = 'alert';
 
 	setInnerHTML(document.getElementById('yourDefault'), oLowVersion.Default ? oLowVersion.Default : oHighYour.Default);
 	setInnerHTML(document.getElementById('currentDefault'), oHighCurrent.Default);
 	if (oLowVersion.Default)
-		document.getElementById('yourDefault').style.color = 'red';
+		document.getElementById('yourDefault').className = 'alert';
 
 	if (document.getElementById('Templates'))
 	{
@@ -315,13 +319,13 @@ smf_ViewVersions.prototype.determineVersions = function ()
 		setInnerHTML(document.getElementById('currentTemplates'), oHighCurrent.Templates);
 
 		if (oLowVersion.Templates)
-			document.getElementById('yourTemplates').style.color = 'red';
+			document.getElementById('yourTemplates').className = 'alert';
 	}
 
 	setInnerHTML(document.getElementById('yourLanguages'), oLowVersion.Languages ? oLowVersion.Languages : oHighYour.Languages);
 	setInnerHTML(document.getElementById('currentLanguages'), oHighCurrent.Languages);
 	if (oLowVersion.Languages)
-		document.getElementById('yourLanguages').style.color = 'red';
+		document.getElementById('yourLanguages').className = 'alert';
 }
 
 function addNewWord()
@@ -358,8 +362,8 @@ function updateInputBoxes()
 	document.getElementById("default_dd").style.display = curType == "check" ? "" : "none";
 	document.getElementById("mask_dt").style.display = curType == "text" ? "" : "none";
 	document.getElementById("mask").style.display = curType == "text" ? "" : "none";
-	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" ? "" : "none";
-	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" ? "" : "none";
+	document.getElementById("can_search_dt").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
+	document.getElementById("can_search_dd").style.display = curType == "text" || curType == "textarea" || curType == "select" ? "" : "none";
 	document.getElementById("regex_div").style.display = curType == "text" && document.getElementById("mask").value == "regex" ? "" : "none";
 	document.getElementById("display").disabled = false;
 	// Cannot show this on the topic
@@ -478,7 +482,7 @@ function selectMethod(element)
 function updatePreview()
 {
 	var currentImage = document.getElementById("preview");
-	currentImage.src = smf_images_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
+	currentImage.src = smf_smileys_url + "/" + document.forms.smileyForm.set.value + "/" + document.forms.smileyForm.smiley_filename.value;
 }
 
 function swap_database_changes()

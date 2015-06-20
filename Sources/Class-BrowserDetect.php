@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -72,7 +72,7 @@ class browser_detector
 		// Just a few mobile checks
 		$this->isOperaMini();
 		$this->isOperaMobi();
-		
+
 		// IE11 seems to be fine by itself without being lumped into the "is_ie" category
 		$this->isIe11();
 
@@ -83,7 +83,7 @@ class browser_detector
 			$this->_browsers['possibly_robot'] = !empty($user_info['possibly_robot']);
 
 			// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register'))) || !$user_info['is_guest'])
+			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('login', 'login2', 'register', 'signup'))) || !$user_info['is_guest'])
 				$this->_browsers['possibly_robot'] = false;
 		}
 		else
@@ -121,7 +121,7 @@ class browser_detector
 			$this->_browsers['is_ie'] = !$this->isOpera() && !$this->isGecko() && !$this->isWebTv() && preg_match('~MSIE \d+~', $_SERVER['HTTP_USER_AGENT']) === 1;
 		return $this->_browsers['is_ie'];
 	}
-	
+
 	/**
 	* Determine if the browser is IE11 or not
 	* @return boolean true if the browser is IE11 otherwise false
@@ -258,7 +258,7 @@ class browser_detector
 	 * Additional IE checks and settings.
 	 *  - determines the version of the IE browser in use
 	 *  - detects ie4 onward
-	 *  - attempts to distinguish between IE and IE in compatabilty view
+	 *  - attempts to distinguish between IE and IE in compatibility view
 	 *  - checks for old IE on macs as well, since we can
 	 */
 	private function setupIe()
@@ -273,12 +273,12 @@ class browser_detector
 			$this->_browsers['is_ie' . $msie_match[1]] = true;
 		}
 
-		// "modern" ie uses trident 4=ie8, 5=ie9, 6=ie10, 7=ie11 even in compatability view
+		// "modern" ie uses trident 4=ie8, 5=ie9, 6=ie10, 7=ie11 even in compatibility view
 		if (preg_match('~Trident/([0-9.])~i', $_SERVER['HTTP_USER_AGENT'], $trident_match) === 1)
 		{
 			$this->_browsers['is_ie' . ((int) $trident_match[1] + 4)] = true;
 
-			// If trident is set, see the (if any) msie tag in the user agent matches ... if not its in some compatablity view
+			// If trident is set, see the (if any) msie tag in the user agent matches ... if not its in some compatibility view
 			if (isset($msie_match[1]) && ($msie_match[1] < $trident_match[1] + 4))
 				$this->_browsers['is_ie_compat_view'] = true;
 		}
@@ -340,7 +340,7 @@ class browser_detector
 	 * Get the browser name that we will use in the <body id="this_browser">
 	 *  - The order of each browser in $browser_priority is important
 	 *  - if you want to have id='ie6' and not id='ie' then it must appear first in the list of ie browsers
-	 *  - only sets browsers that may need some help via css for compatablity
+	 *  - only sets browsers that may need some help via css for compatibility
 	 */
 	private function setupBrowserPriority()
 	{
@@ -371,7 +371,7 @@ class browser_detector
 
 			$context['browser_body_id'] = 'smf';
 			$active = array_reverse(array_keys($this->_browsers, true));
-			foreach ($active as $key => $browser)
+			foreach ($active as $browser)
 			{
 				if (array_key_exists($browser, $browser_priority))
 				{
@@ -421,3 +421,5 @@ class browser_detector
 		);
 	}
 }
+
+?>

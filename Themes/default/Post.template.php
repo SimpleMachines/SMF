@@ -4,16 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 // The main template for the post page.
 function template_main()
 {
-	global $context, $settings, $options, $txt, $scripturl, $modSettings, $counter;
+	global $context, $options, $txt, $scripturl, $modSettings, $counter;
 
 	// Start the javascript... and boy is there a lot.
 	echo '
@@ -70,15 +70,11 @@ function template_main()
 			<div id="preview_section"', isset($context['preview_message']) ? '' : ' style="display: none;"', '>
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span id="preview_subject">', empty($context['preview_subject']) ? '' : $context['preview_subject'], '</span>
+						<span id="preview_subject">', empty($context['preview_subject']) ? '&nbsp;' : $context['preview_subject'], '</span>
 					</h3>
 				</div>
-				<div class="windowbg">
-					<div class="content">
-						<div class="post" id="preview_body">
-							', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
-						</div>
-					</div>
+				<div id="preview_body" class="windowbg">
+					', empty($context['preview_message']) ? '<br>' : $context['preview_message'], '
 				</div>
 			</div><br>';
 
@@ -91,7 +87,7 @@ function template_main()
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
-			<div>
+			<div id="post_area">
 				<div class="roundframe">', isset($context['current_topic']) ? '
 					<input type="hidden" name="topic" value="' . $context['current_topic'] . '">' : '';
 
@@ -118,18 +114,19 @@ function template_main()
 					</p>';
 	}
 
-	// If it's locked, show a message to warn the replyer.
+	// If it's locked, show a message to warn the replier.
+	if (!empty($context['locked']))
 	echo '
-					<p class="information"', $context['locked'] ? '' : ' style="display: none"', ' id="lock_warning">
+					<p class="errorbox">
 						', $txt['topic_locked_no_reply'], '
 					</p>';
 
 	if (!empty($modSettings['drafts_post_enabled']))
 		echo '
-				<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
-					', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
-				</div>';
+					<div id="draft_section" class="infobox"', isset($context['draft_saved']) ? '' : ' style="display: none;"', '>',
+						sprintf($txt['draft_saved'], $scripturl . '?action=profile;u=' . $context['user']['id'] . ';area=showdrafts'), '
+						', (!empty($modSettings['drafts_keep_days']) ? ' <strong>' . sprintf($txt['draft_save_warning'], $modSettings['drafts_keep_days']) . '</strong>' : ''), '
+					</div>';
 
 	// The post header... important stuff
 	echo '
@@ -379,21 +376,21 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty($modSettings['additional_options_collapsable']))
 		echo '
-					<div id="postAdditionalOptionsHeader" class="title_bar title_top">
-						<h4 class="titlebg">
-							<span id="postMoreExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postMoreExpandLink">', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
-						</h4>
-					</div>
+					<div id="postAdditionalOptionsHeader">
+						<strong><a href="#" id="postMoreExpandLink"> ', $context['can_post_attachment'] ? $txt['post_additionalopt_attach'] : $txt['post_additionalopt'], '</a></strong>
+					</div>';
+
+	echo '
 					<div id="postAdditionalOptions">';
 
 	// Display the check boxes for all the standard options - if they are available to the user!
 	echo '
 						<div id="postMoreOptions" class="smalltext">
 							<ul class="post_options">
-								', $context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . ($context['notify'] || !empty($options['auto_notify']) ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['notify_replies'] . '</label></li>' : '', '
-								', $context['can_lock'] ? '<li><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . ($context['locked'] ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['lock_topic'] . '</label></li>' : '', '
+								', $context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . ($context['notify'] || !empty($options['auto_notify']) || $context['auto_notify'] ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['notify_replies'] . '</label></li>' : '', '
+								', $context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . $context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . ($context['locked'] ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['lock_topic'] . '</label></li>' : '', '
 								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . ($context['back_to_topic'] || !empty($options['return_to_post']) ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['back_to_topic'] . '</label></li>
-								', $context['can_sticky'] ? '<li><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['sticky_after'] . '</label></li>' : '', '
+								', $context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . $context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . ($context['sticky'] ? ' checked' : '') . ' value="1" class="input_check"> ' . $txt['sticky_after'] . '</label></li>' : '', '
 								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', $context['use_smileys'] ? '' : ' checked', ' value="NS" class="input_check"> ', $txt['dont_use_smileys'], '</label></li>', '
 								', $context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1" class="input_check"' . (!empty($context['move']) ? ' checked" ' : '') . '> ' . $txt['move_after2'] . '</label></li>' : '', '
 								', $context['can_announce'] && $context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1" class="input_check"' . (!empty($context['announce']) ? ' checked' : '') . '> ' . $txt['announce_topic'] . '</label></li>' : '', '
@@ -545,11 +542,12 @@ function template_main()
 	// Option to delete an event if user is editing one.
 	if ($context['make_event'] && !$context['event']['new'])
 		echo '
-						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['event_delete_confirm'], '\');" class="button_submit">';
+						<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['event_delete_confirm'] ,'" class="button_submit you_sure">';
 
 	echo '
 					</span>
 				</div>
+			</div>
 			<br class="clear">';
 
 	// Assuming this isn't a new topic pass across the last message id.
@@ -652,7 +650,7 @@ function template_main()
 					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
 
 				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
-				document.getElementById(\'preview_body\').className = \'post\';
+				document.getElementById(\'preview_body\').className = \'windowbg\';
 
 				// Show a list of errors (if any).
 				var errors = XMLDoc.getElementsByTagName(\'smf\')[0].getElementsByTagName(\'errors\')[0];
@@ -663,9 +661,6 @@ function template_main()
 				document.getElementById(\'errors\').className = errors.getAttribute(\'serious\') == 1 ? \'errorbox\' : \'noticebox\';
 				document.getElementById(\'error_serious\').style.display = numErrors == 0 ? \'none\' : \'\';
 				setInnerHTML(document.getElementById(\'error_list\'), numErrors == 0 ? \'\' : errorList.join(\'<br>\'));
-
-				// Show a warning if the topic has been locked.
-				document.getElementById(\'lock_warning\').style.display = errors.getAttribute(\'topic_locked\') == 1 ? \'\' : \'none\';
 
 				// Adjust the color of captions if the given data is erroneous.
 				var captions = errors.getElementsByTagName(\'caption\');
@@ -706,11 +701,11 @@ function template_main()
 						if (newPosts[i].getElementsByTagName("is_ignored")[0].firstChild.nodeValue != 0)
 							ignored_replies[ignored_replies.length] = ignoring = newPosts[i].getAttribute("id");
 
-						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \' core_posts"><div class="content" id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
+						newPostsHTML += \'<div class="windowbg\' + (++reply_counter % 2 == 0 ? \'2\' : \'\') + \'"><div id="msg\' + newPosts[i].getAttribute("id") + \'"><div class="floatleft"><h5>', $txt['posted_by'], ': \' + newPosts[i].getElementsByTagName("poster")[0].firstChild.nodeValue + \'</h5><span class="smalltext">&#171;&nbsp;<strong>', $txt['on'], ':</strong> \' + newPosts[i].getElementsByTagName("time")[0].firstChild.nodeValue + \'&nbsp;&#187;</span> <span class="new_posts" id="image_new_\' + newPosts[i].getAttribute("id") + \'">', $txt['new'], '</span></div>\';';
 
 	if ($context['can_quote'])
 		echo '
-						newPostsHTML += \'<ul class="reset smalltext quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>', $txt['quote'], '</span><\' + \'/a></li></ul>\';';
+						newPostsHTML += \'<ul class="quickbuttons" id="msg_\' + newPosts[i].getAttribute("id") + \'_quote"><li><a href="#postmodify" onclick="return insertQuoteFast(\\\'\' + newPosts[i].getAttribute("id") + \'\\\');" class="quote_button"><span>', $txt['quote'], '</span><\' + \'/a></li></ul>\';';
 
 	echo '
 						newPostsHTML += \'<br class="clear">\';
@@ -769,7 +764,7 @@ function template_main()
 				],
 				aSwapImages: [
 					{
-						sId: \'postMoreExpand\',
+						sId: \'postMoreExpandLink\',
 						altExpanded: \'-\',
 						altCollapsed: \'+\'
 					}
@@ -809,6 +804,8 @@ function template_main()
 			});';
 
 	echo '
+			var oEditorID = "', $context['post_box_name'] ,'";
+			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 		// ]]></script>';
 
 	// If the user is replying to a topic show the previous posts.
@@ -829,8 +826,8 @@ function template_main()
 				$ignored_posts[] = $ignoring = $post['id'];
 
 			echo '
-			<div class="', $post['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
-				<div class="content" id="msg', $post['id'], '">
+			<div class="windowbg">
+				<div id="msg', $post['id'], '">
 					<h5 class="floatleft">
 						<span>', $txt['posted_by'], '</span>&nbsp;', $post['poster'], '
 					</h5>&nbsp;-&nbsp;', $post['time'];
@@ -839,7 +836,8 @@ function template_main()
 			{
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');" class="quote_button">', $txt['quote'], '</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="generic_icons quote"></span>', $txt['quote'], '</a></li>
 					</ul>';
 			}
 
@@ -856,14 +854,13 @@ function template_main()
 			}
 
 			echo '
-					<div class="list_posts smalltext" id="msg_', $post['id'], '_body">', $post['message'], '</div>
+					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>
 				</div>
 			</div>';
 		}
 
 		echo '
 		</div>
-	</div>
 		<script><!-- // --><![CDATA[
 			var aIgnoreToggles = new Array();';
 
@@ -922,8 +919,8 @@ function template_spellcheck()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
+		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<style type="text/css">
 			body, td
@@ -966,7 +963,7 @@ function template_spellcheck()
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
 			<div id="spellview">&nbsp;</div>
-			<table border="0" cellpadding="4" cellspacing="0" width="100%"><tr class="windowbg">
+			<table width="100%"><tr class="windowbg">
 				<td style="width: 50%; vertical-align: top">
 					', $txt['spellcheck_change_to'], '<br>
 					<input type="text" name="changeto" style="width: 98%;" class="input_text">
@@ -995,7 +992,7 @@ function template_quotefast()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
+		<meta charset="', $context['character_set'], '">
 		<title>', $txt['retrieving_quote'], '</title>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
@@ -1053,31 +1050,29 @@ function template_announce()
 				', $txt['announce_desc'], '
 			</div>
 			<div class="windowbg2">
-				<div class="content">
-					<p>
-						', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
-					</p>
-					<ul class="reset">';
+				<p>
+					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
+				</p>
+				<ul class="reset">';
 
 	foreach ($context['groups'] as $group)
 		echo '
-						<li>
-							<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em>
-						</li>';
+					<li>
+						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked class="input_check"> ', $group['name'], '</label> <em>(', $group['member_count'], ')</em>
+					</li>';
 
 	echo '
-						<li>
-							<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
-						</li>
-					</ul>
-					<hr class="hrcolor">
-					<div id="confirm_buttons">
-						<input type="submit" value="', $txt['post'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						<input type="hidden" name="topic" value="', $context['current_topic'], '">
-						<input type="hidden" name="move" value="', $context['move'], '">
-						<input type="hidden" name="goback" value="', $context['go_back'], '">
-					</div>
+					<li>
+						<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
+					</li>
+				</ul>
+				<hr class="hrcolor">
+				<div id="confirm_buttons">
+					<input type="submit" value="', $txt['post'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="topic" value="', $context['current_topic'], '">
+					<input type="hidden" name="move" value="', $context['move'], '">
+					<input type="hidden" name="goback" value="', $context['go_back'], '">
 				</div>
 				<br class="clear_right">
 			</div>
@@ -1094,22 +1089,20 @@ function template_announcement_send()
 	<div id="announcement">
 		<form action="' . $scripturl . '?action=announce;sa=send" method="post" accept-charset="', $context['character_set'], '" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg2">
-				<div class="content">
-					<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
-					<div class="progress_bar">
-						<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
-						<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
-					</div>
-					<hr class="hrcolor">
-					<div id="confirm_buttons">
-						<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
-						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-						<input type="hidden" name="topic" value="', $context['current_topic'], '">
-						<input type="hidden" name="move" value="', $context['move'], '">
-						<input type="hidden" name="goback" value="', $context['go_back'], '">
-						<input type="hidden" name="start" value="', $context['start'], '">
-						<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
-					</div>
+				<p>', $txt['announce_sending'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0" target="_blank" class="new_win">', $context['topic_subject'], '</a></p>
+				<div class="progress_bar">
+					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
+					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
+				</div>
+				<hr class="hrcolor">
+				<div id="confirm_buttons">
+					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
+					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					<input type="hidden" name="topic" value="', $context['current_topic'], '">
+					<input type="hidden" name="move" value="', $context['move'], '">
+					<input type="hidden" name="goback" value="', $context['go_back'], '">
+					<input type="hidden" name="start" value="', $context['start'], '">
+					<input type="hidden" name="membergroups" value="', $context['membergroups'], '">
 				</div>
 				<br class="clear_right">
 			</div>

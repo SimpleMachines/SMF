@@ -4,16 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 // This contains the html for the side bar of the admin center, which is used for all admin pages.
 function template_generic_menu_dropdown_above()
 {
-	global $context, $scripturl, $txt, $modSettings;
+	global $context;
 
 	// Which menu are we rendering?
 	$context['cur_menu_id'] = isset($context['cur_menu_id']) ? $context['cur_menu_id'] + 1 : 1;
@@ -44,7 +44,7 @@ function template_generic_menu_dropdown_above()
 								<li', !empty($area['subsections']) ? ' class="subsections"' : '', '>';
 
 			echo '
-									<a ', !empty($area['selected']) ? 'class="chosen" ' : '', 'href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
+									<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], '</a>';
 
 			// Is this the current area, or just some area?
 			if (!empty($area['selected']) && empty($context['tabs']))
@@ -104,7 +104,7 @@ function template_generic_menu_dropdown_below()
 // Some code for showing a tabbed view.
 function template_generic_menu_tabs(&$menu_context)
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt;
 
 	// Handy shortcut.
 	$tab_context = &$menu_context['tab_data'];
@@ -178,7 +178,7 @@ function template_generic_menu_tabs(&$menu_context)
 				echo '<img src="', $settings['images_url'], '/icons/', !empty($selected_tab['icon']) ? $selected_tab['icon'] : $tab_context['icon'], '" alt="" class="icon">';
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
-				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics_hd.png" alt="', $txt['help'], '" class="icon"></a>';
+				echo '<a href="', $scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a>';
 
 			echo $tab_context['title'];
 		}
@@ -196,7 +196,7 @@ function template_generic_menu_tabs(&$menu_context)
 	// Shall we use the tabs? Yes, it's the only known way!
 	if (!empty($selected_tab['description']) || !empty($tab_context['description']))
 		echo '
-					<p class="description">
+					<p class="information">
 						', !empty($selected_tab['description']) ? $selected_tab['description'] : $tab_context['description'], '
 					</p>';
 

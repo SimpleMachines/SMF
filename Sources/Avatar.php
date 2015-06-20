@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -97,7 +97,7 @@ function showAvatar()
 		die('404 File Not Found');
 	}
 
-	// If it hasn't been modified since the last time this attachement was retrieved, there's no need to display it again.
+	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
@@ -141,3 +141,4 @@ function showAvatar()
 
 	die();
 }
+?>

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Load class
  * Initiate as
  *  - $fetch_data = new cURL_fetch_web_data();
- *	- optionaly pass an array of cURL options and redirect count
+ *	- optionally pass an array of cURL options and redirect count
  *	- cURL_fetch_web_data(cURL options array, Max redirects);
  *  - $fetch_data = new cURL_fetch_web_data(array(CURLOPT_SSL_VERIFYPEER => 1), 5);
  *
@@ -62,7 +62,7 @@ class curl_fetch_web_data
 	* - allow for user override values
 	*
 	* @param array $options cURL options as an array
-	* @param int $max_redirect use to overide the default of 3
+	* @param int $max_redirect use to override the default of 3
 	*/
 	public function __construct($options = array(), $max_redirect = 3)
 	{
@@ -143,6 +143,7 @@ class curl_fetch_web_data
 			'error' => $error,
 			'headers' => isset($this->headers) ? $this->headers : false,
 			'body' => $body,
+			'size' => $curl_info['download_content_length'],
 		);
 
 		// If this a redirect with a location header and we have not given up, then do it again

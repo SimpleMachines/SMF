@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -88,14 +88,24 @@ function Login()
 function Login2()
 {
 	global $txt, $scripturl, $user_info, $user_settings, $smcFunc;
-	global $cookiename, $modSettings, $context, $sc, $sourcedir;
+	global $cookiename, $modSettings, $context, $sourcedir, $maintenance;
+
+	// Check to ensure we're forcing SSL for authentication
+	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+		fatal_lang_error('login_ssl_required');
 
 	// Load cookie authentication stuff.
 	require_once($sourcedir . '/Subs-Auth.php');
 
+	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	{
+		$context['from_ajax'] = true;
+		$context['template_layers'] = array();
+	}
+
 	if (isset($_GET['sa']) && $_GET['sa'] == 'salt' && !$user_info['is_guest'])
 	{
-		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
+		if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 			list (, , $timeout) = @unserialize($_COOKIE[$cookiename]);
 		elseif (isset($_SESSION['login_' . $cookiename]))
 			list (, , $timeout) = @unserialize($_SESSION['login_' . $cookiename]);
@@ -117,19 +127,14 @@ function Login2()
 			fatal_lang_error('login_cookie_error', false);
 
 		$user_info['can_mod'] = allowedTo('access_mod_center') || (!$user_info['is_guest'] && ($user_info['mod_cache']['gq'] != '0=1' || $user_info['mod_cache']['bq'] != '0=1' || ($modSettings['postmod_active'] && !empty($user_info['mod_cache']['ap']))));
-		if ($user_info['can_mod'] && isset($user_settings['openid_uri']) && empty($user_settings['openid_uri']))
-		{
-			$_SESSION['moderate_time'] = time();
-			unset($_SESSION['just_registered']);
-		}
 
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
-			redirectexit();
+			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
 		{
 			unset ($_SESSION['login_url']);
-			redirectexit();
+			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
 		}
 		else
 		{
@@ -187,13 +192,6 @@ function Login2()
 		'name' => $txt['login'],
 	);
 
-	if (!empty($_POST['openid_identifier']) && !empty($modSettings['enableOpenID']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		if (($open_id = smf_openID_validate($_POST['openid_identifier'])) !== 'no_data')
-			return $open_id;
-	}
-
 	// You forgot to type your username, dummy!
 	if (!isset($_POST['user']) || $_POST['user'] == '')
 	{
@@ -225,7 +223,7 @@ function Login2()
 	// Load the data up!
 	$request = $smcFunc['db_query']('', '
 		SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
-			openid_uri, passwd_flood
+			passwd_flood, tfa_secret
 		FROM {db_prefix}members
 		WHERE ' . ($smcFunc['db_case_sensitive'] ? 'LOWER(member_name) = LOWER({string:user_name})' : 'member_name = {string:user_name}') . '
 		LIMIT 1',
@@ -239,8 +237,8 @@ function Login2()
 		$smcFunc['db_free_result']($request);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt, openid_uri,
-			passwd_flood
+			SELECT passwd, id_member, id_group, lngfile, is_activated, email_address, additional_groups, member_name, password_salt,
+			passwd_flood, tfa_secret
 			FROM {db_prefix}members
 			WHERE email_address = {string:user_name}
 			LIMIT 1',
@@ -394,6 +392,92 @@ function Login2()
 }
 
 /**
+ * Allows the user to enter their Two-Factor Authentication code
+ */
+function LoginTFA()
+{
+	global $sourcedir, $txt, $context, $user_info, $modSettings, $scripturl;
+
+	if (!$user_info['is_guest'] || empty($context['tfa_member']) || empty($modSettings['tfa_mode']))
+		fatal_lang_error('no_access', false);
+
+	loadLanguage('Profile');
+	require_once($sourcedir . '/Class-TOTP.php');
+
+	$member = $context['tfa_member'];
+
+	// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA
+	if (time() - $member['last_login'] < 120)
+		fatal_lang_error('tfa_wait', false);
+
+	$totp = new \TOTP\Auth($member['tfa_secret']);
+	$totp->setRange(1);
+
+	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+	{
+		$context['from_ajax'] = true;
+		$context['template_layers'] = array();
+	}
+
+	if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup']))
+	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
+		$code = $_POST['tfa_code'];
+
+		if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code))
+		{
+			updateMemberData($member['id_member'], array('last_login' => time()));
+
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+			redirectexit();
+		}
+		else
+		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
+			$context['tfa_error'] = true;
+			$context['tfa_value'] = $_POST['tfa_code'];
+		}
+	}
+	elseif (!empty($_POST['tfa_backup']))
+	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
+		$backup = $_POST['tfa_backup'];
+
+		if (hash_verify_password($member['member_name'], $backup, $member['tfa_backup']))
+		{
+			// Get rid of their current TFA settings
+			updateMemberData($member['id_member'], array(
+				'tfa_secret' => '',
+				'tfa_backup' => '',
+				'last_login' => time(),
+			));
+			setTFACookie(3153600, $member['id_member'], hash_salt($member['tfa_backup'], $member['password_salt']));
+			redirectexit('action=profile;area=tfasetup;backup');
+		}
+		else
+		{
+			validatePasswordFlood($member['id_member'], $member['passwd_flood'], false, true);
+
+			$context['tfa_backup_error'] = true;
+			$context['tfa_value'] = $_POST['tfa_code'];
+			$context['tfa_backup_value'] = $_POST['tfa_backup'];
+		}
+	}
+
+	loadTemplate('Login');
+	$context['sub_template'] = 'login_tfa';
+	$context['page_title'] = $txt['login'];
+	$context['tfa_url'] = (!empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl) . '?action=logintfa';
+}
+
+/**
  * Check activation status of the current user.
  */
 function checkActivation()
@@ -474,13 +558,6 @@ function DoLogin()
 	// Are you banned?
 	is_not_banned(true);
 
-	// An administrator, set up the login so they don't have to type it again.
-	if ($user_info['is_admin'] && isset($user_settings['openid_uri']) && empty($user_settings['openid_uri']))
-	{
-		$_SESSION['admin_time'] = time();
-		unset($_SESSION['just_registered']);
-	}
-
 	// Don't stick the language or theme after this point.
 	unset($_SESSION['language'], $_SESSION['id_theme']);
 
@@ -501,7 +578,10 @@ function DoLogin()
 	$smcFunc['db_free_result']($request);
 
 	// You've logged in, haven't you?
-	updateMemberData($user_info['id'], array('last_login' => time(), 'member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']));
+	$update = array('member_ip' => $user_info['ip'], 'member_ip2' => $_SERVER['BAN_CHECK_IP']);
+	if (empty($user_settings['tfa_secret']))
+		$update['last_login'] = time();
+	updateMemberData($user_info['id'], $update);
 
 	// Get rid of the online entry for that old guest....
 	$smcFunc['db_query']('', '
@@ -557,10 +637,6 @@ function Logout($internal = false, $redirect = true)
 	if (isset($_SESSION['pack_ftp']))
 		$_SESSION['pack_ftp'] = null;
 
-	// They cannot be open ID verified any longer.
-	if (isset($_SESSION['openid']))
-		unset($_SESSION['openid']);
-
 	// It won't be first login anymore.
 	unset($_SESSION['first_login']);
 
@@ -584,6 +660,8 @@ function Logout($internal = false, $redirect = true)
 
 	// Empty the cookie! (set it in the past, and for id_member = 0)
 	setLoginCookie(-3600, 0);
+	if (!empty($modSettings['tfa_mode']))
+		setTFACookie(-3600, 0, '');
 
 	// And some other housekeeping while we're at it.
 	session_destroy();
@@ -686,19 +764,24 @@ function phpBB3_password_check($passwd, $passwd_hash)
  * @param $id_member
  * @param $password_flood_value = false
  * @param $was_correct = false
+ * @param $tfa = false;
  */
-function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false)
+function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false, $tfa = false)
 {
 	global $cookiename, $sourcedir;
 
 	// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
 	// Destroy any session or cookie data about this member, as they validated wrong.
-	require_once($sourcedir . '/Subs-Auth.php');
-	setLoginCookie(-3600, 0);
+	// Only if they're not validating for 2FA
+	if (!$tfa)
+	{
+		require_once($sourcedir . '/Subs-Auth.php');
+		setLoginCookie(-3600, 0);
 
-	if (isset($_SESSION['login_' . $cookiename]))
-		unset($_SESSION['login_' . $cookiename]);
+		if (isset($_SESSION['login_' . $cookiename]))
+			unset($_SESSION['login_' . $cookiename]);
+	}
 
 	// We need a member!
 	if (!$id_member)

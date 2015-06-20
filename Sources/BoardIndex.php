@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -125,14 +125,17 @@ function BoardIndex()
 
 	// Mark read button
 	$context['mark_read_button'] = array(
-		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'onclick="return confirm(\'' . $txt['are_sure_mark_read'] . '\');"', 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
+		'markread' => array('text' => 'mark_as_read', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . $txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => $scripturl . '?action=markasread;sa=all;' . $context['session_var'] . '=' . $context['session_id']),
 	);
 
 	// Allow mods to add additional buttons here
 	call_integration_hook('integrate_mark_read_button');
 
 	if (!empty($settings['show_newsfader']))
-	loadJavascriptFile('fader.js', array('default_theme' => true, 'defer' => false), 'smf_fader');
+	{
+		loadJavascriptFile('slippry.min.js', array('default_theme' => true));
+		loadCSSFile('slider.min.css');
+	}
 }
 
 ?>

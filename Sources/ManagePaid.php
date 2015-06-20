@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePaidSubscriptions()
 {
-	global $context, $txt, $scripturl, $sourcedir, $smcFunc, $modSettings;
+	global $context, $txt, $modSettings;
 
 	// Load the required language and template.
 	loadLanguage('ManagePaid');
@@ -44,8 +44,6 @@ function ManagePaidSubscriptions()
 		$subActions = array(
 			'settings' => array('ModifySubscriptionSettings', 'admin_forum'),
 		);
-
-	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
 
 	// Default the sub-action to 'view subscriptions', but only if they have already set things up..
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (!empty($modSettings['paid_currency_symbol']) && !empty($modSettings['paid_enabled']) ? 'view' : 'settings');
@@ -71,8 +69,10 @@ function ManagePaidSubscriptions()
 			),
 		);
 
+	call_integration_hook('integrate_manage_subscriptions', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']][0]();
+	call_helper($subActions[$_REQUEST['sa']][0]);
 }
 
 /**
@@ -210,7 +210,7 @@ function ModifySubscriptionSettings($return_config = false)
 			foreach (explode(',', $_POST['paid_email_to']) as $email)
 			{
 				$email = trim($email);
-				if (!empty($email) && preg_match('~^[0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $email))
+				if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL))
 					$email_addresses[] = $email;
 				$_POST['paid_email_to'] = implode(',', $email_addresses);
 			}
@@ -245,7 +245,7 @@ function ModifySubscriptionSettings($return_config = false)
  */
 function ViewSubscriptions()
 {
-	global $context, $txt, $modSettings, $smcFunc, $sourcedir, $scripturl;
+	global $context, $txt, $modSettings, $sourcedir, $scripturl;
 
 	// Not made the settings yet?
 	if (empty($modSettings['paid_currency_symbol']))
@@ -258,12 +258,25 @@ function ViewSubscriptions()
 	$listOptions = array(
 		'id' => 'subscription_list',
 		'title' => $txt['subscriptions'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=view',
 		'get_items' => array(
-			'function' => function () use ($context)
+			'function' => function ($start, $items_per_page) use ($context)
 			{
-				return $context['subscriptions'];
+				$subscriptions = array();
+				$counter = 0;
+				$start++;
+
+				foreach ($context['subscriptions'] as $data)
+				{
+					if (++$counter < $start)
+						continue;
+					elseif ($counter == $start + $items_per_page)
+						break;
+
+					$subscriptions[] = $data;
+				}
+				return $subscriptions;
 			},
 		),
 		'get_count' => array(
@@ -741,7 +754,7 @@ function ModifySubscription()
  */
 function ViewSubscribedUsers()
 {
-	global $context, $txt, $scripturl, $smcFunc, $sourcedir;
+	global $context, $txt, $scripturl, $smcFunc, $sourcedir, $modSettings;
 
 	// Setup the template.
 	$context['page_title'] = $txt['viewing_users_subscribed'];
@@ -778,7 +791,7 @@ function ViewSubscribedUsers()
 	$listOptions = array(
 		'id' => 'subscribed_users_list',
 		'title' => sprintf($txt['view_users_subscribed'], $row['name']),
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . $context['sub_id'],
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -904,8 +917,8 @@ function ViewSubscribedUsers()
 				'position' => 'below_table_data',
 				'value' => '
 					<input type="submit" name="add" value="' . $txt['add_subscriber'] . '" class="button_submit">
-					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" onclick="return confirm(\'' . $txt['complete_are_sure'] . '\');" class="button_submit">
-					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" onclick="return confirm(\'' . $txt['delete_are_sure'] . '\');" class="button_submit">
+					<input type="submit" name="finished" value="' . $txt['complete_selected'] . '" data-confirm="' . $txt['complete_are_sure'] . '" class="button_submit you_sure">
+					<input type="submit" name="delete" value="' . $txt['delete_selected'] . '" data-confirm="' . $txt['delete_are_sure'] . '" class="button_submit you_sure">
 				',
 			),
 			array(
@@ -1727,7 +1740,7 @@ function removeSubscription($id_subscribe, $id_member, $delete = false)
 	}
 	$smcFunc['db_free_result']($request);
 
-	// Now, for everything we are removing check they defintely are not allowed it.
+	// Now, for everything we are removing check they definitely are not allowed it.
 	$existingGroups = explode(',', $additional_groups);
 	foreach ($existingGroups as $key => $group)
 		if (empty($group) || (in_array($group, $removals) && !in_array($group, $allowed)))
@@ -1941,7 +1954,7 @@ function loadPaymentGateways()
 					$gateways[] = array(
 						'filename' => $file,
 						'code' => strtolower($matches[1]),
-						// Don't need anything snazier than this yet.
+						// Don't need anything snazzier than this yet.
 						'valid_version' => class_exists(strtolower($matches[1]) . '_payment') && class_exists(strtolower($matches[1]) . '_display'),
 						'payment_class' => strtolower($matches[1]) . '_payment',
 						'display_class' => strtolower($matches[1]) . '_display',

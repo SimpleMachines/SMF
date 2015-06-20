@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 class MsgReport_Notify_Background extends SMF_BackgroundTask
@@ -163,7 +163,7 @@ class MsgReport_Notify_Background extends SMF_BackgroundTask
 					'POSTERNAME' => $poster_name,
 					'REPORTERNAME' => $this->_details['sender_name'],
 					'TOPICLINK' => $scripturl . '?topic=' . $this->_details['topic_id'] . '.msg' . $this->_details['msg_id'] . '#msg' . $this->_details['msg_id'],
-					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;report=' . $this->_details['report_id'],
+					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $this->_details['report_id'],
 					'COMMENT' => $comment,
 				);
 

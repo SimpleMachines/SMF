@@ -5,6 +5,15 @@
  * @author Anthony Ferrara <ircmaxell@php.net>
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  * @copyright 2012 The Authors
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines http://www.simplemachines.org
+ * @copyright 2015 Simple Machines and individual contributors
+ * @license http://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 2.1 Beta 2
  */
 
 namespace {
@@ -16,7 +25,9 @@ namespace {
 
 		/**
 		 * Hash the password using the specified algorithm
-		 *
+		 * Limits the maximum length of password to 72, if a longer
+		 * string is supplied the first 72 characters are used
+		 * 
 		 * @param string $password The password to hash
 		 * @param int    $algo     The algorithm to use (Defined by PASSWORD_* constants)
 		 * @param array  $options  The options for the algorithm to use
@@ -35,6 +46,9 @@ namespace {
 			if (!is_int($algo)) {
 				trigger_error("password_hash() expects parameter 2 to be long, " . gettype($algo) . " given", E_USER_WARNING);
 				return null;
+			}
+			if (PasswordCompat\binary\_strlen($password) > 72) {
+				$password = PasswordCompat\binary\_substr($password, 0,72);
 			}
 			$resultLength = 0;
 			switch ($algo) {
@@ -221,6 +235,9 @@ namespace {
 				trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
 				return false;
 			}
+			if (PasswordCompat\binary\_strlen($password) > 72) {
+				$password = PasswordCompat\binary\_substr($password, 0,72);
+			}
 			$ret = crypt($password, $hash);
 			if (!is_string($ret) || PasswordCompat\binary\_strlen($ret) != PasswordCompat\binary\_strlen($hash) || PasswordCompat\binary\_strlen($ret) <= 13) {
 				return false;
@@ -277,3 +294,5 @@ namespace PasswordCompat\binary {
 	}
 
 }
+
+?>

@@ -172,8 +172,7 @@ CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_fil
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
 INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-smileys.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (5, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
 # --------------------------------------------------------
 
 #
@@ -337,7 +336,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_attachment');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_topics');
@@ -350,7 +348,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_topics');
@@ -382,7 +379,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_topics');
@@ -420,7 +416,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_attachment');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_topics');
@@ -433,7 +428,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_topics');
@@ -465,7 +459,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_topics');
@@ -512,7 +505,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_topics');
@@ -544,7 +536,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_topics');
@@ -581,7 +572,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_topics');
@@ -613,7 +603,6 @@ INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VAL
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'moderate_board');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_new');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_autosave_draft');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_own');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_any');
 INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_topics');
@@ -912,7 +901,7 @@ CREATE TABLE {$db_prefix}custom_fields (
   field_type varchar(8) NOT NULL default 'text',
   field_length smallint NOT NULL default '255',
   field_options text NOT NULL,
-  field_order tinyint(3) NOT NULL default '0',
+  field_order smallint NOT NULL default '0',
   mask varchar(255) NOT NULL,
   show_reg smallint NOT NULL default '0',
   show_display smallint NOT NULL default '0',
@@ -938,13 +927,18 @@ CREATE UNIQUE INDEX {$db_prefix}custom_fields_col_name ON {$db_prefix}custom_fie
 # Dumping data for table `custom_fields`
 #
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
 
 # --------------------------------------------------------
 
@@ -991,7 +985,7 @@ CREATE INDEX {$db_prefix}log_actions_id_member ON {$db_prefix}log_actions (id_me
 CREATE INDEX {$db_prefix}log_actions_id_board ON {$db_prefix}log_actions (id_board);
 CREATE INDEX {$db_prefix}log_actions_id_msg ON {$db_prefix}log_actions (id_msg);
 CREATE INDEX {$db_prefix}log_actions_id_log ON {$db_prefix}log_actions (id_log);
-CREATE INDEX {$db_prefix}log_actions_id_topic_id_log {$db_prefix}log_actions (id_topic, id_log);
+CREATE INDEX {$db_prefix}log_actions_id_topic_id_log ON {$db_prefix}log_actions (id_topic, id_log);
 
 #
 # Table structure for table `log_activity`
@@ -1216,7 +1210,7 @@ CREATE TABLE {$db_prefix}log_online (
   id_member int NOT NULL default '0',
   id_spider smallint NOT NULL default '0',
   ip bigint NOT NULL default '0',
-  url text NOT NULL,
+  url varchar(1024) NOT NULL,
   PRIMARY KEY (session)
 );
 
@@ -1331,7 +1325,6 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report int NOT NULL default '0',
   id_member int NOT NULL,
   membername varchar(255) NOT NULL,
-  email_address varchar(255) NOT NULL,
   member_ip varchar(255) NOT NULL,
   comment varchar(255) NOT NULL,
   time_sent int NOT NULL,
@@ -1427,7 +1420,7 @@ CREATE TABLE {$db_prefix}log_spider_hits (
   id_hit int default nextval('{$db_prefix}log_spider_hits_seq'),
   id_spider smallint NOT NULL default '0',
   log_time int NOT NULL default '0',
-  url varchar(255) NOT NULL,
+  url varchar(1024) NOT NULL,
   processed smallint NOT NULL default '0',
   PRIMARY KEY (id_hit)
 );
@@ -1557,6 +1550,7 @@ CREATE TABLE {$db_prefix}membergroups (
   group_type smallint NOT NULL default '0',
   hidden smallint NOT NULL default '0',
   id_parent smallint NOT NULL default '-2',
+  tfa_required smallint NOT NULL default '0',
   PRIMARY KEY (id_group)
 );
 
@@ -1608,7 +1602,6 @@ CREATE TABLE {$db_prefix}members (
   pm_prefs int NOT NULL default '0',
   mod_prefs varchar(20) NOT NULL default '',
   passwd varchar(64) NOT NULL default '',
-  openid_uri text NOT NULL,
   email_address varchar(255) NOT NULL,
   personal_text varchar(255) NOT NULL,
   birthdate date NOT NULL default '0001-01-01',
@@ -1620,7 +1613,6 @@ CREATE TABLE {$db_prefix}members (
   signature text NOT NULL,
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL,
-  pm_email_notify smallint NOT NULL default '0',
   usertitle varchar(255) NOT NULL,
   notify_announcements smallint NOT NULL default '1',
   notify_regularity smallint NOT NULL default '1',
@@ -1643,6 +1635,9 @@ CREATE TABLE {$db_prefix}members (
   warning smallint NOT NULL default '0',
   passwd_flood varchar(12) NOT NULL default '',
   pm_receive_from smallint NOT NULL default '1',
+  timezone varchar(80) NOT NULL DEFAULT 'UTC',
+  tfa_secret varchar(24) NOT NULL DEFAULT '',
+  tfa_backup varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (id_member)
 );
 
@@ -1814,26 +1809,6 @@ CREATE TABLE {$db_prefix}moderator_groups (
 );
 
 #
-# Table structure for table `openid_assoc`
-#
-
-CREATE TABLE {$db_prefix}openid_assoc (
-  server_url text NOT NULL,
-  handle varchar(255) NOT NULL,
-  secret text NOT NULL,
-  issued int NOT NULL default '0',
-  expires int NOT NULL default '0',
-  assoc_type varchar(64) NOT NULL,
-  PRIMARY KEY (server_url, handle)
-);
-
-#
-# Indexes for table `openid_assoc`
-#
-
-CREATE INDEX {$db_prefix}openid_assoc_expires ON {$db_prefix}openid_assoc (expires);
-
-#
 # Sequence for table `package_servers`
 #
 
@@ -1909,7 +1884,6 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_v
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_autosave_draft');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_stats');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'who_view');
@@ -1932,7 +1906,6 @@ INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_v
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_autosave_draft');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_view');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_stats');
 INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'who_view');
@@ -2142,6 +2115,7 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
   time_unit varchar(1) NOT NULL default 'h',
   disabled smallint NOT NULL default '0',
   task varchar(24) NOT NULL default '',
+  callable varchar(60) NOT NULL default '',
   PRIMARY KEY (id_task)
 );
 
@@ -2157,17 +2131,17 @@ CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_ta
 # Dumping data for table `scheduled_tasks`
 #
 
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (1, 0, 0, 2, 'h', 0, 'approval_notification');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (3, 0, 60, 1, 'd', 0, 'daily_maintenance');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (5, 0, 0, 1, 'd', 0, 'daily_digest');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (6, 0, 0, 1, 'w', 0, 'weekly_digest');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (8, 0, 0, 1, 'd', 1, 'birthdayemails');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (11, 0, 120, 1, 'd', 0, 'remove_temp_attachments');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (12, 0, 180, 1, 'd', 0, 'remove_topic_redirect');
-INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task) VALUES (13, 0, 240, 1, 'd', 0, 'remove_old_drafts');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (1, 0, 0, 2, 'h', 0, 'approval_notification', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (3, 0, 60, 1, 'd', 0, 'daily_maintenance', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (5, 0, 0, 1, 'd', 0, 'daily_digest', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (6, 0, 0, 1, 'w', 0, 'weekly_digest', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (8, 0, 0, 1, 'd', 1, 'birthdayemails', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (9, 0, 0, 1, 'w', 0, 'weekly_maintenance', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (10, 0, 120, 1, 'd', 1, 'paid_subscriptions', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', '');
+INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 
 # --------------------------------------------------------
 
@@ -2357,22 +2331,31 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_image_par
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachment_thumb_png', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_reencode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('avatar_paranoid', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_unwatch', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_post_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_pm_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('drafts_keep_days', '7');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '0');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?alph21');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('browser_cache', '?beta21');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_limit', '5');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mail_quantity', '5');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('admin_bbc', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_modify', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_user_images', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_blurb', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('show_profile_buttons', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarEnabled', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarOverride', '0');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarAllowExtraEmail', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('gravatarMaxRating', 'PG');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('loginHistoryDays', '30');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('httponlyCookies', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('tfa_mode', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_expire_redirect', '1');
+
 # --------------------------------------------------------
 
 #
@@ -2540,11 +2523,10 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_late
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_newsfader', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'number_recent_posts', '0');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'show_stats_index', '1');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '5000');
+INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'newsfader_time', '3000');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'use_image_buttons', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'enable_news', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'forum_width', '90%');
-INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_autosave_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES (1, 'drafts_show_saved_enabled', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'return_to_post', '1');
@@ -2655,6 +2637,7 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_like', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3);
 # --------------------------------------------------------
 
 #
@@ -2718,7 +2701,7 @@ CREATE TABLE {$db_prefix}mentions (
   content_type varchar(10) default '',
   id_mentioned int NOT NULL default 0,
   id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
+  time int NOT NULL default 0,
   PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
@@ -2726,4 +2709,4 @@ CREATE TABLE {$db_prefix}mentions (
 # Indexes for table `mentions`
 #
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
-CREATE INDEX {$db_prefix}mentions_mentionee ON ($db_prefix}mentions (id_member);
+CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
