@@ -35,7 +35,7 @@ smc_Editor.prototype.spellCheckStart = function()
 
 	$('#' + this.sUniqueId).data("sceditor").storeLastState();
 	// If we're in HTML mode we need to get the non-HTML text.
-	$('#' + this.sUniqueId).data("sceditor").setTextMode()
+	$('#' + this.sUniqueId).data("sceditor").setTextMode();
 
 	spellCheck(false, this.opt.sUniqueId);
 

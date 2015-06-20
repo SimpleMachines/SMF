@@ -3,15 +3,15 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
-(function($) {
+(function ($) {
 	var extensionMethods = {
-		InsertText: function(text, bClear) {
+		InsertText: function (text, bClear) {
 			var bIsSource = this.inSourceMode();
 
 			// @TODO make it put the quote close to the current selection
@@ -19,17 +19,17 @@
 			if (!bIsSource)
 				this.toggleSourceMode();
 
-			var current_value = bClear ? text + "\n" : this.getSourceEditorValue(false) + "\n" + text + "\n";
+			var current_value = bClear ? text : this.getSourceEditorValue(false) + text;
 			this.setSourceEditorValue(current_value);
 
 			if (!bIsSource)
 				this.toggleSourceMode();
 
 		},
-		getText: function(filter) {
+		getText: function (filter) {
 			var current_value = '';
 
-			if(this.inSourceMode())
+			if (this.inSourceMode())
 				current_value = this.getSourceEditorValue(false);
 			else
 				current_value  = this.getWysiwygEditorValue(filter);
@@ -47,7 +47,7 @@
 					})
 					.click(function (e) {
 						var	start = '', end = '';
-						
+
 						if (base.opts.emoticonsCompat)
 						{
 							start = '<span> ';
@@ -62,21 +62,9 @@
 						e.preventDefault();
 					})
 				);
-
-			if (line.children().length > 0)
-				content.append(line);
-
-			$(".sceditor-toolbar").append(content);
 		},
-		storeLastState: function (){
-			this.wasSource = this.inSourceMode();
-		},
-		setTextMode: function () {
-			if (!this.inSourceMode())
-				this.toggleSourceMode();
-		},
-		createPermanentDropDown: function() {
-			var	emoticons	= $.extend({}, this.opts.emoticons.dropdown);
+		createPermanentDropDown: function () {
+			var emoticons = $.extend({}, this.opts.emoticons.dropdown);
 			var popup_exists = false;
 			content = $('<div class="sceditor-insertemoticon">');
 			line = $('<div>');
@@ -89,8 +77,8 @@
 			}
 			if (popup_exists)
 			{
-				this.opts.emoticons.more = this.opts.emoticons.popup;
-				moreButton = $('<div class="sceditor-more-button sceditor-more">').text('[' + this._('More') + ']').click(function () {
+				base.opts.emoticons.more = base.opts.emoticons.popup;
+				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
 					if ($(".sceditor-smileyPopup").length > 0)
 					{
 						$(".sceditor-smileyPopup").fadeIn('fast');
@@ -106,7 +94,7 @@
 						adjheight = 0;
 
 						popupContent.append(titlebar);
-						closeButton = $('<span>').text('[' + base._('Close') + ']').click(function () {
+						closeButton = $('<span class="button">').text(base._('Close')).click(function () {
 							$(".sceditor-smileyPopup").fadeOut('fast');
 						});
 
@@ -119,35 +107,25 @@
 
 						// IE needs unselectable attr to stop it from unselecting the text in the editor.
 						// The editor can cope if IE does unselect the text it's just not nice.
-						if(base.ieUnselectable !== false) {
+						if (base.ieUnselectable !== false) {
 							content = $(content);
-							content.find(':not(input,textarea)').filter(function() { return this.nodeType===1; }).attr('unselectable', 'on');
+							content.find(':not(input,textarea)').filter(function () { return this.nodeType===1; }).attr('unselectable', 'on');
 						}
 
-						$dropdown = $('<div class="sceditor-dropdown sceditor-smileyPopup">').append(popupContent);
-
-						$dropdown.appendTo($('body'));
 						dropdownIgnoreLastClick = true;
 						adjheight = closeButton.height() + titlebar.height();
-						$dropdown.css({
-							position: "fixed",
-							top: $(window).height() * 0.2,
-							left: $(window).width() * 0.5 - ($dropdown.find('#sceditor-popup-smiley').width() / 2),
-							"max-width": "50%",
-							"max-height": "50%",
-						}).find('#sceditor-popup-smiley').css({
-							height: $dropdown.height() - adjheight,
-							"overflow": "auto"
-						});
+						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
+							.append(popupContent)
+							.appendTo($('.sceditor-container'));
 
-						$('.sceditor-smileyPopup').animaDrag({ 
-							speed: 150, 
-							interval: 120, 
-							during: function(e) {
+						$('.sceditor-smileyPopup').animaDrag({
+							speed: 150,
+							interval: 120,
+							during: function (e) {
 								$(this).height(this.startheight);
 								$(this).width(this.startwidth);
 							},
-							before: function(e) {
+							before: function (e) {
 								this.startheight = $(this).innerHeight();
 								this.startwidth = $(this).innerWidth();
 							},
@@ -161,6 +139,9 @@
 				});
 			}
 			$.each(emoticons, base.appendEmoticon);
+			if (line.children().length > 0)
+				content.append(line);
+			$(".sceditor-toolbar").append(content);
 			if (typeof moreButton !== "undefined")
 				content.append(moreButton);
 		}
@@ -189,13 +170,13 @@ $.sceditor.command.set(
 				var val = $(this).parent("form").find("#link").val(),
 					description = $(this).parent("form").find("#des").val();
 
-				if(val !== "" && val !== "ftp://") {
+				if (val !== "" && val !== "ftp://") {
 					// needed for IE to reset the last range
 					editor.focus();
 
-					if(!editor.getRangeHelper().selectedHtml() || description)
+					if (!editor.getRangeHelper().selectedHtml() || description)
 					{
-						if(!description)
+						if (!description)
 							description = val;
 
 						editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
@@ -224,9 +205,9 @@ $.sceditor.command.set(
 $.sceditor.command.set(
 	'shadow', {
 		tooltip: 'Shadow',
-		txtExec: ["[shadow=red,left]", "[/shadow]"],
+		txtExec: ["[shadow=red,right]", "[/shadow]"],
 		exec: function () {
-			this.wysiwygEditorInsertHtml('[shadow=red,left]', '[/shadow]');
+			this.wysiwygEditorInsertHtml('[shadow=red,right]', '[/shadow]');
 		}
 	}
 );
@@ -260,7 +241,7 @@ $.sceditor.command.set(
 
 $.sceditor.command.set(
 	'email', {
-		txtExec: function(caller, selected) {
+		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,
 				email	= prompt(this._("Enter the e-mail address:"), (display ? '' : selected));
 			if (email)
@@ -273,7 +254,7 @@ $.sceditor.command.set(
 );
 $.sceditor.command.set(
 	'link', {
-		txtExec: function(caller, selected) {
+		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('http://') > -1 ? null : selected,
 				url	= prompt(this._("Enter URL:"), (display ? 'http://' : selected));
 			if (url)
@@ -287,13 +268,39 @@ $.sceditor.command.set(
 
 $.sceditor.command.set(
 	'bulletlist', {
-		txtExec: ["[list]\n[li]", "[/li]\n[li][/li]\n[/list]"]
+		txtExec: function (caller, selected) {
+			if (selected)
+			{
+				var content = '';
+
+				$.each(selected.split(/\r?\n/), function () {
+					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+				});
+
+				this.insertText('[list]\n' + content + '\n[/list]');
+			}
+			else
+				this.insertText('[list]\n[li]', '[/li]\n[li][/li]\n[/list]');
+		}
 	}
 );
 
 $.sceditor.command.set(
 	'orderedlist', {
-		txtExec:  ["[list type=decimal]\n[li]", "[/li]\n[li][/li]\n[/list]"]
+		txtExec:  function (caller, selected) {
+			if (selected)
+			{
+				var content = '';
+
+				$.each(selected.split(/\r?\n/), function () {
+					content += (content ? '\n' : '') + '[li]' + this + '[/li]';
+				});
+
+				this.insertText('[list type=decimal]\n' + content + '\n[/list]');
+			}
+			else
+				this.insertText('[list type=decimal]\n[li]', '[/li]\n[li][/li]\n[/list]');
+		}
 	}
 );
 
@@ -303,18 +310,18 @@ $.sceditor.command.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'abbr', {
 		tags: {
 			abbr: {
 				title: null
 			}
 		},
-		format: function(element, content) {
+		format: function (element, content) {
 			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
 		},
-		html: function(element, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (element, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				return content;
 
 			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
@@ -322,18 +329,18 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'acronym', {
 		tags: {
 			acronym: {
 				title: null
 			}
 		},
-		format: function(element, content) {
+		format: function (element, content) {
 			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
 		},
-		html: function(element, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (element, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				return content;
 
 			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
@@ -341,18 +348,18 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'bdo', {
 		tags: {
 			bdo: {
 				dir: null
 			}
 		},
-		format: function(element, content) {
+		format: function (element, content) {
 			return '[bdo=' + element.attr('dir') + ']' + content + '[/bdo]';
 		},
-		html: function(element, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (element, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				return content;
 			if (attrs.defaultattr != 'rtl' && attrs.defaultattr != 'ltr')
 				return '[bdo=' + attrs.defaultattr + ']' + content + '[/bdo]';
@@ -362,42 +369,42 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'black', {
 		html: '<font color="black">{0}</font>'
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'blue', {
 		html: '<font color="blue">{0}</font>'
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'green', {
 		html: '<font color="green">{0}</font>'
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'red', {
 		html: '<font color="red">{0}</font>'
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'white', {
 		html: '<font color="white">{0}</font>'
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'list', {
 		breakStart: true,
 		isInline: false,
 		allowedChildren: ['*', 'li'],
-		html: function(element, attrs, content) {
+		html: function (element, attrs, content) {
 			var style = '';
 			var code = 'ul';
 
@@ -409,7 +416,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'ul', {
 		tags: {
 			ul: null
@@ -417,7 +424,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 		breakStart: true,
 		isInline: false,
 		html: '<ul>{0}</ul>',
-		format: function(element, content) {
+		format: function (element, content) {
 			if ($(element[0]).css('list-style-type') == 'disc')
 				return '[list]' + content + '[/list]';
 			else
@@ -426,7 +433,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'ol', {
 		tags: {
 			ol: null
@@ -438,7 +445,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'img', {
 		tags: {
 			img: {
@@ -447,36 +454,36 @@ $.sceditorBBCodePlugin.bbcode.set(
 		},
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
-		format: function(element, content) {
+		format: function (element, content) {
 			var	attribs = '',
-				style = function(name) {
+				style = function (name) {
 					return element.style ? element.style[name] : null;
 				};
 
 			// check if this is an emoticon image
-			if(typeof element.attr('data-sceditor-emoticon') !== "undefined")
+			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
 				return content;
 
 			// only add width and height if one is specified
-			if(element.attr('width') || style('width'))
+			if (element.attr('width') || style('width'))
 				attribs += " width=" + $(element).width();
-			if(element.attr('height') || style('height'))
+			if (element.attr('height') || style('height'))
 				attribs += " height=" + $(element).height();
-			if(element.attr('alt'))
+			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 		},
-		html: function(token, attrs, content) {
+		html: function (token, attrs, content) {
 			var	parts,
 				attribs = '';
 
 			// handle [img width=340 height=240]url[/img]
-			if(typeof attrs.width !== "undefined")
+			if (typeof attrs.width !== "undefined")
 				attribs += ' width="' + attrs.width + '"';
-			if(typeof attrs.height !== "undefined")
+			if (typeof attrs.height !== "undefined")
 				attribs += ' height="' + attrs.height + '"';
-			if(typeof attrs.alt !== "undefined")
+			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
@@ -484,7 +491,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		tags: {
@@ -492,23 +499,23 @@ $.sceditorBBCodePlugin.bbcode.set(
 				href: null
 			}
 		},
-		format: function(element, content) {
+		format: function (element, content) {
 			var url = element.attr('href');
 
 			// make sure this link is not an e-mail, if it is return e-mail BBCode
-			if(url.substr(0, 7) === 'mailto:')
+			if (url.substr(0, 7) === 'mailto:')
 				return '[email=' + url.substr(7) + ']' + content + '[/email]';
 			// make sure this link is not an ftp, if it is return ftp BBCode
-			else if(url.substr(0, 3) === 'ftp')
+			else if (url.substr(0, 3) === 'ftp')
 				return '[ftp=' +  url + ']' + content + '[/ftp]';
 
-			if(element.attr('target') !== undefined)
+			if (element.attr('target') !== undefined)
 				return '[url=' + decodeURI(url) + ']' + content + '[/url]';
 			else
 				return '[iurl=' + decodeURI(url) + ']' + content + '[/iurl]';
 		},
-		html: function(token, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
 			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
@@ -516,11 +523,11 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
-		html: function(token, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
 			return '<a href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
@@ -528,11 +535,11 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'ftp', {
 		allowsEmpty: true,
-		html: function(token, attrs, content) {
-			if(typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
+		html: function (token, attrs, content) {
+			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
 			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
@@ -540,7 +547,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'tt', {
 		tags: {
 			tt: null
@@ -550,7 +557,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
@@ -561,7 +568,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'move', {
 		tags: {
 			marquee: null
@@ -571,7 +578,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'php', {
 		isInline: false,
 		format: "[php]{0}[/php]",
@@ -579,14 +586,14 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'code', {
 		tags: {
 			code: null
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
-		format: function(element, content) {
+		format: function (element, content) {
 			if ($(element[0]).hasClass('php'))
 				return '[php]' + content.replace('&#91;', '[') + '[/php]';
 
@@ -613,9 +620,9 @@ $.sceditorBBCodePlugin.bbcode.set(
 			return '[code' + from + ']' + content.replace('&#91;', '[') + '[/code]';
 
 		},
-		html: function(element, attrs, content) {
+		html: function (element, attrs, content) {
 			var from = '';
-			if(typeof attrs.defaultattr !== "undefined")
+			if (typeof attrs.defaultattr !== "undefined")
 				from = '<cite>' + attrs.defaultattr + '</cite>';
 
 			return '<code>' + from + content.replace('[', '&#91;') + '</code>'
@@ -623,7 +630,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 	}
 );
 
-$.sceditorBBCodePlugin.bbcode.set(
+$.sceditor.plugins.bbcode.bbcode.set(
 	'quote', {
 		tags: {
 			blockquote: null,
@@ -632,30 +639,30 @@ $.sceditorBBCodePlugin.bbcode.set(
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		breakBefore: false,
 		isInline: false,
-		format: function(element, content) {
+		format: function (element, content) {
 			var author = '';
 			var date = '';
 			var link = '';
 
 			// The <cite> contains only the graphic for the quote, so we can skip it
-			if(element[0].tagName.toLowerCase() === 'cite')
+			if (element[0].tagName.toLowerCase() === 'cite')
 				return '';
 
-			if(element.attr('author'))
+			if (element.attr('author'))
 				author = ' author=' + element.attr('author').php_unhtmlspecialchars();
-			if(element.attr('date'))
+			if (element.attr('date'))
 				date = ' date=' + element.attr('date');
-			if(element.attr('link'))
+			if (element.attr('link'))
 				link = ' link=' + element.attr('link');
 
 			return '[quote' + author + date + link + ']' + content + '[/quote]';
 		},
-		html: function(element, attrs, content) {
+		html: function (element, attrs, content) {
 			var attr_author = '', author = '';
 			var attr_date = '', sDate = '';
 			var attr_link = '', link = '';
 
-			if(typeof attrs.author !== "undefined" && attrs.author)
+			if (typeof attrs.author !== "undefined" && attrs.author)
 			{
 				attr_author = attrs.author;
 				author = bbc_quote_from + ': ' + attr_author;
@@ -674,7 +681,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 				}
 			}
 
-			if(typeof attrs.date !== "undefined" && attrs.date)
+			if (typeof attrs.date !== "undefined" && attrs.date)
 			{
 				attr_date = attrs.date;
 				sDate = '<date timestamp="' + attr_date + '">' + new Date(attrs.date * 1000) + '</date>';
@@ -682,7 +689,7 @@ $.sceditorBBCodePlugin.bbcode.set(
 
 			if (author == '' && sDate == '')
 				author = bbc_quote;
-			else
+			else if (author == '' && sDate != '')
 				author += ' ' + bbc_search_on;
 
 			content = '<blockquote author="' + attr_author + '" date="' + attr_date + '" link="' + attr_link + '"><cite>' + author + ' ' + sDate + '</cite>' + content + '</blockquote>';
@@ -691,3 +698,19 @@ $.sceditorBBCodePlugin.bbcode.set(
 		}
 	}
 );
+
+$.sceditor.plugins.bbcode.bbcode.set('font', {
+	format: function ($element, content) {
+		var font;
+
+		// Get the raw font value from the DOM
+		if (!$element.is('font') || !(font = $element.attr('face'))) {
+			font = $element.css('font-family');
+		}
+
+		// Strip all quotes
+		font = font.replace(/['"]/g, '');
+
+		return '[font=' + font + ']' + content + '[/font]';
+	}
+});

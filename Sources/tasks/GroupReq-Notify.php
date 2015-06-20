@@ -3,22 +3,22 @@
 /**
  * This taks handles notifying someone that a user has
  * requeted to join a group they moderate.
- * 
+ *
  * Simple Machines Forum (SMF)
- * 
+ *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
- * 
- * @version SMF 2.1 Alpha 1
+ *
+ * @version 2.1 Beta 2
  */
- 
+
 class GroupReq_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;		
+ 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;
 
 		// Do we have any group moderators?
 		$request = $smcFunc['db_query']('', '
@@ -35,7 +35,7 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 		$smcFunc['db_free_result']($request);
 
 		require_once($sourcedir . '/Subs-Members.php');
-		
+
 		// Make sure anyone who can moderate_membergroups gets notified as well
 		$moderators = array_unique(array_merge($moderators, membersAllowedTo('manage_membergroups')));
 
@@ -123,4 +123,5 @@ class GroupReq_Notify_Background extends SMF_BackgroundTask
 		return true;
 	}
 }
+
 ?>

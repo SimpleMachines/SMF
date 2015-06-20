@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function SearchEngines()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('admin_forum');
 
@@ -47,8 +47,6 @@ function SearchEngines()
 		$default = 'settings';
 	}
 
-	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
-
 	// Ensure we have a valid subaction.
 	$context['sub_action'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
@@ -60,8 +58,10 @@ function SearchEngines()
 		'description' => $txt['search_engines_description'],
 	);
 
+	call_integration_hook('integrate_manage_search_engines', array(&$subActions));
+
 	// Call the function!
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
@@ -156,7 +156,7 @@ function ManageSearchEngineSettings($return_config = false)
  */
 function ViewSpiders()
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
 
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
 	{
@@ -222,7 +222,7 @@ function ViewSpiders()
 	$listOptions = array(
 		'id' => 'spider_list',
 		'title' => $txt['spiders'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=spiders',
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -308,7 +308,7 @@ function ViewSpiders()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" onclick="return confirm(\'' . $txt['spider_remove_selected_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="removeSpiders" value="' . $txt['spiders_remove_selected'] . '" data-confirm="' . $txt['spider_remove_selected_confirm'] . '" class="button_submit you_sure">
 					<input type="submit" name="addSpider" value="' . $txt['spiders_add'] . '" class="button_submit">
 				',
 			),
@@ -535,7 +535,7 @@ function SpiderCheck()
 			break;
 	}
 
-	// If this is low server tracking then log the spider here as oppossed to the main logging function.
+	// If this is low server tracking then log the spider here as opposed to the main logging function.
 	if (!empty($modSettings['spider_mode']) && $modSettings['spider_mode'] == 1 && !empty($_SESSION['id_robot']))
 		logSpider();
 
@@ -704,7 +704,7 @@ function SpiderLogs()
 
 	$listOptions = array(
 		'id' => 'spider_logs',
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'title' => $txt['spider_logs'],
 		'no_items_label' => $txt['spider_logs_empty'],
 		'base_href' => $context['admin_area'] == 'sengines' ? $scripturl . '?action=admin;area=sengines;sa=logs' : $scripturl . '?action=admin;area=logs;sa=spiderlog',
@@ -764,7 +764,7 @@ function SpiderLogs()
 			),
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" onclick="return confirm(\'' . $txt['spider_log_empty_log_confirm'] . '\');" class="button_submit">',
+				'value' => '<input type="submit" name="removeAll" value="' . $txt['spider_log_empty_log'] . '" data-confirm="' . $txt['spider_log_empty_log_confirm'] . '" class="button_submit you_sure">',
 			),
 		),
 	);
@@ -778,14 +778,15 @@ function SpiderLogs()
 	if (!empty($context['spider_logs']['rows']))
 	{
 		$urls = array();
+
 		// Grab the current /url.
 		foreach ($context['spider_logs']['rows'] as $k => $row)
 		{
 			// Feature disabled?
-			if (empty($row['viewing']['value']) && isset($modSettings['spider_mode']) && $modSettings['spider_mode'] < 3)
+			if (empty($row['data']['viewing']['value']) && isset($modSettings['spider_mode']) && $modSettings['spider_mode'] < 3)
 				$context['spider_logs']['rows'][$k]['viewing']['value'] = '<em>' . $txt['spider_disabled'] . '</em>';
 			else
-				$urls[$k] = array($row['viewing']['value'], -1);
+				$urls[$k] = array($row['data']['viewing']['value'], -1);
 		}
 
 		// Now stick in the new URLs.
@@ -793,7 +794,7 @@ function SpiderLogs()
 		$urls = determineActions($urls, 'whospider_');
 		foreach ($urls as $k => $new_url)
 		{
-			$context['spider_logs']['rows'][$k]['viewing']['value'] = $new_url;
+			$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 		}
 	}
 
@@ -856,7 +857,7 @@ function list_getNumSpiderLogs()
  */
 function SpiderStats()
 {
-	global $context, $txt, $sourcedir, $scripturl, $smcFunc;
+	global $context, $txt, $sourcedir, $scripturl, $smcFunc, $modSettings;
 
 	// Force an update of the stats every 60 seconds.
 	if (!isset($_SESSION['spider_stat']) || $_SESSION['spider_stat'] < time() - 60)
@@ -955,7 +956,7 @@ function SpiderStats()
 	$listOptions = array(
 		'id' => 'spider_stat_list',
 		'title' => $txt['spider'] . ' ' . $txt['spider_stats'],
-		'items_per_page' => 20,
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=sengines;sa=stats',
 		'default_sort_col' => 'stat_date',
 		'get_items' => array(
@@ -1057,7 +1058,7 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList()
- * Get the number of spider stat rows from the log spicer stats table
+ * Get the number of spider stat rows from the log spider stats table
  *
  * @return int
  */

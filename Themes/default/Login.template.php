@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 // This is just the basic "login" form.
@@ -23,17 +23,17 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', $scripturl, '?action=login2" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
+				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
 		echo '
-					<p class="errorbox">', implode('<br>', $context['login_errors']), '</p><br>';
+					<div class="errorbox">', implode('<br>', $context['login_errors']), '</div><br>';
 
 	// Or perhaps there's some special description for this time?
 	if (isset($context['description']))
 		echo '
-					<p class="description">', $context['description'], '</p>';
+					<p class="information">', $context['description'], '</p>';
 
 	// Now just get the basic information - username, password, etc.
 	echo '
@@ -42,21 +42,10 @@ function template_login()
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-					</dl>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-					<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-					<dl>
-						<dt>', $txt['openid'], ':</dt>
-						<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17">&nbsp;<a href="', $scripturl, '?action=helpadmin;help=register_openid" onclick="return reqOverlayDiv(this.href);" class="help"><img src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '" class="centericon"></a></dd>
 					</dl>
-					<hr>';
-
-	echo '
 					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
-						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text"></dd>
+						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1" max="525600"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
 						<dd><input type="checkbox" name="cookieneverexp"', $context['never_expire'] ? ' checked' : '', ' class="input_check" onclick="this.form.cookielength.disabled = this.checked;"></dd>';
 	// If they have deleted their account, give them a chance to change their mind.
@@ -71,10 +60,37 @@ function template_login()
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-					<script>
+					<script type="text/javascript">
 						setTimeout(function() {
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
-						}, 150);
+						}, 150);';
+	if (!empty($context['from_ajax']) && (empty($modSettings['force_ssl']) || $modSettings['force_ssl'] == 2))
+		echo '
+						form = $("#frmLogin");
+						form.submit(function(e) {
+							e.preventDefault();
+							e.stopPropagation();
+
+							$.ajax({
+								url: form.prop("action"),
+								method: "POST",
+								data: form.serialize(),
+								success: function(data) {
+									if (data.indexOf("<bo" + "dy") > -1)
+										document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+									else {
+										form.parent().html($(data).find(".roundframe").html());
+									}
+								},
+								error: function() {
+									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+								}
+							});
+
+							return false;
+						});';
+
+	echo '
 					</script>
 				</form>';
 
@@ -88,6 +104,71 @@ function template_login()
 		</div>';
 }
 
+// TFA authentication
+function template_login_tfa()
+{
+	global $context, $scripturl, $modSettings, $txt;
+
+	echo '
+		<div class="tborder login">
+			<div class="cat_bar">
+				<h3 class="catbg">
+					', $txt['tfa_profile_label'] ,'
+				</h3>
+			</div>
+			<div class="roundframe">';
+	if (!empty($context['tfa_error']) || !empty($context['tfa_backup_error']))
+		echo '
+				<div class="error">', $txt['tfa_' . (!empty($context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '</div>';
+	echo '
+				<form action="', $context['tfa_url'], '" method="post" id="frmTfa">
+					<div id="tfaCode">
+						', $txt['tfa_login_desc'], '<br>
+						<strong>', $txt['tfa_code'], ':</strong>
+						<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
+						<hr />
+						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
+					</div>
+					<div id="tfaBackup" style="display: none;">
+						', $txt['tfa_backup_desc'], '<br>
+						<strong>', $txt['tfa_backup_code'], ': </strong>
+						<input type="text" class="input_text" name="tfa_backup" style="width: 150px;" value="', !empty($context['tfa_backup']) ? $context['tfa_backup'] : '', '">
+						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
+					</div>
+				</form>
+				<script type="text/javascript">
+						form = $("#frmTfa");';
+	if (!empty($context['from_ajax']))
+		echo '
+						form.submit(function(e) {
+							// If we are submitting backup code, let normal workflow follow since it redirects a couple times into a different page
+							if (form.find("input[name=tfa_backup]:first").val().length > 0)
+								return true;
+
+							e.preventDefault();
+							e.stopPropagation();
+
+							$.post(form.prop("action"), form.serialize(), function(data) {
+								if (data.indexOf("<bo" + "dy") > -1)
+									document.location = ', JavaScriptEscape(!empty($_SESSION['login_url']) ? $_SESSION['login_url'] : $scripturl), ';
+								else {
+									form.parent().html($(data).find(".roundframe").html());
+								}
+							});
+
+							return false;
+						});';
+	echo '
+						form.find("input[name=backup]").click(function(e) {
+							$("#tfaBackup").show();
+							$("#tfaCode").hide();
+						});
+				</script>
+			</div>
+		</div>';
+}
+
 // Tell a guest to get lost or login!
 function template_kick_guest()
 {
@@ -95,7 +176,7 @@ function template_kick_guest()
 
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
-	<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
+	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
@@ -108,7 +189,7 @@ function template_kick_guest()
 
 
 	if ($context['can_register'])
-		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=register', $context['forum_name_html_safe']);
+		echo sprintf($txt['login_below_or_register'], $scripturl . '?action=signup', $context['forum_name_html_safe']);
 	else
 		echo $txt['login_below'];
 
@@ -124,20 +205,7 @@ function template_kick_guest()
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
-					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>';
-
-	if (!empty($modSettings['enableOpenID']))
-		echo '
-				</dl>
-				<p><strong>&mdash;', $txt['or'], '&mdash;</strong></p>
-				<dl>
-					<dt>', $txt['openid'], ':</dt>
-					<dd><input type="text" name="openid_identifier" class="input_text openid_login" size="17"></dd>
-				</dl>
-				<hr>
-				<dl>';
-
-	echo '
+					<dd><input type="password" name="passwrd" size="20" class="input_password"></dd>
 					<dt>', $txt['mins_logged_in'], ':</dt>
 					<dd><input type="text" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '" class="input_text"></dd>
 					<dt>', $txt['always_logged_in'], ':</dt>
@@ -162,16 +230,16 @@ function template_kick_guest()
 // This is for maintenance mode.
 function template_maintenance()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $txt, $modSettings;
 
 	// Display the administrator's message at the top.
 	echo '
-<form action="', $scripturl, '?action=login2" method="post" accept-charset="', $context['character_set'], '">
+<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
 	<div class="tborder login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
-		<p class="description">
+		<p class="information">
 			<img class="floatleft" src="', $settings['images_url'], '/construction.png" width="40" height="40" alt="', $txt['in_maintain_mode'], '">
 			', $context['description'], '<br class="clear">
 		</p>
@@ -202,11 +270,11 @@ function template_maintenance()
 // This is for the security stuff - makes administrators login every so often.
 function template_admin_login()
 {
-	global $context, $settings, $scripturl, $txt;
+	global $context, $settings, $scripturl, $txt, $modSettings;
 
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
-<form action="', $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
+<form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
 	<div class="tborder login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
@@ -222,7 +290,7 @@ function template_admin_login()
 	echo '
 			<strong>', $txt['password'], ':</strong>
 			<input type="password" name="', $context['sessionCheckType'], '_pass" size="24" class="input_password">
-			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><img class="icon" src="', $settings['images_url'], '/helptopics.png" alt="', $txt['help'], '"></a><br>
+			<a href="', $scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a><br>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			<input type="hidden" name="', $context['admin-login_token_var'], '" value="', $context['admin-login_token'], '">
 			<input type="submit" style="margin-top: 1em;" value="', $txt['login'], '" class="button_submit">';

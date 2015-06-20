@@ -122,7 +122,7 @@ String.prototype.php_to8bit = function ()
 		{
 			n = this.charCodeAt(i);
 			if (n < 128)
-				sReturn += String.fromCharCode(n)
+				sReturn += String.fromCharCode(n);
 			else if (n < 2048)
 				sReturn += String.fromCharCode(192 | n >> 6) + String.fromCharCode(128 | n & 63);
 			else if (n < 65536)
@@ -356,8 +356,6 @@ smc_PopupMenu.prototype.add = function (sItem, sUrl)
 
 	$item.click({obj: this}, function (e) {
 		e.preventDefault();
-		if (e.target != this)
-			return;
 
 		e.data.obj.toggle(sItem);
 	});
@@ -378,7 +376,14 @@ smc_PopupMenu.prototype.open = function (sItem)
 	if (!this.opt.menus[sItem].loaded)
 	{
 		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
-		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl);
+		this.opt.menus[sItem].menuObj.load(this.opt.menus[sItem].sUrl, function() {
+			if ($(this).hasClass('scrollable'))
+				$(this).customScrollbar({
+					skin: "default-skin",
+					hScroll: false,
+					updateOnWindowResize: true
+				});
+		});
 		this.opt.menus[sItem].loaded = true;
 	}
 
@@ -427,11 +432,11 @@ smc_Popup.prototype.show = function ()
 		icon = this.opt.icon ? '<img src="' + this.opt.icon + '" class="icon" alt=""> ' : '';
 
 	// Create the div that will be shown
-	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
+	$('body').append('<div id="' + this.popup_id + '" class="popup_container"><div class="' + popup_class + '"><div class="catbg popup_heading"><a href="javascript:void(0);" class="generic_icons hide_popup"></a>' + icon + this.opt.heading + '</div><div class="popup_content">' + this.opt.content + '</div></div></div>');
 
 	// Show it
 	this.popup_body = $('#' + this.popup_id).children('.popup_window');
-	this.popup_body.css({top: '25%', left: 'calc(50% - 240px)', margin: '-' + ($(this.popup_body).height() / 2) + 'px 0 0 -' + ($(this.popup_body).width() / 2) + 'px'}).parent().fadeIn(300);
+	this.popup_body.parent().fadeIn(300);
 
 	// Trigger hide on escape or mouse click
 	var popup_instance = this;
@@ -439,7 +444,7 @@ smc_Popup.prototype.show = function ()
 		if ($('#' + popup_instance.popup_id).has(e.target).length === 0)
 			popup_instance.hide();
 	}).keyup(function(e){
-		if(e.keyCode == 27)
+		if (e.keyCode == 27)
 			popup_instance.hide();
 	});
 	$('#' + this.popup_id).find('.hide_popup').click(function (){ return popup_instance.hide(); });
@@ -702,7 +707,7 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 }
 
 // Shows the page numbers by clicking the dots (in compact view).
-function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
+function expandPages(spanNode, baseLink, firstPage, lastPage, perPage)
 {
 	var replacement = '', i, oldLastPage = 0;
 	var perPageLimit = 50;
@@ -716,13 +721,19 @@ function expandPages(spanNode, baseURL, firstPage, lastPage, perPage)
 
 	// Calculate the new pages.
 	for (i = firstPage; i < lastPage; i += perPage)
-		replacement += '<a class="navPages" href="' + baseURL.replace(/%1\$d/, i).replace(/%%/g, '%') + '">' + (1 + i / perPage) + '</a> ';
+		replacement += baseLink.replace(/%1\$d/, i).replace(/%2\$s/, 1 + i / perPage).replace(/%%/g, '%');
 
-	if (oldLastPage > 0)
-		replacement += '<span class="expand_pages" onclick="expandPages(this, \'' + baseURL + '\', ' + lastPage + ', ' + oldLastPage + ', ' + perPage + ');"> ... </span>';
+	// Add the new page links.
+	$(spanNode).before(replacement);
 
-	// Replace the dots by the new page links.
-	setOuterHTML(spanNode, replacement);
+	if (oldLastPage)
+		// Access the raw DOM element so the native onclick event can be overridden.
+		spanNode.onclick = function ()
+		{
+			expandPages(spanNode, baseLink, lastPage, oldLastPage, perPage);
+		};
+	else
+		$(spanNode).remove();
 }
 
 function smc_preCacheImage(sSrc)
@@ -1576,66 +1587,38 @@ function updateActionDef(optNum)
 	}
 }
 
-function updateAuthMethod()
+$(function()
 {
-	// What authentication method is being used?
-	if (!document.getElementById("auth_openid") || !document.getElementById("auth_openid").checked)
-		currentAuthMethod = "passwd";
-	else
-		currentAuthMethod = "openid";
-
-	// No openID?
-	if (!document.getElementById("auth_openid"))
-		return true;
-
-	document.forms.creator.openid_url.disabled = currentAuthMethod == "openid" ? false : true;
-	document.forms.creator.smf_autov_pwmain.disabled = currentAuthMethod == "passwd" ? false : true;
-	document.forms.creator.smf_autov_pwverify.disabled = currentAuthMethod == "passwd" ? false : true;
-	document.getElementById("smf_autov_pwmain_div").style.display = currentAuthMethod == "passwd" ? "" : "none";
-	document.getElementById("smf_autov_pwverify_div").style.display = currentAuthMethod == "passwd" ? "" : "none";
-
-	if (currentAuthMethod == "passwd")
+	$('.buttonlist > .dropmenu').each(function(index, item)
 	{
-		verificationHandle.refreshMainPassword();
-		verificationHandle.refreshVerifyPassword();
-		document.forms.creator.openid_url.style.backgroundColor = "";
-		document.getElementById("auth_openid_div").style.display = "none";
-		document.getElementById("auth_pass_div").style.display = "";
-	}
-	else
-	{
-		document.forms.creator.smf_autov_pwmain.style.backgroundColor ="";
-		document.forms.creator.smf_autov_pwverify.style.backgroundColor = "";
-		document.forms.creator.openid_url.style.backgroundColor = "#FCE184";
-		document.getElementById("auth_openid_div").style.display = "";
-		document.getElementById("auth_pass_div").style.display = "none";
-	}
-}
-
-$(document).ready(function() {
-	if (smf_member_id > 0)
-		$('div.boardindex_table div.cat_bar').each(function(index, el)
+		$(item).prev().click(function(e)
 		{
-			var catid = el.id.replace('category_', '');
-			new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: $('#category_' + catid + '_upshrink').data('collapsed'),
-				aSwappableContainers: [
-					'category_' + catid + '_boards'
-				],
-				aSwapImages: [
-					{
-						sId: 'category_' + catid + '_upshrink',
-						msgExpanded: '',
-						msgCollapsed: ''
-					}
-				],
-				oThemeOptions: {
-					bUseThemeSettings: true,
-					sOptionName: 'collapse_category_' + catid,
-					sSessionVar: smf_session_var,
-					sSessionId: smf_session_id
-				}
-			});
+			e.stopPropagation();
+			e.preventDefault();
+
+			if ($(item).is(':visible'))
+			{
+				$(item).css('display', 'none');
+
+				return true;
+			}
+
+			$(item).css('display', 'block');
+			$(item).css('top', $(this).offset().top + $(this).height());
+			$(item).css('left', Math.max($(this).offset().left - $(item).width() + $(this).outerWidth(), 0));
+			$(item).height($(item).find('div:first').height());
 		});
-});
+		$(document).click(function()
+		{
+			$(item).css('display', 'none');
+		});
+	});
+
+	// Generic confirmation message.
+	$('.you_sure').on('click', function() {
+
+		var custom_message = $(this).attr('data-confirm');
+
+		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
+	});
+})

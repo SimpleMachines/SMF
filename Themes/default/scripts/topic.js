@@ -172,7 +172,7 @@ QuickModifyTopic.prototype.modify_topic_done = function (XMLDoc)
 	this.set_hidden_topic_areas('');
 	this.bInEditMode = false;
 
-	// redo tips if they are on since we just pulled the rug out on this one 
+	// redo tips if they are on since we just pulled the rug out on this one
 	if ($.isFunction($.fn.SMFtooltip));
 		$('.preview').SMFtooltip().smf_tooltip_off;
 
@@ -210,7 +210,7 @@ QuickModifyTopic.prototype.modify_topic_keypress = function (oEvent)
 	}
 }
 
-// A click event to signal the finish of the edit 
+// A click event to signal the finish of the edit
 QuickModifyTopic.prototype.modify_topic_click = function (oEvent)
 {
 	if (this.bInEditMode && !this.bMouseOnDiv)
@@ -257,6 +257,7 @@ QuickReply.prototype.quote = function (iMessageId, xDeprecated)
 			ajax_indicator(true);
 			if (this.bIsFull)
 				insertQuoteFast(iMessageId);
+
 			else
 				getXMLDocument(smf_prepareScriptUrl(this.opt.sScriptUrl) + 'action=quotefast;quote=' + iMessageId + ';xml', this.onQuoteReceived);
 		}
@@ -337,7 +338,7 @@ QuickModify.prototype.isXmlHttpCapable = function ()
 }
 
 // Function called when a user presses the edit button.
-QuickModify.prototype.modifyMsg = function (iMessageId)
+QuickModify.prototype.modifyMsg = function (iMessageId, blnShowSubject)
 {
 	if (!this.bXmlHttpCapable)
 		return;
@@ -369,6 +370,9 @@ QuickModify.prototype.modifyMsg = function (iMessageId)
 
 	// At least NOW we're in edit mode
 	this.bInEditMode = true;
+
+	// Keep track of whether we want to show the subject
+	this.opt.bShowSubject = blnShowSubject;
 
 	// Send out the XMLhttp request to get more info
 	ajax_indicator(true);
@@ -516,15 +520,16 @@ QuickModify.prototype.onModifyDone = function (XMLDoc)
 		this.sMessageBuffer = this.opt.sTemplateBodyNormal.replace(/%body%/, bodyText.replace(/\$/g, '{&dollarfix;$}')).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurMessageDiv, this.sMessageBuffer);
 
-		// Show new subject.
+		// Show new subject, but only if we want to...
 		var oSubject = message.getElementsByTagName('subject')[0];
-		var sSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
+		var sSubjectText = this.opt.bshowSubject ? oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}') : '';
+		var sTopSubjectText = oSubject.childNodes[0].nodeValue.replace(/\$/g, '{&dollarfix;$}');
 		this.sSubjectBuffer = this.opt.sTemplateSubjectNormal.replace(/%msg_id%/g, this.sCurMessageId.substr(4)).replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g,'$');
 		setInnerHTML(this.oCurSubjectDiv, this.sSubjectBuffer);
 
 		// If this is the first message, also update the topic subject.
 		if (oSubject.getAttribute('is_first') == '1')
-			setInnerHTML(document.getElementById('top_subject'), this.opt.sTemplateTopSubject.replace(/%subject%/, sSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
+			setInnerHTML(document.getElementById('top_subject'), this.opt.sTemplateTopSubject.replace(/%subject%/, sTopSubjectText).replace(/\{&dollarfix;\$\}/g, '$'));
 
 		// Show this message as 'modified on x by y'.
 		if (this.opt.bShowModify)
@@ -756,18 +761,18 @@ function ignore_toggles(msgids, text)
 	}
 }
 
-// Likes count for messages.
+// On document ready.
 $(function() {
+
+	// Likes count for messages.
 	$(document).on('click', '.like_count a', function(e){
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
 		return reqOverlayDiv(url, title);
 	});
-});
 
-// Message likes.
-$(function() {
+	// Message likes.
 	$(document).on('click', '.msg_like', function(event){
 		var obj = $(this);
 		event.preventDefault();
@@ -786,6 +791,18 @@ $(function() {
 			{
 				ajax_indicator(false);
 			}
+		});
+
+		return false;
+	});
+
+	$('.button_strip_notify').next().find('a').click(function (e) {
+		var $obj = $(this);
+		e.preventDefault();
+		ajax_indicator(true);
+		$.get($obj.attr('href') + ';xml', function () {
+			ajax_indicator(false);
+			$('.button_strip_notify').text($obj.find('strong').text());
 		});
 
 		return false;

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -109,7 +109,7 @@ function db_fix_prefix (&$db_prefix, $db_name)
 }
 
 /**
- * Callback for preg_replace_calback on the query.
+ * Callback for preg_replace_callback on the query.
  * It allows to replace on the fly a few pre-defined strings, for
  * convenience ('query_see_board', 'query_wanna_see_board'), with
  * their current values from $user_info.
@@ -323,6 +323,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
+		'case_insensitive' => array(
+			'~LIKE~' => 'ILIKE',
+		),
 	);
 
 	if (isset($replacements[$identifier]))
@@ -528,10 +531,9 @@ function smf_db_transaction($type = 'commit', $connection = null)
  */
 function smf_db_error($db_string, $connection = null)
 {
-	global $txt, $context, $sourcedir, $webmaster_email, $modSettings;
-	global $db_connection, $db_last_error, $db_persist;
-	global $db_server, $db_user, $db_passwd, $db_name, $db_show_debug, $ssi_db_user, $ssi_db_passwd;
-	global $smcFunc;
+	global $txt, $context, $modSettings;
+	global $db_connection;
+	global $db_show_debug;
 
 	// We'll try recovering the file and line number the original db query was called from.
 	list ($file, $line) = smf_db_error_backtrace('', '', 'return', __FILE__, __LINE__);

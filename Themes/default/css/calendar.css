@@ -3,6 +3,10 @@
 #calendar {
 	overflow: hidden;
 }
+#calendar .windowbg, #calendar .windowbg2 {
+	box-shadow: none;
+	border-radius: 0;
+}
 /* Used to indicate the current day in the grid. */
 #main_grid .calendar_today span.day_text, #month_grid .calendar_today, .calendar_week tr.days_wrapper td.calendar_today:first-child {
 	font-weight: bold;
@@ -25,7 +29,7 @@
 	margin-bottom: 12px;
 	border-collapse: collapse;
 	background: #f0f4f7;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 }
 #main_grid {
 	overflow: auto;
@@ -35,7 +39,7 @@
 	border-collapse: collapse;
 	background: #f0f4f7;
 	margin: 1px 0 0 0;
-	border: 1px solid #ccc;
+	border: 1px solid #ddd;
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box; -webkit-box-sizing: border-box;
 	margin-left: 1px;
@@ -113,8 +117,8 @@
 #main_grid table td.days, #month_grid table td.days {
 	vertical-align: top;
 	text-align: left;
-	border-right: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
 }
 #main_grid table td.days {
 	padding: 10px;
@@ -125,16 +129,16 @@
 	text-align: center;
 }
 #main_grid table tbody tr:nth-child(2) td.days, #month_grid table tbody tr:nth-child(2) {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 }
 #main_grid table tbody tr.days_wrapper > td:nth-child(2), #month_grid table tr.days_wrapper > td:nth-child(2) {
-	border-left: 1px solid #ccc;
+	border-left: 1px solid #ddd;
 }
 #main_grid table tr.days_wrapper:nth-child(2) > td.weeks {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 }
 #main_grid table:last-child td.weeks {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ddd;
 }
 #main_grid td#post_event {
 	background: #e7eaef;

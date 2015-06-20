@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -27,7 +27,7 @@ if (!defined('SMF'))
  */
 function validateSession($type = 'admin')
 {
-	global $modSettings, $sourcedir, $user_info, $sc, $user_settings;
+	global $modSettings, $sourcedir, $user_info, $user_settings;
 
 	// We don't care if the option is off, because Guests should NEVER get past here.
 	is_not_guest();
@@ -44,7 +44,7 @@ function validateSession($type = 'admin')
 	if (!empty($modSettings['securityDisable' . ($type != 'admin' ? '_' . $type : '')]))
 		return;
 
-	// Or are they already logged in?, Moderator or admin sesssion is need for this area
+	// Or are they already logged in?, Moderator or admin session is need for this area
 	if ((!empty($_SESSION[$type . '_time']) && $_SESSION[$type . '_time'] + $refreshTime >= time()) || (!empty($_SESSION['admin_time']) && $_SESSION['admin_time'] + $refreshTime >= time()))
 		return;
 
@@ -53,6 +53,10 @@ function validateSession($type = 'admin')
 	// Posting the password... check it.
 	if (isset($_POST[$type. '_pass']))
 	{
+		// Check to ensure we're forcing SSL for authentication
+		if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+			fatal_lang_error('login_ssl_required');
+
 		checkSession();
 
 		$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($user_info['username'], $_POST[$type . '_pass'], false)), true);
@@ -65,17 +69,6 @@ function validateSession($type = 'admin')
 			return;
 		}
 	}
-	// OpenID?
-	if (!empty($user_settings['openid_uri']))
-	{
-		require_once($sourcedir . '/Subs-OpenID.php');
-		smf_openID_revalidate();
-
-		$_SESSION[$type . '_time'] = time();
-		unset($_SESSION['request_referer']);
-		return;
-	}
-
 
 	// Better be sure to remember the real referer
 	if (empty($_SESSION['request_referer']))
@@ -99,16 +92,15 @@ function validateSession($type = 'admin')
  */
 function is_not_guest($message = '')
 {
-	global $user_info, $txt, $context, $scripturl;
+	global $user_info, $txt, $context, $scripturl, $modSettings;
 
 	// Luckily, this person isn't a guest.
-	if (isset($user_info['is_guest']) && !$user_info['is_guest'])
+	if (!$user_info['is_guest'])
 		return;
 
-	// People always worry when they see people doing things they aren't actually doing...
-	$_GET['action'] = '';
-	$_GET['board'] = '';
-	$_GET['topic'] = '';
+	// Log what they were trying to do didn't work)
+	if (!empty($modSettings['who_enabled']))
+		$_GET['error'] = 'guest_login';
 	writeLog(true);
 
 	// Just die.
@@ -350,7 +342,7 @@ function is_not_banned($forceCheck = false)
 		$_GET['topic'] = '';
 		writeLog(true);
 		Logout(true, false);
-		
+
 		// You banned, sucka!
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), !empty($modSettings['log_ban_hits']) ? 'ban' : false);
 
@@ -477,7 +469,7 @@ function banPermissions()
 	}
 
 	// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-	if (isset($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
 		$context['open_mod_reports'] = $_SESSION['rc']['reports'];
 	elseif ($_SESSION['mc']['bq'] != '0=1')
 	{
@@ -487,8 +479,8 @@ function banPermissions()
 	else
 		$context['open_mod_reports'] = 0;
 
-	if (isset($_SESSION['rmc']) && $_SESSION['rmc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rmc']['id'] == $user_info['id'])
-		$contexct['open_member_reports'] = $_SESSION['rmc']['reports'];
+	if (!empty($_SESSION['rc']) && $_SESSION['rc']['time'] > $modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $user_info['id'])
+		$context['open_member_reports'] = !empty($_SESSION['rc']['member_reports']) ? $_SESSION['rc']['member_reports'] : 0;
 	elseif (allowedTo('moderate_forum'))
 	{
 		require_once($sourcedir . '/Subs-ReportedContent.php');
@@ -797,7 +789,7 @@ function validateToken($action, $type = 'post', $reset = true)
 		2. The {$type} variable should exist.
 		3. We concat the variable we received with the user agent
 		4. Match that result against what is in the session.
-		5. If it matchs, success, otherwise we fallout.
+		5. If it matches, success, otherwise we fallout.
 	*/
 	if (isset($_SESSION['token'][$type . '-' . $action], $GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]]) && md5($GLOBALS['_' . strtoupper($type)][$_SESSION['token'][$type . '-' . $action][0]] . $_SERVER['HTTP_USER_AGENT']) == $_SESSION['token'][$type . '-' . $action][1])
 	{
@@ -1138,9 +1130,10 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  * The time taken depends on error_type - generally uses the modSetting.
  *
  * @param string $error_type used also as a $txt index. (not an actual string.)
+ * @param boolean $only_return_result True if you don't want the function to die with a fatal_lang_error.
  * @return boolean
  */
-function spamProtection($error_type)
+function spamProtection($error_type, $only_return_result = false)
 {
 	global $modSettings, $user_info, $smcFunc;
 
@@ -1153,13 +1146,15 @@ function spamProtection($error_type)
 		'reporttm' => $modSettings['spamWaitTime'] * 4,
 		'search' => !empty($modSettings['search_floodcontrol_time']) ? $modSettings['search_floodcontrol_time'] : 1,
 	);
-	call_integration_hook('integrate_spam_protection', array(&$timeOverrides));
+
 
 	// Moderators are free...
 	if (!allowedTo('moderate_board'))
 		$timeLimit = isset($timeOverrides[$error_type]) ? $timeOverrides[$error_type] : $modSettings['spamWaitTime'];
 	else
 		$timeLimit = 2;
+
+	call_integration_hook('integrate_spam_protection', array(&$timeOverrides, &$timeLimit));
 
 	// Delete old entries...
 	$smcFunc['db_query']('', '
@@ -1184,7 +1179,9 @@ function spamProtection($error_type)
 	if ($smcFunc['db_affected_rows']() != 1)
 	{
 		// Spammer!  You only have to wait a *few* seconds!
-		fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+		if (!$only_return_result)
+			fatal_lang_error($error_type . '_WaitTime_broken', false, array($timeLimit));
+
 		return true;
 	}
 
@@ -1319,7 +1316,7 @@ function frameOptionsHeader($override = null)
 	$option = 'SAMEORIGIN';
 	if (is_null($override) && !empty($modSettings['frame_security']))
 		$option = $modSettings['frame_security'];
-	elseif (in_array($override, array('SAMEORIGIN', 'DENY', 'SAMEORIGIN')))
+	elseif (in_array($override, array('SAMEORIGIN', 'DENY')))
 		$option = $override;
 
 	// Don't bother setting the header if we have disabled it.

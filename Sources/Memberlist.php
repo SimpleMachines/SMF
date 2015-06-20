@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -62,7 +62,6 @@ function Memberlist()
 	$context['columns'] = array(
 		'is_online' => array(
 			'label' => $txt['status'],
-			'class' => 'first_th',
 			'sort' => array(
 				'down' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
 				'up' => allowedTo('moderate_forum') ? 'IFNULL(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN IFNULL(lo.log_time, 1) ELSE 1 END DESC, real_name DESC'
@@ -128,7 +127,6 @@ function Memberlist()
 
 	// Aesthetic stuff.
 	end($context['columns']);
-	$context['columns'][key($context['columns'])]['class'] = 'last_th';
 
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=mlist',
@@ -149,9 +147,10 @@ function Memberlist()
 
 	// Jump to the sub action.
 	if (isset($subActions[$context['listing_by']]))
-		$subActions[$context['listing_by']][1]();
+		call_helper($subActions[$context['listing_by']][1]);
+
 	else
-		$subActions['all'][1]();
+		call_helper($subActions['all'][1]);
 }
 
 /**
@@ -368,7 +367,7 @@ function MLAll()
  */
 function MLSearch()
 {
-	global $txt, $scripturl, $context, $user_info, $modSettings, $smcFunc;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
 	$context['page_title'] = $txt['mlist_search'];
 	$context['can_moderate_forum'] = allowedTo('moderate_forum');
@@ -380,13 +379,14 @@ function MLSearch()
 		WHERE active = {int:active}
 			' . (allowedTo('admin_forum') ? '' : ' AND private < {int:private_level}') . '
 			AND can_search = {int:can_search}
-			AND (field_type = {string:field_type_text} OR field_type = {string:field_type_textarea})',
+			AND (field_type = {string:field_type_text} OR field_type = {string:field_type_textarea} OR field_type = {string:field_type_select})',
 		array(
 			'active' => 1,
 			'can_search' => 1,
 			'private_level' => 2,
 			'field_type_text' => 'text',
 			'field_type_textarea' => 'textarea',
+			'field_type_select' => 'select',
 		)
 	);
 	$context['custom_search_fields'] = array();
@@ -444,20 +444,33 @@ function MLSearch()
 
 		// Search for a name
 		if (in_array('name', $_POST['fields']))
+		{
 			$fields = allowedTo('moderate_forum') ? array('member_name', 'real_name') : array('real_name');
+			$search_fields[] = 'name';
+		}
 		else
+		{
 			$fields = array();
+			$search_fields = array();
+		}
 
 		// Search for websites.
 		if (in_array('website', $_POST['fields']))
+		{
 			$fields += array(7 => 'website_title', 'website_url');
+			$search_fields[] = 'website';
+		}
 		// Search for groups.
 		if (in_array('group', $_POST['fields']))
-			$fields += array(9 => 'IFNULL(group_name, {string:blank_string})');
-		// Search for an email address?
-		if (in_array('email', $_POST['fields']))
 		{
-			$fields += array(2 => allowedTo('moderate_forum') ? 'email_address' : '');
+			$fields += array(9 => 'IFNULL(group_name, {string:blank_string})');
+			$search_fields[] = 'group';
+		}
+		// Search for an email address?
+		if (in_array('email', $_POST['fields']) && allowedTo('moderate_forum'))
+		{
+			$fields += array(2 => 'email_address');
+			$search_fields[] = 'email';
 		}
 		else
 			$condition = '';
@@ -478,8 +491,13 @@ function MLSearch()
 				$customJoin[] = 'LEFT JOIN {db_prefix}themes AS t' . $row['col_name'] . ' ON (t' . $row['col_name'] . '.variable = {string:t' . $row['col_name'] . '} AND t' . $row['col_name'] . '.id_theme = 1 AND t' . $row['col_name'] . '.id_member = mem.id_member)';
 				$query_parameters['t' . $row['col_name']] = $row['col_name'];
 				$fields += array($customCount++ => 'IFNULL(t' . $row['col_name'] . '.value, {string:blank_string})');
+				$search_fields[] = $field;
 			}
 		}
+
+		// No search fields? That means you're trying to hack things
+		if (empty($search_fields))
+			fatal_lang_error('invalid_search_string', false);
 
 		$query = $_POST['search'] == '' ? '= {string:blank_string}' : ($smcFunc['db_case_sensitive'] ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
@@ -682,4 +700,5 @@ function getCustFieldsMList()
 
 	return $cpf;
 }
+
 ?>

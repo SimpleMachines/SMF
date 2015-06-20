@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -40,15 +40,9 @@
  */
 function template_init()
 {
-	global $settings;
+	global $settings, $txt;
 
 	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
-
-	/* Use images from default theme when using templates from the default theme?
-		if this is 'always', images from the default theme will be used.
-		if this is 'defaults', images from the default theme will only be used with default templates.
-		if this is 'never' or isn't set at all, images from the default theme will not be used. */
-	$settings['use_default_images'] = 'never';
 
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	$settings['theme_version'] = '2.1';
@@ -56,14 +50,22 @@ function template_init()
 	// Use plain buttons - as opposed to text buttons?
 	$settings['use_buttons'] = true;
 
-	// Show sticky and lock status separate from topic icons?
-	$settings['separate_sticky_lock'] = true;
-
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
-	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index
+	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index.
 	$settings['avatars_on_indexes'] = false;
+
+	// This defines the formatting for the page indexes used throughout the forum.
+	$settings['page_index'] = array(
+		'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
+		'previous_page' => '<span class="generic_icons previous_page"></span>',
+		'current_page' => '<span class="current_page">%1$d</span> ',
+		'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
+		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
+		'next_page' => '<span class="generic_icons next_page"></span>',
+		'extra_after' => '',
+	);
 }
 
 /**
@@ -71,12 +73,13 @@ function template_init()
  */
 function template_html_above()
 {
-	global $context, $settings, $scripturl, $txt, $modSettings;
+	global $context, $settings, $scripturl, $txt, $modSettings, $mbname;
 
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
-<head>';
+<head>
+	<meta charset="', $context['character_set'], '">';
 
 	// You don't need to manually load index.css, this will be set up for you. You can, of course, add
 	// any other files you want, after template_css() has been run. Note that RTL will also be loaded for you.
@@ -96,11 +99,23 @@ function template_html_above()
 	template_javascript();
 
 	echo '
-	<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 	<meta name="description" content="', !empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'], '">', !empty($context['meta_keywords']) ? '
 	<meta name="keywords" content="' . $context['meta_keywords'] . '">' : '', '
 	<title>', $context['page_title_html_safe'], '</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">';
+
+	// Some Open Graph?
+	echo '
+	<meta property="og:site_name" content="', $mbname,'">
+	<meta property="og:title" content="', $context['page_title_html_safe'],'">
+	', !empty($context['canonical_url']) ? '<meta property="og:url" content="'. $context['canonical_url'].'">' : '',
+	!empty($settings['og_image']) ? '<meta property="og:image" content="'. $settings['og_image'].'">' : '','
+	<meta property="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'">';
+
+	/* What is your Lollipop's color?
+	Theme Authors you can change here to make sure your theme's main color got visible on tab */
+	echo '
+	<meta name="theme-color" content="#557EA0">';
 
 	// Please don't index these Mr Robot.
 	if (!empty($context['robot_no_index']))
@@ -167,7 +182,10 @@ function template_body_above()
 		echo '
 			<ul class="floatleft" id="top_info">
 				<li>
-					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">', $context['user']['name'], ' &#9660;</a>
+					<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
+						if (!empty($context['user']['avatar']))
+							echo $context['user']['avatar']['image'];
+						echo $context['user']['name'], ' &#9660;</a>
 					<div id="profile_menu" class="top_menu"></div>
 				</li>';
 
@@ -177,15 +195,15 @@ function template_body_above()
 			echo '
 				<li>
 					<a href="', $scripturl, '?action=pm"', !empty($context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">', $txt['pm_short'], !empty($context['user']['unread_messages']) ? ' <span class="amt">' . $context['user']['unread_messages'] . '</span>' : '', '</a>
-					<div id="pm_menu" class="top_menu"></div>
+					<div id="pm_menu" class="top_menu scrollable"></div>
 				</li>';
 		}
 
 		// Thirdly, alerts
 		echo '
 				<li>
-					<a href="', $scripturl, '?action=alerts"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
-					<div id="alerts_menu" class="top_menu"></div>
+					<a href="', $scripturl, '?action=profile;area=showalerts;u=', $context['user']['id'] ,'"', !empty($context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">', $txt['alerts'], !empty($context['user']['alerts']) ? ' <span class="amt">' . $context['user']['alerts'] . '</span>' : '', '</a>
+					<div id="alerts_menu" class="top_menu scrollable"></div>
 				</li>';
 
 		// And now we're done.
@@ -196,8 +214,26 @@ function template_body_above()
 	else
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=register'), '</li>
+				<li>', sprintf($txt[$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], $txt['guest_title'], $context['forum_name_html_safe'], $scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . JavaScriptEscape($txt['login']) . ');', $scripturl . '?action=signup'), '</li>
 			</ul>';
+
+	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
+	{
+		echo '
+			<form id="languages_form" action="" method="get" class="floatright">
+				<select id="language_select" name="language" onchange="this.form.submit()">';
+
+		foreach ($context['languages'] as $language)
+			echo '
+					<option value="', $language['filename'], '"', isset($context['user']['language']) && $context['user']['language'] == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
+
+		echo '
+				</select>
+				<noscript>
+					<input type="submit" value="', $txt['quick_mod_go'], '" />
+				</noscript>
+			</form>';
+	}
 
 	if ($context['allow_search'])
 	{
@@ -206,18 +242,16 @@ function template_body_above()
 				<input type="search" name="search" value="" class="input_text">&nbsp;';
 
 		// Using the quick search dropdown?
-		if (!empty($modSettings['search_dropdown']))
-		{
-			$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
+		$selected = !empty($context['current_topic']) ? 'current_topic' : (!empty($context['current_board']) ? 'current_board' : 'all');
 
+		echo '
+			<select name="search_selection">
+				<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
+
+		// Can't limit it to a specific topic if we are not in one
+		if (!empty($context['current_topic']))
 			echo '
-				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', $txt['search_entireforum'], ' </option>';
-
-			// Can't limit it to a specific topic if we are not in one
-			if (!empty($context['current_topic']))
-				echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
+				<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', $txt['search_thistopic'], '</option>';
 
 		// Can't limit it to a specific board if we are not in one
 		if (!empty($context['current_board']))
@@ -226,16 +260,15 @@ function template_body_above()
 			echo '
 					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>
 				</select>';
-		}
 
 		// Search within current topic?
 		if (!empty($context['current_topic']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_topic' : 'topic'), '" value="', $context['current_topic'], '">';
+				<input type="hidden" name="sd_topic" value="', $context['current_topic'], '">';
 		// If we're on a certain board, limit it to this board ;).
 		elseif (!empty($context['current_board']))
 			echo '
-				<input type="hidden" name="', (!empty($modSettings['search_dropdown']) ? 'sd_brd[' : 'brd['), $context['current_board'], ']"', ' value="', $context['current_board'], '">';
+				<input type="hidden" name="sd_brd[', $context['current_board'], ']" value="', $context['current_board'], '">';
 
 		echo '
 				<input type="submit" name="search2" value="', $txt['search'], '" class="button_submit">
@@ -251,7 +284,7 @@ function template_body_above()
 	<div id="header">
 		<div class="frame">
 			<h1 class="forumtitle">
-				<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name'] . '">', '</a>
+				<a id="top" href="', $scripturl, '">', empty($context['header_logo_url_html_safe']) ? $context['forum_name_html_safe'] : '<img src="' . $context['header_logo_url_html_safe'] . '" alt="' . $context['forum_name_html_safe'] . '">', '</a>
 			</h1>';
 
 	echo '
@@ -296,7 +329,7 @@ function template_body_above()
 
 function template_body_below()
 {
-	global $context, $txt, $scripturl;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 			</div>
@@ -311,9 +344,8 @@ function template_body_below()
 
 	// There is now a global "Go to top" link at the right.
 		echo '
-			<a href="#top_section" id="bot" class="go_up">', $txt['go_up'], '</a>
 			<ul class="floatright">
-				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> | <a href="', $scripturl, '?action=help;sa=rules">', $txt['terms_and_rules'], '</a></li>
+				<li><a href="', $scripturl, '?action=help">', $txt['help'], '</a> ', (!empty($modSettings['requireAgreement'])) ? '| <a href="'. $scripturl. '?action=help;sa=rules">'. $txt['terms_and_rules']. '</a>' : '', ' | <a href="#top_section">', $txt['go_up'], ' &#9650;</a></li>
 			</ul>
 			<ul class="reset">
 				<li class="copyright">', theme_copyright(), '</li>
@@ -332,7 +364,7 @@ function template_body_below()
 
 function template_html_below()
 {
-	// load in any javascipt that could be defered to the end of the page
+	// load in any javascipt that could be deferred to the end of the page
 	template_javascript(true);
 
 	echo '
@@ -346,7 +378,7 @@ function template_html_below()
  */
 function theme_linktree($force_show = false)
 {
-	global $context, $settings, $shown_linktree, $scripturl, $txt;
+	global $context, $shown_linktree, $scripturl, $txt;
 
 	// If linktree is empty, just return - also allow an override.
 	if (empty($context['linktree']) || (!empty($context['dont_default_linktree']) && !$force_show))
@@ -382,21 +414,11 @@ function theme_linktree($force_show = false)
 
 		// Show the link, including a URL if it should have one.
 		if (isset($tree['url']))
-		{
-			if ($tree['url'] == $scripturl)
-				echo '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
-			else
-				echo '
-						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
-							<a href="' . $tree['url'] . '" itemprop="url"><span itemprop="title">' . $tree['name'] . '</span></a>
-						</div>';
-		}
+			echo '
+					<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
 		else
 			echo '
-						<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="floatright">
-							<span>' . $tree['name'] . '</span>
-						</div>';
+					<span>' . $tree['name'] . '</span>';
 
 		// Show something after the link...?
 		if (isset($tree['extra_after']))
@@ -430,7 +452,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['title'], '
+								', $button['icon'], $button['title'], '
 							</a>';
 
 		if (!empty($button['sub_buttons']))
@@ -491,10 +513,6 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 	if (!is_array($strip_options))
 		$strip_options = array();
 
-	// List the buttons in reverse order for RTL languages.
-	if ($context['right_to_left'])
-		$button_strip = array_reverse($button_strip, true);
-
 	// Create the buttons...
 	$buttons = array();
 	foreach ($button_strip as $key => $value)
@@ -502,8 +520,38 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		// @todo this check here doesn't make much sense now (from 2.1 on), it should be moved to where the button array is generated
 		// Kept for backward compatibility
 		if (!isset($value['test']) || !empty($context[$value['test']]))
-			$buttons[] = '
-				<a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+		{
+			if (!isset($value['id']))
+				$value['id'] = $key;
+
+			$button = '
+				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' '. $value['class'] : '') . '" href="' . (!empty($value['url']) ? $value['url'] : '') . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+
+			if (!empty($value['sub_buttons']))
+			{
+				$button .= '
+					<div class="top_menu dropmenu ' . $key . '_dropdown">
+						<div class="viewport">
+							<div class="overview">';
+				foreach ($value['sub_buttons'] as $element)
+				{
+					if (isset($element['test']) && empty($context[$element['test']]))
+						continue;
+
+					$button .= '
+								<a href="' . $element['url'] . '"><strong>' . $txt[$element['text']] . '</strong>';
+					if (isset($txt[$element['text'] . '_desc']))
+						$button .= '<br /><span>' . $txt[$element['text'] . '_desc'] . '</span>';
+					$button .= '</a>';
+				}
+				$button .= '
+							</div>
+						</div>
+					</div>';
+			}
+
+			$buttons[] = $button;
+		}
 	}
 
 	// No buttons? No button strip either.

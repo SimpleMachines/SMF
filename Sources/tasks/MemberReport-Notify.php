@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 class MemberReport_Notify_Background extends SMF_BackgroundTask
@@ -114,7 +114,7 @@ class MemberReport_Notify_Background extends SMF_BackgroundTask
 				$replacements = array(
 					'MEMBERNAME' => $this->_details['user_name'],
 					'REPORTERNAME' => $this->_details['sender_name'],
-					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['member_id'],
+					'PROFILELINK' => $scripturl . '?action=profile;u=' . $this->_details['user_id'],
 					'REPORTLINK' => $scripturl . '?action=moderate;area=reportedmembers;sa=details;rid=' . $this->_details['report_id'],
 					'COMMENT' => $this->_details['comment'],
 				);

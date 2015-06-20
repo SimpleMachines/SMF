@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Profile
+// Version: 2.1 Beta 2; Profile
 
 global $scripturl, $context;
 
@@ -31,8 +31,12 @@ $txt['latest_posts'] = 'Latest posts of: ';
 $txt['additional_info'] = 'Additional Information';
 $txt['avatar_by_url'] = 'Specify your own avatar by URL. (e.g.: <em>http://www.mypage.com/mypic.png</em>)';
 $txt['my_own_pic'] = 'Specify avatar by URL';
+$txt['use_gravatar'] = 'Use my Gravatar';
+$txt['gravatar_alternateEmail'] = 'Normally, the Gravatar used will be based on your regular email address but if you wish to use the Gravatar from a different email account to your regular forum account (say, the Gravatar from your blog\'s email account), you can enter that email address here.';
+$txt['gravatar_noAlternateEmail'] = 'The Gravatar displayed will be the one based on your account\'s email address.';
 $txt['date_format'] = 'The format here will be used to show dates throughout this forum.';
 $txt['time_format'] = 'Time Format';
+$txt['timezone'] = 'Timezone';
 $txt['display_name_desc'] = 'This is the displayed name that people will see.';
 $txt['personal_time_offset'] = 'Number of hours to +/- to make displayed time equal to your local time.';
 $txt['dob'] = 'Birthdate';
@@ -67,21 +71,17 @@ $txt['secret_desc'] = 'To help retrieve your password, enter a question here wit
 $txt['secret_desc2'] = 'Choose carefully, you wouldn\'t want someone guessing your answer!';
 $txt['secret_answer'] = 'Answer';
 $txt['secret_ask'] = 'Ask me my question';
-$txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email.  You also have the option of setting a new password by answering your secret question.';
-$txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile.  Please click on the back button, and use the default method of obtaining your password.';
-$txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use.  Your password will be changed to the one you select provided you answer the question correctly.';
+$txt['cant_retrieve'] = 'You can\'t retrieve your password, but you can set a new one by following a link sent to you by email. You also have the option of setting a new password by answering your secret question.';
+$txt['incorrect_answer'] = 'Sorry, but you did not specify a valid combination of Secret Question and Answer in your profile. Please click on the back button, and use the default method of obtaining your password.';
+$txt['enter_new_password'] = 'Please enter the answer to your question, and the password you would like to use. Your password will be changed to the one you select provided you answer the question correctly.';
 $txt['password_success'] = 'Your password was changed successfully.<br>Click <a href="' . $scripturl . '?action=login">here</a> to login.';
 $txt['secret_why_blank'] = 'why is this blank?';
 
 $txt['authentication_reminder'] = 'Authentication Reminder';
 $txt['password_reminder_desc'] = 'If you\'ve forgotten your login details, don\'t worry, they can be retrieved. To start this process please enter your username or email address below.';
 $txt['authentication_options'] = 'Please select one of the two options below';
-$txt['authentication_openid_email'] = 'Email me a reminder of my OpenID identity';
-$txt['authentication_openid_secret'] = 'Answer my &quot;secret question&quot; to display my OpenID identity';
 $txt['authentication_password_email'] = 'Email me a new password';
 $txt['authentication_password_secret'] = 'Let me set a new password by answering my &quot;secret question&quot;';
-$txt['openid_secret_reminder'] = 'Please enter your answer to the question below. If you get it correct your OpenID identity will be shown.';
-$txt['reminder_openid_is'] = 'The OpenID identity associated with your account is:<br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>%1$s</strong><br><br>Please make a note of this for future reference.';
 $txt['reminder_continue'] = 'Continue';
 
 $txt['current_theme'] = 'Current Theme';
@@ -115,16 +115,21 @@ $txt['notify_regularity_weekly'] = 'Weekly';
 $txt['auto_notify'] = 'Turn notification on when you post or reply to a topic.';
 $txt['notify_send_types'] = 'For topics and boards I\'ve requested notification on, notify me of';
 $txt['notify_send_type_everything'] = 'Replies and moderation';
-$txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic';
+$txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic and am following it';
 $txt['notify_send_type_only_replies'] = 'Only replies';
 $txt['notify_send_type_nothing'] = 'Nothing at all';
 $txt['notify_send_body'] = 'When sending notification of a reply to a topic, send the post in the email (but please don\'t reply to these emails.)';
+$txt['notify_alert_timeout'] = 'Timeout for Alert desktop notifications';
 
 $txt['notify_what_how'] = 'Alert Preferences';
 $txt['receive_alert'] = 'Receive alert';
 $txt['receive_mail'] = 'Receive email';
-$txt['alert_group_msg'] = 'Posts and Topics';
-$txt['alert_opt_msg_auto_notify'] = 'Follow topics I reply to.';
+$txt['alert_group_board'] = 'Boards and Topics';
+$txt['alert_group_msg'] = 'Posts';
+$txt['alert_opt_pm_notify'] = 'If enabled, e-mail alerts for:';
+$txt['alert_opt_msg_notify_type'] = 'Notify me of:';
+$txt['alert_opt_msg_auto_notify'] = 'Follow topics I create and reply to';
+$txt['alert_opt_msg_receive_body'] = 'Receive message body in e-mails';
 $txt['alert_opt_msg_notify_pref'] = 'How frequently to tell me:';
 $txt['alert_opt_msg_notify_pref_nothing'] = 'Nothing, just make a note of it';
 $txt['alert_opt_msg_notify_pref_instant'] = 'Straight away';
@@ -133,23 +138,29 @@ $txt['alert_opt_msg_notify_pref_daily'] = 'Send me a daily email digest';
 $txt['alert_opt_msg_notify_pref_weekly'] = 'Send me a weekly email digest';
 $txt['alert_topic_notify'] = 'When a topic I follow gets a reply, I normally want to know via...';
 $txt['alert_board_notify'] = 'When a board I follow gets a topic, I normally want to know via...';
-$txt['alert_msg_mention'] = 'When my @name is mentioned in a message';
-$txt['alert_msg_quote'] = 'When a message of mine is quoted (when I\'m not already watching that topic)';
+$txt['alert_msg_mention'] = 'When my @name is mentioned in a post';
+$txt['alert_msg_quote'] = 'When a post of mine is quoted (when I\'m not already watching that topic)';
 $txt['alert_msg_like'] = 'When a message of mine is liked';
+$txt['alert_unapproved_reply'] = 'When an reply is made to my unapproved topic';
 $txt['alert_group_pm'] = 'Personal Messages';
 $txt['alert_pm_new'] = 'When I receive a new personal message';
 $txt['alert_pm_reply'] = 'When a personal message I sent gets replied to';
 $txt['alert_group_moderation'] = 'Moderation';
+$txt['alert_unapproved_post'] = 'When an unapproved topic is created';
 $txt['alert_msg_report'] = 'When a message is reported';
 $txt['alert_msg_report_reply'] = 'When a post report I\'ve replied to gets replied to';
 $txt['alert_group_members'] = 'Members';
 $txt['alert_member_register'] = 'When a new person registers';
 $txt['alert_warn_any'] = 'When other members receive a warning';
+$txt['alert_buddy_request'] = 'When other members adds me as their buddy';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
 $txt['alert_member_report'] = 'When another member\'s profile is reported';
 $txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
+$txt['alert_group_paidsubs'] = 'Paid Subscriptions';
+$txt['alert_paidsubs_expiring'] = 'When your Paid Subscriptions are about to expire';
+$txt['toggle_all'] = 'toggle all';
 
 
 $txt['notifications_topics'] = 'Current Topic Notifications';
@@ -212,9 +223,6 @@ $txt['trackActivity'] = 'Activity';
 $txt['trackIP'] = 'IP Address';
 $txt['trackLogins'] = 'Logins';
 
-$txt['authentication'] = 'Authentication';
-$txt['change_authentication'] = 'From this section you can change how you login to the forum. You may choose to either use an OpenID account for your authentication, or alternatively switch to use a username and password.';
-
 $txt['account_info'] = 'These are your account settings. This page holds all critical information that identifies you on this forum. For security reasons, you will need to enter your (current) password to make changes to this information.';
 $txt['forumProfile_info'] = 'You can change your personal information on this page. This information will be displayed throughout ' . $context['forum_name_html_safe'] . '. If you aren\'t comfortable with sharing some information, simply skip it - nothing here is required.';
 $txt['theme_info'] = 'This section allows you to customize the look and layout of the forum.';
@@ -223,7 +231,8 @@ $txt['notification_info'] = 'SMF allows you to be notified of replies to posts, 
 $txt['groupmembership'] = 'Group Membership';
 $txt['groupMembership_info'] = 'In this section of your profile you can change which groups you belong to.';
 $txt['ignoreboards'] = 'Ignore Boards';
-$txt['ignoreboards_info'] = 'This page lets you ignore particular boards.  When a board is ignored, the new post indicator will not show up on the board index.  New posts will not show up using the "unread post" search link (when searching it will not look in those boards) however, ignored boards will still appear on the board index and upon entering will show which topics have new posts.  When using the "unread replies" link, new posts in an ignored board will still be shown.';
+$txt['ignoreboards_info'] = 'This page lets you ignore particular boards. When a board is ignored, the new post indicator will not show up on the board index. New posts will not show up using the "unread post" search link (when searching it will not look in those boards) however, ignored boards will still appear on the board index and upon entering will show which topics have new posts. When using the "unread replies" link, new posts in an ignored board will still be shown.';
+$txt['alerts_show'] = 'Show Alerts';
 
 $txt['profileAction'] = 'Actions';
 $txt['deleteAccount'] = 'Delete this account';
@@ -273,7 +282,6 @@ $txt['user_email'] = 'Username/Email';
 $txt['reminder_subject'] = 'New password for ' . $context['forum_name'];
 $txt['reminder_mail'] = 'This mail was sent because the \'forgot password\' function has been applied to your account. To set a new password, click the following link';
 $txt['reminder_sent'] = 'A mail has been sent to your email address. Click the link in that mail to set a new password.';
-$txt['reminder_openid_sent'] = 'Your current OpenID identity has been sent to your email address.';
 $txt['reminder_set_password'] = 'Set Password';
 $txt['reminder_password_set'] = 'Password successfully set';
 $txt['reminder_error'] = '%1$s failed to answer their secret question correctly when attempting to change a forgotten password.';
@@ -283,7 +291,7 @@ $txt['registration_not_activated'] = 'Sorry, this account has not yet been activ
 
 $txt['primary_membergroup'] = 'Primary Membergroup';
 $txt['additional_membergroups'] = 'Additional Membergroups';
-$txt['additional_membergroups_show'] = '[ show additional groups ]';
+$txt['additional_membergroups_show'] = 'show additional groups';
 $txt['no_primary_membergroup'] = '(no primary membergroup)';
 $txt['deadmin_confirm'] = 'Are you sure you wish to irrevocably remove your admin status?';
 
@@ -307,7 +315,7 @@ $txt['show_online'] = 'Show others my online status';
 
 $txt['return_to_post'] = 'Return to topics after posting by default.';
 $txt['posts_apply_ignore_list'] = 'Hide messages posted by members on my ignore list.';
-$txt['recent_posts_at_top'] = 'Show most recent posts at the top.';
+$txt['recent_posts_at_top'] = 'Show most recent posts at the top in topic view.';
 $txt['recent_pms_at_top'] = 'Show most recent personal messages at top.';
 $txt['wysiwyg_default'] = 'Show WYSIWYG editor on post page by default.';
 
@@ -404,7 +412,7 @@ $txt['request_group_membership_desc'] = 'Before you can join this group your mem
 $txt['submit_request'] = 'Submit Request';
 
 $txt['profile_updated_own'] = 'Your profile has been updated successfully.';
-$txt['profile_updated_else'] = 'The profile for %1$s has been updated successfully.';
+$txt['profile_updated_else'] = 'The profile of %1$s has been updated successfully.';
 
 $txt['profile_error_signature_max_length'] = 'Your signature cannot be greater than %1$d characters';
 $txt['profile_error_signature_max_lines'] = 'Your signature cannot span more than %1$d lines';
@@ -476,9 +484,8 @@ $txt['subscriptions'] = 'Paid Subscriptions';
 
 $txt['pm_settings_desc'] = 'From this page you can change a variety of personal messaging options, including how messages are displayed and who may send them to you.';
 $txt['email_notify'] = 'Notify by email every time you receive a personal message:';
-$txt['email_notify_never'] = 'Never';
-$txt['email_notify_buddies'] = 'From Buddies Only';
-$txt['email_notify_always'] = 'Always';
+$txt['email_notify_buddies'] = 'Buddies Only';
+$txt['email_notify_all'] = 'All members';
 
 $txt['pm_receive_from'] = 'Receive personal messages from:';
 $txt['pm_receive_from_everyone'] = 'All members';
@@ -524,4 +531,31 @@ $txt['outcome_refused'] = 'Refused by %1$s on %2$s';
 $txt['outcome_refused_reason'] = 'Refused by %1$s on %2$s, reason given: %3$s';
 
 $txt['report_profile'] = 'Report This Member';
+$txt['notification_remove_pref'] = 'Use default preference';
+
+$txt['tfa_profile_label'] = 'Two-Factor Authentication';
+$txt['tfa_profile_desc'] = 'TFA allows you to have a secondary layer of security by assigning a dedicated device without which no one would be able to log into your account even if they have your username and password';
+$txt['tfa_profile_enable'] = 'Enable Two-Factor Authentication';
+$txt['tfa_profile_enabled'] = 'Two-Factor Authentication is enabled. <a href="%s">Disable</a>';
+$txt['tfa_profile_disabled'] = 'Two-Factor Authentication is disabled';
+$txt['tfa_title'] = 'Enable Two-Factor Authentication via compatible application';
+$txt['tfa_desc'] = 'In order to have Two-Factor Authentication, you would need a compatible app such as Google Authenticator on your device. Once you have enabled 2FA for your account, you will be required to enter a code on login via the paired device alongside your username and password in order to successfully login. After you have enabled 2FA, a backup code will be provided should you lose your paired device.';
+$txt['tfa_forced_desc'] = 'Administrator has forced 2FA to be enabled on all accounts, please enable 2FA here in order to resume';
+$txt['tfa_step1'] = '1. Enter your current password';
+$txt['tfa_step2'] = '2. Enter the secret';
+$txt['tfa_step2_desc'] = 'In order to setup the app, either scan the QR code on the right side or enter the following code manually: ';
+$txt['tfa_step3'] = '3. Enter the code generated by the app';
+$txt['tfa_enable'] = 'Enable';
+$txt['tfa_pass_invalid'] = 'Entered password is invalid, please try again';
+$txt['tfa_code_invalid'] = 'Entered code is invalid, please try again';
+$txt['tfa_backup_invalid'] = 'Entered backup code is invalid, please try again';
+$txt['tfa_backup_title'] = 'Save this Two-Factor Authentication Backup code somewhere safe!';
+$txt['tfa_backup_desc'] = 'If you lose your device, this code can be used to login again. You will not be able to see this code again, please save it somewhere secure now';
+$txt['tfa_backup_used_desc'] = 'Your backup code has been successfully entered and 2FA details have been reset, if you wish to use 2FA again you need to enable it from here';
+$txt['tfa_login_desc'] = 'Enter code generated by authenticating application from your paired device below';
+$txt['tfa_backup'] = 'Or use backup code';
+$txt['tfa_code'] = 'Code';
+$txt['tfa_backup_code'] = 'Backup code';
+$txt['tfa_backup_desc'] = 'In case you have lost your device or authentication app, you can use the backup code provided to you when 2FA was setup. In case you have lost that as well, please contact the administrator';
+$txt['tfa_wait'] = 'Please wait for about 2 minutes before attempting to log in via 2FA again';
 ?>

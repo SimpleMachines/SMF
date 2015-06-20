@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -67,7 +67,7 @@ function activateAccount($memID)
 function issueWarning($memID)
 {
 	global $txt, $scripturl, $modSettings, $user_info, $mbname;
-	global $context, $cur_profile, $memberContext, $smcFunc, $sourcedir;
+	global $context, $cur_profile, $smcFunc, $sourcedir;
 
 	// Get all the actual settings.
 	list ($modSettings['warning_enable'], $modSettings['user_limit']) = explode(',', $modSettings['warning_settings']);
@@ -139,10 +139,6 @@ function issueWarning($memID)
 			$issueErrors[] = 'warning_no_reason';
 		$_POST['warn_reason'] = $smcFunc['htmlspecialchars']($_POST['warn_reason']);
 
-		// If the value hasn't changed it's either no JS or a real no change (Which this will pass)
-		if ($_POST['warning_level'] == 'SAME')
-			$_POST['warning_level'] = $_POST['warning_level_nojs'];
-
 		$_POST['warning_level'] = (int) $_POST['warning_level'];
 		$_POST['warning_level'] = max(0, min(100, $_POST['warning_level']));
 		if ($_POST['warning_level'] < $context['min_allowed'])
@@ -164,8 +160,8 @@ function issueWarning($memID)
 				require_once($sourcedir . '/Subs-Post.php');
 				$from = array(
 					'id' => 0,
-					'name' => $context['forum_name'],
-					'username' => $context['forum_name'],
+					'name' => $context['forum_name_html_safe'],
+					'username' => $context['forum_name_html_safe'],
 				);
 				sendpm(array('to' => array($memID), 'bcc' => array()), $_POST['warn_sub'], $_POST['warn_body'], false, $from);
 
@@ -252,7 +248,6 @@ function issueWarning($memID)
 			'notify_body' => isset($_POST['warn_body']) ? $_POST['warn_body'] : '',
 			'body_preview' => $warning_body,
 		);
-// 		print_r($context['warning_data']);die();
 	}
 
 	if (!empty($issueErrors))
@@ -284,7 +279,7 @@ function issueWarning($memID)
 	$listOptions = array(
 		'id' => 'view_warnings',
 		'title' => $txt['profile_viewwarning_previous_warnings'],
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'no_items_label' => $txt['profile_viewwarning_no_warnings'],
 		'base_href' => $scripturl . '?action=profile;area=issuewarning;sa=user;u=' . $memID,
 		'default_sort_col' => 'log_time',
@@ -520,7 +515,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $modSettings, $cur_profile, $smcFunc;
+	global $txt, $context, $modSettings, $cur_profile;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -604,7 +599,7 @@ function deleteAccount2($memID)
 			);
 
 			$polls_to_update = array();
-			
+
 			while ($row = $smcFunc['db_fetch_assoc']($get_voted_polls))
 			{
 				$polls_to_update[] = $row['id_poll'];

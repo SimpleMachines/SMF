@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -27,7 +27,7 @@ function ModifyProfile($post_errors = array())
 {
 	global $txt, $scripturl, $user_info, $context, $sourcedir, $user_profile, $cur_profile;
 	global $modSettings, $memberContext, $profile_vars, $post_errors, $user_settings;
-	global $db_show_debug;
+	global $db_show_debug, $smcFunc;
 
 	// Don't reload this as we may have processed error strings.
 	if (empty($post_errors))
@@ -52,7 +52,7 @@ function ModifyProfile($post_errors = array())
 
 	// Check if loadMemberData() has returned a valid result.
 	if (!is_array($memberResult))
-		fatal_lang_error('not_a_user', false);
+		fatal_lang_error('not_a_user', false, 404);
 
 	// If all went well, we have a valid member ID!
 	list ($memID) = $memberResult;
@@ -70,6 +70,26 @@ function ModifyProfile($post_errors = array())
 	// And we care about what the current user can do, not what the user whose profile it is.
 	if ($user_info['mod_cache']['gq'] != '0=1')
 		$user_info['permissions'][] = 'approve_group_requests';
+
+	// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
+	$context['subs_available'] = false;
+
+	if (!empty($modSettings['paid_enabled']))
+	{
+		$get_active_subs = $smcFunc['db_query']('', '
+			SELECT COUNT(*)
+			FROM {db_prefix}subscriptions
+			WHERE active = {int:active}', array(
+				'active' => 1,
+			)
+		);
+
+		list ($num_subs) = $smcFunc['db_fetch_row']($get_active_subs);
+
+		$context['subs_available'] = ($num_subs > 0);
+
+		$smcFunc['db_free_result']($get_active_subs);
+	}
 
 	/* Define all the sections within the profile area!
 		We start by defining the permission required - then SMF takes this and turns it into the relevant context ;)
@@ -99,7 +119,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['summary'],
 					'file' => 'Profile-View.php',
 					'function' => 'summary',
-					'icon' => 'administration.png',
+					'icon' => 'administration',
 					'permission' => array(
 						'own' => 'is_not_guest',
 						'any' => 'profile_view',
@@ -125,7 +145,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['statPanel'],
 					'file' => 'Profile-View.php',
 					'function' => 'statPanel',
-					'icon' => 'stats.png',
+					'icon' => 'stats',
 					'permission' => array(
 						'own' => 'is_not_guest',
 						'any' => 'profile_view',
@@ -135,11 +155,11 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['showPosts'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPosts',
-					'icon' => 'posts.png',
+					'icon' => 'posts',
 					'subsections' => array(
 						'messages' => array($txt['showMessages'], array('is_not_guest', 'profile_view')),
 						'topics' => array($txt['showTopics'], array('is_not_guest', 'profile_view')),
-						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $modSettings['enable_unwatch'] && $context['user']['is_owner']),
+						'unwatchedtopics' => array($txt['showUnwatched'], array('is_not_guest', 'profile_view'), 'enabled' => $context['user']['is_owner']),
 						'attach' => array($txt['showAttachments'], array('is_not_guest', 'profile_view')),
 					),
 					'permission' => array(
@@ -151,8 +171,18 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['drafts_show'],
 					'file' => 'Drafts.php',
 					'function' => 'showProfileDrafts',
-					'icon' => 'drafts.png',
+					'icon' => 'drafts',
 					'enabled' => !empty($modSettings['drafts_post_enabled']) && $context['user']['is_owner'],
+					'permission' => array(
+						'own' => 'is_not_guest',
+						'any' => array(),
+					),
+				),
+				'showalerts' => array(
+					'label' => $txt['alerts_show'],
+					'file' => 'Profile-View.php',
+					'function' => 'showAlerts',
+					'icon' => 'alerts',
 					'permission' => array(
 						'own' => 'is_not_guest',
 						'any' => array(),
@@ -162,7 +192,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['showPermissions'],
 					'file' => 'Profile-View.php',
 					'function' => 'showPermissions',
-					'icon' => 'permissions.png',
+					'icon' => 'permissions',
 					'permission' => array(
 						'own' => 'manage_permissions',
 						'any' => 'manage_permissions',
@@ -172,13 +202,13 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['trackUser'],
 					'file' => 'Profile-View.php',
 					'function' => 'tracking',
-					'icon' => 'logs.png',
+					'icon' => 'logs',
 					'subsections' => array(
 						'activity' => array($txt['trackActivity'], 'moderate_forum'),
 						'ip' => array($txt['trackIP'], 'moderate_forum'),
 						'edits' => array($txt['trackEdits'], 'moderate_forum', 'enabled' => !empty($modSettings['userlog_enabled'])),
 						'groupreq' => array($txt['trackGroupRequests'], 'approve_group_requests', 'enabled' => !empty($modSettings['show_group_membership'])),
-						'logins' => array($txt['trackLogins'], 'moderate_forum'),
+						'logins' => array($txt['trackLogins'], 'moderate_forum', 'enabled' => !empty($modSettings['loginHistoryDays'])),
 					),
 					'permission' => array(
 						'own' => array('moderate_forum', 'approve_group_requests'),
@@ -190,7 +220,7 @@ function ModifyProfile($post_errors = array())
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $cur_profile['warning'],
 					'file' => 'Profile-View.php',
 					'function' => 'viewWarning',
-					'icon' => 'warning.png',
+					'icon' => 'warning',
 					'permission' => array(
 						'own' => array('profile_warning_own', 'profile_warning_any', 'issue_warning', 'moderate_forum'),
 						'any' => array('profile_warning_any', 'issue_warning', 'moderate_forum'),
@@ -205,7 +235,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['account'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'account',
-					'icon' => 'maintain.png',
+					'icon' => 'maintain',
 					'enabled' => $context['user']['is_admin'] || ($cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups']))),
 					'sc' => 'post',
 					'token' => 'profile-ac%u',
@@ -215,11 +245,21 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_identity_any', 'profile_password_any', 'manage_membergroups'),
 					),
 				),
+				'tfasetup' => array(
+					'file' => 'Profile-Modify.php',
+					'function' => 'tfasetup',
+					'token' => 'profile-tfa%u',
+					'enabled' => !empty($modSettings['tfa_mode']),
+					'permission' => array(
+						'own' => array('profile_password_own'),
+						'any' => array('profile_password_any'),
+					),
+				),
 				'forumprofile' => array(
 					'label' => $txt['forumprofile'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'forumProfile',
-					'icon' => 'members.png',
+					'icon' => 'members',
 					'sc' => 'post',
 					'token' => 'profile-fp%u',
 					'permission' => array(
@@ -231,7 +271,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['theme'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'theme',
-					'icon' => 'features.png',
+					'icon' => 'features',
 					'sc' => 'post',
 					'token' => 'profile-th%u',
 					'permission' => array(
@@ -239,26 +279,11 @@ function ModifyProfile($post_errors = array())
 						'any' => array('profile_extra_any'),
 					),
 				),
-				'authentication' => array(
-					'label' => $txt['authentication'],
-					'file' => 'Profile-Modify.php',
-					'function' => 'authentication',
-					'icon' => 'openid.png',
-					'enabled' => !empty($modSettings['enableOpenID']) && ($modSettings['enableOpenID'] == 1 || !empty($cur_profile['openid_uri'])),
-					'sc' => 'post',
-					'token' => 'profile-au%u',
-					'hidden' => empty($modSettings['enableOpenID']) && empty($cur_profile['openid_uri']),
-					'password' => true,
-					'permission' => array(
-						'own' => array('profile_password_any', 'profile_password_own'),
-						'any' => array('profile_password_any'),
-					),
-				),
 				'notification' => array(
 					'label' => $txt['notification'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'notification',
-					'icon' => 'mail.png',
+					'icon' => 'mail',
 					'sc' => 'post',
 					//'token' => 'profile-nt%u', This is not checked here. We do it in the function itself - but if it was checked, this is what it'd be.
 					'subsections' => array(
@@ -275,7 +300,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['ignoreboards'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'ignoreboards',
-					'icon' => 'boards.png',
+					'icon' => 'boards',
 					'enabled' => !empty($modSettings['allow_ignore_boards']),
 					'sc' => 'post',
 					'token' => 'profile-ib%u',
@@ -288,7 +313,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['editBuddyIgnoreLists'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'editBuddyIgnoreLists',
-					'icon' => 'frenemy.png',
+					'icon' => 'frenemy',
 					'enabled' => !empty($modSettings['enable_buddylist']) && $context['user']['is_owner'],
 					'sc' => 'post',
 					'subsections' => array(
@@ -304,7 +329,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['groupmembership'],
 					'file' => 'Profile-Modify.php',
 					'function' => 'groupMembership',
-					'icon' => 'membergroups.png',
+					'icon' => 'people',
 					'enabled' => !empty($modSettings['show_group_membership']) && $context['user']['is_owner'],
 					'sc' => 'request',
 					'token' => 'profile-gm%u',
@@ -322,7 +347,7 @@ function ModifyProfile($post_errors = array())
 				'sendpm' => array(
 					'label' => $txt['profileSendIm'],
 					'custom_url' => $scripturl . '?action=pm;sa=send',
-					'icon' => 'personal_message.png',
+					'icon' => 'personal_message',
 					'permission' => array(
 						'own' => array(),
 						'any' => array('pm_send'),
@@ -331,10 +356,10 @@ function ModifyProfile($post_errors = array())
 				'report' => array(
 					'label' => $txt['report_profile'],
 					'custom_url' => $scripturl . '?action=reporttm;' . $context['session_var'] . '=' . $context['session_id'],
-					'icon' => 'warning.png',
+					'icon' => 'warning',
 					'permission' => array(
 						'own' => array(),
-						'any' => array('moderate_forum', 'report_user'),
+						'any' => array('report_user'),
 					),
 				),
 				'issuewarning' => array(
@@ -342,7 +367,7 @@ function ModifyProfile($post_errors = array())
 					'enabled' => $modSettings['warning_settings'][0] == 1,
 					'file' => 'Profile-Actions.php',
 					'function' => 'issueWarning',
-					'icon' => 'warning.png',
+					'icon' => 'warning',
 					'token' => 'profile-iw%u',
 					'permission' => array(
 						'own' => array(),
@@ -352,7 +377,7 @@ function ModifyProfile($post_errors = array())
 				'banuser' => array(
 					'label' => $txt['profileBanUser'],
 					'custom_url' => $scripturl . '?action=admin;area=ban;sa=add',
-					'icon' => 'ban.png',
+					'icon' => 'ban',
 					'enabled' => $cur_profile['id_group'] != 1 && !in_array(1, explode(',', $cur_profile['additional_groups'])),
 					'permission' => array(
 						'own' => array(),
@@ -363,8 +388,8 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['subscriptions'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'subscriptions',
-					'icon' => 'paid.png',
-					'enabled' => !empty($modSettings['paid_enabled']),
+					'icon' => 'paid',
+					'enabled' => !empty($modSettings['paid_enabled']) && $context['subs_available'],
 					'permission' => array(
 						'own' => array('is_not_guest'),
 						'any' => array('moderate_forum'),
@@ -374,7 +399,7 @@ function ModifyProfile($post_errors = array())
 					'label' => $txt['deleteAccount'],
 					'file' => 'Profile-Actions.php',
 					'function' => 'deleteAccount',
-					'icon' => 'members_delete.png',
+					'icon' => 'members_delete',
 					'sc' => 'post',
 					'token' => 'profile-da%u',
 					'password' => true,
@@ -386,7 +411,7 @@ function ModifyProfile($post_errors = array())
 				'activateaccount' => array(
 					'file' => 'Profile-Actions.php',
 					'function' => 'activateAccount',
-					'icon' => 'regcenter.png',
+					'icon' => 'regcenter',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
 					'token_type' => 'get',
@@ -418,7 +443,7 @@ function ModifyProfile($post_errors = array())
 			else
 				$profile_areas[$section_id]['areas'][$area_id]['permission'] = $area['permission'][$context['user']['is_owner'] ? 'own' : 'any'];
 
-			// Password required - only if not on OpenID.
+			// Password required in most cases
 			if (!empty($area['password']))
 				$context['password_areas'][] = $area_id;
 		}
@@ -529,14 +554,6 @@ function ModifyProfile($post_errors = array())
 	if (isset($profile_include_data['file']))
 		require_once($sourcedir . '/' . $profile_include_data['file']);
 
-	// Make sure that the area function/method does exist!
-	$exists = (isset($profile_include_data['class']) ? 'class' : 'function') .'_exists';
-	if (!isset($profile_include_data['function']) || !$exists(isset($profile_include_data['class']) ? $profile_include_data['class'] : $profile_include_data['function']))
-	{
-		destroyMenu();
-		fatal_lang_error('no_access', false);
-	}
-
 	// Build the link tree.
 	$context['linktree'][] = array(
 		'url' => $scripturl . '?action=profile' . ($memID != $user_info['id'] ? ';u=' . $memID : ''),
@@ -561,7 +578,7 @@ function ModifyProfile($post_errors = array())
 
 	// All the subactions that require a user password in order to validate.
 	$check_password = $context['user']['is_owner'] && in_array($profile_include_data['current_area'], $context['password_areas']);
-	$context['require_password'] = $check_password && empty($user_settings['openid_uri']);
+	$context['require_password'] = $check_password;
 
 	// If we're in wireless then we have a cut down template...
 	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
@@ -583,32 +600,27 @@ function ModifyProfile($post_errors = array())
 
 		if ($check_password)
 		{
-			// If we're using OpenID try to revalidate.
-			if (!empty($user_settings['openid_uri']))
-			{
-				require_once($sourcedir . '/Subs-OpenID.php');
-				smf_openID_revalidate();
-			}
-			else
-			{
-				// You didn't even enter a password!
-				if (trim($_POST['oldpasswrd']) == '')
-					$post_errors[] = 'no_password';
+			// Check to ensure we're forcing SSL for authentication
+			if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
+				fatal_lang_error('login_ssl_required');
 
-				// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
-				$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
+			// You didn't even enter a password!
+			if (trim($_POST['oldpasswrd']) == '')
+				$post_errors[] = 'no_password';
 
-				// Does the integration want to check passwords?
-				$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
+			// Since the password got modified due to all the $_POST cleaning, lets undo it so we can get the correct password
+			$_POST['oldpasswrd'] = un_htmlspecialchars($_POST['oldpasswrd']);
 
-				// Bad password!!!
-				if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
-					$post_errors[] = 'bad_password';
+			// Does the integration want to check passwords?
+			$good_password = in_array(true, call_integration_hook('integrate_verify_password', array($cur_profile['member_name'], $_POST['oldpasswrd'], false)), true);
 
-				// Warn other elements not to jump the gun and do custom changes!
-				if (in_array('bad_password', $post_errors))
-					$context['password_auth_failed'] = true;
-			}
+			// Bad password!!!
+			if (!$good_password && !hash_verify_password($user_profile[$memID]['member_name'], un_htmlspecialchars(stripslashes($_POST['oldpasswrd'])), $user_info['passwd']))
+				$post_errors[] = 'bad_password';
+
+			// Warn other elements not to jump the gun and do custom changes!
+			if (in_array('bad_password', $post_errors))
+				$context['password_auth_failed'] = true;
 		}
 
 		// Change the IP address in the database.
@@ -651,7 +663,7 @@ function ModifyProfile($post_errors = array())
 			saveProfileChanges($profile_vars, $post_errors, $memID);
 		}
 
-		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID));
+		call_integration_hook('integrate_profile_save', array(&$profile_vars, &$post_errors, $memID, $cur_profile, $current_area));
 
 		// There was a problem, let them try to re-enter.
 		if (!empty($post_errors))
@@ -724,33 +736,12 @@ function ModifyProfile($post_errors = array())
 	elseif (!empty($force_redirect))
 		redirectexit('action=profile' . ($context['user']['is_owner'] ? '' : ';u=' . $memID) . ';area=' . $current_area);
 
-	// Is this a "real" method?
-	if (isset($profile_include_data['class']) && !empty($profile_include_data['class']) && is_string($profile_include_data['class']))
-	{
-		// Is there an instance already? nope? then create it!
-		if (empty($context['instances'][$profile_include_data['class']]) || !($context['instances'][$profile_include_data['class']] instanceof $profile_include_data['class']))
-		{
-			$context['instances'][$profile_include_data['class']] = new $profile_include_data['class'];
 
-			// Add another one to the list.
-			if ($db_show_debug === true)
-			{
-				if (!isset($context['debug']['instances']))
-					$context['debug']['instances'] = array();
-
-				$context['debug']['instances'][$profile_include_data['class']] = $profile_include_data['class'];
-			}
-		}
-
-		$call = array($context['instances'][$profile_include_data['class']], $profile_include_data['function']);
-	}
-
-	// A static one or more likely, a plain good old function.
-	else
-		$call = $profile_include_data['function'];
+	// Get the right callable.
+	$call = call_helper($profile_include_data['function'], true);
 
 	// Is it valid?
-	if (is_callable($call))
+	if (!empty($call))
 		call_user_func($call, $memID);
 
 	// Set the page title if it's not already set...
@@ -844,7 +835,10 @@ function profile_popup($memID)
  */
 function alerts_popup($memID)
 {
-	global $context, $scripturl, $txt, $sourcedir, $db_show_debug;
+	global $context, $sourcedir, $db_show_debug, $cur_profile;
+
+	// Load the Alerts language file.
+	loadLanguage('Alerts');
 
 	// We do not want to output debug information here.
 	$db_show_debug = false;
@@ -852,9 +846,13 @@ function alerts_popup($memID)
 	// We only want to output our little layer here.
 	$context['template_layers'] = array();
 
-	// Now fetch me my unread alerts, pronto!
-	require_once($sourcedir . '/Profile-View.php');
-	$context['unread_alerts'] = fetch_alerts($memID, false);
+	$context['unread_alerts'] = array();
+	if (empty($_REQUEST['counter']) || (int) $_REQUEST['counter'] < $cur_profile['alerts'])
+	{
+		// Now fetch me my unread alerts, pronto!
+		require_once($sourcedir . '/Profile-View.php');
+		$context['unread_alerts'] = fetch_alerts($memID, false, $cur_profile['alerts'] - (!empty($_REQUEST['counter']) ? (int) $_REQUEST['counter'] : 0));
+	}
 }
 
 /**
@@ -911,6 +909,10 @@ function loadCustomFields($memID, $area = 'summary')
 					$value = ($options = explode(',', $row['field_options'])) && isset($options[$value]) ? $options[$value] : '';
 		}
 
+		// Don't show the "disabled" option for the "gender" field if we are on the "summary" area.
+		if ($area == 'summary' && $row['col_name'] == 'cust_gender' && $value == 'Disabled')
+			continue;
+
 		// HTML for the input form.
 		$output_html = $value;
 		if ($row['field_type'] == 'check')
@@ -948,12 +950,12 @@ function loadCustomFields($memID, $area = 'summary')
 		}
 		elseif ($row['field_type'] == 'text')
 		{
-			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . $value . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
+			$input_html = '<input type="text" name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . ($row['field_length'] != 0 ? ' maxlength="' . $row['field_length'] . '"' : '') . ' size="' . ($row['field_length'] == 0 || $row['field_length'] >= 50 ? 50 : ($row['field_length'] > 30 ? 30 : ($row['field_length'] > 10 ? 20 : 10))) . '" value="' . un_htmlspecialchars($value) . '" class="input_text"' . ($row['show_reg'] == 2 ? ' required' : '') . '>';
 		}
 		else
 		{
 			@list ($rows, $cols) = @explode(',', $row['default_value']);
-			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '' ). '>' . $value . '</textarea>';
+			$input_html = '<textarea name="customfield[' . $row['col_name'] . ']" id="customfield[' . $row['col_name'] . ']"' . (!empty($rows) ? ' rows="' . $rows . '"' : '') . (!empty($cols) ? ' cols="' . $cols . '"' : '') . ($row['show_reg'] == 2 ? ' required' : '' ). '>' . un_htmlspecialchars($value) . '</textarea>';
 		}
 
 		// Parse BBCode
@@ -969,7 +971,7 @@ function loadCustomFields($memID, $area = 'summary')
 				'{SCRIPTURL}' => $scripturl,
 				'{IMAGES_URL}' => $settings['images_url'],
 				'{DEFAULT_IMAGES_URL}' => $settings['default_images_url'],
-				'{INPUT}' => $output_html,
+				'{INPUT}' => un_htmlspecialchars($output_html),
 			));
 
 		$context['custom_fields'][] = array(

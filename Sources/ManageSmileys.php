@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
  */
 function ManageSmileys()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $txt, $modSettings;
 
 	isAllowedTo('manage_smileys');
 
@@ -41,8 +41,6 @@ function ManageSmileys()
 		'settings' => 'EditSmileySettings',
 		'install' => 'InstallSmileySet'
 	);
-
-	call_integration_hook('integrate_manage_smileys', array(&$subActions));
 
 	// If customized smileys is disabled don't show the setting page
 	if (empty($modSettings['smiley_enable']))
@@ -102,8 +100,10 @@ function ManageSmileys()
 		$context[$context['admin_menu_name']]['tab_data']['tabs']['setorder']['disabled'] = true;
 	}
 
+	call_integration_hook('integrate_manage_smileys', array(&$subActions));
+
 	// Call the right function for this sub-action.
-	$subActions[$_REQUEST['sa']]();
+	call_helper($subActions[$_REQUEST['sa']]);
 }
 
 /**
@@ -187,7 +187,7 @@ function EditSmileySettings($return_config = false)
  */
 function EditSmileySets()
 {
-	global $modSettings, $context, $txt, $boarddir;
+	global $modSettings, $context, $txt;
 	global $smcFunc, $scripturl, $sourcedir;
 
 	// Set the right tab to be selected.
@@ -206,9 +206,14 @@ function EditSmileySets()
 			$set_names = explode("\n", $modSettings['smiley_sets_names']);
 			foreach ($_POST['smiley_set'] as $id => $val)
 			{
-				if (isset($set_paths[$id], $set_names[$id]) && !empty($id))
+				// If this is the set you've marked as default, or the only one remaining, you can't delete it
+				if ($modSettings['smiley_sets_default'] != $set_paths[$id] && count($set_paths) != 1 && isset($set_paths[$id], $set_names[$id]))
 					unset($set_paths[$id], $set_names[$id]);
 			}
+
+			// Shortcut... array_merge() on a single array resets the numeric keys
+			$set_paths = array_merge($set_paths);
+			$set_names = array_merge($set_names);
 
 			updateSettings(array(
 				'smiley_sets_known' => implode(',', $set_paths),
@@ -390,7 +395,7 @@ function EditSmileySets()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return $rowData['selected'] ? '<span class="field_icons valid"></span>' : '';
+						return $rowData['selected'] ? '<span class="generic_icons valid"></span>' : '';
 					},
 					'class' => 'centercol',
 				),
@@ -450,7 +455,7 @@ function EditSmileySets()
 				'data' => array(
 					'function' => function ($rowData)
 					{
-						return $rowData['id'] == 0 ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
+						return $rowData['selected'] ? '' : sprintf('<input type="checkbox" name="smiley_set[%1$d]" class="input_check">', $rowData['id']);
 					},
 					'class' => 'centercol',
 				),
@@ -463,7 +468,7 @@ function EditSmileySets()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" onclick="return confirm(\'' . $txt['smiley_sets_confirm'] . '\');" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button_submit you_sure"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
 			),
 		),
 	);
@@ -1076,7 +1081,7 @@ function EditSmileys()
 					'value' => '
 						<select name="smiley_action" onchange="makeChanges(this.value);">
 							<option value="-1">' . $txt['smileys_with_selected'] . ':</option>
-							<option value="-1">--------------</option>
+							<option value="-1" disabled>--------------</option>
 							<option value="hidden">' . $txt['smileys_make_hidden'] . '</option>
 							<option value="post">' . $txt['smileys_show_on_post'] . '</option>
 							<option value="popup">' . $txt['smileys_show_on_popup'] . '</option>
@@ -1241,7 +1246,7 @@ function list_getNumSmileys()
  */
 function EditSmileyOrder()
 {
-	global $context, $txt, $boarddir, $smcFunc;
+	global $context, $txt, $smcFunc;
 
 	// Move smileys to another position.
 	if (isset($_REQUEST['reorder']))
@@ -1701,7 +1706,7 @@ function ImportSmileys($smileyPath)
 function EditMessageIcons()
 {
 	global $context, $settings, $txt;
-	global $boarddir, $smcFunc, $scripturl, $sourcedir;
+	global $smcFunc, $scripturl, $sourcedir;
 
 	// Get a list of icons.
 	$context['icons'] = array();

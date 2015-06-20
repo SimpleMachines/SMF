@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -72,7 +72,7 @@ function ManageAttachments()
 	);
 
 	// Finally fall through to what we are doing.
-	$subActions[$context['sub_action']]();
+	call_helper($subActions[$context['sub_action']]);
 }
 
 /**
@@ -124,7 +124,7 @@ function ManageAttachmentSettings($return_config = false)
 	// Perform a test to see if the GD module or ImageMagick are installed.
 	$testImg = get_extension_funcs('gd') || class_exists('Imagick') || get_extension_funcs('MagickWand');
 
-	// See if we can find if the server is set up to support the attacment limits
+	// See if we can find if the server is set up to support the attachment limits
 	$post_max_size = ini_get('post_max_size');
 	$upload_max_filesize = ini_get('upload_max_filesize');
 	$testPM = !empty($post_max_size) ? (memoryReturnBytes($post_max_size) >= (isset($modSettings['attachmentPostLimit']) ? $modSettings['attachmentPostLimit'] * 1024 : 0)) : true;
@@ -315,6 +315,30 @@ function ManageAvatarSettings($return_config = false)
 			array('warning', !$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''),
 			array('text', 'custom_avatar_dir', 40, 'subtext' => $txt['custom_avatar_dir_desc'], 'invalid' => !$context['valid_custom_avatar_dir']),
 			array('text', 'custom_avatar_url', 40),
+		// Grvatars?
+		array('title', 'gravatar_settings'),
+			array('check', 'gravatarEnabled'),
+			array('check', 'gravatarOverride'),
+			array('check', 'gravatarAllowExtraEmail'),
+		'',
+			array('select', 'gravatarMaxRating',
+				array(
+					'G' => $txt['gravatar_maxG'],
+					'PG' => $txt['gravatar_maxPG'],
+					'R' => $txt['gravatar_maxR'],
+					'X' => $txt['gravatar_maxX'],
+				),
+			),
+			array('select', 'gravatarDefault',
+				array(
+					'mm' => $txt['gravatar_mm'],
+					'identicon' => $txt['gravatar_identicon'],
+					'monsterid' => $txt['gravatar_monsterid'],
+					'wavatar' => $txt['gravatar_wavatar'],
+					'retro' => $txt['gravatar_retro'],
+					'blank' => $txt['gravatar_blank'],
+				),
+			),
 	);
 
 	call_integration_hook('integrate_modify_avatar_settings', array(&$config_vars));
@@ -402,7 +426,7 @@ function BrowseFiles()
 	$listOptions = array(
 		'id' => 'file_list',
 		'title' => $list_title,
-		'items_per_page' => $modSettings['defaultMaxMessages'],
+		'items_per_page' => $modSettings['defaultMaxListItems'],
 		'base_href' => $scripturl . '?action=admin;area=manageattachments;sa=browse' . ($context['browse_type'] === 'avatars' ? ';avatars' : ($context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 		'default_sort_col' => 'name',
 		'no_items_label' => $txt['attachment_manager_' . ($context['browse_type'] === 'avatars' ? 'avatars' : ( $context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
@@ -508,7 +532,7 @@ function BrowseFiles()
 
 						// Add a link to the topic in case of an attachment.
 						if ($context['browse_type'] !== 'avatars')
-							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.0.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+							$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
 
 						return $date;
 					},
@@ -558,7 +582,7 @@ function BrowseFiles()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="remove_submit" class="button_submit" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['confirm_delete_attachments'] . '\');">',
+				'value' => '<input type="submit" name="remove_submit" class="button_submit you_sure" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['confirm_delete_attachments'] . '">',
 			),
 		),
 	);
@@ -1116,7 +1140,7 @@ function RepairAttachments()
 
 			$_SESSION['attachments_to_fix'] = array();
 			// @todo No need to do this I think.
-			foreach ($_POST['to_fix'] as $key => $value)
+			foreach ($_POST['to_fix'] as $value)
 				$_SESSION['attachments_to_fix'][] = $value;
 		}
 	}
@@ -1567,7 +1591,7 @@ function RepairAttachments()
 			{
 				while ($file = readdir($dir))
 				{
-					if ($file == '.' || $file == '..')
+					if (in_array($file, array('.', '..', '.htaccess', 'index.php')))
 						continue;
 
 					if ($files_checked <= $current_check)
@@ -1609,7 +1633,7 @@ function RepairAttachments()
 								$smcFunc['db_free_result']($request);
 							}
 						}
-						elseif ($file != 'index.php')
+						else
 						{
 							if ($fix_errors && in_array('files_without_attachment', $to_fix))
 							{
@@ -1758,7 +1782,7 @@ function ApproveAttach()
 		{
 			$attachments[] = $row['id_attach'];
 
-			// Also come up witht he redirection URL.
+			// Also come up with the redirection URL.
 			$redirect = 'topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'];
 		}
 	}
@@ -2643,7 +2667,7 @@ function TransferAttachments()
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
-			// If limts are set, get the file count and size for the destination folder
+			// If limits are set, get the file count and size for the destination folder
 			if ($dir_files <= 0 && (!empty($modSettings['attachmentDirSizeLimit']) || !empty($modSettings['attachmentDirFileLimit'])))
 			{
 				$request = $smcFunc['db_query']('', '
@@ -2706,9 +2730,9 @@ function TransferAttachments()
 							// Since we're in auto mode. Create a new folder and reset the counters.
 							automanage_attachments_by_space();
 
-							$results[] = sprintf($txt['attachments_transfered'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+							$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
 							if (!empty($total_not_moved))
-								$results[] = sprintf($txt['attachments_not_transfered'], $total_not_moved);
+								$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 
 							$dir_files = 0;
 							$total_moved = 0;
@@ -2772,9 +2796,9 @@ function TransferAttachments()
 			}
 		}
 
-		$results[] = sprintf($txt['attachments_transfered'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
+		$results[] = sprintf($txt['attachments_transferred'], $total_moved, $modSettings['attachmentUploadDir'][$new_dir]);
 		if (!empty($total_not_moved))
-			$results[] = sprintf($txt['attachments_not_transfered'], $total_not_moved);
+			$results[] = sprintf($txt['attachments_not_transferred'], $total_not_moved);
 	}
 
 	$_SESSION['results'] = $results;

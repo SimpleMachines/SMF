@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 function template_main()
@@ -51,11 +51,11 @@ function template_reminder_pick()
 				<p><strong>', $txt['authentication_options'], ':</strong></p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked class="input_radio"></dt>
-					<label for="reminder_type_email">', $txt['authentication_' . $context['account_type'] . '_email'], '</label></dd>
+					<label for="reminder_type_email">', $txt['authentication_password_email'], '</label></dd>
 				</p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret" class="input_radio">
-					<label for="reminder_type_secret">', $txt['authentication_' . $context['account_type'] . '_secret'], '</label>
+					<label for="reminder_type_secret">', $txt['authentication_password_secret'], '</label>
 				</p>
 				<div class="flow_auto">
 					<input type="submit" value="', $txt['reminder_continue'], '" class="button_submit">
@@ -84,7 +84,7 @@ function template_sent()
 
 function template_set_password()
 {
-	global $context, $settings, $txt, $scripturl, $modSettings;
+	global $context, $txt, $scripturl, $modSettings;
 
 	echo '
 	<br>
@@ -99,14 +99,14 @@ function template_set_password()
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password">
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="field_icons invalid"></span>
+							<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22" class="input_password">
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="field_icons invalid"></span>
+							<span id="smf_autov_pwverify_img" class="generic_icons invalid"></span>
 						</span>
 					</dd>
 				</dl>
@@ -142,31 +142,26 @@ function template_ask()
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext">', $context['account_type'] == 'password' ? $txt['enter_new_password'] : $txt['openid_secret_reminder'], '</p>
+				<p class="smalltext">', $txt['enter_new_password'], '</p>
 				<dl>
 					<dt>', $txt['secret_question'], ':</dt>
 					<dd>', $context['secret_question'], '</dd>
 					<dt>', $txt['secret_answer'], ':</dt>
-					<dd><input type="text" name="secret_answer" size="22" class="input_text"></dd>';
-
-	if ($context['account_type'] == 'password')
-		echo '
+					<dd><input type="text" name="secret_answer" size="22" class="input_text"></dd>
 					<dt>', $txt['choose_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password">
 						<span id="smf_autov_pwmain_div" style="display: none;">
-							<span id="smf_autov_pwmain_img" class="field_icons invalid"></span>
+							<span id="smf_autov_pwmain_img" class="generic_icons invalid"></span>
 						</span>
 					</dd>
 					<dt>', $txt['verify_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22" class="input_password">
 						<span id="smf_autov_pwverify_div" style="display: none;">
-							<span id="smf_autov_pwverify_img" class="field_icons valid"></span>
+							<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 						</span>
-					</dd>';
-
-	echo '
+					</dd>
 				</dl>
 				<div class="auto_flow">
 					<input type="submit" value="', $txt['save'], '" class="button_submit">
@@ -176,10 +171,7 @@ function template_ask()
 				</div>
 			</div>
 		</div>
-	</form>';
-
-	if ($context['account_type'] == 'password')
-		echo '
+	</form>
 <script><!-- // --><![CDATA[
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2014 Simple Machines and individual contributors
+ * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Alpha 1
+ * @version 2.1 Beta 2
  */
 
 class Likes_Notify_Background extends SMF_BackgroundTask
@@ -78,6 +78,28 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		if (empty($prefs[$author][$this->_details['content_type'] . '_like']))
 			return true;
 
+		// Don't spam the alerts: if there is an existing unread alert of the
+		// requested type for the target user from the sender, don't make a new one.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_alert
+			FROM {db_prefix}user_alerts
+			WHERE id_member = {int:id_member}
+				AND is_read = 0
+				AND content_type = {string:content_type}
+				AND content_id = {int:content_id}
+				AND content_action = {string:content_action}',
+			array(
+				'id_member' => $author,
+				'content_type' => $this->_details['content_type'],
+				'content_id' => $this->_details['content_id'],
+				'content_action' => 'like',
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) > 0)
+			return true;
+		$smcFunc['db_free_result']($request);
+
 		// Issue, update, move on.
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}user_alerts',
@@ -93,4 +115,5 @@ class Likes_Notify_Background extends SMF_BackgroundTask
 		return true;
 	}
 }
+
 ?>

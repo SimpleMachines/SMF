@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Alpha 1; Wireless
+// Version: 2.1 Beta 2; Wireless
 
 $txt['wireless_error_home'] = 'Board index';
 
@@ -15,7 +15,7 @@ $txt['wireless_navigation_index'] = 'Message Index';
 $txt['wireless_navigation_topic'] = 'Back to topic';
 
 $txt['wireless_pm_inbox'] = 'PM inbox';
-$txt['wireless_pm_inbox_new'] = 'PM inbox (<span style="color: red;">%1$d new</span>)';
+$txt['wireless_pm_inbox_new'] = 'PM inbox (<span class="red">%1$d new</span>)';
 $txt['wireless_pm_by'] = 'by';
 $txt['wireless_pm_add_buddy'] = 'Add buddy';
 $txt['wireless_pm_select_buddy'] = 'Select a buddy';
