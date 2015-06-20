@@ -505,9 +505,7 @@ function smf_db_change_column($table_name, $old_column, $column_info, $parameter
 				)
 			);
 		}
-	} 
-
-	return true;
+	}
 }
 
 /**
