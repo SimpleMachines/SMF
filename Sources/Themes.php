@@ -24,10 +24,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -43,7 +43,7 @@ if (!defined('SMF'))
  */
 function ThemesMain()
 {
-	global $txt, $context, $sourcedir;
+	global $txt, $context, $scripturl, $sourcedir;
 
 	// Load the important language files...
 	loadLanguage('Themes');
@@ -72,7 +72,7 @@ function ThemesMain()
 		'copy' => 'CopyTemplate',
 	);
 
-	// @todo Layout Settings?  huh?
+	// @todo Layout Settings?
 	if (!empty($context['admin_menu_name']))
 	{
 		$context[$context['admin_menu_name']]['tab_data'] = array(
@@ -96,15 +96,11 @@ function ThemesMain()
 		);
 	}
 
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_themes', array(&$subActions));
-
 	// Follow the sa or just go to administration.
 	if (isset($_GET['sa']) && !empty($subActions[$_GET['sa']]))
-		call_helper($subActions[$_GET['sa']]);
-
+		$subActions[$_GET['sa']]();
 	else
-		call_helper($subActions['admin']);
+		$subActions['admin']();
 }
 
 /**
@@ -119,7 +115,7 @@ function ThemesMain()
  */
 function ThemeAdmin()
 {
-	global $context, $boarddir;
+	global $context, $boarddir, $modSettings, $smcFunc;
 
 	// Are handling any settings?
 	if (isset($_POST['save']))
@@ -632,7 +628,7 @@ function SetThemeOptions()
  */
 function SetThemeSettings()
 {
-	global $txt, $context, $settings, $modSettings, $smcFunc;
+	global $txt, $context, $settings, $modSettings, $sourcedir, $smcFunc;
 
 	if (empty($_GET['th']) && empty($_GET['id']))
 		return ThemeAdmin();
@@ -810,7 +806,7 @@ function SetThemeSettings()
  */
 function RemoveTheme()
 {
-	global $context;
+	global $modSettings, $context, $smcFunc;
 
 	checkSession('get');
 
@@ -1294,7 +1290,7 @@ function InstallFile()
 	if (!is_writable($dirtemp))
 	{
 		// Lets give it a try.
-		@chmod($dirtemp, '0755');
+		@chmod($dirtmp, '0755');
 
 		// How about now?
 		if (!is_writable($dirtemp))
@@ -1310,7 +1306,7 @@ function InstallFile()
 		fatal_lang_error('theme_install_error_file_'. $_FILES['theme_gz']['error'], false);
 
 	// Get the theme's name.
-	$name = pathinfo($_FILES['theme_gz']['name'], PATHINFO_FILENAME);
+	$name = strtok(basename($_FILES['theme_gz']['name']));
 	$name = preg_replace(array('/\s/', '/\.[\.]+/', '/[^\w_\.\-]/'), array('_', '.', ''), $name);
 
 	// Start setting some vars.
@@ -1345,7 +1341,7 @@ function InstallFile()
 }
 
 /**
- * Makes a copy from the default theme, assigns a name for it and installs it.
+ * Makes a copy form the default theme, assigns a name for it and installs it.
  *
  * Creates a new .xml file containing all the theme's info.
  * @return array The newly created theme's info.
@@ -1392,7 +1388,7 @@ function InstallCopy()
 	mkdir($context['to_install']['theme_dir'] . '/scripts', 0777);
 
 	// Copy over the default non-theme files.
-	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/responsive.css', '/css/slider.min.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
+	$to_copy = array('/index.php', '/index.template.php', '/css/index.css', '/css/rtl.css', '/css/calendar.css', '/css/calendar.rtl.css', '/css/admin.css', '/scripts/theme.js');
 
 	foreach ($to_copy as $file)
 	{
@@ -1520,10 +1516,11 @@ function InstallDir()
  *  - happens if $settings['catch_action'] is set and action isn't found
  *   in the action array.
  *  - can use a template, layers, sub_template, filename, and/or function.
+ * @todo look at this
  */
 function WrapAction()
 {
-	global $context, $settings;
+	global $context, $settings, $modSettings;
 
 	// Load any necessary template(s)?
 	if (isset($settings['catch_action']['template']))
@@ -1542,10 +1539,11 @@ function WrapAction()
 	{
 		$hook = $settings['catch_action']['function'];
 
-		if (!isset($settings['catch_action']['filename']))
-			$settings['catch_action']['filename'] = '';
+		if (isset($settings['catch_action']['filename']))
+			$hook = $settings['catch_action']['filename'] . '|' . $hook;
 
-		add_integration_function('integrate_wrap_action', $hook, $settings['catch_action']['filename'], false, false);
+		$modSettings['integrate_wrap_action'] = $hook;
+
 		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
@@ -1643,7 +1641,7 @@ function SetJavaScript()
  */
 function EditTheme()
 {
-	global $context, $scripturl, $boarddir, $smcFunc, $txt;
+	global $context, $settings, $scripturl, $boarddir, $smcFunc, $txt;
 
 	// @todo Should this be removed?
 	if (isset($_REQUEST['preview']))
@@ -1858,7 +1856,7 @@ function EditTheme()
  */
 function CopyTemplate()
 {
-	global $context, $settings;
+	global $context, $settings, $smcFunc;
 
 	isAllowedTo('admin_forum');
 	loadTemplate('Themes');

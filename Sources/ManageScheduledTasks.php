@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Scheduled tasks management dispatcher. This function checks permissions and delegates
  * to the appropriate function based on the sub-action.
- * Everything here requires admin_forum permission.
+ * Everything here requires adin_forum permission.
  *
  * @uses ManageScheduledTasks template file
  * @uses ManageScheduledTasks language file
@@ -38,6 +38,8 @@ function ManageScheduledTasks()
 		'tasklog' => 'TaskLog',
 		'tasks' => 'ScheduledTasks',
 	);
+
+	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
 
 	// We need to find what's the action.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
@@ -60,10 +62,8 @@ function ManageScheduledTasks()
 		),
 	);
 
-	call_integration_hook('integrate_manage_scheduled_tasks', array(&$subActions));
-
 	// Call it.
-	call_helper($subActions[$context['sub_action']]);
+	$subActions[$context['sub_action']]();
 }
 
 /**
@@ -74,8 +74,6 @@ function ManageScheduledTasks()
 function ScheduledTasks()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
-	global $modSettings;
-
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -105,22 +103,6 @@ function ScheduledTasks()
 			)
 		);
 
-		// Update the "allow_expire_redirect" setting...
-		$get_info = $smcFunc['db_query']('', '
-			SELECT disabled
-			FROM {db_prefix}scheduled_tasks
-			WHERE task = {string:remove_redirect}',
-			array(
-				'remove_redirect' => 'remove_topic_redirect'
-			)
-		);
-		
-		$temp = $smcFunc['db_fetch_assoc']($get_info);
-		$task_disabled = !empty($temp['disabled']) ? 0 : 1;
-		$smcFunc['db_free_result']($get_info);
-
-		updateSettings(array('allow_expire_redirect' => $task_disabled));
-
 		// Pop along...
 		CalculateNextTrigger();
 	}
@@ -128,8 +110,6 @@ function ScheduledTasks()
 	// Want to run any of the tasks?
 	if (isset($_REQUEST['run']) && isset($_POST['run_task']))
 	{
-		$task_string = '';
-
 		// Lets figure out which ones they want to run.
 		$tasks = array();
 		foreach ($_POST['run_task'] as $task => $dummy)
@@ -137,7 +117,7 @@ function ScheduledTasks()
 
 		// Load up the tasks.
 		$request = $smcFunc['db_query']('', '
-			SELECT id_task, task, callable
+			SELECT id_task, task
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task IN ({array_int:tasks})
 			LIMIT ' . count($tasks),
@@ -151,21 +131,9 @@ function ScheduledTasks()
 		ignore_user_abort(true);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			// What kind of task are we handling?
-			if (!empty($row['callable']))
-				$task_string = $row['callable'];
-
-			// Default SMF task or old mods?
-			elseif (function_exists('scheduled_' . $row['task']))
-				$task_string = 'scheduled_' . $row['task'];
-
-			// One last resource, the task name.
-			elseif (!empty($row['task']))
-				$task_string = $row['task'];
-
 			$start_time = microtime();
 			// The functions got to exist for us to use it.
-			if (empty($task_string))
+			if (!function_exists('scheduled_' . $row['task']))
 				continue;
 
 			// Try to stop a timeout, this would be bad...
@@ -173,15 +141,8 @@ function ScheduledTasks()
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
 
-			// Get the callable.
-			$callable_task = call_helper($task_string, true);
-
-			// Perform the task.
-			if (!empty($callable_task))
-				$completed = call_user_func($callable_task);
-
-			else
-				$completed = false;
+			// Do the task...
+			$completed = call_user_func('scheduled_' . $row['task']);
 
 			// Log that we did it ;)
 			if ($completed)
@@ -253,23 +214,6 @@ function ScheduledTasks()
 					'class' => 'smalltext',
 				),
 			),
-			'run_now' => array(
-				'header' => array(
-					'value' => $txt['scheduled_tasks_run_now'],
-					'style' => 'width: 12%;',
-					'class' => 'centercol',
-				),
-				'data' => array(
-					'sprintf' => array(
-						'format' =>
-							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
-						'params' => array(
-							'id' => false,
-						),
-					),
-					'class' => 'centercol',
-				),
-			),
 			'enabled' => array(
 				'header' => array(
 					'value' => $txt['scheduled_tasks_enabled'],
@@ -283,6 +227,23 @@ function ScheduledTasks()
 						'params' => array(
 							'id' => false,
 							'checked_state' => false,
+						),
+					),
+					'class' => 'centercol',
+				),
+			),
+			'run_now' => array(
+				'header' => array(
+					'value' => $txt['scheduled_tasks_run_now'],
+					'style' => 'width: 12%;',
+					'class' => 'centercol',
+				),
+				'data' => array(
+					'sprintf' => array(
+						'format' =>
+							'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d" class="input_check">',
+						'params' => array(
+							'id' => false,
 						),
 					),
 					'class' => 'centercol',
@@ -324,7 +285,7 @@ function ScheduledTasks()
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
-	global $smcFunc, $txt;
+	global $smcFunc, $txt, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
@@ -552,7 +513,7 @@ function TaskLog()
 			array(
 				'position' => 'below_table_data',
 				'value' => '
-					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" data-confirm="' . $txt['scheduled_log_empty_log_confirm'] . '" class="button_submit you_sure">',
+					<input type="submit" name="removeAll" value="' . $txt['scheduled_log_empty_log'] . '" onclick="return confirm(\'' . $txt['scheduled_log_empty_log_confirm'] . '\');" class="button_submit">',
 			),
 			array(
 				'position' => 'after_title',

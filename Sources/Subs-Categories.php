@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -183,7 +183,7 @@ function createCategory($catOptions)
  * Remove one or more categories.
  * general function to delete one or more categories.
  * allows to move all boards in the categories to a different category before deleting them.
- * if moveChildrenTo is set to null, all boards inside the given categories will be deleted.
+ * if moveChildrenTo is set to null, all boards inside the given categorieswill be deleted.
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
  *

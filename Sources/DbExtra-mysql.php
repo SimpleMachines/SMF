@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -301,7 +301,7 @@ function smf_db_insert_sql($tableName, $new_table = false)
 		// Get the fields in this row...
 		$field_list = array();
 
-		foreach ($row as $item)
+		foreach ($row as $key => $item)
 		{
 			// Try to figure out the type of each field. (NULL, number, or 'string'.)
 			if (!isset($item))
@@ -417,7 +417,7 @@ function smf_db_table_sql($tableName)
 		$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode($columns, ', ') . ')';
 	}
 
-	// Now just get the comment and engine... (MyISAM, etc.)
+	// Now just get the comment and type... (MyISAM, etc.)
 	$result = $smcFunc['db_query']('', '
 		SHOW TABLE STATUS
 		LIKE {string:table}',
@@ -429,7 +429,7 @@ function smf_db_table_sql($tableName)
 	$smcFunc['db_free_result']($result);
 
 	// Probably MyISAM.... and it might have a comment.
-	$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
+	$schema_create .= $crlf . ') ENGINE=' . (isset($row['Type']) ? $row['Type'] : $row['Engine']) . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
 
 	return $schema_create;
 }

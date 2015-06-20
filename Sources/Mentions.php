@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 /**
@@ -36,7 +36,7 @@ class Mentions
 
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
+					mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_mentioned)
 				INNER JOIN {db_prefix}members AS ment ON (ment.id_member = m.id_member)
@@ -75,22 +75,48 @@ class Mentions
 	 * @param string $content_type
 	 * @param int $content_id
 	 * @param array $members
-	 * @param int $id_member
 	 * @return void
 	 */
-	public static function insertMentions($content_type, $content_id, array $members, $id_member)
+	public static function insertMentions($content_type, $content_id, array $members)
 	{
-		global $smcFunc;
+		global $smcFunc, $user_info;
 
 		call_integration_hook('mention_insert_' . $content_type, array($content_id, &$members));
 
 		foreach ($members as $member)
-			$smcFunc['db_insert']('ignore',
+			$smcFunc['db_insert']('',
 				'{db_prefix}mentions',
 				array('content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'),
-				array((int) $content_id, $content_type, $id_member, $member['id'], time()),
+				array((int) $content_id, $content_type, $user_info['id'], $member['id'], time()),
 				array('content_id', 'content_type', 'id_mentioned')
 			);
+	}
+
+	/**
+	 * Queues mentions for background task (notification etc)
+	 *
+	 * @static
+	 * @access public
+	 * @param string $content_type
+	 * @param int $content_id
+	 * @param array $members
+	 * @return void
+	 */
+	public static function queueMentionNotifications($content_type, $content_id, array $members)
+	{
+		global $smcFunc, $user_info;
+
+		$smcFunc['db_insert']('',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/Mentions-Notify.php', 'Mentions_Notify_Background', serialize(array(
+				'content_id' => $content_id,
+				'content_type' => $content_type,
+				'time' => time(),
+				'members' => $members,
+			)), 0),
+			array('id_task')
+		);
 	}
 
 	/**
@@ -186,9 +212,9 @@ class Mentions
 		$matches = array();
 		$string = str_split($body);
 		$depth = 0;
-		foreach ($string as $k => $char)
+		foreach ($string as $char)
 		{
-			if ($char == static::$char && ($k == 0 || trim($string[$k - 1]) == ''))
+			if ($char == static::$char)
 			{
 				$depth++;
 				$matches[] = array();
@@ -218,7 +244,7 @@ class Mentions
 			$match = preg_split('/([^\w])/', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			for ($i = 1; $i <= count($match); $i++)
-				$names[] = htmlspecialchars(trim(implode('', array_slice($match, 0, $i))));
+				$names[] = trim(implode('', array_slice($match, 0, $i)));
 		}
 
 		$names = array_unique($names);
@@ -226,5 +252,3 @@ class Mentions
 		return $names;
 	}
 }
-
-?>

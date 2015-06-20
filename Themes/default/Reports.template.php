@@ -4,16 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 // Choose which type of report to run?
 function template_report_type()
 {
-	global $context, $scripturl, $txt;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -22,25 +22,27 @@ function template_report_type()
 				<div class="cat_bar">
 					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
 				</div>
-				<div class="windowbg2">
-					<dl class="generate_report">';
+				<div class="windowbg">
+					<div class="content">
+						<dl class="generate_report">';
 
 	// Go through each type of report they can run.
 	foreach ($context['report_types'] as $type)
 	{
 		echo '
-						<dt>
-							<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
-							<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-						</dt>';
+							<dt>
+								<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
+								<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
+							</dt>';
 		if (isset($type['description']))
 			echo '
-						<dd>', $type['description'], '</dd>';
+							<dd>', $type['description'], '</dd>';
 	}
 		echo '
-					</dl>
-					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+						</dl>
+						<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
+					</div>
 				</div>
 			</div>
 		</form>
@@ -50,7 +52,7 @@ function template_report_type()
 // This is the standard template for showing reports in.
 function template_main()
 {
-	global $context, $txt;
+	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
 	<div id="admincenter">
@@ -63,7 +65,8 @@ function template_main()
 		template_button_strip($context['report_buttons'], 'right');
 
 	echo '
-		</div>';
+		</div>
+		<div class="generic_list_wrapper">';
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
@@ -74,7 +77,7 @@ function template_main()
 		if (!empty($table['title']))
 			echo '
 			<thead>
-				<tr class="title_bar">
+				<tr class="catbg">
 					<th scope="col" colspan="', $table['column_count'], '">', $table['title'], '</th>
 				</tr>
 			</thead>
@@ -82,6 +85,7 @@ function template_main()
 
 		// Now do each row!
 		$row_number = 0;
+		$alternate = false;
 		foreach ($table['data'] as $row)
 		{
 			if ($row_number == 0 && !empty($table['shading']['top']))
@@ -89,12 +93,12 @@ function template_main()
 				<tr class="windowbg table_caption">';
 			else
 				echo '
-				<tr class="', !empty($row[0]['separator']) ? 'title_bar' : 'windowbg', '">';
+				<tr class="', !empty($row[0]['separator']) ? 'catbg' : ($alternate ? 'windowbg' : 'windowbg2'), '" valign="top">';
 
 			// Now do each column.
 			$column_number = 0;
 
-			foreach ($row as $data)
+			foreach ($row as $key => $data)
 			{
 				// If this is a special separator, skip over!
 				if (!empty($data['separator']) && $column_number == 0)
@@ -125,6 +129,7 @@ function template_main()
 				</tr>';
 
 			$row_number++;
+			$alternate = !$alternate;
 		}
 		echo '
 			</tbody>
@@ -132,6 +137,7 @@ function template_main()
 		<br>';
 	}
 	echo '
+		</div>
 	</div>';
 }
 
@@ -143,7 +149,7 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
 	</head>
@@ -152,43 +158,44 @@ function template_print_above()
 
 function template_print()
 {
-	global $context;
+	global $context, $scripturl, $txt, $modSettings;
 
 	// Go through each table!
 	foreach ($context['tables'] as $table)
 	{
 		echo '
 		<div style="overflow: visible;', $table['max_width'] != 'auto' ? ' width: ' . $table['max_width'] . 'px;' : '', '">
-			<table class="bordercolor">';
+			<table border="0" cellspacing="1" cellpadding="4" width="100%" class="bordercolor">';
 
 		if (!empty($table['title']))
 			echo '
-				<tr class="title_bar">
+				<tr class="catbg">
 					<td colspan="', $table['column_count'], '">
 						', $table['title'], '
 					</td>
 				</tr>';
 
 		// Now do each row!
+		$alternate = false;
 		$row_number = 0;
 		foreach ($table['data'] as $row)
 		{
 			if ($row_number == 0 && !empty($table['shading']['top']))
 				echo '
-				<tr class="titlebg">';
+				<tr class="titlebg" valign="top">';
 			else
 				echo '
-				<tr class="windowbg">';
+				<tr class="', $alternate ? 'windowbg' : 'windowbg2', '" valign="top">';
 
 			// Now do each column!!
 			$column_number = 0;
-			foreach ($row as $data)
+			foreach ($row as $key => $data)
 			{
 				// If this is a special separator, skip over!
 				if (!empty($data['separator']) && $column_number == 0)
 				{
 					echo '
-					<td colspan="', $table['column_count'], '" class="smalltext">
+					<td colspan="', $table['column_count'], '" class="catbg">
 						<strong>', $data['v'], ':</strong>
 					</td>';
 					break;
@@ -213,6 +220,7 @@ function template_print()
 				</tr>';
 
 			$row_number++;
+			$alternate = !$alternate;
 		}
 		echo '
 			</table>

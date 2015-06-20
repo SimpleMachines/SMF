@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -39,8 +39,7 @@ function RemindMe()
 
 	// Any subaction?  If none, fall through to the main template, which will ask for one.
 	if (isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]))
-		call_helper($subActions[$_REQUEST['sa']]);
-
+		$subActions[$_REQUEST['sa']]();
 	// Creating a one time token.
 	else
 		createToken('remind');
@@ -81,11 +80,12 @@ function RemindPick()
 
 	// Find the user!
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
+		SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, openid_uri, secret_question
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		LIMIT 1',
-		$where_params
+		array_merge($where_params, array(
+		))
 	);
 	// Maybe email?
 	if ($smcFunc['db_num_rows']($request) == 0 && empty($_REQUEST['uid']))
@@ -93,11 +93,12 @@ function RemindPick()
 		$smcFunc['db_free_result']($request);
 
 		$request = $smcFunc['db_query']('', '
-			SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, secret_question
+			SELECT id_member, real_name, member_name, email_address, is_activated, validation_code, lngfile, openid_uri, secret_question
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
 			LIMIT 1',
-			$where_params
+			array_merge($where_params, array(
+			))
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_user_with_email', false);
@@ -105,6 +106,8 @@ function RemindPick()
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	$context['account_type'] = !empty($row['openid_uri']) ? 'openid' : 'password';
 
 	// If the user isn't activated/approved, give them some feedback on what to do next.
 	if ($row['is_activated'] != 1)
@@ -134,20 +137,22 @@ function RemindPick()
 			'REMINDLINK' => $scripturl . '?action=reminder;sa=setpassword;u=' . $row['id_member'] . ';code=' . $password,
 			'IP' => $user_info['ip'],
 			'MEMBERNAME' => $row['member_name'],
+			'OPENID' => $row['openid_uri'],
 		);
 
-		$emaildata = loadEmailTemplate('forgot_password', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
-		$context['description'] = $txt['reminder_sent'];
+		$emaildata = loadEmailTemplate('forgot_' . $context['account_type'], $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
+		$context['description'] = $txt['reminder_' . (!empty($row['openid_uri']) ? 'openid_' : '') . 'sent'];
 
+		// If they were using OpenID simply email them their OpenID identity.
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', false, 1);
-
-		// Set the password in the database.
-		updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
+		if (empty($row['openid_uri']))
+			// Set the password in the database.
+			updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)));
 
 		// Set up the template.
 		$context['sub_template'] = 'sent';
 
-		// Don't really.
+		// Dont really.
 		return;
 	}
 	// Otherwise are ready to answer the question?
@@ -287,7 +292,7 @@ function SecretAnswerInput()
 
 	// Get the stuff....
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, member_name, secret_question
+		SELECT id_member, real_name, member_name, secret_question, openid_uri
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
 		LIMIT 1',
@@ -300,6 +305,8 @@ function SecretAnswerInput()
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
+
+	$context['account_type'] = !empty($row['openid_uri']) ? 'openid' : 'password';
 
 	// If there is NO secret question - then throw an error.
 	if (trim($row['secret_question']) == '')
@@ -330,7 +337,7 @@ function SecretAnswer2()
 
 	// Get the information from the database.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, member_name, secret_answer, secret_question, email_address
+		SELECT id_member, real_name, member_name, secret_answer, secret_question, openid_uri, email_address
 		FROM {db_prefix}members
 		WHERE id_member = {int:id_member}
 		LIMIT 1',
@@ -349,6 +356,14 @@ function SecretAnswer2()
 	{
 		log_error(sprintf($txt['reminder_error'], $row['member_name']), 'user');
 		fatal_lang_error('incorrect_answer', false);
+	}
+
+	// If it's OpenID this is where the music ends.
+	if (!empty($row['openid_uri']))
+	{
+		$context['sub_template'] = 'sent';
+		$context['description'] = sprintf($txt['reminder_openid_is'], $row['openid_uri']);
+		return;
 	}
 
 	// You can't use a blank one!

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -61,7 +61,7 @@ function db_packages_init()
 
 /**
  * This function can be used to create a table without worrying about schema
- *  compatibilities across supported database systems.
+ *  compatabilities across supported database systems.
  *  - If the table exists will, by default, do nothing.
  *  - Builds table with columns as passed to it - at least one column must be sent.
  *  The columns array should have one sub-array for each column - these sub arrays contain:
@@ -86,7 +86,7 @@ function db_packages_init()
  * @param string $table_name The name of the table to create
  * @param array $columns An array of column info in the specified format
  * @param array $indexes An array of index info in the specified format
- * @param array $parameters Extra parameters. Currently only 'engine', the desired MySQL storage engine, is used.
+ * @param array $parameters Currently not used
  * @param string $if_exists What to do if the table exists.
  * @param string $error
  * @return boolean Whether or not the operation was successful
@@ -94,8 +94,6 @@ function db_packages_init()
 function smf_db_create_table($table_name, $columns, $indexes = array(), $parameters = array(), $if_exists = 'ignore', $error = 'fatal')
 {
 	global $reservedTables, $smcFunc, $db_package_log, $db_prefix, $db_character_set;
-
-	static $engines = array();
 
 	// Strip out the table name, we might not need it in some cases
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
@@ -147,29 +145,7 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	if (substr($table_query, -1) == ',')
 		$table_query = substr($table_query, 0, -1);
 
-	// Which engine do we want here?
-	if (empty($engines))
-	{
-		// Figure out which engines we have
-		$get_engines = $smcFunc['db_query']('', 'SHOW ENGINES', array());
-
-		while ($row = $smcFunc['db_fetch_assoc']($get_engines))
-		{
-			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT')
-				$engines[] = $row['Engine'];
-		}
-
-		$smcFunc['db_free_result']($get_engines);
-	}
-
-	// If we don't have this engine, or didn't specify one, default to InnoDB or MyISAM
-	// depending on which one is available
-	if (!isset($parameters['engine']) || !in_array($parameters['engine'], $engines))
-	{
-		$parameters['engine'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
-	}
-
-	$table_query .= ') ENGINE=' . $parameters['engine'];
+	$table_query .= ') ENGINE=MyISAM';
 	if (!empty($db_character_set) && $db_character_set == 'utf8')
 		$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 
@@ -528,25 +504,10 @@ function smf_db_table_structure($table_name, $parameters = array())
 
 	$table_name = str_replace('{db_prefix}', $db_prefix, $table_name);
 
-	// Find the table engine and add that to the info as well
-	$table_status = $smcFunc['db_query']('', '
-		SHOW TABLE STATUS
-		LIKE {string:table}',
-		array(
-			'table' => strtr($table_name, array('_' => '\\_', '%' => '\\%'))
-		)
-	);
-
-	// Only one row, so no need for a loop...
-	$row = $smcFunc['db_fetch_assoc']($table_status);
-
-	$smcFunc['db_free_result']($table_status);
-
 	return array(
 		'name' => $table_name,
 		'columns' => $smcFunc['db_list_columns']($table_name, true),
 		'indexes' => $smcFunc['db_list_indexes']($table_name, true),
-		'engine' => $row['Engine'],
 	);
 }
 

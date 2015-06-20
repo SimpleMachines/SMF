@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -55,16 +55,17 @@ function getBoardIndex($boardIndexOptions)
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse,' : '')) . '
-			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_indexes']) ? ',  mem.email_address, mem.avatar' : '') . '
+			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_indexes']) ? ',
+			IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . ($user_info['is_guest'] ? '' : '
-			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
+			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . (!empty($settings['avatars_on_indexes']) ? '
+			LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = m.id_member)' : '') . '
 		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
 			AND b.child_level >= {int:child_level}') : '
-			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)) . '
-			ORDER BY ' . (!empty($boardIndexOptions['include_categories']) ? 'c.cat_order, ' : '') . 'b.child_level, b.board_order',
+			AND b.child_level BETWEEN ' . $boardIndexOptions['base_level'] . ' AND ' . ($boardIndexOptions['base_level'] + 1)),
 		array(
 			'current_member' => $user_info['id'],
 			'child_level' => $boardIndexOptions['base_level'],
@@ -103,8 +104,7 @@ function getBoardIndex($boardIndexOptions)
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
-					'new' => false,
-					'css_class' => '',
+					'new' => false
 				);
 				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c='. $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], strip_tags($row_board['cat_name'])) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']);
 			}
@@ -150,7 +150,6 @@ function getBoardIndex($boardIndexOptions)
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
-					'css_class' => '',
 				);
 
 				// We can do some of the figuring-out-what-icon now.
@@ -268,46 +267,12 @@ function getBoardIndex($boardIndexOptions)
 		);
 
 		if (!empty($settings['avatars_on_indexes']))
-		{
-			if (!empty($modSettings['gravatarOverride']))
-			{
-				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row_board['avatar']) && stristr($row_board['avatar'], 'gravatar://'))
-					$image = get_gravatar_url($smcFunc['substr']($row_board['avatar'], 11));
-				else
-					$image = get_gravatar_url($row_board['email_address']);
-			}
-			else
-			{
-				// So it's stored in the member table?
-				if (!empty($row_board['avatar']))
-				{
-					if (stristr($row_board['avatar'], 'gravatar://'))
-					{
-						if ($row_board['avatar'] == 'gravatar://')
-							$image = get_gravatar_url($row_board['email_address']);
-						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-							$image = get_gravatar_url($smcFunc['substr']($row_board['avatar'], 11));
-					}
-					else
-						$image = stristr($row_board['avatar'], 'http://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'];
-				}
-				// Right... no avatar...
-				else
-					$this_last_post['member']['avatar'] = array(
-						'name' => '',
-						'image' => '',
-						'href' => '',
-						'url' => '',
-					);
-			}
-			if (!empty($image))
-				$this_last_post['member']['avatar'] = array(
-					'name' => $row_board['avatar'],
-					'image' => '<img class="avatar" src="' . $image . '" />',
-					'href' => $image,
-					'url' => $image,
-				);
-		}
+			$this_last_post['member']['avatar'] = array(
+				'name' => $row_board['avatar'],
+				'image' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? '<img class="avatar" src="' . (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) . '" alt="">' : '') : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? '<img class="avatar" src="' . $row_board['avatar'] . '" alt="">' : '<img class="avatar" src="' . $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($row_board['avatar']) . '" alt="">'),
+				'href' => $row_board['avatar'] == '' ? ($row_board['id_attach'] > 0 ? (empty($row_board['attachment_type']) ? $scripturl . '?action=dlattach;attach=' . $row_board['id_attach'] . ';type=avatar' : $modSettings['custom_avatar_url'] . '/' . $row_board['filename']) : '') : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar']),
+				'url' => $row_board['avatar'] == '' ? '' : (stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'])
+			);
 
 		// Provide the href and link.
 		if ($row_board['subject'] != '')

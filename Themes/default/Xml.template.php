@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_sendbody()
@@ -97,7 +97,7 @@ function template_modifytopicdone()
 
 function template_post()
 {
-	global $context;
+	global $context, $txt;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>
@@ -171,7 +171,7 @@ function template_pm()
 
 function template_warning()
 {
-	global $context;
+	global $context, $txt;
 
 	// @todo something could be removed...otherwise it can be merged again with template_post
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
@@ -195,7 +195,7 @@ function template_warning()
 
 function template_stats()
 {
-	global $context, $modSettings;
+	global $context, $txt, $modSettings;
 
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';

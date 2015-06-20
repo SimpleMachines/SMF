@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -178,7 +178,7 @@ function MarkRead()
 		// Make sure all the topics are integers!
 		$topics = array_map('intval', explode('-', $_REQUEST['topics']));
 
-		$request = $smcFunc['db_query']('', '
+		$smcFunc['db_query']('', '
 			SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -309,7 +309,7 @@ function MarkRead()
 		if (isset($_REQUEST['children']) && !empty($boards))
 		{
 			// They want to mark the entire tree starting with the boards specified
-			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
+			// The easist thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 
 			$request = $smcFunc['db_query']('', '
 				SELECT b.id_board, b.id_parent
@@ -1129,7 +1129,7 @@ function fixChildren($parent, $newLevel, $newParent)
 /**
  * Tries to load up the entire board order and category very very quickly
  * Returns an array with two elements, cats and boards
- *
+ * 
  * @return array
  */
 function getTreeOrder()

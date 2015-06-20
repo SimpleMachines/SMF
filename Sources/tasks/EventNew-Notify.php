@@ -3,22 +3,22 @@
 /**
  * This taks handles notifying someone that a new event has been
  * added to the calendar - but only when no topic has been created.
- *
+ * 
  * Simple Machines Forum (SMF)
- *
+ * 
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
- *
- * @version 2.1 Beta 2
+ * 
+ * @version SMF 2.1 Alpha 1
  */
 
 class EventNew_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
- 		global $sourcedir, $smcFunc, $user_profile;
+ 		global $sourcedir, $smcFunc, $language, $modSettings, $user_profile;
 
 		// Get everyone who could be notified - those are the people who can see the calendar.
 		require_once($sourcedir . '/Subs-Members.php');
@@ -91,5 +91,4 @@ class EventNew_Notify_Background extends SMF_BackgroundTask
 		}
 	}
 }
-
 ?>

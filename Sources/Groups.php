@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -58,11 +58,8 @@ function Groups()
 		);
 	}
 
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_groups', array(&$subActions));
-
 	// Call the actual function.
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	$subActions[$_REQUEST['sa']][0]();
 }
 
 /**
@@ -480,7 +477,7 @@ function GroupRequests()
 			$where .= ' AND lgr.id_request IN ({array_int:request_ids})';
 			$where_parameters['request_ids'] = $_POST['groupr'];
 
-			$context['group_requests'] = list_getGroupRequests(0, $modSettings['defaultMaxListItems'], 'lgr.id_request', $where, $where_parameters);
+			$context['group_requests'] = list_getGroupRequests(0, $modSettings['defaultMaxMessages'], 'lgr.id_request', $where, $where_parameters);
 
 			// Need to make another token for this.
 			createToken('mod-gr');
@@ -663,7 +660,7 @@ function GroupRequests()
 	$listOptions = array(
 		'id' => 'group_request_list',
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['mc_groupr_none_found'],
 		'base_href' => $scripturl . '?action=groups;sa=requests',
 		'default_sort_col' => 'member',
@@ -755,7 +752,7 @@ function GroupRequests()
 				'value' => '
 					<select name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . $txt['mc_groupr_warning'] . '\'))) this.form.submit();">
 						<option value="0">' . $txt['with_selected'] . ':</option>
-						<option value="0" disabled>---------------------</option>
+						<option value="0">---------------------</option>
 						<option value="approve">' . $txt['mc_groupr_approve'] . '</option>
 						<option value="reject">' . $txt['mc_groupr_reject'] . '</option>
 						<option value="reason">' . $txt['mc_groupr_reject_w_reason'] . '</option>
@@ -807,7 +804,7 @@ function list_getGroupRequestCount($where, $where_parameters)
  * @param int $items_per_page The number of items per page
  * @param string $sort An SQL sort expression (column/direction)
  * @param string $where Data for the WHERE clause
- * @param string $where_parameters Parameter values to be inserted into the WHERE clause
+ * @param string $where_parameters Parameter values to be inerted into the WHERE clause
  * @return array An array of group requests
  * Each group request has:
  * 		'id'

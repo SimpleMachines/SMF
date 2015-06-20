@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -61,7 +61,7 @@ class Likes
 	 * => 'redirect' string To add support for non JS users, It is highly encouraged to set a valid URL to redirect the user to, if you don't provide any, the code will redirect the user to the main page. The code only performs a light check to see if the redirect is valid so be extra careful while building it.
 	 * => 'type' string 6 letters or numbers. The unique identifier for your content, the code doesn't check for duplicate entries, if there are 2 or more exact hook calls, the code will take the first registered one so make sure you provide a unique identifier. Must match with what you sent in $_GET['ltype'].
 	 * => 'flush_cache' boolean this is optional, it tells the code to reset your like content's cache entry after a new entry has been inserted.
-	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_helper(); so the same format for your function/method can be applied here.
+	 * => 'callback' callable optional, useful if you don't want to issue a separate hook for updating your data, it is called immediately after the data was inserted or deleted and before the actual hook. Uses call_hook_helper(); so the same format for your function/method can be applied here.
 	 * => 'json' boolean optional defaults to false, if true the Like class will return a json object as response instead of HTML.
 	 */
 	protected $_validLikes = array(
@@ -96,17 +96,11 @@ class Likes
 	 */
 	public function __construct()
 	{
-		global $db_show_debug;
-
 		$this->_type = isset($_GET['ltype']) ? $_GET['ltype'] : '';
 		$this->_content = isset($_GET['like']) ? (int) $_GET['like'] : 0;
 		$this->_js = isset($_GET['js']) ? true : false;
 		$this->_sa = isset($_GET['sa']) ? $_GET['sa'] : 'like';
 		$this->_extra = isset($_GET['extra']) ? $_GET['extra'] : false;
-
-		// We do not want to output debug information here.
-		if ($this->_js)
-			$db_show_debug = false;
 	}
 
 	/**
@@ -119,7 +113,7 @@ class Likes
 	 */
 	public function call()
 	{
-		global $context;
+		global $context, $smcFunc;
 
 		$this->_user = $context['user'];
 
@@ -156,21 +150,6 @@ class Likes
 	}
 
 	/**
-	 * Likes::get()
-	 *
-	 * A simple getter for all protected properties.
-	 * Accessed from index.php?action=likes
-	 * @param string $property The name of the property to get.
-	 * @return mixed either return the property or false if there isn't a property with that name.
-	 */
-	public function get($property = '')
-	{
-		// All properties inside Likes are protected, thus, an underscore is used.
-		$property = '_'. $property;
-		return property_exists($this, $property) ? $this->$property : false;
-	}
-
-	/**
 	 * Likes::check()
 	 *
 	 * Performs basic checks on the data provided, checks for a valid msg like.
@@ -178,7 +157,7 @@ class Likes
 	 */
 	protected function check()
 	{
-		global $smcFunc, $modSettings;
+		global $smcFunc, $context, $modSettings;
 
 		// This feature is currently disable.
 		if (empty($modSettings['enable_likes']))
@@ -248,7 +227,7 @@ class Likes
 
 						// Fill out the rest.
 						$this->_type = $result['type'];
-						$this->_validLikes = array_merge($this->_validLikes, $result);
+						$this->_validLikes = $result;
 						$found = true;
 						break;
 					}
@@ -303,7 +282,7 @@ class Likes
 	{
 		global $smcFunc;
 
-		// Any last minute changes? Temporarily turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
+		// Any last minute changes? Temporary turn the passed properties to normal vars to prevent unexpected behaviour with other methods using these properties.
 		$type = $this->_type;
 		$content = $this->_content;
 		$user = $this->_user;
@@ -319,20 +298,18 @@ class Likes
 		);
 
 		// Add a background task to process sending alerts.
-		// Mod author, you can add your own background task for your own custom like event using the "integrate_issue_like" hook or your callback, both are immediately called after this.
-		if ($this->_type == 'msg')
-			$smcFunc['db_insert']('insert',
-				'{db_prefix}background_tasks',
-				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
-					'content_id' => $content,
-					'content_type' => $type,
-					'sender_id' => $user['id'],
-					'sender_name' => $user['name'],
-					'time' => $time,
-				)), 0),
-				array('id_task')
-			);
+		$smcFunc['db_insert']('insert',
+			'{db_prefix}background_tasks',
+			array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
+			array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+				'content_id' => $content,
+				'content_type' => $type,
+				'sender_id' => $user['id'],
+				'sender_name' => $user['name'],
+				'time' => $time,
+			)), 0),
+			array('id_task')
+		);
 
 		// Are we calling this directly? if so, set a proper data for the response. Do note that __METHOD__ returns both the class name and the function name.
 		if ($this->_sa == __FUNCTION__)
@@ -373,7 +350,7 @@ class Likes
 	 */
 	protected function like()
 	{
-		global $smcFunc;
+		global $context, $smcFunc;
 
 		// Safety first!
 		if (empty($this->_type) || empty($this->_content))
@@ -411,14 +388,12 @@ class Likes
 		// Any callbacks?
 		elseif (!empty($this->_validLikes['callback']))
 		{
-			$call = call_helper($this->_validLikes['callback'], true);
-
-			if (!empty($call))
-				call_user_func_array($call, array($this));
+			$call = call_hook_helper($this->_validLikes['callback']);
+			call_user_func_array($call, array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 		}
 
 		// Sometimes there might be other things that need updating after we do this like.
-		call_integration_hook('integrate_issue_like', array($this));
+		call_integration_hook('integrate_issue_like', array($this->_type, $this->_content, $this->_numLikes, empty($this->_alreadyLiked)));
 
 		// Now some clean up. This is provided here for any like handlers that want to do any cache flushing.
 		// This way a like handler doesn't need to explicitly declare anything in integrate_issue_like, but do so
@@ -693,5 +668,4 @@ function BookOfUnknown()
 
 	obExit(false);
 }
-
 ?>

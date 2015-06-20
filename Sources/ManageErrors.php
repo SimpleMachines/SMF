@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -91,24 +91,8 @@ function ViewErrorLog()
 	$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
 
 	// Set the page listing up.
-	$context['page_index'] = constructPageIndex($scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . (isset($filter) ? $filter['href'] : ''), $_GET['start'], $num_errors, $modSettings['defaultMaxListItems']);
+	$context['page_index'] = constructPageIndex($scripturl . '?action=admin;area=logs;sa=errorlog' . ($context['sort_direction'] == 'down' ? ';desc' : '') . (isset($filter) ? $filter['href'] : ''), $_GET['start'], $num_errors, $modSettings['defaultMaxMessages']);
 	$context['start'] = $_GET['start'];
-
-	// Update the error count
-	if (!isset($filter))
-		$context['num_errors'] = $num_errors;
-	else
-	{
-		// We want all errors, not just the number of filtered messages...
-		$query = $smcFunc['db_query']('', '
-			SELECT COUNT(id_error)
-			FROM {db_prefix}log_errors',
-			array()
-		);
-
-		list($context['num_errors']) = $smcFunc['db_fetch_row']($query);
-		$smcFunc['db_free_result']($query);
-	}
 
 	// Find and sort out the errors.
 	$request = $smcFunc['db_query']('', '
@@ -116,7 +100,7 @@ function ViewErrorLog()
 		FROM {db_prefix}log_errors' . (isset($filter) ? '
 		WHERE ' . $filter['variable'] . ' LIKE {string:filter}' : '') . '
 		ORDER BY id_error ' . ($context['sort_direction'] == 'down' ? 'DESC' : '') . '
-		LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxListItems'],
+		LIMIT ' . $_GET['start'] . ', ' . $modSettings['defaultMaxMessages'],
 		array(
 			'filter' => isset($filter) ? $filter['value']['sql'] : '',
 		)
@@ -132,6 +116,7 @@ function ViewErrorLog()
 		$show_message = strtr(strtr(preg_replace('~&lt;span class=&quot;remove&quot;&gt;(.+?)&lt;/span&gt;~', '$1', $row['message']), array("\r" => '', '<br>' => "\n", '<' => '&lt;', '>' => '&gt;', '"' => '&quot;')), array("\n" => '<br>'));
 
 		$context['errors'][$row['id_error']] = array(
+			'alternate' => $i %2 == 0,
 			'member' => array(
 				'id' => $row['id_member'],
 				'ip' => $row['ip'],

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -26,7 +26,7 @@ if (!defined('SMF'))
  */
 function ManagePostSettings()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// Make sure you can be here.
 	isAllowedTo('admin_forum');
@@ -38,6 +38,8 @@ function ManagePostSettings()
 		'topics' => 'ModifyTopicSettings',
 		'drafts' => 'ModifyDraftSettings',
 	);
+
+	call_integration_hook('integrate_manage_posts', array(&$subActions));
 
 	// Default the sub-action to 'posts'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'posts';
@@ -65,10 +67,8 @@ function ManagePostSettings()
 		),
 	);
 
-	call_integration_hook('integrate_manage_posts', array(&$subActions));
-
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
@@ -189,17 +189,16 @@ function ModifyPostSettings($return_config = false)
 	if (function_exists('pspell_new'))
 		$can_spell_check = true;
 	elseif (function_exists('enchant_broker_init') && ($txt['lang_charset'] == 'UTF-8' || function_exists('iconv')))
-		$can_spell_check = true;
+		$can_spell_check = true;			
 
 	// All the settings...
 	$config_vars = array(
 			// Simple post options...
 			array('check', 'removeNestedQuotes'),
 			array('check', 'enableEmbeddedFlash', 'subtext' => $txt['enableEmbeddedFlash_warning']),
-			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed)
+			// Note show the warning as red if: pspell not installed and (enchant not installed or not using UTF-8 and iconv not installed) 
 			array('check', 'enableSpellChecking', 'subtext' => ($can_spell_check ? $txt['enableSpellChecking_warning'] : ('<span class="alert">' . $txt['enableSpellChecking_warning'] . '</span>'))),
 			array('check', 'disable_wysiwyg'),
-			array('check', 'additional_options_collapsable'),
 		'',
 			// Posting limits...
 			array('int', 'max_messageLength', 'subtext' => $txt['max_messageLength_zero'], 'postinput' => $txt['manageposts_characters']),
@@ -208,14 +207,18 @@ function ModifyPostSettings($return_config = false)
 			// Posting time limits...
 			array('int', 'spamWaitTime', 'postinput' => $txt['manageposts_seconds']),
 			array('int', 'edit_wait_time', 'postinput' => $txt['manageposts_seconds']),
-			array('int', 'edit_disable_time', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['manageposts_minutes']),
+			array('int', 'edit_disable_time', 'subtext' => $txt['edit_disable_time_zero'], 'postinput' => $txt['manageposts_minutes']),
 		'',
 			// Automagic image resizing.
 			array('int', 'max_image_width', 'subtext' => $txt['zero_for_no_limit']),
 			array('int', 'max_image_height', 'subtext' => $txt['zero_for_no_limit']),
 		'',
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
+		'',
+			// BBC Enable/Disable & Collapse thing on posts
+			array('check', 'admin_bbc'),
+			array('check', 'additional_options_collapsable'),
 	);
 
 	call_integration_hook('integrate_modify_post_settings', array(&$config_vars));
@@ -286,7 +289,7 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'enableParticipation'),
 		'',
 			// Pagination etc...
-			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['zero_to_disable']),
+			array('int', 'oldTopicDays', 'postinput' => $txt['manageposts_days'], 'subtext' => $txt['oldTopicDays_zero']),
 			array('int', 'defaultMaxTopics', 'postinput' => $txt['manageposts_topics']),
 			array('int', 'defaultMaxMessages', 'postinput' => $txt['manageposts_posts']),
 			array('check', 'disable_print_topic'),
@@ -302,10 +305,11 @@ function ModifyTopicSettings($return_config = false)
 			array('check', 'show_profile_buttons'),
 			array('check', 'show_user_images'),
 			array('check', 'show_blurb'),
+			array('check', 'show_gender'),
 			array('check', 'hide_post_group', 'subtext' => $txt['hide_post_group_desc']),
 		'',
 			// First & Last message preview lengths
-			array('int', 'preview_characters', 'subtext' => $txt['zero_to_disable'], 'postinput' => $txt['preview_characters_units']),
+			array('int', 'preview_characters', 'subtext' => $txt['preview_characters_zero'], 'postinput' => $txt['preview_characters_units']),
 			array('check', 'message_index_preview_first', 'subtext' => $txt['message_index_preview_first_desc']),
 	);
 

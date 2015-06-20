@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -230,7 +230,7 @@ class xmlArray
 	}
 
 	/**
-	 * Count the number of occurrences of a path.
+	 * Count the number of occurences of a path.
 	 * Example use:
 	 *  echo $xml->count('html/head/meta');
 	 * @param string $path - the path to search for.
@@ -1044,7 +1044,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Determines the current directory we are in
+	 * Determins the current dirctory we are in
 	 *
 	 * @param string $file The name of a file
 	 * @param string $listing A directory listing or null to generate one

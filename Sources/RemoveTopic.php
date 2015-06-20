@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function RemoveTopic2()
 {
-	global $user_info, $topic, $board, $sourcedir, $smcFunc, $modSettings;
+	global $user_info, $topic, $board, $sourcedir, $smcFunc, $context, $modSettings;
 
 	// Make sure they aren't being lead around by someone. (:@)
 	checkSession('get');
@@ -181,25 +181,19 @@ function RemoveOldTopics2()
 	);
 
 	// Just moved notice topics?
-	// Note that this ignores redirection topics unless it's a non-expiring one
 	if ($_POST['delete_type'] == 'moved')
 	{
 		$condition .= '
 			AND m.icon = {string:icon}
-			AND t.locked = {int:locked}
-			AND t.redirect_expires = {int:not_expiring}';
+			AND t.locked = {int:locked}';
 		$condition_params['icon'] = 'moved';
 		$condition_params['locked'] = 1;
-		$condition_params['not_expiring'] = 0;
 	}
 	// Otherwise, maybe locked topics only?
 	elseif ($_POST['delete_type'] == 'locked')
 	{
-		// Exclude moved/merged notices since we have another option for those...
 		$condition .= '
-			AND t.icon != {string:icon}
 			AND t.locked = {int:locked}';
-		$condition_params['icon'] = 'moved';
 		$condition_params['locked'] = 1;
 	}
 
@@ -240,9 +234,8 @@ function RemoveOldTopics2()
  * @param array/int $topics The topics to remove (can be an id or an array of ids).
  * @param bool $decreasePostCount if true users' post count will be reduced
  * @param bool $ignoreRecycling if true topics are not moved to the recycle board (if it exists).
- * @param bool $updateBoardCount if true topics the board totals are adjusted.
  */
-function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
+function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = false)
 {
 	global $sourcedir, $modSettings, $smcFunc;
 
@@ -339,8 +332,6 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			);
 
 			updateSettings(array('last_mod_report_action' => time()));
-
-			require_once($sourcedir . '/Subs-ReportedContent.php');
 			recountOpenReports('posts');
 
 			// Topics that were recycled don't need to be deleted, so subtract them.
@@ -396,33 +387,31 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
 	}
 	$smcFunc['db_free_result']($request);
-	
-	if($updateBoardCount)
-	{
-		// Decrease the posts/topics...
-		foreach ($adjustBoards as $stats)
-		{
-			if (function_exists('apache_reset_timeout'))
-				@apache_reset_timeout();
 
-			$smcFunc['db_query']('', '
-				UPDATE {db_prefix}boards
-				SET
-					num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
-					num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
-					unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
-					unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
-				WHERE id_board = {int:id_board}',
-				array(
-					'id_board' => $stats['id_board'],
-					'num_posts' => $stats['num_posts'],
-					'num_topics' => $stats['num_topics'],
-					'unapproved_posts' => $stats['unapproved_posts'],
-					'unapproved_topics' => $stats['unapproved_topics'],
-				)
-			);
-		}
+	// Decrease the posts/topics...
+	foreach ($adjustBoards as $stats)
+	{
+		if (function_exists('apache_reset_timeout'))
+			@apache_reset_timeout();
+
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}boards
+			SET
+				num_posts = CASE WHEN {int:num_posts} > num_posts THEN 0 ELSE num_posts - {int:num_posts} END,
+				num_topics = CASE WHEN {int:num_topics} > num_topics THEN 0 ELSE num_topics - {int:num_topics} END,
+				unapproved_posts = CASE WHEN {int:unapproved_posts} > unapproved_posts THEN 0 ELSE unapproved_posts - {int:unapproved_posts} END,
+				unapproved_topics = CASE WHEN {int:unapproved_topics} > unapproved_topics THEN 0 ELSE unapproved_topics - {int:unapproved_topics} END
+			WHERE id_board = {int:id_board}',
+			array(
+				'id_board' => $stats['id_board'],
+				'num_posts' => $stats['num_posts'],
+				'num_topics' => $stats['num_topics'],
+				'unapproved_posts' => $stats['unapproved_posts'],
+				'unapproved_topics' => $stats['unapproved_topics'],
+			)
+		);
 	}
+
 	// Remove Polls.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_poll
@@ -583,7 +572,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
  */
 function removeMessage($message, $decreasePostCount = true)
 {
-	global $board, $sourcedir, $modSettings, $user_info, $smcFunc;
+	global $board, $sourcedir, $modSettings, $user_info, $smcFunc, $context;
 
 	if (empty($message) || !is_numeric($message))
 		return false;
@@ -1024,7 +1013,7 @@ function removeMessage($message, $decreasePostCount = true)
  */
 function RestoreTopic()
 {
-	global $smcFunc, $modSettings, $sourcedir;
+	global $context, $smcFunc, $modSettings, $sourcedir;
 
 	// Check session.
 	checkSession('get');
@@ -1156,7 +1145,7 @@ function RestoreTopic()
 	if (!empty($_REQUEST['topics']))
 	{
 		$topics = explode(',', $_REQUEST['topics']);
-		foreach ($topics as $id)
+		foreach ($topics as $key => $id)
 			$topics_to_restore[] = (int) $id;
 	}
 
@@ -1239,7 +1228,7 @@ function RestoreTopic()
  */
 function mergePosts($msgs, $from_topic, $target_topic)
 {
-	global $smcFunc, $sourcedir;
+	global $context, $smcFunc, $modSettings, $sourcedir;
 
 	//!!! This really needs to be rewritten to take a load of messages from ANY topic, it's also inefficient.
 
@@ -1492,7 +1481,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
  */
 function removeDeleteConcurrence()
 {
-	global $modSettings, $board, $scripturl, $context;
+	global $modSettings, $board, $topic, $smcFunc, $scripturl, $context;
 
 	// No recycle no need to go further
 	if (empty($modSettings['recycle_enable']) || empty($modSettings['recycle_board']))

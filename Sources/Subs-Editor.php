@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function bbc_to_html($text, $compat_mode = false)
 {
-	global $modSettings;
+	global $modSettings, $smcFunc;
 
 	if (!$compat_mode)
 		return $text;
@@ -97,7 +97,7 @@ function bbc_to_html($text, $compat_mode = false)
  */
 function html_to_bbc($text)
 {
-	global $modSettings, $smcFunc, $scripturl, $context;
+	global $modSettings, $smcFunc, $sourcedir, $scripturl, $context;
 
 	// Replace newlines with spaces, as that's how browsers usually interpret them.
 	$text = preg_replace("~\s*[\r\n]+\s*~", ' ', $text);
@@ -726,174 +726,49 @@ function html_to_bbc($text)
 
 	// The final bits are the easy ones - tags which map to tags which map to tags - etc etc.
 	$tags = array(
-		'~<b(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[b]';
-		},
-		'~</b>~i' => function ()
-		{
-			return '[/b]';
-		},
-		'~<i(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[i]';
-		},
-		'~</i>~i' => function ()
-		{
-			return '[/i]';
-		},
-		'~<u(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[u]';
-		},
-		'~</u>~i' => function ()
-		{
-			return '[/u]';
-		},
-		'~<strong(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[b]';
-		},
-		'~</strong>~i' => function ()
-		{
-			return '[/b]';
-		},
-		'~<em(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[i]';
-		},
-		'~</em>~i' => function ()
-		{
-			return '[i]';
-		},
-		'~<s(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return "[s]";
-		},
-		'~</s>~i' => function ()
-		{
-			return "[/s]";
-		},
-		'~<strike(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[s]';
-		},
-		'~</strike>~i' => function ()
-		{
-			return '[/s]';
-		},
-		'~<del(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[s]';
-		},
-		'~</del>~i' => function ()
-		{
-			return '[/s]';
-		},
-		'~<center(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[center]';
-		},
-		'~</center>~i' => function ()
-		{
-			return '[/center]';
-		},
-		'~<pre(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[pre]';
-		},
-		'~</pre>~i' => function ()
-		{
-			return '[/pre]';
-		},
-		'~<sub(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[sub]';
-		},
-		'~</sub>~i' => function ()
-		{
-			return '[/sub]';
-		},
-		'~<sup(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[sup]';
-		},
-		'~</sup>~i' => function ()
-		{
-			return '[/sup]';
-		},
-		'~<tt(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[tt]';
-		},
-		'~</tt>~i' => function ()
-		{
-			return '[/tt]';
-		},
-		'~<table(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[table]';
-		},
-		'~</table>~i' => function ()
-		{
-			return '[/table]';
-		},
-		'~<tr(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[tr]';
-		},
-		'~</tr>~i' => function ()
-		{
-			return '[/tr]';
-		},
-		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~i' => function ($matches)
-		{
-			return str_repeat('[td][/td]', $matches[2] - 1) . '[td]';
-		},
-		'~<(td|th)(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return '[td]';
-		},
-		'~</(td|th)>~i' => function ()
-		{
-			return '[/td]';
-		},
-		'~<br(?:\s[^<>]*?)?' . '>~i' => function ()
-		{
-			return "\n";
-		},
-		'~<hr[^<>]*>(\n)?~i' => function ($matches)
-		{
-			return "[hr]\n". $matches[0];
-		},
-		'~(\n)?\\[hr\\]~i' => function ()
-		{
-			return "\n[hr]";
-		},
-		'~^\n\\[hr\\]~i' => function ()
-		{
-			return "[hr]";
-		},
-		'~<blockquote(\s(.)*?)*?' . '>~i' =>  function ()
-		{
-			return "&lt;blockquote&gt;";
-		},
-		'~</blockquote>~i' => function ()
-		{
-			return "&lt;/blockquote&gt;";
-		},
-		'~<ins(\s(.)*?)*?' . '>~i' => function ()
-		{
-			return "&lt;ins&gt;";
-		},
-		'~</ins>~i' => function ()
-		{
-			return "&lt;/ins&gt;";
-		},
+		'~<b(\s(.)*?)*?' . '>~i' => '[b]',
+		'~</b>~i' => '[/b]',
+		'~<i(\s(.)*?)*?' . '>~i' => '[i]',
+		'~</i>~i' => '[/i]',
+		'~<u(\s(.)*?)*?' . '>~i' => '[u]',
+		'~</u>~i' => '[/u]',
+		'~<strong(\s(.)*?)*?' . '>~i' => '[b]',
+		'~</strong>~i' => '[/b]',
+		'~<em(\s(.)*?)*?' . '>~i' => '[i]',
+		'~</em>~i' => '[/i]',
+		'~<s(\s(.)*?)*?' . '>~i' => "[s]",
+		'~</s>~i' => "[/s]",
+		'~<strike(\s(.)*?)*?' . '>~i' => '[s]',
+		'~</strike>~i' => '[/s]',
+		'~<del(\s(.)*?)*?' . '>~i' => '[s]',
+		'~</del>~i' => '[/s]',
+		'~<center(\s(.)*?)*?' . '>~i' => '[center]',
+		'~</center>~i' => '[/center]',
+		'~<pre(\s(.)*?)*?' . '>~i' => '[pre]',
+		'~</pre>~i' => '[/pre]',
+		'~<sub(\s(.)*?)*?' . '>~i' => '[sub]',
+		'~</sub>~i' => '[/sub]',
+		'~<sup(\s(.)*?)*?' . '>~i' => '[sup]',
+		'~</sup>~i' => '[/sup]',
+		'~<tt(\s(.)*?)*?' . '>~i' => '[tt]',
+		'~</tt>~i' => '[/tt]',
+		'~<table(\s(.)*?)*?' . '>~i' => '[table]',
+		'~</table>~i' => '[/table]',
+		'~<tr(\s(.)*?)*?' . '>~i' => '[tr]',
+		'~</tr>~i' => '[/tr]',
+		'~<(td|th)\s[^<>]*?colspan="?(\d{1,2})"?.*?' . '>~ie' => 'str_repeat(\'[td][/td]\', $2 - 1) . \'[td]\'',
+		'~<(td|th)(\s(.)*?)*?' . '>~i' => '[td]',
+		'~</(td|th)>~i' => '[/td]',
+		'~<br(?:\s[^<>]*?)?' . '>~i' => "\n",
+		'~<hr[^<>]*>(\n)?~i' => "[hr]\n$1",
+		'~(\n)?\\[hr\\]~i' => "\n[hr]",
+		'~^\n\\[hr\\]~i' => "[hr]",
+		'~<blockquote(\s(.)*?)*?' . '>~i' => "&lt;blockquote&gt;",
+		'~</blockquote>~i' => "&lt;/blockquote&gt;",
+		'~<ins(\s(.)*?)*?' . '>~i' => "&lt;ins&gt;",
+		'~</ins>~i' => "&lt;/ins&gt;",
 	);
-
-	foreach ($tags as $tag => $replace)
-		$text = preg_replace_callback($tag, $replace, $text);
+	$text = preg_replace(array_keys($tags), array_values($tags), $text);
 
 	// Please give us just a little more time.
 	if (connection_aborted() && $context['server']['is_apache'])
@@ -1496,7 +1371,7 @@ function loadLocale()
  */
 function getMessageIcons($board_id)
 {
-	global $modSettings, $txt, $settings, $smcFunc;
+	global $modSettings, $context, $txt, $settings, $smcFunc;
 
 	if (empty($modSettings['messageIcons_enable']))
 	{
@@ -1559,7 +1434,6 @@ function getMessageIcons($board_id)
 		else
 			$icons = $temp;
 	}
-	call_integration_hook('integrate_load_message_icons', array(&$icons));
 
 	return array_values($icons);
 }
@@ -1584,7 +1458,7 @@ function theme_postbox($msg)
 function create_control_richedit($editorOptions)
 {
 	global $txt, $modSettings, $options, $smcFunc, $editortxt;
-	global $context, $settings, $user_info, $scripturl;
+	global $context, $settings, $user_info, $sourcedir, $scripturl;
 
 	// Load the Post language file... for the moment at least.
 	loadLanguage('Post');
@@ -1598,7 +1472,7 @@ function create_control_richedit($editorOptions)
 	{
 		// Some general stuff.
 		$settings['smileys_url'] = $modSettings['smileys_url'] . '/' . $user_info['smiley_set'];
-		if (!empty($context['drafts_autosave']))
+		if (!empty($context['drafts_autosave']) && !empty($options['drafts_autosave_enabled']))
 			$context['drafts_autosave_frequency'] = empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000;
 
 		// This really has some WYSIWYG stuff.
@@ -1607,7 +1481,8 @@ function create_control_richedit($editorOptions)
 
 		// JS makes the editor go round
 		loadJavascriptFile('editor.js', array('default_theme' => true), 'smf_editor');
-		loadJavascriptFile('jquery.sceditor.bbcode.min.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.js', array('default_theme' => true));
+		loadJavascriptFile('jquery.sceditor.bbcode.js', array('default_theme' => true));
 		loadJavascriptFile('jquery.sceditor.smf.js', array('default_theme' => true));
 		addInlineJavascript('
 		var smf_smileys_url = \'' . $settings['smileys_url'] . '\';
@@ -1651,6 +1526,19 @@ function create_control_richedit($editorOptions)
 		'locale' => !empty($txt['lang_locale']) && substr($txt['lang_locale'], 0, 5) != 'en_US' ? $txt['lang_locale'] : '',
 		'required' => !empty($editorOptions['required']),
 	);
+
+	// Switch between default images and back... mostly in case you don't have an PersonalMessage template, but do have a Post template.
+	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
+	{
+		$temp1 = $settings['theme_url'];
+		$settings['theme_url'] = $settings['default_theme_url'];
+
+		$temp2 = $settings['images_url'];
+		$settings['images_url'] = $settings['default_images_url'];
+
+		$temp3 = $settings['theme_dir'];
+		$settings['theme_dir'] = $settings['default_theme_dir'];
+	}
 
 	if (empty($context['bbc_tags']))
 	{
@@ -1775,18 +1663,6 @@ function create_control_richedit($editorOptions)
 			),
 		);
 
-		$disabled_editor_tags = array(
-			'b' => 'bold',
-			'i' => 'italic',
-			'u' => 'underline',
-			's' => 'strike',
-			'img' => 'image',
-			'url' => 'link',
-			'sup' => 'superscript',
-			'sub' => 'subscript',
-			'hr' => 'horizontalrule',
-		);
-
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is ketp for backward compatibility with 2.0
 		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
@@ -1814,15 +1690,29 @@ function create_control_richedit($editorOptions)
 
 		foreach ($disabled_tags as $tag)
 		{
-			if ($tag === 'list')
+			if ($tag == 'list')
 			{
 				$context['disabled_tags']['bulletlist'] = true;
 				$context['disabled_tags']['orderedlist'] = true;
 			}
-
-			foreach ($disabled_editor_tags as $thisTag => $tagNameBBC)
-				if ($tag === $thisTag)
-					$context['disabled_tags'][$tagNameBBC] = true;
+			elseif ($tag == 'b')
+				$context['disabled_tags']['bold'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['italic'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['underline'] = true;
+			elseif ($tag == 'i')
+				$context['disabled_tags']['strike'] = true;
+			elseif ($tag == 'img')
+				$context['disabled_tags']['image'] = true;
+			elseif ($tag == 'url')
+				$context['disabled_tags']['link'] = true;
+			elseif ($tag == 'sup')
+				$context['disabled_tags']['superscript'] = true;
+			elseif ($tag == 'sub')
+				$context['disabled_tags']['subscript'] = true;
+			elseif ($tag == 'hr')
+				$context['disabled_tags']['horizontalrule'] = true;
 
 			$context['disabled_tags'][trim($tag)] = true;
 		}
@@ -1837,27 +1727,30 @@ function create_control_richedit($editorOptions)
 			$tagsRow = array();
 			foreach ($tagRow as $tag)
 			{
-				if ((!empty($tag['code'])) && empty($context['disabled_tags'][$tag['code']]))
-				{
-					$tagsRow[] = $tag['code'];
-					if (isset($tag['image']))
-						$bbcodes_styles .= '
+			 if (!empty($tag))
+			 {
+					if (empty($context['disabled_tags'][$tag['code']]))
+					{
+						$tagsRow[] = $tag['code'];
+						if (isset($tag['image']))
+							$bbcodes_styles .= '
 			.sceditor-button-' . $tag['code'] . ' div {
 				background: url(\'' . $settings['default_theme_url'] . '/images/bbc/' . $tag['image'] . '.png\');
 			}';
-					if (isset($tag['before']))
-					{
-						$context['bbcodes_handlers'] .= '
-				$.sceditor.command.set(
-					' . javaScriptEscape($tag['code']) . ', {
-					exec: function () {
+						if (isset($tag['before']))
+						{
+							$context['bbcodes_handlers'] = '
+				$.sceditor.setCommand(
+					' . javaScriptEscape($tag['code']) . ',
+					function () {
 						this.wysiwygEditorInsertHtml(' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ');
 					},
-					txtExec: [' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . '],
-					tooltip: ' . javaScriptEscape($tag['description']) . '
-				});';
+					' . javaScriptEscape($tag['description']) . ',
+					null,
+					[' . javaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . javaScriptEscape($tag['after']) : '') . ']
+				);';
+						}
 					}
-
 				}
 				else
 				{
@@ -2031,7 +1924,15 @@ function create_control_richedit($editorOptions)
 	}
 
 	// Set a flag so the sub template knows what to do...
-	$context['show_bbc'] = !empty($modSettings['enableBBC']);
+	$context['show_bbc'] = !empty($modSettings['enableBBC']) && !empty($modSettings['admin_bbc']);
+
+	// Switch the URLs back... now we're back to whatever the main sub template is.  (like folder in PersonalMessage.)
+	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
+	{
+		$settings['theme_url'] = $temp1;
+		$settings['images_url'] = $temp2;
+		$settings['theme_dir'] = $temp3;
+	}
 }
 
 /**
@@ -2041,8 +1942,8 @@ function create_control_richedit($editorOptions)
  */
 function create_control_verification(&$verificationOptions, $do_test = false)
 {
-	global $modSettings, $smcFunc;
-	global $context, $user_info, $scripturl, $language;
+	global $txt, $modSettings, $smcFunc;
+	global $context, $user_info, $sourcedir, $scripturl, $language;
 
 	// First verification means we need to set up some bits...
 	if (empty($context['controls']['verification']))
@@ -2138,6 +2039,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		$force_refresh = true;
 
 	$verification_errors = array();
+
 	// Start with any testing.
 	if ($do_test)
 	{
@@ -2344,7 +2246,7 @@ function AutoSuggestHandler($checkRegistered = null)
  */
 function AutoSuggest_Search_Member()
 {
-	global $user_info, $smcFunc, $context;
+	global $user_info, $txt, $smcFunc, $context;
 
 	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
@@ -2392,7 +2294,7 @@ function AutoSuggest_Search_Member()
  */
 function AutoSuggest_Search_MemberGroups()
 {
-	global $smcFunc;
+	global $txt, $smcFunc, $context;
 
 	$_REQUEST['search'] = trim($smcFunc['strtolower']($_REQUEST['search'])) . '*';
 	$_REQUEST['search'] = strtr($_REQUEST['search'], array('%' => '\%', '_' => '\_', '*' => '%', '?' => '_', '&#038;' => '&amp;'));
@@ -2481,6 +2383,7 @@ function AutoSuggest_Search_SMFVersions()
 	// Just in case we don't have ANYthing.
 	if (empty($versions))
 		$versions = array('SMF 2.0');
+	
 
 	foreach ($versions as $id => $version)
 		if (strpos($version, strtoupper($_REQUEST['search'])) !== false)
@@ -2493,5 +2396,4 @@ function AutoSuggest_Search_SMFVersions()
 
 	return $xml_data;
 }
-
 ?>

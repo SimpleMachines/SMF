@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -21,19 +21,25 @@ function XMLhttpMain()
 {
 	loadTemplate('Xml');
 
-	$subActions = array(
-		'jumpto' =>  'GetJumpTo',
-		'messageicons' => 'ListMessageIcons',
-		'previews' => 'RetrievePreview',
+	$sub_actions = array(
+		'jumpto' => array(
+			'function' => 'GetJumpTo',
+		),
+		'messageicons' => array(
+			'function' => 'ListMessageIcons',
+		),
+		'previews' => array(
+			'function' => 'RetrievePreview',
+		),
 	);
 
-	// Easy adding of sub actions.
-	call_integration_hook('integrate_XMLhttpMain_subActions', array(&$subActions));
+	// Easy adding of sub actions
+ 	call_integration_hook('integrate_xmlhttp', array(&$sub_actions));
 
-	if (!isset($_REQUEST['sa'], $subActions[$_REQUEST['sa']]))
+	if (!isset($_REQUEST['sa'], $sub_actions[$_REQUEST['sa']]))
 		fatal_lang_error('no_access', false);
 
-	call_helper($subActions[$_REQUEST['sa']]);
+	$sub_actions[$_REQUEST['sa']]['function']();
 }
 
 /**
@@ -43,7 +49,7 @@ function GetJumpTo()
 {
 	global $context, $sourcedir;
 
-	// Find the boards/categories they can see.
+	// Find the boards/cateogories they can see.
 	require_once($sourcedir . '/Subs-MessageIndex.php');
 	$boardListOptions = array(
 		'use_permissions' => true,

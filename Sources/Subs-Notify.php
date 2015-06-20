@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -88,31 +88,6 @@ function setNotifyPrefs($memID, $prefs = array())
 		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'),
 		$update_rows,
 		array('id_member', 'alert_pref')
-	);
-}
-
-/**
- * Deletes notification preference
- *
- * @param int $memID The user whose preference you're setting
- * @param array $prefs
- * @return void
- */
-function deleteNotifyPrefs($memID, array $prefs)
-{
-	global $smcFunc;
-
-	if (empty($prefs) || empty($memID))
-		return;
-
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}user_alerts_prefs
-		WHERE id_member = {int:member}
-			AND alert_pref IN ({array_string:prefs})',
-		array(
-			'member' => $memID,
-			'prefs' => $prefs,
-		)
 	);
 }
 

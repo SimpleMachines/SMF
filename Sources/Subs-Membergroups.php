@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function deleteMembergroups($groups)
 {
-	global $smcFunc, $modSettings, $txt;
+	global $sourcedir, $smcFunc, $modSettings, $txt;
 
 	// Make sure it's an array.
 	if (!is_array($groups))
@@ -322,7 +322,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 			$groups[$key] = (int) $value;
 	}
 
-	// Fetch a list of groups members cannot be assigned to explicitly, and the group names of the ones we want.
+	// Fetch a list of groups members cannot be assigned to explicitely, and the group names of the ones we want.
 	$implicitGroups = array(-1, 0, 3);
 	$request = $smcFunc['db_query']('', '
 		SELECT id_group, group_name, min_posts
@@ -473,7 +473,7 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
-	global $smcFunc, $sourcedir;
+	global $smcFunc, $modSettings, $sourcedir;
 
 	// Show your licence, but only if it hasn't been done yet.
 	if (!$permissionCheckDone)
@@ -619,7 +619,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
  */
 function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 {
-	global $scripturl, $smcFunc;
+	global $scripturl, $txt, $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
@@ -662,11 +662,13 @@ function cache_getMembergroupList()
 		WHERE min_posts = {int:min_posts}
 			AND hidden = {int:not_hidden}
 			AND id_group != {int:mod_group}
+			AND online_color != {string:blank_string}
 		ORDER BY group_name',
 		array(
 			'min_posts' => -1,
 			'not_hidden' => 0,
 			'mod_group' => 3,
+			'blank_string' => '',
 		)
 	);
 	$groupCache = array();
@@ -692,7 +694,7 @@ function cache_getMembergroupList()
  */
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
-	global $scripturl, $context, $settings, $smcFunc, $user_info;
+	global $txt, $scripturl, $context, $settings, $smcFunc, $user_info;
 
 	$groups = array();
 

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -43,6 +43,8 @@ function Ban()
 		'list' => 'BanList',
 		'log' => 'BanLog',
 	);
+
+	call_integration_hook('integrate_manage_bans', array(&$subActions));
 
 	// Default the sub-action to 'view ban list'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'list';
@@ -80,15 +82,13 @@ function Ban()
 		),
 	);
 
-	call_integration_hook('integrate_manage_bans', array(&$subActions));
-
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
  * Shows a list of bans currently set.
- * It is accessed by ?action=admin;area=ban;sa=list.
+ * It is accesssed by ?action=admin;area=ban;sa=list.
  * It removes expired bans.
  * It allows sorting on different criteria.
  * It also handles removal of selected ban items.
@@ -98,7 +98,7 @@ function Ban()
 function BanList()
 {
 	global $txt, $context, $scripturl;
-	global $user_info, $sourcedir, $modSettings;
+	global $user_info, $sourcedir;
 
 	// User pressed the 'remove selection button'.
 	if (!empty($_POST['removeBans']) && !empty($_POST['remove']) && is_array($_POST['remove']))
@@ -128,7 +128,7 @@ function BanList()
 	$listOptions = array(
 		'id' => 'ban_list',
 		'title' => $txt['ban_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=list',
 		'default_sort_col' => 'added',
 		'default_sort_dir' => 'desc',
@@ -206,7 +206,7 @@ function BanList()
 
 						// This ban has already expired.
 						elseif ($rowData['expire_time'] < time())
-							return sprintf('<span class="red">%1$s</span>', $txt['ban_expired']);
+							return sprintf('<span style="color: red">%1$s</span>', $txt['ban_expired']);
 
 						// Still need to wait a few days for this ban to expire.
 						else
@@ -267,7 +267,7 @@ function BanList()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_confirm'] . '\');" class="button_submit">',
 			),
 		),
 	);
@@ -337,10 +337,10 @@ function list_getNumBans()
 /**
  * This function is behind the screen for adding new bans and modifying existing ones.
  * Adding new bans:
- * 	- is accessed by ?action=admin;area=ban;sa=add.
+ * 	- is accesssed by ?action=admin;area=ban;sa=add.
  * 	- uses the ban_edit sub template of the ManageBans template.
  * Modifying existing bans:
- *  - is accessed by ?action=admin;area=ban;sa=edit;bg=x
+ *  - is accesssed by ?action=admin;area=ban;sa=edit;bg=x
  *  - uses the ban_edit sub template of the ManageBans template.
  *  - shows a list of ban triggers for the specified ban.
  */
@@ -377,7 +377,7 @@ function BanEdit()
 				'id' => 'ban_items',
 				'base_href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				'no_items_label' => $txt['ban_no_triggers'],
-				'items_per_page' => $modSettings['defaultMaxListItems'],
+				'items_per_page' => $modSettings['defaultMaxMessages'],
 				'get_items' => array(
 					'function' => 'list_getBanItems',
 					'params' => array(
@@ -427,7 +427,7 @@ function BanEdit()
 						'data' => array(
 							'function' => function ($ban_item) use ($txt, $context, $scripturl)
 							{
-								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
+								return '<a href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $context['ban']['id'] . ';bi=' . $ban_item['id'] . '">' . $txt['ban_edit_trigger'] . '</a>';
 							},
 							'style' => 'text-align: center;',
 						),
@@ -830,7 +830,7 @@ function banEdit2()
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
 	{
-		$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
+		$context['ban_suggestions'] = $saved_triggers;
 		$context['ban']['from_user'] = true;
 		$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
 
@@ -839,7 +839,7 @@ function banEdit2()
 			$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
-	$context['ban_suggestions']['saved_triggers'] = !empty($saved_triggers) ? $saved_triggers : array();
+	$context['ban_suggestions']['saved_triggers'] = $saved_triggers;
 
 	if (isset($_POST['ban_items']))
 	{
@@ -1471,6 +1471,7 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 
 /**
  * Updates an existing ban group
+ * If the name doesn't exists a new one is created
  *
  * Errors in $context['ban_errors']
  *
@@ -1485,48 +1486,24 @@ function updateBanGroup($ban_info = array())
 		$context['ban_errors'][] = 'ban_name_empty';
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'ban_id_empty';
-	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
-		$context['ban_errors'][] = 'ban_unknown_restriction_type';
-
-	if(!empty($ban_info['id']))
-	{
-		// Verify the ban group exists.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_ban_group
-			FROM {db_prefix}ban_groups
-			WHERE id_ban_group = {int:ban_group}
-			LIMIT 1',
-			array(
-				'ban_group' => $ban_info['id']
-			)
-		);
-
-		if ($smcFunc['db_num_rows']($request) == 0)
-			$context['ban_errors'][] = 'ban_not_found';
-		$smcFunc['db_free_result']($request);
-	}
-
-	if(!empty($ban_info['name']))
-	{
-		// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
-		$request = $smcFunc['db_query']('', '
-			SELECT id_ban_group
-			FROM {db_prefix}ban_groups
-			WHERE name = {string:new_ban_name}
-				AND id_ban_group != {int:ban_group}
-			LIMIT 1',
-			array(
-				'ban_group' => empty($ban_info['id']) ? 0 : $ban_info['id'],
-				'new_ban_name' => $ban_info['name'],
-			)
-		);
-		if ($smcFunc['db_num_rows']($request) != 0)
-			$context['ban_errors'][] = 'ban_name_exists';
-		$smcFunc['db_free_result']($request);
-	}
 
 	if (!empty($context['ban_errors']))
 		return;
+
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban_group
+		FROM {db_prefix}ban_groups
+		WHERE name = {string:new_ban_name}
+			AND id_ban_group = {int:ban_group}
+		LIMIT 1',
+		array(
+			'ban_group' => $ban_info['id'],
+			'new_ban_name' => $ban_info['name'],
+		)
+	);
+	if ($smcFunc['db_num_rows']($request) == 0)
+		return insertBanGroup($ban_info);
+	$smcFunc['db_free_result']($request);
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_groups
@@ -1557,7 +1534,7 @@ function updateBanGroup($ban_info = array())
 
 /**
  * Creates a new ban group
- * If the group is successfully created the ID is returned
+ * If a ban group with the same name already exists or the group s sucessfully created the ID is returned
  * On error the error code is returned or false
  *
  * Errors in $context['ban_errors']
@@ -1574,26 +1551,27 @@ function insertBanGroup($ban_info = array())
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
-	if(!empty($ban_info['name']))
-	{
-		// Check whether a ban with this name already exists.
-		$request = $smcFunc['db_query']('', '
-			SELECT id_ban_group
-			FROM {db_prefix}ban_groups
-			WHERE name = {string:new_ban_name}' . '
-			LIMIT 1',
-			array(
-				'new_ban_name' => $ban_info['name'],
-			)
-		);
-
-		if ($smcFunc['db_num_rows']($request) == 1)
-			$context['ban_errors'][] = 'ban_name_exists';
-		$smcFunc['db_free_result']($request);
-	}
-
 	if (!empty($context['ban_errors']))
 		return;
+
+	// Check whether a ban with this name already exists.
+	$request = $smcFunc['db_query']('', '
+		SELECT id_ban_group
+		FROM {db_prefix}ban_groups
+		WHERE name = {string:new_ban_name}' . '
+		LIMIT 1',
+		array(
+			'new_ban_name' => $ban_info['name'],
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) == 1)
+	{
+		list($id_ban) = $smcFunc['db_fetch_row']($request);
+		$smcFunc['db_free_result']($request);
+		return $id_ban;
+	}
+	$smcFunc['db_free_result']($request);
 
 	// Yes yes, we're ready to add now.
 	$smcFunc['db_insert']('',
@@ -1765,7 +1743,7 @@ function BanBrowseTriggers()
 	$listOptions = array(
 		'id' => 'ban_trigger_list',
 		'title' => $txt['ban_trigger_browse'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'base_href' => $scripturl . '?action=admin;area=ban;sa=browse;entity=' . $context['selected_entity'],
 		'default_sort_col' => 'banned_entity',
 		'no_items_label' => $txt['ban_no_triggers'],
@@ -1845,7 +1823,7 @@ function BanBrowseTriggers()
 			),
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" data-confirm="' . $txt['ban_remove_selected_triggers_confirm'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="remove_triggers" value="' . $txt['ban_remove_selected_triggers'] . '" onclick="return confirm(\'' . $txt['ban_remove_selected_triggers_confirm'] . '\');" class="button_submit">',
 			),
 		),
 	);
@@ -2017,7 +1995,7 @@ function list_getNumBanTriggers($trigger_type)
  */
 function BanLog()
 {
-	global $scripturl, $context, $sourcedir, $txt, $modSettings;
+	global $scripturl, $context, $sourcedir, $txt;
 
 	// Delete one or more entries.
 	if (!empty($_POST['removeAll']) || (!empty($_POST['removeSelected']) && !empty($_POST['remove'])))
@@ -2039,7 +2017,7 @@ function BanLog()
 	$listOptions = array(
 		'id' => 'ban_log',
 		'title' => $txt['ban_log'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => 30,
 		'base_href' => $context['admin_area'] == 'ban' ? $scripturl . '?action=admin;area=ban;sa=log' : $scripturl . '?action=admin;area=logs;sa=banlog',
 		'default_sort_col' => 'date',
 		'get_items' => array(
@@ -2138,8 +2116,8 @@ function BanLog()
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '
-					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button_submit you_sure">
-					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button_submit you_sure">',
+					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_selected_confirm'] . '\');" class="button_submit">
+					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" onclick="return confirm(\'' . $txt['ban_log_remove_all_confirm'] . '\');" class="button_submit">',
 			),
 		),
 	);

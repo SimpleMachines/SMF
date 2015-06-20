@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -24,9 +24,9 @@ if (!defined('SMF'))
  */
 function getLastPosts($latestPostOptions)
 {
-	global $scripturl, $modSettings, $smcFunc;
+	global $scripturl, $txt, $modSettings, $smcFunc, $context;
 
-	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessible...)
+	// Find all the posts.  Newer ones will have higher IDs.  (assuming the last 20 * number are accessable...)
 	// @todo SLOW This query is now slow, NEEDS to be fixed.  Maybe break into two?
 	$request = $smcFunc['db_query']('substring', '
 		SELECT

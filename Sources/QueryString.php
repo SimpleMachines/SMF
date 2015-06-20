@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -75,7 +75,7 @@ function cleanRequest()
 		$_GET = array();
 
 		// Was this redirected? If so, get the REDIRECT_QUERY_STRING.
-		// Do not urldecode() the querystring.
+		// Do not urldecode() the querystring, unless you so much wish to break OpenID implementation. :)
 		$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], 0, 5) === 'url=/' ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 		// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
@@ -211,13 +211,6 @@ function cleanRequest()
 	if (isset($_GET['action']))
 		$_GET['action'] = (string) $_GET['action'];
 
-	// Some mail providers like to encode semicolons in activation URLs...
-	if (!empty($_REQUEST['action']) && substr($_SERVER['QUERY_STRING'], 0, 18) == 'action=activate%3b')
-	{
-		header('Location: ' . $scripturl . '?' . str_replace('%3b', ';', $_SERVER['QUERY_STRING']));
-		exit;
-	}
-
 	// Make sure we have a valid REMOTE_ADDR.
 	if (!isset($_SERVER['REMOTE_ADDR']))
 	{
@@ -239,51 +232,37 @@ function cleanRequest()
 	// Try to calculate their most likely IP for those people behind proxies (And the like).
 	$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
 
-	// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
-	if (!isset($modSettings['proxy_ip_header']))
-		$modSettings['proxy_ip_header'] = 'autodetect';
-
-	// Which headers are we going to check for Reverse Proxy IP headers?
-	if ($modSettings['proxy_ip_header'] = 'disabled')
-		$reverseIPheaders = array();
-	elseif ($modSettings['proxy_ip_header'] = 'autodetect')
-		$reverseIPheaders = array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP');
-	else
-		$reverseIPheaders = array($modSettings['proxy_ip_header']);
-
 	// Find the user's IP address. (but don't let it give you 'unknown'!)
-	foreach ($reverseIPheaders as $proxyIPheader)
+	// @ TODO: IPv6 really doesn't need this.
+	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_CLIENT_IP']) && (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['HTTP_CLIENT_IP']) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0))
 	{
-		if (isset($modSettings['proxy_ip_servers']))
-		{
-			foreach (explode(',', $modSettings['proxy_ip_servers']) as $proxy)
-				if ($proxy == $_SERVER['REMOTE_ADDR'] || matchIPtoCIDR($_SERVER['REMOTE_ADDR'], $proxy))
-					continue;
-		}
-
+		// We have both forwarded for AND client IP... check the first forwarded for as the block - only switch if it's better that way.
+		if (strtok($_SERVER['HTTP_X_FORWARDED_FOR'], '.') != strtok($_SERVER['HTTP_CLIENT_IP'], '.') && '.' . strtok($_SERVER['HTTP_X_FORWARDED_FOR'], '.') == strrchr($_SERVER['HTTP_CLIENT_IP'], '.') && (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown)~', $_SERVER['HTTP_X_FORWARDED_FOR']) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown)~', $_SERVER['REMOTE_ADDR']) != 0))
+			$_SERVER['BAN_CHECK_IP'] = implode('.', array_reverse(explode('.', $_SERVER['HTTP_CLIENT_IP'])));
+		else
+			$_SERVER['BAN_CHECK_IP'] = $_SERVER['HTTP_CLIENT_IP'];
+	}
+	if (!empty($_SERVER['HTTP_CLIENT_IP']) && (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['HTTP_CLIENT_IP']) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0))
+	{
+		// Since they are in different blocks, it's probably reversed.
+		if (strtok($_SERVER['REMOTE_ADDR'], '.') != strtok($_SERVER['HTTP_CLIENT_IP'], '.'))
+			$_SERVER['BAN_CHECK_IP'] = implode('.', array_reverse(explode('.', $_SERVER['HTTP_CLIENT_IP'])));
+		else
+			$_SERVER['BAN_CHECK_IP'] = $_SERVER['HTTP_CLIENT_IP'];
+	}
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+	{
 		// If there are commas, get the last one.. probably.
-		if (strpos($_SERVER[$proxyIPheader], ',') !== false)
+		if (strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false)
 		{
-			$ips = array_reverse(explode(', ', $_SERVER[$proxyIPheader]));
+			$ips = array_reverse(explode(', ', $_SERVER['HTTP_X_FORWARDED_FOR']));
 
 			// Go through each IP...
 			foreach ($ips as $i => $ip)
 			{
 				// Make sure it's in a valid range...
 				if (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $ip) != 0 && preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) == 0)
-				{
-					if (!isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
-					{
-						$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
-
-						// Just incase we have a legacy IPv4 address.
-						// @ TODO: Convert to IPv6.
-						if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0)
-							continue;
-					}
-
 					continue;
-				}
 
 				// Otherwise, we've got an IP!
 				$_SERVER['BAN_CHECK_IP'] = trim($ip);
@@ -291,17 +270,8 @@ function cleanRequest()
 			}
 		}
 		// Otherwise just use the only one.
-		elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0)
-			$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
-		elseif (!isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
-		{
-			$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
-
-			// Just incase we have a legacy IPv4 address.
-			// @ TODO: Convert to IPv6.
-			if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER[$proxyIPheader]) === 0)
-				continue;
-		}
+		elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['HTTP_X_FORWARDED_FOR']) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0)
+			$_SERVER['BAN_CHECK_IP'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 	}
 
 	// Make sure we know the URL of the current request.
@@ -367,7 +337,7 @@ function convertIPv6toInts($ip)
  * Expands a IPv6 address to its full form.
  *
  * @param type $addr
- * @param type $strict_check checks length to expand address for compliance
+ * @param type $strict_check checks lenght to expaned address for compliance
  * @return boolean/string expanded ipv6 address.
  */
 function expandIPv6($addr, $strict_check = true)
@@ -414,20 +384,6 @@ function expandIPv6($addr, $strict_check = true)
 		return false;
 }
 
-
-/**
- * Detect if a IP is in a CIDR address
- * - returns true or false
- *
- * @param string IP address to check
- * @param string CIDR address to verify
- * @return bool
-*/
-function matchIPtoCIDR($ip_address, $cidr_address)
-{
-    list ($cidr_network, $cidr_subnetmask) = split('/', $cidr_address);
-    return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
-}
 
 /**
  * Adds slashes to the array/variable.

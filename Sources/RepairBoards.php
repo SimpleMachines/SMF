@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Finds or repairs errors in the database to fix possible problems.
  * Requires the admin_forum permission.
- * Calls createSalvageArea() to create a new board, if necessary.
+ * Calls createSalvageArea() to create a new board, if necesary.
  * Accessed by ?action=admin;area=repairboards.
  *
  * @uses repair_boards sub-template.
@@ -335,152 +335,10 @@ function loadForumTests()
 							'topics' => $topics,
 						)
 					);
-
+				
 				},
 			),
 			'messages' => array('repair_missing_messages', 'id_topic'),
-		),
-		'poll_options_missing_poll' => array(
-			'substeps' => array(
-				'step_size' => 500,
-				'step_max' => '
-					SELECT MAX(id_poll)
-					FROM {db_prefix}poll_choices'
-			),
-			'check_query' => '
-				SELECT o.id_poll, count(*) as amount, t.id_topic, t.id_board, t.id_member_started AS id_poster, m.member_name AS poster_name
-				FROM {db_prefix}poll_choices AS o
-				  LEFT JOIN {db_prefix}polls AS p ON (p.id_poll = o.id_poll)
-				  LEFT JOIN {db_prefix}topics AS t ON (t.id_poll = o.id_poll)
-				  LEFT JOIN {db_prefix}members AS m ON (m.id_member = t.id_member_started)
-				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
-				  AND p.id_poll IS NULL
-				GROUP BY o.id_poll
-				  ',
-			'fix_processing' => function ($row) use ($smcFunc, $txt)
-			{
-				global $salvageBoardID;
-
-				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
-				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
-
-				if(empty($row['id_board']))
-				{
-					// Only if we don't have a reasonable idea of where to put it.
-					createSalvageArea();
-					$row['id_board'] = (int)$salvageBoardID;
-				}
-
-				if(empty($row['id_topic'])) {
-					$smcFunc['db_insert']('',
-						'{db_prefix}messages',
-						array(
-							'id_board' => 'int',
-							'id_topic' => 'int',
-							'poster_time' => 'int',
-							'id_member' => 'int',
-							'subject' => 'string-255',
-							'poster_name' => 'string-255',
-							'poster_email' => 'string-255',
-							'poster_ip' => 'string-16',
-							'smileys_enabled' => 'int',
-							'body' => 'string-65534',
-							'icon' => 'string-16',
-							'approved' => 'int',
-						),
-						array(
-							$row['id_board'],
-							0,
-							time(),
-							$row['id_poster'],
-							$txt['salvaged_poll_topic_name'],
-							$row['poster_name'],
-							$txt['salvaged_poll_topic_name'],
-							'127.0.0.1',
-							1,
-							$txt['salvaged_poll_message_body'],
-							'xx',
-							1,
-						),
-						array('id_topic')
-					);
-
-					$newMessageID = $smcFunc['db_insert_id']("{db_prefix}messages", 'id_msg');
-
-					$smcFunc['db_insert']('',
-						'{db_prefix}topics',
-						array(
-							'id_board' => 'int',
-							'id_poll' => 'int',
-							'id_member_started' => 'int',
-							'id_member_updated' => 'int',
-							'id_first_msg' => 'int',
-							'id_last_msg' => 'int',
-							'num_replies' => 'int',
-						),
-						array(
-							$row['id_board'],
-							$row['id_poll'],
-							$row['id_poster'],
-							$row['id_poster'],
-							$newMessageID,
-							$newMessageID,
-							0,
-						),
-						array('id_topic')
-					);
-
-					$row['id_topic'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
-
-					$smcFunc['db_query']('', '
-						UPDATE {db_prefix}messages
-					SET id_topic = {int:newTopicID}, id_board = {int:id_board}
-						WHERE id_msg = {int:newMessageID}',
-						array(
-							'id_board' => $row['id_board'],
-							'newTopicID' => $row['id_topic'],
-							'newMessageID' => $newMessageID,
-						)
-					);
-
-					updateStats('subject', $row['id_topic'], $txt['salvaged_poll_topic_name']);
-				}
-
-				$smcFunc['db_insert']('',
-					'{db_prefix}polls',
-					array(
-						'id_poll' => 'int',
-						'question' => 'string-255',
-						'voting_locked' => 'int',
-						'max_votes' => 'int',
-						'expire_time' => 'int',
-						'hide_results' => 'int',
-						'change_vote' => 'int',
-						'guest_vote' => 'int',
-						'num_guest_voters' => 'int',
-						'reset_poll' => 'int',
-						'id_member' => 'int',
-						'poster_name' => 'string-255',
-					),
-					array(
-						$row['id_poll'],
-						$txt['salvaged_poll_question'],
-						1,
-						0,
-						0,
-						0,
-						0,
-						0,
-						0,
-						0,
-						$row['id_poster'],
-						$row['poster_name'],
-					),
-					array()
-				);
-			},
-			'force_fix' => array('stats_topics'),
-			'messages' => array('repair_poll_options_missing_poll', 'id_poll', 'amount'),
 		),
 		'polls_missing_topics' => array(
 			'substeps' => array(
@@ -571,17 +429,16 @@ function loadForumTests()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
 				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
-					WHERE id_msg = {int:newMessageID}',
+					WHERE id_msg = $newMessageID',
 					array(
 						'id_board' => $row['id_board'],
 						'newTopicID' => $newTopicID,
-						'newMessageID' => $newMessageID,
 					)
 				);
 
 				updateStats('subject', $newTopicID, $txt['salvaged_poll_topic_name']);
 
-
+				
 		},
 			'force_fix' => array('stats_topics'),
 			'messages' => array('repair_polls_missing_topics', 'id_poll', 'id_topic'),
@@ -675,7 +532,7 @@ function loadForumTests()
 				ORDER BY t.id_topic',
 			'fix_processing' => function ($row)
 		{
-
+		
 				global $smcFunc;
 				$row['my_num_replies'] = (int) $row['my_num_replies'];
 
@@ -692,11 +549,11 @@ function loadForumTests()
 						'topic_id' => $row['id_topic'],
 					)
 				);
-
+			
 		},
 			'message_function' => function ($row)
 		{
-
+		
 				global $txt, $context;
 
 				// Just joking?
@@ -707,7 +564,7 @@ function loadForumTests()
 					$context['repair_errors'][] = sprintf($txt['repair_stats_topics_3'], $row['id_topic'], $row['num_replies']);
 
 				return true;
-
+			
 		},
 		),
 		// Find topics with incorrect unapproved_posts.
@@ -729,7 +586,7 @@ function loadForumTests()
 				ORDER BY t.id_topic',
 			'fix_processing' => function ($row)
 		{
-
+		
 				global $smcFunc;
 				$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
 
@@ -742,7 +599,7 @@ function loadForumTests()
 						'topic_id' => $row['id_topic'],
 					)
 				);
-
+			
 		},
 			'messages' => array('repair_stats_topics_4', 'id_topic', 'unapproved_posts'),
 		),
@@ -771,7 +628,7 @@ function loadForumTests()
 				GROUP BY t.id_board',
 			'fix_processing' => function ($row)
 		{
-
+		
 				global $smcFunc, $salvageCatID, $txt;
 				createSalvageArea();
 
@@ -804,7 +661,7 @@ function loadForumTests()
 						'board_id' => $row['id_board'],
 					)
 				);
-
+			
 		},
 			'messages' => array('repair_missing_boards', 'id_topic', 'id_board'),
 		),
@@ -856,7 +713,7 @@ function loadForumTests()
 				'index' => 'id_msg',
 				'process' => function ($msgs)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}messages
@@ -867,7 +724,7 @@ function loadForumTests()
 							'guest_id' => 0,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_posters', 'id_msg', 'id_member'),
@@ -919,7 +776,7 @@ function loadForumTests()
 				'index' => 'id_poll',
 				'process' => function ($polls)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}topics
@@ -929,7 +786,7 @@ function loadForumTests()
 							'polls' => $polls,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_polls', 'id_topic', 'id_poll'),
@@ -953,7 +810,7 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => function ($events)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}calendar
@@ -963,7 +820,7 @@ function loadForumTests()
 							'events' => $events,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_calendar_topics', 'id_event', 'id_topic'),
@@ -985,7 +842,7 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => function ($topics)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_topics
@@ -994,7 +851,7 @@ function loadForumTests()
 							'topics' => $topics,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_log_topics', 'id_topic'),
@@ -1017,7 +874,7 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => function ($members)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_topics
@@ -1026,7 +883,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_log_topics_members', 'id_member'),
@@ -1049,7 +906,7 @@ function loadForumTests()
 				'index' => 'id_board',
 				'process' => function ($boards)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_boards
@@ -1058,7 +915,7 @@ function loadForumTests()
 							'boards' => $boards,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_log_boards', 'id_board'),
@@ -1198,7 +1055,7 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => function ($members)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}pm_recipients
@@ -1207,7 +1064,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_recipients', 'id_member'),
@@ -1230,7 +1087,7 @@ function loadForumTests()
 				'index' => 'id_pm',
 				'process' => function ($guestMessages)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						UPDATE {db_prefix}personal_messages
@@ -1239,7 +1096,7 @@ function loadForumTests()
 						array(
 							'guestMessages' => $guestMessages,
 						));
-
+				
 		},
 			),
 			'messages' => array('repair_missing_senders', 'id_pm', 'id_member_from'),
@@ -1289,7 +1146,7 @@ function loadForumTests()
 					AND lss.id_topic IS NULL',
 			'fix_full_processing' => function ($result)
 		{
-
+		
 				global $smcFunc;
 
 				$inserts = array();
@@ -1317,11 +1174,11 @@ function loadForumTests()
 						$inserts,
 						array('word', 'id_topic')
 					);
-
+			
 		},
 			'message_function' => function ($row)
 		{
-
+		
 				global $txt, $context;
 
 				if (count(text2words($row['subject'])) != 0)
@@ -1331,7 +1188,7 @@ function loadForumTests()
 				}
 
 				return false;
-
+			
 		},
 		),
 		'missing_topic_for_cache' => array(
@@ -1351,7 +1208,7 @@ function loadForumTests()
 				'index' => 'id_topic',
 				'process' => function ($deleteTopics)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_search_subjects
@@ -1360,7 +1217,7 @@ function loadForumTests()
 							'deleteTopics' => $deleteTopics,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_topic_for_cache', 'word'),
@@ -1383,7 +1240,7 @@ function loadForumTests()
 				'index' => 'id_member',
 				'process' => function ($members)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_polls
@@ -1392,7 +1249,7 @@ function loadForumTests()
 							'members' => $members,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_log_poll_member', 'id_poll', 'id_member'),
@@ -1414,7 +1271,7 @@ function loadForumTests()
 				'index' => 'id_poll',
 				'process' => function ($polls)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_polls
@@ -1423,7 +1280,7 @@ function loadForumTests()
 							'polls' => $polls,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_missing_log_poll_vote', 'id_member', 'id_poll'),
@@ -1445,7 +1302,7 @@ function loadForumTests()
 				'index' => 'id_report',
 				'process' => function ($reports)
 		{
-
+		
 					global $smcFunc;
 					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_reported
@@ -1454,7 +1311,7 @@ function loadForumTests()
 							'reports' => $reports,
 						)
 					);
-
+				
 		},
 			),
 			'messages' => array('repair_report_missing_comments', 'id_report', 'subject'),

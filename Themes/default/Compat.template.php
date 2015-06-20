@@ -4,16 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 // Generate a strip of buttons, out of buttons.
 function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	// Compatibility.
 	if (!is_array($strip_options))
@@ -25,7 +25,7 @@ function template_button_strip($button_strip, $direction = 'top', $strip_options
 	{
 		if (!isset($value['test']) || !empty($context[$value['test']]))
 			$buttons[] = '
-				<a class="button button_strip_' . $key . (isset($value['active']) ? ' active' : '') . (isset($value['class']) ? ' '. $value['class'] : '') .'" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
+				<a' . (isset($value['id']) ? ' id="button_strip_' . $value['id'] . '"' : '') . ' class="button button_strip_' . $key . (isset($value['active']) ? ' active' : '') . '" href="' . $value['url'] . '"' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>' . $txt[$value['text']] . '</a>';
 	}
 
 	// No buttons? No button strip either.

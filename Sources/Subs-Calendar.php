@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -1074,7 +1074,7 @@ function list_getNumHolidays()
 }
 
 /**
- * Remove a holiday from the calendar
+ * Remove a holdiay from the calendar
  *
  * @param array $holiday_ids An array of
  */

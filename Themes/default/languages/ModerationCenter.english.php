@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; ModerationCenter
+// Version: 2.1 Alpha 1; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -22,18 +22,15 @@ $txt['mc_recent_user_reports'] = 'Recent Profile Reports';
 $txt['mc_warnings'] = 'Warnings';
 $txt['mc_notes'] = 'Moderator Notes';
 
-$txt['mc_notes_delete_own'] = 'You are only allowed to delete your own notes.';
 $txt['mc_cannot_connect_sm'] = 'You are unable to connect to simplemachines.org\'s latest news file.';
 
 $txt['mc_recent_reports_none'] = 'There are no outstanding reports';
 $txt['mc_watched_users_none'] = 'There are not currently any watches in place.';
 $txt['mc_group_requests_none'] = 'There are no open requests for group membership.';
-$txt['mc_reported_users_none'] = 'There are no pending profile reports.';
 
 $txt['mc_seen'] = '%1$s last seen %2$s';
 $txt['mc_seen_never'] = '%1$s never seen';
 $txt['mc_groupr_by'] = 'by';
-$txt['mc_post_report'] = '%1$s by %2$s';
 
 $txt['mc_reported_posts_desc'] = 'Here you can review all the post reports raised by members of the community.';
 $txt['mc_reportedp_active'] = 'Active Reports';
@@ -48,14 +45,14 @@ $txt['mc_reportedp_comment_delete'] = 'Delete';
 $txt['mc_reportedp_details'] = 'Details';
 $txt['mc_reportedp_close'] = 'Close';
 $txt['mc_reportedp_open'] = 'Open';
-$txt['mc_reportedp_ignore'] = 'Ignore';
-$txt['mc_reportedp_unignore'] = 'Un-Ignore';
+$txt['mc_reportedp_ignore'] = 'Disregard';
+$txt['mc_reportedp_unignore'] = 'Undo Disregard';
 $txt['mc_reportedp_delete'] = 'Delete message';
 $txt['mc_reportedp_new_comment'] = 'Add a new comment';
 $txt['mc_reportedp_delete_confirm'] = 'Are you sure you wish to delete this message?';
 $txt['mc_reportedp_ban'] = 'Ban this user';
 // Do not use numeric entries in the below string.
-$txt['mc_reportedp_ignore_confirm'] = 'If you choose "OK", then this forum will silently ignore and ignore all future attempts to report this post; moderators will not see any future reports about this post. Are you sure you wish to do this?';
+$txt['mc_reportedp_ignore_confirm'] = 'Are you sure you wish to ignore further reports about this message? This will turn off further reports for all moderators of the forum.';
 $txt['mc_reportedp_close_selected'] = 'Close Selected';
 
 $txt['mc_groupr_group'] = 'Membergroups';
@@ -85,9 +82,9 @@ $txt['mc_unapproved_attach_name'] = 'Attachment name';
 $txt['mc_unapproved_attach_size'] = 'Filesize';
 $txt['mc_unapproved_attach_poster'] = 'Poster';
 $txt['mc_viewmodreport'] = 'Moderation report for %1$s by %2$s';
-$txt['mc_modreport_summary'] = 'There have been %1$d report(s) concerning this post. The last report was %2$s.';
+$txt['mc_modreport_summary'] = 'There have been %1$d report(s) concerning this post.  The last report was %2$s.';
 $txt['mc_modreport_whoreported_title'] = 'Members who have reported this post';
-$txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s. They left the following message:';
+$txt['mc_modreport_whoreported_data'] = 'Reported by %1$s on %2$s.  They left the following message:';
 $txt['mc_modreport_modactions'] = 'Actions taken by other moderators';
 $txt['mc_modreport_mod_comments'] = 'Moderator Comments';
 $txt['mc_modreport_no_mod_comment'] = 'There are not currently any moderator comments';
@@ -95,7 +92,7 @@ $txt['mc_modreport_add_mod_comment'] = 'Add Comment';
 $txt['mc_modreport_edit_mod_comment'] = 'Edit Comment';
 
 $txt['mc_viewmemberreport'] = 'Report for profile of %1$s';
-$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member. The last report was %2$s.';
+$txt['mc_memberreport_summary'] = 'There have been %1$d report(s) concerning this member.  The last report was %2$s.';
 $txt['mc_memberreport_whoreported_title'] = 'Members who have reported this member.';
 
 $txt['show_notice'] = 'Notice Text';

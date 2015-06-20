@@ -14,14 +14,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
-$forum_version = 'SMF 2.1 Beta 2';
-$software_year = '2015';
+$forum_version = 'SMF 2.1 Alpha 1';
+$software_year = '2014';
 
 // Get everything started up...
 define('SMF', 1);
@@ -150,6 +150,13 @@ if (WIRELESS)
 		header('Content-Type: text/vnd.wap.wml');
 }
 
+// Restore post data if we are revalidating OpenID.
+if (isset($_GET['openid_restore_post']) && !empty($_SESSION['openid']['saved_data'][$_GET['openid_restore_post']]['post']) && empty($_POST))
+{
+	$_POST = $_SESSION['openid']['saved_data'][$_GET['openid_restore_post']]['post'];
+	unset($_SESSION['openid']['saved_data'][$_GET['openid_restore_post']]);
+}
+
 // What function shall we execute? (done like this for memory's sake.)
 call_user_func(smf_main());
 
@@ -163,7 +170,7 @@ obExit(null, null, true);
 function smf_main()
 {
 	global $modSettings, $settings, $user_info, $board, $topic;
-	global $board_info, $maintenance, $sourcedir;
+	global $board_info, $maintenance, $sourcedir, $db_show_debug, $context;
 
 	// Special case: session keep-alive, output a transparent pixel.
 	if (isset($_GET['action']) && $_GET['action'] == 'keepalive')
@@ -185,7 +192,7 @@ function smf_main()
 	loadPermissions();
 
 	// Attachments don't require the entire theme to be loaded.
-	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach')
+	if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && (!empty($modSettings['allow_guestAccess']) && $user_info['is_guest']))
 		detectBrowser();
 	// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 	else
@@ -226,44 +233,31 @@ function smf_main()
 			return 'InMaintenance';
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'register', 'register2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'openidreturn'))))
 		return 'KickGuest';
 	elseif (empty($_REQUEST['action']))
 	{
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
 		{
-			$defaultAction = false;
-
-			if (!empty($modSettings['integrate_default_action']))
+			$defaultActions = call_integration_hook('integrate_default_action');
+			foreach ($defaultActions as $defaultAction)
 			{
-				$defaultAction = explode(',', $modSettings['integrate_default_action']);
-
-				// Sorry, only one default action is needed.
-				$defaultAction = $defaultAction[0];
-
-				$call = call_helper($defaultAction, true);
-
-				if (!empty($call))
+				$call = call_hook_helper($defaultAction);
+				if (!empty($call) && is_callable($call))
 					return $call;
 			}
 
-			// No default action huh? then go to our good old BoardIndex.
-			else
-			{
-				require_once($sourcedir . '/BoardIndex.php');
+			require_once($sourcedir . '/BoardIndex.php');
 
-				return 'BoardIndex';
-			}
+			return 'BoardIndex';
 		}
-
 		// Topic is empty, and action is empty.... MessageIndex!
 		elseif (empty($topic))
 		{
 			require_once($sourcedir . '/MessageIndex.php');
 			return 'MessageIndex';
 		}
-
 		// Board is not empty... topic is not empty... action is empty.. Display!
 		else
 		{
@@ -299,18 +293,18 @@ function smf_main()
 		'lockvoting' => array('Poll.php', 'LockVoting'),
 		'login' => array('LogInOut.php', 'Login'),
 		'login2' => array('LogInOut.php', 'Login2'),
-		'logintfa' => array('LogInOut.php', 'LoginTFA'),
 		'logout' => array('LogInOut.php', 'Logout'),
 		'markasread' => array('Subs-Boards.php', 'MarkRead'),
 		'mergetopics' => array('SplitTopics.php', 'MergeTopics'),
 		'mlist' => array('Memberlist.php', 'Memberlist'),
 		'moderate' => array('ModerationCenter.php', 'ModerationMain'),
 		'modifycat' => array('ManageBoards.php', 'ModifyCat'),
+		'modifykarma' => array('Karma.php', 'ModifyKarma'),
 		'movetopic' => array('MoveTopic.php', 'MoveTopic'),
 		'movetopic2' => array('MoveTopic.php', 'MoveTopic2'),
 		'notify' => array('Notify.php', 'Notify'),
 		'notifyboard' => array('Notify.php', 'BoardNotify'),
-		'notifytopic' => array('Notify.php', 'TopicNotify'),
+		'openidreturn' => array('Subs-OpenID.php', 'smf_openID_return'),
 		'pm' => array('PersonalMessage.php', 'MessageMain'),
 		'post' => array('Post.php', 'Post'),
 		'post2' => array('Post.php', 'Post2'),
@@ -320,6 +314,8 @@ function smf_main()
 		'quickmod' => array('MessageIndex.php', 'QuickModeration'),
 		'quickmod2' => array('Display.php', 'QuickInTopicModeration'),
 		'recent' => array('Recent.php', 'RecentPosts'),
+		'register' => array('Register.php', 'Register'),
+		'register2' => array('Register.php', 'Register2'),
 		'reminder' => array('Reminder.php', 'RemindMe'),
 		'removepoll' => array('Poll.php', 'RemovePoll'),
 		'removetopic2' => array('RemoveTopic.php', 'RemoveTopic2'),
@@ -329,8 +325,6 @@ function smf_main()
 		'search' => array('Search.php', 'PlushSearch1'),
 		'search2' => array('Search.php', 'PlushSearch2'),
 		'sendactivation' => array('Register.php', 'SendActivation'),
-		'signup' => array('Register.php', 'Register'),
-		'signup2' => array('Register.php', 'Register2'),
 		'smstats' => array('Stats.php', 'SMStats'),
 		'suggest' => array('Subs-Editor.php', 'AutoSuggestHandler'),
 		'spellcheck' => array('Subs-Post.php', 'SpellCheck'),
@@ -342,6 +336,7 @@ function smf_main()
 		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
+		'unwatchtopic' => array('Notify.php', 'TopicUnwatch'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
@@ -365,31 +360,24 @@ function smf_main()
 			return 'WrapAction';
 		}
 
-		if (!empty($modSettings['integrate_fallback_action']))
+		$fallbackActions = call_integration_hook('integrate_fallback_action');
+		foreach ($fallbackActions as $fallbackAction)
 		{
-			$fallbackAction = explode(',', $modSettings['integrate_fallback_action']);
-
-			// Sorry, only one fallback action is needed.
-			$fallbackAction = $fallbackAction[0];
-
-			$call = call_helper($fallbackAction, true);
-
-			if (!empty($call))
+			$call = call_hook_helper($fallbackAction);
+			if (!empty($call) && is_callable($call))
 				return $call;
 		}
 
-		// No fallback action, huh?
-		else
-		{
-			fatal_lang_error('not_found', false, array(), 404);
-		}
+		// Fall through to the board index then...
+		require_once($sourcedir . '/BoardIndex.php');
+		return 'BoardIndex';
 	}
 
 	// Otherwise, it was set - so let's go to that action.
 	require_once($sourcedir . '/' . $actionArray[$_REQUEST['action']][0]);
 
 	// Do the right thing.
-	return call_helper($actionArray[$_REQUEST['action']][1], true);
+	return call_hook_helper($actionArray[$_REQUEST['action']][1]);
 }
 
 ?>

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_boardindex_outer_above()
@@ -17,36 +17,68 @@ function template_boardindex_outer_above()
 
 function template_newsfader()
 {
-	global $context, $settings, $options, $txt;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	// Show the news fader?  (assuming there are things to show...)
 	if (!empty($settings['show_newsfader']) && !empty($context['news_lines']))
 	{
 		echo '
-		<ul id="smf_slider" class="roundframe">';
+			<div id="newsfader">
+				<div class="cat_bar">
+					<h3 class="catbg">
+						<span id="newsupshrink" class="toggle_up floatright" alt="*" title="', $txt['hide_newsfader'],'" align="bottom" style="display: none;"></span>
+						', $txt['news'], '
+					</h3>
+				</div>
+				<div class="roundframe rfix" id="smfFadeScrollerCont">
+					<ul class="reset" id="smfFadeScroller">
+						<li>
+							', implode('</li><li>', $context['news_lines']), '
+						</li>
+					</ul>
+				</div>
+			</div>
+			<script><!-- // --><![CDATA[
+				// Create a news fader object.
+				var oNewsFader = new smc_NewsFader({
+					sFaderControlId: \'smfFadeScroller\',
+					sItemTemplate: ', JavaScriptEscape('%1$s'), ',
+					iFadeDelay: ', empty($settings['newsfader_time']) ? 5000 : $settings['newsfader_time'], '
+				});
 
-		foreach ($context['news_lines'] as $news)
-		{
-			echo '
-			<li>', $news,'</li>';
-		}
-
-		echo '
-		</ul>
-		<script>
-			jQuery("#smf_slider").slippry({
-				pause: ', $settings['newsfader_time'],',
-				adaptiveHeight: 0,
-				captions: 0,
-				controls: 0,
-			});
-		</script>';
+				// Create the news fader toggle.
+				var smfNewsFadeToggle = new smc_Toggle({
+					bToggleEnabled: true,
+					bCurrentlyCollapsed: ', empty($options['collapse_news_fader']) ? 'false' : 'true', ',
+					aSwappableContainers: [
+						\'smfFadeScrollerCont\'
+					],
+					aSwapImages: [
+						{
+							sId: \'newsupshrink\',
+							altExpanded: ', JavaScriptEscape($txt['hide_newsfader']), ',
+							altCollapsed: ', JavaScriptEscape($txt['show_newsfader']), '
+						}
+					],
+					oThemeOptions: {
+						bUseThemeSettings: ', $context['user']['is_guest'] ? 'false' : 'true', ',
+						sOptionName: \'collapse_news_fader\',
+						sSessionVar: smf_session_var,
+						sSessionId: smf_session_id
+					},
+					oCookieOptions: {
+						bUseCookie: ', $context['user']['is_guest'] ? 'true' : 'false', ',
+						sCookieName: \'newsupshrink\'
+					}
+				});
+			// ]]></script>
+		';
 	}
 }
 
 function template_main()
 {
-	global $context, $txt, $scripturl;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<div id="boardindex_table" class="boardindex_table">';
@@ -69,14 +101,14 @@ function template_main()
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? $txt['hide_category'] : $txt['show_category'] ,'" style="display: none;"></span>';
+					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? $txt['hide_category'] : $txt['show_category'] ,'" align="bottom" style="display: none;"></span>';
 
 		echo '
 					', $category['link'], '
 				</h3>', !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
-			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="'. $category['css_class'] .'"') : '') ,'>';
+			<div id="category_', $category['id'], '_boards">';
 
 			/* Each board in each category's boards has:
 			new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
@@ -85,7 +117,7 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
+				<div id="board_', $board['id'], '" class="up_contain">
 					<div class="icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
@@ -175,7 +207,7 @@ function template_boardindex_outer_below()
 
 function template_info_center()
 {
-	global $context, $options, $txt;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	if (empty($context['info_center']))
 		return;
@@ -246,7 +278,7 @@ function template_ic_block_recent()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', $scripturl, '?action=recent"><span class="xx"></span>', $txt['recent_posts'], '</a>
+					<a href="', $scripturl, '?action=recent"><img class="icon" src="', $settings['images_url'], '/post/xx.png" alt="">', $txt['recent_posts'], '</a>
 				</h4>
 			</div>
 			<div id="recent_posts_content">';
@@ -265,11 +297,11 @@ function template_ic_block_recent()
 	{
 		echo '
 				<table id="ic_recentposts">
-					<tr class="windowbg">
-						<th class="recentpost">', $txt['message'], '</th>
+					<tr>
+						<th class="recentpost first_th">', $txt['message'], '</th>
 						<th class="recentposter">', $txt['author'], '</th>
 						<th class="recentboard">', $txt['board'], '</th>
-						<th class="recenttime">', $txt['date'], '</th>
+						<th class="recenttime last_th">', $txt['date'], '</th>
 					</tr>';
 
 		/* Each post in latest_posts has:
@@ -277,7 +309,7 @@ function template_ic_block_recent()
 				subject, short_subject (shortened with...), time, link, and href. */
 		foreach ($context['latest_posts'] as $post)
 			echo '
-					<tr class="windowbg">
+					<tr>
 						<td class="recentpost"><strong>', $post['link'], '</strong></td>
 						<td class="recentposter">', $post['poster']['link'], '</td>
 						<td class="recentboard">', $post['board']['link'], '</td>
@@ -298,7 +330,7 @@ function template_ic_block_calendar()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', $scripturl, '?action=calendar' . '"><span class="generic_icons calendar"></span> ', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
+					<a href="', $scripturl, '?action=calendar' . '"><img class="icon" src="', $settings['images_url'], '/icons/calendar.png', '" alt="">', $context['calendar_only_today'] ? $txt['calendar_today'] : $txt['calendar_upcoming'], '</a>
 				</h4>
 			</div>';
 
@@ -332,7 +364,7 @@ function template_ic_block_calendar()
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 		foreach ($context['calendar_events'] as $event)
 			echo '
-					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><span class="generic_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
+					', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . $txt['calendar_edit'] . '"><img src="' . $settings['images_url'] . '/icons/calendar_modify.png" alt="*" class="centericon"></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
 		echo '
 				</p>';
 	}
@@ -346,7 +378,7 @@ function template_ic_block_stats()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="generic_icons stats"></span> ', $txt['forum_stats'], '</a>
+					<a href="', $scripturl, '?action=stats" title="', $txt['more_stats'], '"><span class="stats_icon boards"></span>', $txt['forum_stats'], '</a>
 				</h4>
 			</div>
 			<p class="inline">
@@ -363,7 +395,7 @@ function template_ic_block_online()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="generic_icons people"></span> ', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
+					', $context['show_who'] ? '<a href="' . $scripturl . '?action=who">' : '', '<span class="stats_icon people"></span>', $txt['online_users'], '', $context['show_who'] ? '</a>' : '', '
 				</h4>
 			</div>
 			<p class="inline">
@@ -401,5 +433,4 @@ function template_ic_block_online()
 	echo '
 			</p>';
 }
-
 ?>

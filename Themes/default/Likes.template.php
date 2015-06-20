@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_popup()
@@ -18,7 +18,7 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
@@ -36,7 +36,7 @@ function template_popup()
 					<span class="floatright">', $like_details['time'], '</span>
 					<span class="floatleft">
 						', $like_details['profile']['link_color'], '<br>
-						<span class="description">', $like_details['profile']['group'], '</span>
+						', $like_details['profile']['group'], '
 					</span>
 				</li>';
 	}
@@ -60,7 +60,7 @@ function template_like()
 	if (!empty($context['data']['can_like']))
 	{
 		echo '
-		<li class="like_button" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="generic_icons ', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
+		<li class="like_button" id="', $context['data']['type'], '_', $context['data']['id_content'], '_likes"', '><a href="', $scripturl, '?action=likes;ltype=', $context['data']['type'], ';sa=like;like=', $context['data']['id_content'], ';', $context['session_var'], '=', $context['session_id'], '" class="', $context['data']['type'], '_like"><span class="', $context['data']['already_liked'] ? 'unlike' : 'like', '"></span>', $context['data']['already_liked'] ? $txt['unlike'] : $txt['like'], '</a></li>';
 	}
 
 	if (!empty($context['data']['count']))
@@ -76,7 +76,7 @@ function template_like()
 		$base .= (isset($txt[$base . $count])) ? $count : 'n';
 
 		echo '
-		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=' . $context['data']['type'] . ';js=1;like=' . $context['data']['id_content'] . ';' . $context['session_var'] . '=' . $context['session_id'], comma_format($count)), '</li>';
+		<li class="like_count smalltext">', sprintf($txt[$base], $scripturl . '?action=likes;sa=view;ltype=', $context['data']['type'], ';js=1;like=' . $context['data']['id_content'] .';'. $context['session_var'] .'='. $context['session_id'], comma_format($count)), '</li>';
 	}
 
 	echo '

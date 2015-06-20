@@ -4,27 +4,27 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_main()
 {
-	global $context, $txt, $scripturl, $modSettings;
+	global $context, $settings, $txt, $scripturl, $modSettings;
 
 	echo '
 	<form action="', $scripturl, '?action=search2" method="post" accept-charset="', $context['character_set'], '" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons filter"></span>', $txt['set_parameters'], '
+				', !empty($settings['use_buttons']) ? '<img src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="" class="icon">' : ' ', $txt['set_parameters'], '
 			</h3>
 		</div>';
 
 	if (!empty($context['search_errors']))
 		echo '
-		<div class="errorbox">', implode('<br>', $context['search_errors']['messages']), '</div>';
+		<p class="errorbox">', implode('<br>', $context['search_errors']['messages']), '</p>';
 
 	if (!empty($context['search_ignored']))
 		echo '
@@ -89,7 +89,7 @@ function template_main()
 						$txt['search_post_age'], ':
 					</dt>
 					<dd><label for="minage">',
-						$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
+						$txt['search_between'], '</label><input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
 					</dd>
 				</dl>
 				<script><!-- // --><![CDATA[
@@ -112,8 +112,7 @@ function template_main()
 	if (!empty($context['search_params']['topic']))
 		echo '
 				<p>', $txt['search_specific_topic'], ' &quot;', $context['search_topic']['link'], '&quot;.</p>
-				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">
-				<input type="submit" name="b_search" value="', $txt['search'], '" class="button_submit">';
+				<input type="hidden" name="topic" value="', $context['search_topic']['id'], '">';
 
 	echo '
 			</div>
@@ -123,7 +122,7 @@ function template_main()
 	{
 		echo '
 		<fieldset class="flow_hidden">
-			<div class="roundframe alt">
+			<div class="roundframe">
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
@@ -154,8 +153,8 @@ function template_main()
 							<ul>';
 
 				echo '
-								<li class="board">
-									<label for="brd', $board['id'], '" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+								<li class="board" style="margin-', $context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+									<label for="brd', $board['id'], '">
 										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', ' class="input_check"> ', $board['name'], '
 									</label>
 								</li>';
@@ -291,7 +290,7 @@ function template_results()
 							<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');" class="input_check">';
 				echo '
 				</span>
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<img src="' . $settings['images_url'] . '/buttons/search.png" alt="?" class="centericon">&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>';
 
@@ -310,8 +309,9 @@ function template_results()
 		{
 
 			echo '
-			<div class="', $topic['css_class'] ,'">
-				<div class="flow_auto">';
+			<div class="search_results_posts">
+			<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+				<div class="content flow_auto">';
 
 			foreach ($topic['matches'] as $message)
 			{
@@ -336,11 +336,11 @@ function template_results()
 					{
 						if ($topic['quick_mod']['remove'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 						if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 							echo '
@@ -348,7 +348,7 @@ function template_results()
 
 						if ($topic['quick_mod']['sticky'])
 							echo '
-						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+						<a href="', $scripturl, '?action=quickmod;board='. $topic['board']['id']. '.0;actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 						if ($topic['quick_mod']['move'])
 							echo '
@@ -367,7 +367,8 @@ function template_results()
 
 			echo '
 				</div>
-			</div>';
+			</div>
+		</div>';
 
 		}
 		if (!empty($context['topics']))
@@ -415,7 +416,7 @@ function template_results()
 		echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="generic_icons filter"></span>&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
+				<img class="centericon" src="' . $settings['images_url'] . '/buttons/search_hd.png" alt="?">&nbsp;', $txt['mlist_search_results'],':&nbsp;',$context['search_params']['search'],'
 			</h3>
 		</div>
 		<div class="pagesection">
@@ -431,34 +432,45 @@ function template_results()
 			foreach ($topic['matches'] as $message)
 			{
 				echo '
-				<div class="', $topic['css_class'] ,'">
-					<div class="counter">', $message['counter'], '</div>
-					<div class="topic_details">
-						<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-						<span class="smalltext">&#171;&nbsp;', $txt['message'], ' ', $txt['by'], ' <strong>', $message['member']['link'], ' </strong>', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
-					</div>
-					<div class="list_posts">', $message['body_highlighted'], '</div>';
+			<div class="search_results_posts">
+				<div class="', $message['alternate'] == 0 ? 'windowbg' : 'windowbg2', ' core_posts">
+					<div class="content">
+						<div class="counter">', $message['counter'], '</div>
+						<div class="topic_details">
+							<h5>', $topic['board']['link'], ' / <a href="', $scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
+							<span class="smalltext">&#171;&nbsp;', $txt['message'], ' ', $txt['by'], ' <strong>', $message['member']['link'], ' </strong>', $txt['on'], '&nbsp;<em>', $message['time'], '</em>&nbsp;&#187;</span>
+						</div>
+						<div class="list_posts">', $message['body_highlighted'], '</div>';
 
-			if ($topic['can_reply'])
-				echo '
-						<ul class="quickbuttons">';
+				if ($topic['can_reply'] || $topic['can_mark_notify'])
+					echo '
+						<div class="quickbuttons_wrap">
+							<ul class="reset smalltext quickbuttons">';
 
 				// If they *can* reply?
-			if ($topic['can_reply'])
-				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '"><span class="generic_icons reply_button"></span>', $txt['reply'], '</a></li>';
+				if ($topic['can_reply'])
+					echo '
+								<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'], '" class="reply_button">', $txt['reply'], '</a></li>';
 
 				// If they *can* quote?
-			if ($topic['can_quote'])
-				echo '
-							<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>';
+				if ($topic['can_quote'])
+					echo '
+								<li><a href="', $scripturl . '?action=post;topic=' . $topic['id'] . '.' . $message['start'] . ';quote=' . $message['id'] . '" class="quote_button">', $txt['quote_action'], '</a></li>';
 
-			if ($topic['can_reply'])
+				// Can we request notification of topics?
+				if ($topic['can_mark_notify'])
+					echo '
+								<li><a href="', $scripturl . '?action=notify;topic=' . $topic['id'] . '.' . $message['start'], '" class="notify_button">', $txt['notify'], '</a></li>';
+
+				if ($topic['can_reply'] || $topic['can_mark_notify'])
+					echo '
+							</ul>
+						</div>';
 				echo '
-						</ul>';
-			echo '
-					<br class="clear">
-				</div>';
+						<br class="clear">
+					</div>
+				</div>
+			</div>';
 			}
 		}
 
@@ -495,7 +507,7 @@ function template_results()
 			if (typeof(window.XMLHttpRequest) != "undefined")
 				aJumpTo[aJumpTo.length] = new JumpTo({
 					sContainerId: "search_jump_to",
-					sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', $context['jump_to']['label'], '<" + "/label> %dropdown_list%",
+					sJumpToTemplate: "<label class=\"smalltext\" for=\"%select_id%\">', $context['jump_to']['label'], ':<" + "/label> %dropdown_list%",
 					iCurBoardId: 0,
 					iCurBoardChildLevel: 0,
 					sCurBoardName: "', $context['jump_to']['board_name'], '",

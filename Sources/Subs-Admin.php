@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -105,7 +105,7 @@ function getServerVersions($checkFor)
  */
 function getFileVersions(&$versionOptions)
 {
-	global $boarddir, $sourcedir, $settings, $tasksdir;
+	global $boarddir, $sourcedir, $settings;
 
 	// Default place to find the languages would be the default theme dir.
 	$lang_dir = $settings['default_theme_dir'] . '/languages';
@@ -115,7 +115,6 @@ function getFileVersions(&$versionOptions)
 		'default_template_versions' => array(),
 		'template_versions' => array(),
 		'default_language_versions' => array(),
-		'tasks_versions' => array(),
 	);
 
 	// Find the version in SSI.php's file header.
@@ -168,30 +167,6 @@ function getFileVersions(&$versionOptions)
 		}
 	}
 	$sources_dir->close();
-
-	// Load all the files in the tasks directory.
-	if (!empty($versionOptions['include_tasks']))
-	{
-		$tasks_dir = dir($tasksdir);
-		while ($entry = $tasks_dir->read())
-		{
-			if (substr($entry, -4) === '.php' && !is_dir($tasksdir . '/' . $entry) && $entry !== 'index.php')
-			{
-				// Read the first 4k from the file.... enough for the header.
-				$fp = fopen($tasksdir . '/' . $entry, 'rb');
-				$header = fread($fp, 4096);
-				fclose($fp);
-
-				// Look for the version comment in the file header.
-				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1)
-					$version_info['tasks_versions'][$entry] = $match[1];
-				// It wasn't found, but the file was... show a '??'.
-				else
-					$version_info['tasks_versions'][$entry] = '??';
-			}
-		}
-		$tasks_dir->close();
-	}
 
 	// Load all the files in the default template directory - and the current theme if applicable.
 	$directories = array('default_template_versions' => $settings['default_theme_dir']);

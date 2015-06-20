@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -129,7 +129,7 @@ function ViewMembers()
 		unset($context['tabs']['approve']);
 	}
 
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	$subActions[$_REQUEST['sa']][0]();
 }
 
 /**
@@ -584,7 +584,7 @@ function ViewMemberlist()
 		'additional_rows' => array(
 			array(
 				'position' => 'below_table_data',
-				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" data-confirm="' . $txt['confirm_delete_members'] . '" class="button_submit you_sure">',
+				'value' => '<input type="submit" name="delete_members" value="' . $txt['admin_delete_members'] . '" onclick="return confirm(\'' . $txt['confirm_delete_members'] . '\');" class="button_submit">',
 			),
 		),
 	);
@@ -664,7 +664,7 @@ function SearchMembers()
  */
 function MembersAwaitingActivation()
 {
-	global $txt, $context, $scripturl, $modSettings;
+	global $txt, $context, $scripturl, $modSettings, $smcFunc;
 	global $sourcedir;
 
 	// Not a lot here!
@@ -908,7 +908,7 @@ function MembersAwaitingActivation()
 						foreach ($rowData['duplicate_members'] as $member)
 						{
 							if ($member['id'])
-								$member_links[] = '<a href="' . $scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
+								$member_links[] = '<a href="' . $scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'style="color: red;"' : '') . '>' . $member['name'] . '</a>';
 							else
 								$member_links[] = $member['name'] . ' (' . $txt['guest'] . ')';
 						}
@@ -1009,7 +1009,7 @@ function MembersAwaitingActivation()
  */
 function AdminApprove()
 {
-	global $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
+	global $txt, $context, $scripturl, $modSettings, $sourcedir, $language, $user_info, $smcFunc;
 
 	// First, check our session.
 	checkSession();

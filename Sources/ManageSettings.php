@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {
-	global $context, $sourcedir;
+	global $context, $txt, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -48,7 +48,7 @@ function loadGeneralSettingParameters($subActions = array(), $defaultAction = ''
  */
 function ModifyFeatureSettings()
 {
-	global $context, $txt, $settings;
+	global $context, $txt, $scripturl, $settings;
 
 	$context['page_title'] = $txt['modSettings_title'];
 
@@ -61,8 +61,9 @@ function ModifyFeatureSettings()
 		'profileedit' => 'EditCustomProfiles',
 		'likes' => 'ModifyLikesSettings',
 		'mentions' => 'ModifyMentionsSettings',
-		'alerts' => 'ModifyAlertsSettings',
 	);
+
+	call_integration_hook('integrate_modify_features', array(&$subActions));
 
 	loadGeneralSettingParameters($subActions, 'basic');
 
@@ -89,16 +90,11 @@ function ModifyFeatureSettings()
 			),
 			'mentions' => array(
 			),
-			'alerts' => array(
-				'description' => $txt['notifications_desc'],
-			),
 		),
 	);
 
-	call_integration_hook('integrate_modify_features', array(&$subActions));
-
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
@@ -106,7 +102,7 @@ function ModifyFeatureSettings()
  */
 function ModifyModSettings()
 {
-	global $context, $txt;
+	global $context, $txt, $scripturl;
 
 	$context['page_title'] = $txt['admin_modifications'];
 
@@ -132,18 +128,18 @@ function ModifyModSettings()
 	);
 
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
- * Config array for changing the basic forum settings
+ * Config array for chaning the basic forum settings
  * Accessed  from ?action=admin;area=featuresettings;sa=basic;
  *
  * @param $return_config
  */
 function ModifyBasicSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings;
+	global $txt, $scripturl, $context, $sc, $modSettings;
 
 	// We need to know if personal text is enabled, and if it's in the registration fields option.
 	// If admins have set it up as an on-registration thing, they can't set a default value (because it'll never be used)
@@ -158,15 +154,15 @@ function ModifyBasicSettings($return_config = false)
 			// Basic stuff, titles, flash, permissions...
 			array('check', 'allow_guestAccess'),
 			array('check', 'enable_buddylist'),
+			array('check', 'enable_unwatch'),
 			array('check', 'allow_hideOnline'),
 			array('check', 'titlesEnable'),
 			array('text', 'default_personal_text', 'subtext' => $txt['default_personal_text_note'], 'disabled' => !$can_personal_text),
 			array('check', 'topic_move_any'),
-			array('int', 'defaultMaxListItems', 'step' => 1, 'min' => 1, 'max' => 999),
 		'',
 			// Jquery source
 			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),
-			array('text', 'jquery_custom', 'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75),
+			array('text', 'jquery_custom', 'javascript' => 'disabled', 'size' => 75),
 		'',
 			// SEO stuff
 			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
@@ -188,9 +184,6 @@ function ModifyBasicSettings($return_config = false)
 			// Option-ish things... miscellaneous sorta.
 			array('check', 'allow_disableAnnounce'),
 			array('check', 'disallow_sendBody'),
-		'',
-			// Alerts stuff
-			array('check', 'enable_ajax_alerts'),
 	);
 
 	// Get all the time zones.
@@ -243,7 +236,7 @@ function ModifyBasicSettings($return_config = false)
  */
 function ModifyBBCSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $scripturl, $sourcedir;
+	global $context, $txt, $modSettings, $helptxt, $scripturl, $sourcedir;
 
 	$config_vars = array(
 			// Main tweaks
@@ -309,7 +302,7 @@ function ModifyBBCSettings($return_config = false)
  */
 function ModifyLayoutSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 			// Pagination stuff.
@@ -351,19 +344,17 @@ function ModifyLayoutSettings($return_config = false)
 }
 
 /**
- * Config array for changing like settings
+ * Config array for chanigng like settings
  * Accessed  from ?action=admin;area=featuresettings;sa=likes;
  *
  * @param $return_config
  */
 function ModifyLikesSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
 	$config_vars = array(
 		array('check', 'enable_likes'),
-		array('permissions', 'likes_view'),
-		array('permissions', 'likes_like'),
 	);
 
 	call_integration_hook('integrate_likes_settings', array(&$config_vars));
@@ -398,11 +389,10 @@ function ModifyLikesSettings($return_config = false)
  */
 function ModifyMentionsSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt, $scripturl, $context, $modSettings, $smcFunc;
 
 	$config_vars = array(
 		array('check', 'enable_mentions'),
-		array('permissions', 'mention'),
 	);
 
 	call_integration_hook('integrate_mentions_settings', array(&$config_vars));
@@ -435,7 +425,7 @@ function ModifyMentionsSettings($return_config = false)
  */
 function ModifyWarningSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $sourcedir;
+	global $txt, $scripturl, $context, $sc, $modSettings, $sourcedir;
 
 	// You need to be an admin to edit settings!
 	isAllowedTo('admin_forum');
@@ -454,11 +444,11 @@ function ModifyWarningSettings($return_config = false)
 	if (!empty($modSettings['warning_settings']) && $currently_enabled)
 		$config_vars += array(
 			'',
-				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note'] . ' ' . $txt['zero_to_disable']),
-				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note'] . ' ' . $txt['zero_to_disable']),
-				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note'] . ' ' . $txt['zero_to_disable']),
+				array('int', 'warning_watch', 'subtext' => $txt['setting_warning_watch_note']),
+				'moderate' => array('int', 'warning_moderate', 'subtext' => $txt['setting_warning_moderate_note']),
+				array('int', 'warning_mute', 'subtext' => $txt['setting_warning_mute_note']),
 				'rem1' => array('int', 'user_limit', 'subtext' => $txt['setting_user_limit_note']),
-				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note'] . ' ' . $txt['zero_to_disable']),
+				'rem2' => array('int', 'warning_decrement', 'subtext' => $txt['setting_warning_decrement_note']),
 				array('permissions', 'view_warning'),
 		);
 
@@ -550,7 +540,7 @@ function ModifyWarningSettings($return_config = false)
  */
 function ModifyAntispamSettings($return_config = false)
 {
-	global $txt, $scripturl, $context, $modSettings, $smcFunc, $language, $sourcedir;
+	global $txt, $scripturl, $context, $settings, $sc, $modSettings, $smcFunc, $language, $sourcedir;
 
 	loadLanguage('Help');
 	loadLanguage('ManageSettings');
@@ -616,14 +606,6 @@ function ModifyAntispamSettings($return_config = false)
 		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
 
-	if (empty($context['qa_by_lang'][strtr($language, array('-utf8' => ''))]) && !empty($context['question_answers']))
-	{
-		if (empty($context['settings_insert_above']))
-			$context['settings_insert_above'] = '';
-
-		$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf($txt['question_not_defined'], $context['languages'][$language]['name']) . '</div>';
-	}
-
 	// Thirdly, push some JavaScript for the form to make it work.
 	addInlineJavascript('
 	var nextrow = ' . (!empty($context['question_answers']) ? max(array_keys($context['question_answers'])) + 1 : 1) . ';
@@ -648,7 +630,7 @@ function ModifyAntispamSettings($return_config = false)
 		$(\'<input type="text" name="\' + attr + \'" value="" size="50" class="input_text verification_answer">\').insertBefore($(obj).closest("div"));
 		return false;
 	}
-	$("#qa_dt_' . strtr($language, array('-utf8' => '')) . ' a").click();', true);
+	$("#qa_dt_' . $language . ' a").click();', true);
 
 	// Will need the utility functions from here.
 	require_once($sourcedir . '/ManageServer.php');
@@ -860,7 +842,7 @@ function ModifyAntispamSettings($return_config = false)
  */
 function ModifySignatureSettings($return_config = false)
 {
-	global $context, $txt, $modSettings, $sig_start, $smcFunc, $scripturl;
+	global $context, $txt, $modSettings, $sig_start, $smcFunc, $helptxt, $scripturl;
 
 	$config_vars = array(
 			// Are signatures even enabled?
@@ -1235,14 +1217,14 @@ function pauseSignatureApplySettings()
  */
 function ShowCustomProfiles()
 {
-	global $txt, $scripturl, $context;
+	global $txt, $scripturl, $context, $sc, $smcFunc;
 	global $sourcedir;
 
 	$context['page_title'] = $txt['custom_profile_title'];
 	$context['sub_template'] = 'show_custom_profile';
 
 	// What about standard fields they can tweak?
-	$standard_fields = array('website', 'personal_text', 'timezone', 'posts', 'warning_status');
+	$standard_fields = array('website', 'personal_text', 'posts', 'warning_status');
 	// What fields can't you put on the registration page?
 	$context['fields_no_registration'] = array('posts', 'warning_status');
 
@@ -1423,7 +1405,6 @@ function ShowCustomProfiles()
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
 					},
 					'style' => 'width: 15%;',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'field_type',
@@ -1440,7 +1421,6 @@ function ShowCustomProfiles()
 						return $rowData['active'] ? $txt['yes'] : $txt['no'];
 					},
 					'style' => 'width: 8%;',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'active DESC',
@@ -1452,14 +1432,21 @@ function ShowCustomProfiles()
 					'value' => $txt['custom_profile_placement'],
 				),
 				'data' => array(
-					'function' => function ($rowData)
+					'function' => function ($rowData) use ($txt)
 					{
-						global $txt, $context;
-
-						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $context['cust_profile_fields_placement'][$rowData['placement']])];
+						$placement = array(
+							'standard',
+							'withicons',
+							'abovesignature',
+							'belowsignature',
+							'below_avatar',
+							'above_name',
+							'bottom',
+							'hidden',
+						);
+						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $placement[$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
-					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'placement DESC',
@@ -1516,7 +1503,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 
 	if ($standardFields)
 	{
-		$standard_fields = array('website', 'personal_text', 'timezone', 'posts', 'warning_status');
+		$standard_fields = array('website', 'personal_text', 'posts', 'warning_status');
 		$fields_no_registration = array('posts', 'warning_status');
 		$disabled_fields = isset($modSettings['disabled_profile_fields']) ? explode(',', $modSettings['disabled_profile_fields']) : array();
 		$registration_fields = isset($modSettings['registration_fields']) ? explode(',', $modSettings['registration_fields']) : array();
@@ -1577,7 +1564,7 @@ function list_getProfileFieldSize()
  */
 function EditCustomProfiles()
 {
-	global $txt, $scripturl, $context, $smcFunc;
+	global $txt, $scripturl, $context, $sc, $smcFunc;
 
 	// Sort out the context!
 	$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
@@ -2048,7 +2035,7 @@ function custFieldsMaxOrder()
  */
 function ModifyLogSettings($return_config = false)
 {
-	global $txt, $scripturl, $sourcedir, $context, $modSettings;
+	global $txt, $scripturl, $sourcedir, $context, $sc, $modSettings;
 
 	// Make sure we understand what's going on.
 	loadLanguage('ManageSettings');
@@ -2130,7 +2117,7 @@ function ModifyLogSettings($return_config = false)
 			$vals = array();
 			foreach ($config_vars as $index => $dummy)
 			{
-				if (!is_array($dummy) || $index == 'pruningOptions' || !in_array($dummy[1], $prune_toggle))
+				if (!is_array($dummy) || $index == 'pruningOptions')
 					continue;
 
 				$vals[] = empty($_POST[$dummy[1]]) || $_POST[$dummy[1]] < 0 ? 0 : (int) $_POST[$dummy[1]];
@@ -2165,7 +2152,7 @@ function ModifyLogSettings($return_config = false)
  */
 function ModifyGeneralModSettings($return_config = false)
 {
-	global $txt, $scripturl, $context;
+	global $txt, $scripturl, $context, $sc;
 
 	$config_vars = array(
 		// Mod authors, add any settings UNDER this line. Include a comma at the end of the line and don't remove this statement!!
@@ -2212,31 +2199,4 @@ function ModifyGeneralModSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 }
 
-/**
- */
-function ModifyAlertsSettings()
-{
-	global $context, $sourcedir, $txt;
-
-	// Dummy settings for the template...
-	$context['user']['is_owner'] = false;
-	$context['member'] = array();
-	$context['id_member'] = 0;
-	$context['menu_item_selected'] = 'alerts';
-
-	// Specify our action since we'll want to post back here instead of the profile
-	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;'. $context['session_var'] .'='. $context['session_id'];
-
-	loadTemplate('Profile');
-	loadLanguage('Profile');
-
-	include_once($sourcedir . '/Profile-Modify.php');
-	alert_configuration(0);
-
-	$context['page_title'] = $txt['notify_settings'];
-
-	// Override the description
-	$context['description'] = $txt['notifications_desc'];
-	$context['sub_template'] = 'alert_configuration';
-}
 ?>

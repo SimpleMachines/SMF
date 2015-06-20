@@ -3018,3 +3018,15 @@ UPDATE {$db_prefix}membergroups
 SET group_type = 1
 WHERE id_group = 1;
 ---#
+
+/******************************************************************************/
+--- Final clean up...
+/******************************************************************************/
+
+---# Sorting the boards...
+ALTER TABLE {$db_prefix}categories
+ORDER BY cat_order;
+
+ALTER TABLE {$db_prefix}boards
+ORDER BY board_order;
+---#

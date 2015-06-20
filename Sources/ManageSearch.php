@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -48,6 +48,8 @@ function ManageSearch()
 		'createmsgindex' => 'CreateMessageIndex',
 	);
 
+	call_integration_hook('integrate_manage_search', array(&$subActions));
+
 	// Default the sub-action to 'edit search settings'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'weights';
 
@@ -71,10 +73,8 @@ function ManageSearch()
 		),
 	);
 
-	call_integration_hook('integrate_manage_search', array(&$subActions));
-
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
@@ -94,6 +94,7 @@ function EditSearchSettings($return_config = false)
 			// Permission...
 			array('permissions', 'search_posts'),
 			// Some simple settings.
+			array('check', 'search_dropdown'),
 			array('int', 'search_results_per_page'),
 			array('int', 'search_max_results', 'subtext' => $txt['search_max_results_disable']),
 		'',
@@ -752,9 +753,6 @@ function detectFulltextIndex()
 {
 	global $smcFunc, $context, $db_prefix;
 
-	// We need this for db_get_version
-	db_extend();
-
 	$request = $smcFunc['db_query']('', '
 		SHOW INDEX
 		FROM {db_prefix}messages',
@@ -795,7 +793,7 @@ function detectFulltextIndex()
 	if ($request !== false)
 	{
 		while ($row = $smcFunc['db_fetch_assoc']($request))
-			if (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam' && !(strtolower($row['Engine']) == 'innodb' && version_compare($smcFunc['db_get_version'], '5.6.4', '>=')))
+			if ((isset($row['Type']) && strtolower($row['Type']) != 'myisam') || (isset($row['Engine']) && strtolower($row['Engine']) != 'myisam'))
 				$context['cannot_create_fulltext'] = true;
 		$smcFunc['db_free_result']($request);
 	}

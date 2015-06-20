@@ -15,10 +15,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -78,7 +78,7 @@ function ReportsMain()
 			'is_first' => $is_first++ == 0,
 		);
 
-	// If they haven't chosen a report type which is valid, send them off to the report type chooser!
+	// If they haven't choosen a report type which is valid, send them off to the report type chooser!
 	if (empty($_REQUEST['rt']) || !isset($context['report_types'][$_REQUEST['rt']]))
 	{
 		$context['sub_template'] = 'report_type';
@@ -288,7 +288,7 @@ function BoardReport()
  */
 function BoardPermissionsReport()
 {
-	global $txt, $modSettings, $smcFunc;
+	global $context, $txt, $modSettings, $smcFunc;
 
 	// Get as much memory as possible as this can be big.
 	setMemoryLimit('256M');
@@ -478,7 +478,7 @@ function BoardPermissionsReport()
 
 				// Now actually make the data for the group look right.
 				if (empty($curData[$id_group]))
-					$curData[$id_group] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
+					$curData[$id_group] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
 				elseif ($curData[$id_group] == 1)
 					$curData[$id_group] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 				else
@@ -505,7 +505,7 @@ function BoardPermissionsReport()
  */
 function MemberGroupsReport()
 {
-	global $txt, $settings, $modSettings, $smcFunc;
+	global $context, $txt, $settings, $modSettings, $smcFunc;
 
 	// Fetch all the board names.
 	$request = $smcFunc['db_query']('', '
@@ -607,7 +607,7 @@ function MemberGroupsReport()
 			'color' => empty($row['online_color']) ? '-' : '<span style="color: ' . $row['online_color'] . ';">' . $row['online_color'] . '</span>',
 			'min_posts' => $row['min_posts'] == -1 ? 'N/A' : $row['min_posts'],
 			'max_messages' => $row['max_messages'],
-			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/membericons/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
+			'icons' => !empty($row['icons'][0]) && !empty($row['icons'][1]) ? str_repeat('<img src="' . $settings['images_url'] . '/' . $row['icons'][1] . '" alt="*">', $row['icons'][0]) : '',
 		);
 
 		// Board permissions.
@@ -628,7 +628,7 @@ function MemberGroupsReport()
  */
 function GroupPermissionsReport()
 {
-	global $txt, $modSettings, $smcFunc;
+	global $context, $txt, $modSettings, $smcFunc;
 
 	if (isset($_REQUEST['groups']))
 	{
@@ -730,7 +730,7 @@ function GroupPermissionsReport()
 		if ($row['add_deny'])
 			$curData[$row['id_group']] = '<span style="color: darkgreen;">' . $txt['board_perms_allow'] . '</span>';
 		else
-			$curData[$row['id_group']] = '<span class="red">' . $txt['board_perms_deny'] . '</span>';
+			$curData[$row['id_group']] = '<span style="color: red;">' . $txt['board_perms_deny'] . '</span>';
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -748,7 +748,7 @@ function GroupPermissionsReport()
  */
 function StaffReport()
 {
-	global $sourcedir, $txt, $smcFunc;
+	global $sourcedir, $context, $txt, $smcFunc;
 
 	require_once($sourcedir . '/Subs-Members.php');
 
@@ -942,7 +942,7 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  * required key is present in the incoming data. If this data is missing
  * the current tables default value will be used.
  * if any key in the incoming data begins with '#sep#', the function
- * will add a separator across the table at this point.
+ * will add a separator accross the table at this point.
  * once the incoming data has been sanitized, it is added to the table.
  *
  * @param array $inc_data
@@ -1079,7 +1079,7 @@ function finishTables()
  * keys is an array whose keys are the keys for data being passed to
  * addData().
  * if reverse is set to true, then the values of the variable "keys"
- * are used as opposed to the keys(!
+ * are used as oppossed to the keys(!
  *
  * @param string $method = 'rows' rows or cols
  * @param array $keys = array()

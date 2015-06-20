@@ -7,17 +7,17 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Dispatches to the right function based on the given subaction.
+ * Dispaches to the right function based on the given subaction.
  * Checks the permissions, based on the sub-action.
  * Called by ?action=managepermissions.
  *
@@ -26,7 +26,7 @@ if (!defined('SMF'))
 
 function ModifyPermissions()
 {
-	global $txt, $context;
+	global $txt, $scripturl, $context;
 
 	loadLanguage('ManagePermissions+ManageMembers');
 	loadTemplate('ManagePermissions');
@@ -43,6 +43,8 @@ function ModifyPermissions()
 		'profiles' => array('EditPermissionProfiles', 'manage_permissions'),
 		'settings' => array('GeneralPermissionSettings', 'admin_forum'),
 	);
+
+	call_integration_hook('integrate_manage_permissions', array(&$subActions));
 
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) && empty($subActions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : (allowedTo('manage_permissions') ? 'index' : 'settings');
 	isAllowedTo($subActions[$_REQUEST['sa']][1]);
@@ -71,9 +73,7 @@ function ModifyPermissions()
 		),
 	);
 
-	call_integration_hook('integrate_manage_permissions', array(&$subActions));
-
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	$subActions[$_REQUEST['sa']][0]();
 }
 
 /**
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $smcFunc;
+	global $context, $txt, $smcFunc, $sourcedir;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);
@@ -1245,8 +1245,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'approve_posts',
 	));
 
-	call_integration_hook('integrate_load_permission_levels', array(&$groupLevels, &$boardLevels));
-
 	// Make sure we're not granting someone too many permissions!
 	foreach ($groupLevels['global'][$level] as $k => $permission)
 	{
@@ -1455,6 +1453,7 @@ function loadAllPermissions()
 			'pm_read' => array(false, 'pm'),
 			'pm_send' => array(false, 'pm'),
 			'pm_draft' => array(false, 'pm'),
+			'pm_autosave_draft' => array(false, 'pm'),
 			'calendar_view' => array(false, 'calendar'),
 			'calendar_post' => array(false, 'calendar'),
 			'calendar_edit' => array(true, 'calendar'),
@@ -1480,7 +1479,6 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
-			'report_user' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
 			'profile_password' => array(true, 'profile_account'),
@@ -1494,10 +1492,11 @@ function loadAllPermissions()
 			'moderate_board' => array(false, 'general_board'),
 			'approve_posts' => array(false, 'general_board'),
 			'post_new' => array(false, 'topic'),
+			'post_draft' => array(false, 'topic'),
+			'post_autosave_draft' => array(false, 'topic'),
 			'post_unapproved_topics' => array(false, 'topic'),
 			'post_unapproved_replies' => array(true, 'topic'),
 			'post_reply' => array(true, 'topic'),
-			'post_draft' => array(false, 'topic'),
 			'merge_any' => array(false, 'topic'),
 			'split_any' => array(false, 'topic'),
 			'make_sticky' => array(false, 'topic'),
@@ -1580,17 +1579,6 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'view_attachments';
 		$hiddenPermissions[] = 'post_unapproved_attachments';
 		$hiddenPermissions[] = 'post_attachment';
-	}
-
-	// Hide Likes/Mentions permissions...
-	if (empty($modSettings['enable_likes']))
-	{
-		$hiddenPermissions[] = 'likes_view';
-		$hiddenPermissions[] = 'likes_like';
-	}
-	if (empty($modSettings['enable_mentions']))
-	{
-		$hiddenPermissions[] = 'mention';
 	}
 
 	// Provide a practical way to modify permissions.
@@ -1781,9 +1769,6 @@ function init_inline_permissions($permissions, $excluded_groups = array())
 				unset($context[$permission][$group]);
 		}
 	}
-
-	// Create the token for the separate inline permission verification.
-	createToken('admin-mp');
 }
 
 /**
@@ -2369,7 +2354,7 @@ function ModifyPostModeration()
 					'postmod_active' => 0,
 					'warning_moderate' => 0,
 				));
-
+				
 				require_once($sourcedir . '/PostModeration.php');
 				approveAllData();
 			}

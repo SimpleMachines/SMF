@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -60,7 +60,7 @@ function updateReport($action, $value, $report_id)
 
 	// From now on, lets work with arrays, makes life easier.
 	$report_id = (array) $report_id;
-
+	
 	// Set up the data for the log...
 	$extra = array();
 
@@ -75,7 +75,7 @@ function updateReport($action, $value, $report_id)
 				'id_report' => $report_id,
 			)
 		);
-
+	
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 			$extra[$row['id_report']] = array(
 				'report' => $row['id_report'],
@@ -83,7 +83,7 @@ function updateReport($action, $value, $report_id)
 				'message' => $row['id_msg'],
 				'topic' => $row['id_topic'],
 			);
-
+	
 		$smcFunc['db_free_result']($request);
 	}
 	else
@@ -220,7 +220,7 @@ function getReports($closed = 0)
 			array(
 				'view_closed' => (int) $closed,
 			)
-		);
+		);	
 	}
 
 	$report_ids = array();
@@ -231,6 +231,7 @@ function getReports($closed = 0)
 		$report_ids[] = $row['id_report'];
 		$reports[$row['id_report']] = array(
 			'id' => $row['id_report'],
+			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reported' . $context['report_type'] . ';sa=details;rid=' . $row['id_report'],
 			'comments' => array(),
 			'time_started' => timeformat($row['time_started']),
@@ -346,12 +347,12 @@ function getReports($closed = 0)
  */
 function recountOpenReports($type)
 {
-	global $user_info, $smcFunc;
+	global $user_info, $smcFunc, $context;
 
 	if ($type == 'members')
 		$bq = '';
 	else
-		$bq = '	AND ' . $user_info['mod_cache']['bq'];
+		$bq = '	AND ' . $user_info['mod_cache']['bq'];					
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(*)
@@ -369,13 +370,11 @@ function recountOpenReports($type)
 	list ($open_reports) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$arr = ($type == 'members' ? 'member_reports' : 'reports');
-	$_SESSION['rc'] = array_merge(!empty($_SESSION['rc']) ? $_SESSION['rc'] : array(),
-		array(
-			'id' => $user_info['id'],
-			'time' => time(),
-			$arr => $open_reports,
-		));
+	$_SESSION['rc'] = array(
+		'id' => $user_info['id'],
+		'time' => time(),
+		'reports' => $open_reports,
+	);
 
 	return $open_reports;
 }
@@ -408,7 +407,7 @@ function getReportDetails($report_id)
 			array(
 				'id_report' => $report_id,
 			)
-		);
+		);		
 	}
 	else
 	{
@@ -447,7 +446,7 @@ function getReportDetails($report_id)
  */
 function getReportComments($report_id)
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $smcFunc, $scripturl;
 
 	if (empty($report_id))
 		return false;
@@ -505,7 +504,7 @@ function getReportComments($report_id)
 			'id' => $row['id_comment'],
 			'message' => parse_bbc($row['body']),
 			'time' => timeformat($row['log_time']),
-			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member'])),
+			'can_edit' => allowedTo('admin_forum') || (($user_info['id'] == $row['id_member']) && allowedTo('moderate_forum')),
 			'member' => array(
 				'id' => $row['id_member'],
 				'name' => $row['moderator'],
@@ -552,7 +551,7 @@ function getCommentModDetails($comment_id)
 
 	// Add the permission
 	if (!empty($comment))
-		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']));
+		$comment['can_edit'] = allowedTo('admin_forum') || (($user_info['id'] == $comment['id_member']) && allowedTo('moderate_forum'));
 
 	return $comment;
 }
@@ -566,7 +565,7 @@ function getCommentModDetails($comment_id)
  */
 function saveModComment($report_id, $data)
 {
-	global $smcFunc, $user_info, $context;
+	global $smcFunc, $user_info;
 
 	if (empty($data))
 		return false;
@@ -590,12 +589,12 @@ function saveModComment($report_id, $data)
 	{
 		$prefix = 'Member';
 		$data = array(
-		 	'report_id' => $report_id,
-			'user_id' => $report['id_user'],
-			'user_name' => $report['user_name'],
+		 	'report_id' => $id_report,
+			'user_id' => $user['id_member'],
+			'user_name' => $user_name,
 			'sender_id' => $context['user']['id'],
 			'sender_name' => $context['user']['name'],
-			'comment_id' => $last_comment,
+			'comment' => $reason,
 			'time' => time(),
 		);
 	}
@@ -669,7 +668,5 @@ function deleteModComment($comment_id)
 			'comment_id' => $comment_id,
 		)
 	);
-
 }
-
 ?>

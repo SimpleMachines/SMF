@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 // Our main calendar template, which encapsulates weeks and months.
@@ -34,7 +34,7 @@ function template_main()
 	if (isset($_GET['viewweek']))
 	{
 		echo '
-			<div id="main_grid">
+			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
 				', template_show_week_grid('main'), '
 			</div>
 		';
@@ -42,7 +42,7 @@ function template_main()
 	else
 	{
 		echo '
-			<div id="main_grid">
+			<div id="main_grid"', !empty($context['blocks_disabled']) ? ' class="full_width"' : '', '>
 				', template_show_month_grid('main'), '
 			</div>
 		';
@@ -647,7 +647,7 @@ function template_event_post()
 	// Delete button?
 	if (empty($context['event']['new']))
 		echo '
-				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" data-confirm="', $txt['calendar_confirm_delete'], '" class="button_submit you_sure">';
+				<input type="submit" name="deleteevent" value="', $txt['event_delete'], '" onclick="return confirm(\'', $txt['calendar_confirm_delete'], '\');" class="button_submit">';
 
 	echo '
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

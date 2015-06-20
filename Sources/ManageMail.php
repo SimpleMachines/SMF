@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -43,6 +43,8 @@ function ManageMail()
 		'settings' => 'ModifyMailSettings',
 	);
 
+	call_integration_hook('integrate_manage_mail', array(&$subActions));
+
 	// By default we want to browse
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'browse';
 	$context['sub_action'] = $_REQUEST['sa'];
@@ -54,10 +56,8 @@ function ManageMail()
 		'description' => $txt['mailqueue_desc'],
 	);
 
-	call_integration_hook('integrate_manage_mail', array(&$subActions));
-
 	// Call the right function for this sub-action.
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
@@ -66,7 +66,7 @@ function ManageMail()
 function BrowseMailQueue()
 {
 	global $scripturl, $context, $txt, $smcFunc;
-	global $sourcedir, $modSettings;
+	global $sourcedir;
 
 	// First, are we deleting something from the queue?
 	if (isset($_REQUEST['delete']))
@@ -98,7 +98,7 @@ function BrowseMailQueue()
 	$listOptions = array(
 		'id' => 'mail_queue',
 		'title' => $txt['mailqueue_browse'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=mailqueue',
 		'default_sort_col' => 'age',
 		'no_items_label' => $txt['mailqueue_no_items'],
@@ -200,7 +200,7 @@ function BrowseMailQueue()
 		'additional_rows' => array(
 			array(
 				'position' => 'bottom_of_list',
-				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" onclick="return confirm(\'' . $txt['quickmod_confirm'] . '\');" class="button_submit"><a class="button_link" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" onclick="return confirm(\'' . $txt['mailqueue_clear_list_warning'] . '\');">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
 		),
 	);
@@ -299,7 +299,7 @@ function ModifyMailSettings($return_config = false)
 
 	$config_vars = array(
 			// Mail queue stuff, this rocks ;)
-			array('int', 'mail_limit', 'subtext' => $txt['zero_to_disable']),
+			array('int', 'mail_limit'),
 			array('int', 'mail_quantity'),
 		'',
 			// SMTP stuff.

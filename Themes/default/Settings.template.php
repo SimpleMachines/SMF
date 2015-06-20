@@ -4,15 +4,15 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_options()
 {
-	global $context, $txt;
+	global $context, $scripturl, $txt;
 
 	$context['theme_options'] = array(
 		array(
@@ -120,6 +120,11 @@ function template_options()
 			'default' => true,
 		),
 		array(
+			'id' => 'drafts_autosave_enabled',
+			'label'  => $txt['drafts_autosave_enabled'],
+			'default' => true,
+		),
+		array(
 			'id' => 'drafts_show_saved_enabled',
 			'label'  => $txt['drafts_show_saved_enabled'],
 			'default' => true,
@@ -175,7 +180,7 @@ function template_settings()
 		array(
 			'id' => 'number_recent_posts',
 			'label' => $txt['number_recent_posts'],
-			'description' => $txt['zero_to_disable'],
+			'description' => $txt['number_recent_posts_desc'],
 			'type' => 'number',
 		),
 		array(
@@ -199,13 +204,6 @@ function template_settings()
 				2 => $txt['who_display_viewing_names'],
 			),
 			'type' => 'number',
-		),
-	'',
-		array(
-			'id' => 'og_image',
-			'label' => $txt['og_image'],
-			'description' => $txt['og_image_desc'],
-			'type' => 'text',
 		),
 	);
 }

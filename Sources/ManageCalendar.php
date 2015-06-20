@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -52,6 +52,8 @@ function ManageCalendar()
 		$default = 'settings';
 	}
 
+	call_integration_hook('integrate_manage_calendar', array(&$subActions));
+
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : $default;
 
 	// Set up the two tabs here...
@@ -70,9 +72,7 @@ function ManageCalendar()
 			),
 		);
 
-	call_integration_hook('integrate_manage_calendar', array(&$subActions));
-
-	call_helper($subActions[$_REQUEST['sa']]);
+	$subActions[$_REQUEST['sa']]();
 }
 
 /**
@@ -80,7 +80,7 @@ function ManageCalendar()
  */
 function ModifyHolidays()
 {
-	global $sourcedir, $scripturl, $txt, $context, $modSettings;
+	global $sourcedir, $scripturl, $txt, $context;
 
 	// Submitting something...
 	if (isset($_REQUEST['delete']) && !empty($_REQUEST['holiday']))
@@ -100,7 +100,7 @@ function ModifyHolidays()
 	$listOptions = array(
 		'id' => 'holiday_list',
 		'title' => $txt['current_holidays'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => 20,
 		'base_href' => $scripturl . '?action=admin;area=managecalendar;sa=holidays',
 		'default_sort_col' => 'name',
 		'get_items' => array(
@@ -174,7 +174,7 @@ function ModifyHolidays()
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">
-					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday" style="margin: 0 1em">' . $txt['holidays_add'] . '</a>',
 			),
 		),
 	);

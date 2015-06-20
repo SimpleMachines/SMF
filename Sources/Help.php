@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -32,11 +32,8 @@ function ShowHelp()
 		'rules' => 'HelpRules',
 	);
 
-	// CRUD $subActions as needed.
-	call_integration_hook('integrate_manage_help', array(&$subActions));
-
 	$sa = isset($_GET['sa'], $subActions[$_GET['sa']]) ? $_GET['sa'] : 'index';
-	call_helper($subActions[$sa]);
+	$subActions[$sa]();
 }
 
 function HelpIndex()
@@ -45,7 +42,6 @@ function HelpIndex()
 
 	// We need to know where our wiki is.
 	$context['wiki_url'] = 'http://wiki.simplemachines.org/smf';
-	$context['wiki_prefix'] = 'SMF2.1:';
 
 	$context['canonical_url'] = $scripturl . '?action=help';
 

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -199,10 +199,7 @@ function ShowXmlFeed()
 		$xml = cache_get_data('xmlfeed-' . $xml_format . ':' . ($user_info['is_guest'] ? '' : $user_info['id'] . '-') . $cachekey, 240);
 	if (empty($xml))
 	{
-		$call = call_helper($subActions[$_GET['sa']][0], true);
-
-		if (!empty($call))
-			$xml = call_user_func($call, $xml_format);
+		$xml = $subActions[$_GET['sa']][0]($xml_format);
 
 		if (!empty($modSettings['cache_enable']) && (($user_info['is_guest'] && $modSettings['cache_enable'] >= 3)
 		|| (!$user_info['is_guest'] && (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $cache_t)) > 0.2))))
@@ -259,7 +256,7 @@ function ShowXmlFeed()
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/atom+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/rss+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -319,7 +316,7 @@ function ShowXmlFeed()
 
 /**
  * Called from dumpTags to convert data to xml
- * Finds urls for local site and sanitizes them
+ * Finds urls for local sitte and santizes them
  *
  * @param type $val
  * @return type
@@ -344,7 +341,7 @@ function fix_possible_url($val)
 }
 
 /**
- * Ensures supplied data is properly encapsulated in cdata xml tags
+ * Ensures supplied data is properly encpsulated in cdata xml tags
  * Called from getXmlProfile in News.php
  *
  * @param type $data
@@ -562,7 +559,7 @@ function getXmlMembers($xml_format)
  */
 function getXmlNews($xml_format)
 {
-	global $scripturl, $modSettings, $board, $user_info;
+	global $scripturl, $modSettings, $board;
 	global $query_this_board, $smcFunc, $context;
 
 	/* Find the latest posts that:
@@ -654,7 +651,7 @@ function getXmlNews($xml_format)
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -806,7 +803,7 @@ function getXmlRecent($xml_format)
 				'author' => array(
 					'name' => $row['poster_name'],
 					'email' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
-					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
+					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : ''
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
@@ -857,7 +854,7 @@ function getXmlRecent($xml_format)
  */
 function getXmlProfile($xml_format)
 {
-	global $scripturl, $memberContext, $user_profile, $user_info;
+	global $scripturl, $memberContext, $user_profile, $modSettings, $user_info;
 
 	// You must input a valid user....
 	if (empty($_GET['u']) || loadMemberData((int) $_GET['u']) === false)
@@ -895,7 +892,7 @@ function getXmlProfile($xml_format)
 			'author' => array(
 				'name' => $profile['real_name'],
 				'email' => $profile['show_email'] ? $profile['email'] : null,
-				'uri' => !empty($profile['website']) ? $profile['website']['url'] : null,
+				'uri' => !empty($profile['website']) ? $profile['website']['url'] : ''
 			),
 			'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['date_registered']),
 			'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $user_profile[$profile['id']]['last_login']),

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -38,7 +38,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 
 	// The cookie may already exist, and have been set with different options.
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-	if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
+	if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 	{
 		$array = @unserialize($_COOKIE[$cookiename]);
 
@@ -108,34 +108,6 @@ function setLoginCookie($cookie_length, $id, $password = '')
 }
 
 /**
- * Sets Two Factor Auth cookie
- *
- * @param int $cookie_length
- * @param int $id
- * @param string $secret Should be a salted secret using hash_salt
- */
-function setTFACookie($cookie_length, $id, $secret)
-{
-	global $modSettings, $cookiename, $boardurl;
-
-	$identifier = $cookiename . '_tfa';
-	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
-
-	// Get the data and path to set it on.
-	$data = serialize(empty($id) ? array(0, '', 0) : array($id, $secret, time() + $cookie_length, $cookie_state));
-	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
-
-	// Set the cookie, $_COOKIE, and session variable.
-	smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], $cookie_url[0]);
-
-	// If subdomain-independent cookies are on, unset the subdomain-dependent cookie too.
-	if (empty($id) && !empty($modSettings['globalCookies']))
-		smf_setcookie($identifier, $data, time() + $cookie_length, $cookie_url[1], '');
-
-	$_COOKIE[$identifier] = $data;
-}
-
-/**
  * Get the domain and path for the cookie
  * - normally, local and global should be the localCookies and globalCookies settings, respectively.
  * - uses boardurl to determine these two things.
@@ -201,7 +173,7 @@ function KickGuest()
  */
 function InMaintenance()
 {
-	global $txt, $mtitle, $mmessage, $context, $smcFunc;
+	global $txt, $mtitle, $mmessage, $context;
 
 	loadLanguage('Login');
 	loadTemplate('Login');
@@ -212,7 +184,7 @@ function InMaintenance()
 
 	// Basic template stuff..
 	$context['sub_template'] = 'maintenance';
-	$context['title'] = $smcFunc['htmlspecialchars']($mtitle);
+	$context['title'] = &$mtitle;
 	$context['description'] = &$mmessage;
 	$context['page_title'] = $txt['maintain_mode'];
 }
@@ -227,10 +199,11 @@ function InMaintenance()
  */
 function adminLogin($type = 'admin')
 {
-	global $context, $txt, $user_settings, $user_info;
+	global $context, $scripturl, $txt, $user_info, $user_settings;
 
 	loadLanguage('Admin');
 	loadTemplate('Login');
+	loadJavascriptFile('sha1.js', array('default_theme' => true), 'smf_sha1');
 
 	// Validate what type of session check this is.
 	$types = array();
@@ -349,7 +322,7 @@ function construct_query_string($get)
  * - searches only buddies if buddies_only is set.
  *
  * @param array $names
- * @param bool $use_wildcards = false, accepts wildcards ? and * in the pattern if true
+ * @param bool $use_wildcards = false, accepts wildcards ? and * in the patern if true
  * @param bool $buddies_only = false,
  * @param int $max = 500 retrieves a maximum of max members, if passed
  * @return array containing information about the matching members
@@ -564,7 +537,7 @@ function RequestMembers()
  */
 function resetPassword($memID, $username = null)
 {
-	global $sourcedir, $modSettings, $smcFunc, $language;
+	global $scripturl, $context, $txt, $sourcedir, $modSettings, $smcFunc, $language;
 
 	// Language... and a required file.
 	loadLanguage('Login');
@@ -718,7 +691,7 @@ function rebuildModCache()
 	// What groups can they moderate?
 	$group_query = allowedTo('manage_membergroups') ? '1=1' : '0=1';
 
-	if ($group_query == '0=1' && !$user_info['is_guest'])
+	if ($group_query == '0=1')
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_group
@@ -742,7 +715,7 @@ function rebuildModCache()
 	// Then, same again, just the boards this time!
 	$board_query = allowedTo('moderate_forum') ? '1=1' : '0=1';
 
-	if ($board_query == '0=1' && !$user_info['is_guest'])
+	if ($board_query == '0=1')
 	{
 		$boards = boardsAllowedTo('moderate_board', true);
 
@@ -815,9 +788,9 @@ function rebuildModCache()
  * @param string $path = ''
  * @param string $domain = ''
  * @param bool $secure = false
- * @param bool $httponly = true
+ * @param bool $httponly = null
  */
-function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = true)
+function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = null, $httponly = null)
 {
 	global $modSettings;
 

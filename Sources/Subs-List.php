@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -75,9 +75,7 @@ function createList($listOptions)
 		// First get an impression of how many items to expect.
 		if (isset($listOptions['get_count']['file']))
 			require_once($listOptions['get_count']['file']);
-
-		$call = call_helper($listOptions['get_count']['function'], true);
-		$list_context['total_num_items'] = call_user_func_array($call, empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
+		$list_context['total_num_items'] = call_user_func_array($listOptions['get_count']['function'], empty($listOptions['get_count']['params']) ? array() : $listOptions['get_count']['params']);
 
 		// Default the start to the beginning...sounds logical.
 		$list_context['start'] = isset($_REQUEST[$list_context['start_var_name']]) ? (int) $_REQUEST[$list_context['start_var_name']] : 0;
@@ -110,8 +108,7 @@ function createList($listOptions)
 		require_once($listOptions['get_items']['file']);
 
 	// Call the function and include which items we want and in what order.
-	$call = call_helper($listOptions['get_items']['function'], true);
-	$list_items = call_user_func_array($call, array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
+	$list_items = call_user_func_array($listOptions['get_items']['function'], array_merge(array($list_context['start'], $list_context['items_per_page'], $sort), empty($listOptions['get_items']['params']) ? array() : $listOptions['get_items']['params']));
 	$list_items = empty($list_items) ? array() : $list_items;
 
 	// Loop through the list items to be shown and construct the data values.
@@ -174,13 +171,15 @@ function createList($listOptions)
 			$cur_row[$column_id] = $cur_data;
 		}
 
+		$list_context['rows'][$item_id]['class'] = '';
+		$list_context['rows'][$item_id]['style'] = '';
 		// Maybe we wat set a custom class for the row based on the data in the row itself
 		if (isset($listOptions['data_check']))
 		{
 			if (isset($listOptions['data_check']['class']))
-				$list_context['rows'][$item_id]['class'] = $listOptions['data_check']['class']($list_item);
+				$list_context['rows'][$item_id]['class'] = ' ' . $listOptions['data_check']['class']($list_item);
 			if (isset($listOptions['data_check']['style']))
-				$list_context['rows'][$item_id]['style'] = $listOptions['data_check']['style']($list_item);
+				$list_context['rows'][$item_id]['style'] = ' style="' . $listOptions['data_check']['style']($list_item) . '"';
 		}
 
 		// Insert the row into the list.

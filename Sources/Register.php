@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -95,7 +95,7 @@ function Register($reg_errors = array())
 
 	// Add the register chain to the link tree.
 	$context['linktree'][] = array(
-		'url' => $scripturl . '?action=signup',
+		'url' => $scripturl . '?action=register',
 		'name' => $txt['register'],
 	);
 
@@ -189,11 +189,22 @@ function Register($reg_errors = array())
 	else
 		$context['visual_verification'] = false;
 
-
-	$context += array(
-		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
-		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
-	);
+	// Are they coming from an OpenID login attempt?
+	if (!empty($_SESSION['openid']['verified']) && !empty($_SESSION['openid']['openid_uri']))
+	{
+		$context['openid'] = $_SESSION['openid']['openid_uri'];
+		$context['username'] = $smcFunc['htmlspecialchars'](!empty($_POST['user']) ? $_POST['user'] : $_SESSION['openid']['nickname']);
+		$context['email'] = $smcFunc['htmlspecialchars'](!empty($_POST['email']) ? $_POST['email'] : $_SESSION['openid']['email']);
+	}
+	// See whether we have some pre-filled values.
+	else
+	{
+		$context += array(
+			'openid' => isset($_POST['openid_identifier']) ? $_POST['openid_identifier'] : '',
+			'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
+			'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
+		);
+	}
 
 	// Were there any errors?
 	$context['registration_errors'] = array();
@@ -205,68 +216,77 @@ function Register($reg_errors = array())
 
 /**
  * Actually register the member.
+ *
+ * @param bool $verifiedOpenID = false
  */
-function Register2()
+function Register2($verifiedOpenID = false)
 {
-	global $txt, $modSettings, $context, $sourcedir;
-	global $smcFunc, $maintenance;
+	global $scripturl, $txt, $modSettings, $context, $sourcedir;
+	global $smcFunc;
 
 	checkSession();
 	validateToken('register');
 
-	// Check to ensure we're forcing SSL for authentication
-	if (!empty($modSettings['force_ssl']) && empty($maintenance) && (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on'))
-		fatal_lang_error('register_ssl_required');
-
 	// Start collecting together any errors.
 	$reg_errors = array();
+
+	// Did we save some open ID fields?
+	if ($verifiedOpenID && !empty($context['openid_save_fields']))
+	{
+		foreach ($context['openid_save_fields'] as $id => $value)
+			$_POST[$id] = $value;
+	}
 
 	// You can't register if it's disabled.
 	if (!empty($modSettings['registration_method']) && $modSettings['registration_method'] == 3)
 		fatal_lang_error('registration_disabled', false);
 
-	// Well, if you don't agree, you can't register.
-	if (!empty($modSettings['requireAgreement']) && empty($_SESSION['registration_agreed']))
-		redirectexit();
-
-	// Make sure they came from *somewhere*, have a session.
-	if (!isset($_SESSION['old_url']))
-		redirectexit('action=signup');
-
-	// If we don't require an agreement, we need a extra check for coppa.
-	if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
-		$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
-	// Are they under age, and under age users are banned?
-	if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
+	// Things we don't do for people who have already confirmed their OpenID allegances via register.
+	if (!$verifiedOpenID)
 	{
-		loadLanguage('Errors');
-		fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
-	}
+		// Well, if you don't agree, you can't register.
+		if (!empty($modSettings['requireAgreement']) && empty($_SESSION['registration_agreed']))
+			redirectexit();
 
-	// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
-	if (empty($_SESSION['register']['timenow']) || empty($_SESSION['register']['limit']))
-		redirectexit('action=signup');
-	// Failing that, check the time on it.
-	if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
-	{
-		loadLanguage('Errors');
-		$reg_errors[] = $txt['error_too_quickly'];
-	}
+		// Make sure they came from *somewhere*, have a session.
+		if (!isset($_SESSION['old_url']))
+			redirectexit('action=register');
 
-	// Check whether the visual verification code was entered correctly.
-	if (!empty($modSettings['reg_verification']))
-	{
-		require_once($sourcedir . '/Subs-Editor.php');
-		$verificationOptions = array(
-			'id' => 'register',
-		);
-		$context['visual_verification'] = create_control_verification($verificationOptions, true);
-
-		if (is_array($context['visual_verification']))
+		// If we don't require an agreement, we need a extra check for coppa.
+		if (empty($modSettings['requireAgreement']) && !empty($modSettings['coppaAge']))
+			$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
+		// Are they under age, and under age users are banned?
+		if (!empty($modSettings['coppaAge']) && empty($modSettings['coppaType']) && empty($_SESSION['skip_coppa']))
 		{
 			loadLanguage('Errors');
-			foreach ($context['visual_verification'] as $error)
-				$reg_errors[] = $txt['error_' . $error];
+			fatal_lang_error('under_age_registration_prohibited', false, array($modSettings['coppaAge']));
+		}
+
+		// Check the time gate for miscreants. First make sure they came from somewhere that actually set it up.
+		if (empty($_SESSION['register']['timenow']) || empty($_SESSION['register']['limit']))
+			redirectexit('action=register');
+		// Failing that, check the time on it.
+		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit'])
+		{
+			loadLanguage('Errors');
+			$reg_errors[] = $txt['error_too_quickly'];
+		}
+
+		// Check whether the visual verification code was entered correctly.
+		if (!empty($modSettings['reg_verification']))
+		{
+			require_once($sourcedir . '/Subs-Editor.php');
+			$verificationOptions = array(
+				'id' => 'register',
+			);
+			$context['visual_verification'] = create_control_verification($verificationOptions, true);
+
+			if (is_array($context['visual_verification']))
+			{
+				loadLanguage('Errors');
+				foreach ($context['visual_verification'] as $error)
+					$reg_errors[] = $txt['error_' . $error];
+			}
 		}
 	}
 
@@ -288,6 +308,7 @@ function Register2()
 		'secret_question', 'secret_answer',
 	);
 	$possible_ints = array(
+		'pm_email_notify',
 		'notify_types',
 		'id_theme',
 	);
@@ -353,11 +374,13 @@ function Register2()
 		'email' => !empty($_POST['email']) ? $_POST['email'] : '',
 		'password' => !empty($_POST['passwrd1']) ? $_POST['passwrd1'] : '',
 		'password_check' => !empty($_POST['passwrd2']) ? $_POST['passwrd2'] : '',
+		'openid' => !empty($_POST['openid_identifier']) ? $_POST['openid_identifier'] : '',
+		'auth_method' => !empty($_POST['authenticate']) ? $_POST['authenticate'] : '',
 		'check_reserved_name' => true,
 		'check_password_strength' => true,
 		'check_email_ban' => true,
 		'send_welcome_email' => !empty($modSettings['send_welcomeEmail']),
-		'require' => !empty($modSettings['coppaAge']) && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
+		'require' => !empty($modSettings['coppaAge']) && !$verifiedOpenID && empty($_SESSION['skip_coppa']) ? 'coppa' : (empty($modSettings['registration_method']) ? 'nothing' : ($modSettings['registration_method'] == 1 ? 'activation' : 'approval')),
 		'extra_register_vars' => array(),
 		'theme_vars' => array(),
 	);
@@ -418,7 +441,7 @@ function Register2()
 			// Any masks to apply?
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
-				if ($row['mask'] == 'email' && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255))
+				if ($row['mask'] == 'email' && (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $value) === 0 || strlen($value) > 255))
 					$custom_field_errors[] = array('custom_field_invalid_email', array($row['field_name']));
 				elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value))
 					$custom_field_errors[] = array('custom_field_not_number', array($row['field_name']));
@@ -447,6 +470,26 @@ function Register2()
 		$_REQUEST['step'] = 2;
 		$_SESSION['register']['limit'] = 5; // If they've filled in some details, they won't need the full 10 seconds of the limit.
 		return Register($reg_errors);
+	}
+	// If they're wanting to use OpenID we need to validate them first.
+	if (empty($_SESSION['openid']['verified']) && !empty($_POST['authenticate']) && $_POST['authenticate'] == 'openid')
+	{
+		// What do we need to save?
+		$save_variables = array();
+		foreach ($_POST as $k => $v)
+			if (!in_array($k, array('sc', 'sesc', $context['session_var'], 'passwrd1', 'passwrd2', 'regSubmit')))
+				$save_variables[$k] = $v;
+
+		require_once($sourcedir . '/Subs-OpenID.php');
+		smf_openID_validate($_POST['openid_identifier'], false, $save_variables);
+	}
+	// If we've come from OpenID set up some default stuff.
+	elseif ($verifiedOpenID || (!empty($_POST['openid_identifier']) && $_POST['authenticate'] == 'openid'))
+	{
+		$regOptions['username'] = !empty($_POST['user']) && trim($_POST['user']) != '' ? $_POST['user'] : $_SESSION['openid']['nickname'];
+		$regOptions['email'] = !empty($_POST['email']) && trim($_POST['email']) != '' ? $_POST['email'] : $_SESSION['openid']['email'];
+		$regOptions['auth_method'] = 'openid';
+		$regOptions['openid'] = !empty($_POST['openid_identifier']) ? $_POST['openid_identifier'] : $_SESSION['openid']['openid_uri'];
 	}
 
 	$memberID = registerMember($regOptions, true);
@@ -557,7 +600,7 @@ function Activate()
 		if (empty($modSettings['registration_method']) || $modSettings['registration_method'] == 3)
 			fatal_lang_error('no_access', false);
 
-		if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL))
+		if (preg_match('~^[0-9A-Za-z=_+\-/][0-9A-Za-z=_\'+\-/\.]*@[\w\-]+(\.[\w\-]+)*(\.[\w]{2,6})$~', $_POST['new_email']) == 0)
 			fatal_error(sprintf($txt['valid_email_needed'], $smcFunc['htmlspecialchars']($_POST['new_email'])), false);
 
 		// Make sure their email isn't banned.
@@ -810,7 +853,7 @@ function VerificationCode()
  */
 function RegisterCheckUsername()
 {
-	global $sourcedir, $context;
+	global $sourcedir, $smcFunc, $context, $txt;
 
 	// This is XML!
 	loadTemplate('Xml');

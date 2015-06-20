@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 interface search_api_interface
@@ -138,13 +138,13 @@ abstract class search_api implements search_api_interface
 	 * This is the last version of SMF that this was tested on, to protect against API changes.
 	 * @var type
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 2';
+	public $version_compatible = 'SMF 2.1 Alpha 1';
 
 	/**
 	 * This won't work with versions of SMF less than this.
 	 * @var type
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 2';
+	public $min_smf_version = 'SMF 2.1 Alpha 1';
 
 	/**
 	 * Is it supported?
@@ -222,5 +222,3 @@ abstract class search_api implements search_api_interface
 	{
 	}
 }
-
-?>

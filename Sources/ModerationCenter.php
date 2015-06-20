@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,7 @@ if (!defined('SMF'))
  */
 function ModerationMain($dont_call = false)
 {
-	global $txt, $context, $scripturl, $modSettings, $user_info, $sourcedir, $options;
+	global $txt, $context, $scripturl, $sc, $modSettings, $user_info, $sourcedir, $options, $smcFunc;
 
 	// Don't run this twice... and don't conflict with the admin bar.
 	if (isset($context['admin_area']))
@@ -56,18 +56,18 @@ function ModerationMain($dont_call = false)
 				'index' => array(
 					'label' => $txt['moderation_center'],
 					'function' => 'ModerationHome',
-					'icon' => 'administration',
+					'icon' => 'administration.png',
 				),
 				'settings' => array(
 					'label' => $txt['mc_settings'],
 					'function' => 'ModerationSettings',
-					'icon' => 'features',
+					'icon' => 'features.png',
 				),
 				'modlogoff' => array(
 					'label' => $txt['mc_logoff'],
 					'function' => 'ModEndSession',
 					'enabled' => empty($modSettings['securityDisable_moderate']),
-					'icon' => 'exit',
+					'icon' => 'exit.png',
 				),
 				'notice' => array(
 					'file' => 'ModerationCenter.php',
@@ -84,13 +84,13 @@ function ModerationMain($dont_call = false)
 					'enabled' => !empty($modSettings['modlog_enabled']) && $context['can_moderate_boards'],
 					'file' => 'Modlog.php',
 					'function' => 'ViewModlog',
-					'icon' => 'logs',
+					'icon' => 'logs.png',
 				),
 				'warnings' => array(
 					'label' => $txt['mc_warnings'],
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWarnings',
-					'icon' => 'warning',
+					'icon' => 'warning.png',
 					'subsections' => array(
 						'log' => array($txt['mc_warning_log']),
 						'templates' => array($txt['mc_warning_templates'], 'issue_warning'),
@@ -107,7 +107,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
-					'icon' => 'posts',
+					'icon' => 'posts.png',
 					'custom_url' => $scripturl . '?action=moderate;area=postmod',
 					'subsections' => array(
 						'posts' => array($txt['mc_unapproved_replies']),
@@ -119,7 +119,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_approvals'],
 					'file' => 'PostModeration.php',
 					'function' => 'PostModerationMain',
-					'icon' => 'post_moderation_attach',
+					'icon' => 'post_moderation_attach.png',
 					'custom_url' => $scripturl . '?action=moderate;area=attachmod;sa=attachments',
 				),
 				'reportedposts' => array(
@@ -127,7 +127,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_boards'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
-					'icon' => 'reports',
+					'icon' => 'reports.png',
 					'subsections' => array(
 						'show' => array($txt['mc_reportedp_active']),
 						'closed' => array($txt['mc_reportedp_closed']),
@@ -143,14 +143,14 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_group_requests'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
-					'icon' => 'members_request',
+					'icon' => 'members_request.png',
 					'custom_url' => $scripturl . '?action=moderate;area=groups;sa=requests',
 				),
 				'viewgroups' => array(
 					'label' => $txt['mc_view_groups'],
 					'file' => 'Groups.php',
 					'function' => 'Groups',
-					'icon' => 'membergroups',
+					'icon' => 'membergroups.png',
 				),
 			),
 		),
@@ -162,7 +162,7 @@ function ModerationMain($dont_call = false)
 					'label' => $txt['mc_watched_users_title'],
 					'enabled' => $modSettings['warning_settings'][0] == 1 && $context['can_moderate_boards'],
 					'function' => 'ViewWatchedUsers',
-					'icon' => 'members_watched',
+					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'member' => array($txt['mc_watched_users_member']),
 						'post' => array($txt['mc_watched_users_post']),
@@ -173,7 +173,7 @@ function ModerationMain($dont_call = false)
 					'enabled' => $context['can_moderate_users'],
 					'file' => 'ReportedContent.php',
 					'function' => 'ReportedContent',
-					'icon' => 'members_watched',
+					'icon' => 'members_watched.png',
 					'subsections' => array(
 						'open' => array($txt['mc_reportedp_active']),
 						'closed' => array($txt['mc_reportedp_closed']),
@@ -236,7 +236,7 @@ function ModerationMain($dont_call = false)
 		if (isset($mod_include_data['file']))
 			require_once($sourcedir . '/' . $mod_include_data['file']);
 
-		call_helper($mod_include_data['function']);
+		$mod_include_data['function']();
 	}
 }
 
@@ -245,7 +245,7 @@ function ModerationMain($dont_call = false)
  */
 function ModerationHome()
 {
-	global $txt, $context, $options;
+	global $txt, $context, $scripturl, $user_settings, $options;
 
 	loadTemplate('ModerationCenter');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
@@ -350,7 +350,7 @@ function ModBlockNotes()
 
 		$_POST['new_note'] = $smcFunc['htmlspecialchars'](trim($_POST['new_note']));
 		// Make sure they actually entered something.
-		if (!empty($_POST['new_note']))
+		if (!empty($_POST['new_note']) && $_POST['new_note'] !== $txt['mc_click_add_note'])
 		{
 			// Insert it into the database then!
 			$smcFunc['db_insert']('',
@@ -382,27 +382,6 @@ function ModBlockNotes()
 	{
 		checkSession('get');
 		validateToken('mod-modnote-del', 'get');
-
-		// No sneaky stuff now!
-		if (!allowedTo('admin_forum'))
-		{
-			// Is this your note?
-			$get_owner = $smcFunc['db_query']('', '
-				SELECT id_member
-				FROM {db_prefix}log_comments
-				WHERE id_comment = {int:note}
-					AND comment_type = {literal:modnote}',
-				array(
-					'note' => $_GET['delete'],
-				)
-			);
-
-			list ($note_owner) = $smcFunc['db_fetch_assoc']($get_owner);
-			$smcFunc['db_free_result']($get_owner);
-
-			if ($note_owner != $user_info['id'])
-				fatal_lang_error($txt['mc_notes_delete_own'], false);
-		}
 
 		// Lets delete it.
 		$smcFunc['db_query']('', '
@@ -481,9 +460,14 @@ function ModBlockNotes()
 			'time' => timeformat($note['log_time']),
 			'text' => parse_bbc($note['body']),
 			'delete_href' => $scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . $context['session_var'] . '=' . $context['session_id'],
-			'can_delete' => allowedTo('admin_forum') || $note['id_member'] == $user_info['id'],
 		);
 	}
+
+	// Add a confirm on deleting a modnote
+	addInlineJavascript('
+	$(\'.delete_modnote\').on(\'click\', function(){
+			return confirm('. JavaScriptEscape($txt['mc_reportedp_delete_confirm']) .');
+	});', true);
 
 	// Couple tokens for add/delete modnotes
 	createToken('mod-modnote-add');
@@ -540,15 +524,16 @@ function ModBlockReportedPosts()
 	{
 		$context['reported_posts'][] = array(
 			'id' => $row['id_report'],
+			'alternate' => $i % 2,
 			'topic_href' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-			'report_href' => $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'],
-			'report_link' => '<a href="' . $scripturl . '?action=moderate;area=reportedposts;sa=details;rid=' . $row['id_report'] . '">' . $row['subject'] . '</a>',
+			'report_href' => $scripturl . '?action=moderate;area=reportedposts;report=' . $row['id_report'],
 			'author' => array(
 				'id' => $row['id_author'],
 				'name' => $row['author_name'],
 				'link' => $row['id_author'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_author'] . '">' . $row['author_name'] . '</a>' : $row['author_name'],
 				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
 			),
+			'comments' => array(),
 			'subject' => $row['subject'],
 			'num_reports' => $row['num_reports'],
 		);
@@ -587,6 +572,7 @@ function ModBlockGroupRequests()
 	{
 		$context['group_requests'][] = array(
 			'id' => $row['id_request'],
+			'alternate' => $i % 2,
 			'request_href' => $scripturl . '?action=groups;sa=requests;gid=' . $row['id_group'],
 			'member' => array(
 				'id' => $row['id_member'],
@@ -611,7 +597,7 @@ function ModBlockGroupRequests()
  */
 function ModBlockReportedMembers()
 {
-	global $context, $scripturl, $smcFunc;
+	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
 	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
@@ -619,7 +605,7 @@ function ModBlockReportedMembers()
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
 
-	if (($reported_users = cache_get_data('reported_users_' . $cachekey, 90)) === null)
+	if (($reported_posts = cache_get_data('reported_users_' . $cachekey, 90)) === null)
 	{
 		// By George, that means we in a position to get the reports, jolly good.
 		$request = $smcFunc['db_query']('', '
@@ -645,7 +631,7 @@ function ModBlockReportedMembers()
 		$smcFunc['db_free_result']($request);
 
 		// Cache it.
-		cache_put_data('reported_users_' . $cachekey, $reported_users, 90);
+		cache_put_data('reported_users_' . $cachekey, $reported_posts, 90);
 	}
 
 	$context['reported_users'] = array();
@@ -653,13 +639,15 @@ function ModBlockReportedMembers()
 	{
 		$context['reported_users'][] = array(
 			'id' => $row['id_report'],
+			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
 				'name' => $row['user_name'],
 				'link' => $row['id_user'] ? '<a href="' . $scripturl . '?action=profile;u=' . $row['id_user'] . '">' . $row['user_name'] . '</a>' : $row['user_name'],
-				'href' => $scripturl . '?action=profile;u=' . $row['id_user'],
+				'href' => $scripturl . '?action=profile;u=' . $row['id_author'],
 			),
+			'comments' => array(),
 			'num_reports' => $row['num_reports'],
 		);
 	}
@@ -672,7 +660,7 @@ function ModBlockReportedMembers()
  */
 function ReportedMembers()
 {
-	global $txt, $context, $scripturl, $smcFunc;
+	global $txt, $context, $scripturl, $user_info, $smcFunc;
 
 	loadTemplate('ModerationCenter');
 
@@ -784,7 +772,7 @@ function ReportedMembers()
 
 			// Log the closing of all the reports
 			logActions($logs);
-
+			
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_reported
 				SET closed = {int:is_closed}
@@ -844,6 +832,7 @@ function ReportedMembers()
 		$report_ids[] = $row['id_report'];
 		$context['reports'][$row['id_report']] = array(
 			'id' => $row['id_report'],
+			'alternate' => $i % 2,
 			'report_href' => $scripturl . '?action=moderate;area=reportedmembers;report=' . $row['id_report'],
 			'user' => array(
 				'id' => $row['id_user'],
@@ -900,7 +889,7 @@ function ReportedMembers()
  */
 function ModerateGroups()
 {
-	global $context, $user_info;
+	global $txt, $context, $scripturl, $user_info;
 
 	// You need to be allowed to moderate groups...
 	if ($user_info['mod_cache']['gq'] == '0=1')
@@ -910,17 +899,17 @@ function ModerateGroups()
 	loadTemplate('ModerationCenter');
 
 	// Setup the subactions...
-	$subActions = array(
+	$subactions = array(
 		'requests' => 'GroupRequests',
 		'view' => 'ViewGroups',
 	);
 
-	if (!isset($_GET['sa']) || !isset($subActions[$_GET['sa']]))
+	if (!isset($_GET['sa']) || !isset($subactions[$_GET['sa']]))
 		$_GET['sa'] = 'view';
 	$context['sub_action'] = $_GET['sa'];
 
 	// Call the relevant function.
-	call_helper($subActions[$context['sub_action']]);
+	$subactions[$context['sub_action']]();
 }
 
 /**
@@ -959,7 +948,7 @@ function ShowNotice()
  */
 function ViewWatchedUsers()
 {
-	global $modSettings, $context, $txt, $scripturl, $sourcedir;
+	global $smcFunc, $modSettings, $context, $txt, $scripturl, $sourcedir;
 
 	// Some important context!
 	$context['page_title'] = $txt['mc_watched_users_title'];
@@ -1027,7 +1016,7 @@ function ViewWatchedUsers()
 		'id' => 'watch_user_list',
 		'title' => $txt['mc_watched_users_title'] . ' - ' . ($context['view_posts'] ? $txt['mc_watched_users_post'] : $txt['mc_watched_users_member']),
 		'width' => '100%',
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $context['view_posts'] ? $txt['mc_watched_users_no_posts'] : $txt['mc_watched_users_none'],
 		'base_href' => $scripturl . '?action=moderate;area=userwatch;sa=' . ($context['view_posts'] ? 'post' : 'member'),
 		'default_sort_col' => $context['view_posts'] ? '' : 'member',
@@ -1198,7 +1187,7 @@ function list_getWatchedUserCount($approve_query)
  */
 function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy)
 {
-	global $smcFunc, $txt, $modSettings, $user_info;
+	global $smcFunc, $txt, $scripturl, $modSettings, $user_info, $context;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, real_name, last_login, posts, warning
@@ -1395,7 +1384,7 @@ function ViewWarnings()
 	);
 
 	// Call the right function.
-	call_helper($subActions[$_REQUEST['sa']][0]);
+	$subActions[$_REQUEST['sa']][0]();
 }
 
 /**
@@ -1464,7 +1453,7 @@ function ViewWarningLog()
 	$listOptions = array(
 		'id' => 'warning_list',
 		'title' => $txt['mc_warning_log_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['mc_warnings_none'],
 		'base_href' => $scripturl . '?action=moderate;area=warnings;sa=log;' . $context['session_var'] . '=' . $context['session_id'],
 		'default_sort_col' => 'time',
@@ -1524,9 +1513,9 @@ function ViewWarningLog()
 								' . $rowData['reason'] . '
 							</div>';
 
-						if (!empty($rowData['id_notice']))
+						if (!empty($warning['id_notice']))
 							$output .= '
-								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
+								&nbsp;<a href="' . $scripturl . '?action=moderate;area=notice;nid=' . $warning['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" class="new_win" title="' . $txt['profile_warning_previous_notice'] . '"><span class="generic_icons filter centericon"></span></a>';
 						return $output;
 					},
 				),
@@ -1555,7 +1544,7 @@ function ViewWarningLog()
 				'value' => '
 					' . $txt['modlog_search'] .':
 					<input type="text" name="search" size="18" value="' . $smcFunc['htmlspecialchars']($context['search']['string']) . '" class="input_text">
-					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit">',
+					<input type="submit" name="is_search" value="' . $txt['modlog_go'] . '" class="button_submit" style="float:none">',
 				'class' => 'floatright',
 			),
 		),
@@ -1598,7 +1587,7 @@ function list_getWarningCount()
  */
 function list_getWarnings($start, $items_per_page, $sort)
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $txt, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name_col,
@@ -1688,7 +1677,7 @@ function ViewWarningTemplates()
 	$listOptions = array(
 		'id' => 'warning_template_list',
 		'title' => $txt['mc_warning_templates_title'],
-		'items_per_page' => $modSettings['defaultMaxListItems'],
+		'items_per_page' => $modSettings['defaultMaxMessages'],
 		'no_items_label' => $txt['mc_warning_templates_none'],
 		'base_href' => $scripturl . '?action=moderate;area=warnings;sa=templates;' . $context['session_var'] . '=' . $context['session_id'],
 		'default_sort_col' => 'title',
@@ -1764,8 +1753,8 @@ function ViewWarningTemplates()
 		),
 		'additional_rows' => array(
 			array(
-				'position' => 'bottom_of_list',
-				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" data-confirm="' . $txt['mc_warning_template_delete_confirm'] . '" class="button_submit you_sure">',
+				'position' => 'below_table_data',
+				'value' => '&nbsp;<input type="submit" name="delete" value="' . $txt['mc_warning_template_delete'] . '" onclick="return confirm(\'' . $txt['mc_warning_template_delete_confirm'] . '\');" class="button_submit">',
 			),
 			array(
 				'position' => 'bottom_of_list',
@@ -1815,7 +1804,7 @@ function list_getWarningTemplateCount()
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $smcFunc, $txt, $scripturl, $user_info;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT lc.id_comment, IFNULL(mem.id_member, 0) AS id_member,
@@ -2001,7 +1990,7 @@ function ModifyWarningTemplate()
  */
 function ModerationSettings()
 {
-	global $context, $txt, $user_info;
+	global $context, $smcFunc, $txt, $sourcedir, $scripturl, $user_settings, $user_info;
 
 	// Some useful context stuff.
 	loadTemplate('ModerationCenter');

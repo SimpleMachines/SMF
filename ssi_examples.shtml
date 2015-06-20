@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title> &lt;&lt; :: SMF SSI.php 2.1 Beta 2 :: &gt;&gt; </title>
+		<title> &lt;&lt; :: SMF SSI.php 2.1 Alpha 1 :: &gt;&gt; </title>
 	</head>
 	<body style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt;">
 			<h1>SMF SSI.php Functions</h1>
-			Current Version 2.1 Beta 2<br>
+			Current Version 2.1 Alpha 1<br>
 			<br>
 			This file is used to demonstrate the capabilities of SSI.php using SHTML include functions.<br>
 			The examples the include tag, then the results of it. Examples are separated by horizontal rules.<br>
@@ -149,12 +149,12 @@
 
 		<br>
 		<br>
-		<span class="smalltext">
+		<span style="font-size: smaller;">
 			<a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2011, Simple Machines</a>
 		</span>
 		<br>
 		<br>
-		<span class="smalltext" style="color: #CCCCCC;">
+		<span style="font-size: smaller; color: #CCCCCC;">
 			*ssi_examples.shtml last modified on <!--#config timefmt="%m/%d/%y" --><!--#echo var="LAST_MODIFIED" -->
 		</span>
 

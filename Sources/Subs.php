@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -31,7 +31,7 @@ if (!defined('SMF'))
  * 'topic' updates the total number of topics, or if parameter1 is true
  *  simply increments them.
  *
- * 'subject' updates the log_search_subjects in the event of a topic being
+ * 'subject' updateds the log_search_subjects in the event of a topic being
  *  moved, removed or split.  parameter1 is the topicid, parameter2 is the new subject
  *
  * 'postgroups' case updates those members who match condition's
@@ -43,7 +43,7 @@ if (!defined('SMF'))
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
-	global $modSettings, $smcFunc;
+	global $sourcedir, $modSettings, $smcFunc;
 
 	switch ($type)
 	{
@@ -310,7 +310,7 @@ function updateMemberData($members, $data)
 	// Everything is assumed to be a string unless it's in the below.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from',
+		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_email_notify', 'pm_receive_from',
 		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types', 'alerts',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
@@ -535,18 +535,16 @@ function updateSettings($changeArray, $update = false)
  * an example is available near the function definition.
  * $pageindex = constructPageIndex($scripturl . '?board=' . $board, $_REQUEST['start'], $num_messages, $maxindex, true);
  *
- * @param string $base_url The basic URL to be used for each link.
- * @param int &$start The start position, by reference. If this is not a multiple of the number of items per page, it is sanitized to be so and the value will persist upon the function's return.
- * @param int $max_value The total number of items you are paginating for.
- * @param int $num_per_page The number of items to be displayed on a given page. $start will be forced to be a multiple of this value.
- * @param bool $flexible_start Whether a ;start=x component should be introduced into the URL automatically (see above)
- * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
- *
- * @return string The complete HTML of the page index that was requested, formatted by the template.
+ * @param string $base_url
+ * @param int $start
+ * @param int $max_value
+ * @param int $num_per_page
+ * @param bool $flexible_start = false
+ * @param bool $show_prevnext = true
  */
 function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flexible_start = false, $show_prevnext = true)
 {
-	global $modSettings, $context, $smcFunc, $settings, $txt;
+	global $modSettings, $context, $txt, $smcFunc;
 
 	// Save whether $start was less than 0 or not.
 	$start = (int) $start;
@@ -568,39 +566,24 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	if (WIRELESS)
 		$base_url .= ';' . WIRELESS_PROTOCOL;
 
-	// Define some default page index settings if we don't already have it...
-	if (!isset($settings['page_index']))
-	{
-		// This defines the formatting for the page indexes used throughout the forum.
-		$settings['page_index'] = array(
-			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
-			'previous_page' => '<span class="generic_icons previous_page"></span>',
-			'current_page' => '<span class="current_page">[%1$d]</span> ',
-			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
-			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
-			'next_page' => '<span class="generic_icons next_page"></span>',
-			'extra_after' => '',
-		);
-	}
-
-	$base_link = strtr($settings['page_index']['page'], array('{URL}' => $flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d'));
-	$pageindex = $settings['page_index']['extra_before'];
+	$base_link = '<a class="navPages" href="' . ($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d') . '">%2$s</a> ';
+	$pageindex = $txt['pages'] . ': ';
 
 	// Compact pages is off or on?
 	if (empty($modSettings['compactTopicPagesEnable']))
 	{
 		// Show the left arrow.
-		$pageindex .= $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+		$pageindex .= $start == 0 ? ' ' : sprintf($base_link, $start - $num_per_page, '<span class="previous_page"></span>');
 
 		// Show all the pages.
 		$display_page = 1;
 		for ($counter = 0; $counter < $max_value; $counter += $num_per_page)
-			$pageindex .= $start == $counter && !$start_invalid ? sprintf($settings['page_index']['current_page'], $display_page++) : sprintf($base_link, $counter, $display_page++);
+			$pageindex .= $start == $counter && !$start_invalid ? '<span class="current_page"><strong>' . $display_page++ . '</strong></span> ' : sprintf($base_link, $counter, $display_page++);
 
 		// Show the right arrow.
 		$display_page = ($start + $num_per_page) > $max_value ? $max_value : ($start + $num_per_page);
 		if ($start != $counter - $max_value && !$start_invalid)
-			$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, $settings['page_index']['next_page']);
+			$pageindex .= $display_page > $counter - $num_per_page ? ' ' : sprintf($base_link, $display_page, '<span class="next_page"></span>');
 	}
 	else
 	{
@@ -609,7 +592,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "prev page" link. (>prev page< 1 ... 6 7 [8] 9 10 ... 15 next page)
 		if (!empty($start) && $show_prevnext)
-			$pageindex .= sprintf($base_link, $start - $num_per_page, $settings['page_index']['previous_page']);
+			$pageindex .= sprintf($base_link, $start - $num_per_page, '<span class="previous_page"></span>');
 		else
 			$pageindex .= '';
 
@@ -619,12 +602,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the ... after the first page.  (prev page 1 >...< 6 7 [8] 9 10 ... 15 next page)
 		if ($start > $num_per_page * ($PageContiguous + 1))
-			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
-				'{LINK}' => JavaScriptEscape($smcFunc['htmlspecialchars']($base_link)),
-				'{FIRST_PAGE}' => $num_per_page,
-				'{LAST_PAGE}' => $start - $num_per_page * $PageContiguous,
-				'{PER_PAGE}' => $num_per_page,
-			));
+			$pageindex .= '<span class="expand_pages" onclick="' . $smcFunc['htmlspecialchars']('expandPages(this, ' . JavaScriptEscape(($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d')) . ', ' . $num_per_page . ', ' . ($start - $num_per_page * $PageContiguous) . ', ' . $num_per_page . ');') . '"><strong> ... </strong></span>';
 
 		// Show the pages before the current one. (prev page 1 ... >6 7< [8] 9 10 ... 15 next page)
 		for ($nCont = $PageContiguous; $nCont >= 1; $nCont--)
@@ -636,7 +614,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the current page. (prev page 1 ... 6 7 >[8]< 9 10 ... 15 next page)
 		if (!$start_invalid)
-			$pageindex .= sprintf($settings['page_index']['current_page'], $start / $num_per_page + 1);
+			$pageindex .= '<span class="current_page"><strong>[' . ($start / $num_per_page + 1) . ']</strong></span>';
 		else
 			$pageindex .= sprintf($base_link, $start, $start / $num_per_page + 1);
 
@@ -651,12 +629,7 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the '...' part near the end. (prev page 1 ... 6 7 [8] 9 10 >...< 15 next page)
 		if ($start + $num_per_page * ($PageContiguous + 1) < $tmpMaxPages)
-			$pageindex .= strtr($settings['page_index']['expand_pages'], array(
-				'{LINK}' => JavaScriptEscape($smcFunc['htmlspecialchars']($base_link)),
-				'{FIRST_PAGE}' => $start + $num_per_page * ($PageContiguous + 1),
-				'{LAST_PAGE}' => $tmpMaxPages,
-				'{PER_PAGE}' => $num_per_page,
-			));
+			$pageindex .= '<span class="expand_pages" onclick="' . $smcFunc['htmlspecialchars']('expandPages(this, ' . JavaScriptEscape(($flexible_start ? $base_url : strtr($base_url, array('%' => '%%')) . ';start=%1$d')) . ', ' . ($start + $num_per_page * ($PageContiguous + 1)) . ', ' . $tmpMaxPages . ', ' . $num_per_page . ');') . '" onmouseover="this.style.cursor=\'pointer\';"> ... </span>';
 
 		// Show the last number in the list. (prev page 1 ... 6 7 [8] 9 10 ... >15<  next page)
 		if ($start + $num_per_page * $PageContiguous < $tmpMaxPages)
@@ -664,9 +637,8 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 
 		// Show the "next page" link. (prev page 1 ... 6 7 [8] 9 10 ... 15 >next page<)
 		if ($start != $tmpMaxPages && $show_prevnext)
-			$pageindex .= sprintf($base_link, $start + $num_per_page, $settings['page_index']['next_page']);
+			$pageindex .= sprintf($base_link, $start + $num_per_page, '<span class="next_page"></span>');
 	}
-	$pageindex .= $settings['page_index']['extra_after'];
 
 	return $pageindex;
 }
@@ -705,7 +677,7 @@ function comma_format($number, $override_decimal_count = false)
 /**
  * Format a time to make it look purdy.
  *
- * - returns a pretty formatted version of time based on the user's format in $user_info['time_format'].
+ * - returns a pretty formated version of time based on the user's format in $user_info['time_format'].
  * - applies all necessary time offsets to the timestamp, unless offset_type is set.
  * - if todayMod is set and show_today was not not specified or true, an
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
@@ -805,20 +777,10 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  */
 function un_htmlspecialchars($string)
 {
-	global $context;
 	static $translation = array();
 
-	// Determine the character set... Default to UTF-8
-	if (empty($context['character_set']))
-		$charset = 'UTF-8';
-	// Use ISO-8859-1 in place of non-suppported ISO-8859 charsets...
-	elseif (strpos($context['character_set'], 'ISO-8859-') !== false && !in_array($context['character_set'], array('ISO-8859-5', 'ISO-8859-15')))
-		$charset = 'ISO-8859-1';
-	else
-		$charset = $context['character_set'];
-
 	if (empty($translation))
-		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES, $charset)) + array('&#039;' => '\'', '&#39;' => '\'', '&nbsp;' => ' ');
+		$translation = array_flip(get_html_translation_table(HTML_SPECIALCHARS, ENT_QUOTES)) + array('&#039;' => '\'', '&nbsp;' => ' ');
 
 	return strtr($string, $translation);
 }
@@ -1108,7 +1070,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'blue',
-				'before' => '<span class="bbc_color blue">',
+				'before' => '<span style="color: blue;" class="bbc_color">',
 				'after' => '</span>',
 			),
 			array(
@@ -1125,7 +1087,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1162,7 +1124,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1271,12 +1233,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'glow',
 				'type' => 'unparsed_commas',
 				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 0 0 3px">',
+				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 1px 1px 1px">',
 				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
 			),
 			array(
 				'tag' => 'green',
-				'before' => '<span class="bbc_color green">',
+				'before' => '<span style="color: green;" class="bbc_color">',
 				'after' => '</span>',
 			),
 			array(
@@ -1302,21 +1264,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_content',
 				'parameters' => array(
 					'alt' => array('optional' => true),
-					'title' => array('optional' => true),
 					'width' => array('optional' => true, 'value' => ' width="$1"', 'match' => '(\d+)'),
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
-				'content' => '<img src="$1" alt="{alt}" title="{title}"{width}{height} class="bbc_img resized">',
+				'content' => '<img src="$1" alt="{alt}"{width}{height} class="bbc_img resized">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
-
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
 						$data = 'http://' . $data;
-
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1326,14 +1282,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '<img src="$1" alt="" class="bbc_img">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
-					global $image_proxy_enabled, $image_proxy_secret, $boardurl;
-
 					$data = strtr($data, array('<br>' => ''));
 					if (strpos($data, 'http://') !== 0 && strpos($data, 'https://') !== 0)
 						$data = 'http://' . $data;
 
-					if (substr($data, 0, 8) != 'https://' && $image_proxy_enabled)
-						$data = $boardurl . '/proxy.php?request=' . urlencode($data) . '&hash=' . md5($data . $image_proxy_secret);
 				},
 				'disabled_content' => '($1)',
 			),
@@ -1456,9 +1408,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'quote',
-				'before' => '<div class="quoteheader">' . $txt['quote'] . '</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
-				'trim' => 'both',
+				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote'] . '</div></div><blockquote>',
+				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
 				'block_level' => true,
 			),
 			array(
@@ -1466,17 +1417,15 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)', 'quoted' => true),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
-				'trim' => 'both',
+				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': {author}</div></div><blockquote>',
+				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 'quote',
 				'type' => 'parsed_equals',
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': $1</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
-				'trim' => 'both',
+				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': $1</div></div><blockquote>',
+				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
 				'quoted' => 'optional',
 				// Don't allow everything to be embedded with the author name.
 				'parsed_tags_allowed' => array('url', 'iurl', 'ftp'),
@@ -1489,9 +1438,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'),
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
-				'before' => '<div class="quoteheader"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
-				'trim' => 'both',
+				'before' => '<div class="quoteheader"><div class="topslice_quote"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div></div><blockquote>',
+				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
 				'block_level' => true,
 			),
 			array(
@@ -1499,14 +1447,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '(.{1,192}?)'),
 				),
-				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
-				'trim' => 'both',
+				'before' => '<div class="quoteheader"><div class="topslice_quote">' . $txt['quote_from'] . ': {author}</div></div><blockquote>',
+				'after' => '</blockquote><div class="quotefooter"><div class="botslice_quote"></div></div>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 'red',
-				'before' => '<span class="bbc_color red">',
+				'before' => '<span style="color: red;" class="bbc_color">',
 				'after' => '</span>',
 			),
 			array(
@@ -1685,7 +1632,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		{
 			if (isset($temp_bbc))
 				$bbc_codes = $temp_bbc;
-			usort($codes, 'sort_bbc_tags');
 			return $codes;
 		}
 
@@ -2256,7 +2202,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$tag['content'] = $tag['disabled_content'];
 		}
 
-		// we use this a lot
+		// we use this alot
 		$tag_strlen = strlen($tag['tag']);
 
 		// The only special case is 'html', which doesn't need to close things.
@@ -2505,14 +2451,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 }
 
 /**
- * Helper function for usort(), used in parse_bbc().
- */
-function sort_bbc_tags($a, $b)
-{
-	return strcmp($a['tag'], $b['tag']);
-}
-
-/**
  * Parse smileys in the passed message.
  *
  * The smiley parsing function which makes pretty faces appear :).
@@ -2617,6 +2555,8 @@ function parsesmileys(&$message)
  */
 function highlight_php_code($code)
 {
+	global $context;
+
 	// Remove special characters.
 	$code = un_htmlspecialchars(strtr($code, array('<br />' => "\n", '<br>' => "\n", "\t" => 'SMF_TAB();', '&#91;' => '[')));
 
@@ -2639,7 +2579,7 @@ function highlight_php_code($code)
  * @param string $setLocation = ''
  * @param bool $refresh = false
  */
-function redirectexit($setLocation = '', $refresh = false, $permanent = false)
+function redirectexit($setLocation = '', $refresh = false)
 {
 	global $scripturl, $context, $modSettings, $db_show_debug, $db_cache;
 
@@ -2690,13 +2630,13 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	}
 
 	// Maybe integrations want to change where we are heading?
-	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
+	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh));
 
 	// We send a Refresh header only in special cases because Location looks better. (and is quicker...)
 	if ($refresh && !WIRELESS)
-		header('Refresh: 0; URL=' . strtr($setLocation, array(' ' => '%20')), $permanent ? 301 : 302);
+		header('Refresh: 0; URL=' . strtr($setLocation, array(' ' => '%20')));
 	else
-		header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+		header('Location: ' . str_replace(' ', '%20', $setLocation));
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -2759,10 +2699,11 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 		if (!empty($buffers))
 			foreach ($buffers as $function)
 			{
-				$call = call_helper($function, true);
+				$function = trim($function);
+				$call = call_hook_helper($function);
 
 				// Is it valid?
-				if (!empty($call))
+				if (is_callable($call))
 					ob_start($call);
 			}
 
@@ -2893,13 +2834,35 @@ function url_image_size($url)
 }
 
 /**
+ * Sets the class of the current topic based on, normal, sticky, locked, etc
+ *
+ * @param array &$topic_context
+ */
+function determineTopicClass(&$topic_context)
+{
+	// Set topic class depending on locked status and number of replies.
+	$topic_context['class'] = 'normal';
+
+	$topic_context['class'] .= $topic_context['is_poll'] ? '_poll' : '_post';
+
+	if ($topic_context['is_locked'])
+		$topic_context['class'] .= '_locked';
+
+	if ($topic_context['is_sticky'])
+		$topic_context['class'] .= '_sticky';
+
+	// This is so old themes will still work.
+	$topic_context['extended_class'] = &$topic_context['class'];
+}
+
+/**
  * Sets up the basic theme context stuff.
  * @param bool $forceload = false
  */
 function setupThemeContext($forceload = false)
 {
 	global $modSettings, $user_info, $scripturl, $context, $settings, $options, $txt, $maintenance;
-	global $smcFunc;
+	global $user_settings, $smcFunc;
 	static $loaded = false;
 
 	// Under SSI this function can be called more then once.  That can cause some problems.
@@ -2944,26 +2907,15 @@ function setupThemeContext($forceload = false)
 
 		$context['user']['avatar'] = array();
 
-		// Check for gravatar first since we might be forcing them...
-		if (($modSettings['gravatarEnabled'] && substr($user_info['avatar']['url'], 0, 11) == 'gravatar://') || !empty($modSettings['gravatarOverride']))
-		{
-			if (!empty($modSettings['gravatarAllowExtraEmail']) && stristr($user_info['avatar']['url'], 'gravatar://') && strlen($user_info['avatar']['url']) > 11)
-				$context['user']['avatar']['href'] = get_gravatar_url($smcFunc['substr']($user_info['avatar']['url'], 11));
-			else
-				$context['user']['avatar']['href'] = get_gravatar_url($user_info['email']);
-		}
-		// Uploaded?
-		elseif ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
+		// Figure out the avatar... uploaded?
+		if ($user_info['avatar']['url'] == '' && !empty($user_info['avatar']['id_attach']))
 			$context['user']['avatar']['href'] = $user_info['avatar']['custom_dir'] ? $modSettings['custom_avatar_url'] . '/' . $user_info['avatar']['filename'] : $scripturl . '?action=dlattach;attach=' . $user_info['avatar']['id_attach'] . ';type=avatar';
 		// Full URL?
 		elseif (strpos($user_info['avatar']['url'], 'http://') === 0 || strpos($user_info['avatar']['url'], 'https://') === 0)
 			$context['user']['avatar']['href'] = $user_info['avatar']['url'];
-		// Otherwise we assume it's server stored.
+		// Otherwise we assume it's server stored?
 		elseif ($user_info['avatar']['url'] != '')
 			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/' . $smcFunc['htmlspecialchars']($user_info['avatar']['url']);
-		// No avatar at all? Fine, we have a big fat default avatar ;)
-		else
-			$context['user']['avatar']['href'] = $modSettings['avatar_url'] . '/default.png';
 
 		if (!empty($context['user']['avatar']))
 			$context['user']['avatar']['image'] = '<img src="' . $context['user']['avatar']['href'] . '" alt="" class="avatar">';
@@ -3011,14 +2963,14 @@ function setupThemeContext($forceload = false)
 			});
 		});');
 
-	// Add a generic "Are you sure?" confirmation message.
-	addInlineJavascript('
-	var smf_you_sure =' . JavaScriptEscape($txt['quickmod_confirm']) .';');
-
 	// Now add the capping code for avatars.
 	if (!empty($modSettings['avatar_max_width_external']) && !empty($modSettings['avatar_max_height_external']) && !empty($modSettings['avatar_action_too_large']) && $modSettings['avatar_action_too_large'] == 'option_css_resize')
-		addInlineCss('
-img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }');
+	{
+		if (!isset($context['css_header']))
+			$context['css_header'] = '';
+		$context['css_header'] .= '
+img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max-height: ' . $modSettings['avatar_max_height_external'] . 'px; }';
+	}
 
 	// This looks weird, but it's because BoardIndex.php references the variable.
 	$context['common_stats']['latest_member'] = array(
@@ -3113,7 +3065,7 @@ function memoryReturnBytes($val)
  */
 function template_header()
 {
-	global $txt, $modSettings, $context, $user_info, $boarddir, $cachedir;
+	global $txt, $modSettings, $context, $settings, $user_info, $boarddir, $cachedir;
 
 	setupThemeContext();
 
@@ -3243,6 +3195,13 @@ function template_header()
 				</div>';
 		}
 	}
+
+	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
+	{
+		$settings['theme_url'] = $settings['default_theme_url'];
+		$settings['images_url'] = $settings['default_images_url'];
+		$settings['theme_dir'] = $settings['default_theme_dir'];
+	}
 }
 
 /**
@@ -3269,12 +3228,19 @@ function theme_copyright()
  */
 function template_footer()
 {
-	global $context, $modSettings, $time_start, $db_count;
+	global $context, $settings, $modSettings, $time_start, $db_count;
 
 	// Show the load time?  (only makes sense for the footer.)
 	$context['show_load_time'] = !empty($modSettings['timeLoadPageEnable']);
 	$context['load_time'] = comma_format(round(array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)), 3));
 	$context['load_queries'] = $db_count;
+
+	if (isset($settings['use_default_images']) && $settings['use_default_images'] == 'defaults' && isset($settings['default_template']))
+	{
+		$settings['theme_url'] = $settings['actual_theme_url'];
+		$settings['images_url'] = $settings['actual_images_url'];
+		$settings['theme_dir'] = $settings['actual_theme_dir'];
+	}
 
 	foreach (array_reverse($context['template_layers']) as $layer)
 		loadSubTemplate($layer . '_below', true);
@@ -3292,7 +3258,7 @@ function template_javascript($do_defered = false)
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
+	call_integration_hook('integrate_pre_javascript_output');
 
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
@@ -3386,17 +3352,8 @@ function template_css()
 	}
 
 	if (!empty($context['css_header']))
-	{
 		echo '
-	<style>';
-
-		foreach ($context['css_header'] as $css)
-			echo $css .'
-	';
-
-		echo'
-	</style>';
-	}
+	<style>', $context['css_header'], '</style>';
 }
 
 /**
@@ -3631,7 +3588,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
  */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
 {
-	global $settings, $txt;
+	global $settings, $txt, $context;
 
 	// Does the current loaded theme have this and we are not forcing the usage of this function?
 	if (function_exists('template_create_button') && !$force_use)
@@ -3640,7 +3597,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
 	if (!$settings['use_image_buttons'])
 		return $txt[$alt];
 	elseif (!empty($settings['use_buttons']))
-		return '<span class="generic_icons ' . $name . '" alt="' . $txt[$alt] . '"></span>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
+		return '<img src="' . $settings['images_url'] . '/buttons/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>' . ($label != '' ? '&nbsp;<strong>' . $txt[$label] . '</strong>' : '');
 	else
 		return '<img src="' . $settings['lang_images_url'] . '/' . $name . '" alt="' . $txt[$alt] . '" ' . $custom . '>';
 }
@@ -3652,7 +3609,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  * Type can be user, data or left blank
  * 	- user clears out user data
  *  - data clears out system / opcode data
- *  - If no type is specified will perform a complete cache clearing
+ *  - If no type is specified will perfom a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
  * @param string $type = ''
@@ -3728,8 +3685,8 @@ function clean_cache($type = '')
 	}
 
 	// Invalidate cache, to be sure!
-	// ... as long as index.php can be modified, anyway.
-	@touch($cachedir . '/' . 'index.php');
+	// ... as long as Load.php can be modified, anyway.
+	@touch($sourcedir . '/' . 'Load.php');
 	call_integration_hook('integrate_clean_cache');
 	clearstatcache();
 }
@@ -3742,7 +3699,7 @@ function clean_cache($type = '')
  */
 function setupMenuContext()
 {
-	global $context, $modSettings, $user_info, $txt, $scripturl, $sourcedir, $settings;
+	global $context, $modSettings, $user_info, $txt, $scripturl;
 
 	// Set up the menu privileges.
 	$context['allow_search'] = !empty($modSettings['allow_guestAccess']) ? allowedTo('search_posts') : (!$user_info['is_guest'] && allowedTo('search_posts'));
@@ -3774,23 +3731,10 @@ function setupMenuContext()
 		addInlineJavascript('
 	var user_menus = new smc_PopupMenu();
 	user_menus.add("profile", "' . $scripturl . '?action=profile;area=popup");
-	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup;u='. $context['user']['id'] .'");', true);
+	user_menus.add("alerts", "' . $scripturl . '?action=profile;area=alerts_popup");', true);
 		if ($context['allow_pm'])
 			addInlineJavascript('
 	user_menus.add("pm", "' . $scripturl . '?action=pm;sa=popup");', true);
-
-		if (!empty($modSettings['enable_ajax_alerts']))
-		{
-			require_once($sourcedir . '/Subs-Notify.php');
-
-			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout');
-			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
-
-			addInlineJavascript('
-	var new_alert_title = "' . $context['forum_name'] . '";
-	var alert_timeout = ' . $timeout . ';');
-			loadJavascriptFile('alerts.js', array('default_theme' => true), 'smf_alerts');
-		}
 	}
 
 	// All the buttons we can possible want and then some, try pulling the final list of buttons from cache first.
@@ -3914,9 +3858,9 @@ function setupMenuContext()
 					),
 				),
 			),
-			'signup' => array(
+			'register' => array(
 				'title' => $txt['register'],
-				'href' => $scripturl . '?action=signup',
+				'href' => $scripturl . '?action=register',
 				'show' => $user_info['is_guest'] && $context['can_register'],
 				'sub_buttons' => array(
 				),
@@ -3972,16 +3916,6 @@ function setupMenuContext()
 						}
 					}
 
-					// Does this button have its own icon?
-					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']))
-						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
-					else
-						$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
-
 				$menu_buttons[$act] = $button;
 			}
 
@@ -4015,7 +3949,7 @@ function setupMenuContext()
 	// There are certain exceptions to the above where we don't want anything on the menu highlighted.
 	if ($context['current_action'] == 'profile' && !empty($context['user']['is_owner']))
 	{
-		$current_action = !empty($_GET['area']) && $_GET['area'] == 'showalerts' ? 'self_alerts' : 'self_profile';
+		$current_action = !empty($_GET['area']) && $_GET['area'] == 'alerts_popup' ? 'self_alerts' : 'self_profile';
 		$context[$current_action] = true;
 	}
 	elseif ($context['current_action'] == 'pm')
@@ -4037,13 +3971,6 @@ function setupMenuContext()
 	{
 		$total_mod_reports = $context['open_mod_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reports']['title'] .= ' <span class="amt">' . $context['open_mod_reports'] . '</span>';
-	}
-
-	// Show how many errors there are
-	if (allowedTo('admin_forum') && !empty($context['num_errors']))
-	{
-		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
-		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 	}
 
 	/**
@@ -4074,7 +4001,17 @@ function setupMenuContext()
  */
 function smf_seed_generator()
 {
-	updateSettings(array('rand_seed' => microtime() * 1000000));
+	global $modSettings;
+
+	// Never existed?
+	if (empty($modSettings['rand_seed']))
+	{
+		$modSettings['rand_seed'] = microtime() * 1000000;
+		updateSettings(array('rand_seed' => $modSettings['rand_seed']));
+	}
+
+	// Change the seed.
+	updateSettings(array('rand_seed' => mt_rand()));
 }
 
 /**
@@ -4102,9 +4039,6 @@ function call_integration_hook($hook, $parameters = array())
 	if (empty($modSettings[$hook]))
 		return $results;
 
-	// Define some needed vars.
-	$function = false;
-
 	$functions = explode(',', $modSettings[$hook]);
 	// Loop through each function.
 	foreach ($functions as $function)
@@ -4112,14 +4046,47 @@ function call_integration_hook($hook, $parameters = array())
 		$function = trim($function);
 		$call = '';
 
-		// Did we find a file to load?
-		$function = load_file($function);
+		// Do we found a file to load?
+		if (strpos($function, '|') !== false)
+		{
+			list($file, $func) = explode('|', $function);
 
-		if (!empty($function))
-			$call = call_helper($function, true);
+			// Match the wildcards to their regular vars.
+			if (empty($settings['theme_dir']))
+				$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
+
+			else
+				$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
+
+			// Load the file if it can be loaded.
+			if (file_exists($absPath))
+				require_once($absPath);
+
+			// No? try a fallback to $sourcedir
+			else
+			{
+				$absPath = $sourcedir .'/'. $file;
+
+				if (file_exists($absPath))
+					require_once($absPath);
+
+				// Sorry, can't do much for you at this point.
+				else
+				{
+					loadLanguage('Errors');
+					log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
+				}
+			}
+
+			$call = call_hook_helper($func);
+		}
+
+		// Figuring out what to do.
+		else
+			$call = call_hook_helper($function);
 
 		// Is it valid?
-		if (!empty($call))
+		if (!empty($call) && is_callable($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
@@ -4139,24 +4106,15 @@ function call_integration_hook($hook, $parameters = array())
  *
  * @param string $hook The complete hook name.
  * @param string $function Function name, can be a call to a method via Class::method.
- * @param bool $permanent = true if true, updates the value in settings table.
  * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
  * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
+ * @param bool $permanent = true if true, updates the value in settings table.
  */
-function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
+function add_integration_function($hook, $function, $file = '', $object = false, $permanent = true)
 {
 	global $smcFunc, $modSettings;
 
-	// Any objects?
-	if ($object)
-		$function = $function . '#';
-
-	// Any files  to load?
-	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
-
-	// Get the correct string.
-	$integration_call = $function;
+	$integration_call = (!empty($file) && $file !== true) ? ($function . ':' . $file . ($object ? '#' : '')) : $function;
 
 	// Is it going to be permanent?
 	if ($permanent)
@@ -4169,7 +4127,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 				'variable' => $hook,
 			)
 		);
-		list ($current_functions) = $smcFunc['db_fetch_row']($request);
+		list($current_functions) = $smcFunc['db_fetch_row']($request);
 		$smcFunc['db_free_result']($request);
 
 		if (!empty($current_functions))
@@ -4202,28 +4160,15 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  * Removes the given function from the given hook.
  * Does nothing if the function is not available.
  *
- * @param string $hook The complete hook name.
- * @param string $function Function name, can be a call to a method via Class::method.
- * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
- * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
-add_integration_function
- * @param boolean $object
- * @see add_integration_function
+ * @param string $hook
+ * @param string $function
+ * @param string $file
  */
-function remove_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
+function remove_integration_function($hook, $function, $file = '', $object = false)
 {
 	global $smcFunc, $modSettings;
 
-	// Any objects?
-	if ($object)
-		$function = $function . '#';
-
-	// Any files  to load?
-	if (!empty($file) && is_string($file))
-		$function = $file . '|' . $function;
-
-	// Get the correct string.
-	$integration_call = $function;
+	$integration_call = (!empty($file)) ? $function . ':' . $file .($object ? '#' : '') : $function;
 
 	// Get the permanent functions.
 	$request = $smcFunc['db_query']('', '
@@ -4234,7 +4179,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 			'variable' => $hook,
 		)
 	);
-	list ($current_functions) = $smcFunc['db_fetch_row']($request);
+	list($current_functions) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
 	if (!empty($current_functions))
@@ -4259,42 +4204,23 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 /**
  * Receives a string and tries to figure it out if its a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
- * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
  *
- * @param string $string The string containing a function name or a static call.
- * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
- * @return string|array|boolean Either a string or an array that contains a callable function name or an array with a class and method to call. Boolean false if the given string cannot produce a callable var.
+ * @param string $string The string containing a function name
+ * @return string|array Either a string or an array that contains a callable function name or an array with a class and method to call
  */
-function call_helper($string, $return = false)
+function call_hook_helper($string)
 {
-	global $context, $smcFunc, $txt, $db_show_debug;
+	global $context, $db_show_debug;
 
 	// Really?
-	if (empty($string))
-		return false;
-
-	// Is this a closure?
-	if ($string instanceof Closure)
-		return $string;
-
-	// Stay vitaminized my friends...
-	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
-
-	// The soon to be populated var.
-	$func = false;
-
-	// Is there a file to load?
-	$string = load_file($string);
-
-	// Loaded file failed
 	if (empty($string))
 		return false;
 
 	// Found a method.
 	if (strpos($string, '::') !== false)
 	{
-		list ($class, $method) = explode('::', $string);
+		list($class, $method) = explode('::', $string);
 
 		// Check if a new object will be created.
 		if (strpos($method, '#') !== false)
@@ -4317,141 +4243,17 @@ function call_helper($string, $return = false)
 				}
 			}
 
-			$func = array($context['instances'][$class], $method);
+			return array($context['instances'][$class], $method);
 		}
 
 		// Right then. This is a call to a static method.
 		else
-			$func = array($class, $method);
+			return array($class, $method);
 	}
 
 	// Nope! just a plain regular function.
 	else
-		$func = $string;
-
-	// Right, we got what we need, time to do some checks.
-	if (!is_callable($func, false, $callable_name))
-	{
-		loadLanguage('Errors');
-		log_error(sprintf($txt['subAction_fail'], $callable_name), 'general');
-
-		// Gotta tell everybody.
-		return false;
-	}
-
-	// Everything went better than expected.
-	else
-	{
-		// What are we gonna do about it?
-		if ($return)
-			return $func;
-
-		// If this is a plain function, avoid the heat of calling call_user_func().
-		else
-		{
-			if (is_array($func))
-				call_user_func($func);
-
-			else
-				$func();
-		}
-	}
-}
-
-/**
- * Receives a string and tries to figure it out if it contains info to load a file.
- * Checks for a | (pipe) symbol and tries to load a file with the info given.
- * The string should be format as follows File.php|. You can use the following wildcards: $boarddir, $sourcedir and if available at the moment of execution, $themedir.
- *
- * @param string $string The string containing a valid format.
- * @return string|boolean The given string with the pipe and file info removed. Boolean false if the file couldn't be loaded.
- */
-function load_file($string)
-{
-	global $sourcedir, $txt, $boarddir, $settings;
-
-	if (empty($string))
-		return false;
-
-	if (strpos($string, '|') !== false)
-	{
-		list ($file, $string) = explode('|', $string);
-
-		// Match the wildcards to their regular vars.
-		if (empty($settings['theme_dir']))
-			$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir));
-
-		else
-			$absPath = strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir']));
-
-		// Load the file if it can be loaded.
-		if (file_exists($absPath))
-			require_once($absPath);
-
-		// No? try a fallback to $sourcedir
-		else
-		{
-			$absPath = $sourcedir .'/'. $file;
-
-			if (file_exists($absPath))
-				require_once($absPath);
-
-			// Sorry, can't do much for you at this point.
-			else
-			{
-				loadLanguage('Errors');
-				log_error(sprintf($txt['hook_fail_loading_file'], $absPath), 'general');
-
-				// File couldn't be loaded.
-				return false;
-			}
-		}
-	}
-
-	return $string;
-}
-
-/**
- * Prepares an array of "likes" info for the topic specified by $topic
- * @param Integer $topic The topic ID to fetch the info from.
- * @return Array an array of IDs of messages in the specified topic that the current user likes
- */
-function prepareLikesContext($topic)
-{
-	global $user_info, $smcFunc;
-
-	// Make sure we have something to work with.
-	if (empty($topic))
-		return array();
-
-
-	// We already know the number of likes per message, we just want to know whether the current user liked it or not.
-	$user = $user_info['id'];
-	$cache_key = 'likes_topic_' . $topic . '_' . $user;
-	$ttl = 180;
-
-	if (($temp = cache_get_data($cache_key, $ttl)) === null)
-	{
-		$temp = array();
-		$request = $smcFunc['db_query']('', '
-			SELECT content_id
-			FROM {db_prefix}user_likes AS l
-				INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
-			WHERE l.id_member = {int:current_user}
-				AND l.content_type = {literal:msg}
-				AND m.id_topic = {int:topic}',
-			array(
-				'current_user' => $user,
-				'topic' => $topic,
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$temp[] = (int) $row['content_id'];
-
-		cache_put_data($cache_key, $temp, $ttl);
-	}
-
-	return $temp;
+		return $string;
 }
 
 /**
@@ -4562,7 +4364,7 @@ function replaceEntities__callback($matches)
 		// 0xD800 >= $num <= 0xDFFF are surrogate markers (not valid for utf8 text)
 		if ($num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF))
 			return '';
-		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and punctuation
+		// <0x80 (or less than 128) are standard ascii characters a-z A-Z 0-9 and puncuation
 		elseif ($num < 0x80)
 			return chr($num);
 		// <0x800 (2048)
@@ -4633,144 +4435,6 @@ function entity_fix__callback($matches)
 		return '';
 	else
 		return '&#' . $num . ';';
-}
-
-/**
- * Return a Gravatar URL based on
- * - the supplied email address,
- * - the global maximum rating,
- * - the global default fallback,
- * - maximum sizes as set in the admin panel.
- *
- * It is SSL aware, and caches most of the parameters.
- *
- * @param string $email_address
- * @return string
- */
-function get_gravatar_url($email_address)
-{
-	global $modSettings, $smcFunc;
-	static $url_params = null;
-
-	if ($url_params === null)
-	{
-		$ratings = array('G', 'PG', 'R', 'X');
-		$defaults = array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank');
-		$url_params = array();
-		if (!empty($modSettings['gravatarMaxRating']) && in_array($modSettings['gravatarMaxRating'], $ratings))
-			$url_params[] = 'rating=' . $modSettings['gravatarMaxRating'];
-		if (!empty($modSettings['gravatarDefault']) && in_array($modSettings['gravatarDefault'], $defaults))
-			$url_params[] = 'default=' . $modSettings['gravatarDefault'];
-		if (!empty($modSettings['avatar_max_width_external']))
-			$size_string = (int) $modSettings['avatar_max_width_external'];
-		if (!empty($modSettings['avatar_max_height_external']) && !empty($size_string))
-			if ((int) $modSettings['avatar_max_height_external'] < $size_string)
-				$size_string = $modSettings['avatar_max_height_external'];
-
-		if (!empty($size_string))
-			$url_params[] = 's=' . $size_string;
-	}
-	$http_method = !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] == 2 ? 'https://secure' : 'http://www';
-
-	return $http_method . '.gravatar.com/avatar/' . md5($smcFunc['strtolower']($email_address)) . '?' . implode('&', $url_params);
-}
-
-/**
-* Get a list of timezoned.
-*
-* @return array
-*/
-function smf_list_timezones()
-{
-	return array(
-		'' => '(Forum Default)',
-		'UTC' => '[UTC] UTC',
-		'Pacific/Midway' => '[UTC-11:00] Midway Island, Samoa',
-		'America/Adak' => '[UTC-10:00] Hawaii-Aleutian',
-		'Pacific/Honolulu' => '[UTC-10:00] Hawaii',
-		'Pacific/Marquesas' => '[UTC-09:30] Marquesas Islands',
-		'Pacific/Gambier' => '[UTC-09:00] Gambier Islands',
-		'America/Anchorage' => '[UTC-09:00] Alaska',
-		'America/Ensenada' => '[UTC-08:00] Tijuana, Baja California',
-		'Pacific/Pitcairn' => '[UTC-08:00] Pitcairn Islands',
-		'America/Los_Angeles' => '[UTC-08:00] Pacific Time (USA, Canada)',
-		'America/Denver' => '[UTC-07:00] Mountain Time (USA, Canada)',
-		'America/Phoenix' => '[UTC-07:00] Arizona',
-		'America/Chihuahua' => '[UTC-07:00] Chihuahua, Mazatlan',
-		'America/Belize' => '[UTC-06:00] Saskatchewan, Central America',
-		'America/Cancun' => '[UTC-06:00] Guadalajara, Mexico City, Monterrey',
-		'Chile/EasterIsland' => '[UTC-06:00] Easter Island',
-		'America/Chicago' => '[UTC-06:00] Central Time (USA, Canada)',
-		'America/New_York' => '[UTC-05:00] Eastern Time (USA, Canada)',
-		'America/Havana' => '[UTC-05:00] Cuba',
-		'America/Bogota' => '[UTC-05:00] Bogota, Lima, Quito',
-		'America/Caracas' => '[UTC-04:30] Caracas',
-		'America/Santiago' => '[UTC-04:00] Santiago',
-		'America/La_Paz' => '[UTC-04:00] La Paz, San Juan, Manaus',
-		'Atlantic/Stanley' => '[UTC-04:00] Falkland Islands',
-		'America/Cuiaba' => '[UTC-04:00] Cuiaba',
-		'America/Goose_Bay' => '[UTC-04:00] Atlantic Time (Goose Bay)',
-		'America/Glace_Bay' => '[UTC-04:00] Atlantic Time (Canada)',
-		'America/St_Johns' => '[UTC-03:30] Newfoundland',
-		'America/Araguaina' => '[UTC-03:00] Araguaina',
-		'America/Montevideo' => '[UTC-03:00] Montevideo',
-		'America/Miquelon' => '[UTC-03:00] Saint Pierre and Miquelon',
-		'America/Argentina/Buenos_Aires' => '[UTC-03:00] Buenos Aires',
-		'America/Sao_Paulo' => '[UTC-03:00] Brasilia',
-		'America/Godthab' => '[UTC-02:00] Greenland',
-		'America/Noronha' => '[UTC-02:00] Fernando de Noronha',
-		'Atlantic/Cape_Verde' => '[UTC-01:00] Cape Verde',
-		'Atlantic/Azores' => '[UTC-01:00] Azores',
-		'Africa/Abidjan' => '[UTC] Monrovia, Reykjavik',
-		'Europe/London' => '[UTC] London, Edinburgh, Dublin, Lisbon (Greenwich Mean Time)',
-		'Europe/Brussels' => '[UTC+01:00] Central European Time',
-		'Africa/Algiers' => '[UTC+01:00] West Central Africa',
-		'Africa/Windhoek' => '[UTC+01:00] Windhoek',
-		'Africa/Cairo' => '[UTC+02:00] Cairo',
-		'Africa/Blantyre' => '[UTC+02:00] Harare, Maputo, Pretoria',
-		'Asia/Jerusalem' => '[UTC+02:00] Jerusalem',
-		'Europe/Minsk' => '[UTC+02:00] Minsk',
-		'Asia/Damascus' => '[UTC+02:00] Damascus, Nicosia, Gaza, Beirut',
-		'Africa/Addis_Ababa' => '[UTC+03:00] Addis Ababa, Nairobi',
-		'Asia/Tehran' => '[UTC+03:30] Tehran',
-		'Europe/Moscow' => '[UTC+04:00] Moscow, St. Petersburg, Volgograd',
-		'Asia/Dubai' => '[UTC+04:00] Abu Dhabi, Muscat',
-		'Asia/Baku' => '[UTC+04:00] Baku',
-		'Asia/Yerevan' => '[UTC+04:00] Yerevan',
-		'Asia/Kabul' => '[UTC+04:30] Kabul',
-		'Asia/Tashkent' => '[UTC+05:00] Tashkent',
-		'Asia/Kolkata' => '[UTC+05:30] Chennai, Kolkata, Mumbai, New Delhi',
-		'Asia/Katmandu' => '[UTC+05:45] Kathmandu',
-		'Asia/Yekaterinburg' => '[UTC+06:00] Yekaterinburg, Tyumen',
-		'Asia/Dhaka' => '[UTC+06:00] Astana, Thimphu, Dhaka',
-		'Asia/Novosibirsk' => '[UTC+06:00] Omsk, Novosibirsk',
-		'Asia/Rangoon' => '[UTC+06:30] Yangon Rangoon',
-		'Asia/Bangkok' => '[UTC+07:00] Bangkok, Hanoi, Jakarta',
-		'Asia/Krasnoyarsk' => '[UTC+08:00] Krasnoyarsk',
-		'Asia/Hong_Kong' => '[UTC+08:00] Beijing, Chongqing, Hong Kong, Urumqi',
-		'Asia/Ulaanbaatar' => '[UTC+08:00] Ulaan Bataar',
-		'Asia/Irkutsk' => '[UTC+09:00] Irkutsk',
-		'Australia/Perth' => '[UTC+08:00] Perth',
-		'Australia/Eucla' => '[UTC+08:45] Eucla',
-		'Asia/Tokyo' => '[UTC+09:00] Tokyo, Osaka, Sapporo',
-		'Asia/Seoul' => '[UTC+09:00] Seoul',
-		'Australia/Adelaide' => '[UTC+09:30] Adelaide',
-		'Australia/Darwin' => '[UTC+09:30] Darwin',
-		'Australia/Brisbane' => '[UTC+10:00] Brisbane, Guam',
-		'Australia/Sydney' => '[UTC+10:00] Sydney, Hobart',
-		'Asia/Yakutsk' => '[UTC+10:00] Yakutsk',
-		'Australia/Lord_Howe' => '[UTC+10:30] Lord Howe Island',
-		'Asia/Vladivostok' => '[UTC+11:00] Vladivostok',
-		'Pacific/Noumea' => '[UTC+11:00] Solomon Islands, New Caledonia',
-		'Pacific/Norfolk' => '[UTC+11:30] Norfolk Island',
-		'Pacific/Auckland' => '[UTC+12:00] Auckland, Wellington',
-		'Asia/Magadan' => '[UTC+12:00] Magadan, Kamchatka, Anadyr',
-		'Pacific/Fiji' => '[UTC+12:00] Fiji',
-		'Pacific/Majuro' => '[UTC+12:00] Marshall Islands',
-		'Pacific/Chatham' => '[UTC+12:45] Chatham Islands',
-		'Pacific/Tongatapu' => '[UTC+13:00] Nuku\'alofa',
-		'Pacific/Kiritimati' => '[UTC+14:00] Kiritimati',
-	);
 }
 
 ?>

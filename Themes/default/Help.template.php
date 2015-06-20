@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_popup()
@@ -18,7 +18,7 @@ function template_popup()
 	echo '<!DOCTYPE html>
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', $context['character_set'], '">
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
@@ -42,7 +42,7 @@ function template_find_members()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $txt['find_members'], '</title>
-		<meta charset="', $context['character_set'], '">
+		<meta http-equiv="Content-Type" content="text/html; charset=', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
@@ -105,13 +105,16 @@ function template_find_members()
 		echo '
 				<ul class="reset padding">';
 
+		$alternate = true;
 		foreach ($context['results'] as $result)
 		{
 			echo '
-					<li class="windowbg">
-						<a href="', $result['href'], '" target="_blank" class="new_win"> <span class="generic_icons profile_sm"></span>
+					<li class="', $alternate ? 'windowbg2' : 'windowbg', '">
+						<a href="', $result['href'], '" target="_blank" class="new_win"><img src="', $settings['images_url'], '/icons/profile_sm.png" alt="', $txt['view_profile'], '" title="', $txt['view_profile'], '"></a>
 						<a href="javascript:void(0);" onclick="addMember(this.innerHTML); return false;">', $result['name'], '</a>
 					</li>';
+
+			$alternate = !$alternate;
 		}
 
 		echo '
@@ -150,15 +153,15 @@ function template_manual()
 				<h3 class="catbg">', $txt['manual_smf_user_help'], '</h3>
 			</div>
 			<div id="help_container">
-				<div id="helpmain" class="windowbg2">
-					<p>', sprintf($txt['manual_welcome'], $context['forum_name_html_safe']), '</p>
+				<div id="helpmain" class="windowbg2 content">
+					<p>', sprintf($txt['manual_welcome'], $context['forum_name']), '</p>
 					<p>', $txt['manual_introduction'], '</p>
 					<ul>';
 
 	foreach ($context['manual_sections'] as $section_id => $wiki_id)
 	{
 		echo '
-						<li><a href="', $context['wiki_url'], '/', $context['wiki_prefix'], $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
+						<li><a href="', $context['wiki_url'], '/', $wiki_id, ($txt['lang_dictionary'] != 'en' ? '/' . $txt['lang_dictionary'] : ''), '" target="_blank" class="new_win">', $txt['manual_section_' . $section_id . '_title'], '</a> - ', $txt['manual_section_' . $section_id . '_desc'], '</li>';
 	}
 
 	echo '
@@ -170,23 +173,17 @@ function template_manual()
 
 function template_terms()
 {
-	global $txt, $context, $modSettings;
+	global $txt, $context;
 
-	if (!empty($modSettings['requireAgreement']))
-		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
-					', $txt['terms_and_rules'], ' - ', $context['forum_name_html_safe'], '
-				</h3>
-			</div>
-			<div class="roundframe">
-				', $context['agreement'], '
-			</div>';
-	else
-		echo '
-			<div class="noticebox">
-				', $txt['agreement_disabled'], '
-			</div>';
+	echo '
+		<div class="cat_bar">
+			<h3 class="catbg">
+				', $txt['terms_and_rules'], ' - ', $context['forum_name'], '
+			</h3>
+		</div>
+		<div class="roundframe">
+			', $context['agreement'], '
+		</div>';
 }
 
 ?>

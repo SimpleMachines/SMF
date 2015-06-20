@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 function template_main()
@@ -26,7 +26,7 @@ function template_main()
 		{
 			echo '
 				<div id="board_', $board['id'], '" class="up_contain">
-					<div class="icon">
+					<div class="icon"', !empty($board['children']) ? ' rowspan="2"' : '', '>
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
@@ -135,11 +135,11 @@ function template_main()
 	<form action="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], '" method="post" accept-charset="', $context['character_set'], '" class="clear" name="quickModForm" id="quickModForm">';
 
 		echo '
-		<div id="messageindex">';
+		<div class="tborder topic_table" id="messageindex">';
 		if (!empty($settings['display_who_viewing']))
 		{
 		echo '
-			<div class="information">';
+			<p class="whoisviewing">';
 			if ($settings['display_who_viewing'] == 1)
 				echo count($context['view_members']), ' ', count($context['view_members']) === 1 ? $txt['who_member'] : $txt['members'];
 		else
@@ -147,7 +147,7 @@ function template_main()
 			echo $txt['who_and'], $context['view_num_guests'], ' ', $context['view_num_guests'] == 1 ? $txt['guest'] : $txt['guests'], $txt['who_viewing_board'];
 
 		echo '
-			</div>';
+			</p>';
 		}
 	echo '
 		<div class="title_bar" id="topic_header">';
@@ -158,7 +158,13 @@ function template_main()
 			echo '
 					<div class="icon">&nbsp;</div>
 					<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
-					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
+					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>';
+			// Show a "select all" box for quick moderation?
+			if (empty($context['can_quick_mod']))
+				echo '
+					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
+			else
+				echo '
 					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
 
 			// Show a "select all" box for quick moderation?
@@ -169,7 +175,7 @@ function template_main()
 			// If it's on in "image" mode, don't show anything but the column.
 			elseif (!empty($context['can_quick_mod']))
 				echo '
-					<div class="moderation">&nbsp;</div>';
+					<div>&nbsp;</div>';
 		}
 		// No topics.... just say, "sorry bub".
 		else
@@ -194,8 +200,24 @@ function template_main()
 
 		foreach ($context['topics'] as $topic)
 		{
+			$color_class = 'windowbg';
+
+			// Is this topic pending approval, or does it have any posts pending approval?
+			if ($context['can_approve_posts'] && $topic['unapproved_posts'])
+				$color_class = (!$topic['approved'] ? 'approvetopic ' : 'approvepost ') . $color_class;
+
+			// Sticky topics should get a different color, too.
+			if ($topic['is_sticky'])
+				$color_class = 'sticky ' . $color_class;
+			// Locked topics get special treatment as well.
+			if ($topic['is_locked'])
+				$color_class = 'locked ' . $color_class;
+
+			// Some columns require a different shade of the color class.
+			$alternate_class = $color_class . '2';
+
 			echo '
-			<div class="', $topic['css_class'], '">
+			<div class="', $color_class, '">
 				<div class="icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
@@ -228,7 +250,7 @@ function template_main()
 							<div class="message_index_title">
 								', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
+									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
@@ -253,16 +275,16 @@ function template_main()
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
 					if ($topic['quick_mod']['remove'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=remove;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons delete" title="', $txt['remove_topic'], '"></a>';
 
 					if ($topic['quick_mod']['lock'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=lock;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons lock" title="', $topic['is_locked'] ? $txt['set_unlock'] : $txt['set_lock'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 						echo '<br>';
 
 					if ($topic['quick_mod']['sticky'])
-						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" class="you_sure"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
+						echo '<a href="', $scripturl, '?action=quickmod;board=', $context['current_board'], '.', $context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', $context['session_var'], '=', $context['session_id'], '" onclick="return confirm(\'', $txt['quickmod_confirm'], '\');"><span class="generic_icons sticky" title="', $topic['is_sticky'] ? $txt['set_nonsticky'] : $txt['set_sticky'], '"></span></a>';
 
 					if ($topic['quick_mod']['move'])
 						echo '<a href="', $scripturl, '?action=movetopic;current_board=', $context['current_board'], ';board=', $context['current_board'], '.', $context['start'], ';topic=', $topic['id'], '.0"><span class="generic_icons move" title="', $txt['move_topic'], '"></span></a>';
@@ -313,8 +335,8 @@ function template_main()
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
-		', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft" id="bot">', $txt['go_up'], '</a>
-		<div class="pagelinks floatleft">', $context['page_index'], '</div>
+		', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft">', $txt['go_up'], '</a>
+		<div class="pagelinks">', $context['page_index'], '</div>
 	</div>';
 	}
 
@@ -360,7 +382,7 @@ function template_topic_legend()
 
 	echo '
 	<div class="tborder" id="topic_icons">
-		<div class="information">
+		<div class="description">
 			<p class="floatright" id="message_index_jump_to">&nbsp;</p>';
 
 	if (empty($context['no_topic_listing']))
@@ -381,7 +403,7 @@ function template_topic_legend()
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",
-						sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">', $context['jump_to']['label'], '<" + "/label> %dropdown_list%",
+						sJumpToTemplate: "<label class=\"smalltext\" for=\"%select_id%\">', $context['jump_to']['label'], ':<" + "/label> %dropdown_list%",
 						iCurBoardId: ', $context['current_board'], ',
 						iCurBoardChildLevel: ', $context['jump_to']['child_level'], ',
 						sCurBoardName: "', $context['jump_to']['board_name'], '",

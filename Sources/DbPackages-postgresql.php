@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -61,7 +61,7 @@ function db_packages_init()
 
 /**
  * This function can be used to create a table without worrying about schema
- *  compatibilities across supported database systems.
+ *  compatabilities across supported database systems.
  *  - If the table exists will, by default, do nothing.
  *  - Builds table with columns as passed to it - at least one column must be sent.
  *  The columns array should have one sub-array for each column - these sub arrays contain:

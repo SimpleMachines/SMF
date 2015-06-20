@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2014 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Alpha 1
  */
 
 if (!defined('SMF'))
@@ -297,7 +297,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		smf_db_error_backtrace('Hacking attempt...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 
 	// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-	if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string))
+	if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && strpos($db_string, 'INSERT INTO') === false)
 	{
 		// Add before LIMIT
 		if ($pos = strpos($db_string, 'LIMIT '))
@@ -785,5 +785,4 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false
 
 	return strtr($string, $replacements);
 }
-
 ?>
