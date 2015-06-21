@@ -138,6 +138,7 @@ $txt['loadavg_userstats'] = 'Threshold to disabling showing user statistics';
 $txt['loadavg_bbc'] = 'Threshold to disabling BBC formatting when showing posts';
 $txt['loadavg_forum'] = 'Threshold to disabling the forum <strong>completely</strong>';
 $txt['loadavg_disabled_windows'] = '<span class="error">Load balancing support is not available on Windows.</span>';
+$txt['loadavg_disabled_osx'] = '<span class="error">Load balancing support is not available on OS:X.</span>';
 $txt['loadavg_disabled_conf'] = '<span class="error">Load balancing support is disabled by your host configuration.</span>';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
