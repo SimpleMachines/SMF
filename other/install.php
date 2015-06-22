@@ -1058,14 +1058,23 @@ function DatabasePopulation()
 		// Done with this now
 		$smcFunc['db_free_result']($get_engines);
 
-		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
+		// InnoDB is better, so use it if possible...
+		$has_innodb = in_array('InnoDB', $engines);
+		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
 			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		}
+
+		// One last thing - if we don't have InnoDB, we can't do transactions...
+		if (!$has_innodb)
+		{
+			$replaces['START TRANSACTION;'] = '';
+			$replaces['COMMIT;'] = '';
 		}
 	}
 
