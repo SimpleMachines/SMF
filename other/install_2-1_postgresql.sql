@@ -166,16 +166,6 @@ CREATE TABLE {$db_prefix}admin_info_files (
 CREATE INDEX {$db_prefix}admin_info_files_filename ON {$db_prefix}admin_info_files (filename);
 
 #
-# Dumping data for table `admin_info_files`
-#
-
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
-INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
-# --------------------------------------------------------
-
-#
 # Table structure for table `approval_queue`
 #
 
@@ -320,320 +310,6 @@ CREATE TABLE {$db_prefix}board_permissions (
 );
 
 #
-# Dumping data for table `board_permissions`
-#
-
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 1, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'remove_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_add_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_edit_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 2, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'remove_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 3, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'remove_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 4, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'view_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'moderate_board');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_new');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_draft');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_topics');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_replies_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_replies_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_attachments');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_post');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_add_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_view');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_vote');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_edit_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'report_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'lock_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'delete_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'modify_own');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'make_sticky');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'lock_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'remove_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'move_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'merge_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'split_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'delete_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'modify_any');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'approve_posts');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_attachment');
-INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'view_attachments');
-# --------------------------------------------------------
-
-#
 # Sequence for table `boards`
 #
 
@@ -675,15 +351,6 @@ CREATE UNIQUE INDEX {$db_prefix}boards_categories ON {$db_prefix}boards (id_cat,
 CREATE INDEX {$db_prefix}boards_id_parent ON {$db_prefix}boards (id_parent);
 CREATE INDEX {$db_prefix}boards_id_msg_updated ON {$db_prefix}boards (id_msg_updated);
 CREATE INDEX {$db_prefix}boards_member_groups ON {$db_prefix}boards (member_groups);
-
-#
-# Dumping data for table `boards`
-#
-
-INSERT INTO {$db_prefix}boards
-	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
-VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
-# --------------------------------------------------------
 
 #
 # Sequence for table `calendar`
@@ -738,125 +405,6 @@ CREATE TABLE {$db_prefix}calendar_holidays (
 CREATE INDEX {$db_prefix}calendar_holidays_event_date ON {$db_prefix}calendar_holidays (event_date);
 
 #
-# Dumping data for table `calendar_holidays`
-#
-
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('New Year''s', '0004-01-01');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Christmas', '0004-12-25');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Valentine''s Day', '0004-02-14');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('St. Patrick''s Day', '0004-03-17');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('April Fools', '0004-04-01');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Earth Day', '0004-04-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('United Nations Day', '0004-10-24');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Halloween', '0004-10-31');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2010-05-09');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2011-05-08');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2012-05-13');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2013-05-12');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2014-05-11');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2015-05-10');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2016-05-08');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2017-05-14');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2018-05-13');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2019-05-12');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2020-05-10');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2010-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2011-06-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2012-06-17');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2013-06-16');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2014-06-15');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2015-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2016-06-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2017-06-18');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2018-06-17');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2019-06-16');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2020-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2010-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2011-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2012-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2013-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2014-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2015-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2016-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2017-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2018-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2019-06-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2020-06-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2010-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2011-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2012-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2013-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2014-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2015-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2016-03-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2017-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2018-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2019-03-20');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2020-03-19');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2010-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2011-12-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2012-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2013-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2014-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2015-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2016-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2017-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2018-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2019-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2020-12-21');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2010-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2011-09-23');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2012-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2013-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2014-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2015-09-23');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2016-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2017-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2018-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2019-09-23');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2020-09-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Independence Day', '0004-07-04');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Cinco de Mayo', '0004-05-05');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Flag Day', '0004-06-14');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Veterans Day', '0004-11-11');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Groundhog Day', '0004-02-02');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2010-11-25');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2011-11-24');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2012-11-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2013-11-28');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2014-11-27');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2015-11-26');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2016-11-24');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2017-11-23');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2018-11-22');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2019-11-28');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2020-11-26');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2010-05-31');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2011-05-30');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2012-05-28');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2013-05-27');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2014-05-26');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2015-05-25');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2016-05-30');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2017-05-29');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2018-05-28');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2019-05-27');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2020-05-25');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2010-09-06');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2011-09-05');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2012-09-03');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2013-09-02');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2014-09-01');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2015-09-07');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2016-09-05');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2017-09-04');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2018-09-03');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2019-09-02');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2020-09-07');
-INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('D-Day', '0004-06-06');
-# --------------------------------------------------------
-
-#
 # Sequence for table `categories`
 #
 
@@ -874,14 +422,6 @@ CREATE TABLE {$db_prefix}categories (
   can_collapse smallint NOT NULL default '1',
   PRIMARY KEY (id_cat)
 );
-
-#
-# Dumping data for table `categories`
-#
-
-INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$default_category_name}', '', 1);
-# --------------------------------------------------------
 
 #
 # Sequence for table `custom_fields`
@@ -922,25 +462,6 @@ CREATE TABLE {$db_prefix}custom_fields (
 #
 
 CREATE UNIQUE INDEX {$db_prefix}custom_fields_col_name ON {$db_prefix}custom_fields (col_name);
-
-#
-# Dumping data for table `custom_fields`
-#
-
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
-
-# --------------------------------------------------------
 
 #
 # Table structure for table `group_moderators`
@@ -1561,20 +1082,6 @@ CREATE TABLE {$db_prefix}membergroups (
 CREATE INDEX {$db_prefix}membergroups_min_posts ON {$db_prefix}membergroups (min_posts);
 
 #
-# Dumping data for table `membergroups`
-#
-
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1);
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#icon.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (5, '{$default_junior_group}', '', '', 50, '2#icon.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (6, '{$default_full_group}', '', '', 100, '3#icon.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (7, '{$default_senior_group}', '', '', 250, '4#icon.png');
-INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (8, '{$default_hero_group}', '', '', 500, '5#icon.png');
-# --------------------------------------------------------
-
-#
 # Sequence for table `members`
 #
 
@@ -1712,24 +1219,41 @@ CREATE TABLE {$db_prefix}message_icons (
 CREATE INDEX {$db_prefix}message_icons_id_board ON {$db_prefix}message_icons (id_board);
 
 #
-# Dumping data for table `message_icons`
+# Table structure for table `moderators`
 #
 
-# // !!! i18n
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('xx', 'Standard', '0');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('thumbup', 'Thumb Up', '1');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('thumbdown', 'Thumb Down', '2');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('exclamation', 'Exclamation point', '3');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('question', 'Question mark', '4');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('lamp', 'Lamp', '5');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('smiley', 'Smiley', '6');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('angry', 'Angry', '7');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('cheesy', 'Cheesy', '8');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('grin', 'Grin', '9');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('sad', 'Sad', '10');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('wink', 'Wink', '11');
-INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('poll', 'Poll', '12');
-# --------------------------------------------------------
+CREATE TABLE {$db_prefix}moderators (
+  id_board smallint NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  PRIMARY KEY (id_board, id_member)
+);
+
+#
+# Table structure for table `moderator_groups`
+#
+
+CREATE TABLE {$db_prefix}moderator_groups (
+  id_board smallint NOT NULL default '0',
+  id_group smallint NOT NULL default '0',
+  PRIMARY KEY (id_board, id_group)
+);
+
+#
+# Sequence for table `package_servers`
+#
+
+CREATE SEQUENCE {$db_prefix}package_servers_seq;
+
+#
+# Table structure for table `package_servers`
+#
+
+CREATE TABLE {$db_prefix}package_servers (
+  id_server smallint default nextval('{$db_prefix}package_servers_seq'),
+  name varchar(255) NOT NULL,
+  url varchar(255) NOT NULL,
+  PRIMARY KEY (id_server)
+);
 
 #
 # Sequence for table `messages`
@@ -1780,61 +1304,6 @@ CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topi
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 
 #
-# Dumping data for table `messages`
-#
-
-INSERT INTO {$db_prefix}messages
-	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
-VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
-# --------------------------------------------------------
-
-#
-# Table structure for table `moderators`
-#
-
-CREATE TABLE {$db_prefix}moderators (
-  id_board smallint NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  PRIMARY KEY (id_board, id_member)
-);
-
-#
-# Table structure for table `moderator_groups`
-#
-
-CREATE TABLE {$db_prefix}moderator_groups (
-  id_board smallint NOT NULL default '0',
-  id_group smallint NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group)
-);
-
-#
-# Sequence for table `package_servers`
-#
-
-CREATE SEQUENCE {$db_prefix}package_servers_seq;
-
-#
-# Table structure for table `package_servers`
-#
-
-CREATE TABLE {$db_prefix}package_servers (
-  id_server smallint default nextval('{$db_prefix}package_servers_seq'),
-  name varchar(255) NOT NULL,
-  url varchar(255) NOT NULL,
-  PRIMARY KEY (id_server)
-);
-
-#
-# Dumping data for table `package_servers`
-#
-
-INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
-# --------------------------------------------------------
-
-#
 # Sequence for table `permission_profiles`
 #
 
@@ -1851,16 +1320,6 @@ CREATE TABLE {$db_prefix}permission_profiles (
 );
 
 #
-# Dumping data for table `permission_profiles`
-#
-
-INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (1, 'default');
-INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (2, 'no_polls');
-INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (3, 'reply_only');
-INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (4, 'read_only');
-# --------------------------------------------------------
-
-#
 # Table structure for table `permissions`
 #
 
@@ -1870,63 +1329,6 @@ CREATE TABLE {$db_prefix}permissions (
   add_deny smallint NOT NULL default '1',
   PRIMARY KEY (id_group, permission)
 );
-
-#
-# Dumping data for table `permissions`
-#
-
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'calendar_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_stats');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_mlist');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_read');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'calendar_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_stats');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'who_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_identity_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_password_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_blurb_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_displayed_name_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_signature_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_other_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_forum_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_extra_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remove_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_stats');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'who_view');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_identity_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_password_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_blurb_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_displayed_name_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_signature_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_other_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_forum_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_extra_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remove_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');
-INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'access_mod_center');
-# --------------------------------------------------------
 
 #
 # Sequence for table `personal_messages`
@@ -2128,6 +1530,877 @@ CREATE INDEX {$db_prefix}scheduled_tasks_disabled ON {$db_prefix}scheduled_tasks
 CREATE UNIQUE INDEX {$db_prefix}scheduled_tasks_task ON {$db_prefix}scheduled_tasks (task);
 
 #
+# Table structure for table `settings`
+#
+
+CREATE TABLE {$db_prefix}settings (
+  variable varchar(255) NOT NULL,
+  value text NOT NULL,
+  PRIMARY KEY (variable)
+);
+
+#
+# Table structure for table `sessions`
+#
+
+CREATE TABLE {$db_prefix}sessions (
+  session_id char(64) NOT NULL,
+  last_update int NOT NULL,
+  data text NOT NULL,
+  PRIMARY KEY (session_id)
+);
+
+#
+# Sequence for table `smileys`
+#
+
+CREATE SEQUENCE {$db_prefix}smileys_seq;
+
+#
+# Table structure for table `smileys`
+#
+
+CREATE TABLE {$db_prefix}smileys (
+  id_smiley smallint default nextval('{$db_prefix}smileys_seq'),
+  code varchar(30) NOT NULL default '',
+  filename varchar(48) NOT NULL default '',
+  description varchar(80) NOT NULL default '',
+  smiley_row smallint NOT NULL default '0',
+  smiley_order smallint NOT NULL default '0',
+  hidden smallint NOT NULL default '0',
+  PRIMARY KEY (id_smiley)
+);
+
+#
+# Sequence for table `spiders`
+#
+
+CREATE SEQUENCE {$db_prefix}spiders_seq;
+
+#
+# Table structure for table `spiders`
+#
+
+CREATE TABLE {$db_prefix}spiders (
+  id_spider smallint NOT NULL default nextval('{$db_prefix}spiders_seq'),
+  spider_name varchar(255) NOT NULL,
+  user_agent varchar(255) NOT NULL,
+  ip_info varchar(255) NOT NULL,
+  PRIMARY KEY (id_spider)
+);
+
+#
+# Sequence for table `subscriptions`
+#
+
+CREATE SEQUENCE {$db_prefix}subscriptions_seq;
+
+#
+# Table structure for table `subscriptions`
+#
+
+CREATE TABLE {$db_prefix}subscriptions(
+  id_subscribe smallint NOT NULL default nextval('{$db_prefix}subscriptions_seq'),
+  name varchar(60) NOT NULL,
+  description varchar(255) NOT NULL,
+  cost text NOT NULL,
+  length varchar(6) NOT NULL,
+  id_group int NOT NULL default '0',
+  add_groups varchar(40) NOT NULL,
+  active smallint NOT NULL default '1',
+  repeatable smallint NOT NULL default '0',
+  allow_partial smallint NOT NULL default '0',
+  reminder smallint NOT NULL default '0',
+  email_complete text NOT NULL,
+  PRIMARY KEY (id_subscribe)
+);
+
+#
+# Indexes for table `subscriptions`
+#
+
+CREATE INDEX {$db_prefix}subscriptions_active ON {$db_prefix}subscriptions (active);
+
+#
+# Table structure for table `themes`
+#
+
+CREATE TABLE {$db_prefix}themes (
+  id_member int NOT NULL default '0',
+  id_theme smallint NOT NULL default '1',
+  variable varchar(255) NOT NULL,
+  value text NOT NULL,
+  PRIMARY KEY (id_theme, id_member, variable)
+);
+
+#
+# Indexes for table `themes`
+#
+
+CREATE INDEX {$db_prefix}themes_id_member ON {$db_prefix}themes (id_member);
+
+#
+# Sequence for table `topics`
+#
+
+CREATE SEQUENCE {$db_prefix}topics_seq START WITH 2;
+
+#
+# Table structure for table `topics`
+#
+
+CREATE TABLE {$db_prefix}topics (
+  id_topic int default nextval('{$db_prefix}topics_seq'),
+  is_sticky smallint NOT NULL default '0',
+  id_board smallint NOT NULL default '0',
+  id_first_msg int NOT NULL default '0',
+  id_last_msg int NOT NULL default '0',
+  id_member_started int NOT NULL default '0',
+  id_member_updated int NOT NULL default '0',
+  id_poll int NOT NULL default '0',
+  id_previous_board smallint NOT NULL default '0',
+  id_previous_topic int NOT NULL default '0',
+  num_replies int NOT NULL default '0',
+  num_views int NOT NULL default '0',
+  locked smallint NOT NULL default '0',
+  redirect_expires int NOT NULL default '0',
+  id_redirect_topic int NOT NULL default '0',
+  unapproved_posts smallint NOT NULL default '0',
+  approved smallint NOT NULL default '1',
+  PRIMARY KEY (id_topic)
+);
+
+#
+# Indexes for table `topics`
+#
+
+CREATE UNIQUE INDEX {$db_prefix}topics_last_message ON {$db_prefix}topics (id_last_msg, id_board);
+CREATE UNIQUE INDEX {$db_prefix}topics_first_message ON {$db_prefix}topics (id_first_msg, id_board);
+CREATE UNIQUE INDEX {$db_prefix}topics_poll ON {$db_prefix}topics (id_poll, id_topic);
+CREATE INDEX {$db_prefix}topics_is_sticky ON {$db_prefix}topics (is_sticky);
+CREATE INDEX {$db_prefix}topics_approved ON {$db_prefix}topics (approved);
+CREATE INDEX {$db_prefix}topics_id_board ON {$db_prefix}topics (id_board);
+CREATE INDEX {$db_prefix}topics_member_started ON {$db_prefix}topics (id_member_started, id_board);
+CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_board, is_sticky, id_last_msg);
+CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);
+
+#
+# Sequence for table `user_alerts`
+#
+
+CREATE SEQUENCE {$db_prefix}user_alerts_seq;
+
+#
+# Table structure for table `user_alerts`
+#
+
+CREATE TABLE {$db_prefix}user_alerts (
+  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+  alert_time int NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  id_member_started int NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read int NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert)
+);
+
+#
+# Indexes for table `user_alerts`
+#
+
+CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
+CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
+
+#
+# Table structure for table `user_alerts_prefs`
+#
+
+CREATE TABLE {$db_prefix}user_alerts_prefs (
+  id_member int NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value smallint NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
+);
+
+#
+# Sequence for table `user_drafts`
+#
+
+CREATE SEQUENCE {$db_prefix}user_drafts_seq;
+
+#
+# Table structure for table `user_drafts`
+#
+
+CREATE TABLE {$db_prefix}user_drafts (
+  id_draft int default nextval('{$db_prefix}user_drafts_seq'),
+  id_topic int NOT NULL default '0',
+  id_board smallint NOT NULL default '0',
+  id_reply int NOT NULL default '0',
+  type smallint NOT NULL default '0',
+  poster_time int NOT NULL default '0',
+  id_member int NOT NULL default '0',
+  subject varchar(255) NOT NULL default '',
+  smileys_enabled smallint NOT NULL default '1',
+  body text NOT NULL,
+  icon varchar(16) NOT NULL default 'xx',
+  locked smallint NOT NULL default '0',
+  is_sticky smallint NOT NULL default '0',
+  to_list varchar(255) NOT NULL default '',
+  PRIMARY KEY (id_draft)
+);
+
+#
+# Indexes for table `user_drafts`
+#
+
+CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
+
+#
+# Table structure for table `user_likes`
+#
+
+CREATE TABLE {$db_prefix}user_likes (
+  id_member int NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int NOT NULL default '0',
+  like_time int NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member)
+);
+
+#
+# Indexes for table `user_likes`
+#
+
+CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
+CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+
+#
+# Table structure for `mentions`
+#
+CREATE TABLE {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  time int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned)
+);
+
+#
+# Indexes for table `mentions`
+#
+CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
+CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
+
+#
+# Yay for transactions...
+#
+BEGIN;
+
+#
+# Dumping data for table `admin_info_files`
+#
+
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript');
+INSERT INTO {$db_prefix}admin_info_files (id_file, filename, path, parameters, data, filetype) VALUES (4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `board_permissions`
+#
+
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 1, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'remove_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_add_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_edit_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 1, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 1, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 1, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 2, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'remove_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 2, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 2, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 2, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 3, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'remove_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 3, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 3, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 3, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (-1, 4, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (0, 4, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (2, 4, 'view_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'moderate_board');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_new');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_draft');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_reply_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_topics');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_replies_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_replies_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_unapproved_attachments');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_post');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_add_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_view');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_vote');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'poll_edit_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'report_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'lock_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'delete_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'modify_own');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'make_sticky');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'lock_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'remove_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'move_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'merge_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'split_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'delete_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'modify_any');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'approve_posts');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'post_attachment');
+INSERT INTO {$db_prefix}board_permissions (id_group, id_profile, permission) VALUES (3, 4, 'view_attachments');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `boards`
+#
+
+INSERT INTO {$db_prefix}boards
+	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
+VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `calendar_holidays`
+#
+
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('New Year''s', '0004-01-01');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Christmas', '0004-12-25');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Valentine''s Day', '0004-02-14');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('St. Patrick''s Day', '0004-03-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('April Fools', '0004-04-01');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Earth Day', '0004-04-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('United Nations Day', '0004-10-24');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Halloween', '0004-10-31');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2010-05-09');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2011-05-08');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2012-05-13');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2013-05-12');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2014-05-11');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2015-05-10');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2016-05-08');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2017-05-14');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2018-05-13');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2019-05-12');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Mother''s Day', '2020-05-10');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2010-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2011-06-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2012-06-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2013-06-16');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2014-06-15');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2015-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2016-06-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2017-06-18');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2018-06-17');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2019-06-16');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Father''s Day', '2020-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2010-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2011-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2012-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2013-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2014-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2015-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2016-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2017-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2018-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2019-06-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Summer Solstice', '2020-06-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2010-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2011-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2012-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2013-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2014-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2015-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2016-03-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2017-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2018-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2019-03-20');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Vernal Equinox', '2020-03-19');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2010-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2011-12-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2012-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2013-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2014-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2015-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2016-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2017-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2018-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2019-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Winter Solstice', '2020-12-21');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2010-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2011-09-23');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2012-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2013-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2014-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2015-09-23');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2016-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2017-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2018-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2019-09-23');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Autumnal Equinox', '2020-09-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Independence Day', '0004-07-04');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Cinco de Mayo', '0004-05-05');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Flag Day', '0004-06-14');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Veterans Day', '0004-11-11');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Groundhog Day', '0004-02-02');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2010-11-25');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2011-11-24');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2012-11-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2013-11-28');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2014-11-27');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2015-11-26');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2016-11-24');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2017-11-23');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2018-11-22');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2019-11-28');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Thanksgiving', '2020-11-26');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2010-05-31');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2011-05-30');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2012-05-28');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2013-05-27');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2014-05-26');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2015-05-25');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2016-05-30');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2017-05-29');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2018-05-28');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2019-05-27');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Memorial Day', '2020-05-25');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2010-09-06');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2011-09-05');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2012-09-03');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2013-09-02');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2014-09-01');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2015-09-07');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2016-09-05');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2017-09-04');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2018-09-03');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2019-09-02');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('Labor Day', '2020-09-07');
+INSERT INTO {$db_prefix}calendar_holidays (title, event_date) VALUES ('D-Day', '0004-06-06');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `categories`
+#
+
+INSERT INTO {$db_prefix}categories
+VALUES (1, 0, '{$default_category_name}', '', 1);
+# --------------------------------------------------------
+
+#
+# Dumping data for table `custom_fields`
+#
+
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="//edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0);
+INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'Disabled,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'Disabled', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+
+# --------------------------------------------------------
+
+#
+# Dumping data for table `membergroups`
+#
+
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons, group_type) VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1);
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (4, '{$default_newbie_group}', '', '', 0, '1#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (5, '{$default_junior_group}', '', '', 50, '2#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (6, '{$default_full_group}', '', '', 100, '3#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (7, '{$default_senior_group}', '', '', 250, '4#icon.png');
+INSERT INTO {$db_prefix}membergroups (id_group, group_name, description, online_color, min_posts, icons) VALUES (8, '{$default_hero_group}', '', '', 500, '5#icon.png');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `message_icons`
+#
+
+# // !!! i18n
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('xx', 'Standard', '0');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('thumbup', 'Thumb Up', '1');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('thumbdown', 'Thumb Down', '2');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('exclamation', 'Exclamation point', '3');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('question', 'Question mark', '4');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('lamp', 'Lamp', '5');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('smiley', 'Smiley', '6');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('angry', 'Angry', '7');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('cheesy', 'Cheesy', '8');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('grin', 'Grin', '9');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('sad', 'Sad', '10');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('wink', 'Wink', '11');
+INSERT INTO {$db_prefix}message_icons (filename, title, icon_order) VALUES ('poll', 'Poll', '12');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `messages`
+#
+
+INSERT INTO {$db_prefix}messages
+	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
+VALUES (1, 1, 1, 1, {$current_time}, '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `package_servers`
+#
+
+INSERT INTO {$db_prefix}package_servers
+	(name, url)
+VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `permission_profiles`
+#
+
+INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (1, 'default');
+INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (2, 'no_polls');
+INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (3, 'reply_only');
+INSERT INTO {$db_prefix}permission_profiles (id_profile, profile_name) VALUES (4, 'read_only');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `permissions`
+#
+
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'search_posts');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'calendar_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (-1, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_mlist');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'search_posts');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_read');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_send');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'pm_draft');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'calendar_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'who_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_identity_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_password_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_blurb_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_displayed_name_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_signature_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_other_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_forum_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_extra_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remove_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_server_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_upload_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (0, 'send_email_to_members');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_mlist');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'search_posts');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_read');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_send');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'pm_draft');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'view_stats');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'who_view');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_identity_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_password_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_blurb_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_displayed_name_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_signature_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_other_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_forum_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_extra_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remove_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_server_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_upload_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_remote_avatar');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'send_email_to_members');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'profile_title_own');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_post');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'calendar_edit_any');
+INSERT INTO {$db_prefix}permissions (id_group, permission) VALUES (2, 'access_mod_center');
+# --------------------------------------------------------
+
+#
 # Dumping data for table `scheduled_tasks`
 #
 
@@ -2144,16 +2417,6 @@ INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_r
 INSERT INTO {$db_prefix}scheduled_tasks	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable) VALUES (13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 
 # --------------------------------------------------------
-
-#
-# Table structure for table `settings`
-#
-
-CREATE TABLE {$db_prefix}settings (
-  variable varchar(255) NOT NULL,
-  value text NOT NULL,
-  PRIMARY KEY (variable)
-);
 
 #
 # Dumping data for table `settings`
@@ -2357,39 +2620,6 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('tfa_mode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_expire_redirect', '1');
 
 # --------------------------------------------------------
-
-#
-# Table structure for table `sessions`
-#
-
-CREATE TABLE {$db_prefix}sessions (
-  session_id char(64) NOT NULL,
-  last_update int NOT NULL,
-  data text NOT NULL,
-  PRIMARY KEY (session_id)
-);
-
-#
-# Sequence for table `smileys`
-#
-
-CREATE SEQUENCE {$db_prefix}smileys_seq;
-
-#
-# Table structure for table `smileys`
-#
-
-CREATE TABLE {$db_prefix}smileys (
-  id_smiley smallint default nextval('{$db_prefix}smileys_seq'),
-  code varchar(30) NOT NULL default '',
-  filename varchar(48) NOT NULL default '',
-  description varchar(80) NOT NULL default '',
-  smiley_row smallint NOT NULL default '0',
-  smiley_order smallint NOT NULL default '0',
-  hidden smallint NOT NULL default '0',
-  PRIMARY KEY (id_smiley)
-);
-
 #
 # Dumping data for table `smileys`
 #
@@ -2419,24 +2649,6 @@ INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidd
 # --------------------------------------------------------
 
 #
-# Sequence for table `spiders`
-#
-
-CREATE SEQUENCE {$db_prefix}spiders_seq;
-
-#
-# Table structure for table `spiders`
-#
-
-CREATE TABLE {$db_prefix}spiders (
-  id_spider smallint NOT NULL default nextval('{$db_prefix}spiders_seq'),
-  spider_name varchar(255) NOT NULL,
-  user_agent varchar(255) NOT NULL,
-  ip_info varchar(255) NOT NULL,
-  PRIMARY KEY (id_spider)
-);
-
-#
 # Dumping data for table `spiders`
 #
 
@@ -2462,56 +2674,6 @@ INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VA
 INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '');
 
 #
-# Sequence for table `subscriptions`
-#
-
-CREATE SEQUENCE {$db_prefix}subscriptions_seq;
-
-#
-# Table structure for table `subscriptions`
-#
-
-CREATE TABLE {$db_prefix}subscriptions(
-  id_subscribe smallint NOT NULL default nextval('{$db_prefix}subscriptions_seq'),
-  name varchar(60) NOT NULL,
-  description varchar(255) NOT NULL,
-  cost text NOT NULL,
-  length varchar(6) NOT NULL,
-  id_group int NOT NULL default '0',
-  add_groups varchar(40) NOT NULL,
-  active smallint NOT NULL default '1',
-  repeatable smallint NOT NULL default '0',
-  allow_partial smallint NOT NULL default '0',
-  reminder smallint NOT NULL default '0',
-  email_complete text NOT NULL,
-  PRIMARY KEY (id_subscribe)
-);
-
-#
-# Indexes for table `subscriptions`
-#
-
-CREATE INDEX {$db_prefix}subscriptions_active ON {$db_prefix}subscriptions (active);
-
-#
-# Table structure for table `themes`
-#
-
-CREATE TABLE {$db_prefix}themes (
-  id_member int NOT NULL default '0',
-  id_theme smallint NOT NULL default '1',
-  variable varchar(255) NOT NULL,
-  value text NOT NULL,
-  PRIMARY KEY (id_theme, id_member, variable)
-);
-
-#
-# Indexes for table `themes`
-#
-
-CREATE INDEX {$db_prefix}themes_id_member ON {$db_prefix}themes (id_member);
-
-#
 # Dumping data for table `themes`
 #
 
@@ -2533,51 +2695,6 @@ INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1
 # --------------------------------------------------------
 
 #
-# Sequence for table `topics`
-#
-
-CREATE SEQUENCE {$db_prefix}topics_seq START WITH 2;
-
-#
-# Table structure for table `topics`
-#
-
-CREATE TABLE {$db_prefix}topics (
-  id_topic int default nextval('{$db_prefix}topics_seq'),
-  is_sticky smallint NOT NULL default '0',
-  id_board smallint NOT NULL default '0',
-  id_first_msg int NOT NULL default '0',
-  id_last_msg int NOT NULL default '0',
-  id_member_started int NOT NULL default '0',
-  id_member_updated int NOT NULL default '0',
-  id_poll int NOT NULL default '0',
-  id_previous_board smallint NOT NULL default '0',
-  id_previous_topic int NOT NULL default '0',
-  num_replies int NOT NULL default '0',
-  num_views int NOT NULL default '0',
-  locked smallint NOT NULL default '0',
-  redirect_expires int NOT NULL default '0',
-  id_redirect_topic int NOT NULL default '0',
-  unapproved_posts smallint NOT NULL default '0',
-  approved smallint NOT NULL default '1',
-  PRIMARY KEY (id_topic)
-);
-
-#
-# Indexes for table `topics`
-#
-
-CREATE UNIQUE INDEX {$db_prefix}topics_last_message ON {$db_prefix}topics (id_last_msg, id_board);
-CREATE UNIQUE INDEX {$db_prefix}topics_first_message ON {$db_prefix}topics (id_first_msg, id_board);
-CREATE UNIQUE INDEX {$db_prefix}topics_poll ON {$db_prefix}topics (id_poll, id_topic);
-CREATE INDEX {$db_prefix}topics_is_sticky ON {$db_prefix}topics (is_sticky);
-CREATE INDEX {$db_prefix}topics_approved ON {$db_prefix}topics (approved);
-CREATE INDEX {$db_prefix}topics_id_board ON {$db_prefix}topics (id_board);
-CREATE INDEX {$db_prefix}topics_member_started ON {$db_prefix}topics (id_member_started, id_board);
-CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_board, is_sticky, id_last_msg);
-CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);
-
-#
 # Dumping data for table `topics`
 #
 
@@ -2585,48 +2702,6 @@ INSERT INTO {$db_prefix}topics
 	(id_topic, id_board, id_first_msg, id_last_msg, id_member_started, id_member_updated)
 VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
-
-#
-# Sequence for table `user_alerts`
-#
-
-CREATE SEQUENCE {$db_prefix}user_alerts_seq;
-
-#
-# Table structure for table `user_alerts`
-#
-
-CREATE TABLE {$db_prefix}user_alerts (
-  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
-  alert_time int NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  id_member_started int NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read int NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert)
-);
-
-#
-# Indexes for table `user_alerts`
-#
-
-CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
-CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (alert_time);
-
-#
-# Table structure for table `user_alerts_prefs`
-#
-
-CREATE TABLE {$db_prefix}user_alerts_prefs (
-  id_member int NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint NOT NULL default '0',
-  PRIMARY KEY (id_member, alert_pref)
-);
 
 #
 # Dumping data for table `user_alerts_prefs`
@@ -2641,72 +2716,6 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 # --------------------------------------------------------
 
 #
-# Sequence for table `user_drafts`
+# Now we push all this through...
 #
-
-CREATE SEQUENCE {$db_prefix}user_drafts_seq;
-
-#
-# Table structure for table `user_drafts`
-#
-
-CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int default nextval('{$db_prefix}user_drafts_seq'),
-  id_topic int NOT NULL default '0',
-  id_board smallint NOT NULL default '0',
-  id_reply int NOT NULL default '0',
-  type smallint NOT NULL default '0',
-  poster_time int NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  smileys_enabled smallint NOT NULL default '1',
-  body text NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  locked smallint NOT NULL default '0',
-  is_sticky smallint NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  PRIMARY KEY (id_draft)
-);
-
-#
-# Indexes for table `user_drafts`
-#
-
-CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
-
-#
-# Table structure for table `user_likes`
-#
-
-CREATE TABLE {$db_prefix}user_likes (
-  id_member int NOT NULL default '0',
-  content_type char(6) default '',
-  content_id int NOT NULL default '0',
-  like_time int NOT NULL default '0',
-  PRIMARY KEY (content_id, content_type, id_member)
-);
-
-#
-# Indexes for table `user_likes`
-#
-
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
-
-#
-# Table structure for `mentions`
-#
-CREATE TABLE {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
-  content_type varchar(10) default '',
-  id_mentioned int NOT NULL default 0,
-  id_member int NOT NULL default 0,
-  time int NOT NULL default 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned)
-);
-
-#
-# Indexes for table `mentions`
-#
-CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
-CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
+COMMIT;
