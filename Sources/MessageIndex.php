@@ -534,7 +534,7 @@ function MessageIndex()
 								$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
 						}
 						else
-							$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
+							$image = stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
 					}
 					// Right... no avatar...
 					else
