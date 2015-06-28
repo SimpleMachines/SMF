@@ -548,7 +548,9 @@ ul.theme_options li {
 }
 .is_directory {
 	padding-left: 18px;
-	background: url(../images/admin/boards.png) no-repeat;
+}
+.is_directory span {
+	margin: -2px 3px 0 0;
 }
 .edit_file {
 	width: 96%;
