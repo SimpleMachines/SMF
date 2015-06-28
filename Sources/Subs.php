@@ -2692,11 +2692,8 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	// Maybe integrations want to change where we are heading?
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
-	// We send a Refresh header only in special cases because Location looks better. (and is quicker...)
-	if ($refresh && !WIRELESS)
-		header('Refresh: 0; URL=' . strtr($setLocation, array(' ' => '%20')), $permanent ? 301 : 302);
-	else
-		header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+	// Set the header.
+	header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
