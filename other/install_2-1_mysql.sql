@@ -6,14 +6,14 @@
 #
 
 CREATE TABLE {$db_prefix}admin_info_files (
-  id_file tinyint(4) unsigned NOT NULL auto_increment,
-  filename varchar(255) NOT NULL default '',
-  path varchar(255) NOT NULL default '',
-  parameters varchar(255) NOT NULL default '',
-  data text NOT NULL,
-  filetype varchar(255) NOT NULL default '',
+  id_file TINYINT(4) UNSIGNED AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL DEFAULT '',
+  path VARCHAR(255) NOT NULL DEFAULT '',
+  parameters VARCHAR(255) NOT NULL DEFAULT '',
+  data TEXT NOT NULL,
+  filetype VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_file),
-  KEY filename (filename(30))
+  INDEX idx_filename (filename(30))
 ) ENGINE={$engine};
 
 #
@@ -21,9 +21,9 @@ CREATE TABLE {$db_prefix}admin_info_files (
 #
 
 CREATE TABLE {$db_prefix}approval_queue (
-  id_msg int(10) unsigned NOT NULL default '0',
-  id_attach int(10) unsigned NOT NULL default '0',
-  id_event smallint(5) unsigned NOT NULL default '0'
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_attach INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_event SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE={$engine};
 
 #
@@ -31,25 +31,25 @@ CREATE TABLE {$db_prefix}approval_queue (
 #
 
 CREATE TABLE {$db_prefix}attachments (
-  id_attach int(10) unsigned NOT NULL auto_increment,
-  id_thumb int(10) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_folder tinyint(3) NOT NULL default '1',
-  attachment_type tinyint(3) unsigned NOT NULL default '0',
-  filename varchar(255) NOT NULL default '',
-  file_hash varchar(40) NOT NULL default '',
-  fileext varchar(8) NOT NULL default '',
-  size int(10) unsigned NOT NULL default '0',
-  downloads mediumint(8) unsigned NOT NULL default '0',
-  width mediumint(8) unsigned NOT NULL default '0',
-  height mediumint(8) unsigned NOT NULL default '0',
-  mime_type varchar(20) NOT NULL default '',
-  approved tinyint(3) NOT NULL default '1',
+  id_attach INT(10) UNSIGNED AUTO_INCREMENT,
+  id_thumb INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_folder TINYINT(3) NOT NULL DEFAULT '1',
+  attachment_type TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  filename VARCHAR(255) NOT NULL DEFAULT '',
+  file_hash VARCHAR(40) NOT NULL DEFAULT '',
+  fileext VARCHAR(8) NOT NULL DEFAULT '',
+  size INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  downloads MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  width MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  height MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  mime_type VARCHAR(20) NOT NULL DEFAULT '',
+  approved TINYINT(3) NOT NULL DEFAULT '1',
   PRIMARY KEY (id_attach),
-  UNIQUE id_member (id_member, id_attach),
-  KEY id_msg (id_msg),
-  KEY attachment_type (attachment_type)
+  UNIQUE idx_id_member (id_member, id_attach),
+  INDEX idx_id_msg (id_msg),
+  INDEX idx_attachment_type (attachment_type)
 ) ENGINE={$engine};
 
 #
@@ -57,11 +57,11 @@ CREATE TABLE {$db_prefix}attachments (
 #
 
 CREATE TABLE {$db_prefix}background_tasks (
-  id_task int(10) unsigned NOT NULL auto_increment,
-  task_file varchar(255) NOT NULL default '',
-  task_class varchar(255) NOT NULL default '',
-  task_data mediumtext NOT NULL,
-  claimed_time int(10) unsigned NOT NULL default '0',
+  id_task INT(10) UNSIGNED AUTO_INCREMENT,
+  task_file VARCHAR(255) NOT NULL DEFAULT '',
+  task_class VARCHAR(255) NOT NULL DEFAULT '',
+  task_data MEDIUMTEXT NOT NULL,
+  claimed_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_task)
 ) ENGINE={$engine};
 
@@ -70,16 +70,16 @@ CREATE TABLE {$db_prefix}background_tasks (
 #
 
 CREATE TABLE {$db_prefix}ban_groups (
-  id_ban_group mediumint(8) unsigned NOT NULL auto_increment,
-  name varchar(20) NOT NULL default '',
-  ban_time int(10) unsigned NOT NULL default '0',
-  expire_time int(10) unsigned,
-  cannot_access tinyint(3) unsigned NOT NULL default '0',
-  cannot_register tinyint(3) unsigned NOT NULL default '0',
-  cannot_post tinyint(3) unsigned NOT NULL default '0',
-  cannot_login tinyint(3) unsigned NOT NULL default '0',
-  reason varchar(255) NOT NULL default '',
-  notes text NOT NULL,
+  id_ban_group MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  name VARCHAR(20) NOT NULL DEFAULT '',
+  ban_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  expire_time INT(10) UNSIGNED,
+  cannot_access TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  cannot_register TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  cannot_post TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  cannot_login TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  reason VARCHAR(255) NOT NULL DEFAULT '',
+  notes TEXT NOT NULL,
   PRIMARY KEY (id_ban_group)
 ) ENGINE={$engine};
 
@@ -88,30 +88,30 @@ CREATE TABLE {$db_prefix}ban_groups (
 #
 
 CREATE TABLE {$db_prefix}ban_items (
-  id_ban mediumint(8) unsigned NOT NULL auto_increment,
-  id_ban_group smallint(5) unsigned NOT NULL default '0',
-  ip_low1 smallint(255) unsigned NOT NULL default '0',
-  ip_high1 smallint(255) unsigned NOT NULL default '0',
-  ip_low2 smallint(255) unsigned NOT NULL default '0',
-  ip_high2 smallint(255) unsigned NOT NULL default '0',
-  ip_low3 smallint(255) unsigned NOT NULL default '0',
-  ip_high3 smallint(255) unsigned NOT NULL default '0',
-  ip_low4 smallint(255) unsigned NOT NULL default '0',
-  ip_high4 smallint(255) unsigned NOT NULL default '0',
-  ip_low5 smallint(255) unsigned NOT NULL default '0',
-  ip_high5 smallint(255) unsigned NOT NULL default '0',
-  ip_low6 smallint(255) unsigned NOT NULL default '0',
-  ip_high6 smallint(255) unsigned NOT NULL default '0',
-  ip_low7 smallint(255) unsigned NOT NULL default '0',
-  ip_high7 smallint(255) unsigned NOT NULL default '0',
-  ip_low8 smallint(255) unsigned NOT NULL default '0',
-  ip_high8 smallint(255) unsigned NOT NULL default '0',
-  hostname varchar(255) NOT NULL default '',
-  email_address varchar(255) NOT NULL default '',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  hits mediumint(8) unsigned NOT NULL default '0',
+  id_ban MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_ban_group SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_low8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  ip_high8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+  hostname VARCHAR(255) NOT NULL DEFAULT '',
+  email_address VARCHAR(255) NOT NULL DEFAULT '',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  hits MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban),
-  KEY id_ban_group (id_ban_group)
+  INDEX idx_id_ban_group (id_ban_group)
 ) ENGINE={$engine};
 
 #
@@ -119,10 +119,10 @@ CREATE TABLE {$db_prefix}ban_items (
 #
 
 CREATE TABLE {$db_prefix}board_permissions (
-  id_group smallint(5) NOT NULL default '0',
-  id_profile smallint(5) unsigned NOT NULL default '0',
-  permission varchar(30) NOT NULL default '',
-  add_deny tinyint(4) NOT NULL default '1',
+  id_group SMALLINT(5) DEFAULT '0',
+  id_profile SMALLINT(5) UNSIGNED DEFAULT '0',
+  permission VARCHAR(30) DEFAULT '',
+  add_deny TINYINT(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (id_group, id_profile, permission)
 ) ENGINE={$engine};
 
@@ -131,31 +131,31 @@ CREATE TABLE {$db_prefix}board_permissions (
 #
 
 CREATE TABLE {$db_prefix}boards (
-  id_board smallint(5) unsigned NOT NULL auto_increment,
-  id_cat tinyint(4) unsigned NOT NULL default '0',
-  child_level tinyint(4) unsigned NOT NULL default '0',
-  id_parent smallint(5) unsigned NOT NULL default '0',
-  board_order smallint(5) NOT NULL default '0',
-  id_last_msg int(10) unsigned NOT NULL default '0',
-  id_msg_updated int(10) unsigned NOT NULL default '0',
-  member_groups varchar(255) NOT NULL default '-1,0',
-  id_profile smallint(5) unsigned NOT NULL default '1',
-  name varchar(255) NOT NULL default '',
-  description text NOT NULL,
-  num_topics mediumint(8) unsigned NOT NULL default '0',
-  num_posts mediumint(8) unsigned NOT NULL default '0',
-  count_posts tinyint(4) NOT NULL default '0',
-  id_theme tinyint(4) unsigned NOT NULL default '0',
-  override_theme tinyint(4) unsigned NOT NULL default '0',
-  unapproved_posts smallint(5) NOT NULL default '0',
-  unapproved_topics smallint(5) NOT NULL default '0',
-  redirect varchar(255) NOT NULL default '',
-  deny_member_groups varchar(255) NOT NULL default '',
+  id_board SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  id_cat TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  child_level TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  id_parent SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  board_order SMALLINT(5) NOT NULL DEFAULT '0',
+  id_last_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_msg_updated INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  member_groups VARCHAR(255) NOT NULL DEFAULT '-1,0',
+  id_profile SMALLINT(5) UNSIGNED NOT NULL DEFAULT '1',
+  name VARCHAR(255) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  num_topics MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  num_posts MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  count_posts TINYINT(4) NOT NULL DEFAULT '0',
+  id_theme TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  override_theme TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  unapproved_posts SMALLINT(5) NOT NULL DEFAULT '0',
+  unapproved_topics SMALLINT(5) NOT NULL DEFAULT '0',
+  redirect VARCHAR(255) NOT NULL DEFAULT '',
+  deny_member_groups VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_board),
-  UNIQUE categories (id_cat, id_board),
-  KEY id_parent (id_parent),
-  KEY id_msg_updated (id_msg_updated),
-  KEY member_groups (member_groups(48))
+  UNIQUE idx_categories (id_cat, id_board),
+  INDEX idx_id_parent (id_parent),
+  INDEX idx_id_msg_updated (id_msg_updated),
+  INDEX idx_member_groups (member_groups(48))
 ) ENGINE={$engine};
 
 #
@@ -163,17 +163,17 @@ CREATE TABLE {$db_prefix}boards (
 #
 
 CREATE TABLE {$db_prefix}calendar (
-  id_event smallint(5) unsigned NOT NULL auto_increment,
-  start_date date NOT NULL default '0001-01-01',
-  end_date date NOT NULL default '0001-01-01',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  title varchar(255) NOT NULL default '',
-  id_member mediumint(8) unsigned NOT NULL default '0',
+  id_event SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  start_date date NOT NULL DEFAULT '0001-01-01',
+  end_date date NOT NULL DEFAULT '0001-01-01',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  title VARCHAR(255) NOT NULL DEFAULT '',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_event),
-  KEY start_date (start_date),
-  KEY end_date (end_date),
-  KEY topic (id_topic, id_member)
+  INDEX idx_start_date (start_date),
+  INDEX idx_end_date (end_date),
+  INDEX idx_topic (id_topic, id_member)
 ) ENGINE={$engine};
 
 #
@@ -181,11 +181,11 @@ CREATE TABLE {$db_prefix}calendar (
 #
 
 CREATE TABLE {$db_prefix}calendar_holidays (
-  id_holiday smallint(5) unsigned NOT NULL auto_increment,
-  event_date date NOT NULL default '0001-01-01',
-  title varchar(255) NOT NULL default '',
+  id_holiday SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  event_date date NOT NULL DEFAULT '0001-01-01',
+  title VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_holiday),
-  KEY event_date (event_date)
+  INDEX idx_event_date (event_date)
 ) ENGINE={$engine};
 
 #
@@ -193,11 +193,11 @@ CREATE TABLE {$db_prefix}calendar_holidays (
 #
 
 CREATE TABLE {$db_prefix}categories (
-  id_cat tinyint(4) unsigned NOT NULL auto_increment,
-  cat_order tinyint(4) NOT NULL default '0',
-  name varchar(255) NOT NULL default '',
-  description text NOT NULL,
-  can_collapse tinyint(1) NOT NULL default '1',
+  id_cat TINYINT(4) UNSIGNED AUTO_INCREMENT,
+  cat_order TINYINT(4) NOT NULL DEFAULT '0',
+  name VARCHAR(255) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  can_collapse TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (id_cat)
 ) ENGINE={$engine};
 
@@ -206,28 +206,28 @@ CREATE TABLE {$db_prefix}categories (
 #
 
 CREATE TABLE {$db_prefix}custom_fields (
-  id_field smallint(5) NOT NULL auto_increment,
-  col_name varchar(12) NOT NULL default '',
-  field_name varchar(40) NOT NULL default '',
-  field_desc varchar(255) NOT NULL default '',
-  field_type varchar(8) NOT NULL default 'text',
-  field_length smallint(5) NOT NULL default '255',
-  field_options text NOT NULL,
-  field_order tinyint(3) NOT NULL default '0',
-  mask varchar(255) NOT NULL default '',
-  show_reg tinyint(3) NOT NULL default '0',
-  show_display tinyint(3) NOT NULL default '0',
-  show_mlist tinyint(3) NOT NULL default '0',
-  show_profile varchar(20) NOT NULL default 'forumprofile',
-  private tinyint(3) NOT NULL default '0',
-  active tinyint(3) NOT NULL default '1',
-  bbc tinyint(3) NOT NULL default '0',
-  can_search tinyint(3) NOT NULL default '0',
-  default_value varchar(255) NOT NULL default '',
-  enclose text NOT NULL,
-  placement tinyint(3) NOT NULL default '0',
+  id_field SMALLINT(5) AUTO_INCREMENT,
+  col_name VARCHAR(12) NOT NULL DEFAULT '',
+  field_name VARCHAR(40) NOT NULL DEFAULT '',
+  field_desc VARCHAR(255) NOT NULL DEFAULT '',
+  field_type VARCHAR(8) NOT NULL DEFAULT 'text',
+  field_length SMALLINT(5) NOT NULL DEFAULT '255',
+  field_options TEXT NOT NULL,
+  field_order TINYINT(3) NOT NULL DEFAULT '0',
+  mask VARCHAR(255) NOT NULL DEFAULT '',
+  show_reg TINYINT(3) NOT NULL DEFAULT '0',
+  show_display TINYINT(3) NOT NULL DEFAULT '0',
+  show_mlist TINYINT(3) NOT NULL DEFAULT '0',
+  show_profile VARCHAR(20) NOT NULL DEFAULT 'forumprofile',
+  private TINYINT(3) NOT NULL DEFAULT '0',
+  active TINYINT(3) NOT NULL DEFAULT '1',
+  bbc TINYINT(3) NOT NULL DEFAULT '0',
+  can_search TINYINT(3) NOT NULL DEFAULT '0',
+  DEFAULT_value VARCHAR(255) NOT NULL DEFAULT '',
+  enclose TEXT NOT NULL,
+  placement TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_field),
-  UNIQUE col_name (col_name)
+  UNIQUE idx_col_name (col_name)
 ) ENGINE={$engine};
 
 #
@@ -235,8 +235,8 @@ CREATE TABLE {$db_prefix}custom_fields (
 #
 
 CREATE TABLE {$db_prefix}group_moderators (
-  id_group smallint(5) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
+  id_group SMALLINT(5) UNSIGNED DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_group, id_member)
 ) ENGINE={$engine};
 
@@ -245,23 +245,23 @@ CREATE TABLE {$db_prefix}group_moderators (
 #
 
 CREATE TABLE {$db_prefix}log_actions (
-  id_action int(10) unsigned NOT NULL auto_increment,
-  id_log tinyint(3) unsigned NOT NULL default '1',
-  log_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
-  action varchar(30) NOT NULL default '',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
-  extra text NOT NULL,
+  id_action INT(10) UNSIGNED AUTO_INCREMENT,
+  id_log TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+  log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  ip char(16) NOT NULL DEFAULT '                ',
+  action VARCHAR(30) NOT NULL DEFAULT '',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  extra TEXT NOT NULL,
   PRIMARY KEY (id_action),
-  KEY id_log (id_log),
-  KEY log_time (log_time),
-  KEY id_member (id_member),
-  KEY id_board (id_board),
-  KEY id_msg (id_msg),
-  KEY id_topic_id_log (id_topic, id_log)
+  INDEX idx_id_log (id_log),
+  INDEX idx_log_time (log_time),
+  INDEX idx_id_member (id_member),
+  INDEX idx_id_board (id_board),
+  INDEX idx_id_msg (id_msg),
+  INDEX idx_id_topic_id_log (id_topic, id_log)
 ) ENGINE={$engine};
 
 #
@@ -269,12 +269,12 @@ CREATE TABLE {$db_prefix}log_actions (
 #
 
 CREATE TABLE {$db_prefix}log_activity (
-  date date NOT NULL default '0001-01-01',
-  hits mediumint(8) unsigned NOT NULL default '0',
-  topics smallint(5) unsigned NOT NULL default '0',
-  posts smallint(5) unsigned NOT NULL default '0',
-  registers smallint(5) unsigned NOT NULL default '0',
-  most_on smallint(5) unsigned NOT NULL default '0',
+  date DATE DEFAULT '0001-01-01',
+  hits MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  topics SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  posts SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  registers SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  most_on SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (date)
 ) ENGINE={$engine};
 
@@ -283,13 +283,13 @@ CREATE TABLE {$db_prefix}log_activity (
 #
 
 CREATE TABLE {$db_prefix}log_banned (
-  id_ban_log mediumint(8) unsigned NOT NULL auto_increment,
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
-  email varchar(255) NOT NULL default '',
-  log_time int(10) unsigned NOT NULL default '0',
+  id_ban_log MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  ip char(16) NOT NULL DEFAULT '                ',
+  email VARCHAR(255) NOT NULL DEFAULT '',
+  log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban_log),
-  KEY log_time (log_time)
+  INDEX idx_log_time (log_time)
 ) ENGINE={$engine};
 
 #
@@ -297,9 +297,9 @@ CREATE TABLE {$db_prefix}log_banned (
 #
 
 CREATE TABLE {$db_prefix}log_boards (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_member, id_board)
 ) ENGINE={$engine};
 
@@ -308,20 +308,20 @@ CREATE TABLE {$db_prefix}log_boards (
 #
 
 CREATE TABLE {$db_prefix}log_comments (
-  id_comment mediumint(8) unsigned NOT NULL auto_increment,
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  member_name varchar(80) NOT NULL default '',
-  comment_type varchar(8) NOT NULL default 'warning',
-  id_recipient mediumint(8) unsigned NOT NULL default '0',
-  recipient_name varchar(255) NOT NULL default '',
-  log_time int(10) NOT NULL default '0',
-  id_notice mediumint(8) unsigned NOT NULL default '0',
-  counter tinyint(3) NOT NULL default '0',
-  body text NOT NULL,
+  id_comment MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  member_name VARCHAR(80) NOT NULL DEFAULT '',
+  comment_type VARCHAR(8) NOT NULL DEFAULT 'warning',
+  id_recipient MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  recipient_name VARCHAR(255) NOT NULL DEFAULT '',
+  log_time INT(10) NOT NULL DEFAULT '0',
+  id_notice MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  counter TINYINT(3) NOT NULL DEFAULT '0',
+  body TEXT NOT NULL,
   PRIMARY KEY (id_comment),
-  KEY id_recipient (id_recipient),
-  KEY log_time (log_time),
-  KEY comment_type (comment_type(8))
+  INDEX idx_id_recipient (id_recipient),
+  INDEX idx_log_time (log_time),
+  INDEX idx_comment_type (comment_type(8))
 ) ENGINE={$engine};
 
 #
@@ -329,11 +329,11 @@ CREATE TABLE {$db_prefix}log_comments (
 #
 
 CREATE TABLE {$db_prefix}log_digest (
-  id_topic mediumint(8) unsigned NOT NULL,
-  id_msg int(10) unsigned NOT NULL,
-  note_type varchar(10) NOT NULL default 'post',
-  daily tinyint(3) unsigned NOT NULL default '0',
-  exclude mediumint(8) unsigned NOT NULL default '0'
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL,
+  id_msg INT(10) UNSIGNED NOT NULL,
+  note_type VARCHAR(10) NOT NULL DEFAULT 'post',
+  daily TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  exclude MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE={$engine};
 
 #
@@ -341,20 +341,20 @@ CREATE TABLE {$db_prefix}log_digest (
 #
 
 CREATE TABLE {$db_prefix}log_errors (
-  id_error mediumint(8) unsigned NOT NULL auto_increment,
-  log_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
-  url text NOT NULL,
-  message text NOT NULL,
-  session char(64) NOT NULL default '                                                                ',
-  error_type char(15) NOT NULL default 'general',
-  file varchar(255) NOT NULL default '',
-  line mediumint(8) unsigned NOT NULL default '0',
+  id_error MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  ip char(16) NOT NULL DEFAULT '                ',
+  url TEXT NOT NULL,
+  message TEXT NOT NULL,
+  session char(64) NOT NULL DEFAULT '                                                                ',
+  error_type char(15) NOT NULL DEFAULT 'general',
+  file VARCHAR(255) NOT NULL DEFAULT '',
+  line MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_error),
-  KEY log_time (log_time),
-  KEY id_member (id_member),
-  KEY ip (ip(16))
+  INDEX idx_log_time (log_time),
+  INDEX idx_id_member (id_member),
+  INDEX idx_ip (ip(16))
 ) ENGINE={$engine};
 
 #
@@ -362,9 +362,9 @@ CREATE TABLE {$db_prefix}log_errors (
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
-  ip char(16) NOT NULL default '                ',
-  log_time int(10) unsigned NOT NULL default '0',
-  log_type varchar(8) NOT NULL default 'post',
+  ip char(16) DEFAULT '                ',
+  log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  log_type VARCHAR(8) DEFAULT 'post',
   PRIMARY KEY (ip(16), log_type(8))
 ) ENGINE={$memory};
 
@@ -373,18 +373,18 @@ CREATE TABLE {$db_prefix}log_floodcontrol (
 #
 
 CREATE TABLE {$db_prefix}log_group_requests (
-  id_request mediumint(8) unsigned NOT NULL auto_increment,
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_group smallint(5) unsigned NOT NULL default '0',
-  time_applied int(10) unsigned NOT NULL default '0',
-  reason text NOT NULL,
-  status tinyint(3) unsigned NOT NULL default '0',
-  id_member_acted mediumint(8) unsigned NOT NULL default '0',
-  member_name_acted varchar(255) NOT NULL default '',
-  time_acted int(10) unsigned NOT NULL default '0',
-  act_reason text NOT NULL,
+  id_request MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_group SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  time_applied INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  reason TEXT NOT NULL,
+  status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  id_member_acted MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  member_name_acted VARCHAR(255) NOT NULL DEFAULT '',
+  time_acted INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  act_reason TEXT NOT NULL,
   PRIMARY KEY (id_request),
-  KEY id_member (id_member, id_group)
+  INDEX idx_id_member (id_member, id_group)
 ) ENGINE={$engine};
 
 #
@@ -392,9 +392,9 @@ CREATE TABLE {$db_prefix}log_group_requests (
 #
 
 CREATE TABLE {$db_prefix}log_mark_read (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_member, id_board)
 ) ENGINE={$engine};
 
@@ -403,9 +403,9 @@ CREATE TABLE {$db_prefix}log_mark_read (
 #
 
 CREATE TABLE {$db_prefix}log_member_notices (
-  id_notice mediumint(8) unsigned NOT NULL auto_increment,
-  subject varchar(255) NOT NULL default '',
-  body text NOT NULL,
+  id_notice MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
   PRIMARY KEY (id_notice)
 ) ENGINE={$engine};
 
@@ -414,12 +414,12 @@ CREATE TABLE {$db_prefix}log_member_notices (
 #
 
 CREATE TABLE {$db_prefix}log_notify (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  sent tinyint(1) unsigned NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+  sent TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_member, id_topic, id_board),
-  KEY id_topic (id_topic, id_member)
+  INDEX idx_id_topic (id_topic, id_member)
 ) ENGINE={$engine};
 
 #
@@ -427,15 +427,15 @@ CREATE TABLE {$db_prefix}log_notify (
 #
 
 CREATE TABLE {$db_prefix}log_online (
-  session varchar(64) NOT NULL default '',
-  log_time int(10) NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_spider smallint(5) unsigned NOT NULL default '0',
-  ip int(10) unsigned NOT NULL default '0',
-  url varchar(1024) NOT NULL,
+  session VARCHAR(64) DEFAULT '',
+  log_time INT(10) NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_spider SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  ip INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  url VARCHAR(1024) NOT NULL,
   PRIMARY KEY (session),
-  KEY log_time (log_time),
-  KEY id_member (id_member)
+  INDEX idx_log_time (log_time),
+  INDEX idx_id_member (id_member)
 ) ENGINE={$memory};
 
 #
@@ -443,24 +443,24 @@ CREATE TABLE {$db_prefix}log_online (
 #
 
 CREATE TABLE {$db_prefix}log_packages (
-  id_install int(10) NOT NULL auto_increment,
-  filename varchar(255) NOT NULL default '',
-  package_id varchar(255) NOT NULL default '',
-  name varchar(255) NOT NULL default '',
-  version varchar(255) NOT NULL default '',
-  id_member_installed mediumint(8) NOT NULL default '0',
-  member_installed varchar(255) NOT NULL default '',
-  time_installed int(10) NOT NULL default '0',
-  id_member_removed mediumint(8) NOT NULL default '0',
-  member_removed varchar(255) NOT NULL default '',
-  time_removed int(10) NOT NULL default '0',
-  install_state tinyint(3) NOT NULL default '1',
-  failed_steps text NOT NULL,
-  themes_installed varchar(255) NOT NULL default '',
-  db_changes text NOT NULL,
-  credits varchar(255) NOT NULL default '',
+  id_install INT(10) AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL DEFAULT '',
+  package_id VARCHAR(255) NOT NULL DEFAULT '',
+  name VARCHAR(255) NOT NULL DEFAULT '',
+  version VARCHAR(255) NOT NULL DEFAULT '',
+  id_member_installed MEDIUMINT(8) NOT NULL DEFAULT '0',
+  member_installed VARCHAR(255) NOT NULL DEFAULT '',
+  time_installed INT(10) NOT NULL DEFAULT '0',
+  id_member_removed MEDIUMINT(8) NOT NULL DEFAULT '0',
+  member_removed VARCHAR(255) NOT NULL DEFAULT '',
+  time_removed INT(10) NOT NULL DEFAULT '0',
+  install_state TINYINT(3) NOT NULL DEFAULT '1',
+  failed_steps TEXT NOT NULL,
+  themes_installed VARCHAR(255) NOT NULL DEFAULT '',
+  db_changes TEXT NOT NULL,
+  credits VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_install),
-  KEY filename (filename(15))
+  INDEX idx_filename (filename(15))
 ) ENGINE={$engine};
 
 #
@@ -468,10 +468,10 @@ CREATE TABLE {$db_prefix}log_packages (
 #
 
 CREATE TABLE {$db_prefix}log_polls (
-  id_poll mediumint(8) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_choice tinyint(3) unsigned NOT NULL default '0',
-  KEY id_poll (id_poll, id_member, id_choice)
+  id_poll MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_choice TINYINT(3) UNSIGNED DEFAULT '0',
+  INDEX idx_id_poll (id_poll, id_member, id_choice)
 ) ENGINE={$engine};
 
 #
@@ -479,25 +479,25 @@ CREATE TABLE {$db_prefix}log_polls (
 #
 
 CREATE TABLE {$db_prefix}log_reported (
-  id_report mediumint(8) unsigned NOT NULL auto_increment,
-  id_msg int(10) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  membername varchar(255) NOT NULL default '',
-  subject varchar(255) NOT NULL default '',
-  body mediumtext NOT NULL,
-  time_started int(10) NOT NULL default '0',
-  time_updated int(10) NOT NULL default '0',
-  num_reports mediumint(6) NOT NULL default '0',
-  closed tinyint(3) NOT NULL default '0',
-  ignore_all tinyint(3) NOT NULL default '0',
+  id_report MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  membername VARCHAR(255) NOT NULL DEFAULT '',
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  body MEDIUMTEXT NOT NULL,
+  time_started INT(10) NOT NULL DEFAULT '0',
+  time_updated INT(10) NOT NULL DEFAULT '0',
+  num_reports MEDIUMINT(6) NOT NULL DEFAULT '0',
+  closed TINYINT(3) NOT NULL DEFAULT '0',
+  ignore_all TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_report),
-  KEY id_member (id_member),
-  KEY id_topic (id_topic),
-  KEY closed (closed),
-  KEY time_started (time_started),
-  KEY id_msg (id_msg)
+  INDEX idx_id_member (id_member),
+  INDEX idx_id_topic (id_topic),
+  INDEX idx_closed (closed),
+  INDEX idx_time_started (time_started),
+  INDEX idx_id_msg (id_msg)
 ) ENGINE={$engine};
 
 #
@@ -505,17 +505,17 @@ CREATE TABLE {$db_prefix}log_reported (
 #
 
 CREATE TABLE {$db_prefix}log_reported_comments (
-  id_comment mediumint(8) unsigned NOT NULL auto_increment,
-  id_report mediumint(8) NOT NULL default '0',
-  id_member mediumint(8) NOT NULL,
-  membername varchar(255) NOT NULL default '',
-  member_ip varchar(255) NOT NULL default '',
-  comment varchar(255) NOT NULL default '',
-  time_sent int(10) NOT NULL,
+  id_comment MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  id_report MEDIUMINT(8) NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) NOT NULL,
+  membername VARCHAR(255) NOT NULL DEFAULT '',
+  member_ip VARCHAR(255) NOT NULL DEFAULT '',
+  comment VARCHAR(255) NOT NULL DEFAULT '',
+  time_sent INT(10) NOT NULL,
   PRIMARY KEY (id_comment),
-  KEY id_report (id_report),
-  KEY id_member (id_member),
-  KEY time_sent (time_sent)
+  INDEX idx_id_report (id_report),
+  INDEX idx_id_member (id_member),
+  INDEX idx_time_sent (time_sent)
 ) ENGINE={$engine};
 
 #
@@ -523,10 +523,10 @@ CREATE TABLE {$db_prefix}log_reported_comments (
 #
 
 CREATE TABLE {$db_prefix}log_scheduled_tasks (
-  id_log mediumint(8) NOT NULL auto_increment,
-  id_task smallint(5) NOT NULL default '0',
-  time_run int(10) NOT NULL default '0',
-  time_taken float NOT NULL default '0',
+  id_log MEDIUMINT(8) AUTO_INCREMENT,
+  id_task SMALLINT(5) NOT NULL DEFAULT '0',
+  time_run INT(10) NOT NULL DEFAULT '0',
+  time_taken float NOT NULL DEFAULT '0',
   PRIMARY KEY (id_log)
 ) ENGINE={$engine};
 
@@ -535,8 +535,8 @@ CREATE TABLE {$db_prefix}log_scheduled_tasks (
 #
 
 CREATE TABLE {$db_prefix}log_search_messages (
-  id_search tinyint(3) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
+  id_search TINYINT(3) UNSIGNED DEFAULT '0',
+  id_msg INT(10) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_search, id_msg)
 ) ENGINE={$engine};
 
@@ -545,11 +545,11 @@ CREATE TABLE {$db_prefix}log_search_messages (
 #
 
 CREATE TABLE {$db_prefix}log_search_results (
-  id_search tinyint(3) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
-  relevance smallint(5) unsigned NOT NULL default '0',
-  num_matches smallint(5) unsigned NOT NULL default '0',
+  id_search TINYINT(3) UNSIGNED DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  relevance SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  num_matches SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_search, id_topic)
 ) ENGINE={$engine};
 
@@ -558,10 +558,10 @@ CREATE TABLE {$db_prefix}log_search_results (
 #
 
 CREATE TABLE {$db_prefix}log_search_subjects (
-  word varchar(20) NOT NULL default '',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
+  word VARCHAR(20) DEFAULT '',
+  id_topic MEDIUMINT(8) UNSIGNED DEFAULT '0',
   PRIMARY KEY (word, id_topic),
-  KEY id_topic (id_topic)
+  INDEX idx_id_topic (id_topic)
 ) ENGINE={$engine};
 
 #
@@ -569,8 +569,8 @@ CREATE TABLE {$db_prefix}log_search_subjects (
 #
 
 CREATE TABLE {$db_prefix}log_search_topics (
-  id_search tinyint(3) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
+  id_search TINYINT(3) UNSIGNED DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_search, id_topic)
 ) ENGINE={$engine};
 
@@ -579,15 +579,15 @@ CREATE TABLE {$db_prefix}log_search_topics (
 #
 
 CREATE TABLE {$db_prefix}log_spider_hits (
-	id_hit int(10) unsigned NOT NULL auto_increment,
-  id_spider smallint(5) unsigned NOT NULL default '0',
-  log_time int(10) unsigned NOT NULL default '0',
-  url varchar(1024) NOT NULL default '',
-  processed tinyint(3) NOT NULL default '0',
+  id_hit INT(10) UNSIGNED AUTO_INCREMENT,
+  id_spider SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  url VARCHAR(1024) NOT NULL DEFAULT '',
+  processed TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_hit),
-  KEY id_spider(id_spider),
-  KEY log_time(log_time),
-  KEY processed (processed)
+  INDEX idx_id_spider(id_spider),
+  INDEX idx_log_time(log_time),
+  INDEX idx_processed (processed)
 ) ENGINE={$engine};
 
 #
@@ -595,10 +595,10 @@ CREATE TABLE {$db_prefix}log_spider_hits (
 #
 
 CREATE TABLE {$db_prefix}log_spider_stats (
-  id_spider smallint(5) unsigned NOT NULL default '0',
-  page_hits smallint(5) unsigned NOT NULL default '0',
-  last_seen int(10) unsigned NOT NULL default '0',
-  stat_date date NOT NULL default '0001-01-01',
+  id_spider SMALLINT(5) UNSIGNED DEFAULT '0',
+  page_hits SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  last_seen INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  stat_date DATE DEFAULT '0001-01-01',
   PRIMARY KEY (stat_date, id_spider)
 ) ENGINE={$engine};
 
@@ -607,24 +607,24 @@ CREATE TABLE {$db_prefix}log_spider_stats (
 #
 
 CREATE TABLE {$db_prefix}log_subscribed (
-  id_sublog int(10) unsigned NOT NULL auto_increment,
-  id_subscribe mediumint(8) unsigned NOT NULL default '0',
-  id_member int(10) NOT NULL default '0',
-  old_id_group smallint(5) NOT NULL default '0',
-  start_time int(10) NOT NULL default '0',
-  end_time int(10) NOT NULL default '0',
-  status tinyint(3) NOT NULL default '0',
-  payments_pending tinyint(3) NOT NULL default '0',
-  pending_details text NOT NULL,
-  reminder_sent tinyint(3) NOT NULL default '0',
-  vendor_ref varchar(255) NOT NULL default '',
+  id_sublog INT(10) UNSIGNED AUTO_INCREMENT,
+  id_subscribe MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_member INT(10) NOT NULL DEFAULT '0',
+  old_id_group SMALLINT(5) NOT NULL DEFAULT '0',
+  start_time INT(10) NOT NULL DEFAULT '0',
+  end_time INT(10) NOT NULL DEFAULT '0',
+  status TINYINT(3) NOT NULL DEFAULT '0',
+  payments_pending TINYINT(3) NOT NULL DEFAULT '0',
+  pending_details TEXT NOT NULL,
+  reminder_sent TINYINT(3) NOT NULL DEFAULT '0',
+  vendor_ref VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_sublog),
-  UNIQUE KEY id_subscribe (id_subscribe, id_member),
-  KEY end_time (end_time),
-  KEY reminder_sent (reminder_sent),
-  KEY payments_pending (payments_pending),
-  KEY status (status),
-  KEY id_member (id_member)
+  UNIQUE idx_KEY id_subscribe (id_subscribe, id_member),
+  INDEX idx_end_time (end_time),
+  INDEX idx_reminder_sent (reminder_sent),
+  INDEX idx_payments_pending (payments_pending),
+  INDEX idx_status (status),
+  INDEX idx_id_member (id_member)
 ) ENGINE={$engine};
 
 #
@@ -632,12 +632,12 @@ CREATE TABLE {$db_prefix}log_subscribed (
 #
 
 CREATE TABLE {$db_prefix}log_topics (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_msg int(10) unsigned NOT NULL default '0',
-  unwatched tinyint(3) NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_topic MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  unwatched TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_member, id_topic),
-  KEY id_topic (id_topic)
+  INDEX idx_id_topic (id_topic)
 ) ENGINE={$engine};
 
 #
@@ -645,18 +645,18 @@ CREATE TABLE {$db_prefix}log_topics (
 #
 
 CREATE TABLE {$db_prefix}mail_queue (
-  id_mail int(10) unsigned NOT NULL auto_increment,
-  time_sent int(10) NOT NULL default '0',
-  recipient varchar(255) NOT NULL default '',
-  body mediumtext NOT NULL,
-  subject varchar(255) NOT NULL default '',
-  headers text NOT NULL,
-  send_html tinyint(3) NOT NULL default '0',
-  priority tinyint(3) NOT NULL default '1',
-  private tinyint(1) NOT NULL default '0',
+  id_mail INT(10) UNSIGNED AUTO_INCREMENT,
+  time_sent INT(10) NOT NULL DEFAULT '0',
+  recipient VARCHAR(255) NOT NULL DEFAULT '',
+  body MEDIUMTEXT NOT NULL,
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  headers TEXT NOT NULL,
+  send_html TINYINT(3) NOT NULL DEFAULT '0',
+  priority TINYINT(3) NOT NULL DEFAULT '1',
+  private TINYINT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY  (id_mail),
-  KEY time_sent (time_sent),
-  KEY mail_priority (priority, id_mail)
+  INDEX idx_time_sent (time_sent),
+  INDEX idx_mail_priority (priority, id_mail)
 ) ENGINE={$engine};
 
 #
@@ -664,19 +664,19 @@ CREATE TABLE {$db_prefix}mail_queue (
 #
 
 CREATE TABLE {$db_prefix}membergroups (
-  id_group smallint(5) unsigned NOT NULL auto_increment,
-  group_name varchar(80) NOT NULL default '',
-  description text NOT NULL,
-  online_color varchar(20) NOT NULL default '',
-  min_posts mediumint(9) NOT NULL default '-1',
-  max_messages smallint(5) unsigned NOT NULL default '0',
-  icons varchar(255) NOT NULL default '',
-  group_type tinyint(3) NOT NULL default '0',
-  hidden tinyint(3) NOT NULL default '0',
-  id_parent smallint(5) NOT NULL default '-2',
-  tfa_required tinyint(3) NOT NULL default '0',
+  id_group SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  group_name VARCHAR(80) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  online_color VARCHAR(20) NOT NULL DEFAULT '',
+  min_posts MEDIUMINT(9) NOT NULL DEFAULT '-1',
+  max_messages SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  icons VARCHAR(255) NOT NULL DEFAULT '',
+  group_type TINYINT(3) NOT NULL DEFAULT '0',
+  hidden TINYINT(3) NOT NULL DEFAULT '0',
+  id_parent SMALLINT(5) NOT NULL DEFAULT '-2',
+  tfa_required TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_group),
-  KEY min_posts (min_posts)
+  INDEX idx_min_posts (min_posts)
 ) ENGINE={$engine};
 
 #
@@ -684,73 +684,73 @@ CREATE TABLE {$db_prefix}membergroups (
 #
 
 CREATE TABLE {$db_prefix}members (
-  id_member mediumint(8) unsigned NOT NULL auto_increment,
-  member_name varchar(80) NOT NULL default '',
-  date_registered int(10) unsigned NOT NULL default '0',
-  posts mediumint(8) unsigned NOT NULL default '0',
-  id_group smallint(5) unsigned NOT NULL default '0',
-  lngfile varchar(255) NOT NULL default '',
-  last_login int(10) unsigned NOT NULL default '0',
-  real_name varchar(255) NOT NULL default '',
-  instant_messages smallint(5) NOT NULL default 0,
-  unread_messages smallint(5) NOT NULL default 0,
-  new_pm tinyint(3) unsigned NOT NULL default '0',
-  alerts int(10) unsigned NOT NULL default '0',
-  buddy_list text NOT NULL,
-  pm_ignore_list varchar(255) NOT NULL default '',
-  pm_prefs mediumint(8) NOT NULL default '0',
-  mod_prefs varchar(20) NOT NULL default '',
-  passwd varchar(64) NOT NULL default '',
-  email_address varchar(255) NOT NULL default '',
-  personal_text varchar(255) NOT NULL default '',
-  birthdate date NOT NULL default '0001-01-01',
-  website_title varchar(255) NOT NULL default '',
-  website_url varchar(255) NOT NULL default '',
-  hide_email tinyint(4) NOT NULL default '0',
-  show_online tinyint(4) NOT NULL default '1',
-  time_format varchar(80) NOT NULL default '',
-  signature text NOT NULL,
-  time_offset float NOT NULL default '0',
-  avatar varchar(255) NOT NULL default '',
-  usertitle varchar(255) NOT NULL default '',
-  notify_announcements tinyint(4) NOT NULL default '1',
-  notify_regularity tinyint(4) NOT NULL default '1',
-  notify_send_body tinyint(4) NOT NULL default '0',
-  notify_types tinyint(4) NOT NULL default '2',
-  member_ip varchar(255) NOT NULL default '',
-  member_ip2 varchar(255) NOT NULL default '',
-  secret_question varchar(255) NOT NULL default '',
-  secret_answer varchar(64) NOT NULL default '',
-  id_theme tinyint(4) unsigned NOT NULL default '0',
-  is_activated tinyint(3) unsigned NOT NULL default '1',
-  validation_code varchar(10) NOT NULL default '',
-  id_msg_last_visit int(10) unsigned NOT NULL default '0',
-  additional_groups varchar(255) NOT NULL default '',
-  smiley_set varchar(48) NOT NULL default '',
-  id_post_group smallint(5) unsigned NOT NULL default '0',
-  total_time_logged_in int(10) unsigned NOT NULL default '0',
-  password_salt varchar(255) NOT NULL default '',
-  ignore_boards text NOT NULL,
-  warning tinyint(4) NOT NULL default '0',
-  passwd_flood varchar(12) NOT NULL default '',
-  pm_receive_from tinyint(4) unsigned NOT NULL default '1',
-  timezone varchar(80) NOT NULL DEFAULT 'UTC',
-  tfa_secret varchar(24) NOT NULL DEFAULT '',
-  tfa_backup varchar(64) NOT NULL DEFAULT '',
+  id_member MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  member_name VARCHAR(80) NOT NULL DEFAULT '',
+  date_registered INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  posts MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_group SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  lngfile VARCHAR(255) NOT NULL DEFAULT '',
+  last_login INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  real_name VARCHAR(255) NOT NULL DEFAULT '',
+  instant_messages SMALLINT(5) NOT NULL DEFAULT 0,
+  unread_messages SMALLINT(5) NOT NULL DEFAULT 0,
+  new_pm TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  alerts INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  buddy_list TEXT NOT NULL,
+  pm_ignore_list VARCHAR(255) NOT NULL DEFAULT '',
+  pm_prefs MEDIUMINT(8) NOT NULL DEFAULT '0',
+  mod_prefs VARCHAR(20) NOT NULL DEFAULT '',
+  passwd VARCHAR(64) NOT NULL DEFAULT '',
+  email_address VARCHAR(255) NOT NULL DEFAULT '',
+  personal_text VARCHAR(255) NOT NULL DEFAULT '',
+  birthdate date NOT NULL DEFAULT '0001-01-01',
+  website_title VARCHAR(255) NOT NULL DEFAULT '',
+  website_url VARCHAR(255) NOT NULL DEFAULT '',
+  hide_email TINYINT(4) NOT NULL DEFAULT '0',
+  show_online TINYINT(4) NOT NULL DEFAULT '1',
+  time_format VARCHAR(80) NOT NULL DEFAULT '',
+  signature TEXT NOT NULL,
+  time_offset float NOT NULL DEFAULT '0',
+  avatar VARCHAR(255) NOT NULL DEFAULT '',
+  usertitle VARCHAR(255) NOT NULL DEFAULT '',
+  notify_announcements TINYINT(4) NOT NULL DEFAULT '1',
+  notify_regularity TINYINT(4) NOT NULL DEFAULT '1',
+  notify_send_body TINYINT(4) NOT NULL DEFAULT '0',
+  notify_types TINYINT(4) NOT NULL DEFAULT '2',
+  member_ip VARCHAR(255) NOT NULL DEFAULT '',
+  member_ip2 VARCHAR(255) NOT NULL DEFAULT '',
+  secret_question VARCHAR(255) NOT NULL DEFAULT '',
+  secret_answer VARCHAR(64) NOT NULL DEFAULT '',
+  id_theme TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  is_activated TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+  validation_code VARCHAR(10) NOT NULL DEFAULT '',
+  id_msg_last_visit INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  additional_groups VARCHAR(255) NOT NULL DEFAULT '',
+  smiley_set VARCHAR(48) NOT NULL DEFAULT '',
+  id_post_group SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  total_time_logged_in INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  password_salt VARCHAR(255) NOT NULL DEFAULT '',
+  ignore_boards TEXT NOT NULL,
+  warning TINYINT(4) NOT NULL DEFAULT '0',
+  passwd_flood VARCHAR(12) NOT NULL DEFAULT '',
+  pm_receive_from TINYINT(4) UNSIGNED NOT NULL DEFAULT '1',
+  timezone VARCHAR(80) NOT NULL DEFAULT 'UTC',
+  tfa_secret VARCHAR(24) NOT NULL DEFAULT '',
+  tfa_backup VARCHAR(64) NOT NULL DEFAULT '',
   PRIMARY KEY (id_member),
-  KEY member_name (member_name),
-  KEY real_name (real_name),
-  KEY email_address (email_address),
-  KEY date_registered (date_registered),
-  KEY id_group (id_group),
-  KEY birthdate (birthdate),
-  KEY posts (posts),
-  KEY last_login (last_login),
-  KEY lngfile (lngfile(30)),
-  KEY id_post_group (id_post_group),
-  KEY warning (warning),
-  KEY total_time_logged_in (total_time_logged_in),
-  KEY id_theme (id_theme)
+  INDEX idx_member_name (member_name),
+  INDEX idx_real_name (real_name),
+  INDEX idx_email_address (email_address),
+  INDEX idx_date_registered (date_registered),
+  INDEX idx_id_group (id_group),
+  INDEX idx_birthdate (birthdate),
+  INDEX idx_posts (posts),
+  INDEX idx_last_login (last_login),
+  INDEX idx_lngfile (lngfile(30)),
+  INDEX idx_id_post_group (id_post_group),
+  INDEX idx_warning (warning),
+  INDEX idx_total_time_logged_in (total_time_logged_in),
+  INDEX idx_id_theme (id_theme)
 ) ENGINE={$engine};
 
 #
@@ -758,14 +758,14 @@ CREATE TABLE {$db_prefix}members (
 #
 
 CREATE TABLE {$db_prefix}member_logins (
-  id_login int(10) NOT NULL auto_increment,
-  id_member mediumint(8) NOT NULL default '0',
-  time int(10) NOT NULL default '0',
-  ip varchar(255) NOT NULL default '0',
-  ip2 varchar(255) NOT NULL default '0',
+  id_login INT(10) AUTO_INCREMENT,
+  id_member MEDIUMINT(8) NOT NULL DEFAULT '0',
+  time INT(10) NOT NULL DEFAULT '0',
+  ip VARCHAR(255) NOT NULL DEFAULT '0',
+  ip2 VARCHAR(255) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_login),
-  KEY id_member (id_member),
-  KEY time (time)
+  INDEX idx_id_member (id_member),
+  INDEX idx_time (time)
 ) ENGINE={$engine};
 
 #
@@ -773,13 +773,13 @@ CREATE TABLE {$db_prefix}member_logins (
 #
 
 CREATE TABLE {$db_prefix}message_icons (
-  id_icon smallint(5) unsigned NOT NULL auto_increment,
-  title varchar(80) NOT NULL default '',
-  filename varchar(80) NOT NULL default '',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  icon_order smallint(5) unsigned NOT NULL default '0',
+  id_icon SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  title VARCHAR(80) NOT NULL DEFAULT '',
+  filename VARCHAR(80) NOT NULL DEFAULT '',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  icon_order SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_icon),
-  KEY id_board (id_board)
+  INDEX idx_id_board (id_board)
 ) ENGINE={$engine};
 
 #
@@ -787,36 +787,36 @@ CREATE TABLE {$db_prefix}message_icons (
 #
 
 CREATE TABLE {$db_prefix}messages (
-  id_msg int(10) unsigned NOT NULL auto_increment,
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  poster_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  id_msg_modified int(10) unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  poster_name varchar(255) NOT NULL default '',
-  poster_email varchar(255) NOT NULL default '',
-  poster_ip varchar(255) NOT NULL default '',
-  smileys_enabled tinyint(4) NOT NULL default '1',
-  modified_time int(10) unsigned NOT NULL default '0',
-  modified_name varchar(255) NOT NULL default '',
-  modified_reason varchar(255) NOT NULL default '',
-  body text NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  approved tinyint(3) NOT NULL default '1',
-  likes smallint(5) unsigned NOT NULL default '0',
+  id_msg INT(10) UNSIGNED AUTO_INCREMENT,
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_msg_modified INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  poster_name VARCHAR(255) NOT NULL DEFAULT '',
+  poster_email VARCHAR(255) NOT NULL DEFAULT '',
+  poster_ip VARCHAR(255) NOT NULL DEFAULT '',
+  smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
+  modified_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  modified_name VARCHAR(255) NOT NULL DEFAULT '',
+  modified_reason VARCHAR(255) NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
+  icon VARCHAR(16) NOT NULL DEFAULT 'xx',
+  approved TINYINT(3) NOT NULL DEFAULT '1',
+  likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_msg),
-  UNIQUE topic (id_topic, id_msg),
-  UNIQUE id_board (id_board, id_msg),
-  UNIQUE id_member (id_member, id_msg),
-  KEY approved (approved),
-  KEY ip_index (poster_ip(15), id_topic),
-  KEY participation (id_member, id_topic),
-  KEY show_posts (id_member, id_board),
-  KEY id_topic (id_topic),
-  KEY id_member_msg (id_member, approved, id_msg),
-  KEY current_topic (id_topic, id_msg, id_member, approved),
-  KEY related_ip (id_member, poster_ip, id_msg)
+  UNIQUE idx_topic (id_topic, id_msg),
+  UNIQUE idx_id_board (id_board, id_msg),
+  UNIQUE idx_id_member (id_member, id_msg),
+  INDEX idx_approved (approved),
+  INDEX idx_ip_index (poster_ip(15), id_topic),
+  INDEX idx_participation (id_member, id_topic),
+  INDEX idx_show_posts (id_member, id_board),
+  INDEX idx_id_topic (id_topic),
+  INDEX idx_id_member_msg (id_member, approved, id_msg),
+  INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
+  INDEX idx_related_ip (id_member, poster_ip, id_msg)
 ) ENGINE={$engine};
 
 #
@@ -824,8 +824,8 @@ CREATE TABLE {$db_prefix}messages (
 #
 
 CREATE TABLE {$db_prefix}moderators (
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
+  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_board, id_member)
 ) ENGINE={$engine};
 
@@ -834,8 +834,8 @@ CREATE TABLE {$db_prefix}moderators (
 #
 
 CREATE TABLE {$db_prefix}moderator_groups (
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_group smallint(5) unsigned NOT NULL default '0',
+  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+  id_group SMALLINT(5) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_board, id_group)
 ) ENGINE={$engine};
 
@@ -844,9 +844,9 @@ CREATE TABLE {$db_prefix}moderator_groups (
 #
 
 CREATE TABLE {$db_prefix}package_servers (
-  id_server smallint(5) unsigned NOT NULL auto_increment,
-  name varchar(255) NOT NULL default '',
-  url varchar(255) NOT NULL default '',
+  id_server SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL DEFAULT '',
+  url VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_server)
 ) ENGINE={$engine};
 
@@ -855,8 +855,8 @@ CREATE TABLE {$db_prefix}package_servers (
 #
 
 CREATE TABLE {$db_prefix}permission_profiles (
-  id_profile smallint(5) NOT NULL auto_increment,
-  profile_name varchar(255) NOT NULL default '',
+  id_profile SMALLINT(5) AUTO_INCREMENT,
+  profile_name VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_profile)
 ) ENGINE={$engine};
 
@@ -865,9 +865,9 @@ CREATE TABLE {$db_prefix}permission_profiles (
 #
 
 CREATE TABLE {$db_prefix}permissions (
-  id_group smallint(5) NOT NULL default '0',
-  permission varchar(30) NOT NULL default '',
-  add_deny tinyint(4) NOT NULL default '1',
+  id_group SMALLINT(5) DEFAULT '0',
+  permission VARCHAR(30) DEFAULT '',
+  add_deny TINYINT(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (id_group, permission)
 ) ENGINE={$engine};
 
@@ -876,27 +876,27 @@ CREATE TABLE {$db_prefix}permissions (
 #
 
 CREATE TABLE {$db_prefix}personal_messages (
-  id_pm int(10) unsigned NOT NULL auto_increment,
-  id_pm_head int(10) unsigned NOT NULL default '0',
-  id_member_from mediumint(8) unsigned NOT NULL default '0',
-  deleted_by_sender tinyint(3) unsigned NOT NULL default '0',
-  from_name varchar(255) NOT NULL default '',
-  msgtime int(10) unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  body text NOT NULL,
+  id_pm INT(10) UNSIGNED AUTO_INCREMENT,
+  id_pm_head INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member_from MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  deleted_by_sender TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  from_name VARCHAR(255) NOT NULL DEFAULT '',
+  msgtime INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
   PRIMARY KEY (id_pm),
-  KEY id_member (id_member_from, deleted_by_sender),
-  KEY msgtime (msgtime),
-  KEY id_pm_head (id_pm_head)
+  INDEX idx_id_member (id_member_from, deleted_by_sender),
+  INDEX idx_msgtime (msgtime),
+  INDEX idx_id_pm_head (id_pm_head)
 ) ENGINE={$engine};
 
 #
 # Table structure for table `pm_labels`
 #
 CREATE TABLE {$db_prefix}pm_labels (
-  id_label int(10) unsigned NOT NULL auto_increment,
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  name varchar(30) NOT NULL default '',
+  id_label INT(10) UNSIGNED AUTO_INCREMENT,
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  name VARCHAR(30) NOT NULL DEFAULT '',
   PRIMARY KEY (id_label)
 ) ENGINE={$engine};
 
@@ -904,8 +904,8 @@ CREATE TABLE {$db_prefix}pm_labels (
 # Table structure for table `pm_labeled_messages`
 #
 CREATE TABLE {$db_prefix}pm_labeled_messages (
-  id_label int(10) unsigned NOT NULL default '0',
-  id_pm int(10) unsigned NOT NULL default '0',
+  id_label INT(10) UNSIGNED DEFAULT '0',
+  id_pm INT(10) UNSIGNED DEFAULT '0',
   PRIMARY KEY (id_label, id_pm)
 ) ENGINE={$engine};
 
@@ -914,15 +914,15 @@ CREATE TABLE {$db_prefix}pm_labeled_messages (
 #
 
 CREATE TABLE {$db_prefix}pm_recipients (
-  id_pm int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  bcc tinyint(3) unsigned NOT NULL default '0',
-  is_read tinyint(3) unsigned NOT NULL default '0',
-  is_new tinyint(3) unsigned NOT NULL default '0',
-  deleted tinyint(3) unsigned NOT NULL default '0',
-  in_inbox tinyint(3) unsigned NOT NULL default '1',
+  id_pm INT(10) UNSIGNED DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  bcc TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  is_read TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  is_new TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  deleted TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  in_inbox TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
   PRIMARY KEY (id_pm, id_member),
-  UNIQUE id_member (id_member, deleted, id_pm)
+  UNIQUE idx_id_member (id_member, deleted, id_pm)
 ) ENGINE={$engine};
 
 #
@@ -930,16 +930,16 @@ CREATE TABLE {$db_prefix}pm_recipients (
 #
 
 CREATE TABLE {$db_prefix}pm_rules (
-  id_rule int(10) unsigned NOT NULL auto_increment,
-  id_member int(10) unsigned NOT NULL default '0',
-  rule_name varchar(60) NOT NULL,
-  criteria text NOT NULL,
-  actions text NOT NULL,
-  delete_pm tinyint(3) unsigned NOT NULL default '0',
-  is_or tinyint(3) unsigned NOT NULL default '0',
+  id_rule INT(10) UNSIGNED AUTO_INCREMENT,
+  id_member INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  rule_name VARCHAR(60) NOT NULL,
+  criteria TEXT NOT NULL,
+  actions TEXT NOT NULL,
+  delete_pm TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  is_or TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_rule),
-  KEY id_member (id_member),
-  KEY delete_pm (delete_pm)
+  INDEX idx_id_member (id_member),
+  INDEX idx_delete_pm (delete_pm)
 ) ENGINE={$engine};
 
 #
@@ -947,18 +947,18 @@ CREATE TABLE {$db_prefix}pm_rules (
 #
 
 CREATE TABLE {$db_prefix}polls (
-  id_poll mediumint(8) unsigned NOT NULL auto_increment,
-  question varchar(255) NOT NULL default '',
-  voting_locked tinyint(1) NOT NULL default '0',
-  max_votes tinyint(3) unsigned NOT NULL default '1',
-  expire_time int(10) unsigned NOT NULL default '0',
-  hide_results tinyint(3) unsigned NOT NULL default '0',
-  change_vote tinyint(3) unsigned NOT NULL default '0',
-  guest_vote tinyint(3) unsigned NOT NULL default '0',
-  num_guest_voters int(10) unsigned NOT NULL default '0',
-  reset_poll int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) NOT NULL default '0',
-  poster_name varchar(255) NOT NULL default '',
+  id_poll MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  question VARCHAR(255) NOT NULL DEFAULT '',
+  voting_locked TINYINT(1) NOT NULL DEFAULT '0',
+  max_votes TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
+  expire_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  hide_results TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  change_vote TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  guest_vote TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  num_guest_voters INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  reset_poll INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) NOT NULL DEFAULT '0',
+  poster_name VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_poll)
 ) ENGINE={$engine};
 
@@ -967,10 +967,10 @@ CREATE TABLE {$db_prefix}polls (
 #
 
 CREATE TABLE {$db_prefix}poll_choices (
-  id_poll mediumint(8) unsigned NOT NULL default '0',
-  id_choice tinyint(3) unsigned NOT NULL default '0',
-  label varchar(255) NOT NULL default '',
-  votes smallint(5) unsigned NOT NULL default '0',
+  id_poll MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  id_choice TINYINT(3) UNSIGNED DEFAULT '0',
+  label VARCHAR(255) NOT NULL DEFAULT '',
+  votes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_poll, id_choice)
 ) ENGINE={$engine};
 
@@ -979,12 +979,12 @@ CREATE TABLE {$db_prefix}poll_choices (
 #
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question smallint(5) unsigned NOT NULL auto_increment,
-  lngfile varchar(255) NOT NULL default '',
-  question varchar(255) NOT NULL default '',
-  answers text NOT NULL,
+  id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  lngfile VARCHAR(255) NOT NULL DEFAULT '',
+  question VARCHAR(255) NOT NULL DEFAULT '',
+  answers TEXT NOT NULL,
   PRIMARY KEY (id_question),
-  KEY lngfile (lngfile)
+  INDEX idx_lngfile (lngfile)
 ) ENGINE={$engine};
 
 #
@@ -992,18 +992,18 @@ CREATE TABLE {$db_prefix}qanda (
 #
 
 CREATE TABLE {$db_prefix}scheduled_tasks (
-  id_task smallint(5) NOT NULL auto_increment,
-  next_time int(10) NOT NULL default '0',
-  time_offset int(10) NOT NULL default '0',
-  time_regularity smallint(5) NOT NULL default '0',
-  time_unit varchar(1) NOT NULL default 'h',
-  disabled tinyint(3) NOT NULL default '0',
-  task varchar(24) NOT NULL default '',
-  callable varchar(60) NOT NULL default '',
+  id_task SMALLINT(5) AUTO_INCREMENT,
+  next_time INT(10) NOT NULL DEFAULT '0',
+  time_offset INT(10) NOT NULL DEFAULT '0',
+  time_regularity SMALLINT(5) NOT NULL DEFAULT '0',
+  time_unit VARCHAR(1) NOT NULL DEFAULT 'h',
+  disabled TINYINT(3) NOT NULL DEFAULT '0',
+  task VARCHAR(24) NOT NULL DEFAULT '',
+  callable VARCHAR(60) NOT NULL DEFAULT '',
   PRIMARY KEY (id_task),
-  KEY next_time (next_time),
-  KEY disabled (disabled),
-  UNIQUE task (task)
+  INDEX idx_next_time (next_time),
+  INDEX idx_disabled (disabled),
+  UNIQUE idx_task (task)
 ) ENGINE={$engine};
 
 #
@@ -1011,8 +1011,8 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
 #
 
 CREATE TABLE {$db_prefix}settings (
-  variable varchar(255) NOT NULL default '',
-  value text NOT NULL,
+  variable VARCHAR(255) DEFAULT '',
+  value TEXT NOT NULL,
   PRIMARY KEY (variable(30))
 ) ENGINE={$engine};
 
@@ -1021,9 +1021,9 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(64) NOT NULL,
-  last_update int(10) unsigned NOT NULL,
-  data text NOT NULL,
+  session_id char(64),
+  last_update INT(10) UNSIGNED NOT NULL,
+  data TEXT NOT NULL,
   PRIMARY KEY (session_id)
 ) ENGINE={$engine};
 
@@ -1032,13 +1032,13 @@ CREATE TABLE {$db_prefix}sessions (
 #
 
 CREATE TABLE {$db_prefix}smileys (
-  id_smiley smallint(5) unsigned NOT NULL auto_increment,
-  code varchar(30) NOT NULL default '',
-  filename varchar(48) NOT NULL default '',
-  description varchar(80) NOT NULL default '',
-  smiley_row tinyint(4) unsigned NOT NULL default '0',
-  smiley_order smallint(5) unsigned NOT NULL default '0',
-  hidden tinyint(4) unsigned NOT NULL default '0',
+  id_smiley SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  code VARCHAR(30) NOT NULL DEFAULT '',
+  filename VARCHAR(48) NOT NULL DEFAULT '',
+  description VARCHAR(80) NOT NULL DEFAULT '',
+  smiley_row TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
+  smiley_order SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  hidden TINYINT(4) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_smiley)
 ) ENGINE={$engine};
 
@@ -1047,10 +1047,10 @@ CREATE TABLE {$db_prefix}smileys (
 #
 
 CREATE TABLE {$db_prefix}spiders (
-  id_spider smallint(5) unsigned NOT NULL auto_increment,
-  spider_name varchar(255) NOT NULL default '',
-  user_agent varchar(255) NOT NULL default '',
-  ip_info varchar(255) NOT NULL default '',
+  id_spider SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+  spider_name VARCHAR(255) NOT NULL DEFAULT '',
+  user_agent VARCHAR(255) NOT NULL DEFAULT '',
+  ip_info VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY id_spider(id_spider)
 ) ENGINE={$engine};
 
@@ -1059,20 +1059,20 @@ CREATE TABLE {$db_prefix}spiders (
 #
 
 CREATE TABLE {$db_prefix}subscriptions(
-  id_subscribe mediumint(8) unsigned NOT NULL auto_increment,
-  name varchar(60) NOT NULL default '',
-  description varchar(255) NOT NULL default '',
-  cost text NOT NULL,
-  length varchar(6) NOT NULL default '',
-  id_group smallint(5) NOT NULL default '0',
-  add_groups varchar(40) NOT NULL default '',
-  active tinyint(3) NOT NULL default '1',
-  repeatable tinyint(3) NOT NULL default '0',
-  allow_partial tinyint(3) NOT NULL default '0',
-  reminder tinyint(3) NOT NULL default '0',
-  email_complete text NOT NULL,
+  id_subscribe MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  name VARCHAR(60) NOT NULL DEFAULT '',
+  description VARCHAR(255) NOT NULL DEFAULT '',
+  cost TEXT NOT NULL,
+  length VARCHAR(6) NOT NULL DEFAULT '',
+  id_group SMALLINT(5) NOT NULL DEFAULT '0',
+  add_groups VARCHAR(40) NOT NULL DEFAULT '',
+  active TINYINT(3) NOT NULL DEFAULT '1',
+  repeatable TINYINT(3) NOT NULL DEFAULT '0',
+  allow_partial TINYINT(3) NOT NULL DEFAULT '0',
+  reminder TINYINT(3) NOT NULL DEFAULT '0',
+  email_complete TEXT NOT NULL,
   PRIMARY KEY (id_subscribe),
-  KEY active (active)
+  INDEX idx_active (active)
 ) ENGINE={$engine};
 
 #
@@ -1080,12 +1080,12 @@ CREATE TABLE {$db_prefix}subscriptions(
 #
 
 CREATE TABLE {$db_prefix}themes (
-  id_member mediumint(8) NOT NULL default '0',
-  id_theme tinyint(4) unsigned NOT NULL default '1',
-  variable varchar(255) NOT NULL default '',
-  value text NOT NULL,
+  id_member MEDIUMINT(8) DEFAULT '0',
+  id_theme TINYINT(4) UNSIGNED DEFAULT '1',
+  variable VARCHAR(255) DEFAULT '',
+  value TEXT NOT NULL,
   PRIMARY KEY (id_theme, id_member, variable(30)),
-  KEY id_member (id_member)
+  INDEX idx_id_member (id_member)
 ) ENGINE={$engine};
 
 #
@@ -1093,33 +1093,33 @@ CREATE TABLE {$db_prefix}themes (
 #
 
 CREATE TABLE {$db_prefix}topics (
-  id_topic mediumint(8) unsigned NOT NULL auto_increment,
-  is_sticky tinyint(4) NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_first_msg int(10) unsigned NOT NULL default '0',
-  id_last_msg int(10) unsigned NOT NULL default '0',
-  id_member_started mediumint(8) unsigned NOT NULL default '0',
-  id_member_updated mediumint(8) unsigned NOT NULL default '0',
-  id_poll mediumint(8) unsigned NOT NULL default '0',
-  id_previous_board smallint(5) NOT NULL default '0',
-  id_previous_topic mediumint(8) NOT NULL default '0',
-  num_replies int(10) unsigned NOT NULL default '0',
-  num_views int(10) unsigned NOT NULL default '0',
-  locked tinyint(4) NOT NULL default '0',
-  redirect_expires int(10) unsigned NOT NULL default '0',
-  id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
-  unapproved_posts smallint(5) NOT NULL default '0',
-  approved tinyint(3) NOT NULL default '1',
+  id_topic MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
+  is_sticky TINYINT(4) NOT NULL DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  id_first_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_last_msg INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member_started MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_member_updated MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_poll MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_previous_board SMALLINT(5) NOT NULL DEFAULT '0',
+  id_previous_topic MEDIUMINT(8) NOT NULL DEFAULT '0',
+  num_replies INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  num_views INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  locked TINYINT(4) NOT NULL DEFAULT '0',
+  redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_redirect_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  unapproved_posts SMALLINT(5) NOT NULL DEFAULT '0',
+  approved TINYINT(3) NOT NULL DEFAULT '1',
   PRIMARY KEY (id_topic),
-  UNIQUE last_message (id_last_msg, id_board),
-  UNIQUE first_message (id_first_msg, id_board),
-  UNIQUE poll (id_poll, id_topic),
-  KEY is_sticky (is_sticky),
-  KEY approved (approved),
-  KEY id_board (id_board),
-  KEY member_started (id_member_started, id_board),
-  KEY last_message_sticky (id_board, is_sticky, id_last_msg),
-  KEY board_news (id_board, id_first_msg)
+  UNIQUE idx_last_message (id_last_msg, id_board),
+  UNIQUE idx_first_message (id_first_msg, id_board),
+  UNIQUE idx_poll (id_poll, id_topic),
+  INDEX idx_is_sticky (is_sticky),
+  INDEX idx_approved (approved),
+  INDEX idx_id_board (id_board),
+  INDEX idx_member_started (id_member_started, id_board),
+  INDEX idx_last_message_sticky (id_board, is_sticky, id_last_msg),
+  INDEX idx_board_news (id_board, id_first_msg)
 ) ENGINE={$engine};
 
 #
@@ -1127,19 +1127,19 @@ CREATE TABLE {$db_prefix}topics (
 #
 
 CREATE TABLE {$db_prefix}user_alerts (
-  id_alert int(10) unsigned NOT NULL auto_increment,
-  alert_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(10) unsigned NOT NULL default '0',
-  id_member_started mediumint(10) unsigned NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read int(10) unsigned NOT NULL default '0',
-  extra text NOT NULL,
+  id_alert INT(10) UNSIGNED AUTO_INCREMENT,
+  alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+  member_name VARCHAR(255) NOT NULL DEFAULT '',
+  content_type VARCHAR(255) NOT NULL DEFAULT '',
+  content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  content_action VARCHAR(255) NOT NULL DEFAULT '',
+  is_read INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  extra TEXT NOT NULL,
   PRIMARY KEY (id_alert),
-  KEY id_member (id_member),
-  KEY alert_time (alert_time)
+  INDEX idx_id_member (id_member),
+  INDEX idx_alert_time (alert_time)
 ) ENGINE={$engine};
 
 #
@@ -1147,9 +1147,9 @@ CREATE TABLE {$db_prefix}user_alerts (
 #
 
 CREATE TABLE {$db_prefix}user_alerts_prefs (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value tinyint(3) NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  alert_pref VARCHAR(32) DEFAULT '',
+  alert_value TINYINT(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (id_member, alert_pref)
 ) ENGINE={$engine};
 
@@ -1158,22 +1158,22 @@ CREATE TABLE {$db_prefix}user_alerts_prefs (
 #
 
 CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int(10) unsigned NOT NULL auto_increment,
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_reply int(10) unsigned NOT NULL default '0',
-  type tinyint(4) NOT NULL default '0',
-  poster_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  smileys_enabled tinyint(4) NOT NULL default '1',
-  body mediumtext NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  locked tinyint(4) NOT NULL default '0',
-  is_sticky tinyint(4) NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
+  id_draft INT(10) UNSIGNED AUTO_INCREMENT,
+  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+  id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  type TINYINT(4) NOT NULL DEFAULT '0',
+  poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
+  body MEDIUMTEXT NOT NULL,
+  icon VARCHAR(16) NOT NULL DEFAULT 'xx',
+  locked TINYINT(4) NOT NULL DEFAULT '0',
+  is_sticky TINYINT(4) NOT NULL DEFAULT '0',
+  to_list VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_draft),
-  UNIQUE id_member (id_member, id_draft, type)
+  UNIQUE idx_id_member (id_member, id_draft, type)
 ) ENGINE={$engine};
 
 #
@@ -1181,10 +1181,10 @@ CREATE TABLE {$db_prefix}user_drafts (
 #
 
 CREATE TABLE {$db_prefix}user_likes (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  content_type char(6) default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  like_time int(10) unsigned NOT NULL default '0',
+  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+  content_type char(6) DEFAULT '',
+  content_id INT(10) UNSIGNED DEFAULT '0',
+  like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (content_id, content_type, id_member),
   INDEX content (content_id, content_type),
   INDEX liker (id_member)
@@ -1194,11 +1194,11 @@ CREATE TABLE {$db_prefix}user_likes (
 # Table structure for table `mentions`
 #
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
-  content_type varchar(10) default '',
-  id_mentioned int NOT NULL default 0,
-  id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
+  content_id INT DEFAULT '0',
+  content_type VARCHAR(10) DEFAULT '',
+  id_mentioned INT DEFAULT 0,
+  id_member INT NOT NULL DEFAULT 0,
+  `time` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (content_id, content_type, id_mentioned),
   INDEX content (content_id, content_type),
   INDEX mentionee (id_member)
@@ -1542,7 +1542,7 @@ VALUES (-1, 1, 'poll_view'),
 
 INSERT INTO {$db_prefix}boards
 	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
-VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
+VALUES (1, 1, 1, 1, 1, '{$DEFAULT_board_name}', '{$DEFAULT_board_description}', 1, 1, '-1,0,2');
 # --------------------------------------------------------
 
 #
@@ -1605,17 +1605,17 @@ VALUES ('New Year\'s', '0004-01-01'),
 	('Vernal Equinox', '2018-03-20'),
 	('Vernal Equinox', '2019-03-20'),
 	('Vernal Equinox', '2020-03-19'),
-	('Winter Solstice', '2010-12-21'),
-	('Winter Solstice', '2011-12-22'),
-	('Winter Solstice', '2012-12-21'),
-	('Winter Solstice', '2013-12-21'),
-	('Winter Solstice', '2014-12-21'),
-	('Winter Solstice', '2015-12-21'),
-	('Winter Solstice', '2016-12-21'),
-	('Winter Solstice', '2017-12-21'),
-	('Winter Solstice', '2018-12-21'),
-	('Winter Solstice', '2019-12-21'),
-	('Winter Solstice', '2020-12-21'),
+	('WINTer Solstice', '2010-12-21'),
+	('WINTer Solstice', '2011-12-22'),
+	('WINTer Solstice', '2012-12-21'),
+	('WINTer Solstice', '2013-12-21'),
+	('WINTer Solstice', '2014-12-21'),
+	('WINTer Solstice', '2015-12-21'),
+	('WINTer Solstice', '2016-12-21'),
+	('WINTer Solstice', '2017-12-21'),
+	('WINTer Solstice', '2018-12-21'),
+	('WINTer Solstice', '2019-12-21'),
+	('WINTer Solstice', '2020-12-21'),
 	('Autumnal Equinox', '2010-09-22'),
 	('Autumnal Equinox', '2011-09-23'),
 	('Autumnal Equinox', '2012-09-22'),
@@ -1676,14 +1676,14 @@ VALUES ('Independence Day', '0004-07-04'),
 #
 
 INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$default_category_name}', '', 1);
+VALUES (1, 0, '{$DEFAULT_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
 # Dumping data for table `custom_fields`
 #
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `DEFAULT_value`, `enclose`, `placement`) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
@@ -1699,14 +1699,14 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 INSERT INTO {$db_prefix}membergroups
 	(id_group, group_name, description, online_color, min_posts, icons, group_type)
-VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
-	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
-	(3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png', 0),
-	(4, '{$default_newbie_group}', '', '', 0, '1#icon.png', 0),
-	(5, '{$default_junior_group}', '', '', 50, '2#icon.png', 0),
-	(6, '{$default_full_group}', '', '', 100, '3#icon.png', 0),
-	(7, '{$default_senior_group}', '', '', 250, '4#icon.png', 0),
-	(8, '{$default_hero_group}', '', '', 500, '5#icon.png', 0);
+VALUES (1, '{$DEFAULT_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
+	(2, '{$DEFAULT_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
+	(3, '{$DEFAULT_moderator_group}', '', '', -1, '5#iconmod.png', 0),
+	(4, '{$DEFAULT_newbie_group}', '', '', 0, '1#icon.png', 0),
+	(5, '{$DEFAULT_junior_group}', '', '', 50, '2#icon.png', 0),
+	(6, '{$DEFAULT_full_group}', '', '', 100, '3#icon.png', 0),
+	(7, '{$DEFAULT_senior_group}', '', '', 250, '4#icon.png', 0),
+	(8, '{$DEFAULT_hero_group}', '', '', 500, '5#icon.png', 0);
 # --------------------------------------------------------
 
 #
@@ -1719,7 +1719,7 @@ INSERT INTO {$db_prefix}message_icons
 VALUES ('xx', 'Standard', '0'),
 	('thumbup', 'Thumb Up', '1'),
 	('thumbdown', 'Thumb Down', '2'),
-	('exclamation', 'Exclamation point', '3'),
+	('exclamation', 'Exclamation poINT', '3'),
 	('question', 'Question mark', '4'),
 	('lamp', 'Lamp', '5'),
 	('smiley', 'Smiley', '6'),
@@ -1737,7 +1737,7 @@ VALUES ('xx', 'Standard', '0'),
 
 INSERT INTO {$db_prefix}messages
 	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
-VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
+VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$DEFAULT_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$DEFAULT_topic_message}', 'xx');
 # --------------------------------------------------------
 
 #
@@ -1755,7 +1755,7 @@ VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.or
 
 INSERT INTO {$db_prefix}permission_profiles
 	(id_profile, profile_name)
-VALUES (1, 'default'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
+VALUES (1, 'DEFAULT'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
 # --------------------------------------------------------
 
 #
@@ -1825,12 +1825,12 @@ INSERT INTO {$db_prefix}scheduled_tasks
 	(id_task, next_time, time_offset, time_regularity, time_unit, disabled, task, callable)
 VALUES
 	(1, 0, 0, 2, 'h', 0, 'approval_notification', ''),
-	(3, 0, 60, 1, 'd', 0, 'daily_maintenance', ''),
+	(3, 0, 60, 1, 'd', 0, 'daily_maINTenance', ''),
 	(5, 0, 0, 1, 'd', 0, 'daily_digest', ''),
 	(6, 0, 0, 1, 'w', 0, 'weekly_digest', ''),
 	(7, 0, {$sched_task_offset}, 1, 'd', 0, 'fetchSMfiles', ''),
 	(8, 0, 0, 1, 'd', 1, 'birthdayemails', ''),
-	(9, 0, 0, 1, 'w', 0, 'weekly_maintenance', ''),
+	(9, 0, 0, 1, 'w', 0, 'weekly_maINTenance', ''),
 	(10, 0, 120, 1, 'd', 1, 'paid_subscriptions', ''),
 	(11, 0, 120, 1, 'd', 0, 'remove_temp_attachments', ''),
 	(12, 0, 180, 1, 'd', 0, 'remove_topic_redirect', ''),
@@ -1845,7 +1845,7 @@ VALUES
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES ('smfVersion', '{$smf_version}'),
-	('news', '{$default_news}'),
+	('news', '{$DEFAULT_news}'),
 	('compactTopicPagesContiguous', '5'),
 	('compactTopicPagesEnable', '1'),
 	('todayMod', '1'),
@@ -1885,7 +1885,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cal_maxyear', '2020'),
 	('cal_minyear', '2008'),
 	('cal_daysaslink', '0'),
-	('cal_defaultboard', ''),
+	('cal_DEFAULTboard', ''),
 	('cal_showholidays', '1'),
 	('cal_showbdays', '1'),
 	('cal_showevents', '1'),
@@ -1912,7 +1912,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('censor_proper', ''),
 	('enablePostHTML', '0'),
 	('theme_allow', '1'),
-	('theme_default', '1'),
+	('theme_DEFAULT', '1'),
 	('theme_guests', '1'),
 	('enableEmbeddedFlash', '0'),
 	('xmlnews_enable', '1'),
@@ -1928,7 +1928,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('reserveCase', '1'),
 	('reserveUser', '1'),
 	('reserveName', '1'),
-	('reserveNames', '{$default_reserved_names}'),
+	('reserveNames', '{$DEFAULT_reserved_names}'),
 	('autoLinkUrls', '1'),
 	('banLastUpdated', '0'),
 	('smileys_dir', '{$boarddir}/Smileys'),
@@ -1950,14 +1950,14 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('edit_disable_time', '0'),
 	('autoFixDatabase', '1'),
 	('allow_guestAccess', '1'),
-	('time_format', '{$default_time_format}'),
+	('time_format', '{$DEFAULT_time_format}'),
 	('number_format', '1234.00'),
 	('enableBBC', '1'),
 	('max_messageLength', '20000'),
 	('signature_settings', '1,300,0,0,0,0,0,0:'),
-	('defaultMaxMessages', '15'),
-	('defaultMaxTopics', '20'),
-	('defaultMaxMembers', '30'),
+	('DEFAULTMaxMessages', '15'),
+	('DEFAULTMaxTopics', '20'),
+	('DEFAULTMaxMembers', '30'),
 	('enableParticipation', '1'),
 	('recycle_enable', '0'),
 	('recycle_board', '0'),
@@ -1969,13 +1969,13 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('time_offset', '0'),
 	('cookieTime', '60'),
 	('lastActive', '15'),
-	('smiley_sets_known', 'default,aaron,akyhne,fugue'),
-	('smiley_sets_names', '{$default_smileyset_name}\n{$default_aaron_smileyset_name}\n{$default_akyhne_smileyset_name}\n{$default_fugue_smileyset_name}'),
-	('smiley_sets_default', 'default'),
+	('smiley_sets_known', 'DEFAULT,aaron,akyhne,fugue'),
+	('smiley_sets_names', '{$DEFAULT_smileyset_name}\n{$DEFAULT_aaron_smileyset_name}\n{$DEFAULT_akyhne_smileyset_name}\n{$DEFAULT_fugue_smileyset_name}'),
+	('smiley_sets_DEFAULT', 'DEFAULT'),
 	('cal_days_for_index', '7'),
 	('requireAgreement', '1'),
 	('unapprovedMembers', '0'),
-	('default_personal_text', ''),
+	('DEFAULT_personal_text', ''),
 	('package_make_backups', '1'),
 	('databaseSession_enable', '{$databaseSession_enable}'),
 	('databaseSession_loose', '1'),
@@ -2035,7 +2035,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
 	('gravatarMaxRating', 'PG'),
-	('defaultMaxListItems', '15'),
+	('DEFAULTMaxListItems', '15'),
 	('loginHistoryDays', '30'),
 	('httponlyCookies', '1'),
 	('tfa_mode', '1'),
@@ -2049,28 +2049,28 @@ VALUES ('smfVersion', '{$smf_version}'),
 
 INSERT INTO {$db_prefix}smileys
 	(code, filename, description, smiley_order, hidden)
-VALUES (':)', 'smiley.gif', '{$default_smiley_smiley}', 0, 0),
-	(';)', 'wink.gif', '{$default_wink_smiley}', 1, 0),
-	(':D', 'cheesy.gif', '{$default_cheesy_smiley}', 2, 0),
-	(';D', 'grin.gif', '{$default_grin_smiley}', 3, 0),
-	('>:(', 'angry.gif', '{$default_angry_smiley}', 4, 0),
-	(':(', 'sad.gif', '{$default_sad_smiley}', 5, 0),
-	(':o', 'shocked.gif', '{$default_shocked_smiley}', 6, 0),
-	('8)', 'cool.gif', '{$default_cool_smiley}', 7, 0),
-	('???', 'huh.gif', '{$default_huh_smiley}', 8, 0),
-	('::)', 'rolleyes.gif', '{$default_roll_eyes_smiley}', 9, 0),
-	(':P', 'tongue.gif', '{$default_tongue_smiley}', 10, 0),
-	(':-[', 'embarrassed.gif', '{$default_embarrassed_smiley}', 11, 0),
-	(':-X', 'lipsrsealed.gif', '{$default_lips_sealed_smiley}', 12, 0),
-	(':-\\', 'undecided.gif', '{$default_undecided_smiley}', 13, 0),
-	(':-*', 'kiss.gif', '{$default_kiss_smiley}', 14, 0),
-	(':\'(', 'cry.gif', '{$default_cry_smiley}', 15, 0),
-	('>:D', 'evil.gif', '{$default_evil_smiley}', 16, 1),
-	('^-^', 'azn.gif', '{$default_azn_smiley}', 17, 1),
-	('O0', 'afro.gif', '{$default_afro_smiley}', 18, 1),
-	(':))', 'laugh.gif', '{$default_laugh_smiley}', 19, 1),
-	('C:-)', 'police.gif', '{$default_police_smiley}', 20, 1),
-	('O:-)', 'angel.gif', '{$default_angel_smiley}', 21, 1);
+VALUES (':)', 'smiley.gif', '{$DEFAULT_smiley_smiley}', 0, 0),
+	(';)', 'wink.gif', '{$DEFAULT_wink_smiley}', 1, 0),
+	(':D', 'cheesy.gif', '{$DEFAULT_cheesy_smiley}', 2, 0),
+	(';D', 'grin.gif', '{$DEFAULT_grin_smiley}', 3, 0),
+	('>:(', 'angry.gif', '{$DEFAULT_angry_smiley}', 4, 0),
+	(':(', 'sad.gif', '{$DEFAULT_sad_smiley}', 5, 0),
+	(':o', 'shocked.gif', '{$DEFAULT_shocked_smiley}', 6, 0),
+	('8)', 'cool.gif', '{$DEFAULT_cool_smiley}', 7, 0),
+	('???', 'huh.gif', '{$DEFAULT_huh_smiley}', 8, 0),
+	('::)', 'rolleyes.gif', '{$DEFAULT_roll_eyes_smiley}', 9, 0),
+	(':P', 'tongue.gif', '{$DEFAULT_tongue_smiley}', 10, 0),
+	(':-[', 'embarrassed.gif', '{$DEFAULT_embarrassed_smiley}', 11, 0),
+	(':-X', 'lipsrsealed.gif', '{$DEFAULT_lips_sealed_smiley}', 12, 0),
+	(':-\\', 'undecided.gif', '{$DEFAULT_undecided_smiley}', 13, 0),
+	(':-*', 'kiss.gif', '{$DEFAULT_kiss_smiley}', 14, 0),
+	(':\'(', 'cry.gif', '{$DEFAULT_cry_smiley}', 15, 0),
+	('>:D', 'evil.gif', '{$DEFAULT_evil_smiley}', 16, 1),
+	('^-^', 'azn.gif', '{$DEFAULT_azn_smiley}', 17, 1),
+	('O0', 'afro.gif', '{$DEFAULT_afro_smiley}', 18, 1),
+	(':))', 'laugh.gif', '{$DEFAULT_laugh_smiley}', 19, 1),
+	('C:-)', 'police.gif', '{$DEFAULT_police_smiley}', 20, 1),
+	('O:-)', 'angel.gif', '{$DEFAULT_angel_smiley}', 21, 1);
 # --------------------------------------------------------
 
 #
@@ -2107,10 +2107,10 @@ VALUES (1, 'Google', 'googlebot', ''),
 
 INSERT INTO {$db_prefix}themes
 	(id_theme, variable, value)
-VALUES (1, 'name', '{$default_theme_name}'),
-	(1, 'theme_url', '{$boardurl}/Themes/default'),
-	(1, 'images_url', '{$boardurl}/Themes/default/images'),
-	(1, 'theme_dir', '{$boarddir}/Themes/default'),
+VALUES (1, 'name', '{$DEFAULT_theme_name}'),
+	(1, 'theme_url', '{$boardurl}/Themes/DEFAULT'),
+	(1, 'images_url', '{$boardurl}/Themes/DEFAULT/images'),
+	(1, 'theme_dir', '{$boarddir}/Themes/DEFAULT'),
 	(1, 'show_latest_member', '1'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
