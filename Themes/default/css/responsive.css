@@ -116,6 +116,9 @@
 	.keyinfo h5 .modified {
 		float: none !important;
 	}
+	.subject_title input {
+		width: 90%;
+	}
 
 	/* Post Section */
 	#post_header dd {
@@ -217,6 +220,11 @@
 	.action_admin .navigate_section {
 		display: none;
 	}
+	#admincenter .input_text, #quick_search .input_text,
+	#admincenter select, #quick_search select {
+		width: 90%;
+	}
+
 	/* Menu tests */
 	#adm_submenus {
 		padding: 0;
