@@ -24,7 +24,7 @@ function template_print_above()
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', $context['canonical_url'], '">
 		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
-		<style>
+		<style type="text/css">
 			body, a {
 				color: #000;
 				background: #fff;

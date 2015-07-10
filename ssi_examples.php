@@ -417,9 +417,9 @@ function template_ssi_above()
 <html>
 	<head>
 		<title>SMF 2.1 Beta 2 SSI.php Examples</title>
-		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
-		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<style>
+		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
+		<script type="text/javascript" src="', $settings['default_theme_url'], '/scripts/script.js"></script>
+		<style type="text/css">
 			#wrapper
 			{
 				width: 90%;
@@ -487,7 +487,7 @@ function template_ssi_above()
 				overflow: hidden;
 			}
 		</style>
-		<script>
+		<script type="text/javascript"><!-- // --><![CDATA[
 			var smf_scripturl = "', $scripturl, '";
 			var smf_iso_case_folding = ', $context['server']['iso_case_folding'] ? 'true' : 'false', ';
 			var smf_charset = "', $context['character_set'], '";
@@ -511,7 +511,7 @@ function template_ssi_above()
 					oSections[i].style.display = bHide ? "none" : "block";
 				}
 			}
-		</script>
+		// ]]></script>
 	</head>
 	<body>
 		<div id="header">
@@ -530,9 +530,9 @@ function template_ssi_above()
 function template_ssi_below()
 {
 	echo '
-						<script>
+						<script type="text/javascript"><!-- // --><![CDATA[
 							showSSIBlock("ssi_recentTopics");
-						</script>
+						// ]]></script>
 					</div>
 				</div>
 			</div>
@@ -559,7 +559,7 @@ function template_homepage_sample1($method = 'source')
 <html>
 <head>
 	<title>SSI.php example for home page</title>
-	<style>
+	<style type="text/css">
 		body { font-family: Arial, Tahoma, sans-serif; font-size: 80%; background: #DFDFDF; color: #FFFFFF; margin: 0 }
 		ul,ol { padding-left: 19px; margin: 0; }
 		li { font-size: 11px; }

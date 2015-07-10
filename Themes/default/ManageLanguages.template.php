@@ -188,7 +188,7 @@ function template_download_language()
 
 	// The javascript for expand and collapse of sections.
 	echo '
-	<script>';
+	<script><!-- // --><![CDATA[';
 
 	// Each theme gets its own handler.
 	foreach ($context['files']['images'] as $theme => $group)
@@ -218,7 +218,7 @@ function template_download_language()
 	}
 
 	echo '
-	</script>';
+	// ]]></script>';
 }
 
 /**

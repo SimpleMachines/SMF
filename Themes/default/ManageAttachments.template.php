@@ -18,7 +18,7 @@ function template_avatar_settings_above()
 function template_avatar_settings_below()
 {
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 	var fUpdateStatus = function ()
 	{
 		document.getElementById("avatar_max_width_external").disabled = document.getElementById("avatar_download_external").checked;
@@ -27,7 +27,7 @@ function template_avatar_settings_below()
 
 	}
 	addLoadEvent(fUpdateStatus);
-</script>
+// ]]></script>
 ';
 }
 
@@ -157,7 +157,7 @@ function template_maintenance()
 					<div id="show_progress" class="padding"></div>
 					<br class="clear_right">
 				</form>
-				<script>
+				<script><!-- // --><![CDATA[
 					function start_progress() {
 						setTimeout(\'show_msg()\', 1000);
 					}
@@ -172,7 +172,7 @@ function template_maintenance()
 						setTimeout(\'show_progress()\', 1500);
 					}
 
-				</script>
+				// ]]></script>
 			</div>
 			<br class="clear">';
 }

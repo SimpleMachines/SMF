@@ -121,7 +121,7 @@ function template_email_members()
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: true,
@@ -143,8 +143,8 @@ function template_email_members()
 				}
 			]
 		});
-	</script>
-	<script>
+	// ]]></script>
+	<script><!-- // --><![CDATA[
 		var oMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -173,7 +173,7 @@ function template_email_members()
 			sItemListContainerId: \'exclude_members_container\',
 			aListItems: []
 		});
-	</script>';
+	// ]]></script>';
 }
 
 function template_email_members_compose()
@@ -255,7 +255,7 @@ function template_email_members_compose()
 			<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-		<script>';
+		<script><!-- // --><![CDATA[';
 	// The functions used to preview a posts without loading a new page.
 	echo '
 			var txt_preview_title = "', $txt['preview_title'], '";
@@ -360,10 +360,10 @@ function template_email_members_compose()
 			}';
 
 	echo '
-		</script>';
+		// ]]></script>';
 
 	echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			function checkboxes_status (item)
 			{
 				if (item.id == \'send_html\')
@@ -377,7 +377,7 @@ function template_email_members_compose()
 					document.getElementById(\'send_html\').disabled = !document.getElementById(\'send_html\').disabled;
 				}
 			}
-		</script>
+		// ]]></script>
 		</form>
 	</div>';
 }
@@ -421,7 +421,7 @@ function template_email_members_send()
 		</form>
 	</div>
 
-	<script>
+	<script><!-- // --><![CDATA[
 		var countdown = 2;
 		doAutoSubmit();
 
@@ -437,7 +437,7 @@ function template_email_members_send()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	</script>';
+	// ]]></script>';
 }
 
 function template_news_lists()

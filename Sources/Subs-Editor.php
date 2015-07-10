@@ -1893,7 +1893,7 @@ function create_control_richedit($editorOptions)
 		}
 		if (!empty($bbcodes_styles))
 			$context['html_headers'] .= '
-		<style>' . $bbcodes_styles . '
+		<style type="text/css">' . $bbcodes_styles . '
 		</style>';
 	}
 
@@ -2081,9 +2081,9 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	// Add javascript for the object.
 	if ($context['controls']['verification'][$verificationOptions['id']]['show_visual'] && !WIRELESS)
 		$context['insert_after_template'] .= '
-			<script>
+			<script><!-- // --><![CDATA[
 				var verification' . $verificationOptions['id'] . 'Handle = new smfCaptcha("' . $thisVerification['image_href'] . '", "' . $verificationOptions['id'] . '", ' . ($context['use_graphic_library'] ? 1 : 0) . ');
-			</script>';
+			// ]]></script>';
 
 	// Is there actually going to be anything?
 	if (empty($thisVerification['show_visual']) && empty($thisVerification['number_questions']))
@@ -2267,7 +2267,7 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 	{
 		if (!isset($context['html_headers']))
 			$context['html_headers'] = '';
-		$context['html_headers'] .= '<style>.vv_special { display:none; }</style>';
+		$context['html_headers'] .= '<style type="text/css">.vv_special { display:none; }</style>';
 	}
 
 	// Have we got some questions to load?

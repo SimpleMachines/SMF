@@ -215,7 +215,7 @@ function template_main()
 			</tbody>
 		</table>
 	</div>
-	<script>
+	<script><!-- // --><![CDATA[
 		var oStatsCenter = new smf_StatsCenter({
 			sTableId: \'stats\',
 
@@ -255,7 +255,7 @@ function template_main()
 				\'hits\'', '
 			]
 		});
-	</script>';
+	// ]]></script>';
 	}
 }
 

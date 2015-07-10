@@ -97,7 +97,7 @@ function template_folder()
 
 	// The every helpful javascript!
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var allLabels = {};
 		var currentLabels = {};
 		function loadLabelChoices()
@@ -172,7 +172,7 @@ function template_folder()
 				}
 			}
 		}
-	</script>';
+	// ]]></script>';
 
 	echo '
 <form class="flow_hidden" action="', $scripturl, '?action=pm;sa=pmactions;', $context['display_mode'] == 2 ? 'conversation;' : '', 'f=', $context['folder'], ';start=', $context['start'], $context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : '', '" method="post" accept-charset="', $context['character_set'], '" name="pmFolder">';
@@ -625,7 +625,7 @@ function template_subject_list()
 		echo '
 		<tr class="windowbg">
 			<td width="4%">
-			<script>
+			<script><!-- // --><![CDATA[
 				currentLabels[', $message['id'], '] = {';
 
 		if (!empty($message['labels']))
@@ -641,7 +641,7 @@ function template_subject_list()
 
 		echo '
 				};
-			</script>
+			// ]]></script>
 				', $message['is_replied_to'] ? '<span class="generic_icons replied" title="' . $txt['pm_replied'] . '"></span>' : '<span class="generic_icons im_off" title="' . $txt['pm_read'] . '"></span>', '</td>
 			<td>', $message['time'], '</td>
 			<td>', ($context['display_mode'] != 0 && $context['current_pm'] == $message['id'] ? '<img src="' . $settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', ($context['display_mode'] == 0 || $context['current_pm'] == $message['id'] ? '' : ($scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . $context['folder'] . ';start=' . $context['start'] . ';sort=' . $context['sort_by'] . ($context['sort_direction'] == 'up' ? ';' : ';desc') . ($context['current_label_id'] != -1 ? ';l=' . $context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . $txt['new'] . '</span>' : '', '</a></td>
@@ -727,10 +727,10 @@ function template_search()
 				<span class="enhanced">
 					<strong>', $txt['pm_search_text'], ':</strong>
 					<input type="search" name="search"', !empty($context['search_params']['search']) ? ' value="' . $context['search_params']['search'] . '"' : '', ' size="40" class="input_text">
-					<script>
+					<script><!-- // --><![CDATA[
 						createEventListener(window);
 						window.addEventListener("load", initSearch, false);
-					</script>
+					// ]]></script>
 					<select name="searchtype">
 						<option value="1"', empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_all'], '</option>
 						<option value="2"', !empty($context['search_params']['searchtype']) ? ' selected' : '', '>', $txt['pm_search_match_any'], '</option>
@@ -797,7 +797,7 @@ function template_search()
 
 		// Some javascript for the advanced toggling
 		echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			var oAdvancedPanelToggle = new smc_Toggle({
 				bToggleEnabled: true,
 				bCurrentlyCollapsed: true,
@@ -819,7 +819,7 @@ function template_search()
 					}
 				]
 			});
-		</script>';
+		// ]]></script>';
 	}
 
 	echo '
@@ -1120,7 +1120,7 @@ function template_send()
 	}
 
 	echo '
-		<script>';
+		<script><!-- // --><![CDATA[';
 	// The functions used to preview a personal message without loading a new page.
 	echo '
 			var txt_preview_title = "', $txt['preview_title'], '";
@@ -1252,7 +1252,7 @@ function template_send()
 			});';
 
 	echo '
-		</script>';
+		// ]]></script>';
 
 	// Show the message you're replying to.
 	if ($context['reply'])
@@ -1272,7 +1272,7 @@ function template_send()
 	</div><br class="clear">';
 
 	echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			var oPersonalMessageSend = new smf_PersonalMessageSend({
 				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
@@ -1312,7 +1312,7 @@ function template_send()
 		';
 
 	echo '
-		</script>';
+		// ]]></script>';
 }
 
 // This template asks the user whether they wish to empty out their folder/messages.
@@ -1586,7 +1586,7 @@ function template_add_rule()
 	global $context, $txt, $scripturl;
 
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 			var criteriaNum = 0;
 			var actionNum = 0;
 			var groups = new Array()
@@ -1721,7 +1721,7 @@ function template_add_rule()
 				// Set the actual HTML!
 				setInnerHTML(document.getElementById("ruletext"), text);
 			}
-	</script>';
+	// ]]></script>';
 
 	echo '
 	<form action="', $scripturl, '?action=pm;sa=manrules;save;rid=', $context['rid'], '" method="post" accept-charset="', $context['character_set'], '" name="addrule" id="addrule" class="flow_hidden">
@@ -1853,7 +1853,7 @@ function template_add_rule()
 
 	// Now setup all the bits!
 		echo '
-	<script>';
+	<script><!-- // --><![CDATA[';
 
 	foreach ($context['rule']['criteria'] as $k => $c)
 		echo '
@@ -1877,7 +1877,7 @@ function template_add_rule()
 			document.getElementById("addonjs2").style.display = "";';
 
 	echo '
-		</script>';
+		// ]]></script>';
 }
 
 // Template for showing all the PM drafts of the user.

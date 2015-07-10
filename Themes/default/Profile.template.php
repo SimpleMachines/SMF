@@ -18,9 +18,9 @@ function template_profile_above()
 	// Prevent Chrome from auto completing fields when viewing/editing other members profiles
 	if (isBrowser('is_chrome') && !$context['user']['is_owner'])
 		echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		disableAutoComplete();
-	</script>';
+	// ]]></script>';
 
 	// If an error occurred while trying to save previously, give the user a clue!
 	echo '
@@ -113,7 +113,7 @@ function template_alerts_popup()
 
 	echo '
 		</div>
-		<script>
+		<script><!-- // --><![CDATA[
 		function markAlertsRead(obj) {
 			ajax_indicator(true);
 			$.get(
@@ -126,7 +126,7 @@ function template_alerts_popup()
 			);
 			return false;
 		}
-		</script>';
+		// ]]></script>';
 }
 
 function template_alerts_all_read()
@@ -752,7 +752,7 @@ function template_editBuddies()
 	echo '
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 	</form>
-	<script>
+	<script><!-- // --><![CDATA[
 		var oAddBuddySuggest = new smc_AutoSuggest({
 			sSelf: \'oAddBuddySuggest\',
 			sSessionId: smf_session_id,
@@ -763,7 +763,7 @@ function template_editBuddies()
 			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 			bItemList: false
 		});
-	</script>';
+	// ]]></script>';
 }
 
 // Template for showing the ignore list of the current user.
@@ -848,7 +848,7 @@ function template_editIgnoreList()
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		<input type="submit" value="', $txt['ignore_add_button'], '" class="button_submit">
 	</form>
-	<script>
+	<script><!-- // --><![CDATA[
 		var oAddIgnoreSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddIgnoreSuggest\',
 			sSessionId: \'', $context['session_id'], '\',
@@ -859,7 +859,7 @@ function template_editIgnoreList()
 			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 			bItemList: false
 		});
-	</script>';
+	// ]]></script>';
 }
 
 // This template shows an admin information on a users IP addresses used and errors attributed to them.
@@ -2033,7 +2033,7 @@ function template_groupMembership()
 
 		// Javascript for the selector stuff.
 		echo '
-		<script>
+		<script><!-- // --><![CDATA[
 		var prevClass = "";
 		var prevDiv = "";
 		function highlightSelected(box)
@@ -2051,7 +2051,7 @@ function template_groupMembership()
 			echo '
 		highlightSelected("primdiv_' . $context['primary_group'] . '");';
 		echo '
-	</script>';
+	// ]]></script>';
 	}
 
 	echo '
@@ -2220,7 +2220,7 @@ function template_issueWarning()
 	template_load_warning_variables();
 
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		// Disable notification boxes as required.
 		function modifyWarnNotify()
 		{
@@ -2262,7 +2262,7 @@ function template_issueWarning()
 	echo '
 			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'% (\' + effectText + \')\');
 		}
-	</script>';
+	// ]]></script>';
 
 	echo '
 	<form action="', $scripturl, '?action=profile;u=', $context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', $context['character_set'], '">
@@ -2379,7 +2379,7 @@ function template_issueWarning()
 	template_show_list('view_warnings');
 
 	echo '
-	<script>';
+	<script><!-- // --><![CDATA[';
 
 	if (!$context['user']['is_owner'])
 		echo '
@@ -2423,7 +2423,7 @@ function template_issueWarning()
 		}';
 
 	echo '
-	</script>';
+	// ]]></script>';
 }
 
 // Template to show for deleting a users account - now with added delete post capability!
@@ -2615,10 +2615,10 @@ function template_profile_group_manage()
 		echo '
 								</span>
 								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down">', $txt['additional_membergroups_show'], '</a>
-								<script>
+								<script><!-- // --><![CDATA[
 									document.getElementById("additional_groupsList").style.display = "none";
 									document.getElementById("additional_groupsLink").style.display = "";
-								</script>
+								// ]]></script>
 							</dd>';
 
 }
@@ -2691,7 +2691,7 @@ function template_profile_signature_modify()
 
 	// Some javascript used to count how many characters have been used so far in the signature.
 	echo '
-								<script>
+								<script><!-- // --><![CDATA[
 									var maxLength = ', $context['signature_limits']['max_length'], ';
 
 									$(document).ready(function() {
@@ -2700,7 +2700,7 @@ function template_profile_signature_modify()
 											return ajax_getSignaturePreview(true);
 										});
 									});
-								</script>
+								// ]]></script>
 							</dd>';
 }
 
@@ -2738,7 +2738,7 @@ function template_profile_avatar_select()
 										<select name="file" id="file" size="10" style="display: none;" onchange="showAvatar()" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'server_stored\');" disabled><option></option></select>
 									</div>
 									<div><img name="avatar" id="avatar" src="', !empty($context['member']['avatar']['allow_external']) && $context['member']['avatar']['choice'] == 'external' ? $context['member']['avatar']['external'] : $modSettings['avatar_url'] . '/blank.png', '" alt="Do Nothing"></div>
-									<script>
+									<script><!-- // --><![CDATA[
 										var files = ["' . implode('", "', $context['avatar_list']) . '"];
 										var avatar = document.getElementById("avatar");
 										var cat = document.getElementById("cat");
@@ -2754,7 +2754,7 @@ function template_profile_avatar_select()
 										else
 											previewExternalAvatar(avatar.src)
 
-									</script>
+									// ]]></script>
 								</div>';
 	}
 
@@ -2805,7 +2805,7 @@ function template_profile_avatar_select()
 	}
 
 	echo '
-								<script>
+								<script><!-- // --><![CDATA[
 									', !empty($context['member']['avatar']['allow_server_stored']) ? 'document.getElementById("avatar_server_stored").style.display = "' . ($context['member']['avatar']['choice'] == 'server_stored' ? '' : 'none') . '";' : '', '
 									', !empty($context['member']['avatar']['allow_external']) ? 'document.getElementById("avatar_external").style.display = "' . ($context['member']['avatar']['choice'] == 'external' ? '' : 'none') . '";' : '', '
 									', !empty($context['member']['avatar']['allow_upload']) ? 'document.getElementById("avatar_upload").style.display = "' . ($context['member']['avatar']['choice'] == 'upload' ? '' : 'none') . '";' : '', '
@@ -2849,7 +2849,7 @@ function template_profile_avatar_select()
 												break;
 										}
 									}
-								</script>
+								// ]]></script>
 							</dd>';
 }
 

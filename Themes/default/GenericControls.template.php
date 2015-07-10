@@ -21,7 +21,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onchange="storeCaret(this);" tabindex="', $context['tabindex']++, '" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset($context['post_error']['no_message']) || isset($context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty($context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
 		<div id="', $editor_id, '_resizer" class="richedit_resize"></div>
 		<input type="hidden" name="', $editor_id, '_mode" id="', $editor_id, '_mode" value="0">
-		<script>
+		<script><!-- // --><![CDATA[
 			$(document).ready(function() {
 				', !empty($context['bbcodes_handlers']) ? $context['bbcodes_handlers'] : '', '
 
@@ -119,7 +119,7 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 					oBBCBox: null
 				});
 				smf_editorArray[smf_editorArray.length] = oEditorHandle_', $editor_id, ';
-			</script>';
+			// ]]></script>';
 }
 
 function template_control_richedit_buttons($editor_id)
@@ -176,7 +176,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
-		<script>
+		<script><!-- // --><![CDATA[
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
@@ -187,7 +187,7 @@ function template_control_richedit_buttons($editor_id)
 				iBoard: 0,
 				iFreq: ', (empty($modSettings['drafts_autosave_frequency']) ? 60000 : $modSettings['drafts_autosave_frequency'] * 1000), '
 			});
-		</script>';
+		// ]]></script>';
 
 	// Start an instance of the auto saver if its enabled
 	if (!empty($context['drafts_save']) && !empty($context['drafts_autosave']))
@@ -197,7 +197,7 @@ function template_control_richedit_buttons($editor_id)
 			<span id="draft_lastautosave" ></span>
 		</span>
 		<script src="', $settings['default_theme_url'], '/scripts/drafts.js', $modSettings['browser_cache'] ,'"></script>
-		<script>
+		<script><!-- // --><![CDATA[
 			var oDraftAutoSave = new smf_DraftAutoSave({
 				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
@@ -207,7 +207,7 @@ function template_control_richedit_buttons($editor_id)
 				iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 				iFreq: ', $context['drafts_autosave_frequency'], '
 			});
-		</script>';
+		// ]]></script>';
 }
 
 // What's this, verification?!

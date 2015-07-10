@@ -191,7 +191,7 @@ function template_permission_index()
 
 		// Javascript for the advanced stuff.
 		echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var oPermissionsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
@@ -241,7 +241,7 @@ function template_permission_index()
 
 			return true;
 		}
-	</script>';
+	// ]]></script>';
 
 		if (!empty($context['profile']))
 			echo '
@@ -456,7 +456,7 @@ function template_modify_group()
 	else
 	{
 		echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			window.smf_usedDeny = false;
 
 			function warnAboutDeny()
@@ -466,7 +466,7 @@ function template_modify_group()
 				else
 					return true;
 			}
-		</script>';
+		// ]]></script>';
 	}
 
 	echo '
@@ -726,10 +726,10 @@ function template_inline_permissions()
 
 											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', $txt['avatar_select_permission'], '</a>
 
-											<script>
+											<script><!-- // --><![CDATA[
 												document.getElementById("', $context['current_permission'], '").style.display = "none";
 												document.getElementById("', $context['current_permission'], '_groups_link").style.display = "";
-											</script>';
+											// ]]></script>';
 }
 
 // Edit post moderation permissions.

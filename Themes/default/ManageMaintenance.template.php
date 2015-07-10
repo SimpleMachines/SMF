@@ -178,7 +178,7 @@ function template_maintain_members()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var warningMessage = \'\';
 		var membersSwap = false;
 
@@ -228,7 +228,7 @@ function template_maintain_members()
 			return valid;
 		}
 		setTimeout("checkAttributeValidity();", 500);
-	</script>
+	// ]]></script>
 	<div id="manage_maintenance">';
 
 	// If maintenance has finished tell the user.
@@ -318,7 +318,7 @@ function template_maintain_members()
 		</div>
 	</div>
 
-	<script>
+	<script><!-- // --><![CDATA[
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAttributeMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -329,7 +329,7 @@ function template_maintain_members()
 			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 			bItemList: false
 		});
-	</script>';
+	// ]]></script>';
 }
 
 // Template for the topic maintenance tasks.
@@ -346,7 +346,7 @@ function template_maintain_topics()
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
 	echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			var rotSwap = false;
 			function swapRot()
 			{
@@ -368,7 +368,7 @@ function template_maintain_topics()
 						oBoardCheckBoxes[i].checked = !rotSwap;
 				}
 			}
-		</script>';
+		// ]]></script>';
 
 	echo '
 	<div id="manage_maintenance">

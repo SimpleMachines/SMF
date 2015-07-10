@@ -647,7 +647,7 @@ function BookOfUnknown()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>The Book of Unknown, ', @$_GET['verse'] == '2:18' ? '2:18' : '4:16', '</title>
-		<style>
+		<style type="text/css">
 			em
 			{
 				font-size: 1.3em;

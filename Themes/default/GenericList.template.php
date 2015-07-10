@@ -159,9 +159,9 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['javascript']))
 		echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		', $cur_list['javascript'], '
-	</script>';
+	// ]]></script>';
 }
 
 function template_additional_rows($row_position, $cur_list)

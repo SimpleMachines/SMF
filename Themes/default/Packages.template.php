@@ -319,7 +319,7 @@ function template_view_package()
 
 	// Toggle options.
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var aOperationElements = new Array();';
 
 		// Operations.
@@ -349,11 +349,11 @@ function template_view_package()
 		}
 
 	echo '
-	</script>';
+	// ]]></script>';
 
 	// Get the currently selected item from a select list
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 	function get_selected(id)
 	{
 		var aSelected = document.getElementById(id);
@@ -364,16 +364,16 @@ function template_view_package()
 		}
 		return aSelected.options[0];
 	}
-	</script>';
+	// ]]></script>';
 
 	// And a bit more for database changes.
 	if (!empty($context['database_changes']))
 		echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var database_changes_area = document.getElementById(\'db_changes_div\');
 		var db_vis = false;
 		database_changes_area.style.display = "none";
-	</script>';
+	// ]]></script>';
 }
 
 function template_extract_package()
@@ -383,14 +383,14 @@ function template_extract_package()
 	if (!empty($context['redirect_url']))
 	{
 		echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		setTimeout("doRedirect();", ', empty($context['redirect_timeout']) ? '5000' : $context['redirect_timeout'], ');
 
 		function doRedirect()
 		{
 			window.location = "', $context['redirect_url'], '";
 		}
-	</script>';
+	// ]]></script>';
 	}
 
 	echo '
@@ -516,7 +516,7 @@ function template_browse()
 				', $txt['packages_adding'], '
 			</div>
 
-			<script>
+			<script><!-- // --><![CDATA[
 				window.smfForum_scripturl = smf_scripturl;
 				window.smfForum_sessionid = smf_session_id;
 				window.smfForum_sessionvar = smf_session_var;';
@@ -525,7 +525,7 @@ function template_browse()
 	echo '
 				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 				window.smfVersion = "', $context['forum_version'], '";
-			</script>
+			// ]]></script>
 			<div id="yourVersion" style="display:none">', $context['forum_version'], '</div>';
 
 	if (empty($modSettings['disable_smf_js']))
@@ -534,7 +534,7 @@ function template_browse()
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
-			<script>
+			<script><!-- // --><![CDATA[
 				var oAdminIndex = new smf_AdminIndex({
 					sSelf: \'oAdminCenter\',
 					bLoadAnnouncements: false,
@@ -554,7 +554,7 @@ function template_browse()
 					sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
 
 				});
-			</script>';
+			// ]]></script>';
 
 	echo '
 		</div>';
@@ -623,7 +623,7 @@ function template_browse()
 
 	echo '
 	</div>
-	<script>
+	<script><!-- // --><![CDATA[
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: true,
@@ -653,7 +653,7 @@ function template_browse()
 			}).attr("selected", "selected");
 			return false;
 		}
-	</script>';
+	// ]]></script>';
 }
 
 function template_servers()
@@ -939,7 +939,7 @@ function template_package_list()
 		{
 			$section_count = count($context['package_list']);
 			echo '
-			<script>';
+			<script><!-- // --><![CDATA[';
 			foreach ($context['package_list'] as $section => $ps)
 			{
 				echo '
@@ -979,7 +979,7 @@ function template_package_list()
 				}
 			}
 			echo '
-			</script>';
+			// ]]></script>';
 		}
 }
 
@@ -1146,13 +1146,13 @@ function template_control_chmod()
 	// Hide the details of the list.
 	if (empty($context['package_ftp']['form_elements_only']))
 		echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			document.getElementById(\'need_writable_list\').style.display = \'none\';
-		</script>';
+		// ]]></script>';
 
 	// Quick generate the test button.
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		// Generate a "test ftp" button.
 		var generatedButton = false;
 		function generateFTPTest()
@@ -1204,13 +1204,13 @@ function template_control_chmod()
 			setInnerHTML(document.getElementById("ftp_error_message"), message);
 		}
 		generateFTPTest();
-	</script>';
+	// ]]></script>';
 
 	// Make sure the button gets generated last.
 	$context['insert_after_template'] .= '
-	<script>
+	<script><!-- // --><![CDATA[
 		generateFTPTest();
-	</script>';
+	// ]]></script>';
 }
 
 function template_ftp_required()
@@ -1237,8 +1237,8 @@ function template_view_operations()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['operation_title'], '</title>
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
@@ -1261,7 +1261,7 @@ function template_file_permissions()
 
 	// This will handle expanding the selection.
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var oRadioValues = {
 			0: "read",
 			1: "writable",
@@ -1455,7 +1455,7 @@ function template_file_permissions()
 
 			curCol.appendChild(curInput);
 		}
-	</script>';
+	// ]]></script>';
 
 		echo '
 	<div class="noticebox">
@@ -1648,9 +1648,9 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 		if ($level > 1 && !$isFound)
 			echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			expandFolder(\'', $js_ident, '\', \'\');
-		</script>';
+		// ]]></script>';
 	}
 }
 
@@ -1744,7 +1744,7 @@ function template_action_permissions()
 
 	// Just the countdown stuff
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		var countdown = ', $countDown, ';
 		doAutoSubmit();
 
@@ -1760,7 +1760,7 @@ function template_action_permissions()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	</script>';
+	// ]]></script>';
 
 }
 

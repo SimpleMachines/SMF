@@ -60,7 +60,7 @@ function template_login()
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-					<script>
+					<script type="text/javascript">
 						setTimeout(function() {
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
@@ -137,7 +137,7 @@ function template_login_tfa()
 						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
 					</div>
 				</form>
-				<script>
+				<script type="text/javascript">
 						form = $("#frmTfa");';
 	if (!empty($context['from_ajax']))
 		echo '
@@ -222,9 +222,9 @@ function template_kick_guest()
 
 	// Do the focus thing...
 	echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			document.forms.frmLogin.user.focus();
-		</script>';
+		// ]]></script>';
 }
 
 // This is for maintenance mode.
@@ -304,9 +304,9 @@ function template_admin_login()
 
 	// Focus on the password box.
 	echo '
-<script>
+<script><!-- // --><![CDATA[
 	document.forms.frmLogin.', $context['sessionCheckType'], '_pass.focus();
-</script>';
+// ]]></script>';
 }
 
 // Activate your account manually?

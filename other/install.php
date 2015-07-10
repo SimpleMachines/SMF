@@ -2126,9 +2126,9 @@ function template_install_above()
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
-		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
+		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="Themes/default/css/rtl.css?alp21">' : '' , '
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2260,7 +2260,7 @@ function template_welcome_message()
 
 	// For the latest version stuff.
 	echo '
-		<script>
+		<script><!-- // --><![CDATA[
 			// Latest version?
 			function smfCurrentVersion()
 			{
@@ -2281,7 +2281,7 @@ function template_welcome_message()
 					document.getElementById(\'version_warning\').style.display = \'\';
 			}
 			addLoadEvent(smfCurrentVersion);
-		</script>';
+		// ]]></script>';
 }
 
 // A shortcut for any warning stuff.
@@ -2470,7 +2470,7 @@ function template_database_settings()
 
 	// Toggles a warning related to db names in PostgreSQL
 	echo '
-	<script>
+	<script><!-- // --><![CDATA[
 		function toggleDBInput()
 		{
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
@@ -2479,7 +2479,7 @@ function template_database_settings()
 				document.getElementById(\'db_name_info_warning\').style.display = \'\';
 		}
 		toggleDBInput();
-	</script>';
+	// ]]></script>';
 }
 
 // Stick in their forum settings.
@@ -2698,7 +2698,7 @@ function template_delete_install()
 		<div style="margin: 1ex; font-weight: bold;">
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete();" class="input_check" /> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</label>
 		</div>
-		<script>
+		<script><!-- // --><![CDATA[
 			function doTheDelete()
 			{
 				var theCheck = document.getElementById ? document.getElementById("delete_self") : document.all.delete_self;
@@ -2708,7 +2708,7 @@ function template_delete_install()
 				tempImage.width = 0;
 				theCheck.disabled = true;
 			}
-		</script>
+		// ]]></script>
 		<br />';
 
 	echo '

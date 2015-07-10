@@ -218,7 +218,7 @@ function template_main()
 	template_quickreply();
 
 		echo '
-				<script>';
+				<script><!-- // --><![CDATA[';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
 		echo '
@@ -316,7 +316,7 @@ function template_main()
 					ignore_toggles([', implode(', ', $context['ignoredMsgs']), '], ', JavaScriptEscape($txt['show_ignore_user_post']), ');';
 
 	echo '
-				</script>';
+				// ]]></script>';
 
 }
 
@@ -870,7 +870,7 @@ function template_quickreply()
 
 		echo '
 						', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
-						<script>
+						<script><!-- // --><![CDATA[
 							function insertQuoteFast(messageid)
 							{
 								if (window.XMLHttpRequest)
@@ -888,7 +888,7 @@ function template_quickreply()
 
 								ajax_indicator(false);
 							}
-						</script>';
+						// ]]></script>';
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
@@ -916,7 +916,7 @@ function template_quickreply()
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']))
 		echo '
-			<script>
+			<script><!-- // --><![CDATA[
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
@@ -926,14 +926,14 @@ function template_quickreply()
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
 				});
-			</script>';
+			// ]]></script>';
 
 	if ($context['show_spellchecking'])
 		echo '
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script>
+				<script><!-- // --><![CDATA[
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,
 						iTopicId: ', $context['current_topic'], ',
@@ -950,6 +950,6 @@ function template_quickreply()
 					var oEditorID = "', $context['post_box_name'] ,'";
 					var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 					var oJumpAnchor = "quickreply";
-				</script>';
+				// ]]></script>';
 }
 ?>
