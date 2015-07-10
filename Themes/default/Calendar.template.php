@@ -686,7 +686,7 @@ function template_bcd()
 			</tr>
 		</table>
 
-		<script><!-- // --><![CDATA[
+		<script>
 		var icons = new Object();';
 
 		foreach ($context['clockicons'] as $t => $v)
@@ -748,7 +748,7 @@ function template_bcd()
 		}
 
 		update();
-		// ]]></script>';
+		</script>';
 }
 
 function template_hms()
@@ -784,7 +784,7 @@ function template_hms()
 	';
 
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 	var icons = new Object();';
 
 	foreach ($context['clockicons'] as $t => $v)
@@ -838,7 +838,7 @@ function template_hms()
 	}
 
 	update();
-	// ]]></script>';
+	</script>';
 }
 
 function template_omfg()
@@ -869,7 +869,7 @@ function template_omfg()
 	';
 
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 	var icons = new Object();';
 
 	foreach ($context['clockicons'] as $t => $v)
@@ -927,7 +927,7 @@ function template_omfg()
 	}
 
 	update();
-	// ]]></script>';
+	</script>';
 }
 
 function template_thetime()

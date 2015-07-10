@@ -231,7 +231,7 @@ function template_admin_browse()
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['admin_browse_outstanding'], '</h3>
 			</div>
-			<script><!-- // --><![CDATA[
+			<script>
 				function onOutstandingSubmit()
 				{
 					if (document.forms.postFormOutstanding.todo.value == "")
@@ -252,7 +252,7 @@ function template_admin_browse()
 					else
 						return false;
 				}
-			// ]]></script>
+			</script>
 
 			<div class="windowbg">
 				<dl class="settings">

@@ -1394,9 +1394,9 @@ function ssi_pollVote()
 		echo '<!DOCTYPE html>
 <html>
 <head>
-	<script><!-- // --><![CDATA[
+	<script>
 		history.go(-1);
-	// ]]></script>
+	</script>
 </head>
 <body>&laquo;</body>
 </html>';
