@@ -3298,7 +3298,7 @@ function template_javascript($do_defered = false)
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 		foreach ($context['javascript_vars'] as $key => $value)
 		{
@@ -3315,7 +3315,7 @@ function template_javascript($do_defered = false)
 		}
 
 		echo '
-	// ]]></script>';
+	</script>';
 	}
 
 	// While we have Javascript files to place in the template
@@ -3328,9 +3328,9 @@ function template_javascript($do_defered = false)
 		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
 		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	// ]]></script>';
+	</script>';
 
 	}
 
@@ -3340,25 +3340,25 @@ function template_javascript($do_defered = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_defered)
 		{
 			echo '
-<script><!-- // --><![CDATA[';
+<script>';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
-// ]]></script>';
+</script>';
 		}
 
 		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
 		{
 			echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 			foreach ($context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
 
 			echo '
-	// ]]></script>';
+	</script>';
 		}
 	}
 }
@@ -3375,7 +3375,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $file['filename'], '">';
+	<link rel="stylesheet" href="', $file['filename'], '">';
 
 	if ($db_show_debug === true)
 	{

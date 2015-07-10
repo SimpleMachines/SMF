@@ -269,7 +269,7 @@ function template_create_index_progress()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var countdown = 10;
 		doAutoSubmit();
 
@@ -285,7 +285,7 @@ function template_create_index_progress()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	// ]]></script>';
+	</script>';
 
 }
 

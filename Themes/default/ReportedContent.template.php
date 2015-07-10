@@ -138,7 +138,7 @@ function template_reported_posts_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
@@ -168,7 +168,7 @@ function template_reported_posts_block()
 				sAdditionalVars: \';admin_key=mcrp\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 
@@ -340,7 +340,7 @@ function template_reported_members_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrm']) ? 'true' : 'false', ',
@@ -370,7 +370,7 @@ function template_reported_members_block()
 				sAdditionalVars: \';admin_key=mcrm\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_reported_members()

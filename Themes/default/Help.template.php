@@ -21,7 +21,7 @@ function template_popup()
 		<meta charset="', $context['character_set'], '">
 		<meta name="robots" content="noindex">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
 	<body id="help_popup">
@@ -44,9 +44,9 @@ function template_find_members()
 		<title>', $txt['find_members'], '</title>
 		<meta charset="', $context['character_set'], '">
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
-		<script><!-- // --><![CDATA[
+		<script>
 			var membersAdded = [];
 			function addMember(name)
 			{
@@ -66,7 +66,7 @@ function template_find_members()
 
 				window.focus();
 			}
-		// ]]></script>
+		</script>
 	</head>
 	<body id="help_popup">
 		<form action="', $scripturl, '?action=findmember;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '" class="padding description">
@@ -131,9 +131,9 @@ function template_find_members()
 
 	if (empty($context['results']))
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			document.getElementById("search").focus();
-		// ]]></script>';
+		</script>';
 
 	echo '
 	</body>

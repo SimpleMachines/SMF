@@ -118,7 +118,7 @@ function template_set_password()
 		<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		<input type="hidden" name="', $context['remind-sp_token_var'], '" value="', $context['remind-sp_token'], '">
 	</form>
-	<script><!-- // --><![CDATA[
+	<script>
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",
 		"password_reserved": "', $txt['registration_password_reserved'], '",
@@ -127,7 +127,7 @@ function template_set_password()
 		"password_valid": "', $txt['registration_password_valid'], '"
 	};
 	var verificationHandle = new smfRegister("reminder_form", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-// ]]></script>';
+</script>';
 }
 
 function template_ask()
@@ -172,7 +172,7 @@ function template_ask()
 			</div>
 		</div>
 	</form>
-<script><!-- // --><![CDATA[
+<script>
 	var regTextStrings = {
 		"password_short": "', $txt['registration_password_short'], '",
 		"password_reserved": "', $txt['registration_password_reserved'], '",
@@ -181,7 +181,7 @@ function template_ask()
 		"password_valid": "', $txt['registration_password_valid'], '"
 	};
 	var verificationHandle = new smfRegister("creator", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-// ]]></script>';
+</script>';
 
 }
 
