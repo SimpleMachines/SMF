@@ -3730,7 +3730,9 @@ function clean_cache($type = '')
 	// Invalidate cache, to be sure!
 	// ... as long as index.php can be modified, anyway.
 	@touch($cachedir . '/' . 'index.php');
-	call_integration_hook('integrate_clean_cache');
+
+	if (empty($type))
+		call_integration_hook('integrate_clean_cache');
 	clearstatcache();
 }
 
