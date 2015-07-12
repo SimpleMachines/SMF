@@ -3335,7 +3335,9 @@ function set_avatar_data($data = array())
 			$image = $modSettings['avatar_url'] . '/default.png';
 	}
 
-	// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed...
+	call_integration_hook('integrate_set_avatar_data', array(&$image, &$data))
+
+	// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
 	if (!empty($image))
 		return array(
 			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
