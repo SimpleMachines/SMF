@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // Template for the profile side bar - goes before any other profile template.
@@ -382,7 +382,7 @@ function template_summary()
 					<dt>', $txt['language'], ':</dt>
 					<dd>', $context['member']['language'], '</dd>';
 
-	if ($context['member']['online']['is_online'])
+	if ($context['member']['show_last_login'])
 		echo '
 					<dt>', $txt['lastLoggedIn'], ': </dt>
 					<dd>', $context['member']['last_login'], (!empty($context['member']['is_hidden']) ? ' (' . $txt['hidden'] . ')' : ''), '</dd>';

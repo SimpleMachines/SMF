@@ -8,10 +8,10 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 1';
+$GLOBALS['current_smf_version'] = '2.1 Beta 2';
 $GLOBALS['db_script_version'] = '2-1';
 
 $GLOBALS['required_php_version'] = '5.3.8';
@@ -154,6 +154,7 @@ function initialize_inputs()
 	if (function_exists('set_magic_quotes_runtime'))
 		@set_magic_quotes_runtime(0);
 	error_reporting(E_ALL);
+	set_time_limit(60);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
@@ -1057,14 +1058,23 @@ function DatabasePopulation()
 		// Done with this now
 		$smcFunc['db_free_result']($get_engines);
 
-		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
+		// InnoDB is better, so use it if possible...
+		$has_innodb = in_array('InnoDB', $engines);
+		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
 			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		}
+
+		// One last thing - if we don't have InnoDB, we can't do transactions...
+		if (!$has_innodb)
+		{
+			$replaces['START TRANSACTION;'] = '';
+			$replaces['COMMIT;'] = '';
 		}
 	}
 
@@ -1258,20 +1268,22 @@ function DatabasePopulation()
 			);
 	}
 
-	// Let's optimize those new tables.
-	db_extend();
-	$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
-	foreach ($tables as $table)
+	// Let's optimize those new tables, not on InnoDB, ok?
+	if (!in_array('InnoDB', $engines))
 	{
-		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
-
-		if (!empty($db_messed))
+		db_extend();
+		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
+		foreach ($tables as $table)
 		{
-			$incontext['failures'][-1] = $smcFunc['db_error']();
-			break;
+			$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+
+			if (!empty($db_messed))
+			{
+				$incontext['failures'][-1] = $smcFunc['db_error']();
+				break;
+			}
 		}
 	}
-
 	// Check for the ALTER privilege.
 	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
 	{

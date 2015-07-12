@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -1423,6 +1423,7 @@ function ShowCustomProfiles()
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
 					},
 					'style' => 'width: 15%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'field_type',
@@ -1439,6 +1440,7 @@ function ShowCustomProfiles()
 						return $rowData['active'] ? $txt['yes'] : $txt['no'];
 					},
 					'style' => 'width: 8%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'active DESC',
@@ -1457,6 +1459,7 @@ function ShowCustomProfiles()
 						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $context['cust_profile_fields_placement'][$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'placement DESC',

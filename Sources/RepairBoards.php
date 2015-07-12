@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -340,6 +340,148 @@ function loadForumTests()
 			),
 			'messages' => array('repair_missing_messages', 'id_topic'),
 		),
+		'poll_options_missing_poll' => array(
+			'substeps' => array(
+				'step_size' => 500,
+				'step_max' => '
+					SELECT MAX(id_poll)
+					FROM {db_prefix}poll_choices'
+			),
+			'check_query' => '
+				SELECT o.id_poll, count(*) as amount, t.id_topic, t.id_board, t.id_member_started AS id_poster, m.member_name AS poster_name
+				FROM {db_prefix}poll_choices AS o
+				  LEFT JOIN {db_prefix}polls AS p ON (p.id_poll = o.id_poll)
+				  LEFT JOIN {db_prefix}topics AS t ON (t.id_poll = o.id_poll)
+				  LEFT JOIN {db_prefix}members AS m ON (m.id_member = t.id_member_started)
+				WHERE o.id_poll BETWEEN {STEP_LOW} AND {STEP_HIGH}
+				  AND p.id_poll IS NULL
+				GROUP BY o.id_poll
+				  ',
+			'fix_processing' => function ($row) use ($smcFunc, $txt)
+			{
+				global $salvageBoardID;
+
+				$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : $txt['guest'];
+				$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
+
+				if(empty($row['id_board']))
+				{
+					// Only if we don't have a reasonable idea of where to put it.
+					createSalvageArea();
+					$row['id_board'] = (int)$salvageBoardID;
+				}
+
+				if(empty($row['id_topic'])) {
+					$smcFunc['db_insert']('',
+						'{db_prefix}messages',
+						array(
+							'id_board' => 'int',
+							'id_topic' => 'int',
+							'poster_time' => 'int',
+							'id_member' => 'int',
+							'subject' => 'string-255',
+							'poster_name' => 'string-255',
+							'poster_email' => 'string-255',
+							'poster_ip' => 'string-16',
+							'smileys_enabled' => 'int',
+							'body' => 'string-65534',
+							'icon' => 'string-16',
+							'approved' => 'int',
+						),
+						array(
+							$row['id_board'],
+							0,
+							time(),
+							$row['id_poster'],
+							$txt['salvaged_poll_topic_name'],
+							$row['poster_name'],
+							$txt['salvaged_poll_topic_name'],
+							'127.0.0.1',
+							1,
+							$txt['salvaged_poll_message_body'],
+							'xx',
+							1,
+						),
+						array('id_topic')
+					);
+
+					$newMessageID = $smcFunc['db_insert_id']("{db_prefix}messages", 'id_msg');
+
+					$smcFunc['db_insert']('',
+						'{db_prefix}topics',
+						array(
+							'id_board' => 'int',
+							'id_poll' => 'int',
+							'id_member_started' => 'int',
+							'id_member_updated' => 'int',
+							'id_first_msg' => 'int',
+							'id_last_msg' => 'int',
+							'num_replies' => 'int',
+						),
+						array(
+							$row['id_board'],
+							$row['id_poll'],
+							$row['id_poster'],
+							$row['id_poster'],
+							$newMessageID,
+							$newMessageID,
+							0,
+						),
+						array('id_topic')
+					);
+
+					$row['id_topic'] = $smcFunc['db_insert_id']('{db_prefix}topics', 'id_topic');
+
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}messages
+					SET id_topic = {int:newTopicID}, id_board = {int:id_board}
+						WHERE id_msg = {int:newMessageID}',
+						array(
+							'id_board' => $row['id_board'],
+							'newTopicID' => $row['id_topic'],
+							'newMessageID' => $newMessageID,
+						)
+					);
+
+					updateStats('subject', $row['id_topic'], $txt['salvaged_poll_topic_name']);
+				}
+
+				$smcFunc['db_insert']('',
+					'{db_prefix}polls',
+					array(
+						'id_poll' => 'int',
+						'question' => 'string-255',
+						'voting_locked' => 'int',
+						'max_votes' => 'int',
+						'expire_time' => 'int',
+						'hide_results' => 'int',
+						'change_vote' => 'int',
+						'guest_vote' => 'int',
+						'num_guest_voters' => 'int',
+						'reset_poll' => 'int',
+						'id_member' => 'int',
+						'poster_name' => 'string-255',
+					),
+					array(
+						$row['id_poll'],
+						$txt['salvaged_poll_question'],
+						1,
+						0,
+						0,
+						0,
+						0,
+						0,
+						0,
+						0,
+						$row['id_poster'],
+						$row['poster_name'],
+					),
+					array()
+				);
+			},
+			'force_fix' => array('stats_topics'),
+			'messages' => array('repair_poll_options_missing_poll', 'id_poll', 'amount'),
+		),
 		'polls_missing_topics' => array(
 			'substeps' => array(
 				'step_size' => 500,
@@ -429,10 +571,11 @@ function loadForumTests()
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}messages
 				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
-					WHERE id_msg = $newMessageID',
+					WHERE id_msg = {int:newMessageID}',
 					array(
 						'id_board' => $row['id_board'],
 						'newTopicID' => $newTopicID,
+						'newMessageID' => $newMessageID,
 					)
 				);
 
