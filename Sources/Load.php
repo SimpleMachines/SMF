@@ -3322,7 +3322,7 @@ function set_avatar_data($data = array())
 
 				// Just a plain external url.
 				else
-					$image = stristr($data['avatar'], 'http://') ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
+					$image = (stristr($data['avatar'], 'http://') || stristr($data['avatar'], 'https://')) ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
 			}
 		}
 
