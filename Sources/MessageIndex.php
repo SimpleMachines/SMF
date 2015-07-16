@@ -534,13 +534,16 @@ function MessageIndex()
 								$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
 						}
 						else
-							$image = stristr($row['avatar'], 'http://') || stristr($row['avatar'], 'https://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
+							$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
 					}
-                    elseif (!empty($profile['filename']))
-                        $image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-                    // Right... no avatar...use the default one
-                    else
-                        $image = $modSettings['avatar_url'] . '/default.png';
+					// Right... no avatar...
+					else
+						$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
+							'name' => '',
+							'image' => '',
+							'href' => '',
+							'url' => '',
+						);
 				}
 				if (!empty($image))
 					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
