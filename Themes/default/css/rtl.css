@@ -49,7 +49,7 @@ div.icon, div.info, div.stats, div.lastpost {
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
 .button_submit, .button_reset, .button_link {
-	margin: 0 2x;
+	margin: 0 2px;
 }
 
 /* the page navigation area */

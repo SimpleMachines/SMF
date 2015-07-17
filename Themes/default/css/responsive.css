@@ -48,6 +48,11 @@
 	.dropmenu ul li a {
 		width: auto !important;
 	}
+	#footer_section ul {
+		width: 100%;
+		margin: 5px;
+		float: none;
+	}
 	/* BoardIndex */
 	div.icon {
 		width: 15% !important;
@@ -106,10 +111,13 @@
 		max-height: 300px;
 	}
 	img.icon, #forumposts .catbg img {
-		display:none;
+		display: none;
 	}
 	.keyinfo h5 .modified {
 		float: none !important;
+	}
+	.subject_title input {
+		width: 90%;
 	}
 
 	/* Post Section */
@@ -212,6 +220,11 @@
 	.action_admin .navigate_section {
 		display: none;
 	}
+	#admincenter .input_text, #quick_search .input_text,
+	#admincenter select, #quick_search select {
+		width: 90%;
+	}
+
 	/* Menu tests */
 	#adm_submenus {
 		padding: 0;
@@ -219,6 +232,24 @@
 	#adm_submenus .dropmenu li {
 		float: left;
 		margin: 0;
+	}
+	#header_member_list_user_name, #header_member_list_ip,
+	#header_member_list_last_active, #header_member_list_posts,
+	.hidden {
+		display: none;
+	}
+	.msearch_details {
+		width: 100% !important;
+		float: none;
+	}
+	.msearch_details .righttext {
+		text-align: left;
+	}
+	.msearch_details input {
+		width: 90%;
+	}
+	.msearch_details .input_check {
+		width: 5%;
 	}
 	/* 3rd level menu tests */
 	.dropmenu li ul ul {

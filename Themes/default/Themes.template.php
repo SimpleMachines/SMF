@@ -906,7 +906,7 @@ function template_edit_browse()
 			echo '<a href="', $file['href'], '"', $file['is_template'] ? ' style="font-weight: bold;"' : '', '>', $file['filename'], '</a>';
 
 		elseif ($file['is_directory'])
-			echo '<a href="', $file['href'], '" class="is_directory">', $file['filename'], '</a>';
+			echo '<a href="', $file['href'], '" class="is_directory"><span class="generic_icons folder"></span>', $file['filename'], '</a>';
 
 		else
 			echo $file['filename'];
