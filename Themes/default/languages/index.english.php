@@ -79,6 +79,8 @@ $txt['reason_for_edit'] = 'Reason for editing';
 
 $txt['choose_pass'] = 'Choose password';
 $txt['verify_pass'] = 'Verify password';
+$txt['notify_announcements'] = 'Allow the administrators to send me important news by email';
+
 $txt['position'] = 'Position';
 
 $txt['profile_of'] = 'View the profile of';

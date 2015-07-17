@@ -126,6 +126,12 @@ function template_registration_form()
 								<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 							</span>
 						</dd>
+					</dl>
+					<dl class="register_form" id="notify_announcements">
+						<dt><strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong></dt>
+						<dd>
+							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' class="input_check" />
+						</dd>
 					</dl>';
 
 	// If there is any field marked as required, show it here!
