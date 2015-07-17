@@ -948,7 +948,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
-	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'));
+	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
