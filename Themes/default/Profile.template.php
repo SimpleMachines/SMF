@@ -1767,7 +1767,7 @@ function template_alert_configuration()
 					</dt>
 					<dd>
 						<input type="hidden" name="notify_announcements" value="0">
-						<input type="checkbox" id="notify_announcements" name="notify_announcements"', !empty($context['member']['notify_announcements']) ? ' checked' : '', ' class="input_check">
+						<input type="checkbox" id="notify_announcements" name="notify_announcements" value="1"', !empty($context['member']['notify_announcements']) ? ' checked' : '', ' class="input_check">
 					</dd>';
 
 	if (!empty($modSettings['enable_ajax_alerts']))
