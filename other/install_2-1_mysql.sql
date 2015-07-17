@@ -2145,7 +2145,19 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
 	(0, 'msg_report_reply', 1),
-	(0, 'unapproved_reply', 3);
+	(0, 'unapproved_reply', 3),
+	(0, 'topic_notify', 1),
+	(0, 'board_notify', 1),
+	(0, 'msg_mention', 1),
+	(0, 'msg_quote', 1),
+	(0, 'pm_new', 1),
+	(0, 'pm_reply', 1),
+	(0, 'member_report_reply', 3),
+	(0, 'member_report', 3),
+	(0, 'unapproved_post', 1),
+	(0, 'buddy_request', 1),
+	(0, 'warn_any', 1),
+	(0, 'request_group', 1);
 # --------------------------------------------------------
 
 COMMIT;
