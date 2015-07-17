@@ -1066,6 +1066,7 @@ img.sort, .sort {
 /* These divisions wrap the forum sections when a forum width is set. */
 #wrapper, .frame {
 	margin: 0 auto;
+	width: 90%;
 }
 
 /* Box-shadow only on this one. */
