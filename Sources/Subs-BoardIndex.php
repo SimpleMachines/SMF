@@ -289,13 +289,16 @@ function getBoardIndex($boardIndexOptions)
 							$image = get_gravatar_url($smcFunc['substr']($row_board['avatar'], 11));
 					}
 					else
-						$image = stristr($row_board['avatar'], 'http://') || stristr($row_board['avatar'], 'https://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'];
+						$image = stristr($row_board['avatar'], 'http://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'];
 				}
-				elseif (!empty($profile['filename']))
-				    $image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
-                // Right... no avatar...use the default one
-                else
-                    $image = $modSettings['avatar_url'] . '/default.png';
+				// Right... no avatar...
+				else
+					$this_last_post['member']['avatar'] = array(
+						'name' => '',
+						'image' => '',
+						'href' => '',
+						'url' => '',
+					);
 			}
 			if (!empty($image))
 				$this_last_post['member']['avatar'] = array(
