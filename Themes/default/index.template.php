@@ -450,7 +450,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['icon'], $button['title'], '
+								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
 							</a>';
 
 		if (!empty($button['sub_buttons']))
