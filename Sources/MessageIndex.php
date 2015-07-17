@@ -318,39 +318,48 @@ function MessageIndex()
 		// For search engine effectiveness we'll link guests differently.
 		$context['pageindex_multiplier'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
+		$message_index_parameters = array(
+			'current_board' => $board,
+			'current_member' => $user_info['id'],
+			'topic_list' => $topic_ids,
+			'is_approved' => 1,
+			'find_set_topics' => implode(',', $topic_ids),
+			'start' => $start,
+			'maxindex' => $maxindex,
+		);
+		$message_index_selects = array();
+		$message_index_tables = array();
+		call_integration_hook('integrate_message_index', array(&$message_index_selects, &$message_index_tables, &$message_index_parameters));
+
 		$result = $smcFunc['db_query']('substring', '
 			SELECT
 				t.id_topic, t.num_replies, t.locked, t.num_views, t.is_sticky, t.id_poll, t.id_previous_board,
 				' . ($user_info['is_guest'] ? '0' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from,
 				t.id_last_msg, t.approved, t.unapproved_posts, ml.poster_time AS last_poster_time, t.id_redirect_topic,
 				ml.id_msg_modified, ml.subject AS last_subject, ml.icon AS last_icon,
-				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address,' : '') . '
+				ml.poster_name AS last_member_name, ml.id_member AS last_id_member,' . (!empty($settings['avatars_on_indexes']) ? ' meml.avatar, meml.email_address, memf.avatar AS first_member_avatar, memf.email_address AS first_member_mail, IFNULL(af.id_attach, 0) AS first_member_id_attach, af.filename AS first_member_filename, af.attachment_type AS first_member_attach_type, IFNULL(al.id_attach, 0) AS last_member_id_attach, al.filename AS last_member_filename, al.attachment_type AS last_member_attach_type,' : '') . '
 				IFNULL(meml.real_name, ml.poster_name) AS last_display_name, t.id_first_msg,
 				mf.poster_time AS first_poster_time, mf.subject AS first_subject, mf.icon AS first_icon,
 				mf.poster_name AS first_member_name, mf.id_member AS first_id_member,
 				IFNULL(memf.real_name, mf.poster_name) AS first_display_name, ' . (!empty($modSettings['preview_characters']) ? '
 				SUBSTRING(ml.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS last_body,
 				SUBSTRING(mf.body, 1, ' . ($modSettings['preview_characters'] + 256) . ') AS first_body,' : '') . 'ml.smileys_enabled AS last_smileys, mf.smileys_enabled AS first_smileys
+				' . (!empty($message_index_selects) ? (', '. implode(', ', $message_index_selects)) : '') . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)
-				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . ($user_info['is_guest'] ? '' : '
+				LEFT JOIN {db_prefix}members AS memf ON (memf.id_member = mf.id_member)' . (!empty($settings['avatars_on_indexes']) ? '
+				LEFT JOIN {db_prefix}attachments AS af ON (af.id_member = ml.id_member)
+				LEFT JOIN {db_prefix}attachments AS al ON (al.id_member = mf.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})') . '
+				' . (!empty($message_index_tables) ? implode("\n\t", $message_index_tables) : '') . '
 			WHERE ' . ($pre_query ? 't.id_topic IN ({array_int:topic_list})' : 't.id_board = {int:current_board}') . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
 			ORDER BY ' . ($pre_query ? 'FIND_IN_SET(t.id_topic, {string:find_set_topics})' : 'is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC')) . '
 			LIMIT ' . ($pre_query ? '' : '{int:start}, ') . '{int:maxindex}',
-			array(
-				'current_board' => $board,
-				'current_member' => $user_info['id'],
-				'topic_list' => $topic_ids,
-				'is_approved' => 1,
-				'find_set_topics' => implode(',', $topic_ids),
-				'start' => $start,
-				'maxindex' => $maxindex,
-			)
+			$message_index_parameters
 		);
 
 		// Begin 'printing' the message index for current board.
@@ -454,7 +463,7 @@ function MessageIndex()
 				$colorClass .= ' locked';
 
 			// 'Print' the topic info.
-			$context['topics'][$row['id_topic']] = array(
+			$context['topics'][$row['id_topic']] = array_merge($row, array(
 				'id' => $row['id_topic'],
 				'first_post' => array(
 					'id' => $row['id_first_msg'],
@@ -511,47 +520,22 @@ function MessageIndex()
 				'approved' => $row['approved'],
 				'unapproved_posts' => $row['unapproved_posts'],
 				'css_class' => $colorClass,
-			);
+			));
 			if (!empty($settings['avatars_on_indexes']))
 			{
-				if (!empty($modSettings['gravatarOverride']))
-				{
-					if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
-						$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-					else
-						$image = get_gravatar_url($row['email_address']);
-				}
-				else
-				{
-					// So it's stored in the member table?
-					if (!empty($row['avatar']))
-					{
-						if (stristr($row['avatar'], 'gravatar://'))
-						{
-							if ($row['avatar'] == 'gravatar://')
-								$image = get_gravatar_url($row['email_address']);
-							elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-								$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-						}
-						else
-							$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
-					}
-					// Right... no avatar...
-					else
-						$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-							'name' => '',
-							'image' => '',
-							'href' => '',
-							'url' => '',
-						);
-				}
-				if (!empty($image))
-					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-						'name' => $row['avatar'],
-						'image' => '<img class="avatar" src="' . $image . '" />',
-						'href' => $image,
-						'url' => $image,
-					);
+				// Last post member avatar
+				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+					'avatar' => $row['avatar'],
+					'email' => $row['email_address'],
+					'filename' => !empty($row['last_member_filename']) ? $row['last_member_filename'] : '',
+				));
+
+				// First post member avatar
+				$context['topics'][$row['id_topic']]['first_post']['member']['avatar'] = set_avatar_data(array(
+					'avatar' => $row['first_member_avatar'],
+					'email' => $row['first_member_mail'],
+					'filename' => !empty($row['first_member_filename']) ? $row['first_member_filename'] : '',
+				));
 			}
 		}
 		$smcFunc['db_free_result']($result);
@@ -729,6 +713,13 @@ function MessageIndex()
 
 	// If there are children, but no topics and no ability to post topics...
 	$context['no_topic_listing'] = !empty($context['boards']) && empty($context['topics']) && !$context['can_post_new'];
+
+	// Show a message in case a recently posted message became unapproved.
+	$context['becomesUnapproved'] = !empty($_SESSION['becomesUnapproved']) ? true : false;
+
+	// Don't want to show this forever...
+	if ($context['becomesUnapproved'])
+		unset($_SESSION['becomesUnapproved']);
 
 	// Build the message index button array.
 	$context['normal_buttons'] = array(

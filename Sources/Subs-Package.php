@@ -1244,6 +1244,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
 				'include_file' => $action->exists('@file') ? $action->fetch('@file') : '',
 				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
+				'object' => $action->exists('@object') && $action->fetch('@object') == 'true' ? true : false,
 				'description' => '',
 			);
 			continue;
@@ -1263,6 +1264,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'type' => $actionType,
 				'url' => $url,
 				'license' => $action->exists('@license') ? $action->fetch('@license') : '',
+				'licenseurl' => $action->exists('@licenseurl') ? $action->fetch('@licenseurl') : '',
 				'copyright' => $action->exists('@copyright') ? $action->fetch('@copyright') : '',
 				'title' => $action->fetch('.'),
 			);

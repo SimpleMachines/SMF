@@ -1615,10 +1615,21 @@ $(function()
 	});
 
 	// Generic confirmation message.
-	$('.you_sure').on('click', function() {
-
+	$(document).on('click', '.you_sure', function()
+	{
 		var custom_message = $(this).attr('data-confirm');
 
 		return confirm(custom_message ? custom_message.replace(/-n-/g, "\n") : smf_you_sure);
 	});
-})
+
+	// Generic event for smfSelectText()
+	$('.smf_select_text').on('click', function(e) {
+
+		e.preventDefault();
+
+		// Do you want to target yourself?
+		var actOnElement = $(this).attr('data-actonelement');
+
+		return typeof actOnElement !== "undefined" ? smfSelectText(actOnElement, true) : smfSelectText(this);
+	});
+});

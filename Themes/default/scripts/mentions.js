@@ -25,7 +25,7 @@ var config = {
 
 			return null;
 		},
-		remote_filter: function (query, callback) {
+		remoteFilter: function (query, callback) {
 			if (typeof query == 'undefined' || query.length < 2 || query.length > 60)
 				return;
 
