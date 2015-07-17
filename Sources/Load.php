@@ -3245,9 +3245,9 @@ function get_memcached_server($level = 3)
 
 	$servers = explode(',', $cache_memcached);
 	$server = trim($servers[array_rand($servers)]);
-	
+
 	$port = 0;
-	
+
 	// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
 	if(strpos($server,'/') !== false)
 		$host = $server;
@@ -3257,7 +3257,7 @@ function get_memcached_server($level = 3)
 		$host = $server[0];
 		$port = isset($server[1]) ? $server[1] : 11211;
 	}
-	
+
 	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
 
 	// Don't try more times than we have servers!
@@ -3353,7 +3353,7 @@ function set_avatar_data($data = array())
 			$image = $modSettings['avatar_url'] . '/default.png';
 	}
 
-	call_integration_hook('integrate_set_avatar_data', array(&$image, &$data))
+	call_integration_hook('integrate_set_avatar_data', array(&$image, &$data));
 
 	// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
 	if (!empty($image))
