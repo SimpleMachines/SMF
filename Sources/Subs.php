@@ -2476,7 +2476,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	else
 		$message = strtr($message, array("\n" => ''));
 
-	if ($message[0] === ' ')
+	if ($message !== '' && $message[0] === ' ')
 		$message = '&nbsp;' . substr($message, 1);
 
 	// Cleanup whitespace.
