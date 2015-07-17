@@ -494,7 +494,7 @@ function GroupRequests()
 			// Get the details of all the members concerned...
 			$request = $smcFunc['db_query']('', '
 				SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address, mem.id_group AS primary_group,
-					mem.additional_groups AS additional_groups, mem.lngfile, mem.member_name, mem.notify_types,
+					mem.additional_groups AS additional_groups, mem.lngfile, mem.member_name, mem.notify_announcements,
 					mg.hidden, mg.group_name
 				FROM {db_prefix}log_group_requests AS lgr
 					INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -507,7 +507,7 @@ function GroupRequests()
 					'status_open' => 0,
 				)
 			);
-			$email_details = array();
+			$affected_users = array();
 			$group_changes = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
@@ -552,24 +552,24 @@ function GroupRequests()
 					);
 				}
 
-				// Add required information to email them.
-				if ($row['notify_types'] != 4)
-					$email_details[] = array(
-						'rid' => $row['id_request'],
-						'member_id' => $row['id_member'],
-						'member_name' => $row['member_name'],
-						'group_id' => $row['id_group'],
-						'group_name' => $row['group_name'],
-						'email' => $row['email_address'],
-						'language' => $row['lngfile'],
-					);
+				// Build the required information array
+				$affected_users[] = array(
+					'rid' => $row['id_request'],
+					'member_id' => $row['id_member'],
+					'member_name' => $row['member_name'],
+					'group_id' => $row['id_group'],
+					'group_name' => $row['group_name'],
+					'email' => $row['email_address'],
+					'language' => $row['lngfile'],
+					'receive_email' => $row['notify_announcements'],
+				);
 			}
 			$smcFunc['db_free_result']($request);
 
 			// Ensure everyone who is online gets their changes right away.
 			updateSettings(array('settings_updated' => time()));
 
-			if (!empty($email_details))
+			if (!empty($affected_users))
 			{
 				require_once($sourcedir . '/Subs-Post.php');
 
@@ -597,16 +597,20 @@ function GroupRequests()
 					}
 
 					$lastLng = $user_info['language'];
-					foreach ($email_details as $email)
+					foreach ($affected_users as $user)
 					{
+						//Did the user chose to not receive important notifications via email? If so... no congratulations email
+						if (empty($user['receive_email']))
+							continue;
+
 						$replacements = array(
-							'USERNAME' => $email['member_name'],
-							'GROUPNAME' => $email['group_name'],
+							'USERNAME' => $user['member_name'],
+							'GROUPNAME' => $user['group_name'],
 						);
 
-						$emaildata = loadEmailTemplate('mc_group_approve', $replacements, $email['language']);
+						$emaildata = loadEmailTemplate('mc_group_approve', $replacements, $user['language']);
 
-						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, 'grpapp' . $email['rid'], false, 2);
+						sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grpapp' . $user['rid'], false, 2);
 					}
 				}
 				// Otherwise, they are getting rejected (With or without a reason).
@@ -614,21 +618,25 @@ function GroupRequests()
 				{
 					// Same as for approving, kind of.
 					$lastLng = $user_info['language'];
-					foreach ($email_details as $email)
+					foreach ($affected_users as $user)
 					{
-						$custom_reason = isset($_POST['groupreason']) && isset($_POST['groupreason'][$email['rid']]) ? $_POST['groupreason'][$email['rid']] : '';
+						//Again, did the user chose to not receive important notifications via email?
+						if (empty($user['receive_email']))
+							continue;
+						
+						$custom_reason = isset($_POST['groupreason']) && isset($_POST['groupreason'][$user['rid']]) ? $_POST['groupreason'][$user['rid']] : '';
 
 						$replacements = array(
-							'USERNAME' => $email['member_name'],
-							'GROUPNAME' => $email['group_name'],
+							'USERNAME' => $user['member_name'],
+							'GROUPNAME' => $user['group_name'],
 						);
 
 						if (!empty($custom_reason))
 							$replacements['REASON'] = $custom_reason;
 
-						$emaildata = loadEmailTemplate(empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason', $replacements, $email['language']);
+						$emaildata = loadEmailTemplate(empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason', $replacements, $user['language']);
 
-						sendmail($email['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $email['rid'], false, 2);
+						sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $user['rid'], false, 2);
 					}
 				}
 			}
