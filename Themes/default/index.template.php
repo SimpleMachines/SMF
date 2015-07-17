@@ -93,7 +93,7 @@ function template_html_above()
 	// Save some database hits, if a width for multiple wrappers is set in admin.
 	if (!empty($settings['forum_width']))
 		echo '
-	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
+	<style>#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
 
 	// load in any javascript files from mods and themes
 	template_javascript();

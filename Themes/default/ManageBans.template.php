@@ -188,7 +188,7 @@ function template_ban_edit()
 
 	echo '
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var fUpdateStatus = function ()
 		{
 			document.getElementById("expire_date").disabled = !document.getElementById("expires_one_day").checked;
@@ -233,7 +233,7 @@ function template_ban_edit()
 				alert(\'', $txt['ban_restriction_empty'], '\');
 				return false;
 			}
-		}// ]]></script>';
+		}</script>';
 }
 
 function template_ban_edit_trigger()
@@ -297,7 +297,7 @@ function template_ban_edit_trigger()
 			<input type="hidden" name="', $context['admin-bet_token_var'], '" value="', $context['admin-bet_token'], '">
 		</form>
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -315,7 +315,7 @@ function template_ban_edit_trigger()
 			return true;
 		}
 		oAddMemberSuggest.registerCallback(\'onBeforeUpdate\', \'onUpdateName\');
-	// ]]></script>';
+	</script>';
 }
 
 ?>

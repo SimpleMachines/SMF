@@ -203,7 +203,7 @@ function template_info_center()
 
 	// Info center collapse object.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
@@ -235,7 +235,7 @@ function template_info_center()
 				sCookieName: \'upshrinkIC\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_ic_block_recent()
