@@ -545,8 +545,13 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$_COOKIE[$cookiename . '_tfa'] = '';
-			setTFACookie(-3600, 0, '');
+			list ($id, $user, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			if (!$preserve || time() > $exp)
+			{
+				$_COOKIE[$cookiename . '_tfa'] = '';
+				setTFACookie(-3600, 0, '');
+			}
 		}
 
 		// Create a login token if it doesn't exist yet.
