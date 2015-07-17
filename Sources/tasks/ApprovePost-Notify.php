@@ -21,6 +21,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		$msgOptions = $this->_details['msgOptions'];
 		$topicOptions = $this->_details['topicOptions'];
 		$posterOptions = $this->_details['posterOptions'];
+		$type = $this->_details['type'];
 
 		$members = array();
 		$alert_rows = array();
@@ -29,7 +30,6 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 		require_once($sourcedir . '/Subs-Members.php');
 		$modMembers = membersAllowedTo('approve_posts', $topicOptions['board']);
 
-		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
 			SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
@@ -82,7 +82,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 					'member_name' => $posterOptions['name'],
 					'content_type' => 'unapproved',
 					'content_id' => $topicOptions['id'],
-					'content_action' => 'post',
+					'content_action' => $type,
 					'is_read' => 0,
 					'extra' => serialize(array(
 						'topic' => $topicOptions['id'],

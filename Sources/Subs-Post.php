@@ -1901,7 +1901,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', serialize(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions
+					'posterOptions' => $posterOptions,
+					'type' => $new_topic ? 'topic' : 'post',
 				)), 0
 			),
 			array('id_task')
@@ -1948,7 +1949,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', serialize(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions
+					'posterOptions' => $posterOptions,
 				)), 0
 			),
 			array('id_task')
