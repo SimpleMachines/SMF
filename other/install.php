@@ -144,39 +144,44 @@ installExit();
 
 function initialize_inputs()
 {
-    global $databases, $incontext;
+	global $databases, $incontext;
 
-    // Just so people using older versions of PHP aren't left in the cold.
-    if (!isset($_SERVER['PHP_SELF']))
-        $_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
+	// Just so people using older versions of PHP aren't left in the cold.
+	if (!isset($_SERVER['PHP_SELF']))
+		$_SERVER['PHP_SELF'] = isset($GLOBALS['HTTP_SERVER_VARS']['PHP_SELF']) ? $GLOBALS['HTTP_SERVER_VARS']['PHP_SELF'] : 'install.php';
 
-    // Turn off magic quotes runtime and enable error reporting.
-    if (function_exists('set_magic_quotes_runtime'))
-        @set_magic_quotes_runtime(0);
-    error_reporting(E_ALL);
+	// Turn off magic quotes runtime and enable error reporting.
+	if (function_exists('set_magic_quotes_runtime'))
+		@set_magic_quotes_runtime(0);
+	error_reporting(E_ALL);
+	set_time_limit(60);
 
-    // Fun.  Low PHP version...
-    if (!isset($_GET)) {
-        $GLOBALS['_GET']['step'] = 0;
-        return;
-    }
+	// Fun.  Low PHP version...
+	if (!isset($_GET))
+	{
+		$GLOBALS['_GET']['step'] = 0;
+		return;
+	}
 
-    if (!isset($_GET['obgz'])) {
-        ob_start();
+	if (!isset($_GET['obgz']))
+	{
+		ob_start();
 
-        if (ini_get('session.save_handler') == 'user')
-            @ini_set('session.save_handler', 'files');
-        if (function_exists('session_start'))
-            @session_start();
-    } else {
-        ob_start('ob_gzhandler');
+		if (ini_get('session.save_handler') == 'user')
+			@ini_set('session.save_handler', 'files');
+		if (function_exists('session_start'))
+			@session_start();
+	}
+	else
+	{
+		ob_start('ob_gzhandler');
 
-        if (ini_get('session.save_handler') == 'user')
-            @ini_set('session.save_handler', 'files');
-        session_start();
+		if (ini_get('session.save_handler') == 'user')
+			@ini_set('session.save_handler', 'files');
+		session_start();
 
-        if (!headers_sent())
-            echo '<!DOCTYPE html>
+		if (!headers_sent())
+			echo '<!DOCTYPE html>
 <html>
 	<head>
 		<title>', htmlspecialchars($_GET['pass_string']), '</title>
@@ -1052,14 +1057,23 @@ function DatabasePopulation()
 		// Done with this now
 		$smcFunc['db_free_result']($get_engines);
 
-		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
+		// InnoDB is better, so use it if possible...
+		$has_innodb = in_array('InnoDB', $engines);
+		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
 			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		}
+
+		// One last thing - if we don't have InnoDB, we can't do transactions...
+		if (!$has_innodb)
+		{
+			$replaces['START TRANSACTION;'] = '';
+			$replaces['COMMIT;'] = '';
 		}
 	}
 
@@ -1253,20 +1267,22 @@ function DatabasePopulation()
 			);
 	}
 
-	// Let's optimize those new tables.
-	db_extend();
-	$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
-	foreach ($tables as $table)
+	// Let's optimize those new tables, not on InnoDB, ok?
+	if (!in_array('InnoDB', $engines))
 	{
-		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
-
-		if (!empty($db_messed))
+		db_extend();
+		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
+		foreach ($tables as $table)
 		{
-			$incontext['failures'][-1] = $smcFunc['db_error']();
-			break;
+			$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+
+			if (!empty($db_messed))
+			{
+				$incontext['failures'][-1] = $smcFunc['db_error']();
+				break;
+			}
 		}
 	}
-
 	// Check for the ALTER privilege.
 	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
 	{
@@ -2109,9 +2125,9 @@ function template_install_above()
 		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="Themes/default/css/rtl.css?alp21">' : '' , '
+		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
+		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2243,7 +2259,7 @@ function template_welcome_message()
 
 	// For the latest version stuff.
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			// Latest version?
 			function smfCurrentVersion()
 			{
@@ -2264,7 +2280,7 @@ function template_welcome_message()
 					document.getElementById(\'version_warning\').style.display = \'\';
 			}
 			addLoadEvent(smfCurrentVersion);
-		// ]]></script>';
+		</script>';
 }
 
 // A shortcut for any warning stuff.
@@ -2453,7 +2469,7 @@ function template_database_settings()
 
 	// Toggles a warning related to db names in PostgreSQL
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		function toggleDBInput()
 		{
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
@@ -2462,7 +2478,7 @@ function template_database_settings()
 				document.getElementById(\'db_name_info_warning\').style.display = \'\';
 		}
 		toggleDBInput();
-	// ]]></script>';
+	</script>';
 }
 
 // Stick in their forum settings.
@@ -2681,7 +2697,7 @@ function template_delete_install()
 		<div style="margin: 1ex; font-weight: bold;">
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete();" class="input_check" /> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</label>
 		</div>
-		<script><!-- // --><![CDATA[
+		<script>
 			function doTheDelete()
 			{
 				var theCheck = document.getElementById ? document.getElementById("delete_self") : document.all.delete_self;
@@ -2691,7 +2707,7 @@ function template_delete_install()
 				tempImage.width = 0;
 				theCheck.disabled = true;
 			}
-		// ]]></script>
+		</script>
 		<br />';
 
 	echo '

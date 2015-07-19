@@ -1349,46 +1349,12 @@ function UnreadTopics()
 			)
 		);
 		if (!empty($settings['avatars_on_indexes']))
-		{
-			if (!empty($modSettings['gravatarOverride']))
-			{
-				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
-					$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-				else
-					$image = get_gravatar_url($row['email_address']);
-			}
-			else
-			{
-				// So it's stored in the member table?
-				if (!empty($row['avatar']))
-				{
-					if (stristr($row['avatar'], 'gravatar://'))
-					{
-						if ($row['avatar'] == 'gravatar://')
-							$image = get_gravatar_url($row['email_address']);
-						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-							$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-					}
-					else
-						$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
-				}
-				// Right... no avatar...
-				else
-					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-						'name' => '',
-						'image' => '',
-						'href' => '',
-						'url' => '',
-					);
-			}
-			if (!empty($image))
-				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-					'name' => $row['avatar'],
-					'image' => '<img class="avatar" src="' . $image . '" />',
-					'href' => $image,
-					'url' => $image,
-				);
-		}
+			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['avatar'],
+				'email' => $row['email_address'],
+				'filename' => false,
+			));
+
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}
 	$smcFunc['db_free_result']($request);

@@ -17,19 +17,6 @@ CREATE TABLE {$db_prefix}admin_info_files (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `admin_info_files`
-#
-
-INSERT INTO {$db_prefix}admin_info_files
-	(id_file, filename, path, parameters, data, filetype)
-VALUES
-	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
-	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
-# --------------------------------------------------------
-
-#
 # Table structure for table `approval_queue`
 #
 
@@ -140,322 +127,6 @@ CREATE TABLE {$db_prefix}board_permissions (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `board_permissions`
-#
-
-INSERT INTO {$db_prefix}board_permissions
-	(id_group, id_profile, permission)
-VALUES (-1, 1, 'poll_view'),
-	(0, 1, 'remove_own'),
-	(0, 1, 'lock_own'),
-	(0, 1, 'modify_own'),
-	(0, 1, 'poll_add_own'),
-	(0, 1, 'poll_edit_own'),
-	(0, 1, 'poll_lock_own'),
-	(0, 1, 'poll_post'),
-	(0, 1, 'poll_view'),
-	(0, 1, 'poll_vote'),
-	(0, 1, 'post_attachment'),
-	(0, 1, 'post_new'),
-	(0, 1, 'post_draft'),
-	(0, 1, 'post_reply_any'),
-	(0, 1, 'post_reply_own'),
-	(0, 1, 'post_unapproved_topics'),
-	(0, 1, 'post_unapproved_replies_any'),
-	(0, 1, 'post_unapproved_replies_own'),
-	(0, 1, 'post_unapproved_attachments'),
-	(0, 1, 'delete_own'),
-	(0, 1, 'report_any'),
-	(0, 1, 'view_attachments'),
-	(2, 1, 'moderate_board'),
-	(2, 1, 'post_new'),
-	(2, 1, 'post_draft'),
-	(2, 1, 'post_reply_own'),
-	(2, 1, 'post_reply_any'),
-	(2, 1, 'post_unapproved_topics'),
-	(2, 1, 'post_unapproved_replies_any'),
-	(2, 1, 'post_unapproved_replies_own'),
-	(2, 1, 'post_unapproved_attachments'),
-	(2, 1, 'poll_post'),
-	(2, 1, 'poll_add_any'),
-	(2, 1, 'poll_remove_any'),
-	(2, 1, 'poll_view'),
-	(2, 1, 'poll_vote'),
-	(2, 1, 'poll_lock_any'),
-	(2, 1, 'poll_edit_any'),
-	(2, 1, 'report_any'),
-	(2, 1, 'lock_own'),
-	(2, 1, 'delete_own'),
-	(2, 1, 'modify_own'),
-	(2, 1, 'make_sticky'),
-	(2, 1, 'lock_any'),
-	(2, 1, 'remove_any'),
-	(2, 1, 'move_any'),
-	(2, 1, 'merge_any'),
-	(2, 1, 'split_any'),
-	(2, 1, 'delete_any'),
-	(2, 1, 'modify_any'),
-	(2, 1, 'approve_posts'),
-	(2, 1, 'post_attachment'),
-	(2, 1, 'view_attachments'),
-	(3, 1, 'moderate_board'),
-	(3, 1, 'post_new'),
-	(3, 1, 'post_draft'),
-	(3, 1, 'post_reply_own'),
-	(3, 1, 'post_reply_any'),
-	(3, 1, 'post_unapproved_topics'),
-	(3, 1, 'post_unapproved_replies_any'),
-	(3, 1, 'post_unapproved_replies_own'),
-	(3, 1, 'post_unapproved_attachments'),
-	(3, 1, 'poll_post'),
-	(3, 1, 'poll_add_any'),
-	(3, 1, 'poll_remove_any'),
-	(3, 1, 'poll_view'),
-	(3, 1, 'poll_vote'),
-	(3, 1, 'poll_lock_any'),
-	(3, 1, 'poll_edit_any'),
-	(3, 1, 'report_any'),
-	(3, 1, 'lock_own'),
-	(3, 1, 'delete_own'),
-	(3, 1, 'modify_own'),
-	(3, 1, 'make_sticky'),
-	(3, 1, 'lock_any'),
-	(3, 1, 'remove_any'),
-	(3, 1, 'move_any'),
-	(3, 1, 'merge_any'),
-	(3, 1, 'split_any'),
-	(3, 1, 'delete_any'),
-	(3, 1, 'modify_any'),
-	(3, 1, 'approve_posts'),
-	(3, 1, 'post_attachment'),
-	(3, 1, 'view_attachments'),
-	(-1, 2, 'poll_view'),
-	(0, 2, 'remove_own'),
-	(0, 2, 'lock_own'),
-	(0, 2, 'modify_own'),
-	(0, 2, 'poll_view'),
-	(0, 2, 'poll_vote'),
-	(0, 2, 'post_attachment'),
-	(0, 2, 'post_new'),
-	(0, 2, 'post_draft'),
-	(0, 2, 'post_reply_any'),
-	(0, 2, 'post_reply_own'),
-	(0, 2, 'post_unapproved_topics'),
-	(0, 2, 'post_unapproved_replies_any'),
-	(0, 2, 'post_unapproved_replies_own'),
-	(0, 2, 'post_unapproved_attachments'),
-	(0, 2, 'delete_own'),
-	(0, 2, 'report_any'),
-	(0, 2, 'view_attachments'),
-	(2, 2, 'moderate_board'),
-	(2, 2, 'post_new'),
-	(2, 2, 'post_draft'),
-	(2, 2, 'post_reply_own'),
-	(2, 2, 'post_reply_any'),
-	(2, 2, 'post_unapproved_topics'),
-	(2, 2, 'post_unapproved_replies_any'),
-	(2, 2, 'post_unapproved_replies_own'),
-	(2, 2, 'post_unapproved_attachments'),
-	(2, 2, 'poll_post'),
-	(2, 2, 'poll_add_any'),
-	(2, 2, 'poll_remove_any'),
-	(2, 2, 'poll_view'),
-	(2, 2, 'poll_vote'),
-	(2, 2, 'poll_lock_any'),
-	(2, 2, 'poll_edit_any'),
-	(2, 2, 'report_any'),
-	(2, 2, 'lock_own'),
-	(2, 2, 'delete_own'),
-	(2, 2, 'modify_own'),
-	(2, 2, 'make_sticky'),
-	(2, 2, 'lock_any'),
-	(2, 2, 'remove_any'),
-	(2, 2, 'move_any'),
-	(2, 2, 'merge_any'),
-	(2, 2, 'split_any'),
-	(2, 2, 'delete_any'),
-	(2, 2, 'modify_any'),
-	(2, 2, 'approve_posts'),
-	(2, 2, 'post_attachment'),
-	(2, 2, 'view_attachments'),
-	(3, 2, 'moderate_board'),
-	(3, 2, 'post_new'),
-	(3, 2, 'post_draft'),
-	(3, 2, 'post_reply_own'),
-	(3, 2, 'post_reply_any'),
-	(3, 2, 'post_unapproved_topics'),
-	(3, 2, 'post_unapproved_replies_any'),
-	(3, 2, 'post_unapproved_replies_own'),
-	(3, 2, 'post_unapproved_attachments'),
-	(3, 2, 'poll_post'),
-	(3, 2, 'poll_add_any'),
-	(3, 2, 'poll_remove_any'),
-	(3, 2, 'poll_view'),
-	(3, 2, 'poll_vote'),
-	(3, 2, 'poll_lock_any'),
-	(3, 2, 'poll_edit_any'),
-	(3, 2, 'report_any'),
-	(3, 2, 'lock_own'),
-	(3, 2, 'delete_own'),
-	(3, 2, 'modify_own'),
-	(3, 2, 'make_sticky'),
-	(3, 2, 'lock_any'),
-	(3, 2, 'remove_any'),
-	(3, 2, 'move_any'),
-	(3, 2, 'merge_any'),
-	(3, 2, 'split_any'),
-	(3, 2, 'delete_any'),
-	(3, 2, 'modify_any'),
-	(3, 2, 'approve_posts'),
-	(3, 2, 'post_attachment'),
-	(3, 2, 'view_attachments'),
-	(-1, 3, 'poll_view'),
-	(0, 3, 'remove_own'),
-	(0, 3, 'lock_own'),
-	(0, 3, 'modify_own'),
-	(0, 3, 'poll_view'),
-	(0, 3, 'poll_vote'),
-	(0, 3, 'post_attachment'),
-	(0, 3, 'post_reply_any'),
-	(0, 3, 'post_reply_own'),
-	(0, 3, 'post_unapproved_replies_any'),
-	(0, 3, 'post_unapproved_replies_own'),
-	(0, 3, 'post_unapproved_attachments'),
-	(0, 3, 'delete_own'),
-	(0, 3, 'report_any'),
-	(0, 3, 'view_attachments'),
-	(2, 3, 'moderate_board'),
-	(2, 3, 'post_new'),
-	(2, 3, 'post_draft'),
-	(2, 3, 'post_reply_own'),
-	(2, 3, 'post_reply_any'),
-	(2, 3, 'post_unapproved_topics'),
-	(2, 3, 'post_unapproved_replies_any'),
-	(2, 3, 'post_unapproved_replies_own'),
-	(2, 3, 'post_unapproved_attachments'),
-	(2, 3, 'poll_post'),
-	(2, 3, 'poll_add_any'),
-	(2, 3, 'poll_remove_any'),
-	(2, 3, 'poll_view'),
-	(2, 3, 'poll_vote'),
-	(2, 3, 'poll_lock_any'),
-	(2, 3, 'poll_edit_any'),
-	(2, 3, 'report_any'),
-	(2, 3, 'lock_own'),
-	(2, 3, 'delete_own'),
-	(2, 3, 'modify_own'),
-	(2, 3, 'make_sticky'),
-	(2, 3, 'lock_any'),
-	(2, 3, 'remove_any'),
-	(2, 3, 'move_any'),
-	(2, 3, 'merge_any'),
-	(2, 3, 'split_any'),
-	(2, 3, 'delete_any'),
-	(2, 3, 'modify_any'),
-	(2, 3, 'approve_posts'),
-	(2, 3, 'post_attachment'),
-	(2, 3, 'view_attachments'),
-	(3, 3, 'moderate_board'),
-	(3, 3, 'post_new'),
-	(3, 3, 'post_draft'),
-	(3, 3, 'post_reply_own'),
-	(3, 3, 'post_reply_any'),
-	(3, 3, 'post_unapproved_topics'),
-	(3, 3, 'post_unapproved_replies_any'),
-	(3, 3, 'post_unapproved_replies_own'),
-	(3, 3, 'post_unapproved_attachments'),
-	(3, 3, 'poll_post'),
-	(3, 3, 'poll_add_any'),
-	(3, 3, 'poll_remove_any'),
-	(3, 3, 'poll_view'),
-	(3, 3, 'poll_vote'),
-	(3, 3, 'poll_lock_any'),
-	(3, 3, 'poll_edit_any'),
-	(3, 3, 'report_any'),
-	(3, 3, 'lock_own'),
-	(3, 3, 'delete_own'),
-	(3, 3, 'modify_own'),
-	(3, 3, 'make_sticky'),
-	(3, 3, 'lock_any'),
-	(3, 3, 'remove_any'),
-	(3, 3, 'move_any'),
-	(3, 3, 'merge_any'),
-	(3, 3, 'split_any'),
-	(3, 3, 'delete_any'),
-	(3, 3, 'modify_any'),
-	(3, 3, 'approve_posts'),
-	(3, 3, 'post_attachment'),
-	(3, 3, 'view_attachments'),
-	(-1, 4, 'poll_view'),
-	(0, 4, 'poll_view'),
-	(0, 4, 'poll_vote'),
-	(0, 4, 'report_any'),
-	(0, 4, 'view_attachments'),
-	(2, 4, 'moderate_board'),
-	(2, 4, 'post_new'),
-	(2, 4, 'post_draft'),
-	(2, 4, 'post_reply_own'),
-	(2, 4, 'post_reply_any'),
-	(2, 4, 'post_unapproved_topics'),
-	(2, 4, 'post_unapproved_replies_any'),
-	(2, 4, 'post_unapproved_replies_own'),
-	(2, 4, 'post_unapproved_attachments'),
-	(2, 4, 'poll_post'),
-	(2, 4, 'poll_add_any'),
-	(2, 4, 'poll_remove_any'),
-	(2, 4, 'poll_view'),
-	(2, 4, 'poll_vote'),
-	(2, 4, 'poll_lock_any'),
-	(2, 4, 'poll_edit_any'),
-	(2, 4, 'report_any'),
-	(2, 4, 'lock_own'),
-	(2, 4, 'delete_own'),
-	(2, 4, 'modify_own'),
-	(2, 4, 'make_sticky'),
-	(2, 4, 'lock_any'),
-	(2, 4, 'remove_any'),
-	(2, 4, 'move_any'),
-	(2, 4, 'merge_any'),
-	(2, 4, 'split_any'),
-	(2, 4, 'delete_any'),
-	(2, 4, 'modify_any'),
-	(2, 4, 'approve_posts'),
-	(2, 4, 'post_attachment'),
-	(2, 4, 'view_attachments'),
-	(3, 4, 'moderate_board'),
-	(3, 4, 'post_new'),
-	(3, 4, 'post_draft'),
-	(3, 4, 'post_reply_own'),
-	(3, 4, 'post_reply_any'),
-	(3, 4, 'post_unapproved_topics'),
-	(3, 4, 'post_unapproved_replies_any'),
-	(3, 4, 'post_unapproved_replies_own'),
-	(3, 4, 'post_unapproved_attachments'),
-	(3, 4, 'poll_post'),
-	(3, 4, 'poll_add_any'),
-	(3, 4, 'poll_remove_any'),
-	(3, 4, 'poll_view'),
-	(3, 4, 'poll_vote'),
-	(3, 4, 'poll_lock_any'),
-	(3, 4, 'poll_edit_any'),
-	(3, 4, 'report_any'),
-	(3, 4, 'lock_own'),
-	(3, 4, 'delete_own'),
-	(3, 4, 'modify_own'),
-	(3, 4, 'make_sticky'),
-	(3, 4, 'lock_any'),
-	(3, 4, 'remove_any'),
-	(3, 4, 'move_any'),
-	(3, 4, 'merge_any'),
-	(3, 4, 'split_any'),
-	(3, 4, 'delete_any'),
-	(3, 4, 'modify_any'),
-	(3, 4, 'approve_posts'),
-	(3, 4, 'post_attachment'),
-	(3, 4, 'view_attachments');
-# --------------------------------------------------------
-
-#
 # Table structure for table `boards`
 #
 
@@ -488,15 +159,6 @@ CREATE TABLE {$db_prefix}boards (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `boards`
-#
-
-INSERT INTO {$db_prefix}boards
-	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
-VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
-# --------------------------------------------------------
-
-#
 # Table structure for table `calendar`
 #
 
@@ -527,132 +189,6 @@ CREATE TABLE {$db_prefix}calendar_holidays (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `calendar_holidays`
-#
-
-INSERT INTO {$db_prefix}calendar_holidays
-	(title, event_date)
-VALUES ('New Year\'s', '0004-01-01'),
-	('Christmas', '0004-12-25'),
-	('Valentine\'s Day', '0004-02-14'),
-	('St. Patrick\'s Day', '0004-03-17'),
-	('April Fools', '0004-04-01'),
-	('Earth Day', '0004-04-22'),
-	('United Nations Day', '0004-10-24'),
-	('Halloween', '0004-10-31'),
-	('Mother\'s Day', '2010-05-09'),
-	('Mother\'s Day', '2011-05-08'),
-	('Mother\'s Day', '2012-05-13'),
-	('Mother\'s Day', '2013-05-12'),
-	('Mother\'s Day', '2014-05-11'),
-	('Mother\'s Day', '2015-05-10'),
-	('Mother\'s Day', '2016-05-08'),
-	('Mother\'s Day', '2017-05-14'),
-	('Mother\'s Day', '2018-05-13'),
-	('Mother\'s Day', '2019-05-12'),
-	('Mother\'s Day', '2020-05-10'),
-	('Father\'s Day', '2008-06-15'),
-	('Father\'s Day', '2009-06-21'),
-	('Father\'s Day', '2010-06-20'),
-	('Father\'s Day', '2011-06-19'),
-	('Father\'s Day', '2012-06-17'),
-	('Father\'s Day', '2013-06-16'),
-	('Father\'s Day', '2014-06-15'),
-	('Father\'s Day', '2015-06-21'),
-	('Father\'s Day', '2016-06-19'),
-	('Father\'s Day', '2017-06-18'),
-	('Father\'s Day', '2018-06-17'),
-	('Father\'s Day', '2019-06-16'),
-	('Father\'s Day', '2020-06-21'),
-	('Summer Solstice', '2010-06-21'),
-	('Summer Solstice', '2011-06-21'),
-	('Summer Solstice', '2012-06-20'),
-	('Summer Solstice', '2013-06-21'),
-	('Summer Solstice', '2014-06-21'),
-	('Summer Solstice', '2015-06-21'),
-	('Summer Solstice', '2016-06-20'),
-	('Summer Solstice', '2017-06-20'),
-	('Summer Solstice', '2018-06-21'),
-	('Summer Solstice', '2019-06-21'),
-	('Summer Solstice', '2020-06-20'),
-	('Vernal Equinox', '2010-03-20'),
-	('Vernal Equinox', '2011-03-20'),
-	('Vernal Equinox', '2012-03-20'),
-	('Vernal Equinox', '2013-03-20'),
-	('Vernal Equinox', '2014-03-20'),
-	('Vernal Equinox', '2015-03-20'),
-	('Vernal Equinox', '2016-03-19'),
-	('Vernal Equinox', '2017-03-20'),
-	('Vernal Equinox', '2018-03-20'),
-	('Vernal Equinox', '2019-03-20'),
-	('Vernal Equinox', '2020-03-19'),
-	('Winter Solstice', '2010-12-21'),
-	('Winter Solstice', '2011-12-22'),
-	('Winter Solstice', '2012-12-21'),
-	('Winter Solstice', '2013-12-21'),
-	('Winter Solstice', '2014-12-21'),
-	('Winter Solstice', '2015-12-21'),
-	('Winter Solstice', '2016-12-21'),
-	('Winter Solstice', '2017-12-21'),
-	('Winter Solstice', '2018-12-21'),
-	('Winter Solstice', '2019-12-21'),
-	('Winter Solstice', '2020-12-21'),
-	('Autumnal Equinox', '2010-09-22'),
-	('Autumnal Equinox', '2011-09-23'),
-	('Autumnal Equinox', '2012-09-22'),
-	('Autumnal Equinox', '2013-09-22'),
-	('Autumnal Equinox', '2014-09-22'),
-	('Autumnal Equinox', '2015-09-23'),
-	('Autumnal Equinox', '2016-09-22'),
-	('Autumnal Equinox', '2017-09-22'),
-	('Autumnal Equinox', '2018-09-22'),
-	('Autumnal Equinox', '2019-09-23'),
-	('Autumnal Equinox', '2020-09-22');
-
-INSERT INTO {$db_prefix}calendar_holidays
-	(title, event_date)
-VALUES ('Independence Day', '0004-07-04'),
-	('Cinco de Mayo', '0004-05-05'),
-	('Flag Day', '0004-06-14'),
-	('Veterans Day', '0004-11-11'),
-	('Groundhog Day', '0004-02-02'),
-	('Thanksgiving', '2010-11-25'),
-	('Thanksgiving', '2011-11-24'),
-	('Thanksgiving', '2012-11-22'),
-	('Thanksgiving', '2013-11-28'),
-	('Thanksgiving', '2014-11-27'),
-	('Thanksgiving', '2015-11-26'),
-	('Thanksgiving', '2016-11-24'),
-	('Thanksgiving', '2017-11-23'),
-	('Thanksgiving', '2018-11-22'),
-	('Thanksgiving', '2019-11-28'),
-	('Thanksgiving', '2020-11-26'),
-	('Memorial Day', '2010-05-31'),
-	('Memorial Day', '2011-05-30'),
-	('Memorial Day', '2012-05-28'),
-	('Memorial Day', '2013-05-27'),
-	('Memorial Day', '2014-05-26'),
-	('Memorial Day', '2015-05-25'),
-	('Memorial Day', '2016-05-30'),
-	('Memorial Day', '2017-05-29'),
-	('Memorial Day', '2018-05-28'),
-	('Memorial Day', '2019-05-27'),
-	('Memorial Day', '2020-05-25'),
-	('Labor Day', '2010-09-06'),
-	('Labor Day', '2011-09-05'),
-	('Labor Day', '2012-09-03'),
-	('Labor Day', '2013-09-02'),
-	('Labor Day', '2014-09-01'),
-	('Labor Day', '2015-09-07'),
-	('Labor Day', '2016-09-05'),
-	('Labor Day', '2017-09-04'),
-	('Labor Day', '2018-09-03'),
-	('Labor Day', '2019-09-02'),
-	('Labor Day', '2020-09-07'),
-	('D-Day', '0004-06-06');
-# --------------------------------------------------------
-
-#
 # Table structure for table `categories`
 #
 
@@ -664,14 +200,6 @@ CREATE TABLE {$db_prefix}categories (
   can_collapse tinyint(1) NOT NULL default '1',
   PRIMARY KEY (id_cat)
 ) ENGINE={$engine};
-
-#
-# Dumping data for table `categories`
-#
-
-INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$default_category_name}', '', 1);
-# --------------------------------------------------------
 
 #
 # Table structure for table `custom_fields`
@@ -701,20 +229,6 @@ CREATE TABLE {$db_prefix}custom_fields (
   PRIMARY KEY (id_field),
   UNIQUE col_name (col_name)
 ) ENGINE={$engine};
-
-#
-# Dumping data for table `custom_fields`
-#
-
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
-('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
-('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
-('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
-('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
-('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
-('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
-
-# --------------------------------------------------------
 
 #
 # Table structure for table `group_moderators`
@@ -1166,22 +680,6 @@ CREATE TABLE {$db_prefix}membergroups (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `membergroups`
-#
-
-INSERT INTO {$db_prefix}membergroups
-	(id_group, group_name, description, online_color, min_posts, icons, group_type)
-VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
-	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
-	(3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png', 0),
-	(4, '{$default_newbie_group}', '', '', 0, '1#icon.png', 0),
-	(5, '{$default_junior_group}', '', '', 50, '2#icon.png', 0),
-	(6, '{$default_full_group}', '', '', 100, '3#icon.png', 0),
-	(7, '{$default_senior_group}', '', '', 250, '4#icon.png', 0),
-	(8, '{$default_hero_group}', '', '', 500, '5#icon.png', 0);
-# --------------------------------------------------------
-
-#
 # Table structure for table `members`
 #
 
@@ -1285,28 +783,6 @@ CREATE TABLE {$db_prefix}message_icons (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `message_icons`
-#
-
-# // @todo i18n
-INSERT INTO {$db_prefix}message_icons
-	(filename, title, icon_order)
-VALUES ('xx', 'Standard', '0'),
-	('thumbup', 'Thumb Up', '1'),
-	('thumbdown', 'Thumb Down', '2'),
-	('exclamation', 'Exclamation point', '3'),
-	('question', 'Question mark', '4'),
-	('lamp', 'Lamp', '5'),
-	('smiley', 'Smiley', '6'),
-	('angry', 'Angry', '7'),
-	('cheesy', 'Cheesy', '8'),
-	('grin', 'Grin', '9'),
-	('sad', 'Sad', '10'),
-	('wink', 'Wink', '11'),
-	('poll', 'Poll', '12');
-# --------------------------------------------------------
-
-#
 # Table structure for table `messages`
 #
 
@@ -1344,15 +820,6 @@ CREATE TABLE {$db_prefix}messages (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `messages`
-#
-
-INSERT INTO {$db_prefix}messages
-	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
-VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
-# --------------------------------------------------------
-
-#
 # Table structure for table `moderators`
 #
 
@@ -1384,15 +851,6 @@ CREATE TABLE {$db_prefix}package_servers (
 ) ENGINE={$engine};
 
 #
-# Dumping data for table `package_servers`
-#
-
-INSERT INTO {$db_prefix}package_servers
-	(name, url)
-VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
-# --------------------------------------------------------
-
-#
 # Table structure for table `permission_profiles`
 #
 
@@ -1401,15 +859,6 @@ CREATE TABLE {$db_prefix}permission_profiles (
   profile_name varchar(255) NOT NULL default '',
   PRIMARY KEY (id_profile)
 ) ENGINE={$engine};
-
-#
-# Dumping data for table `permission_profiles`
-#
-
-INSERT INTO {$db_prefix}permission_profiles
-	(id_profile, profile_name)
-VALUES (1, 'default'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
-# --------------------------------------------------------
 
 #
 # Table structure for table `permissions`
@@ -1421,65 +870,6 @@ CREATE TABLE {$db_prefix}permissions (
   add_deny tinyint(4) NOT NULL default '1',
   PRIMARY KEY (id_group, permission)
 ) ENGINE={$engine};
-
-#
-# Dumping data for table `permissions`
-#
-
-INSERT INTO {$db_prefix}permissions
-	(id_group, permission)
-VALUES (-1, 'search_posts'),
-	(-1, 'calendar_view'),
-	(-1, 'view_stats'),
-	(0, 'view_mlist'),
-	(0, 'search_posts'),
-	(0, 'profile_view'),
-	(0, 'pm_read'),
-	(0, 'pm_send'),
-	(0, 'pm_draft'),
-	(0, 'calendar_view'),
-	(0, 'view_stats'),
-	(0, 'who_view'),
-	(0, 'profile_identity_own'),
-	(0, 'profile_password_own'),
-	(0, 'profile_blurb_own'),
-	(0, 'profile_displayed_name_own'),
-	(0, 'profile_signature_own'),
-	(0, 'profile_other_own'),
-	(0, 'profile_forum_own'),
-	(0, 'profile_extra_own'),
-	(0, 'profile_remove_own'),
-	(0, 'profile_server_avatar'),
-	(0, 'profile_upload_avatar'),
-	(0, 'profile_remote_avatar'),
-	(0, 'send_email_to_members'),
-	(2, 'view_mlist'),
-	(2, 'search_posts'),
-	(2, 'profile_view'),
-	(2, 'pm_read'),
-	(2, 'pm_send'),
-	(2, 'pm_draft'),
-	(2, 'calendar_view'),
-	(2, 'view_stats'),
-	(2, 'who_view'),
-	(2, 'profile_identity_own'),
-	(2, 'profile_password_own'),
-	(2, 'profile_blurb_own'),
-	(2, 'profile_displayed_name_own'),
-	(2, 'profile_signature_own'),
-	(2, 'profile_other_own'),
-	(2, 'profile_forum_own'),
-	(2, 'profile_extra_own'),
-	(2, 'profile_remove_own'),
-	(2, 'profile_server_avatar'),
-	(2, 'profile_upload_avatar'),
-	(2, 'profile_remote_avatar'),
-	(2, 'send_email_to_members'),
-	(2, 'profile_title_own'),
-	(2, 'calendar_post'),
-	(2, 'calendar_edit_any'),
-	(2, 'access_mod_center');
-# --------------------------------------------------------
 
 #
 # Table structure for table `personal_messages`
@@ -1617,6 +1007,817 @@ CREATE TABLE {$db_prefix}scheduled_tasks (
 ) ENGINE={$engine};
 
 #
+# Table structure for table `settings`
+#
+
+CREATE TABLE {$db_prefix}settings (
+  variable varchar(255) NOT NULL default '',
+  value text NOT NULL,
+  PRIMARY KEY (variable(30))
+) ENGINE={$engine};
+
+#
+# Table structure for table `sessions`
+#
+
+CREATE TABLE {$db_prefix}sessions (
+  session_id char(64) NOT NULL,
+  last_update int(10) unsigned NOT NULL,
+  data text NOT NULL,
+  PRIMARY KEY (session_id)
+) ENGINE={$engine};
+
+#
+# Table structure for table `smileys`
+#
+
+CREATE TABLE {$db_prefix}smileys (
+  id_smiley smallint(5) unsigned NOT NULL auto_increment,
+  code varchar(30) NOT NULL default '',
+  filename varchar(48) NOT NULL default '',
+  description varchar(80) NOT NULL default '',
+  smiley_row tinyint(4) unsigned NOT NULL default '0',
+  smiley_order smallint(5) unsigned NOT NULL default '0',
+  hidden tinyint(4) unsigned NOT NULL default '0',
+  PRIMARY KEY (id_smiley)
+) ENGINE={$engine};
+
+#
+# Table structure for table `spiders`
+#
+
+CREATE TABLE {$db_prefix}spiders (
+  id_spider smallint(5) unsigned NOT NULL auto_increment,
+  spider_name varchar(255) NOT NULL default '',
+  user_agent varchar(255) NOT NULL default '',
+  ip_info varchar(255) NOT NULL default '',
+  PRIMARY KEY id_spider(id_spider)
+) ENGINE={$engine};
+
+#
+# Table structure for table `subscriptions`
+#
+
+CREATE TABLE {$db_prefix}subscriptions(
+  id_subscribe mediumint(8) unsigned NOT NULL auto_increment,
+  name varchar(60) NOT NULL default '',
+  description varchar(255) NOT NULL default '',
+  cost text NOT NULL,
+  length varchar(6) NOT NULL default '',
+  id_group smallint(5) NOT NULL default '0',
+  add_groups varchar(40) NOT NULL default '',
+  active tinyint(3) NOT NULL default '1',
+  repeatable tinyint(3) NOT NULL default '0',
+  allow_partial tinyint(3) NOT NULL default '0',
+  reminder tinyint(3) NOT NULL default '0',
+  email_complete text NOT NULL,
+  PRIMARY KEY (id_subscribe),
+  KEY active (active)
+) ENGINE={$engine};
+
+#
+# Table structure for table `themes`
+#
+
+CREATE TABLE {$db_prefix}themes (
+  id_member mediumint(8) NOT NULL default '0',
+  id_theme tinyint(4) unsigned NOT NULL default '1',
+  variable varchar(255) NOT NULL default '',
+  value text NOT NULL,
+  PRIMARY KEY (id_theme, id_member, variable(30)),
+  KEY id_member (id_member)
+) ENGINE={$engine};
+
+#
+# Table structure for table `topics`
+#
+
+CREATE TABLE {$db_prefix}topics (
+  id_topic mediumint(8) unsigned NOT NULL auto_increment,
+  is_sticky tinyint(4) NOT NULL default '0',
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_first_msg int(10) unsigned NOT NULL default '0',
+  id_last_msg int(10) unsigned NOT NULL default '0',
+  id_member_started mediumint(8) unsigned NOT NULL default '0',
+  id_member_updated mediumint(8) unsigned NOT NULL default '0',
+  id_poll mediumint(8) unsigned NOT NULL default '0',
+  id_previous_board smallint(5) NOT NULL default '0',
+  id_previous_topic mediumint(8) NOT NULL default '0',
+  num_replies int(10) unsigned NOT NULL default '0',
+  num_views int(10) unsigned NOT NULL default '0',
+  locked tinyint(4) NOT NULL default '0',
+  redirect_expires int(10) unsigned NOT NULL default '0',
+  id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
+  unapproved_posts smallint(5) NOT NULL default '0',
+  approved tinyint(3) NOT NULL default '1',
+  PRIMARY KEY (id_topic),
+  UNIQUE last_message (id_last_msg, id_board),
+  UNIQUE first_message (id_first_msg, id_board),
+  UNIQUE poll (id_poll, id_topic),
+  KEY is_sticky (is_sticky),
+  KEY approved (approved),
+  KEY id_board (id_board),
+  KEY member_started (id_member_started, id_board),
+  KEY last_message_sticky (id_board, is_sticky, id_last_msg),
+  KEY board_news (id_board, id_first_msg)
+) ENGINE={$engine};
+
+#
+# Table structure for table `user_alerts`
+#
+
+CREATE TABLE {$db_prefix}user_alerts (
+  id_alert int(10) unsigned NOT NULL auto_increment,
+  alert_time int(10) unsigned NOT NULL default '0',
+  id_member mediumint(10) unsigned NOT NULL default '0',
+  id_member_started mediumint(10) unsigned NOT NULL default '0',
+  member_name varchar(255) NOT NULL default '',
+  content_type varchar(255) NOT NULL default '',
+  content_id int(10) unsigned NOT NULL default '0',
+  content_action varchar(255) NOT NULL default '',
+  is_read int(10) unsigned NOT NULL default '0',
+  extra text NOT NULL,
+  PRIMARY KEY (id_alert),
+  KEY id_member (id_member),
+  KEY alert_time (alert_time)
+) ENGINE={$engine};
+
+#
+# Table structure for table `user_alerts_prefs`
+#
+
+CREATE TABLE {$db_prefix}user_alerts_prefs (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  alert_pref varchar(32) NOT NULL default '',
+  alert_value tinyint(3) NOT NULL default '0',
+  PRIMARY KEY (id_member, alert_pref)
+) ENGINE={$engine};
+
+#
+# Table structure for table `user_drafts`
+#
+
+CREATE TABLE {$db_prefix}user_drafts (
+  id_draft int(10) unsigned NOT NULL auto_increment,
+  id_topic mediumint(8) unsigned NOT NULL default '0',
+  id_board smallint(5) unsigned NOT NULL default '0',
+  id_reply int(10) unsigned NOT NULL default '0',
+  type tinyint(4) NOT NULL default '0',
+  poster_time int(10) unsigned NOT NULL default '0',
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  subject varchar(255) NOT NULL default '',
+  smileys_enabled tinyint(4) NOT NULL default '1',
+  body mediumtext NOT NULL,
+  icon varchar(16) NOT NULL default 'xx',
+  locked tinyint(4) NOT NULL default '0',
+  is_sticky tinyint(4) NOT NULL default '0',
+  to_list varchar(255) NOT NULL default '',
+  PRIMARY KEY (id_draft),
+  UNIQUE id_member (id_member, id_draft, type)
+) ENGINE={$engine};
+
+#
+# Table structure for table `user_likes`
+#
+
+CREATE TABLE {$db_prefix}user_likes (
+  id_member mediumint(8) unsigned NOT NULL default '0',
+  content_type char(6) default '',
+  content_id int(10) unsigned NOT NULL default '0',
+  like_time int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (content_id, content_type, id_member),
+  INDEX content (content_id, content_type),
+  INDEX liker (id_member)
+) ENGINE={$engine};
+
+#
+# Table structure for table `mentions`
+#
+CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+  content_id int NOT NULL default '0',
+  content_type varchar(10) default '',
+  id_mentioned int NOT NULL default 0,
+  id_member int NOT NULL default 0,
+  `time` int NOT NULL default 0,
+  PRIMARY KEY (content_id, content_type, id_mentioned),
+  INDEX content (content_id, content_type),
+  INDEX mentionee (id_member)
+) ENGINE={$engine};
+
+# Transactions for the win - only used if we have InnoDB available...
+START TRANSACTION;
+
+#
+# Dumping data for table `admin_info_files`
+#
+
+INSERT INTO {$db_prefix}admin_info_files
+	(id_file, filename, path, parameters, data, filetype)
+VALUES
+	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
+	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
+	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
+	(4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `board_permissions`
+#
+
+INSERT INTO {$db_prefix}board_permissions
+	(id_group, id_profile, permission)
+VALUES (-1, 1, 'poll_view'),
+	(0, 1, 'remove_own'),
+	(0, 1, 'lock_own'),
+	(0, 1, 'modify_own'),
+	(0, 1, 'poll_add_own'),
+	(0, 1, 'poll_edit_own'),
+	(0, 1, 'poll_lock_own'),
+	(0, 1, 'poll_post'),
+	(0, 1, 'poll_view'),
+	(0, 1, 'poll_vote'),
+	(0, 1, 'post_attachment'),
+	(0, 1, 'post_new'),
+	(0, 1, 'post_draft'),
+	(0, 1, 'post_reply_any'),
+	(0, 1, 'post_reply_own'),
+	(0, 1, 'post_unapproved_topics'),
+	(0, 1, 'post_unapproved_replies_any'),
+	(0, 1, 'post_unapproved_replies_own'),
+	(0, 1, 'post_unapproved_attachments'),
+	(0, 1, 'delete_own'),
+	(0, 1, 'report_any'),
+	(0, 1, 'view_attachments'),
+	(2, 1, 'moderate_board'),
+	(2, 1, 'post_new'),
+	(2, 1, 'post_draft'),
+	(2, 1, 'post_reply_own'),
+	(2, 1, 'post_reply_any'),
+	(2, 1, 'post_unapproved_topics'),
+	(2, 1, 'post_unapproved_replies_any'),
+	(2, 1, 'post_unapproved_replies_own'),
+	(2, 1, 'post_unapproved_attachments'),
+	(2, 1, 'poll_post'),
+	(2, 1, 'poll_add_any'),
+	(2, 1, 'poll_remove_any'),
+	(2, 1, 'poll_view'),
+	(2, 1, 'poll_vote'),
+	(2, 1, 'poll_lock_any'),
+	(2, 1, 'poll_edit_any'),
+	(2, 1, 'report_any'),
+	(2, 1, 'lock_own'),
+	(2, 1, 'delete_own'),
+	(2, 1, 'modify_own'),
+	(2, 1, 'make_sticky'),
+	(2, 1, 'lock_any'),
+	(2, 1, 'remove_any'),
+	(2, 1, 'move_any'),
+	(2, 1, 'merge_any'),
+	(2, 1, 'split_any'),
+	(2, 1, 'delete_any'),
+	(2, 1, 'modify_any'),
+	(2, 1, 'approve_posts'),
+	(2, 1, 'post_attachment'),
+	(2, 1, 'view_attachments'),
+	(3, 1, 'moderate_board'),
+	(3, 1, 'post_new'),
+	(3, 1, 'post_draft'),
+	(3, 1, 'post_reply_own'),
+	(3, 1, 'post_reply_any'),
+	(3, 1, 'post_unapproved_topics'),
+	(3, 1, 'post_unapproved_replies_any'),
+	(3, 1, 'post_unapproved_replies_own'),
+	(3, 1, 'post_unapproved_attachments'),
+	(3, 1, 'poll_post'),
+	(3, 1, 'poll_add_any'),
+	(3, 1, 'poll_remove_any'),
+	(3, 1, 'poll_view'),
+	(3, 1, 'poll_vote'),
+	(3, 1, 'poll_lock_any'),
+	(3, 1, 'poll_edit_any'),
+	(3, 1, 'report_any'),
+	(3, 1, 'lock_own'),
+	(3, 1, 'delete_own'),
+	(3, 1, 'modify_own'),
+	(3, 1, 'make_sticky'),
+	(3, 1, 'lock_any'),
+	(3, 1, 'remove_any'),
+	(3, 1, 'move_any'),
+	(3, 1, 'merge_any'),
+	(3, 1, 'split_any'),
+	(3, 1, 'delete_any'),
+	(3, 1, 'modify_any'),
+	(3, 1, 'approve_posts'),
+	(3, 1, 'post_attachment'),
+	(3, 1, 'view_attachments'),
+	(-1, 2, 'poll_view'),
+	(0, 2, 'remove_own'),
+	(0, 2, 'lock_own'),
+	(0, 2, 'modify_own'),
+	(0, 2, 'poll_view'),
+	(0, 2, 'poll_vote'),
+	(0, 2, 'post_attachment'),
+	(0, 2, 'post_new'),
+	(0, 2, 'post_draft'),
+	(0, 2, 'post_reply_any'),
+	(0, 2, 'post_reply_own'),
+	(0, 2, 'post_unapproved_topics'),
+	(0, 2, 'post_unapproved_replies_any'),
+	(0, 2, 'post_unapproved_replies_own'),
+	(0, 2, 'post_unapproved_attachments'),
+	(0, 2, 'delete_own'),
+	(0, 2, 'report_any'),
+	(0, 2, 'view_attachments'),
+	(2, 2, 'moderate_board'),
+	(2, 2, 'post_new'),
+	(2, 2, 'post_draft'),
+	(2, 2, 'post_reply_own'),
+	(2, 2, 'post_reply_any'),
+	(2, 2, 'post_unapproved_topics'),
+	(2, 2, 'post_unapproved_replies_any'),
+	(2, 2, 'post_unapproved_replies_own'),
+	(2, 2, 'post_unapproved_attachments'),
+	(2, 2, 'poll_post'),
+	(2, 2, 'poll_add_any'),
+	(2, 2, 'poll_remove_any'),
+	(2, 2, 'poll_view'),
+	(2, 2, 'poll_vote'),
+	(2, 2, 'poll_lock_any'),
+	(2, 2, 'poll_edit_any'),
+	(2, 2, 'report_any'),
+	(2, 2, 'lock_own'),
+	(2, 2, 'delete_own'),
+	(2, 2, 'modify_own'),
+	(2, 2, 'make_sticky'),
+	(2, 2, 'lock_any'),
+	(2, 2, 'remove_any'),
+	(2, 2, 'move_any'),
+	(2, 2, 'merge_any'),
+	(2, 2, 'split_any'),
+	(2, 2, 'delete_any'),
+	(2, 2, 'modify_any'),
+	(2, 2, 'approve_posts'),
+	(2, 2, 'post_attachment'),
+	(2, 2, 'view_attachments'),
+	(3, 2, 'moderate_board'),
+	(3, 2, 'post_new'),
+	(3, 2, 'post_draft'),
+	(3, 2, 'post_reply_own'),
+	(3, 2, 'post_reply_any'),
+	(3, 2, 'post_unapproved_topics'),
+	(3, 2, 'post_unapproved_replies_any'),
+	(3, 2, 'post_unapproved_replies_own'),
+	(3, 2, 'post_unapproved_attachments'),
+	(3, 2, 'poll_post'),
+	(3, 2, 'poll_add_any'),
+	(3, 2, 'poll_remove_any'),
+	(3, 2, 'poll_view'),
+	(3, 2, 'poll_vote'),
+	(3, 2, 'poll_lock_any'),
+	(3, 2, 'poll_edit_any'),
+	(3, 2, 'report_any'),
+	(3, 2, 'lock_own'),
+	(3, 2, 'delete_own'),
+	(3, 2, 'modify_own'),
+	(3, 2, 'make_sticky'),
+	(3, 2, 'lock_any'),
+	(3, 2, 'remove_any'),
+	(3, 2, 'move_any'),
+	(3, 2, 'merge_any'),
+	(3, 2, 'split_any'),
+	(3, 2, 'delete_any'),
+	(3, 2, 'modify_any'),
+	(3, 2, 'approve_posts'),
+	(3, 2, 'post_attachment'),
+	(3, 2, 'view_attachments'),
+	(-1, 3, 'poll_view'),
+	(0, 3, 'remove_own'),
+	(0, 3, 'lock_own'),
+	(0, 3, 'modify_own'),
+	(0, 3, 'poll_view'),
+	(0, 3, 'poll_vote'),
+	(0, 3, 'post_attachment'),
+	(0, 3, 'post_reply_any'),
+	(0, 3, 'post_reply_own'),
+	(0, 3, 'post_unapproved_replies_any'),
+	(0, 3, 'post_unapproved_replies_own'),
+	(0, 3, 'post_unapproved_attachments'),
+	(0, 3, 'delete_own'),
+	(0, 3, 'report_any'),
+	(0, 3, 'view_attachments'),
+	(2, 3, 'moderate_board'),
+	(2, 3, 'post_new'),
+	(2, 3, 'post_draft'),
+	(2, 3, 'post_reply_own'),
+	(2, 3, 'post_reply_any'),
+	(2, 3, 'post_unapproved_topics'),
+	(2, 3, 'post_unapproved_replies_any'),
+	(2, 3, 'post_unapproved_replies_own'),
+	(2, 3, 'post_unapproved_attachments'),
+	(2, 3, 'poll_post'),
+	(2, 3, 'poll_add_any'),
+	(2, 3, 'poll_remove_any'),
+	(2, 3, 'poll_view'),
+	(2, 3, 'poll_vote'),
+	(2, 3, 'poll_lock_any'),
+	(2, 3, 'poll_edit_any'),
+	(2, 3, 'report_any'),
+	(2, 3, 'lock_own'),
+	(2, 3, 'delete_own'),
+	(2, 3, 'modify_own'),
+	(2, 3, 'make_sticky'),
+	(2, 3, 'lock_any'),
+	(2, 3, 'remove_any'),
+	(2, 3, 'move_any'),
+	(2, 3, 'merge_any'),
+	(2, 3, 'split_any'),
+	(2, 3, 'delete_any'),
+	(2, 3, 'modify_any'),
+	(2, 3, 'approve_posts'),
+	(2, 3, 'post_attachment'),
+	(2, 3, 'view_attachments'),
+	(3, 3, 'moderate_board'),
+	(3, 3, 'post_new'),
+	(3, 3, 'post_draft'),
+	(3, 3, 'post_reply_own'),
+	(3, 3, 'post_reply_any'),
+	(3, 3, 'post_unapproved_topics'),
+	(3, 3, 'post_unapproved_replies_any'),
+	(3, 3, 'post_unapproved_replies_own'),
+	(3, 3, 'post_unapproved_attachments'),
+	(3, 3, 'poll_post'),
+	(3, 3, 'poll_add_any'),
+	(3, 3, 'poll_remove_any'),
+	(3, 3, 'poll_view'),
+	(3, 3, 'poll_vote'),
+	(3, 3, 'poll_lock_any'),
+	(3, 3, 'poll_edit_any'),
+	(3, 3, 'report_any'),
+	(3, 3, 'lock_own'),
+	(3, 3, 'delete_own'),
+	(3, 3, 'modify_own'),
+	(3, 3, 'make_sticky'),
+	(3, 3, 'lock_any'),
+	(3, 3, 'remove_any'),
+	(3, 3, 'move_any'),
+	(3, 3, 'merge_any'),
+	(3, 3, 'split_any'),
+	(3, 3, 'delete_any'),
+	(3, 3, 'modify_any'),
+	(3, 3, 'approve_posts'),
+	(3, 3, 'post_attachment'),
+	(3, 3, 'view_attachments'),
+	(-1, 4, 'poll_view'),
+	(0, 4, 'poll_view'),
+	(0, 4, 'poll_vote'),
+	(0, 4, 'report_any'),
+	(0, 4, 'view_attachments'),
+	(2, 4, 'moderate_board'),
+	(2, 4, 'post_new'),
+	(2, 4, 'post_draft'),
+	(2, 4, 'post_reply_own'),
+	(2, 4, 'post_reply_any'),
+	(2, 4, 'post_unapproved_topics'),
+	(2, 4, 'post_unapproved_replies_any'),
+	(2, 4, 'post_unapproved_replies_own'),
+	(2, 4, 'post_unapproved_attachments'),
+	(2, 4, 'poll_post'),
+	(2, 4, 'poll_add_any'),
+	(2, 4, 'poll_remove_any'),
+	(2, 4, 'poll_view'),
+	(2, 4, 'poll_vote'),
+	(2, 4, 'poll_lock_any'),
+	(2, 4, 'poll_edit_any'),
+	(2, 4, 'report_any'),
+	(2, 4, 'lock_own'),
+	(2, 4, 'delete_own'),
+	(2, 4, 'modify_own'),
+	(2, 4, 'make_sticky'),
+	(2, 4, 'lock_any'),
+	(2, 4, 'remove_any'),
+	(2, 4, 'move_any'),
+	(2, 4, 'merge_any'),
+	(2, 4, 'split_any'),
+	(2, 4, 'delete_any'),
+	(2, 4, 'modify_any'),
+	(2, 4, 'approve_posts'),
+	(2, 4, 'post_attachment'),
+	(2, 4, 'view_attachments'),
+	(3, 4, 'moderate_board'),
+	(3, 4, 'post_new'),
+	(3, 4, 'post_draft'),
+	(3, 4, 'post_reply_own'),
+	(3, 4, 'post_reply_any'),
+	(3, 4, 'post_unapproved_topics'),
+	(3, 4, 'post_unapproved_replies_any'),
+	(3, 4, 'post_unapproved_replies_own'),
+	(3, 4, 'post_unapproved_attachments'),
+	(3, 4, 'poll_post'),
+	(3, 4, 'poll_add_any'),
+	(3, 4, 'poll_remove_any'),
+	(3, 4, 'poll_view'),
+	(3, 4, 'poll_vote'),
+	(3, 4, 'poll_lock_any'),
+	(3, 4, 'poll_edit_any'),
+	(3, 4, 'report_any'),
+	(3, 4, 'lock_own'),
+	(3, 4, 'delete_own'),
+	(3, 4, 'modify_own'),
+	(3, 4, 'make_sticky'),
+	(3, 4, 'lock_any'),
+	(3, 4, 'remove_any'),
+	(3, 4, 'move_any'),
+	(3, 4, 'merge_any'),
+	(3, 4, 'split_any'),
+	(3, 4, 'delete_any'),
+	(3, 4, 'modify_any'),
+	(3, 4, 'approve_posts'),
+	(3, 4, 'post_attachment'),
+	(3, 4, 'view_attachments');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `boards`
+#
+
+INSERT INTO {$db_prefix}boards
+	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
+VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `calendar_holidays`
+#
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('New Year\'s', '0004-01-01'),
+	('Christmas', '0004-12-25'),
+	('Valentine\'s Day', '0004-02-14'),
+	('St. Patrick\'s Day', '0004-03-17'),
+	('April Fools', '0004-04-01'),
+	('Earth Day', '0004-04-22'),
+	('United Nations Day', '0004-10-24'),
+	('Halloween', '0004-10-31'),
+	('Mother\'s Day', '2010-05-09'),
+	('Mother\'s Day', '2011-05-08'),
+	('Mother\'s Day', '2012-05-13'),
+	('Mother\'s Day', '2013-05-12'),
+	('Mother\'s Day', '2014-05-11'),
+	('Mother\'s Day', '2015-05-10'),
+	('Mother\'s Day', '2016-05-08'),
+	('Mother\'s Day', '2017-05-14'),
+	('Mother\'s Day', '2018-05-13'),
+	('Mother\'s Day', '2019-05-12'),
+	('Mother\'s Day', '2020-05-10'),
+	('Father\'s Day', '2008-06-15'),
+	('Father\'s Day', '2009-06-21'),
+	('Father\'s Day', '2010-06-20'),
+	('Father\'s Day', '2011-06-19'),
+	('Father\'s Day', '2012-06-17'),
+	('Father\'s Day', '2013-06-16'),
+	('Father\'s Day', '2014-06-15'),
+	('Father\'s Day', '2015-06-21'),
+	('Father\'s Day', '2016-06-19'),
+	('Father\'s Day', '2017-06-18'),
+	('Father\'s Day', '2018-06-17'),
+	('Father\'s Day', '2019-06-16'),
+	('Father\'s Day', '2020-06-21'),
+	('Summer Solstice', '2010-06-21'),
+	('Summer Solstice', '2011-06-21'),
+	('Summer Solstice', '2012-06-20'),
+	('Summer Solstice', '2013-06-21'),
+	('Summer Solstice', '2014-06-21'),
+	('Summer Solstice', '2015-06-21'),
+	('Summer Solstice', '2016-06-20'),
+	('Summer Solstice', '2017-06-20'),
+	('Summer Solstice', '2018-06-21'),
+	('Summer Solstice', '2019-06-21'),
+	('Summer Solstice', '2020-06-20'),
+	('Vernal Equinox', '2010-03-20'),
+	('Vernal Equinox', '2011-03-20'),
+	('Vernal Equinox', '2012-03-20'),
+	('Vernal Equinox', '2013-03-20'),
+	('Vernal Equinox', '2014-03-20'),
+	('Vernal Equinox', '2015-03-20'),
+	('Vernal Equinox', '2016-03-19'),
+	('Vernal Equinox', '2017-03-20'),
+	('Vernal Equinox', '2018-03-20'),
+	('Vernal Equinox', '2019-03-20'),
+	('Vernal Equinox', '2020-03-19'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-21'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-21'),
+	('Winter Solstice', '2020-12-21'),
+	('Autumnal Equinox', '2010-09-22'),
+	('Autumnal Equinox', '2011-09-23'),
+	('Autumnal Equinox', '2012-09-22'),
+	('Autumnal Equinox', '2013-09-22'),
+	('Autumnal Equinox', '2014-09-22'),
+	('Autumnal Equinox', '2015-09-23'),
+	('Autumnal Equinox', '2016-09-22'),
+	('Autumnal Equinox', '2017-09-22'),
+	('Autumnal Equinox', '2018-09-22'),
+	('Autumnal Equinox', '2019-09-23'),
+	('Autumnal Equinox', '2020-09-22');
+
+INSERT INTO {$db_prefix}calendar_holidays
+	(title, event_date)
+VALUES ('Independence Day', '0004-07-04'),
+	('Cinco de Mayo', '0004-05-05'),
+	('Flag Day', '0004-06-14'),
+	('Veterans Day', '0004-11-11'),
+	('Groundhog Day', '0004-02-02'),
+	('Thanksgiving', '2010-11-25'),
+	('Thanksgiving', '2011-11-24'),
+	('Thanksgiving', '2012-11-22'),
+	('Thanksgiving', '2013-11-28'),
+	('Thanksgiving', '2014-11-27'),
+	('Thanksgiving', '2015-11-26'),
+	('Thanksgiving', '2016-11-24'),
+	('Thanksgiving', '2017-11-23'),
+	('Thanksgiving', '2018-11-22'),
+	('Thanksgiving', '2019-11-28'),
+	('Thanksgiving', '2020-11-26'),
+	('Memorial Day', '2010-05-31'),
+	('Memorial Day', '2011-05-30'),
+	('Memorial Day', '2012-05-28'),
+	('Memorial Day', '2013-05-27'),
+	('Memorial Day', '2014-05-26'),
+	('Memorial Day', '2015-05-25'),
+	('Memorial Day', '2016-05-30'),
+	('Memorial Day', '2017-05-29'),
+	('Memorial Day', '2018-05-28'),
+	('Memorial Day', '2019-05-27'),
+	('Memorial Day', '2020-05-25'),
+	('Labor Day', '2010-09-06'),
+	('Labor Day', '2011-09-05'),
+	('Labor Day', '2012-09-03'),
+	('Labor Day', '2013-09-02'),
+	('Labor Day', '2014-09-01'),
+	('Labor Day', '2015-09-07'),
+	('Labor Day', '2016-09-05'),
+	('Labor Day', '2017-09-04'),
+	('Labor Day', '2018-09-03'),
+	('Labor Day', '2019-09-02'),
+	('Labor Day', '2020-09-07'),
+	('D-Day', '0004-06-06');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `categories`
+#
+
+INSERT INTO {$db_prefix}categories
+VALUES (1, 0, '{$default_category_name}', '', 1);
+# --------------------------------------------------------
+
+#
+# Dumping data for table `custom_fields`
+#
+
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
+('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
+('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
+('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
+('cust_yahoo', 'Yahoo! Messenger', 'This is your Yahoo! Instant Messenger nickname.', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="yim" href="edit.yahoo.com/config/send_webmesg?.target={INPUT}" target="_blank" title="Yahoo! Messenger - {INPUT}"><img src="{IMAGES_URL}/yahoo.png" alt="Yahoo! Messenger - {INPUT}"></a>', 1),
+('cust_loca', 'Location', 'Geographic location.', 'text', 50, '', 5, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0),
+('cust_gender', 'Gender', 'Your gender.', 'radio', 255, 'None,Male,Female', 6, 'nohtml', 1, 1, 0, 'forumprofile', 0, 1, 0, 0, 'None', '<span class=" generic_icons gender_{INPUT}" title="{INPUT}"></span>', 1);
+
+# --------------------------------------------------------
+
+#
+# Dumping data for table `membergroups`
+#
+
+INSERT INTO {$db_prefix}membergroups
+	(id_group, group_name, description, online_color, min_posts, icons, group_type)
+VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
+	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
+	(3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png', 0),
+	(4, '{$default_newbie_group}', '', '', 0, '1#icon.png', 0),
+	(5, '{$default_junior_group}', '', '', 50, '2#icon.png', 0),
+	(6, '{$default_full_group}', '', '', 100, '3#icon.png', 0),
+	(7, '{$default_senior_group}', '', '', 250, '4#icon.png', 0),
+	(8, '{$default_hero_group}', '', '', 500, '5#icon.png', 0);
+# --------------------------------------------------------
+
+#
+# Dumping data for table `message_icons`
+#
+
+# // @todo i18n
+INSERT INTO {$db_prefix}message_icons
+	(filename, title, icon_order)
+VALUES ('xx', 'Standard', '0'),
+	('thumbup', 'Thumb Up', '1'),
+	('thumbdown', 'Thumb Down', '2'),
+	('exclamation', 'Exclamation point', '3'),
+	('question', 'Question mark', '4'),
+	('lamp', 'Lamp', '5'),
+	('smiley', 'Smiley', '6'),
+	('angry', 'Angry', '7'),
+	('cheesy', 'Cheesy', '8'),
+	('grin', 'Grin', '9'),
+	('sad', 'Sad', '10'),
+	('wink', 'Wink', '11'),
+	('poll', 'Poll', '12');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `messages`
+#
+
+INSERT INTO {$db_prefix}messages
+	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
+VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `package_servers`
+#
+
+INSERT INTO {$db_prefix}package_servers
+	(name, url)
+VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.org/packages/mods');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `permission_profiles`
+#
+
+INSERT INTO {$db_prefix}permission_profiles
+	(id_profile, profile_name)
+VALUES (1, 'default'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
+# --------------------------------------------------------
+
+#
+# Dumping data for table `permissions`
+#
+
+INSERT INTO {$db_prefix}permissions
+	(id_group, permission)
+VALUES (-1, 'search_posts'),
+	(-1, 'calendar_view'),
+	(-1, 'view_stats'),
+	(0, 'view_mlist'),
+	(0, 'search_posts'),
+	(0, 'profile_view'),
+	(0, 'pm_read'),
+	(0, 'pm_send'),
+	(0, 'pm_draft'),
+	(0, 'calendar_view'),
+	(0, 'view_stats'),
+	(0, 'who_view'),
+	(0, 'profile_identity_own'),
+	(0, 'profile_password_own'),
+	(0, 'profile_blurb_own'),
+	(0, 'profile_displayed_name_own'),
+	(0, 'profile_signature_own'),
+	(0, 'profile_other_own'),
+	(0, 'profile_forum_own'),
+	(0, 'profile_extra_own'),
+	(0, 'profile_remove_own'),
+	(0, 'profile_server_avatar'),
+	(0, 'profile_upload_avatar'),
+	(0, 'profile_remote_avatar'),
+	(0, 'send_email_to_members'),
+	(2, 'view_mlist'),
+	(2, 'search_posts'),
+	(2, 'profile_view'),
+	(2, 'pm_read'),
+	(2, 'pm_send'),
+	(2, 'pm_draft'),
+	(2, 'calendar_view'),
+	(2, 'view_stats'),
+	(2, 'who_view'),
+	(2, 'profile_identity_own'),
+	(2, 'profile_password_own'),
+	(2, 'profile_blurb_own'),
+	(2, 'profile_displayed_name_own'),
+	(2, 'profile_signature_own'),
+	(2, 'profile_other_own'),
+	(2, 'profile_forum_own'),
+	(2, 'profile_extra_own'),
+	(2, 'profile_remove_own'),
+	(2, 'profile_server_avatar'),
+	(2, 'profile_upload_avatar'),
+	(2, 'profile_remote_avatar'),
+	(2, 'send_email_to_members'),
+	(2, 'profile_title_own'),
+	(2, 'calendar_post'),
+	(2, 'calendar_edit_any'),
+	(2, 'access_mod_center');
+# --------------------------------------------------------
+
+#
 # Dumping data for table `scheduled_tasks`
 #
 
@@ -1636,16 +1837,6 @@ VALUES
 	(13, 0, 240, 1, 'd', 0, 'remove_old_drafts', '');
 
 # --------------------------------------------------------
-
-#
-# Table structure for table `settings`
-#
-
-CREATE TABLE {$db_prefix}settings (
-  variable varchar(255) NOT NULL default '',
-  value text NOT NULL,
-  PRIMARY KEY (variable(30))
-) ENGINE={$engine};
 
 #
 # Dumping data for table `settings`
@@ -1853,32 +2044,6 @@ VALUES ('smfVersion', '{$smf_version}'),
 # --------------------------------------------------------
 
 #
-# Table structure for table `sessions`
-#
-
-CREATE TABLE {$db_prefix}sessions (
-  session_id char(64) NOT NULL,
-  last_update int(10) unsigned NOT NULL,
-  data text NOT NULL,
-  PRIMARY KEY (session_id)
-) ENGINE={$engine};
-
-#
-# Table structure for table `smileys`
-#
-
-CREATE TABLE {$db_prefix}smileys (
-  id_smiley smallint(5) unsigned NOT NULL auto_increment,
-  code varchar(30) NOT NULL default '',
-  filename varchar(48) NOT NULL default '',
-  description varchar(80) NOT NULL default '',
-  smiley_row tinyint(4) unsigned NOT NULL default '0',
-  smiley_order smallint(5) unsigned NOT NULL default '0',
-  hidden tinyint(4) unsigned NOT NULL default '0',
-  PRIMARY KEY (id_smiley)
-) ENGINE={$engine};
-
-#
 # Dumping data for table `smileys`
 #
 
@@ -1909,18 +2074,6 @@ VALUES (':)', 'smiley.gif', '{$default_smiley_smiley}', 0, 0),
 # --------------------------------------------------------
 
 #
-# Table structure for table `spiders`
-#
-
-CREATE TABLE {$db_prefix}spiders (
-  id_spider smallint(5) unsigned NOT NULL auto_increment,
-  spider_name varchar(255) NOT NULL default '',
-  user_agent varchar(255) NOT NULL default '',
-  ip_info varchar(255) NOT NULL default '',
-  PRIMARY KEY id_spider(id_spider)
-) ENGINE={$engine};
-
-#
 # Dumping data for table `spiders`
 #
 
@@ -1946,40 +2099,7 @@ VALUES (1, 'Google', 'googlebot', ''),
 	(18, 'Omgili', 'omgilibot', ''),
 	(19, 'EntireWeb', 'Speedy Spider', ''),
 	(20, 'Yandex', 'yandex', '');
-
-#
-# Table structure for table `subscriptions`
-#
-
-CREATE TABLE {$db_prefix}subscriptions(
-  id_subscribe mediumint(8) unsigned NOT NULL auto_increment,
-  name varchar(60) NOT NULL default '',
-  description varchar(255) NOT NULL default '',
-  cost text NOT NULL,
-  length varchar(6) NOT NULL default '',
-  id_group smallint(5) NOT NULL default '0',
-  add_groups varchar(40) NOT NULL default '',
-  active tinyint(3) NOT NULL default '1',
-  repeatable tinyint(3) NOT NULL default '0',
-  allow_partial tinyint(3) NOT NULL default '0',
-  reminder tinyint(3) NOT NULL default '0',
-  email_complete text NOT NULL,
-  PRIMARY KEY (id_subscribe),
-  KEY active (active)
-) ENGINE={$engine};
-
-#
-# Table structure for table `themes`
-#
-
-CREATE TABLE {$db_prefix}themes (
-  id_member mediumint(8) NOT NULL default '0',
-  id_theme tinyint(4) unsigned NOT NULL default '1',
-  variable varchar(255) NOT NULL default '',
-  value text NOT NULL,
-  PRIMARY KEY (id_theme, id_member, variable(30)),
-  KEY id_member (id_member)
-) ENGINE={$engine};
+#---------------------------------------------------------
 
 #
 # Dumping data for table `themes`
@@ -1998,46 +2118,11 @@ VALUES (1, 'name', '{$default_theme_name}'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
-	(1, 'forum_width', '90%'),
 	(1, 'drafts_show_saved_enabled', '1');
 
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'return_to_post', '1');
 # --------------------------------------------------------
-
-#
-# Table structure for table `topics`
-#
-
-CREATE TABLE {$db_prefix}topics (
-  id_topic mediumint(8) unsigned NOT NULL auto_increment,
-  is_sticky tinyint(4) NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_first_msg int(10) unsigned NOT NULL default '0',
-  id_last_msg int(10) unsigned NOT NULL default '0',
-  id_member_started mediumint(8) unsigned NOT NULL default '0',
-  id_member_updated mediumint(8) unsigned NOT NULL default '0',
-  id_poll mediumint(8) unsigned NOT NULL default '0',
-  id_previous_board smallint(5) NOT NULL default '0',
-  id_previous_topic mediumint(8) NOT NULL default '0',
-  num_replies int(10) unsigned NOT NULL default '0',
-  num_views int(10) unsigned NOT NULL default '0',
-  locked tinyint(4) NOT NULL default '0',
-  redirect_expires int(10) unsigned NOT NULL default '0',
-  id_redirect_topic mediumint(8) unsigned NOT NULL default '0',
-  unapproved_posts smallint(5) NOT NULL default '0',
-  approved tinyint(3) NOT NULL default '1',
-  PRIMARY KEY (id_topic),
-  UNIQUE last_message (id_last_msg, id_board),
-  UNIQUE first_message (id_first_msg, id_board),
-  UNIQUE poll (id_poll, id_topic),
-  KEY is_sticky (is_sticky),
-  KEY approved (approved),
-  KEY id_board (id_board),
-  KEY member_started (id_member_started, id_board),
-  KEY last_message_sticky (id_board, is_sticky, id_last_msg),
-  KEY board_news (id_board, id_first_msg)
-) ENGINE={$engine};
 
 #
 # Dumping data for table `topics`
@@ -2047,37 +2132,6 @@ INSERT INTO {$db_prefix}topics
 	(id_topic, id_board, id_first_msg, id_last_msg, id_member_started, id_member_updated)
 VALUES (1, 1, 1, 1, 0, 0);
 # --------------------------------------------------------
-
-#
-# Table structure for table `user_alerts`
-#
-
-CREATE TABLE {$db_prefix}user_alerts (
-  id_alert int(10) unsigned NOT NULL auto_increment,
-  alert_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(10) unsigned NOT NULL default '0',
-  id_member_started mediumint(10) unsigned NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read int(10) unsigned NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert),
-  KEY id_member (id_member),
-  KEY alert_time (alert_time)
-) ENGINE={$engine};
-
-#
-# Table structure for table `user_alerts_prefs`
-#
-
-CREATE TABLE {$db_prefix}user_alerts_prefs (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value tinyint(3) NOT NULL default '0',
-  PRIMARY KEY (id_member, alert_pref)
-) ENGINE={$engine};
 
 #
 # Dumping data for table `user_alerts_prefs`
@@ -2090,57 +2144,19 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
 	(0, 'msg_report_reply', 1),
-	(0, 'unapproved_reply', 3);
+	(0, 'unapproved_reply', 3),
+	(0, 'topic_notify', 1),
+	(0, 'board_notify', 1),
+	(0, 'msg_mention', 1),
+	(0, 'msg_quote', 1),
+	(0, 'pm_new', 1),
+	(0, 'pm_reply', 1),
+	(0, 'member_report_reply', 3),
+	(0, 'member_report', 3),
+	(0, 'unapproved_post', 1),
+	(0, 'buddy_request', 1),
+	(0, 'warn_any', 1),
+	(0, 'request_group', 1);
 # --------------------------------------------------------
 
-#
-# Table structure for table `user_drafts`
-#
-
-CREATE TABLE {$db_prefix}user_drafts (
-  id_draft int(10) unsigned NOT NULL auto_increment,
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_reply int(10) unsigned NOT NULL default '0',
-  type tinyint(4) NOT NULL default '0',
-  poster_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  smileys_enabled tinyint(4) NOT NULL default '1',
-  body mediumtext NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  locked tinyint(4) NOT NULL default '0',
-  is_sticky tinyint(4) NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  PRIMARY KEY (id_draft),
-  UNIQUE id_member (id_member, id_draft, type)
-) ENGINE={$engine};
-
-#
-# Table structure for table `user_likes`
-#
-
-CREATE TABLE {$db_prefix}user_likes (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  content_type char(6) default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  like_time int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY (content_id, content_type, id_member),
-  INDEX content (content_id, content_type),
-  INDEX liker (id_member)
-) ENGINE={$engine};
-
-#
-# Table structure for table `mentions`
-#
-CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
-  content_type varchar(10) default '',
-  id_mentioned int NOT NULL default 0,
-  id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned),
-  INDEX content (content_id, content_type),
-  INDEX mentionee (id_member)
-) ENGINE={$engine};
----#
+COMMIT;

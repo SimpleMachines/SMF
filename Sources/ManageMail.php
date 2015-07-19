@@ -344,7 +344,7 @@ function ModifyMailSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 
 	$context['settings_insert_above'] = '
-	<script><!-- // --><![CDATA[
+	<script>
 		var bDay = {';
 
 	$i = 0;
@@ -365,7 +365,7 @@ function ModifyMailSettings($return_config = false)
 			document.getElementById(\'birthday_subject\').innerHTML = bDay[index].subject;
 			document.getElementById(\'birthday_body\').innerHTML = bDay[index].body;
 		}
-	// ]]></script>';
+	</script>';
 }
 
 /**

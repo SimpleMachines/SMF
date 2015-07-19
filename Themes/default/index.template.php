@@ -53,8 +53,11 @@ function template_init()
 	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
 	$settings['require_theme_strings'] = false;
 
-	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index and message index.
+	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	$settings['avatars_on_indexes'] = false;
+
+	// Set the following variable to true is this theme wants to display the avatar of the user that posted the last post on the board index.
+	$settings['avatars_on_boardIndex'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	$settings['page_index'] = array(
@@ -89,11 +92,6 @@ function template_html_above()
 
 	// load in any css from mods or themes so they can overwrite if wanted
 	template_css();
-
-	// Save some database hits, if a width for multiple wrappers is set in admin.
-	if (!empty($settings['forum_width']))
-		echo '
-	<style type="text/css">#wrapper, .frame {width: ', $settings['forum_width'], ';}</style>';
 
 	// load in any javascript files from mods and themes
 	template_javascript();
@@ -452,7 +450,7 @@ function template_menu()
 		echo '
 						<li id="button_', $act, '"', !empty($button['sub_buttons']) ? ' class="subsections"' :'', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', '>
-								', $button['icon'], $button['title'], '
+								', $button['icon'],'<span class="textmenu">', $button['title'], '</span>
 							</a>';
 
 		if (!empty($button['sub_buttons']))

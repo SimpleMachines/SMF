@@ -51,7 +51,7 @@ function template_registration_form()
 	global $context, $scripturl, $txt, $modSettings;
 
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			function verifyAgree()
 			{
 				if (currentAuthMethod == \'passwd\' && document.forms.registration.smf_autov_pwmain.value != document.forms.registration.smf_autov_pwverify.value)
@@ -64,7 +64,7 @@ function template_registration_form()
 			}
 
 			var currentAuthMethod = \'passwd\';
-		// ]]></script>';
+		</script>';
 
 	// Any errors?
 	if (!empty($context['registration_errors']))
@@ -125,6 +125,12 @@ function template_registration_form()
 							<span id="smf_autov_pwverify_div" style="display: none;">
 								<span id="smf_autov_pwverify_img" class="generic_icons valid"></span>
 							</span>
+						</dd>
+					</dl>
+					<dl class="register_form" id="notify_announcements">
+						<dt><strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong></dt>
+						<dd>
+							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' class="input_check" />
 						</dd>
 					</dl>';
 
@@ -299,7 +305,7 @@ function template_registration_form()
 			<input type="hidden" name="', $context['register_token_var'], '" value="', $context['register_token'], '">
 			<input type="hidden" name="step" value="2">
 		</form>
-		<script><!-- // --><![CDATA[
+		<script>
 			var regTextStrings = {
 				"username_valid": "', $txt['registration_username_available'], '",
 				"username_invalid": "', $txt['registration_username_unavailable'], '",
@@ -311,7 +317,7 @@ function template_registration_form()
 				"password_valid": "', $txt['registration_password_valid'], '"
 			};
 			var verificationHandle = new smfRegister("registration", ', empty($modSettings['password_strength']) ? 0 : $modSettings['password_strength'], ', regTextStrings);
-		// ]]></script>';
+		</script>';
 }
 
 // After registration... all done ;).
@@ -420,8 +426,8 @@ function template_verification_sound()
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<style type="text/css">';
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<style>';
 
 	// Just show the help text and a "close window" link.
 	echo '

@@ -78,7 +78,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		$members = array_unique($members);
-		$prefs = getNotifyPrefs($members);
+		$prefs = getNotifyPrefs($members, '', true);
 
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))
@@ -110,9 +110,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 
 			// Watched topic?
-			if (!empty($data['id_topic']) && $type != 'topic')
+			if (!empty($data['id_topic']) && $type != 'topic' && !empty($prefs[$member]))
 			{
-				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : $prefs[$member]['topic_notify'];
+				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : (!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
 				$message_type = 'notification_' . $type;
 
 				if (!empty($frequency) && $type == 'reply')
@@ -123,7 +123,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// A new topic in a watched board then?
 			elseif ($type == 'topic')
 			{
-				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : $prefs[$member]['board_notify'];
+				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : (!empty($prefs[$member]['board_notify']) ? $prefs[$member]['board_notify'] : 0);
 
 				$content_type = 'board';
 
@@ -215,11 +215,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		foreach ($quotedMembers as $id => $member)
 		{
-			if (!isset($prefs[$id]) || $id == $posterOptions['id'])
+			if (!isset($prefs[$id]) || $id == $posterOptions['id'] || empty($prefs[$id]['msg_quote']))
 				continue;
 
-			if (!empty($prefs[$id]['msg_quote']))
-				$done_members[] = $id;
+			$done_members[] = $id;
 
 			if ($prefs[$id]['msg_quote'] & 0x02)
 			{

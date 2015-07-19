@@ -68,7 +68,7 @@ function template_group_requests_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oGroupRequestsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
@@ -98,7 +98,7 @@ function template_group_requests_block()
 				sAdditionalVars: \';admin_key=mcgr\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_watched_users()
@@ -134,7 +134,7 @@ function template_watched_users()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
@@ -164,7 +164,7 @@ function template_watched_users()
 				sAdditionalVars: \';admin_key=mcwu\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_reported_posts_block()
@@ -200,7 +200,7 @@ function template_reported_posts_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
@@ -230,7 +230,7 @@ function template_reported_posts_block()
 				sAdditionalVars: \';admin_key=mcrp\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_reported_users_block()
@@ -266,7 +266,7 @@ function template_reported_users_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
@@ -296,7 +296,7 @@ function template_reported_users_block()
 				sAdditionalVars: \';admin_key=mcur\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
 // Little section for making... notes.
@@ -519,7 +519,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>
 		<div class="cat_bar">
@@ -614,7 +614,7 @@ function template_warn_template()
 		</form>
 	</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		$(document).ready(function() {
 			$("#preview_button").click(function() {
 				return ajax_getTemplatePreview();
@@ -651,7 +651,7 @@ function template_warn_template()
 			});
 			return false;
 		}
-	// ]]></script>';
+	</script>';
 }
 
 ?>

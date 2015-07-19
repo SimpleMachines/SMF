@@ -1066,6 +1066,7 @@ img.sort, .sort {
 /* These divisions wrap the forum sections when a forum width is set. */
 #wrapper, .frame {
 	margin: 0 auto;
+	width: 90%;
 }
 
 /* Box-shadow only on this one. */
@@ -2871,9 +2872,6 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-.cat_bar .desc {
-	color: #FFF;
-}
 div.icon span {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
@@ -3560,10 +3558,11 @@ div.cat_bar {
 /* Styles for rounded headers. */
 .cat_bar .desc
 {
-	font-size: 10px;
+	color: #FFF;
+	font-size: 12px;
 	line-height: 1.5em;
 	font-weight: normal;
-	margin: -8px 0 4px 12px;
+	margin: -8px 0 4px 8px;
 }
 h3.catbg {
 	overflow: hidden;

@@ -1244,6 +1244,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'hook' => $action->exists('@hook') ? $action->fetch('@hook') : $action->fetch('.'),
 				'include_file' => $action->exists('@file') ? $action->fetch('@file') : '',
 				'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true' ? true : false,
+				'object' => $action->exists('@object') && $action->fetch('@object') == 'true' ? true : false,
 				'description' => '',
 			);
 			continue;
@@ -1263,6 +1264,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 				'type' => $actionType,
 				'url' => $url,
 				'license' => $action->exists('@license') ? $action->fetch('@license') : '',
+				'licenseurl' => $action->exists('@licenseurl') ? $action->fetch('@licenseurl') : '',
 				'copyright' => $action->exists('@copyright') ? $action->fetch('@copyright') : '',
 				'title' => $action->fetch('.'),
 			);
@@ -2986,51 +2988,51 @@ function package_create_backup($id = 'backup')
 		$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
 	$smcFunc['db_free_result']($request);
 
-	foreach ($dirs as $dir => $dest)
-	{
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-			RecursiveIteratorIterator::CHILD_FIRST,
-			RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
-		);
-
-		foreach ($iter as $entry => $dir)
-		{
-			if ($dir->isDir())
-				continue;
-
-			if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
-				continue;
-
-			$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
-		}
-	}
-	$obj = new ArrayObject($files);
-	$iterator = $obj->getIterator();
-
-	if (!file_exists($packagesdir . '/backups'))
-		mktree($packagesdir . '/backups', 0777);
-	if (!is_writable($packagesdir . '/backups'))
-		package_chmod($packagesdir . '/backups');
-	$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-	$output_ext = '.tar';
-
-	if (file_exists($output_file . $output_ext))
-	{
-		$i = 2;
-		while (file_exists($output_file . '_' . $i . $output_ext))
-			$i++;
-		$output_file = $output_file . '_' . $i . $output_ext;
-	}
-	else
-		$output_file .= $output_ext;
-
-	@set_time_limit(300);
-	if (function_exists('apache_reset_timeout'))
-		@apache_reset_timeout();
-
 	try
 	{
+		foreach ($dirs as $dir => $dest)
+		{
+			$iter = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::CHILD_FIRST,
+				RecursiveIteratorIterator::CATCH_GET_CHILD // Ignore "Permission denied"
+			);
+
+			foreach ($iter as $entry => $dir)
+			{
+				if ($dir->isDir())
+					continue;
+
+				if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~)$~', $entry) != 0)
+					continue;
+
+				$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath($boarddir), '', $entry) : $entry] = $entry;
+			}
+		}
+		$obj = new ArrayObject($files);
+		$iterator = $obj->getIterator();
+
+		if (!file_exists($packagesdir . '/backups'))
+			mktree($packagesdir . '/backups', 0777);
+		if (!is_writable($packagesdir . '/backups'))
+			package_chmod($packagesdir . '/backups');
+		$output_file = $packagesdir . '/backups/' . strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
+		$output_ext = '.tar';
+
+		if (file_exists($output_file . $output_ext))
+		{
+			$i = 2;
+			while (file_exists($output_file . '_' . $i . $output_ext))
+				$i++;
+			$output_file = $output_file . '_' . $i . $output_ext;
+		}
+		else
+			$output_file .= $output_ext;
+
+		@set_time_limit(300);
+		if (function_exists('apache_reset_timeout'))
+			@apache_reset_timeout();
+
 		$a = new PharData($output_file);
 		$a->buildFromIterator($iterator);
 		$a->compress(Phar::GZ);

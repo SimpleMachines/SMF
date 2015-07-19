@@ -1170,7 +1170,8 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
+		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
@@ -1318,7 +1319,21 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		if ($topic_info['id_member_started'] != $user_info['id'])
+		$topicAndMessageBothUnapproved = false;
+
+		// If the topic is unapproved the message automatically becomes unapproved too.
+		if (empty($topic_info['approved']))
+		{
+			$becomesApproved = false;
+
+			// camelCase fan much? :P
+			$topicAndMessageBothUnapproved = true;
+
+			// Set a nice session var...
+			$_SESSION['becomesUnapproved'] = true;
+		}
+
+		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
@@ -1532,8 +1547,8 @@ function Post2()
 		}
 	}
 
-	// Incase we want to override
-	if (allowedTo('approve_posts'))
+	// In case we want to override but still respect the unapproved topic rule.
+	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
@@ -2507,7 +2522,7 @@ function QuoteFast()
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;
-	global $user_info, $context, $smcFunc, $language;
+	global $user_info, $context, $smcFunc, $language, $board_info;
 
 	// We have to have a topic!
 	if (empty($topic))
@@ -2521,7 +2536,8 @@ function JavaScriptModify()
 		SELECT
 			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
-			m.modified_time, m.modified_name, m.modified_reason, m.approved
+			m.modified_time, m.modified_name, m.modified_reason, m.approved,
+			m.poster_name, m.poster_email
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 		WHERE m.id_msg = {raw:id_msg}
@@ -2651,7 +2667,12 @@ function JavaScriptModify()
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
 		);
-		$posterOptions = array();
+		$posterOptions = array(
+			'id' => $user_info['id'],
+			'name' => $row['poster_name'],
+			'email' => $row['poster_email'],
+			'update_post_count' => !$user_info['is_guest'] && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+		);
 
 		// Only consider marking as editing if they have edited the subject, message or icon.
 		if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon']))

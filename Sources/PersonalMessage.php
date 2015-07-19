@@ -220,6 +220,7 @@ function MessageMain()
 	{
 		if (!isset($_REQUEST['xml']) && $_REQUEST['sa'] != 'popup')
 			messageIndexBar($_REQUEST['sa']);
+
 		call_helper($subActions[$_REQUEST['sa']]);
 	}
 }
@@ -3085,7 +3086,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		{
 			$smcFunc['db_query']('', '
 				DELETE FROM {db_prefix}pm_labeled_messages
-				WHERE label_id IN ({array_int:labels})' . $where,
+				WHERE id_label IN ({array_int:labels})' . $where,
 				array(
 					'labels' => $labels,
 					'pm_list' => $personal_messages !== null ? array_unique($personal_messages) : array(),

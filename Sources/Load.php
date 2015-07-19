@@ -268,6 +268,9 @@ function reloadSettings()
 		'<div>',
 	);
 
+	// Define a list of allowed tags for descriptions.
+	$context['description_allowed_tags'] = array('abbr', 'acronym', 'anchor', 'bdo', 'br', 'center', 'color', 'font', 'hr', 'i', 'iurl', 'left', 'li', 'list', 'ltr', 'move', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
 	{
@@ -545,8 +548,13 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			$_COOKIE[$cookiename . '_tfa'] = '';
-			setTFACookie(-3600, 0, '');
+			list ($id, $user, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			if (!$preserve || time() > $exp)
+			{
+				$_COOKIE[$cookiename . '_tfa'] = '';
+				setTFACookie(-3600, 0, '');
+			}
 		}
 
 		// Create a login token if it doesn't exist yet.
@@ -1372,6 +1380,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			'warning' => $profile['warning'],
 			'warning_status' => !empty($modSettings['warning_mute']) && $modSettings['warning_mute'] <= $profile['warning'] ? 'mute' : (!empty($modSettings['warning_moderate']) && $modSettings['warning_moderate'] <= $profile['warning'] ? 'moderate' : (!empty($modSettings['warning_watch']) && $modSettings['warning_watch'] <= $profile['warning'] ? 'watch' : (''))),
 			'local_time' => timeformat(time() + ($profile['time_offset'] - $user_info['time_offset']) * 3600, false),
+			'custom_fields' => array(),
 		);
 
 	// If the set isn't minimal then load their avatar as ell.
@@ -3235,7 +3244,20 @@ function get_memcached_server($level = 3)
 	global $memcached, $db_persist, $cache_memcached;
 
 	$servers = explode(',', $cache_memcached);
-	$server = explode(':', trim($servers[array_rand($servers)]));
+	$server = trim($servers[array_rand($servers)]);
+
+	$port = 0;
+
+	// Normal host names do not contain slashes, while e.g. unix sockets do. Assume alternative transport pipe with port 0.
+	if(strpos($server,'/') !== false)
+		$host = $server;
+	else
+	{
+		$server = explode(':', $server);
+		$host = $server[0];
+		$port = isset($server[1]) ? $server[1] : 11211;
+	}
+
 	$cache = (function_exists('memcache_get')) ? 'memcache' : ((function_exists('memcached_get') ? 'memcached' : ''));
 
 	// Don't try more times than we have servers!
@@ -3245,20 +3267,111 @@ function get_memcached_server($level = 3)
 	if (empty($db_persist))
 	{
 		if ($cache === 'memcached')
-			$memcached = memcached_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcached_connect($host, $port);
 		if ($cache === 'memcache')
-			$memcached = memcache_connect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcache_connect($host, $port);
 	}
 	else
 	{
 		if ($cache === 'memcached')
-			$memcached = memcached_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcached_pconnect($host, $port);
 		if ($cache === 'memcache')
-			$memcached = memcache_pconnect($server[0], empty($server[1]) ? 11211 : $server[1]);
+			$memcached = memcache_pconnect($host, $port);
 	}
 
 	if (!$memcached && $level > 0)
 		get_memcached_server($level - 1);
+}
+
+/**
+ * Helper function to set an array of data for an user's avatar.
+ *
+ * Makes assumptions based on the data provided, the following keys are required:
+ * - avatar The raw "avatar" column in members table
+ * - email The user's email. Used to get the gravatar info
+ * - filename The attachment filename
+ *
+ * @param array $data An array of raw info
+ * @return array
+ */
+function set_avatar_data($data = array())
+{
+	global $modSettings, $boardurl, $smcFunc, $image_proxy_enabled, $image_proxy_secret;
+
+	// Come on!
+	if (empty($data))
+		return array();
+
+	// Set a nice default var.
+	$image = '';
+
+	// Gravatar has been set as mandatory!
+	if (!empty($modSettings['gravatarOverride']))
+	{
+		if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($data['avatar']) && stristr($data['avatar'], 'gravatar://'))
+			$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
+
+		else if (!empty($data['email']))
+			$image = get_gravatar_url($data['email']);
+	}
+
+	// Look if the user has a gravatar field or has set an external url as avatar.
+	else
+	{
+		// So it's stored in the member table?
+		if (!empty($data['avatar']))
+		{
+			// Gravatar.
+			if (stristr($data['avatar'], 'gravatar://'))
+			{
+				if ($data['avatar'] == 'gravatar://')
+					$image = get_gravatar_url($data['email']);
+
+				elseif (!empty($modSettings['gravatarAllowExtraEmail']))
+					$image = get_gravatar_url($smcFunc['substr']($data['avatar'], 11));
+			}
+
+			// External url.
+			else
+			{
+				// Using ssl?
+				if (!empty($modSettings['force_ssl']) && $image_proxy_enabled && stripos($data['avatar'], 'http://') !== false)
+					$image = strtr($boardurl, array('http://' => 'https://')) . '/proxy.php?request=' . urlencode($data['avatar']) . '&hash=' . md5($data['avatar'] . $image_proxy_secret);
+
+				// Just a plain external url.
+				else
+					$image = (stristr($data['avatar'], 'http://') || stristr($data['avatar'], 'https://')) ? $data['avatar'] : $modSettings['avatar_url'] . '/' . $data['avatar'];
+			}
+		}
+
+		// Perhaps this user has an attachment as avatar...
+		else if (!empty($data['filename']))
+			$image = $modSettings['custom_avatar_url'] . '/' . $data['filename'];
+
+		// Right... no avatar... use our default image.
+		else
+			$image = $modSettings['avatar_url'] . '/default.png';
+	}
+
+	call_integration_hook('integrate_set_avatar_data', array(&$image, &$data));
+
+	// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
+	if (!empty($image))
+		return array(
+			'name' => !empty($data['avatar']) ? $data['avatar'] : '',
+			'image' => '<img class="avatar" src="' . $image . '" />',
+			'href' => $image,
+			'url' => $image,
+		);
+
+	// Fallback to make life easier for everyone...
+	else
+		return array(
+			'name' => '',
+			'image' => '',
+			'href' => '',
+			'url' => '',
+		);
 }
 
 ?>

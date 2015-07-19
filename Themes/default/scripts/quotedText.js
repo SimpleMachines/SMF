@@ -56,7 +56,7 @@ function quotedTextClick(oOptions)
 				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
 
 				// Add the whole text to the editor's instance.
-				$('#' + oEditorID).data('sceditor').InsertText(text);
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(text);
 
 				// Move the view to the quick reply box. If available.
 				if (typeof oJumpAnchor != 'undefined'){

@@ -1125,7 +1125,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1162,7 +1162,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -2476,7 +2476,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	else
 		$message = strtr($message, array("\n" => ''));
 
-	if ($message[0] === ' ')
+	if ($message !== '' && $message[0] === ' ')
 		$message = '&nbsp;' . substr($message, 1);
 
 	// Cleanup whitespace.
@@ -2692,11 +2692,8 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	// Maybe integrations want to change where we are heading?
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
-	// We send a Refresh header only in special cases because Location looks better. (and is quicker...)
-	if ($refresh && !WIRELESS)
-		header('Refresh: 0; URL=' . strtr($setLocation, array(' ' => '%20')), $permanent ? 301 : 302);
-	else
-		header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+	// Set the header.
+	header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3298,7 +3295,7 @@ function template_javascript($do_defered = false)
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 		foreach ($context['javascript_vars'] as $key => $value)
 		{
@@ -3315,7 +3312,7 @@ function template_javascript($do_defered = false)
 		}
 
 		echo '
-	// ]]></script>';
+	</script>';
 	}
 
 	// While we have Javascript files to place in the template
@@ -3328,9 +3325,9 @@ function template_javascript($do_defered = false)
 		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
 		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	// ]]></script>';
+	</script>';
 
 	}
 
@@ -3340,25 +3337,25 @@ function template_javascript($do_defered = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_defered)
 		{
 			echo '
-<script><!-- // --><![CDATA[';
+<script>';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
-// ]]></script>';
+</script>';
 		}
 
 		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
 		{
 			echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 			foreach ($context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
 
 			echo '
-	// ]]></script>';
+	</script>';
 		}
 	}
 }
@@ -3375,7 +3372,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $file['filename'], '">';
+	<link rel="stylesheet" href="', $file['filename'], '">';
 
 	if ($db_show_debug === true)
 	{
@@ -3730,7 +3727,9 @@ function clean_cache($type = '')
 	// Invalidate cache, to be sure!
 	// ... as long as index.php can be modified, anyway.
 	@touch($cachedir . '/' . 'index.php');
-	call_integration_hook('integrate_clean_cache');
+
+	if (empty($type))
+		call_integration_hook('integrate_clean_cache');
 	clearstatcache();
 }
 

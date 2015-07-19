@@ -79,6 +79,8 @@ $txt['reason_for_edit'] = 'Reason for editing';
 
 $txt['choose_pass'] = 'Choose password';
 $txt['verify_pass'] = 'Verify password';
+$txt['notify_announcements'] = 'Allow the administrators to send me important news by email';
+
 $txt['position'] = 'Position';
 
 $txt['profile_of'] = 'View the profile of';
@@ -281,6 +283,7 @@ $txt['redirect_board'] = 'Redirect Board';
 
 $txt['sendtopic_send'] = 'Send';
 $txt['report_sent'] = 'Your report has been sent successfully.';
+$txt['post_becomesUnapproved'] = 'Your message became unapproved because it was posted on an unapproved topic, once the topic gets approved your message will be approved too.';
 
 $txt['time_offset'] = 'Time Offset';
 $txt['or'] = 'or';

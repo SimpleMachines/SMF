@@ -92,10 +92,10 @@ function template_main()
 						$txt['search_between'], '</label> <input type="number" name="minage" id="minage" value="', empty($context['search_params']['minage']) ? '0' : $context['search_params']['minage'], '" size="5" maxlength="4" class="input_text">&nbsp;<label for="maxage">', $txt['search_and'], '&nbsp;</label><input type="number" name="maxage" id="maxage" value="', empty($context['search_params']['maxage']) ? '9999' : $context['search_params']['maxage'], '" size="5" maxlength="4" class="input_text"> ', $txt['days_word'], '
 					</dd>
 				</dl>
-				<script><!-- // --><![CDATA[
+				<script>
 					createEventListener(window);
 					window.addEventListener("load", initSearch, false);
-				// ]]></script>
+				</script>
 				<input type="hidden" name="advanced" value="1">';
 
 	// Require an image to be typed to save spamming?
@@ -181,7 +181,7 @@ function template_main()
 		</fieldset>';
 
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', $context['boards_check_all'] ? 'true' : 'false', ',
@@ -203,12 +203,12 @@ function template_main()
 				}
 			]
 		});
-	// ]]></script>';
+	</script>';
 	}
 
 	echo '
 	</form>
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -217,7 +217,7 @@ function template_main()
 			sSearchType: \'member\',
 			bItemList: false
 		});
-	// ]]></script>';
+	</script>';
 }
 
 function template_results()
@@ -472,7 +472,7 @@ function template_results()
 	echo '
 		<br class="clear">
 		<div class="smalltext righttext" id="search_jump_to">&nbsp;</div>
-		<script><!-- // --><![CDATA[';
+		<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
@@ -505,7 +505,7 @@ function template_results()
 					sCatPrefix: "",
 					sGoButtonLabel: "', $txt['quick_mod_go'], '"
 				});
-		// ]]></script>';
+		</script>';
 
 }
 
