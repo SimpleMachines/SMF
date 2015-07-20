@@ -1231,8 +1231,8 @@ function DatabasePopulation()
 		);
 	}
 
-	// Let's optimize those new tables, not on InnoDB, ok?
-	if (!in_array('InnoDB', $engines))
+	// Let's optimize those new tables, but not on InnoDB, ok?
+	if (!$has_innodb)
 	{
 		db_extend();
 		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
