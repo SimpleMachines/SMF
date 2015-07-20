@@ -995,6 +995,7 @@ function DatabasePopulation()
 			'db_error_skip' => true,
 		)
 	);
+	$newSettings = array();
 	$modSettings = array();
 	if ($result !== false)
 	{
@@ -1158,16 +1159,7 @@ function DatabasePopulation()
 
 	// Make sure UTF will be used globally.
 	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
-		$smcFunc['db_insert']('replace',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'global_character_set', 'UTF-8',
-			),
-			array('variable')
-		);
+		$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Maybe we can auto-detect better cookie settings?
 	preg_match('~^http[s]?://([^\.]+?)([^/]*?)(/.*)?$~', $boardurl, $matches);
@@ -1185,19 +1177,9 @@ function DatabasePopulation()
 			$localCookies = true;
 
 		if ($globalCookies)
-			$rows[] = array('globalCookies', '1');
+			$newSettings[] = array('globalCookies', '1');
 		if ($localCookies)
-			$rows[] = array('localCookies', '1');
-
-		if (!empty($rows))
-		{
-			$smcFunc['db_insert']('replace',
-				$db_prefix . 'settings',
-				array('variable' => 'string-255', 'value' => 'string-65534'),
-				$rows,
-				array('variable')
-			);
-		}
+			$newSettings[] = array('localCookies', '1');
 	}
 
 	// Are we allowing stat collection?
@@ -1222,33 +1204,13 @@ function DatabasePopulation()
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1]))
-				$smcFunc['db_insert']('',
-					$db_prefix . 'settings',
-					array(
-						'variable' => 'string-255', 'value' => 'string-65534',
-					),
-					array(
-						'allow_sm_stats', $ID[1],
-					),
-					array('variable')
-				);
+				$newSettings[] = array('allow_sm_stats', $ID[1]);
 		}
 	}
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
-	{
-		$smcFunc['db_insert']('',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'force_ssl', 2,
-			),
-			array('variable')
-		);
-	}
+		$newSettings[] = array('force_ssl', 2);
 
 	// As of PHP 5.1, setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
@@ -1256,16 +1218,17 @@ function DatabasePopulation()
 		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
 		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
 		if (date_default_timezone_set($timezone_id))
-			$smcFunc['db_insert']('',
-				$db_prefix . 'settings',
-				array(
-					'variable' => 'string-255', 'value' => 'string-65534',
-				),
-				array(
-					'default_timezone', $timezone_id,
-				),
-				array('variable')
-			);
+			$newSettings[] = array('default_timezone', $timezone_id);
+	}
+
+	if (!empty($newSettings))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string-65534'),
+			$newSettings,
+			array('variable')
+		);
 	}
 
 	// Let's optimize those new tables, not on InnoDB, ok?
