@@ -190,23 +190,24 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
-        exit;
-    }
+		exit;
+	}
 
-    // Anybody home?
-    if (!isset($_GET['xml'])) {
-        $incontext['remote_files_available'] = false;
-        $test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
-        if ($test)
-            $incontext['remote_files_available'] = true;
-        @fclose($test);
-    }
+	// Anybody home?
+	if (!isset($_GET['xml']))
+	{
+		$incontext['remote_files_available'] = false;
+		$test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
+		if ($test)
+			$incontext['remote_files_available'] = true;
+		@fclose($test);
+	}
 
-    // Add slashes, as long as they aren't already being added.
-    if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-        foreach ($_POST as $k => $v)
-            if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-                $_POST[$k] = addslashes($v);
+	// Add slashes, as long as they aren't already being added.
+	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
+		foreach ($_POST as $k => $v)
+			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+				$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
