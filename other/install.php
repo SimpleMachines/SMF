@@ -154,7 +154,6 @@ function initialize_inputs()
 	if (function_exists('set_magic_quotes_runtime'))
 		@set_magic_quotes_runtime(0);
 	error_reporting(E_ALL);
-	set_time_limit(60);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
@@ -1146,6 +1145,9 @@ function DatabasePopulation()
 		}
 
 		$current_statement = '';
+
+		// Wait, wait, I'm still working here!
+		set_time_limit(60);
 	}
 
 	// Sort out the context for the SQL.
