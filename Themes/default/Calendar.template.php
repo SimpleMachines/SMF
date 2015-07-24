@@ -254,18 +254,16 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							{
 								echo '
 									<a class="modify_event" href="', $event['modify_href'], '">
-										<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon">
-									</a>
-								';
+										<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+									</a>';
 							}
 							// Exporting!
 							if ($event['can_export'])
 							{
 								echo '
 									<a class="modify_event" href="', $event['export_href'], '">
-										<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon">
-									</a>
-								';
+										<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+									</a>';
 							}
 							echo $event['is_selected'] ? '<div class="sel_event">' . $event['link'] . '</div>' : $event['link'], $event['is_last'] ? '' : '<br>';
 						}
@@ -343,14 +341,12 @@ function template_show_week_grid($grid_name)
 						echo '
 							<span class="floatright xlarge_text">
 								<a href="', $calendar_data['next_week']['href'], '">&#187;</a>
-							</span>
-						';
+							</span>';
 					}
 
 					echo '
 					</h3>
-				</div>
-			';
+				</div>';
 		}
 
 		// Our actual month...
@@ -359,8 +355,7 @@ function template_show_week_grid($grid_name)
 				<a href="', $scripturl, '?action=calendar;month=', $month_data['current_month'], '">
 					', $txt['months_titles'][$month_data['current_month']], '
 				</a>
-			</div>
-		';
+			</div>';
 
 		// The main table grid for $this week.
 		echo '
@@ -401,18 +396,16 @@ function template_show_week_grid($grid_name)
 									{
 										echo '
 											<a href="', $event['modify_href'], '">
-												<img src="', $settings['images_url'], '/icons/calendar_modify.png" alt="*" title="', $txt['calendar_edit'], '" class="calendar_icon">
-											</a>
-										';
+												<span class="generic_icons calendar_modify" title="', $txt['calendar_edit'], '"></span>
+											</a>';
 									}
 									// Can we export? Sweet.
 									if (!empty($event['can_export']))
 									{
 										echo '
 											<a class="modify_event" href="', $event['export_href'], '">
-												<img src="', $settings['images_url'], '/icons/calendar_export.png" alt=">" title="', $txt['calendar_export'], '" class="calendar_icon">
-											</a>
-										';
+												<span class="generic_icons calendar_export" title="', $txt['calendar_export'], '"></span>
+											</a>';
 									}
 									echo $event['link'], $event['is_last'] ? '' : '<br>';
 								}
@@ -420,11 +413,10 @@ function template_show_week_grid($grid_name)
 									</div>
 									<div class="active_post_event floatright">
 										<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">
-											<img src="', $settings['images_url'], '/icons/plus.png" alt="*" title="', $txt['calendar_post_event'], '">
+											<span class="generic_icons plus" title="', $txt['calendar_post_event'], '"></span>
 										</a>
 									</div>
-									<br class="clear">
-								';
+									<br class="clear">';
 							}
 							else
 							{
@@ -433,8 +425,7 @@ function template_show_week_grid($grid_name)
 									echo '
 										<div class="week_add_event">
 											<a href="', $scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', $context['session_var'], '=', $context['session_id'], '">', $txt['calendar_post_event'], '</a>
-										</div>
-									';
+										</div>';
 								}
 							}
 							echo '</td>
@@ -457,8 +448,7 @@ function template_show_week_grid($grid_name)
 								}
 							}
 							echo '</td>
-						</tr>
-					';
+						</tr>';
 				}
 
 				// We'll show the lower column after our last month is shown.
@@ -469,8 +459,7 @@ function template_show_week_grid($grid_name)
 				++$iteration;
 
 				echo '
-			</table>
-		';
+			</table>';
 	}
 }
 
@@ -508,8 +497,7 @@ function template_calendar_base($col_span = 1)
 				</form>
 				<br class="clear">
 			</td>
-		</tr>
-	';
+		</tr>';
 }
 
 // Template for posting a calendar event.
@@ -780,8 +768,7 @@ function template_hms()
 					<a href="', $scripturl, '?action=clock">Too tough for you?</a>
 				</td>
 			</tr>
-		</table>
-	';
+		</table>';
 
 	echo '
 	<script>
@@ -865,8 +852,7 @@ function template_omfg()
 				$alt = !$alt;
 			}
 		echo '</tr>
-		</table>
-	';
+		</table>';
 
 	echo '
 	<script>
@@ -954,8 +940,7 @@ function template_thetime()
 				$alt = !$alt;
 			}
 			echo '
-		</table>
-	';
+		</table>';
 }
 
 ?>
