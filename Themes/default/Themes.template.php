@@ -606,6 +606,23 @@ function template_set_settings()
 						</select>
 					</dd>';
 		}
+		// A Textarea?
+        	elseif ($setting['type'] == 'textarea')
+		{
+			echo '
+					<dt>
+						<label for="', $setting['id'], '">', $setting['label'], '</label>:';
+			
+			if (isset($setting['description']))
+				echo '<br>
+						<span class="smalltext">', $setting['description'], '</span>';	
+			echo '
+					</dt>
+					<dd>
+						<textarea rows="4" style="width: 95%;" cols="40" name="', !empty($setting['default']) ? 'default_' : '','options[', $setting['id'], ']" id="', $setting['id'], '">', $setting['value'], '</textarea>';
+                echo '
+                			</dd>';
+		}
 		// A regular input box, then?
 		else
 		{
