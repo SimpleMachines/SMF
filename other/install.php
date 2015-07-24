@@ -154,7 +154,6 @@ function initialize_inputs()
 	if (function_exists('set_magic_quotes_runtime'))
 		@set_magic_quotes_runtime(0);
 	error_reporting(E_ALL);
-	set_time_limit(60);
 
 	// Fun.  Low PHP version...
 	if (!isset($_GET))
@@ -190,23 +189,24 @@ function initialize_inputs()
 		<strong>', htmlspecialchars($_GET['pass_string']), '</strong>
 	</body>
 </html>';
-        exit;
-    }
+		exit;
+	}
 
-    // Anybody home?
-    if (!isset($_GET['xml'])) {
-        $incontext['remote_files_available'] = false;
-        $test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
-        if ($test)
-            $incontext['remote_files_available'] = true;
-        @fclose($test);
-    }
+	// Anybody home?
+	if (!isset($_GET['xml']))
+	{
+		$incontext['remote_files_available'] = false;
+		$test = @fsockopen('www.simplemachines.org', 80, $errno, $errstr, 1);
+		if ($test)
+			$incontext['remote_files_available'] = true;
+		@fclose($test);
+	}
 
-    // Add slashes, as long as they aren't already being added.
-    if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
-        foreach ($_POST as $k => $v)
-            if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
-                $_POST[$k] = addslashes($v);
+	// Add slashes, as long as they aren't already being added.
+	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
+		foreach ($_POST as $k => $v)
+			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
+				$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
 	if (isset($_GET['delete']))
@@ -994,6 +994,7 @@ function DatabasePopulation()
 			'db_error_skip' => true,
 		)
 	);
+	$newSettings = array();
 	$modSettings = array();
 	if ($result !== false)
 	{
@@ -1144,6 +1145,9 @@ function DatabasePopulation()
 		}
 
 		$current_statement = '';
+
+		// Wait, wait, I'm still working here!
+		set_time_limit(60);
 	}
 
 	// Sort out the context for the SQL.
@@ -1157,16 +1161,7 @@ function DatabasePopulation()
 
 	// Make sure UTF will be used globally.
 	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
-		$smcFunc['db_insert']('replace',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'global_character_set', 'UTF-8',
-			),
-			array('variable')
-		);
+		$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Maybe we can auto-detect better cookie settings?
 	preg_match('~^http[s]?://([^\.]+?)([^/]*?)(/.*)?$~', $boardurl, $matches);
@@ -1184,19 +1179,9 @@ function DatabasePopulation()
 			$localCookies = true;
 
 		if ($globalCookies)
-			$rows[] = array('globalCookies', '1');
+			$newSettings[] = array('globalCookies', '1');
 		if ($localCookies)
-			$rows[] = array('localCookies', '1');
-
-		if (!empty($rows))
-		{
-			$smcFunc['db_insert']('replace',
-				$db_prefix . 'settings',
-				array('variable' => 'string-255', 'value' => 'string-65534'),
-				$rows,
-				array('variable')
-			);
-		}
+			$newSettings[] = array('localCookies', '1');
 	}
 
 	// Are we allowing stat collection?
@@ -1221,33 +1206,13 @@ function DatabasePopulation()
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1]))
-				$smcFunc['db_insert']('',
-					$db_prefix . 'settings',
-					array(
-						'variable' => 'string-255', 'value' => 'string-65534',
-					),
-					array(
-						'allow_sm_stats', $ID[1],
-					),
-					array('variable')
-				);
+				$newSettings[] = array('allow_sm_stats', $ID[1]);
 		}
 	}
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
-	{
-		$smcFunc['db_insert']('',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'force_ssl', 2,
-			),
-			array('variable')
-		);
-	}
+		$newSettings[] = array('force_ssl', 2);
 
 	// As of PHP 5.1, setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
@@ -1255,20 +1220,21 @@ function DatabasePopulation()
 		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
 		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
 		if (date_default_timezone_set($timezone_id))
-			$smcFunc['db_insert']('',
-				$db_prefix . 'settings',
-				array(
-					'variable' => 'string-255', 'value' => 'string-65534',
-				),
-				array(
-					'default_timezone', $timezone_id,
-				),
-				array('variable')
-			);
+			$newSettings[] = array('default_timezone', $timezone_id);
 	}
 
-	// Let's optimize those new tables, not on InnoDB, ok?
-	if (!in_array('InnoDB', $engines))
+	if (!empty($newSettings))
+	{
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string-65534'),
+			$newSettings,
+			array('variable')
+		);
+	}
+
+	// Let's optimize those new tables, but not on InnoDB, ok?
+	if (!$has_innodb)
 	{
 		db_extend();
 		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
