@@ -61,9 +61,8 @@ var config = {
 $(function()
 {
 	$('textarea[name=message]').atwho(config);
-
-	$('#message').parent().find('textarea').atwho(config);
-	var iframe = $('#message').parent().find('iframe')[0];
+	$('.sceditor-container').find('textarea').atwho(config);
+	var iframe = $('.sceditor-container').find('iframe')[0];
 	if (typeof iframe != 'undefined')
 		$(iframe.contentDocument.body).atwho(config);
 });
