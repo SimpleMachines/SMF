@@ -340,7 +340,7 @@ h3.largetext {
 .bbc_code {
 	display: block;
 	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
-	font-size: 0.9em;
+	font-size: 0.75em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -384,9 +384,6 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_bold {
-	font-weight: bold;
-}
 .bbc_img {
 	border: 0;
 }
@@ -399,17 +396,10 @@ h3.largetext {
 	color: inherit;
 	vertical-align: top;
 }
-.bbc_u {
-	text-decoration: underline;
-}
 .bbc_list {
 	text-align: left;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
-}
-/* Everything is same except HTML5 valid */
-.bbc_tt {
-	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }
 /* No image should have a border when linked. */
 a img {
