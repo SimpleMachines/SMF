@@ -36,10 +36,10 @@ if (!isset($modSettings['allow_no_censored']))
 		SELECT value
 		FROM {$db_prefix}themes
 		WHERE variable='allow_no_censored'
-		AND id_theme = 1 OR id_theme = '$modSettings[theme_DEFAULT]'
+		AND id_theme = 1 OR id_theme = '$modSettings[theme_default]'
 	");
 
-	// Is it set for either "DEFAULT" or the one they've set as DEFAULT?
+	// Is it set for either "default" or the one they've set as default?
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['value'] == 1)
@@ -74,7 +74,7 @@ if (@$modSettings['smfVersion'] < '2.1')
 	if (!empty($inserts))
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',
-			array('id_member' => 'INT', 'id_theme' => 'INT', 'variable' => 'string', 'value' => 'string'),
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 			$inserts,
 			array('id_theme', 'id_member', 'variable')
 		);
@@ -110,7 +110,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_c
 ---#
 
 ---# Adding new "DEFAULTMaxListItems" setting
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('DEFAULTMaxListItems', '15');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
 ---#
 
 ---# Adding new "loginHistoryDays" setting
@@ -226,7 +226,7 @@ $request = upgrade_query("
 list ($step_progress['total']) = $smcFunc['db_fetch_row']($request);
 $smcFunc['db_free_result']($request);
 
-$_GET['a'] = isset($_GET['a']) ? (INT) $_GET['a'] : 0;
+$_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
@@ -259,7 +259,7 @@ while (!$is_done)
 		// Old School?
 		if (empty($row['file_hash']))
 		{
-			// Remove INTernational CHARacters (windows-1252)
+			// Remove international characters (windows-1252)
 			// These lines should never be needed again. Still, behave.
 			if (empty($db_character_set) || $db_character_set != 'utf8')
 			{
@@ -335,7 +335,7 @@ while (!$is_done)
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}attachments
 					SET mime_type = {string:mime_type}
-					WHERE id_attach = {INT:id_attach}',
+					WHERE id_attach = {int:id_attach}',
 					array(
 						'id_attach' => $row['id_attach'],
 						'mime_type' => substr($size['mime'], 0, 20),
@@ -376,7 +376,7 @@ if (!empty($attachs))
 		UPDATE {db_prefix}attachments
 		SET width = 0,
 			height = 0
-		WHERE id_attach IN ({array_INT:attachs})',
+		WHERE id_attach IN ({array_int:attachs})',
 		array(
 			'attachs' => $attachs,
 		)
@@ -568,7 +568,7 @@ if (!empty($member_groups))
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		$current_groups = explode(',', $row['member_groups']);
-		if (count(array_INTersect($current_groups, $member_groups)) != $count)
+		if (count(array_intersect($current_groups, $member_groups)) != $count)
 		{
 			$new_groups = array_unique(array_merge($current_groups, $member_groups));
 			$changes[$row['id_board']] = implode(',', $new_groups);
@@ -582,7 +582,7 @@ if (!empty($member_groups))
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
-					WHERE id_board = {INT:id_board}',
+					WHERE id_board = {int:id_board}',
 				array(
 					'member_groups' => $member_groups,
 					'id_board' => $id_board,
@@ -677,7 +677,7 @@ ALTER TABLE {$db_prefix}membergroups
 CHANGE `stars` `icons` VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
----# Renaming DEFAULT theme...
+---# Renaming default theme...
 UPDATE {$db_prefix}themes
 SET value = 'SMF Default Theme - Curve2'
 WHERE value LIKE 'SMF Default Theme%';
@@ -696,7 +696,7 @@ VALUES
 	('enableThemes', '1');
 ---#
 
----# Setting "DEFAULT" as the DEFAULT...
+---# Setting "default" as the default...
 UPDATE {$db_prefix}settings
 SET value = '1'
 WHERE variable = 'theme_guests';
@@ -837,7 +837,7 @@ ADD COLUMN show_mlist SMALLINT NOT NULL DEFAULT '0';
 ---#
 
 ---# Insert fields
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `DEFAULT_value`, `enclose`, `placement`) VALUES
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
@@ -862,8 +862,8 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}custom_fields
-				SET field_order = {INT:field_count}
-				WHERE id_field = {INT:id_field}',
+				SET field_order = {int:field_count}
+				WHERE id_field = {int:id_field}',
 				array(
 					'field_count' => $fields_count,
 					'id_field' => $row['id_field'],
@@ -882,7 +882,7 @@ $results = $smcFunc['db_list_columns']('{db_prefix}members');
 $possible_columns = array('aim', 'icq', 'msn', 'yim', 'location', 'gender');
 
 // Find values that are in both arrays
-$select_columns = array_INTersect($possible_columns, $results);
+$select_columns = array_intersect($possible_columns, $results);
 
 if (!empty($select_columns))
 {
@@ -917,7 +917,7 @@ if (!empty($select_columns))
 	if (!empty($inserts))
 		$smcFunc['db_insert']('replace',
 			'{db_prefix}themes',
-			array('id_member' => 'INT', 'id_theme' => 'INT', 'variable' => 'string', 'value' => 'string'),
+			array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'),
 			$inserts,
 			array('id_theme', 'id_member', 'variable')
 		);
@@ -1101,11 +1101,11 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
 ---#
 
 /******************************************************************************/
---- Cleaning up INTegration hooks
+--- Cleaning up integration hooks
 /******************************************************************************/
----# Deleting INTegration hooks
+---# Deleting integration hooks
 DELETE FROM {$db_prefix}settings
-WHERE variable LIKE 'INTegrate_%';
+WHERE variable LIKE 'integrate_%';
 ---#
 
 /******************************************************************************/
@@ -1426,7 +1426,7 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'INT', 'name' => 'string-30'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labels', array('id_member' => 'int', 'name' => 'string-30'), $inserts, array());
 
 			// Clear this out for our next query below
 			$inserts = array();
@@ -1435,8 +1435,8 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 		// This is the easy part - update the inbox stuff
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}pm_recipients
-			SET in_inbox = {INT:in_inbox}
-			WHERE FIND_IN_SET({INT:minusone}, labels)',
+			SET in_inbox = {int:in_inbox}
+			WHERE FIND_IN_SET({int:minusone}, labels)',
 			array(
 				'in_inbox' => 1,
 				'minusone' => -1,
@@ -1466,7 +1466,7 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 		$get_pm_labels = $smcFunc['db_query']('', '
 			SELECT id_pm, id_member, labels
 			FROM {db_prefix}pm_recipients
-			WHERE deleted = {INT:not_deleted}
+			WHERE deleted = {int:not_deleted}
 				AND labels != {string:minus_one}',
 			array(
 				'not_deleted' => 0,
@@ -1493,7 +1493,7 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 		// Insert the new data
 		if (!empty($inserts))
 		{
-			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'INT', 'id_label' => 'INT'), $inserts, array());
+			$smcFunc['db_insert']('', '{db_prefix}pm_labeled_messages', array('id_pm' => 'int', 'id_label' => 'int'), $inserts, array());
 		}
 
 		// Final step of this ridiculously massive process
@@ -1520,13 +1520,13 @@ ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 				}
 			}
 
-			// Put this back INTo a string
+			// Put this back into a string
 			$actions = serialize($actions);
 
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}pm_rules
 				SET actions = {string:actions}
-				WHERE id_rule = {INT:id_rule}',
+				WHERE id_rule = {int:id_rule}',
 				array(
 					'actions' => $actions,
 					'id_rule' => $row['id_rule'],
@@ -1578,7 +1578,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}board_permissions
-		WHERE id_group = {INT:guests}
+		WHERE id_group = {int:guests}
 		AND permission IN ({array_string:illegal_board_perms})',
 		array(
 			'guests' => -1,
@@ -1588,7 +1588,7 @@ ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}permissions
-		WHERE id_group = {INT:guests}
+		WHERE id_group = {int:guests}
 		AND permission IN ({array_string:illegal_perms})',
 		array(
 			'guests' => -1,
@@ -1715,7 +1715,7 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
   {
     $smcFunc['db_insert']('ignore',
       '{db_prefix}user_alerts_prefs',
-      array('id_member' => 'INT', 'alert_pref' => 'string', 'alert_value' => 'string'),
+      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
       array(
         array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
         array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
