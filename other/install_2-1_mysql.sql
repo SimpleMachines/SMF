@@ -1207,6 +1207,18 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 # Transactions for the win - only used if we have InnoDB available...
 START TRANSACTION;
 
+#
+# Dumping data for table `admin_info_files`
+#
+
+INSERT INTO {$db_prefix}admin_info_files
+	(id_file, filename, path, parameters, data, filetype)
+VALUES
+	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
+	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
+	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
+	(4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
+# --------------------------------------------------------
 
 #
 # Dumping data for table `board_permissions`
