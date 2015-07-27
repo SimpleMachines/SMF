@@ -249,7 +249,7 @@ CREATE TABLE {$db_prefix}log_actions (
   id_log TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip char(16) NOT NULL DEFAULT '                ',
+  ip CHAR(16) NOT NULL DEFAULT '                ',
   action VARCHAR(30) NOT NULL DEFAULT '',
   id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -285,7 +285,7 @@ CREATE TABLE {$db_prefix}log_activity (
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip char(16) NOT NULL DEFAULT '                ',
+  ip CHAR(16) NOT NULL DEFAULT '                ',
   email VARCHAR(255) NOT NULL DEFAULT '',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban_log),
@@ -344,11 +344,11 @@ CREATE TABLE {$db_prefix}log_errors (
   id_error MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip char(16) NOT NULL DEFAULT '                ',
+  ip CHAR(16) NOT NULL DEFAULT '                ',
   url TEXT NOT NULL,
   message TEXT NOT NULL,
-  session char(64) NOT NULL DEFAULT '                                                                ',
-  error_type char(15) NOT NULL DEFAULT 'general',
+  session CHAR(64) NOT NULL DEFAULT '                                                                ',
+  error_type CHAR(15) NOT NULL DEFAULT 'general',
   file VARCHAR(255) NOT NULL DEFAULT '',
   line MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_error),
@@ -362,7 +362,7 @@ CREATE TABLE {$db_prefix}log_errors (
 #
 
 CREATE TABLE {$db_prefix}log_floodcontrol (
-  ip char(16) DEFAULT '                ',
+  ip CHAR(16) DEFAULT '                ',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   log_type VARCHAR(8) DEFAULT 'post',
   PRIMARY KEY (ip(16), log_type(8))
@@ -1021,7 +1021,7 @@ CREATE TABLE {$db_prefix}settings (
 #
 
 CREATE TABLE {$db_prefix}sessions (
-  session_id char(64),
+  session_id CHAR(64),
   last_update INT(10) UNSIGNED NOT NULL,
   data TEXT NOT NULL,
   PRIMARY KEY (session_id)
@@ -1182,7 +1182,7 @@ CREATE TABLE {$db_prefix}user_drafts (
 
 CREATE TABLE {$db_prefix}user_likes (
   id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
-  content_type char(6) DEFAULT '',
+  content_type CHAR(6) DEFAULT '',
   content_id INT(10) UNSIGNED DEFAULT '0',
   like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (content_id, content_type, id_member),
@@ -1207,18 +1207,6 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 # Transactions for the win - only used if we have InnoDB available...
 START TRANSACTION;
 
-#
-# Dumping data for table `admin_info_files`
-#
-
-INSERT INTO {$db_prefix}admin_info_files
-	(id_file, filename, path, parameters, data, filetype)
-VALUES
-	(1, 'current-version.js', '/smf/', 'version=%3$s', '', 'text/javascript'),
-	(2, 'detailed-version.js', '/smf/', 'language=%1$s&version=%3$s', '', 'text/javascript'),
-	(3, 'latest-news.js', '/smf/', 'language=%1$s&format=%2$s', '', 'text/javascript'),
-	(4, 'latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain');
-# --------------------------------------------------------
 
 #
 # Dumping data for table `board_permissions`
@@ -1542,7 +1530,7 @@ VALUES (-1, 1, 'poll_view'),
 
 INSERT INTO {$db_prefix}boards
 	(id_board, id_cat, board_order, id_last_msg, id_msg_updated, name, description, num_topics, num_posts, member_groups)
-VALUES (1, 1, 1, 1, 1, '{$DEFAULT_board_name}', '{$DEFAULT_board_description}', 1, 1, '-1,0,2');
+VALUES (1, 1, 1, 1, 1, '{$default_board_name}', '{$default_board_description}', 1, 1, '-1,0,2');
 # --------------------------------------------------------
 
 #
@@ -1605,17 +1593,17 @@ VALUES ('New Year\'s', '0004-01-01'),
 	('Vernal Equinox', '2018-03-20'),
 	('Vernal Equinox', '2019-03-20'),
 	('Vernal Equinox', '2020-03-19'),
-	('WINTer Solstice', '2010-12-21'),
-	('WINTer Solstice', '2011-12-22'),
-	('WINTer Solstice', '2012-12-21'),
-	('WINTer Solstice', '2013-12-21'),
-	('WINTer Solstice', '2014-12-21'),
-	('WINTer Solstice', '2015-12-21'),
-	('WINTer Solstice', '2016-12-21'),
-	('WINTer Solstice', '2017-12-21'),
-	('WINTer Solstice', '2018-12-21'),
-	('WINTer Solstice', '2019-12-21'),
-	('WINTer Solstice', '2020-12-21'),
+	('Winter Solstice', '2010-12-21'),
+	('Winter Solstice', '2011-12-22'),
+	('Winter Solstice', '2012-12-21'),
+	('Winter Solstice', '2013-12-21'),
+	('Winter Solstice', '2014-12-21'),
+	('Winter Solstice', '2015-12-21'),
+	('Winter Solstice', '2016-12-21'),
+	('Winter Solstice', '2017-12-21'),
+	('Winter Solstice', '2018-12-21'),
+	('Winter Solstice', '2019-12-21'),
+	('Winter Solstice', '2020-12-21'),
 	('Autumnal Equinox', '2010-09-22'),
 	('Autumnal Equinox', '2011-09-23'),
 	('Autumnal Equinox', '2012-09-22'),
@@ -1676,14 +1664,14 @@ VALUES ('Independence Day', '0004-07-04'),
 #
 
 INSERT INTO {$db_prefix}categories
-VALUES (1, 0, '{$DEFAULT_category_name}', '', 1);
+VALUES (1, 0, '{$default_category_name}', '', 1);
 # --------------------------------------------------------
 
 #
 # Dumping data for table `custom_fields`
 #
 
-INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `DEFAULT_value`, `enclose`, `placement`) VALUES
+INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`, `field_type`, `field_length`, `field_options`, `field_order`, `mask`, `show_reg`, `show_display`, `show_mlist`, `show_profile`, `private`, `active`, `bbc`, `can_search`, `default_value`, `enclose`, `placement`) VALUES
 ('cust_aolins', 'AOL Instant Messenger', 'This is your AOL Instant Messenger nickname.', 'text', 50, '', 1, 'regex~[a-z][0-9a-z.-]{1,31}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="aim" href="aim:goim?screenname={INPUT}&message=Hello!+Are+you+there?" target="_blank" title="AIM - {INPUT}"><img src="{IMAGES_URL}/aim.png" alt="AIM - {INPUT}"></a>', 1),
 ('cust_icq', 'ICQ', 'This is your ICQ number.', 'text', 12, '', 2, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1),
 ('cust_skype', 'Skype', 'Your Skype name', 'text', 32, '', 3, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1),
@@ -1699,14 +1687,14 @@ INSERT INTO `{$db_prefix}custom_fields` (`col_name`, `field_name`, `field_desc`,
 
 INSERT INTO {$db_prefix}membergroups
 	(id_group, group_name, description, online_color, min_posts, icons, group_type)
-VALUES (1, '{$DEFAULT_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
-	(2, '{$DEFAULT_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
-	(3, '{$DEFAULT_moderator_group}', '', '', -1, '5#iconmod.png', 0),
-	(4, '{$DEFAULT_newbie_group}', '', '', 0, '1#icon.png', 0),
-	(5, '{$DEFAULT_junior_group}', '', '', 50, '2#icon.png', 0),
-	(6, '{$DEFAULT_full_group}', '', '', 100, '3#icon.png', 0),
-	(7, '{$DEFAULT_senior_group}', '', '', 250, '4#icon.png', 0),
-	(8, '{$DEFAULT_hero_group}', '', '', 500, '5#icon.png', 0);
+VALUES (1, '{$default_administrator_group}', '', '#FF0000', -1, '5#iconadmin.png', 1),
+	(2, '{$default_global_moderator_group}', '', '#0000FF', -1, '5#icongmod.png', 0),
+	(3, '{$default_moderator_group}', '', '', -1, '5#iconmod.png', 0),
+	(4, '{$default_newbie_group}', '', '', 0, '1#icon.png', 0),
+	(5, '{$default_junior_group}', '', '', 50, '2#icon.png', 0),
+	(6, '{$default_full_group}', '', '', 100, '3#icon.png', 0),
+	(7, '{$default_senior_group}', '', '', 250, '4#icon.png', 0),
+	(8, '{$default_hero_group}', '', '', 500, '5#icon.png', 0);
 # --------------------------------------------------------
 
 #
@@ -1719,7 +1707,7 @@ INSERT INTO {$db_prefix}message_icons
 VALUES ('xx', 'Standard', '0'),
 	('thumbup', 'Thumb Up', '1'),
 	('thumbdown', 'Thumb Down', '2'),
-	('exclamation', 'Exclamation poINT', '3'),
+	('exclamation', 'Exclamation point', '3'),
 	('question', 'Question mark', '4'),
 	('lamp', 'Lamp', '5'),
 	('smiley', 'Smiley', '6'),
@@ -1737,7 +1725,7 @@ VALUES ('xx', 'Standard', '0'),
 
 INSERT INTO {$db_prefix}messages
 	(id_msg, id_msg_modified, id_topic, id_board, poster_time, subject, poster_name, poster_email, poster_ip, modified_name, body, icon)
-VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$DEFAULT_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$DEFAULT_topic_message}', 'xx');
+VALUES (1, 1, 1, 1, UNIX_TIMESTAMP(), '{$default_topic_subject}', 'Simple Machines', 'info@simplemachines.org', '127.0.0.1', '', '{$default_topic_message}', 'xx');
 # --------------------------------------------------------
 
 #
@@ -1755,7 +1743,7 @@ VALUES ('Simple Machines Third-party Mod Site', 'http://custom.simplemachines.or
 
 INSERT INTO {$db_prefix}permission_profiles
 	(id_profile, profile_name)
-VALUES (1, 'DEFAULT'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
+VALUES (1, 'default'), (2, 'no_polls'), (3, 'reply_only'), (4, 'read_only');
 # --------------------------------------------------------
 
 #
@@ -1845,7 +1833,7 @@ VALUES
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES ('smfVersion', '{$smf_version}'),
-	('news', '{$DEFAULT_news}'),
+	('news', '{$default_news}'),
 	('compactTopicPagesContiguous', '5'),
 	('compactTopicPagesEnable', '1'),
 	('todayMod', '1'),
@@ -1885,7 +1873,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('cal_maxyear', '2020'),
 	('cal_minyear', '2008'),
 	('cal_daysaslink', '0'),
-	('cal_DEFAULTboard', ''),
+	('cal_defaultboard', ''),
 	('cal_showholidays', '1'),
 	('cal_showbdays', '1'),
 	('cal_showevents', '1'),
@@ -1912,7 +1900,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('censor_proper', ''),
 	('enablePostHTML', '0'),
 	('theme_allow', '1'),
-	('theme_DEFAULT', '1'),
+	('theme_default', '1'),
 	('theme_guests', '1'),
 	('enableEmbeddedFlash', '0'),
 	('xmlnews_enable', '1'),
@@ -1928,7 +1916,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('reserveCase', '1'),
 	('reserveUser', '1'),
 	('reserveName', '1'),
-	('reserveNames', '{$DEFAULT_reserved_names}'),
+	('reserveNames', '{$default_reserved_names}'),
 	('autoLinkUrls', '1'),
 	('banLastUpdated', '0'),
 	('smileys_dir', '{$boarddir}/Smileys'),
@@ -1950,14 +1938,14 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('edit_disable_time', '0'),
 	('autoFixDatabase', '1'),
 	('allow_guestAccess', '1'),
-	('time_format', '{$DEFAULT_time_format}'),
+	('time_format', '{$default_time_format}'),
 	('number_format', '1234.00'),
 	('enableBBC', '1'),
 	('max_messageLength', '20000'),
 	('signature_settings', '1,300,0,0,0,0,0,0:'),
-	('DEFAULTMaxMessages', '15'),
-	('DEFAULTMaxTopics', '20'),
-	('DEFAULTMaxMembers', '30'),
+	('defaultMaxMessages', '15'),
+	('defaultMaxTopics', '20'),
+	('defaultMaxMembers', '30'),
 	('enableParticipation', '1'),
 	('recycle_enable', '0'),
 	('recycle_board', '0'),
@@ -1969,13 +1957,13 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('time_offset', '0'),
 	('cookieTime', '60'),
 	('lastActive', '15'),
-	('smiley_sets_known', 'DEFAULT,aaron,akyhne,fugue'),
-	('smiley_sets_names', '{$DEFAULT_smileyset_name}\n{$DEFAULT_aaron_smileyset_name}\n{$DEFAULT_akyhne_smileyset_name}\n{$DEFAULT_fugue_smileyset_name}'),
-	('smiley_sets_DEFAULT', 'DEFAULT'),
+	('smiley_sets_known', 'default,aaron,akyhne,fugue'),
+	('smiley_sets_names', '{$default_smileyset_name}\n{$default_aaron_smileyset_name}\n{$default_akyhne_smileyset_name}\n{$default_fugue_smileyset_name}'),
+	('smiley_sets_default', 'default'),
 	('cal_days_for_index', '7'),
 	('requireAgreement', '1'),
 	('unapprovedMembers', '0'),
-	('DEFAULT_personal_text', ''),
+	('default_personal_text', ''),
 	('package_make_backups', '1'),
 	('databaseSession_enable', '{$databaseSession_enable}'),
 	('databaseSession_loose', '1'),
@@ -2035,7 +2023,7 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('gravatarOverride', '0'),
 	('gravatarAllowExtraEmail', '1'),
 	('gravatarMaxRating', 'PG'),
-	('DEFAULTMaxListItems', '15'),
+	('defaultMaxListItems', '15'),
 	('loginHistoryDays', '30'),
 	('httponlyCookies', '1'),
 	('tfa_mode', '1'),
@@ -2049,28 +2037,28 @@ VALUES ('smfVersion', '{$smf_version}'),
 
 INSERT INTO {$db_prefix}smileys
 	(code, filename, description, smiley_order, hidden)
-VALUES (':)', 'smiley.gif', '{$DEFAULT_smiley_smiley}', 0, 0),
-	(';)', 'wink.gif', '{$DEFAULT_wink_smiley}', 1, 0),
-	(':D', 'cheesy.gif', '{$DEFAULT_cheesy_smiley}', 2, 0),
-	(';D', 'grin.gif', '{$DEFAULT_grin_smiley}', 3, 0),
-	('>:(', 'angry.gif', '{$DEFAULT_angry_smiley}', 4, 0),
-	(':(', 'sad.gif', '{$DEFAULT_sad_smiley}', 5, 0),
-	(':o', 'shocked.gif', '{$DEFAULT_shocked_smiley}', 6, 0),
-	('8)', 'cool.gif', '{$DEFAULT_cool_smiley}', 7, 0),
-	('???', 'huh.gif', '{$DEFAULT_huh_smiley}', 8, 0),
-	('::)', 'rolleyes.gif', '{$DEFAULT_roll_eyes_smiley}', 9, 0),
-	(':P', 'tongue.gif', '{$DEFAULT_tongue_smiley}', 10, 0),
-	(':-[', 'embarrassed.gif', '{$DEFAULT_embarrassed_smiley}', 11, 0),
-	(':-X', 'lipsrsealed.gif', '{$DEFAULT_lips_sealed_smiley}', 12, 0),
-	(':-\\', 'undecided.gif', '{$DEFAULT_undecided_smiley}', 13, 0),
-	(':-*', 'kiss.gif', '{$DEFAULT_kiss_smiley}', 14, 0),
-	(':\'(', 'cry.gif', '{$DEFAULT_cry_smiley}', 15, 0),
-	('>:D', 'evil.gif', '{$DEFAULT_evil_smiley}', 16, 1),
-	('^-^', 'azn.gif', '{$DEFAULT_azn_smiley}', 17, 1),
-	('O0', 'afro.gif', '{$DEFAULT_afro_smiley}', 18, 1),
-	(':))', 'laugh.gif', '{$DEFAULT_laugh_smiley}', 19, 1),
-	('C:-)', 'police.gif', '{$DEFAULT_police_smiley}', 20, 1),
-	('O:-)', 'angel.gif', '{$DEFAULT_angel_smiley}', 21, 1);
+VALUES (':)', 'smiley.gif', '{$default_smiley_smiley}', 0, 0),
+	(';)', 'wink.gif', '{$default_wink_smiley}', 1, 0),
+	(':D', 'cheesy.gif', '{$default_cheesy_smiley}', 2, 0),
+	(';D', 'grin.gif', '{$default_grin_smiley}', 3, 0),
+	('>:(', 'angry.gif', '{$default_angry_smiley}', 4, 0),
+	(':(', 'sad.gif', '{$default_sad_smiley}', 5, 0),
+	(':o', 'shocked.gif', '{$default_shocked_smiley}', 6, 0),
+	('8)', 'cool.gif', '{$default_cool_smiley}', 7, 0),
+	('???', 'huh.gif', '{$default_huh_smiley}', 8, 0),
+	('::)', 'rolleyes.gif', '{$default_roll_eyes_smiley}', 9, 0),
+	(':P', 'tongue.gif', '{$default_tongue_smiley}', 10, 0),
+	(':-[', 'embarrassed.gif', '{$default_embarrassed_smiley}', 11, 0),
+	(':-X', 'lipsrsealed.gif', '{$default_lips_sealed_smiley}', 12, 0),
+	(':-\\', 'undecided.gif', '{$default_undecided_smiley}', 13, 0),
+	(':-*', 'kiss.gif', '{$default_kiss_smiley}', 14, 0),
+	(':\'(', 'cry.gif', '{$default_cry_smiley}', 15, 0),
+	('>:D', 'evil.gif', '{$default_evil_smiley}', 16, 1),
+	('^-^', 'azn.gif', '{$default_azn_smiley}', 17, 1),
+	('O0', 'afro.gif', '{$default_afro_smiley}', 18, 1),
+	(':))', 'laugh.gif', '{$default_laugh_smiley}', 19, 1),
+	('C:-)', 'police.gif', '{$default_police_smiley}', 20, 1),
+	('O:-)', 'angel.gif', '{$default_angel_smiley}', 21, 1);
 # --------------------------------------------------------
 
 #
@@ -2107,10 +2095,10 @@ VALUES (1, 'Google', 'googlebot', ''),
 
 INSERT INTO {$db_prefix}themes
 	(id_theme, variable, value)
-VALUES (1, 'name', '{$DEFAULT_theme_name}'),
-	(1, 'theme_url', '{$boardurl}/Themes/DEFAULT'),
-	(1, 'images_url', '{$boardurl}/Themes/DEFAULT/images'),
-	(1, 'theme_dir', '{$boarddir}/Themes/DEFAULT'),
+VALUES (1, 'name', '{$default_theme_name}'),
+	(1, 'theme_url', '{$boardurl}/Themes/default'),
+	(1, 'images_url', '{$boardurl}/Themes/default/images'),
+	(1, 'theme_dir', '{$boarddir}/Themes/default'),
 	(1, 'show_latest_member', '1'),
 	(1, 'show_newsfader', '0'),
 	(1, 'number_recent_posts', '0'),
@@ -2118,7 +2106,6 @@ VALUES (1, 'name', '{$DEFAULT_theme_name}'),
 	(1, 'newsfader_time', '3000'),
 	(1, 'use_image_buttons', '1'),
 	(1, 'enable_news', '1'),
-	(1, 'forum_width', '90%'),
 	(1, 'drafts_show_saved_enabled', '1');
 
 INSERT INTO {$db_prefix}themes (id_member, id_theme, variable, value) VALUES (-1, 1, 'posts_apply_ignore_list', '1');
@@ -2145,7 +2132,19 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'msg_like', 1),
 	(0, 'msg_report', 1),
 	(0, 'msg_report_reply', 1),
-	(0, 'unapproved_reply', 3);
+	(0, 'unapproved_reply', 3),
+	(0, 'topic_notify', 1),
+	(0, 'board_notify', 1),
+	(0, 'msg_mention', 1),
+	(0, 'msg_quote', 1),
+	(0, 'pm_new', 1),
+	(0, 'pm_reply', 1),
+	(0, 'member_report_reply', 3),
+	(0, 'member_report', 3),
+	(0, 'unapproved_post', 1),
+	(0, 'buddy_request', 1),
+	(0, 'warn_any', 1),
+	(0, 'request_group', 1);
 # --------------------------------------------------------
 
 COMMIT;
