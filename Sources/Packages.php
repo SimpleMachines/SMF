@@ -1501,13 +1501,13 @@ function PackageBrowse()
 	// Decode the data.
 	$items = json_decode($data['data']);
 
-	$context['emulation_versions'] = preg_replace('/^SMF /', '', $items);
+	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
-	$context['default_version'] = preg_replace('/^SMF /', '', $forum_version);
+	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
 
 	// Version we're currently emulating, if any
-	$context['selected_version'] = preg_replace('/^SMF /', '', $context['forum_version']);
+	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
 }
 
 /**
