@@ -150,12 +150,13 @@ ul#likes li {
 }
 
 ul#likes span.avatar {
-	width: 45px;
-	height: 45px;
-	padding: 2px;
+	max-width: 100px;
+	max-height: 100px;
+	padding: 0 10px 0 0;
 }
 ul#likes span.avatar img {
-	max-height: 40px;
+	max-height: 90px;
+	max-width: 90px;
 }
 ul#likes li span.description {
 	font-style: italic;
