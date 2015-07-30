@@ -3945,7 +3945,7 @@ function setupMenuContext()
 				if (isset($button['action_hook']))
 					$needs_action_hook = true;
 
-				// Make sure the last button truely is the last button.
+				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
 					if (isset($last_button))
@@ -4039,7 +4039,7 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (allowedTo('admin_forum') && !empty($context['num_errors']))
+	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
 	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
@@ -4048,7 +4048,7 @@ function setupMenuContext()
 	/**
 	 * @todo For some reason, $context['open_member_reports'] isn't getting set
 	 */
-	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
