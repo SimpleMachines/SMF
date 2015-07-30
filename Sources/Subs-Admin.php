@@ -252,6 +252,7 @@ function getFileVersions(&$versionOptions)
 		ksort($version_info['default_template_versions']);
 		ksort($version_info['template_versions']);
 		ksort($version_info['default_language_versions']);
+		ksort($version_info['tasks_versions']);
 
 		// For languages sort each language too.
 		foreach ($version_info['default_language_versions'] as $language => $dummy)
