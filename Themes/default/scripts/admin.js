@@ -326,6 +326,11 @@ smf_ViewVersions.prototype.determineVersions = function ()
 	setInnerHTML(document.getElementById('currentLanguages'), oHighCurrent.Languages);
 	if (oLowVersion.Languages)
 		document.getElementById('yourLanguages').className = 'alert';
+
+	setInnerHTML(document.getElementById('yourTasks'), oLowVersion.Tasks ? oLowVersion.Tasks : oHighYour.Tasks);
+	setInnerHTML(document.getElementById('currentTasks'), oHighCurrent.Tasks);
+	if (oLowVersion.Tasks)
+		document.getElementById('yourTasks').className = 'alert';
 }
 
 function addNewWord()
