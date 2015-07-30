@@ -3321,14 +3321,6 @@ function template_javascript($do_defered = false)
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
-
-		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
-		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
-		echo '
-	<script>
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	</script>';
-
 	}
 
 	// Inline JavaScript - Actually useful some times!
