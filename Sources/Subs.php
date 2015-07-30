@@ -4023,13 +4023,6 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
-
-	if (isset($context['menu_buttons'][$current_action]))
-		$context['menu_buttons'][$current_action]['active_button'] = true;
-
 	$total_mod_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
@@ -4066,6 +4059,12 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
 
+	// Not all actions are simple.
+	if (!empty($needs_action_hook))
+		call_integration_hook('integrate_current_action', array(&$current_action));
+
+	if (isset($context['menu_buttons'][$current_action]))
+		$context['menu_buttons'][$current_action]['active_button'] = true;
 }
 
 /**
