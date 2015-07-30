@@ -1498,14 +1498,16 @@ function PackageBrowse()
 	$data = $smcFunc['db_fetch_assoc']($get_versions);
 	$smcFunc['db_free_result']($get_versions);
 
-	// Which versions are "safe" for emulating? Strip "SMF" off the list as well...
-	$context['emulation_versions'] = preg_replace('~^SMF ~', '', explode("\r\n", $data['data']));
+	// Decode the data.
+	$items = json_decode($data['data']);
+
+	$context['emulation_versions'] = preg_replace('/^SMF /', '', $items);
 
 	// Current SMF version, which is selected by default
-	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
+	$context['default_version'] = preg_replace('/^SMF /', '', $forum_version);
 
 	// Version we're currently emulating, if any
-	$context['selected_version'] = preg_replace('~^SMF ~', '', $context['forum_version']);
+	$context['selected_version'] = preg_replace('/^SMF /', '', $context['forum_version']);
 }
 
 /**
