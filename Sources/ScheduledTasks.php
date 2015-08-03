@@ -1318,8 +1318,8 @@ function scheduled_birthdayemails()
 	{
 		// We need to do some shuffling to make this work properly.
 		loadLanguage('EmailTemplates', $lang);
-		$txt['emails']['happy_birthday']['subject'] = $txtBirthdayEmails[$greeting . '_subject'];
-		$txt['emails']['happy_birthday']['body'] = $txtBirthdayEmails[$greeting . '_body'];
+		$txt['happy_birthday']['subject'] = $txtBirthdayEmails[$greeting . '_subject'];
+		$txt['happy_birthday']['body'] = $txtBirthdayEmails[$greeting . '_body'];
 
 		foreach ($recps as $recp)
 		{
