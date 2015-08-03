@@ -940,6 +940,8 @@ function EditMembergroup()
 		);
 		if ((!empty($moderator_string) || !empty($_POST['moderator_list'])) && $_POST['min_posts'] == -1 && $_REQUEST['group'] != 3)
 		{
+			$group_moderators = array();
+
 			// Get all the usernames from the string
 			if (!empty($moderator_string))
 			{
@@ -955,7 +957,6 @@ function EditMembergroup()
 				}
 
 				// Find all the id_member's for the member_name's in the list.
-				$group_moderators = array();
 				if (!empty($moderators))
 				{
 					$request = $smcFunc['db_query']('', '
@@ -972,13 +973,13 @@ function EditMembergroup()
 					$smcFunc['db_free_result']($request);
 				}
 			}
-			else
+
+			if (!empty($_POST['moderator_list']))
 			{
 				$moderators = array();
 				foreach ($_POST['moderator_list'] as $moderator)
 					$moderators[] = (int) $moderator;
 
-				$group_moderators = array();
 				if (!empty($moderators))
 				{
 					$request = $smcFunc['db_query']('', '
@@ -996,6 +997,9 @@ function EditMembergroup()
 					$smcFunc['db_free_result']($request);
 				}
 			}
+
+			// Make sure we don't have any duplicates first...
+			$group_moderators = array_unique($group_moderators);
 
 			// Found some?
 			if (!empty($group_moderators))
