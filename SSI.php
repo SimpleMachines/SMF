@@ -257,7 +257,7 @@ function ssi_logout($redirect_to = '', $output_method = 'echo')
 // Recent post list:   [board] Subject by Poster	Date
 function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 {
-	global $modSettings;
+	global $modSettings, $context;
 
 	// Excluding certain boards...
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
@@ -289,7 +289,7 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 		'is_approved' => 1,
 		'include_boards' => $include_boards === null ? '' : $include_boards,
 		'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-		'min_message_id' => $modSettings['maxMsgID'] - 25 * min($num_recent, 5),
+		'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_posts']) ? $context['min_message_posts'] : 25) * min($num_recent, 5),
 	);
 
 	// Past to this simpleton of a function...
@@ -472,7 +472,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		array(
 			'include_boards' => empty($include_boards) ? '' : $include_boards,
 			'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-			'min_message_id' => $modSettings['maxMsgID'] - 35 * min($num_recent, 5),
+			'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_topics']) ? $context['min_message_topics'] : 35) * min($num_recent, 5),
 			'is_approved' => 1,
 		)
 	);

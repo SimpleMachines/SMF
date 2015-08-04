@@ -2037,14 +2037,14 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.3.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'jquery');
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
 
 	// Queue our JQuery plugins!
 	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));

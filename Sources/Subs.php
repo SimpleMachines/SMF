@@ -3321,14 +3321,6 @@ function template_javascript($do_defered = false)
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
-
-		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
-		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
-		echo '
-	<script>
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	</script>';
-
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3945,7 +3937,7 @@ function setupMenuContext()
 				if (isset($button['action_hook']))
 					$needs_action_hook = true;
 
-				// Make sure the last button truely is the last button.
+				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
 					if (isset($last_button))
@@ -4023,13 +4015,6 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
-
-	if (isset($context['menu_buttons'][$current_action]))
-		$context['menu_buttons'][$current_action]['active_button'] = true;
-
 	$total_mod_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
@@ -4039,7 +4024,7 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (allowedTo('admin_forum') && !empty($context['num_errors']))
+	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
 	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
@@ -4048,7 +4033,7 @@ function setupMenuContext()
 	/**
 	 * @todo For some reason, $context['open_member_reports'] isn't getting set
 	 */
-	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
@@ -4066,6 +4051,12 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
 
+	// Not all actions are simple.
+	if (!empty($needs_action_hook))
+		call_integration_hook('integrate_current_action', array(&$current_action));
+
+	if (isset($context['menu_buttons'][$current_action]))
+		$context['menu_buttons'][$current_action]['active_button'] = true;
 }
 
 /**
