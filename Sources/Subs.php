@@ -899,6 +899,28 @@ function permute($array)
 	return $orders;
 }
 
+// Rearranges all parameters to be in the right order.  Returns TRUE if no parameters are leftover.
+function_param_order($message, &$parameters, &$out)
+{
+	$params = explode(' ', substr($message, 0, strpos($message, ']')));
+	unset($params[0]);
+	$order = array();
+	$out = $old = '';
+	foreach ($params as $param)
+	{
+		if (strpos($param, '=') === false)
+			$order[$old] .= ' ' . $param;
+		else
+			$order[$old = substr($param, 0, strpos($param, '='))] = substr($param, strpos($param, '=') + 1);
+	}
+	foreach ($parameters as $key => $ignore)
+	{
+		$out .= (isset($order[$key]) ? ' ' . $key . '=' . $order[$key] : '');
+		unset($order[$key]);
+	}
+	return count($order) == 0;
+}
+
 /**
  * Parse bulletin board code in a string, as well as smileys optionally.
  *
@@ -2101,23 +2123,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible['parameters']))
 			{
-				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
-
-				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$match = false;
-				$orders = permute($preg);
-				foreach ($orders as $p)
-					if (preg_match('~^' . implode('', $p) . '\]~i', substr($message, $pos1 - 1), $matches) != 0)
-					{
-						$match = true;
-						break;
-					}
-
-				// Didn't match our parameter list, try the next possible.
-				if (!$match)
+				// START: Dougiefresh's faster parse_bbc function
+				if (!fix_param_order(($test = substr($message, $pos1 - 1)), $possible['parameters'], $replace_str))
 					continue;
+				$preg = '';
+				foreach ($possible['parameters'] as $p => $info)
+					$preg .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
+				if (!preg_match('~^' . $preg . '\]~i', ($test = $replace_str . substr($test, strpos($test, ']'))), $matches))
+					continue;
+				$message = substr($message, 0, $pos1 - 1) . $test;
+				// END: Dougiefresh's faster parse_bbc function
 
 				$params = array();
 				for ($i = 1, $n = count($matches); $i < $n; $i += 2)
