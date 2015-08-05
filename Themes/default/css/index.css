@@ -390,6 +390,7 @@ h3.largetext {
 }
 .bbc_img {
 	border: 0;
+	max-width: 100%;
 }
 .bbc_table {
 	font: inherit;
@@ -3361,8 +3362,9 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachments .floatleft {
+.attachment {
 	padding: 0 6px 8px 6px;
+	max-width: 100%;
 }
 .attachments_top {
 	margin: 0 auto;
