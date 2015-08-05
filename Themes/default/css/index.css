@@ -388,7 +388,7 @@ h3.largetext {
 .bbc_bold {
 	font-weight: bold;
 }
-.bbc_img {
+.bbc_img, .atc_img {
 	border: 0;
 	max-width: 100%;
 }
