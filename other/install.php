@@ -1254,8 +1254,19 @@ function DatabasePopulation()
 			}
 		}
 	}
+
+	// Find database user privileges.
+	$privs = array();
+	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
+	while ($row = $smcFunc['db_fetch_assoc']($get_privs))
+	{
+		if ($row['Privilege'] == 'Alter')
+			$privs[] = $row['Privilege'];
+	}
+	$smcFunc['db_free_result']($get_privs);
+
 	// Check for the ALTER privilege.
-	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
+	if (!empty($databases[$db_type]['alter_support']) && !in_array('Alter', $privs))
 	{
 		$incontext['error'] = $txt['error_db_alter_priv'];
 		return false;
