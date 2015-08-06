@@ -609,7 +609,7 @@ function template_single_post($message)
 			}
 
 			echo '
-									<div class="floatleft">';
+									<div class="floatleft attachment">';
 
 			if ($attachment['is_image'])
 			{
@@ -618,10 +618,10 @@ function template_single_post($message)
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '"></a>';
+											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '" class="atc_img"></a>';
 				else
 					echo '
-											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '"/>';
+											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '" class="atc_img">';
 
 				echo '
 										</div>';
