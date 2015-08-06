@@ -1193,7 +1193,7 @@ CREATE TABLE {$db_prefix}user_likes (
 #
 # Table structure for table `mentions`
 #
-CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
+CREATE TABLE {$db_prefix}mentions (
   content_id INT DEFAULT '0',
   content_type VARCHAR(10) DEFAULT '',
   id_mentioned INT DEFAULT 0,
