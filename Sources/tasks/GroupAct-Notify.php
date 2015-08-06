@@ -28,12 +28,10 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			FROM {db_prefix}log_group_requests AS lgr
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
 				INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
-			WHERE ' . $where . '
-				AND lgr.id_request IN ({array_int:request_list})
+			WHERE lgr.id_request IN ({array_int:request_list})
 			ORDER BY mem.lngfile',
 			array(
-				'request_list' => $_POST['groupr'],
-				'status_open' => 0,
+				'request_list' => $this->_details['request_list'],
 			)
 		);
 		$affected_users = array();
@@ -45,15 +43,15 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			if (!isset($log_changes[$row['id_request']]))
 				$log_changes[$row['id_request']] = array(
 					'id_request' => $row['id_request'],
-					'status' => $_POST['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
-					'id_member_acted' => $user_info['id'],
-					'member_name_acted' => $user_info['name'],
+					'status' => $this->_details['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
+					'id_member_acted' => $this->_details['id_member'],
+					'member_name_acted' => $this->_details['member_name'],
 					'time_acted' => time(),
-					'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
+					'act_reason' => $this->_details['req_action'] != 'approve' && !empty($this->_details['reason']) && !empty($this->_details['reason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($this->_details['reason'][$row['id_request']], ENT_QUOTES) : '',
 				);
 
 			// If we are approving work out what their new group is.
-			if ($_POST['req_action'] == 'approve')
+			if ($this->_details['req_action'] == 'approve')
 			{
 				// For people with more than one request at once.
 				if (isset($group_changes[$row['id_member']]))
@@ -103,7 +101,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			require_once($sourcedir . '/Subs-Post.php');
 
 			// They are being approved?
-			if ($_POST['req_action'] == 'approve')
+			if ($this->_details['req_action'] == 'approve')
 			{
 				// Make the group changes.
 				foreach ($group_changes as $id => $groups)
@@ -153,7 +151,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					if (empty($user['receive_email']))
 						continue;
 
-					$custom_reason = isset($_POST['groupreason']) && isset($_POST['groupreason'][$user['rid']]) ? $_POST['groupreason'][$user['rid']] : '';
+					$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
 					$replacements = array(
 						'USERNAME' => $user['member_name'],
