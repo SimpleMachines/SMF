@@ -1105,7 +1105,12 @@ function DatabasePopulation()
 		// Does this table already exist?  If so, don't insert more data into it!
 		if (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) != 0 && in_array($match[1], $exists))
 		{
-			$incontext['sql_results']['insert_dups']++;
+			preg_match_all('~\)[,;]~', $current_statement, $matches);
+			if (!empty($matches[0]))
+				$incontext['sql_results']['insert_dups'] += count($matches[0]);
+			else
+				$incontext['sql_results']['insert_dups']++;
+
 			$current_statement = '';
 			continue;
 		}
