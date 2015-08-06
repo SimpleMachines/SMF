@@ -123,7 +123,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					);
 				}
 
-				$lastLng = $user_info['language'];
 				foreach ($affected_users as $user)
 				{
 					//Did the user chose to not receive important notifications via email? If so... no congratulations email
@@ -144,7 +143,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			else
 			{
 				// Same as for approving, kind of.
-				$lastLng = $user_info['language'];
 				foreach ($affected_users as $user)
 				{
 					//Again, did the user chose to not receive important notifications via email?
