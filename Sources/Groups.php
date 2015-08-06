@@ -491,9 +491,23 @@ function GroupRequests()
 		// Otherwise we do something!
 		else
 		{
-			$data = serialize(array('id_member' => $user_info['id'], 'member_name' => $user_info['name'], 'id_group' => $_POST['groupr'], 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
+			$request = $smcFunc['db_query']('', '
+				SELECT lgr.id_request
+				FROM {db_prefix}log_group_requests AS lgr
+				WHERE ' . $where . '
+					AND lgr.id_request IN ({array_int:request_list})',
+				array(
+					'request_list' => $_POST['groupr'],
+					'status_open' => 0,
+				)
+			);
+			$request_list = array();
+			while ($row = $smcFunc['db_fetch_assoc']($request))
+				$request_list[] = $row['id_group'];
+			$smcFunc['db_free_result']($request);
 
 			// Add a background task to handle notifying people of this request
+			$data = serialize(array('id_member' => $user_info['id'], 'member_name' => $user_info['name'], 'request_list' => $request_list, 'reason' => $_POST['groupreason'], 'time' => time()));
 			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
