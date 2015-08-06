@@ -619,7 +619,7 @@ CREATE TABLE {$db_prefix}log_subscribed (
   reminder_sent TINYINT(3) NOT NULL DEFAULT '0',
   vendor_ref VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id_sublog),
-  UNIQUE idx_KEY id_subscribe (id_subscribe, id_member),
+  UNIQUE KEY id_subscribe (id_subscribe, id_member),
   INDEX idx_end_time (end_time),
   INDEX idx_reminder_sent (reminder_sent),
   INDEX idx_payments_pending (payments_pending),
