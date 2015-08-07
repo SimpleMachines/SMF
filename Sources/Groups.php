@@ -662,7 +662,7 @@ function GroupRequests()
 
 	if (isset($_GET['closed']))
 	{
-		// Closed requests don't reqUire interaction.
+		// Closed requests don't require interaction.
 		unset($listOptions['columns']['action'], $listOptions['form'], $listOptions['additional_rows'][0]);
 		$listOptions['base_href'] .= 'closed';
 	}
