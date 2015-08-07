@@ -20,11 +20,16 @@ function smf_fileUpload(oOptions)
 		limitMultiFileUploads: 10,
 		limitMultiFileUploadSize: 1000000,
 		smf_mainDiv: '#fileupload',
-		smf_containerDiv: '#files',
+		smf_containerDiv: '#postAttachment',
 		smf_text: {}
 	};
 
 	$.extend(true, dOptions, oOptions);
+
+	if ($.support.fileInput) {
+		$(dOptions.smf_mainDiv).prop('multiple', true);
+		dOptions.dropZone.find('h3').show();
+	}
 
 	var uploadButton = $('<a/>')
 		.addClass('button_submit uploadButton')
@@ -203,8 +208,11 @@ function smf_fileUpload(oOptions)
 			// Track the number of times this event has been fired.
 			++numberOfTimes;
 
+			if (!$(dOptions.smf_containerDiv).is(':visible'))
+				$(dOptions.smf_containerDiv).show();
+
 			// Create a master and empty div.
-			data.context = $('<div/>').addClass('attach_container').appendTo(dOptions.smf_containerDiv);
+			data.context = $(dOptions.smf_containerDiv);
 
 			// Show some general controls.
 			if (!fileIndicator){
@@ -218,15 +226,15 @@ function smf_fileUpload(oOptions)
 				// Set a unique identifier for this file.
 				++uniqueID;
 
-				var node = $('<div/>').addClass('attach_holder descbox')
+				var node = $('<dd/>').addClass('attach_holder smalltext')
 				.attr('id', 'attach_holder_' + uniqueID)
-				.html('<div class="file_details"></div><div class="file_info"></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
+				.html('<div class="file_details"><div class="file_info"></div></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
 
 				// Hide the progress bar, we don't want to show it just yet!
 				node.find('.progressBar').hide();
 
 				node.find('.file_details')
-						.append($('<p/>').text(file.name));
+						.prepend($('<p/>').text(file.name + ' (' + Math.round(file.size / 1024) + ' KB)'));
 
 				// Need to pass some stuff to the upload and cancel buttons.
 				toButtons = {uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data};
@@ -252,7 +260,7 @@ function smf_fileUpload(oOptions)
 		.on('fileuploadprocessalways', function (e, data) {
 			var index = data.index,
 				file = data.files[index],
-				node = $(data.context.children()[index]);
+				node = $(data.context.children('.attach_holder')[index]);
 
 			// Track the file size.
 			totalSize = totalSize + file.size;
@@ -260,8 +268,7 @@ function smf_fileUpload(oOptions)
 			// Show a nice preview.
 			if (file.preview) {
 				node
-					.find('.file_details')
-					.append($('<p/>').prepend(file.preview));
+					.prepend($('<div class="file_preview"/>').prepend(file.preview));
 			}
 
 			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles || totalSize >= dOptions.limitMultiFileUploadSize) {
@@ -316,48 +323,47 @@ function smf_fileUpload(oOptions)
 			else{
 				$.each(data.result.files, function (index, file) {
 
-					var node = $(data.context.children()[index]);
+					var node = $(data.context.children('.attach_holder')[index]);
 
 					// Hide the progress bar.
-					node.find('.progressBar').fadeOut();
+					node.find('.progressBar').fadeOut(function() {
+						// Show the brand new attach ID bbc tag.
+						if (file.attachID) {
+							var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]" readonly>');
 
-					// Show the brand new attach ID bbc tag.
-					if (file.attachID) {
-						var bbcTag = $('<p class="attached_BBC" />').append(dOptions.smf_text.insertAttach + '<input type="text" name="attachBBC" value="[attach]' + file.attachID + '[/attach]" readonly>')
-							.append(insertBBC.clone(true).data(data));
+							// Replace the cancel button with a lovely "Delete" one.
+							node.find('.cancelButton').replaceWith(deleteButton.clone(true).data(data));
 
-						node
-							.find('.file_info')
-							.append(bbcTag);
+							node
+								.find('.file_info')
+								.append(bbcTag);
+							node
+								.find('.file_buttons')
+								.prepend(insertBBC.clone(true).data(data));
 
-						// Change the css to indicate everything went better than expected...
-						node.removeClass('descbox').addClass('infobox');
+							// Append the current node/file to make it easier to handle it.
+							data.currentNode = node;
+							data.currentFile = file;
+						}
 
-						// Append the current node/file to make it easier to handle it.
-						data.currentNode = node;
-						data.currentFile = file;
+						// Nope!
+						else if (file.errors) {
+							var errors = $('<p/>').html('<ul>');
 
-						// Replace the cancel button with a lovely "Delete" one.
-						node.find('.cancelButton').replaceWith(deleteButton.clone(true).data(data));
-					}
+							$.each(data.result.error, function (index, singleError) {
+								errors.append('<li>' + singleError + '</li>');
+							});
 
-					// Nope!
-					else if (file.errors) {
-						var errors = $('<p/>').html('<ul>');
+							// Close the ul
+							errors.append('</ul>');
 
-						$.each(data.result.error, function (index, singleError) {
-							errors.append('<li>' + singleError + '</li>');
-						});
+							node
+								.find('.file_info')
+								.append(errors);
 
-						// Close the ul
-						errors.append('</ul>');
-
-						node
-							.find('.file_info')
-							.append(errors);
-
-						node.removeClass('descbox').addClass('errorbox');
-					}
+							node.removeClass('descbox').addClass('errorbox');
+						}
+					});
 				});
 			}
 		})

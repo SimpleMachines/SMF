@@ -62,8 +62,7 @@ class Attachments
 
 		// Guest aren't welcome, sorry.
 		is_not_guest();
-
-
+		
 		$this->_sa = !empty($_REQUEST['sa']) ? $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions))
@@ -88,10 +87,10 @@ class Attachments
 		// Need this, don't ask why just nod your head.
 		require_once($sourcedir . '/ManageAttachments.php');
 
-		$attachID = (int) !empty($_REQUEST['attach']) && ctype_digit($_REQUEST['attach']) ? $_REQUEST['attach'] : 0;
+		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
-		if (!$attachID || !is_int($attachID))
+		if (!$attachID || !is_int($attachID) || !isset($_SESSION['already_attached'][$attachID]))
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
@@ -99,11 +98,10 @@ class Attachments
 			));
 
 		// Lets pass some params and see what happens :P
-		removeAttachments(array('id_attach' => $attachID), '', true, true);
+		$affectedMessage = removeAttachments(array('id_attach' => $attachID), '', true, true);
 
 		// Gotta also remove the attachment form the session var.
-		if (!empty($_SESSION['already_attached'][$attachID]))
-			unset($_SESSION['already_attached'][$attachID]);
+		unset($_SESSION['already_attached'][$attachID]);
 
 		// $affectedMessage returns an empty array array(0) which php treats as non empty... awesome...
 		$this->setResponse(array(

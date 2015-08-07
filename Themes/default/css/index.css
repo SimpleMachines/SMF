@@ -3900,24 +3900,23 @@ h3.profile_hd {
 
 /* fileUpload css */
 .attach_holder{
-	margin:5px;
-	min-height:100px;
 	display:inline-block;
 	overflow: hidden;
-	width:90%;
 }
 .attach_holder div.file_details{
-	float:left;
-	max-width:40%;
 	display:inline-block;
 	overflow: hidden;
+	width: 67%;
 }
-.attach_holder div.file_details p{
-	margin:5px;
+.attach_holder div.file_preview{
+	float: left;
+	width: 30%;
+}
+.attach_holder div.file_preview canvas{
+	max-width: 100px;
 }
 .attach_holder div.file_info{
 	float:right;
-	max-width:59%
 }
 .attach_holder div.file_buttons{
 	padding:10px;
