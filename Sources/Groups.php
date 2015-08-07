@@ -503,7 +503,18 @@ function GroupRequests()
 			);
 			$request_list = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
+			{
+				if (!isset($log_changes[$row['id_request']]))
+					$log_changes[$row['id_request']] = array(
+						'id_request' => $row['id_request'],
+						'status' => $_POST['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
+						'id_member_acted' => $user_info['id'],
+						'member_name_acted' => $user_info['name'],
+						'time_acted' => time(),
+						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
+					);
 				$request_list[] = $row['id_request'];
+			}
 			$smcFunc['db_free_result']($request);
 
 			// Add a background task to handle notifying people of this request
@@ -512,6 +523,24 @@ function GroupRequests()
 				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
 				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
 			);
+
+			// Some changes to log?
+			if (!empty($log_changes))
+			{
+				foreach ($log_changes as $id_request => $details)
+				{
+					$smcFunc['db_query']('', '
+						UPDATE {db_prefix}log_group_requests
+						SET status = {int:status},
+							id_member_acted = {int:id_member_acted},
+							member_name_acted = {string:member_name_acted},
+							time_acted = {int:time_acted},
+							act_reason = {string:act_reason}
+						WHERE id_request = {int:id_request}',
+						$details
+					);
+				}
+			}
 		}
 	}
 

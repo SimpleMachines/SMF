@@ -40,16 +40,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		{
 			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
-			if (!isset($log_changes[$row['id_request']]))
-				$log_changes[$row['id_request']] = array(
-					'id_request' => $row['id_request'],
-					'status' => $this->_details['req_action'] == 'approve' ? 1 : 2, // 1 = approved, 2 = rejected
-					'id_member_acted' => $this->_details['id_member'],
-					'member_name_acted' => $this->_details['member_name'],
-					'time_acted' => time(),
-					'act_reason' => $this->_details['req_action'] != 'approve' && !empty($this->_details['reason']) && !empty($this->_details['reason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($this->_details['reason'][$row['id_request']], ENT_QUOTES) : '',
-				);
-
 			// If we are approving work out what their new group is.
 			if ($this->_details['req_action'] == 'approve')
 			{
@@ -163,24 +153,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $user['rid'], false, 2);
 				}
-			}
-		}
-
-		// Some changes to log?
-		if (!empty($log_changes))
-		{
-			foreach ($log_changes as $id_request => $details)
-			{
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_group_requests
-					SET status = {int:status},
-						id_member_acted = {int:id_member_acted},
-						member_name_acted = {string:member_name_acted},
-						time_acted = {int:time_acted},
-						act_reason = {string:act_reason}
-					WHERE id_request = {int:id_request}',
-					$details
-				);
 			}
 		}
 
