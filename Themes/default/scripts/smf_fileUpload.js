@@ -31,23 +31,7 @@ function smf_fileUpload(oOptions)
 		dOptions.dropZone.find('h3').show();
 	}
 
-	var uploadButton = $('<a/>')
-		.addClass('button_submit uploadButton')
-		.prop('disabled', true)
-		.text(dOptions.smf_text.upload)
-		.one('click', function (e) {
-			e.preventDefault();
-			var $this = $(this),
-				data = $this.data(),
-				node = $('#attach_holder_' + data.uniqueID);
-
-			// Show the progress bar.
-			node.find('.progressBar').fadeIn();
-
-			data.instance.submit();
-			$this.remove();
-		}),
-	cancelButton = $('<a/>')
+	var cancelButton = $('<a/>')
 		.addClass('button_submit cancelButton')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.cancel)
@@ -241,8 +225,7 @@ function smf_fileUpload(oOptions)
 
 				// Append the current node info so it would be easier for the buttons to target it.
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data(toButtons))
-						.append(uploadButton.clone(true).data(toButtons));
+						.append(cancelButton.clone(true).data(toButtons));
 
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
