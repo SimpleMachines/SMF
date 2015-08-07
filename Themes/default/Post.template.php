@@ -430,14 +430,14 @@ function template_main()
 	{
 		if (empty($context['current-attachments']))
 			echo '
-						<dl id="postAttachment" style="display: none;">
+						<dl id="postAttachment">
 						</dl>';
 
 		echo '
 						<dl id="postAttachment2">
-							<div class="drop_zone descbox" style="display: none;">
+							<div class="drop_zone descbox">
 								<input id="fileupload" type="file" name="files[]">
-								<h3 style="display: none;">', $txt['attach_drop_zone'] ,'</h3>
+								<h3>', $txt['attach_drop_zone'] ,'</h3>
 							</div>
 							<div class="errorbox" id="attachGenericErrors">
 								<ul></ul>
