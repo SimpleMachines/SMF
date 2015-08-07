@@ -32,7 +32,7 @@ function Groups()
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
 
-	// Default to sub action 'index' or 'settings' depending on permissions.
+	// Default to sub action 'index'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
 
 	// Get the template stuff up and running.
@@ -454,7 +454,13 @@ function GroupRequests()
 		isAllowedTo('manage_membergroups');
 
 	// Normally, we act normally...
-	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . ' AND lgr.status = {int:status_open}';
+	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']);
+
+	if (isset($_GET['closed']))
+		$where .= ' AND lgr.status != {int:status_open}';
+	else
+		$where .= ' AND lgr.status = {int:status_open}';
+
 	$where_parameters = array(
 		'status_open' => 0,
 	);

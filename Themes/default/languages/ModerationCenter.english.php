@@ -12,6 +12,8 @@ $txt['mc_view_groups'] = 'View Membergroups';
 
 $txt['mc_description'] = 'This is your &quot;Moderation Center&quot;. From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community.';
 $txt['mc_group_requests'] = 'Membergroup Requests';
+$txt['mc_group_requests_active'] = 'Active Requests';
+$txt['mc_group_requests_closed'] = 'Old Requests';
 $txt['mc_unapproved_posts'] = 'Unapproved Posts';
 $txt['mc_watched_users'] = 'Recent Watched Members';
 $txt['mc_watched_topics'] = 'Watched Topics';
