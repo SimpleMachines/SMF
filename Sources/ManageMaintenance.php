@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -2490,10 +2490,10 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 	if (!empty($hooks_filters))
 		$context['insert_after_template'] .= '
-		<script><!-- // --><![CDATA[
+		<script>
 			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
 			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>'). ';
-		// ]]></script>';
+		</script>';
 
 	$temp_data = array();
 	$id = 0;

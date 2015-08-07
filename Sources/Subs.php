@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -1172,7 +1172,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader">' . $txt['code'] . ': <a href="javascript:void(0);" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1209,7 +1209,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader">' . $txt['code'] . ': ($2) <a href="#" onclick="return smfSelectText(this);" class="codeoperation">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -2523,7 +2523,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	else
 		$message = strtr($message, array("\n" => ''));
 
-	if ($message[0] === ' ')
+	if ($message !== '' && $message[0] === ' ')
 		$message = '&nbsp;' . substr($message, 1);
 
 	// Cleanup whitespace.
@@ -2739,11 +2739,8 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	// Maybe integrations want to change where we are heading?
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
 
-	// We send a Refresh header only in special cases because Location looks better. (and is quicker...)
-	if ($refresh && !WIRELESS)
-		header('Refresh: 0; URL=' . strtr($setLocation, array(' ' => '%20')), $permanent ? 301 : 302);
-	else
-		header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
+	// Set the header.
+	header('Location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 	// Debugging.
 	if (isset($db_show_debug) && $db_show_debug === true)
@@ -3345,7 +3342,7 @@ function template_javascript($do_defered = false)
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
 		echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 		foreach ($context['javascript_vars'] as $key => $value)
 		{
@@ -3362,7 +3359,7 @@ function template_javascript($do_defered = false)
 		}
 
 		echo '
-	// ]]></script>';
+	</script>';
 	}
 
 	// While we have Javascript files to place in the template
@@ -3371,14 +3368,6 @@ function template_javascript($do_defered = false)
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
-
-		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
-		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
-		echo '
-	<script><!-- // --><![CDATA[
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	// ]]></script>';
-
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3387,25 +3376,25 @@ function template_javascript($do_defered = false)
 		if (!empty($context['javascript_inline']['defer']) && $do_defered)
 		{
 			echo '
-<script><!-- // --><![CDATA[';
+<script>';
 
 			foreach ($context['javascript_inline']['defer'] as $js_code)
 				echo $js_code;
 
 			echo '
-// ]]></script>';
+</script>';
 		}
 
 		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
 		{
 			echo '
-	<script><!-- // --><![CDATA[';
+	<script>';
 
 			foreach ($context['javascript_inline']['standard'] as $js_code)
 				echo $js_code;
 
 			echo '
-	// ]]></script>';
+	</script>';
 		}
 	}
 }
@@ -3422,7 +3411,7 @@ function template_css()
 
 	foreach ($context['css_files'] as $id => $file)
 		echo '
-	<link rel="stylesheet" type="text/css" href="', $file['filename'], '">';
+	<link rel="stylesheet" href="', $file['filename'], '">';
 
 	if ($db_show_debug === true)
 	{
@@ -3777,7 +3766,9 @@ function clean_cache($type = '')
 	// Invalidate cache, to be sure!
 	// ... as long as index.php can be modified, anyway.
 	@touch($cachedir . '/' . 'index.php');
-	call_integration_hook('integrate_clean_cache');
+
+	if (empty($type))
+		call_integration_hook('integrate_clean_cache');
 	clearstatcache();
 }
 
@@ -3993,7 +3984,7 @@ function setupMenuContext()
 				if (isset($button['action_hook']))
 					$needs_action_hook = true;
 
-				// Make sure the last button truely is the last button.
+				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
 					if (isset($last_button))
@@ -4071,13 +4062,6 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
-
-	if (isset($context['menu_buttons'][$current_action]))
-		$context['menu_buttons'][$current_action]['active_button'] = true;
-
 	$total_mod_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
@@ -4087,7 +4071,7 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (allowedTo('admin_forum') && !empty($context['num_errors']))
+	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
 	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
@@ -4096,7 +4080,7 @@ function setupMenuContext()
 	/**
 	 * @todo For some reason, $context['open_member_reports'] isn't getting set
 	 */
-	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
@@ -4114,6 +4098,12 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
 
+	// Not all actions are simple.
+	if (!empty($needs_action_hook))
+		call_integration_hook('integrate_current_action', array(&$current_action));
+
+	if (isset($context['menu_buttons'][$current_action]))
+		$context['menu_buttons'][$current_action]['active_button'] = true;
 }
 
 /**

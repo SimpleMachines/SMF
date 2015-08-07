@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -647,7 +647,7 @@ function BookOfUnknown()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>The Book of Unknown, ', @$_GET['verse'] == '2:18' ? '2:18' : '4:16', '</title>
-		<style type="text/css">
+		<style>
 			em
 			{
 				font-size: 1.3em;

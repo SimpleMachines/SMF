@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_main()
@@ -215,7 +215,7 @@ function template_main()
 			</tbody>
 		</table>
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var oStatsCenter = new smf_StatsCenter({
 			sTableId: \'stats\',
 
@@ -255,7 +255,7 @@ function template_main()
 				\'hits\'', '
 			]
 		});
-	// ]]></script>';
+	</script>';
 	}
 }
 

@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // Template for the database maintenance tasks.
@@ -178,7 +178,7 @@ function template_maintain_members()
 	global $context, $settings, $txt, $scripturl;
 
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var warningMessage = \'\';
 		var membersSwap = false;
 
@@ -228,7 +228,7 @@ function template_maintain_members()
 			return valid;
 		}
 		setTimeout("checkAttributeValidity();", 500);
-	// ]]></script>
+	</script>
 	<div id="manage_maintenance">';
 
 	// If maintenance has finished tell the user.
@@ -318,7 +318,7 @@ function template_maintain_members()
 		</div>
 	</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAttributeMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAttributeMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -329,7 +329,7 @@ function template_maintain_members()
 			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 			bItemList: false
 		});
-	// ]]></script>';
+	</script>';
 }
 
 // Template for the topic maintenance tasks.
@@ -346,7 +346,7 @@ function template_maintain_topics()
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			var rotSwap = false;
 			function swapRot()
 			{
@@ -368,7 +368,7 @@ function template_maintain_topics()
 						oBoardCheckBoxes[i].checked = !rotSwap;
 				}
 			}
-		// ]]></script>';
+		</script>';
 
 	echo '
 	<div id="manage_maintenance">

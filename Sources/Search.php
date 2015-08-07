@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 1',
+	'forum_version' => 'SMF 2.1 Beta 2',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
@@ -1998,10 +1998,22 @@ function prepareSearchContext($reset = false)
 	// Do we have quote tag enabled?
 	$quote_enabled = empty($modSettings['disabledBBC']) || !in_array('quote', explode(',', $modSettings['disabledBBC']));
 
+	// Reference the main color class.
+	$colorClass = 'windowbg';
+
+	// Sticky topics should get a different color, too.
+	if ($message['is_sticky'])
+		$colorClass .= ' sticky';
+
+	// Locked topics get special treatment as well.
+	if ($message['locked'])
+		$colorClass .= ' locked';
+
 	$output = array_merge($context['topics'][$message['id_msg']], array(
 		'id' => $message['id_topic'],
 		'is_sticky' => !empty($message['is_sticky']),
 		'is_locked' => !empty($message['locked']),
+		'css_class' => $colorClass,
 		'is_poll' => $modSettings['pollMode'] == '1' && $message['id_poll'] > 0,
 		'posted_in' => !empty($participants[$message['id_topic']]),
 		'views' => $message['num_views'],

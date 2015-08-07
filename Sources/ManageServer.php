@@ -56,7 +56,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -538,7 +538,13 @@ function ModifyLoadBalancingSettings($return_config = false)
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
 	}
-	else
+	elseif (stripos(PHP_OS, 'darwin') === 0) 
+	{
+		$context['settings_message'] = $txt['loadavg_disabled_osx'];
+		if (isset($_GET['save']))
+			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
+	}	
+	else 
 	{
 		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 		if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) !== 0)

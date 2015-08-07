@@ -12,7 +12,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -948,7 +948,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
-	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'));
+	$notifyPrefs = getNotifyPrefs($all_to, array('pm_new', 'pm_reply', 'pm_notify'), true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT
@@ -1901,7 +1901,8 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'$sourcedir/tasks/ApprovePost-Notify.php', 'ApprovePost_Notify_Background', serialize(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions
+					'posterOptions' => $posterOptions,
+					'type' => $new_topic ? 'topic' : 'post',
 				)), 0
 			),
 			array('id_task')
@@ -1948,7 +1949,7 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 				'$sourcedir/tasks/ApproveReply-Notify.php', 'ApproveReply_Notify_Background', serialize(array(
 					'msgOptions' => $msgOptions,
 					'topicOptions' => $topicOptions,
-					'posterOptions' => $posterOptions
+					'posterOptions' => $posterOptions,
 				)), 0
 			),
 			array('id_task')

@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -728,7 +728,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'id_group' => $row['id_group'],
 			'group_name' => $row['group_name'],
 			'min_posts' => $row['min_posts'],
-			'desc' => $row['description'],
+			'desc' => parse_bbc($row['description'], false, '', $context['description_allowed_tags']),
 			'online_color' => $row['online_color'],
 			'type' => $row['group_type'],
 			'num_members' => $row['num_members'],

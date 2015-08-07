@@ -27,7 +27,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -1845,7 +1845,7 @@ function EditTheme()
 	{
 		$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($context['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.

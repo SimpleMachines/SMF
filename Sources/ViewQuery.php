@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -55,8 +55,8 @@ function ViewQuery()
 <html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<title>', $context['forum_name_html_safe'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
-		<style type="text/css">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css?alp21">
+		<style>
 			body
 			{
 				margin: 1ex;

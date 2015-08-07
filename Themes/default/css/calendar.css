@@ -146,11 +146,6 @@
 	padding-top: 12px;
 	margin-right: 0;
 }
-#main_grid img.calendar_icon {
-	float: left;
-	width: 16px;
-	margin: 2px 2px;
-}
 #main_grid .act_day {
 	font-size: 12pt;
 }
@@ -200,4 +195,8 @@ span.hidelink {
 #main_grid .comfortable, .calendar_week .comfortable {
 	height: 100px;
 	padding: 10px;
+}
+
+.modify_event:hover {
+	text-decoration: none;
 }

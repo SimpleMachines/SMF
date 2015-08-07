@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // @todo
@@ -21,7 +21,7 @@ function template_fatal_error()
 {
 	global $context, $txt;
 
-	if (SIMPLE_ACTION)
+	if (!empty($context['simple_action']))
 		echo '
 		<strong>
 			', $context['error_title'], '
@@ -207,7 +207,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>
 		<table class="errorfile_table">';

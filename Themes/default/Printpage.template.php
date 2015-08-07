@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_print_above()
@@ -24,7 +24,7 @@ function template_print_above()
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', $context['canonical_url'], '">
 		<title>', $txt['print_page'], ' - ', $context['topic_subject'], '</title>
-		<style type="text/css">
+		<style>
 			body, a {
 				color: #000;
 				background: #fff;

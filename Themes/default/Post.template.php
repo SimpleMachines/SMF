@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // The main template for the post page.
@@ -17,7 +17,7 @@ function template_main()
 
 	// Start the javascript... and boy is there a lot.
 	echo '
-		<script><!-- // --><![CDATA[';
+		<script>';
 
 	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
 	if (isBrowser('is_firefox'))
@@ -62,7 +62,7 @@ function template_main()
 
 	// End of the javascript, start the form and display the link tree.
 	echo '
-		// ]]></script>
+		</script>
 		<form action="', $scripturl, '?action=', $context['destination'], ';', empty($context['current_board']) ? '' : 'board=' . $context['current_board'], '" method="post" accept-charset="', $context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="', ($context['becomes_approved'] ? '' : 'alert(\'' . $txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);smc_saveEntities(\'postmodify\', [\'subject\', \'', $context['post_box_name'], '\', \'guestname\', \'evtitle\', \'question\'], \'options\');" enctype="multipart/form-data">';
 
 	// If the user wants to see how their message looks - the preview section is where it's at!
@@ -536,7 +536,7 @@ function template_main()
 		</form>';
 
 	echo '
-		<script><!-- // --><![CDATA[';
+		<script>';
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
@@ -780,7 +780,7 @@ function template_main()
 	echo '
 			var oEditorID = "', $context['post_box_name'] ,'";
 			var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
-		// ]]></script>';
+		</script>';
 
 	// If the user is replying to a topic show the previous posts.
 	if (isset($context['previous_posts']) && count($context['previous_posts']) > 0)
@@ -835,7 +835,7 @@ function template_main()
 
 		echo '
 		</div>
-		<script><!-- // --><![CDATA[
+		<script>
 			var aIgnoreToggles = new Array();';
 
 		foreach ($ignored_posts as $post_id)
@@ -880,7 +880,7 @@ function template_main()
 			{
 				$("#', $context['post_box_name'], '").data("sceditor").sourceEditorInsertText(text);
 			}
-		// ]]></script>';
+		</script>';
 	}
 }
 
@@ -895,8 +895,8 @@ function template_spellcheck()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['spell_check'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<style type="text/css">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<style>
 			body, td
 			{
 				font-size: small;
@@ -924,15 +924,15 @@ function template_spellcheck()
 	// As you may expect - we need a lot of javascript for this... load it form the separate files.
 	echo '
 		</style>
-		<script><!-- // --><![CDATA[
+		<script>
 			var spell_formname = window.opener.spell_formname;
 			var spell_fieldname = window.opener.spell_fieldname;
-		// ]]></script>
+		</script>
 		<script src="', $settings['default_theme_url'], '/scripts/spellcheck.js', $modSettings['browser_cache'] ,'"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
-		<script><!-- // --><![CDATA[
+		<script>
 			', $context['spell_js'], '
-		// ]]></script>
+		</script>
 	</head>
 	<body onload="nextWord(false);">
 		<form action="#" method="post" accept-charset="', $context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;" style="margin: 0;">
@@ -973,7 +973,7 @@ function template_quotefast()
 	<body>
 		', $txt['retrieving_quote'], '
 		<div id="temporary_posting_area" style="display: none;"></div>
-		<script><!-- // --><![CDATA[';
+		<script>';
 
 	if ($context['close_window'])
 		echo '
@@ -1005,7 +1005,7 @@ function template_quotefast()
 			setTimeout("window.close();", 400);';
 	}
 	echo '
-		// ]]></script>
+		</script>
 	</body>
 </html>';
 }
@@ -1083,7 +1083,7 @@ function template_announcement_send()
 		</form>
 	</div>
 	<br>
-		<script><!-- // --><![CDATA[
+		<script>
 			var countdown = 2;
 			doAutoSubmit();
 
@@ -1099,7 +1099,7 @@ function template_announcement_send()
 
 				setTimeout("doAutoSubmit();", 1000);
 			}
-		// ]]></script>';
+		</script>';
 }
 
 ?>

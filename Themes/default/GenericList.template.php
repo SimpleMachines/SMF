@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_show_list($list_id = null)
@@ -159,9 +159,9 @@ function template_show_list($list_id = null)
 
 	if (isset($cur_list['javascript']))
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		', $cur_list['javascript'], '
-	// ]]></script>';
+	</script>';
 }
 
 function template_additional_rows($row_position, $cur_list)

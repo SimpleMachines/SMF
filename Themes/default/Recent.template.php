@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_recent()
@@ -34,7 +34,7 @@ function template_recent()
 	foreach ($context['posts'] as $post)
 	{
 		echo '
-			<div class="windowbg">
+			<div class="', $post['css_class'] ,'">
 					<div class="counter">', $post['counter'], '</div>
 					<div class="topic_details">
 						<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
@@ -127,19 +127,8 @@ function template_unread()
 
 		foreach ($context['topics'] as $topic)
 		{
-			$color_class = 'windowbg';
-
-			// Sticky topics should get a different color, too.
-			if ($topic['is_sticky'])
-				$color_class = 'sticky ' . $color_class;
-			// Locked topics get special treatment as well.
-			if ($topic['is_locked'])
-				$color_class = 'locked ' . $color_class;
-
-			$color_class2 = $color_class . '2';
-
 			echo '
-					<div class="', $color_class, '">
+					<div class="', $topic['css_class'], '">
 						<div class="icon">
 							<img src="', $topic['first_post']['icon_url'], '" alt="">
 								', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;">' : '','
@@ -276,19 +265,8 @@ function template_replies()
 
 		foreach ($context['topics'] as $topic)
 		{
-			$color_class = 'windowbg';
-
-			// Sticky topics should get a different color, too.
-			if ($topic['is_sticky'])
-				$color_class = 'sticky ' . $color_class;
-			// Locked topics get special treatment as well.
-			if ($topic['is_locked'])
-				$color_class = 'locked ' . $color_class;
-
-			$color_class2 = $color_class . '2';
-
 			echo '
-						<div class="', $color_class, '">
+						<div class="', $topic['css_class'], '">
 							<div class="icon">
 								<img src="', $topic['first_post']['icon_url'], '" alt="">
 								', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '','

@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -358,7 +358,7 @@ function PackageInstallTest()
 				$context['actions'][] = array(
 					'type' => $txt['execute_modification'],
 					'action' => $smcFunc['htmlspecialchars'](strtr($action['filename'], array($boarddir => '.'))),
-					'description' => $txt['package_action_error'],
+					'description' => $txt['package_action_missing'],
 					'failed' => true,
 				);
 			}
@@ -1018,6 +1018,7 @@ function PackageInstall()
 				$credits_tag = array(
 					'url' => $action['url'],
 					'license' => $action['license'],
+					'licenseurl' => $action['licenseurl'],
 					'copyright' => $action['copyright'],
 					'title' => $action['title'],
 				);
@@ -1025,9 +1026,9 @@ function PackageInstall()
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
-					remove_integration_function($action['hook'], $action['function'], $action['include_file']);
+					remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 				else
-					add_integration_function($action['hook'], $action['function'], $action['include_file']);
+					add_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
@@ -1497,8 +1498,10 @@ function PackageBrowse()
 	$data = $smcFunc['db_fetch_assoc']($get_versions);
 	$smcFunc['db_free_result']($get_versions);
 
-	// Which versions are "safe" for emulating? Strip "SMF" off the list as well...
-	$context['emulation_versions'] = preg_replace('~^SMF ~', '', explode("\r\n", $data['data']));
+	// Decode the data.
+	$items = json_decode($data['data']);
+
+	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
 	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);

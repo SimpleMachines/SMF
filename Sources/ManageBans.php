@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -266,6 +266,10 @@ function BanList()
 		),
 		'additional_rows' => array(
 			array(
+				'position' => 'top_of_list',
+				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button_submit you_sure">',
+			),
+			array(
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="removeBans" value="' . $txt['ban_remove_selected'] . '" data-confirm="' . $txt['ban_remove_selected_confirm'] . '" class="button_submit you_sure">',
 			),
@@ -452,6 +456,19 @@ function BanEdit()
 					'href' => $scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
 				),
 				'additional_rows' => array(
+					array(
+						'position' => 'above_table_headers',
+						'value' => '
+						<input type="submit" name="remove_selection" value="' . $txt['ban_remove_selected_triggers'] . '" class="button_submit"> <a class="button_link" href="' . $scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . $txt['ban_add_trigger'] . '</a>',
+						'style' => 'text-align: right;',
+					),
+					array(
+						'position' => 'above_table_headers',
+						'value' => '
+						<input type="hidden" name="bg" value="' . $ban_group_id . '">
+						<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
+						<input type="hidden" name="' . $context['admin-bet_token_var'] . '" value="' . $context['admin-bet_token'] . '">',
+					),
 					array(
 						'position' => 'below_table_data',
 						'value' => '
@@ -830,7 +847,7 @@ function banEdit2()
 	// Something went wrong somewhere... Oh well, let's go back.
 	if (!empty($context['ban_errors']))
 	{
-		$context['ban_suggestions'] = $saved_triggers;
+		$context['ban_suggestions'] = !empty($saved_triggers) ? $saved_triggers : array();
 		$context['ban']['from_user'] = true;
 		$context['ban_suggestions'] = array_merge($context['ban_suggestions'], getMemberData((int) $_REQUEST['u']));
 
@@ -839,7 +856,7 @@ function banEdit2()
 			$context['ban_suggestions']['other_ips'] = banLoadAdditionalIPs($context['ban_suggestions']['member']['id']);
 		return BanEdit();
 	}
-	$context['ban_suggestions']['saved_triggers'] = $saved_triggers;
+	$context['ban_suggestions']['saved_triggers'] = !empty($saved_triggers) ? $saved_triggers : array();
 
 	if (isset($_POST['ban_items']))
 	{
@@ -1471,7 +1488,6 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 
 /**
  * Updates an existing ban group
- * If the name doesn't exists a new one is created
  *
  * Errors in $context['ban_errors']
  *
@@ -1486,24 +1502,48 @@ function updateBanGroup($ban_info = array())
 		$context['ban_errors'][] = 'ban_name_empty';
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'ban_id_empty';
+	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
+		$context['ban_errors'][] = 'ban_unknown_restriction_type';
+
+	if(!empty($ban_info['id']))
+	{
+		// Verify the ban group exists.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE id_ban_group = {int:ban_group}
+			LIMIT 1',
+			array(
+				'ban_group' => $ban_info['id']
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) == 0)
+			$context['ban_errors'][] = 'ban_not_found';
+		$smcFunc['db_free_result']($request);
+	}
+
+	if(!empty($ban_info['name']))
+	{
+		// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE name = {string:new_ban_name}
+				AND id_ban_group != {int:ban_group}
+			LIMIT 1',
+			array(
+				'ban_group' => empty($ban_info['id']) ? 0 : $ban_info['id'],
+				'new_ban_name' => $ban_info['name'],
+			)
+		);
+		if ($smcFunc['db_num_rows']($request) != 0)
+			$context['ban_errors'][] = 'ban_name_exists';
+		$smcFunc['db_free_result']($request);
+	}
 
 	if (!empty($context['ban_errors']))
 		return;
-
-	$request = $smcFunc['db_query']('', '
-		SELECT id_ban_group
-		FROM {db_prefix}ban_groups
-		WHERE name = {string:new_ban_name}
-			AND id_ban_group = {int:ban_group}
-		LIMIT 1',
-		array(
-			'ban_group' => $ban_info['id'],
-			'new_ban_name' => $ban_info['name'],
-		)
-	);
-	if ($smcFunc['db_num_rows']($request) == 0)
-		return insertBanGroup($ban_info);
-	$smcFunc['db_free_result']($request);
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_groups
@@ -1534,7 +1574,7 @@ function updateBanGroup($ban_info = array())
 
 /**
  * Creates a new ban group
- * If a ban group with the same name already exists or the group s successfully created the ID is returned
+ * If the group is successfully created the ID is returned
  * On error the error code is returned or false
  *
  * Errors in $context['ban_errors']
@@ -1551,27 +1591,26 @@ function insertBanGroup($ban_info = array())
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 
+	if(!empty($ban_info['name']))
+	{
+		// Check whether a ban with this name already exists.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_ban_group
+			FROM {db_prefix}ban_groups
+			WHERE name = {string:new_ban_name}' . '
+			LIMIT 1',
+			array(
+				'new_ban_name' => $ban_info['name'],
+			)
+		);
+
+		if ($smcFunc['db_num_rows']($request) == 1)
+			$context['ban_errors'][] = 'ban_name_exists';
+		$smcFunc['db_free_result']($request);
+	}
+
 	if (!empty($context['ban_errors']))
 		return;
-
-	// Check whether a ban with this name already exists.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_ban_group
-		FROM {db_prefix}ban_groups
-		WHERE name = {string:new_ban_name}' . '
-		LIMIT 1',
-		array(
-			'new_ban_name' => $ban_info['name'],
-		)
-	);
-
-	if ($smcFunc['db_num_rows']($request) == 1)
-	{
-		list($id_ban) = $smcFunc['db_fetch_row']($request);
-		$smcFunc['db_free_result']($request);
-		return $id_ban;
-	}
-	$smcFunc['db_free_result']($request);
 
 	// Yes yes, we're ready to add now.
 	$smcFunc['db_insert']('',
@@ -2113,6 +2152,12 @@ function BanLog()
 			'token' => 'admin-bl',
 		),
 		'additional_rows' => array(
+			array(
+				'position' => 'top_of_list',
+				'value' => '
+					<input type="submit" name="removeSelected" value="' . $txt['ban_log_remove_selected'] . '" data-confirm="' . $txt['ban_log_remove_selected_confirm'] . '" class="button_submit you_sure">
+					<input type="submit" name="removeAll" value="' . $txt['ban_log_remove_all'] . '" data-confirm="' . $txt['ban_log_remove_all_confirm'] . '" class="button_submit you_sure">',
+			),
 			array(
 				'position' => 'bottom_of_list',
 				'value' => '

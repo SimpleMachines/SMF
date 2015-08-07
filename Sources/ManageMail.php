@@ -12,7 +12,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -199,6 +199,10 @@ function BrowseMailQueue()
 		),
 		'additional_rows' => array(
 			array(
+				'position' => 'top_of_list',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+			),
+			array(
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
@@ -344,7 +348,7 @@ function ModifyMailSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 
 	$context['settings_insert_above'] = '
-	<script><!-- // --><![CDATA[
+	<script>
 		var bDay = {';
 
 	$i = 0;
@@ -365,7 +369,7 @@ function ModifyMailSettings($return_config = false)
 			document.getElementById(\'birthday_subject\').innerHTML = bDay[index].subject;
 			document.getElementById(\'birthday_body\').innerHTML = bDay[index].body;
 		}
-	// ]]></script>';
+	</script>';
 }
 
 /**

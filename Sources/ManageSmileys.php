@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -466,6 +466,10 @@ function EditSmileySets()
 			'token' => 'admin-mss',
 		),
 		'additional_rows' => array(
+			array(
+				'position' => 'above_table_headers',
+				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button_submit you_sure"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',
+			),
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="hidden" name="smiley_save"><input type="submit" name="delete" value="' . $txt['smiley_sets_delete'] . '" data-confirm="' . $txt['smiley_sets_confirm'] . '" class="button_submit you_sure"> <a class="button_link" href="' . $scripturl . '?action=admin;area=smileys;sa=modifyset' . '">' . $txt['smiley_sets_add'] . '</a> ',

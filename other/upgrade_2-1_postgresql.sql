@@ -697,6 +697,18 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_report_reply', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_reply', 3);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'topic_notify', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'board_notify', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_mention', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'buddy_request', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'warn_any', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1);
 ---#
 
 /******************************************************************************/
@@ -1239,7 +1251,7 @@ WHERE variable IN ('enableStickyTopics', 'guest_hideContacts', 'notify_new_regis
 
 ---# Cleaning up old theme settings.
 DELETE FROM {$db_prefix}themes
-WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled');
+WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_reply', 'show_mark_read', 'show_member_bar', 'linktree_link', 'show_bbc', 'additional_options_collapsable', 'subject_toggle', 'show_modify', 'show_profile_buttons', 'show_user_images', 'show_blurb', 'show_gender', 'hide_post_group', 'drafts_autosave_enabled', 'forum_width');
 ---#
 
 ---# Adding new "httponlyCookies" setting

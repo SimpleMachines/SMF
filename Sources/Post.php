@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -1174,7 +1174,8 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
+		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
@@ -1364,7 +1365,21 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		if ($topic_info['id_member_started'] != $user_info['id'])
+		$topicAndMessageBothUnapproved = false;
+
+		// If the topic is unapproved the message automatically becomes unapproved too.
+		if (empty($topic_info['approved']))
+		{
+			$becomesApproved = false;
+
+			// camelCase fan much? :P
+			$topicAndMessageBothUnapproved = true;
+
+			// Set a nice session var...
+			$_SESSION['becomesUnapproved'] = true;
+		}
+
+		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
@@ -1402,8 +1417,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1413,8 +1428,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['is_sticky']) ? 'un' : '') . 'sticky';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['is_sticky']) ? 'un' : '') . 'sticky';
 		}
 
 		// If drafts are enabled, then pass this off
@@ -1517,8 +1532,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1528,8 +1543,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'stickied';
 		}
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
@@ -1578,8 +1593,8 @@ function Post2()
 		}
 	}
 
-	// In case we want to override
-	if (allowedTo('approve_posts'))
+	// In case we want to override but still respect the unapproved topic rule.
+	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
@@ -2531,7 +2546,7 @@ function QuoteFast()
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;
-	global $user_info, $context, $smcFunc, $language;
+	global $user_info, $context, $smcFunc, $language, $board_info;
 
 	// We have to have a topic!
 	if (empty($topic))
@@ -2545,7 +2560,8 @@ function JavaScriptModify()
 		SELECT
 			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
-			m.modified_time, m.modified_name, m.modified_reason, m.approved
+			m.modified_time, m.modified_name, m.modified_reason, m.approved,
+			m.poster_name, m.poster_email
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 		WHERE m.id_msg = {raw:id_msg}
@@ -2675,7 +2691,12 @@ function JavaScriptModify()
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
 		);
-		$posterOptions = array();
+		$posterOptions = array(
+			'id' => $user_info['id'],
+			'name' => $row['poster_name'],
+			'email' => $row['poster_email'],
+			'update_post_count' => !$user_info['is_guest'] && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+		);
 
 		// Only consider marking as editing if they have edited the subject, message or icon.
 		if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon']))

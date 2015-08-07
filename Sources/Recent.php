@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -393,6 +393,7 @@ function RecentPosts()
 			'can_reply' => false,
 			'can_delete' => false,
 			'delete_possible' => ($row['id_first_msg'] != $row['id_msg'] || $row['id_last_msg'] == $row['id_msg']) && (empty($modSettings['edit_disable_time']) || $row['poster_time'] + $modSettings['edit_disable_time'] * 60 >= time()),
+			'css_class' => 'windowbg',
 		);
 
 		if ($user_info['id'] == $row['id_first_member'])
@@ -449,6 +450,9 @@ function RecentPosts()
 		// And some cannot be quoted...
 		$context['posts'][$counter]['can_quote'] = $context['posts'][$counter]['can_reply'] && $quote_enabled;
 	}
+
+	// Allow last minute changes.
+	call_integration_hook('integrate_recent_RecentPosts');
 }
 
 /**
@@ -1274,6 +1278,17 @@ function UnreadTopics()
 			$row['last_icon'] = 'recycled';
 		}
 
+		// Reference the main color class.
+		$colorClass = 'windowbg';
+
+		// Sticky topics should get a different color, too.
+		if ($row['is_sticky'])
+			$colorClass .= ' sticky';
+
+		// Locked topics get special treatment as well.
+		if ($row['locked'])
+			$colorClass .= ' locked';
+
 		// And build the array.
 		$context['topics'][$row['id_topic']] = array(
 			'id' => $row['id_topic'],
@@ -1317,6 +1332,7 @@ function UnreadTopics()
 			'link' => '<a href="' . $scripturl . '?topic=' . $row['id_topic'] . ($row['num_replies'] == 0 ? '.0' : '.msg' . $row['new_from']) . ';topicseen#msg' . $row['new_from'] . '" rel="nofollow">' . $row['first_subject'] . '</a>',
 			'is_sticky' => !empty($row['is_sticky']),
 			'is_locked' => !empty($row['locked']),
+			'css_class' => $colorClass,
 			'is_poll' => $modSettings['pollMode'] == '1' && $row['id_poll'] > 0,
 			'is_posted_in' => false,
 			'icon' => $row['first_icon'],
@@ -1333,46 +1349,12 @@ function UnreadTopics()
 			)
 		);
 		if (!empty($settings['avatars_on_indexes']))
-		{
-			if (!empty($modSettings['gravatarOverride']))
-			{
-				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
-					$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-				else
-					$image = get_gravatar_url($row['email_address']);
-			}
-			else
-			{
-				// So it's stored in the member table?
-				if (!empty($row['avatar']))
-				{
-					if (stristr($row['avatar'], 'gravatar://'))
-					{
-						if ($row['avatar'] == 'gravatar://')
-							$image = get_gravatar_url($row['email_address']);
-						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-							$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-					}
-					else
-						$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
-				}
-				// Right... no avatar...
-				else
-					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-						'name' => '',
-						'image' => '',
-						'href' => '',
-						'url' => '',
-					);
-			}
-			if (!empty($image))
-				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-					'name' => $row['avatar'],
-					'image' => '<img class="avatar" src="' . $image . '" />',
-					'href' => $image,
-					'url' => $image,
-				);
-		}
+			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['avatar'],
+				'email' => $row['email_address'],
+				'filename' => false,
+			));
+
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}
 	$smcFunc['db_free_result']($request);

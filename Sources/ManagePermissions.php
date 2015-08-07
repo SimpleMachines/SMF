@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -1190,7 +1190,6 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_identity_any',
 		'profile_extra_any',
 		'profile_signature_any',
-		'profile_forum_own',
 		'profile_other_any',
 		'profile_displayed_name_any',
 		'profile_password_any',

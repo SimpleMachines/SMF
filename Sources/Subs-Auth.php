@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -113,16 +113,20 @@ function setLoginCookie($cookie_length, $id, $password = '')
  * @param int $cookie_length
  * @param int $id
  * @param string $secret Should be a salted secret using hash_salt
+ * @param bool $preserve Whether to preserve the cookie for 30 days or not
  */
-function setTFACookie($cookie_length, $id, $secret)
+function setTFACookie($cookie_length, $id, $secret, $preserve = false)
 {
 	global $modSettings, $cookiename, $boardurl;
 
 	$identifier = $cookiename . '_tfa';
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
 
+	if ($preserve)
+		$cookie_length = 81600 * 30;
+
 	// Get the data and path to set it on.
-	$data = serialize(empty($id) ? array(0, '', 0) : array($id, $secret, time() + $cookie_length, $cookie_state));
+	$data = serialize(empty($id) ? array(0, '', 0, $cookie_state, false) : array($id, $secret, time() + $cookie_length, $cookie_state, $preserve));
 	$cookie_url = url_parts(!empty($modSettings['localCookies']), !empty($modSettings['globalCookies']));
 
 	// Set the cookie, $_COOKIE, and session variable.

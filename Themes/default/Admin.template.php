@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 /**
@@ -110,7 +110,7 @@ function template_admin()
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						var oAdminIndex = new smf_AdminIndex({
 							sSelf: \'oAdminCenter\',
 
@@ -150,7 +150,7 @@ function template_admin()
 							sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
 
 						});
-					// ]]></script>';
+					</script>';
 }
 
 /**
@@ -253,7 +253,7 @@ function template_credits()
 
 	// This makes all the support information available to the support script...
 	echo '
-						<script><!-- // --><![CDATA[
+						<script>
 							var smfSupportVersions = {};
 
 							smfSupportVersions.forum = "', $context['forum_version'], '";';
@@ -265,13 +265,13 @@ function template_credits()
 
 	// Now we just have to include the script and wait ;).
 	echo '
-						// ]]></script>
+						</script>
 						<script src="', $scripturl, '?action=viewsmfile;filename=current-version.js"></script>
 						<script src="', $scripturl, '?action=viewsmfile;filename=latest-news.js"></script>';
 
 	// This sets the latest support stuff.
 	echo '
-						<script><!-- // --><![CDATA[
+						<script>
 							function smfCurrentVersion()
 							{
 								var smfVer, yourVer;
@@ -289,7 +289,7 @@ function template_credits()
 									setInnerHTML(yourVer, "<span class=\"alert\">" + currentVersion + "</span>");
 							}
 							addLoadEvent(smfCurrentVersion)
-						// ]]></script>';
+						</script>';
 }
 
 /**
@@ -508,10 +508,10 @@ function template_view_versions()
 											<a href="#" id="Tasks-link">', $txt['dvc_tasks'] ,'</a>
 										</td>
 										<td class="quarter_table">
-											<em id="yourTemplates">??</em>
+											<em id="yourTasks">??</em>
 										</td>
 										<td class="quarter_table">
-											<em id="currentTemplates">??</em>
+											<em id="currentTasks">??</em>
 										</td>
 									</tr>
 								</tbody>
@@ -527,10 +527,10 @@ function template_view_versions()
 											', $filename, '
 										</td>
 										<td class="quarter_table">
-											<em id="yourTemplates', $filename, '">', $version, '</em>
+											<em id="yourTasks', $filename, '">', $version, '</em>
 										</td>
 										<td class="quarter_table">
-											<em id="currentTemplates', $filename, '">??</em>
+											<em id="currentTasks', $filename, '">??</em>
 										</td>
 									</tr>';
 
@@ -549,7 +549,7 @@ function template_view_versions()
 	   file categories. (sources, languages, and templates.) */
 	echo '
 						<script src="', $scripturl, '?action=viewsmfile;filename=detailed-version.js"></script>
-						<script><!-- // --><![CDATA[
+						<script>
 							var oViewVersions = new smf_ViewVersions({
 								aKnownLanguages: [
 									\'.', implode('\',
@@ -563,7 +563,7 @@ function template_view_versions()
 									Tasks: \'Tasks\'
 								}
 							});
-						// ]]></script>';
+						</script>';
 
 }
 
@@ -603,9 +603,9 @@ function template_edit_censored()
 								<div id="moreCensoredWords"></div><div class="block" style="display: none;" id="moreCensoredWords_link">
 									<a class="button_link" href="#;" onclick="addNewWord(); return false;">', $txt['censor_clickadd'], '</a><br>
 								</div>
-								<script><!-- // --><![CDATA[
+								<script>
 									document.getElementById("moreCensoredWords_link").style.display = "";
-								// ]]></script>
+								</script>
 								<hr width="100%" size="1" class="hrcolor clear">
 								<dl class="settings">
 									<dt>
@@ -687,7 +687,7 @@ function template_not_done()
 							</form>
 						</div>
 					</div>
-					<script><!-- // --><![CDATA[
+					<script>
 						var countdown = ', $context['continue_countdown'], ';
 						doAutoSubmit();
 
@@ -703,7 +703,7 @@ function template_not_done()
 
 							setTimeout("doAutoSubmit();", 1000);
 						}
-					// ]]></script>';
+					</script>';
 }
 
 // Template for showing settings (Of any kind really!)
@@ -720,7 +720,7 @@ function template_show_settings()
 
 	if (!empty($context['settings_pre_javascript']))
 		echo '
-					<script><!-- // --><![CDATA[', $context['settings_pre_javascript'], '// ]]></script>';
+					<script>', $context['settings_pre_javascript'], '</script>';
 
 	if (!empty($context['settings_insert_above']))
 		echo $context['settings_insert_above'];
@@ -987,9 +987,9 @@ function template_show_settings()
 
 	if (!empty($context['settings_post_javascript']))
 		echo '
-					<script><!-- // --><![CDATA[
+					<script>
 					', $context['settings_post_javascript'], '
-					// ]]></script>';
+					</script>';
 
 	if (!empty($context['settings_insert_below']))
 		echo $context['settings_insert_below'];
@@ -1021,12 +1021,12 @@ function template_show_custom_profile()
 	template_show_list('standard_profile_fields');
 
 	echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						var iNumChecks = document.forms.standardProfileFields.length;
 						for (var i = 0; i < iNumChecks; i++)
 							if (document.forms.standardProfileFields[i].id.indexOf(\'reg_\') == 0)
 								document.forms.standardProfileFields[i].disabled = document.forms.standardProfileFields[i].disabled || !document.getElementById(\'active_\' + document.forms.standardProfileFields[i].id.substr(4)).checked;
-					// ]]></script><br>';
+					</script><br>';
 
 	// Custom fields.
 	template_show_list('custom_profile_fields');
@@ -1039,9 +1039,9 @@ function template_edit_profile_field()
 
 	// All the javascript for this page - quite a bit in script.js!
 	echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						var startOptID = ', count($context['field']['options']), ';
-					// ]]></script>';
+					</script>';
 
 	// any errors messages to show?
 	if (isset($_GET['msg']))
@@ -1258,9 +1258,9 @@ function template_edit_profile_field()
 
 	// Get the javascript bits right!
 	echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						updateInputBoxes();
-					// ]]></script>';
+					</script>';
 }
 
 // Results page for an admin search.
@@ -1455,7 +1455,7 @@ function template_repair_boards()
 	if (!empty($context['redirect_to_recount']))
 	{
 		echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						var countdown = 5;
 						doAutoSubmit();
 
@@ -1471,7 +1471,7 @@ function template_repair_boards()
 
 							setTimeout("doAutoSubmit();", 1000);
 						}
-					// ]]></script>';
+					</script>';
 	}
 }
 

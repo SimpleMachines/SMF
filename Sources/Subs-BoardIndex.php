@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -55,11 +55,12 @@ function getBoardIndex($boardIndexOptions)
 			' . ($user_info['is_guest'] ? ' 1 AS is_read, 0 AS new_from,' : '
 			(IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_read, IFNULL(lb.id_msg, -1) + 1 AS new_from,' . ($boardIndexOptions['include_categories'] ? '
 			c.can_collapse,' : '')) . '
-			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_indexes']) ? ',  mem.email_address, mem.avatar' : '') . '
+			IFNULL(mem.id_member, 0) AS id_member, mem.avatar, m.id_msg' . (!empty($settings['avatars_on_boardIndex']) ? ',  mem.email_address, mem.avatar, IFNULL(am.id_attach, 0) AS member_id_attach, am.filename AS member_filename, am.attachment_type AS member_attach_type' : '') . '
 		FROM {db_prefix}boards AS b' . ($boardIndexOptions['include_categories'] ? '
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)' : '') . '
 			LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)
-			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . ($user_info['is_guest'] ? '' : '
+			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!empty($settings['avatars_on_boardIndex']) ? '
+			LEFT JOIN {db_prefix}attachments AS am ON (am.id_member = m.id_member)' : '') . '' . ($user_info['is_guest'] ? '' : '
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})') . '
 		WHERE {query_see_board}' . (empty($boardIndexOptions['countChildPosts']) ? (empty($boardIndexOptions['base_level']) ? '' : '
 			AND b.child_level >= {int:child_level}') : '
@@ -98,12 +99,13 @@ function getBoardIndex($boardIndexOptions)
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
 					'name' => $row_board['cat_name'],
-					'description' => $row_board['cat_desc'],
+					'description' => parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']),
 					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
 					'boards' => array(),
-					'new' => false
+					'new' => false,
+					'css_class' => '',
 				);
 				$categories[$row_board['id_cat']]['link'] = '<a id="c' . $row_board['id_cat'] . '"></a>' . (!$context['user']['is_guest'] ? '<a href="' . $scripturl . '?action=unread;c='. $row_board['id_cat'] . '" title="' . sprintf($txt['new_posts_in_category'], strip_tags($row_board['cat_name'])) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']);
 			}
@@ -132,7 +134,7 @@ function getBoardIndex($boardIndexOptions)
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'name' => $row_board['board_name'],
-					'description' => $row_board['description'],
+					'description' => parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']),
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
@@ -149,6 +151,7 @@ function getBoardIndex($boardIndexOptions)
 					'href' => $scripturl . '?board=' . $row_board['id_board'] . '.0',
 					'link' => '<a href="' . $scripturl . '?board=' . $row_board['id_board'] . '.0">' . $row_board['board_name'] . '</a>',
 					'board_class' => 'off',
+					'css_class' => '',
 				);
 
 				// We can do some of the figuring-out-what-icon now.
@@ -265,47 +268,12 @@ function getBoardIndex($boardIndexOptions)
 			'topic' => $row_board['id_topic']
 		);
 
-		if (!empty($settings['avatars_on_indexes']))
-		{
-			if (!empty($modSettings['gravatarOverride']))
-			{
-				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row_board['avatar']) && stristr($row_board['avatar'], 'gravatar://'))
-					$image = get_gravatar_url($smcFunc['substr']($row_board['avatar'], 11));
-				else
-					$image = get_gravatar_url($row_board['email_address']);
-			}
-			else
-			{
-				// So it's stored in the member table?
-				if (!empty($row_board['avatar']))
-				{
-					if (stristr($row_board['avatar'], 'gravatar://'))
-					{
-						if ($row_board['avatar'] == 'gravatar://')
-							$image = get_gravatar_url($row_board['email_address']);
-						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-							$image = get_gravatar_url($smcFunc['substr']($row_board['avatar'], 11));
-					}
-					else
-						$image = stristr($row_board['avatar'], 'http://') ? $row_board['avatar'] : $modSettings['avatar_url'] . '/' . $row_board['avatar'];
-				}
-				// Right... no avatar...
-				else
-					$this_last_post['member']['avatar'] = array(
-						'name' => '',
-						'image' => '',
-						'href' => '',
-						'url' => '',
-					);
-			}
-			if (!empty($image))
-				$this_last_post['member']['avatar'] = array(
-					'name' => $row_board['avatar'],
-					'image' => '<img class="avatar" src="' . $image . '" />',
-					'href' => $image,
-					'url' => $image,
-				);
-		}
+		if (!empty($settings['avatars_on_boardIndex']))
+			$this_last_post['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row_board['avatar'],
+				'email' => $row_board['email_address'],
+				'filename' => !empty($row['member_filename']) ? $row_board['member_filename'] : '',
+			));
 
 		// Provide the href and link.
 		if ($row_board['subject'] != '')

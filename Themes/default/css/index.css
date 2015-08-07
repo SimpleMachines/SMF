@@ -150,12 +150,13 @@ ul#likes li {
 }
 
 ul#likes span.avatar {
-	width: 45px;
-	height: 45px;
-	padding: 2px;
+	max-width: 100px;
+	max-height: 100px;
+	padding: 0 10px 0 0;
 }
 ul#likes span.avatar img {
-	max-height: 40px;
+	max-height: 90px;
+	max-width: 90px;
 }
 ul#likes li span.description {
 	font-style: italic;
@@ -387,8 +388,9 @@ h3.largetext {
 .bbc_bold {
 	font-weight: bold;
 }
-.bbc_img {
+.bbc_img, .atc_img {
 	border: 0;
+	max-width: 100%;
 }
 .bbc_table {
 	font: inherit;
@@ -463,7 +465,7 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after {
+.pages::after, .jump_to::after, .code::after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -491,7 +493,12 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-
+.current_page::before, .codeoperation::before {
+	content: "[";
+}
+.current_page::after, .codeoperation::after {
+	content: "]";
+}
 /* Go up and go down links. */
 .topbottom {
 	display: block;
@@ -805,10 +812,6 @@ img.sort, .sort {
 }
 #profile_menu .profile_user_info {
 	margin: 3px 0 5px 10px;
-	float: left;
-}
-#profile_menu .profile_user_avatar {
-	float: left;
 }
 #profile_menu .profile_user_avatar img {
 	margin: 5px 0 0 10px;
@@ -1065,6 +1068,7 @@ img.sort, .sort {
 /* These divisions wrap the forum sections when a forum width is set. */
 #wrapper, .frame {
 	margin: 0 auto;
+	width: 90%;
 }
 
 /* Box-shadow only on this one. */
@@ -2870,9 +2874,6 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-.cat_bar .desc {
-	color: #FFF;
-}
 div.icon span {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
@@ -3361,8 +3362,9 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachments .floatleft {
+.attachment {
 	padding: 0 6px 8px 6px;
+	max-width: 100%;
 }
 .attachments_top {
 	margin: 0 auto;
@@ -3559,10 +3561,11 @@ div.cat_bar {
 /* Styles for rounded headers. */
 .cat_bar .desc
 {
-	font-size: 10px;
+	color: #FFF;
+	font-size: 12px;
 	line-height: 1.5em;
 	font-weight: normal;
-	margin: -8px 0 4px 12px;
+	margin: -8px 0 4px 8px;
 }
 h3.catbg {
 	overflow: hidden;
@@ -3593,6 +3596,7 @@ h3.catbg .icon {
 	border: 1px solid #c5c5c5;
 	border-radius: 7px;
 	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	overflow: auto;
 }
 /* TitleBar & SubBar */
 .title_bar {

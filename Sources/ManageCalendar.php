@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -171,6 +171,11 @@ function ModifyHolidays()
 			'token' => 'admin-mc',
 		),
 		'additional_rows' => array(
+			array(
+				'position' => 'above_column_headers',
+				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">
+					<a class="button_link" href="' . $scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . $txt['holidays_add'] . '</a>',
+			),
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="delete" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">

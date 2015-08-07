@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Packages
+// Version: 2.1 Beta 2; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';

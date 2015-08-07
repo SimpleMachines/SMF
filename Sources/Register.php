@@ -12,7 +12,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -193,6 +193,7 @@ function Register($reg_errors = array())
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
 		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
+		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
 	// Were there any errors?

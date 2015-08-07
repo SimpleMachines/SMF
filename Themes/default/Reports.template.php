@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // Choose which type of report to run?
@@ -145,7 +145,7 @@ function template_print_above()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/report.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>';
 }

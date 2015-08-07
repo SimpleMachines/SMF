@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_ask()
@@ -146,7 +146,7 @@ function template_select()
 			</div>
 		</form>
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var start = new Array();
 		start[0] = ', $context['not_selected']['start'], ';
 		start[1] = ', $context['selected']['start'], ';
@@ -216,7 +216,7 @@ function template_select()
 			applyWindowClasses(document.getElementById("messages_selected"));
 			applyWindowClasses(document.getElementById("messages_not_selected"));
 		}
-	// ]]></script>';
+	</script>';
 }
 
 ?>

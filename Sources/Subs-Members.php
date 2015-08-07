@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -610,6 +610,7 @@ function registerMember(&$regOptions, $return_errors = false)
 		'ignore_boards' => '',
 		'smiley_set' => '',
 		'timezone' => !empty($regOptions['timezone']) ? $regOptions['timezone'] : 'UTC',
+		'notify_announcements' => (!empty($regOptions['notify_announcements']) ? 1 : 0),
 	);
 
 	// Setup the activation status on this new account so it is correct - firstly is it an under age account?

@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -377,6 +377,10 @@ function ViewSubscriptions()
 			'href' => $scripturl . '?action=admin;area=paidsubscribe;sa=modify',
 		),
 		'additional_rows' => array(
+			array(
+				'position' => 'above_table_headers',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+			),
 			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',

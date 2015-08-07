@@ -7,12 +7,21 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+	{
+		echo '
+			<div class="noticebox">
+				', $txt['post_becomesUnapproved'], '
+			</div>';
+	}
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
@@ -194,24 +203,8 @@ function template_main()
 
 		foreach ($context['topics'] as $topic)
 		{
-			$color_class = 'windowbg';
-
-			// Is this topic pending approval, or does it have any posts pending approval?
-			if ($context['can_approve_posts'] && $topic['unapproved_posts'])
-				$color_class = (!$topic['approved'] ? 'approvetopic ' : 'approvepost ') . $color_class;
-
-			// Sticky topics should get a different color, too.
-			if ($topic['is_sticky'])
-				$color_class = 'sticky ' . $color_class;
-			// Locked topics get special treatment as well.
-			if ($topic['is_locked'])
-				$color_class = 'locked ' . $color_class;
-
-			// Some columns require a different shade of the color class.
-			$alternate_class = $color_class . '2';
-
 			echo '
-			<div class="', $color_class, '">
+			<div class="', $topic['css_class'], '">
 				<div class="icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
@@ -244,7 +237,7 @@ function template_main()
 							<div class="message_index_title">
 								', $topic['new'] && $context['user']['is_logged'] ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty($modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], ($context['can_approve_posts'] && !$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
+									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . $txt['awaiting_approval'] . ')</em>' : ''), '</span>
 								</span>
 							</div>
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
@@ -330,7 +323,7 @@ function template_main()
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
 		', $context['menu_separator'], '<a href="#main_content_section" class="topbottom floatleft" id="bot">', $txt['go_up'], '</a>
-		<div class="pagelinks">', $context['page_index'], '</div>
+		<div class="pagelinks floatleft">', $context['page_index'], '</div>
 	</div>';
 	}
 
@@ -339,7 +332,7 @@ function template_main()
 
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "quick_mod_jump_to",
@@ -356,16 +349,16 @@ function template_main()
 						bDisabled: true,
 						sCustomName: "move_to"
 					});
-			// ]]></script>';
+			</script>';
 
 	// Javascript for inline editing.
 	echo '
-<script><!-- // --><![CDATA[
+<script>
 	var oQuickModifyTopic = new QuickModifyTopic({
 		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
 		bMouseOnDiv: false,
 	});
-// ]]></script>';
+</script>';
 
 	template_topic_legend();
 }
@@ -393,7 +386,7 @@ function template_topic_legend()
 
 	if (!empty($context['jump_to']))
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",
@@ -407,7 +400,7 @@ function template_topic_legend()
 						sCatPrefix: "",
 						sGoButtonLabel: "', $txt['quick_mod_go'], '"
 					});
-			// ]]></script>';
+			</script>';
 
 	echo '
 			<br class="clear">
