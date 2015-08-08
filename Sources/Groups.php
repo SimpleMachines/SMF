@@ -747,6 +747,9 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_approved'] . '</strong>';
 			elseif ($row['reason'] == 2)
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
+
+			if (!empty($row['act_reason']))
+				$reason .= '<br><br>' . $row['act_reason'];
 		}
 
 		$group_requests[] = array(
