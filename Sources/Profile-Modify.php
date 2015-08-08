@@ -1900,6 +1900,10 @@ function alert_configuration($memID)
 			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
 			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
+		'groupr' => array(
+			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
+			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
+		),
 		'moderation' => array(
 			'unapproved_post' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
 			'msg_report' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'moderate_board', 'is_board' => true)),
