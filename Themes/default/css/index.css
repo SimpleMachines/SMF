@@ -3902,6 +3902,7 @@ h3.profile_hd {
 .attach_holder{
 	display:inline-block;
 	overflow: hidden;
+	width:50%;
 }
 .attach_holder div.file_details{
 	display:inline-block;
@@ -3916,7 +3917,7 @@ h3.profile_hd {
 	max-width: 100px;
 }
 .attach_holder div.file_info{
-	float:right;
+	float:left;
 }
 .attach_holder div.file_buttons{
 	padding:10px;

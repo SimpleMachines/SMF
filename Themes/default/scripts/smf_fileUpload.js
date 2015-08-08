@@ -192,9 +192,6 @@ function smf_fileUpload(oOptions)
 			// Track the number of times this event has been fired.
 			++numberOfTimes;
 
-			if (!$(dOptions.smf_containerDiv).is(':visible'))
-				$(dOptions.smf_containerDiv).show();
-
 			// Create a master and empty div.
 			data.context = $(dOptions.smf_containerDiv);
 
@@ -229,6 +226,7 @@ function smf_fileUpload(oOptions)
 
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
+				data.files[index]['uniqueID'] = uniqueID;
 			});
 
 			// Show some general controls.
@@ -241,53 +239,53 @@ function smf_fileUpload(oOptions)
 			}
 		})
 		.on('fileuploadprocessalways', function (e, data) {
-			var index = data.index,
-				file = data.files[index],
-				node = $(data.context.children('.attach_holder')[index]);
+			$.each(data.files, function (index, file) {
+				var node = $('#attach_holder_' + file.uniqueID);
 
-			// Track the file size.
-			totalSize = totalSize + file.size;
+				// Track the file size.
+				totalSize = totalSize + file.size;
 
-			// Show a nice preview.
-			if (file.preview) {
-				node
-					.prepend($('<div class="file_preview"/>').prepend(file.preview));
-			}
-
-			if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles || totalSize >= dOptions.limitMultiFileUploadSize) {
-				// There isn't an error with the actual file, must be something else then!
-				if (!file.error && numberOfFiles >= dOptions.maxNumberOfFiles)
-					file.error = dOptions.messages.maxNumberOfFiles;
-
-				// You reached the uploads total size.
-				else if (totalSize >= dOptions.limitMultiFileUploadSize){
-					file.error = dOptions.messages.maxTotalSize
-						.replace('{currentTotal}', smf_fileUpload_bytesToSize(dOptions.limitMultiFileUploadSize))
-						.replace('{currentRemain}', smf_fileUpload_bytesToSize(totalSize));
+				// Show a nice preview.
+				if (file.preview) {
+					node
+						.prepend($('<div class="file_preview"/>').prepend(file.preview));
 				}
 
-				// Cancel the current upload.
-				node
-					.find('.file_info')
-					.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+				if (file.error || numberOfFiles >= dOptions.maxNumberOfFiles || totalSize >= dOptions.limitMultiFileUploadSize) {
+					// There isn't an error with the actual file, must be something else then!
+					if (!file.error && numberOfFiles >= dOptions.maxNumberOfFiles)
+						file.error = dOptions.messages.maxNumberOfFiles;
 
-				node.removeClass('descbox').addClass('errorbox');
-				node.find('.uploadButton').remove();
-				data.abort();
-			}
+					// You reached the uploads total size.
+					else if (totalSize >= dOptions.limitMultiFileUploadSize){
+						file.error = dOptions.messages.maxTotalSize
+							.replace('{currentTotal}', smf_fileUpload_bytesToSize(dOptions.limitMultiFileUploadSize))
+							.replace('{currentRemain}', smf_fileUpload_bytesToSize(totalSize));
+					}
 
-			// The file was added.
-			if (index + 1 === data.files.length) {
-				// "un-disable" the upload button :P
-				data.context.find('.uploadButton')
-					.prop('disabled', !!data.files.error);
+					// Cancel the current upload.
+					node
+						.find('.file_info')
+						.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
 
-				// The file has been appended, lets keep track of it!
-				++numberOfFiles;
+					node.removeClass('descbox').addClass('errorbox');
+					node.find('.uploadButton').remove();
+					data.abort();
+				}
 
-				// append some text here to tell the user what to do, hit Upload or hit Cancel...
-				// or add some other indication that the file passed the client tests.
-			}
+				// The file was added.
+				if (index + 1 === data.files.length) {
+					// "un-disable" the upload button :P
+					data.context.find('.uploadButton')
+						.prop('disabled', !!data.files.error);
+
+					// The file has been appended, lets keep track of it!
+					++numberOfFiles;
+
+					// append some text here to tell the user what to do, hit Upload or hit Cancel...
+					// or add some other indication that the file passed the client tests.
+				}
+			});
 		})
 		.on('fileuploaddone', function (e, data) {
 
