@@ -722,7 +722,9 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
+		SELECT
+			lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
+			lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
 			mem.member_name, mg.group_name, mg.online_color, mem.real_name
 		FROM {db_prefix}log_group_requests AS lgr
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -737,11 +739,21 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	$group_requests = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$reason = censorText($row['reason']);
+
+		if (isset($_GET['closed']))
+		{
+			if ($row['reason'] == 1)
+				$reason .= '<br><br><strong>' . $txt['mc_groupr_approved'] . '</strong>';
+			elseif ($row['reason'] == 2)
+				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
+		}
+
 		$group_requests[] = array(
 			'id' => $row['id_request'],
 			'member_link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'group_link' => '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
-			'reason' => censorText($row['reason']),
+			'reason' => $reason,
 			'time_submitted' => timeformat($row['time_applied']),
 		);
 	}
