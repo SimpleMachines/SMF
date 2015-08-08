@@ -743,9 +743,9 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 
 		if (isset($_GET['closed']))
 		{
-			if ($row['reason'] == 1)
+			if ($row['status'] == 1)
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_approved'] . '</strong>';
-			elseif ($row['reason'] == 2)
+			elseif ($row['status'] == 2)
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
 
 				$reason .= ' (' . timeformat($row['time_acted']) . ')';
