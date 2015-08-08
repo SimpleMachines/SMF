@@ -63,6 +63,7 @@ $txt['mc_reportedp_close_selected'] = 'Close Selected';
 $txt['mc_groupr_group'] = 'Membergroups';
 $txt['mc_groupr_member'] = 'Member';
 $txt['mc_groupr_reason'] = 'Reason';
+$txt['mc_groupr_no_reason'] = 'No reason given';
 $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup requests.';
 $txt['mc_groupr_approved'] = 'Request approved';
 $txt['mc_groupr_rejected'] = 'Request rejected';

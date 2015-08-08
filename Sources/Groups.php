@@ -739,7 +739,10 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	$group_requests = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$reason = censorText($row['reason']);
+		if (empty($row['reason']))
+			$reason = '<em>(' . $txt['mc_groupr_no_reason'] .  ')</em>';
+		else
+			$reason = censorText($row['reason']);
 
 		if (isset($_GET['closed']))
 		{
