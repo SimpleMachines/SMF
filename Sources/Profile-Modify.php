@@ -1970,6 +1970,10 @@ function alert_configuration($memID)
 	if (empty($modSettings['enable_likes']))
 		unset($alert_types['msg']['msg_like']);
 
+	// Disable buddy requests if they're disabled
+	if (empty($modSettings['enable_buddylist']))
+		unset($alert_types['members']['buddy_request']);
+
 	// Now, now, we could pass this through global but we should really get into the habit of
 	// passing content to hooks, not expecting hooks to splatter everything everywhere.
 	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options, &$disabled_options));
