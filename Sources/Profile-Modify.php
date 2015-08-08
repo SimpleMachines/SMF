@@ -1958,6 +1958,10 @@ function alert_configuration($memID)
 	if (empty($modSettings['paid_enabled']))
 		unset($alert_types['paidsubs']);
 
+	// Disable membergroup requests at group level if they're disabled
+	if (empty($modSettings['show_group_membership']))
+		unset($alert_types['groupr']);
+
 	// Disable mentions if they're disabled
 	if (empty($modSettings['enable_mentions']))
 		unset($alert_types['msg']['msg_mention']);
