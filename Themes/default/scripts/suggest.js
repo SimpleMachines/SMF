@@ -561,7 +561,7 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 
 	// We're only actually interested in the last string.
 	var sSearchString = this.oTextHandle.value.replace(/^("[^"]+",[ ]*)+/, '').replace(/^([^,]+,[ ]*)+/, '');
-	if (sSearchString.substr(0, 1) == '"')
+	if (sSearchString.substr(0, 1) == '"' && sSearchString.substr(sSearchString.length - 1) == '"')
 		sSearchString = sSearchString.substr(1);
 
 	// Stop replication ASAP.
