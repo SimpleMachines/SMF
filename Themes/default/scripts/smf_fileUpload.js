@@ -266,7 +266,7 @@ function smf_fileUpload(oOptions)
 					// Cancel the current upload.
 					node
 						.find('.file_info')
-						.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
+						.html($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
 
 					node.removeClass('descbox').addClass('errorbox');
 					node.find('.uploadButton').remove();
