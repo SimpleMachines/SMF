@@ -1949,22 +1949,14 @@ function alert_configuration($memID)
 			)),
 		),
 	);
-	$disabled_options = array();
+
 	// There are certain things that are disabled at the group level.
 	if (empty($modSettings['cal_enabled']))
-	{
-		foreach ($alert_types['calendar'] as $k => $v)
-			$disabled_options[] = $k;
 		unset($alert_types['calendar']);
-	}
 
 	// Disable paid subscriptions at group level if they're disabled
 	if (empty($modSettings['paid_enabled']))
-	{
-		foreach ($alert_types['paidsubs'] as $k => $v)
-			$disabled_options[] = $k;
 		unset($alert_types['paidsubs']);
-	}
 
 	// Disable mentions if they're disabled
 	if (empty($modSettings['enable_mentions']))
@@ -1980,7 +1972,7 @@ function alert_configuration($memID)
 
 	// Now, now, we could pass this through global but we should really get into the habit of
 	// passing content to hooks, not expecting hooks to splatter everything everywhere.
-	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options, &$disabled_options));
+	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options));
 
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
@@ -2021,10 +2013,7 @@ function alert_configuration($memID)
 				}
 
 				if (!$perms_cache[$alert_value['permission']['name']])
-				{
-					$disabled_options[] = $alert_key;
 					unset ($alert_types[$group][$alert_key]);
-				}
 			}
 
 			if (empty($alert_types[$group]))
@@ -2035,7 +2024,6 @@ function alert_configuration($memID)
 	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
 	$context['alert_group_options'] = $group_options;
-	$context['disabled_alerts'] = $disabled_options;
 
 	$context['alert_bits'] = array(
 		'alert' => 0x01,
