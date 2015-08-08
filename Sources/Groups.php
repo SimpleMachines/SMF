@@ -748,6 +748,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 			elseif ($row['reason'] == 2)
 				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
 
+				$reason .= ' (' . timeformat($row['time_acted']) . ')';
 			if (!empty($row['act_reason']))
 				$reason .= '<br><br>' . censorText($row['act_reason']);
 		}
