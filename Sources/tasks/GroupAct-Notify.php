@@ -97,8 +97,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					$alert_rows[] = array(
 						'alert_time' => time(),
 						'id_member' => $user['member_id'],
-						'id_member_started' => $this->_details['id_member'],
-						'member_name' => $this->_details['member_name'],
 						'content_type' => 'groupr',
 						'content_id' => 0,
 						'content_action' => $pref_name,
@@ -133,8 +131,10 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			if (!empty($alert_rows))
 				$smcFunc['db_insert']('',
 					'{db_prefix}user_alerts',
-					array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
-						'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+					array(
+						'alert_time' => 'int', 'id_member' => 'int', 'content_type' => 'string',
+						'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string',
+					),
 					$alert_rows,
 					array()
 				);
