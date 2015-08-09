@@ -90,6 +90,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			foreach ($affected_users as $user)
 			{
 				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_'. $pref_name] : 0;
+				$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
 				if ($pref & 0x01)
 				{
@@ -102,7 +103,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'content_id' => 0,
 						'content_action' => $pref_name,
 						'is_read' => 0,
-						'extra' => serialize(array('group_name' => $this->_details['group_name'])),
+						'extra' => serialize(array('group_name' => $user['group_name'], 'reason' => !empty($custom_reason) ? '<br><br>' . $custom_reason : '')),
 					);
 					updateMemberData($user['member_id'], array('alerts' => '+'));
 				}
@@ -113,8 +114,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					require_once($sourcedir . '/Subs-Post.php');
 					require_once($sourcedir . '/ScheduledTasks.php');
 					loadEssentialThemeData();
-
-					$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
 					$replacements = array(
 						'USERNAME' => $user['member_name'],
