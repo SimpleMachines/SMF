@@ -1870,13 +1870,7 @@ function alert_configuration($memID)
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs($memID);
-
-	// And we might as well now perform the splicing of default values.
-	if (!empty($prefs[0]))
-		foreach ($prefs[0] as $this_pref => $value)
-			if (!isset($prefs[$memID][$this_pref]))
-				$prefs[$memID][$this_pref] = $value;
+	$prefs = getNotifyPrefs($memID,  '', $memID != 0);
 
 	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
