@@ -3907,11 +3907,12 @@ h3.profile_hd {
 .attach_holder div.file_details{
 	display:inline-block;
 	overflow: hidden;
-	width: 67%;
+	width: 60%;
 }
 .attach_holder div.file_preview{
 	float: left;
-	width: 30%;
+	width: 40%;
+	min-height:100px;
 }
 .attach_holder div.file_preview canvas{
 	max-width: 100px;

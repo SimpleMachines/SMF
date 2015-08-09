@@ -31,7 +31,23 @@ function smf_fileUpload(oOptions)
 		dOptions.dropZone.find('h3').show();
 	}
 
-	var cancelButton = $('<a/>')
+	var uploadButton = $('<a/>')
+		.addClass('button_submit uploadButton')
+		.prop('disabled', true)
+		.text(dOptions.smf_text.upload)
+		.one('click', function (e) {
+			e.preventDefault();
+			var $this = $(this),
+				data = $this.data(),
+				node = $('#attach_holder_' + data.uniqueID);
+
+			// Show the progress bar.
+			node.find('.progressBar').fadeIn();
+
+			data.instance.submit();
+			$this.remove();
+		}),
+		cancelButton = $('<a/>')
 		.addClass('button_submit cancelButton')
 		.prop('disabled', false)
 		.text(dOptions.smf_text.cancel)
@@ -106,6 +122,7 @@ function smf_fileUpload(oOptions)
 						.append($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
 
 					node.removeClass('descbox').addClass('errorbox');
+					node.find('.uploadButton').remove();
 				}
 			});
 		}),
@@ -218,11 +235,12 @@ function smf_fileUpload(oOptions)
 						.prepend($('<p/>').text(file.name + ' (' + Math.round(file.size / 1024) + ' KB)'));
 
 				// Need to pass some stuff to the upload and cancel buttons.
-				toButtons = {uniqueID: uniqueID, currentFile: file, currentNode: node, instance: data};
+				toButtons = {'uniqueID': uniqueID, 'currentFile': file, 'currentNode': node, 'instance': data};
 
 				// Append the current node info so it would be easier for the buttons to target it.
 				node.find('.file_buttons')
-						.append(cancelButton.clone(true).data(toButtons));
+						.append(cancelButton.clone(true).data(toButtons))
+						.append(uploadButton.clone(true).data(toButtons));
 
 				node.appendTo(data.context);
 				fileUpload.track.push(uniqueID);
@@ -269,7 +287,6 @@ function smf_fileUpload(oOptions)
 						.html($('<p/>').text((typeof file.error !== 'undefined' ? file.error : dOptions.smf_text.genericError)));
 
 					node.removeClass('descbox').addClass('errorbox');
-					node.find('.uploadButton').remove();
 					data.abort();
 				}
 
