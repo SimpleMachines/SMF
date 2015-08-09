@@ -1849,7 +1849,9 @@ function alert_configuration($memID)
 {
 	global $txt, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
 
-	$context['token_check'] = 'profile-nt' . $memID;
+	if (!isset($context['token_check']))
+		$context['token_check'] = 'profile-nt' . $memID;
+
 	is_not_guest();
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_extra_any');

@@ -2223,6 +2223,7 @@ function ModifyAlertsSettings()
 	$context['member'] = array();
 	$context['id_member'] = 0;
 	$context['menu_item_selected'] = 'alerts';
+	$context['token_check'] = 'noti-admin';
 
 	// Specify our action since we'll want to post back here instead of the profile
 	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;'. $context['session_var'] .'='. $context['session_id'];
