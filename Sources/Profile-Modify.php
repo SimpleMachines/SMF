@@ -1960,7 +1960,7 @@ function alert_configuration($memID)
 
 	// Disable membergroup requests at group level if they're disabled
 	if (empty($modSettings['show_group_membership']))
-		unset($alert_types['groupr']);
+		unset($alert_types['groupr'], $alert_types['members']['request_group']);
 
 	// Disable mentions if they're disabled
 	if (empty($modSettings['enable_mentions']))

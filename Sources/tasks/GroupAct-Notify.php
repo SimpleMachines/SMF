@@ -44,7 +44,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
 			// If we are approving,  add them!
-			if ($this->_details['req_action'] == 'approve')
+			if ($this->_details['status'] == 'approve')
 			{
 				require_once($sourcedir . '/Subs-Membergroups.php');
 				addMembersToGroup($row['id_member'], $row['id_group'], 'auto', true);
@@ -73,16 +73,16 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
 			// They are being approved?
-			if ($this->_details['req_action'] == 'approve')
+			if ($this->_details['status'] == 'approve')
 			{
-				$pref_name = 'groupr_approved';
+				$pref_name = 'approved';
 				$email_template_name = 'mc_group_approve';
 				$email_message_id_prefix = 'grpapp';
 			}
 			// Otherwise, they are getting rejected (With or without a reason).
 			else
 			{
-				$pref_name = 'groupr_rejected';
+				$pref_name = 'rejected';
 				$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
 				$email_message_id_prefix = 'grprej';
 			}
@@ -90,7 +90,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// Same as for approving, kind of.
 			foreach ($affected_users as $user)
 			{
-				$pref = !empty($prefs[$user['member_id']][$pref_name]) ? $prefs[$user['member_id']][$pref_name] : 0;
+				$pref = !empty($prefs[$user['member_id']]['groupr_' . $pref_name]) ? $prefs[$user['member_id']]['groupr_'. $pref_name] : 0;
 
 				if ($pref & 0x01)
 				{
@@ -99,9 +99,9 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 						'id_member' => $user['member_id'],
 						'id_member_started' => $this->_details['id_member'],
 						'member_name' => $this->_details['member_name'],
-						'content_type' => 'member',
+						'content_type' => 'groupr',
 						'content_id' => 0,
-						'content_action' => $email_template_name,
+						'content_action' => $pref_name,
 						'is_read' => 0,
 						'extra' => serialize(array('group_name' => $this->_details['group_name'])),
 					);
