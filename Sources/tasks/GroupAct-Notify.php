@@ -23,7 +23,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		// Get the details of all the members concerned...
 		$request = $smcFunc['db_query']('', '
 			SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address, mem.id_group AS primary_group,
-				mem.additional_groups AS additional_groups, mem.lngfile, mem.member_name, mem.notify_announcements,
+				mem.additional_groups AS additional_groups, mem.lngfile, mem.member_name,
 				mg.hidden, mg.group_name
 			FROM {db_prefix}log_group_requests AS lgr
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -59,7 +59,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				'group_name' => $row['group_name'],
 				'email' => $row['email_address'],
 				'language' => $row['lngfile'],
-				'receive_email' => $row['notify_announcements'],
 			);
 		}
 		$smcFunc['db_free_result']($request);
