@@ -49,6 +49,10 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 				require_once($sourcedir . '/Security.php');
 				$user_info['permissions'] = array();
 
+				// For the moddlog
+				$user_info['id'] = $this->_details['member_id'];
+				$user_info['ip'] = $this->_details['member_ip'];
+
 				require_once($sourcedir . '/Subs-Membergroups.php');
 				addMembersToGroup($row['id_member'], $row['id_group'], 'auto', true);
 			}
