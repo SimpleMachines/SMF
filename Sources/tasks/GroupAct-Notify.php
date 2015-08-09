@@ -42,7 +42,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			$members[] = $row['id_member'];
 			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
-			// If we are approving,  add them!
+			// If we are approving, add them!
 			if ($this->_details['status'] == 'approve')
 			{
 				// Hack in blank permissions so that allowedTo() will fail.
