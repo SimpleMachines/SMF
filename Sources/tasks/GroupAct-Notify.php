@@ -40,33 +40,11 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 		{
 			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
-			// If we are approving work out what their new group is.
+			// If we are approving,  add them!
 			if ($this->_details['req_action'] == 'approve')
 			{
-				// For people with more than one request at once.
-				if (isset($group_changes[$row['id_member']]))
-				{
-					$row['additional_groups'] = $group_changes[$row['id_member']]['add'];
-					$row['primary_group'] = $group_changes[$row['id_member']]['primary'];
-				}
-				else
-					$row['additional_groups'] = explode(',', $row['additional_groups']);
-
-				// Don't have it already?
-				if ($row['primary_group'] == $row['id_group'] || in_array($row['id_group'], $row['additional_groups']))
-					continue;
-
-				// Should it become their primary?
-				if ($row['primary_group'] == 0 && $row['hidden'] == 0)
-					$row['primary_group'] = $row['id_group'];
-				else
-					$row['additional_groups'][] = $row['id_group'];
-
-				// Add them to the group master list.
-				$group_changes[$row['id_member']] = array(
-					'primary' => $row['primary_group'],
-					'add' => $row['additional_groups'],
-				);
+				require_once($sourcedir . '/Subs-Membergroups.php');
+				addMembersToGroup($row['id_member'], $row['id_group'], 'auto', true);
 			}
 
 			// Build the required information array
@@ -93,25 +71,6 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// They are being approved?
 			if ($this->_details['req_action'] == 'approve')
 			{
-				// Make the group changes.
-				foreach ($group_changes as $id => $groups)
-				{
-					// Sanity check!
-					foreach ($groups['add'] as $key => $value)
-						if ($value == 0 || trim($value) == '')
-							unset($groups['add'][$key]);
-
-					$smcFunc['db_query']('', '
-						UPDATE {db_prefix}members
-						SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
-						WHERE id_member = {int:selected_member}',
-						array(
-							'primary_group' => $groups['primary'],
-							'selected_member' => $id,
-							'additional_groups' => implode(',', $groups['add']),
-						)
-					);
-				}
 
 				foreach ($affected_users as $user)
 				{
