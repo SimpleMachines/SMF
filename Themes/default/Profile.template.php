@@ -2065,8 +2065,6 @@ function template_groupMembership()
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="u" value="', $context['id_member'], '">
 			</form>';
-
-	template_show_list('group_request_list');
 }
 
 function template_ignoreboards()
