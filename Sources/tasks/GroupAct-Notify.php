@@ -45,6 +45,10 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			// If we are approving,  add them!
 			if ($this->_details['status'] == 'approve')
 			{
+				// Hack in blank permissions so that allowedTo() will fail.
+				require_once($sourcedir . '/Security.php');
+				$user_info['permissions'] = array();
+
 				require_once($sourcedir . '/Subs-Membergroups.php');
 				addMembersToGroup($row['id_member'], $row['id_group'], 'auto', true);
 			}
