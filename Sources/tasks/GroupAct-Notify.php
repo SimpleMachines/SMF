@@ -35,9 +35,12 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 			)
 		);
 		$affected_users = array();
+		$members = array();
+		$alert_rows = array();
 		$group_changes = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			$members[] = $row['id_member'];
 			$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
 			// If we are approving,  add them!
@@ -66,37 +69,51 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 		if (!empty($affected_users))
 		{
-			require_once($sourcedir . '/Subs-Post.php');
+			require_once($sourcedir . '/Subs-Notify.php');
+			$prefs = getNotifyPrefs($members, array('groupr_approved', 'groupr_rejected'), true);
 
 			// They are being approved?
 			if ($this->_details['req_action'] == 'approve')
 			{
-
-				foreach ($affected_users as $user)
-				{
-					//Did the user chose to not receive important notifications via email? If so... no congratulations email
-					if (empty($user['receive_email']))
-						continue;
-
-					$replacements = array(
-						'USERNAME' => $user['member_name'],
-						'GROUPNAME' => $user['group_name'],
-					);
-
-					$emaildata = loadEmailTemplate('mc_group_approve', $replacements, $user['language']);
-
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grpapp' . $user['rid'], false, 2);
-				}
+				$pref_name = 'groupr_approved';
+				$email_template_name = 'mc_group_approve';
+				$email_message_id_prefix = 'grpapp';
 			}
 			// Otherwise, they are getting rejected (With or without a reason).
 			else
 			{
-				// Same as for approving, kind of.
-				foreach ($affected_users as $user)
+				$pref_name = 'groupr_rejected';
+				$email_template_name = empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason';
+				$email_message_id_prefix = 'grprej';
+			}
+
+			// Same as for approving, kind of.
+			foreach ($affected_users as $user)
+			{
+				$pref = !empty($prefs[$user['member_id']][$pref_name]) ? $prefs[$user['member_id']][$pref_name] : 0;
+
+				if ($pref & 0x01)
 				{
-					//Again, did the user chose to not receive important notifications via email?
-					if (empty($user['receive_email']))
-						continue;
+					$alert_rows[] = array(
+						'alert_time' => time(),
+						'id_member' => $user['member_id'],
+						'id_member_started' => $this->_details['id_member'],
+						'member_name' => $this->_details['member_name'],
+						'content_type' => 'member',
+						'content_id' => 0,
+						'content_action' => $email_template_name,
+						'is_read' => 0,
+						'extra' => serialize(array('group_name' => $this->_details['group_name'])),
+					);
+					updateMemberData($user['member_id'], array('alerts' => '+'));
+				}
+
+				if ($pref & 0x02)
+				{
+					// Emails are a bit complicated. We have to do language stuff.
+					require_once($sourcedir . '/Subs-Post.php');
+					require_once($sourcedir . '/ScheduledTasks.php');
+					loadEssentialThemeData();
 
 					$custom_reason = isset($this->_details['reason']) && isset($this->_details['reason'][$user['rid']]) ? $this->_details['reason'][$user['rid']] : '';
 
@@ -108,11 +125,21 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 					if (!empty($custom_reason))
 						$replacements['REASON'] = $custom_reason;
 
-					$emaildata = loadEmailTemplate(empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason', $replacements, $user['language']);
+					$emaildata = loadEmailTemplate($email_template_name, $replacements, $user['language']);
 
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $user['rid'], false, 2);
+					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], false, 2);
 				}
 			}
+
+			// Insert the alerts if any
+			if (!empty($alert_rows))
+				$smcFunc['db_insert']('',
+					'{db_prefix}user_alerts',
+					array('alert_time' => 'int', 'id_member' => 'int', 'id_member_started' => 'int', 'member_name' => 'string',
+						'content_type' => 'string', 'content_id' => 'int', 'content_action' => 'string', 'is_read' => 'int', 'extra' => 'string'),
+					$alert_rows,
+					array()
+				);
 		}
 
 		return true;
