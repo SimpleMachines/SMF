@@ -2071,7 +2071,7 @@ function alert_configuration($memID)
 				$this_value = 0;
 				foreach ($context['alert_bits'] as $type => $bitvalue)
 				{
-					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]))
+					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
 				$update_prefs[$item_key] = $this_value;
