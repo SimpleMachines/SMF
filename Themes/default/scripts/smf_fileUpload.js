@@ -321,6 +321,13 @@ function smf_fileUpload(oOptions)
 			else{
 				$.each(data.result.files, function (index, file) {
 
+					// Gotta find the right node.
+					$.each(data.files, function (dataIndex, dataFile) {
+						if (dataFile.name == file.name && dataFile.size == file.size){
+							var node = $('#attach_holder_' + dataFile.uniqueID);
+						}
+					});
+
 					var node = $(data.context.children('.attach_holder')[index]);
 
 					// Hide the progress bar.
