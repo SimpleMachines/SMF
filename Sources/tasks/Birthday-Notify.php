@@ -17,7 +17,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 {
 	public function execute()
  	{
-		global $txt, $smcFunc, $txtBirthdayEmails, $smcFunc, $language, $modSettings, $scripturl;
+		global $txt, $smcFunc, $txtBirthdayEmails, $smcFunc, $language, $modSettings, $sourcedir;
 
 		$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
 
