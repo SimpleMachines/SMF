@@ -3774,7 +3774,7 @@ function setupMenuContext()
 		{
 			require_once($sourcedir . '/Subs-Notify.php');
 
-			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout');
+			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavascript('
