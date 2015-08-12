@@ -82,7 +82,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => serialize(array('happy_birthday' => $txt['happy_birthday']['body']),
+							'extra' => serialize(array('happy_birthday' => $txt['happy_birthday']['body']))),
 						);
 						updateMemberData($member_id, array('alerts' => '+'));
 					}
