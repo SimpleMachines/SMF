@@ -1849,7 +1849,9 @@ function alert_configuration($memID)
 {
 	global $txt, $user_profile, $context, $modSettings, $smcFunc, $sourcedir;
 
-	$context['token_check'] = 'profile-nt' . $memID;
+	if (!isset($context['token_check']))
+		$context['token_check'] = 'profile-nt' . $memID;
+
 	is_not_guest();
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_extra_any');
@@ -1868,13 +1870,7 @@ function alert_configuration($memID)
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs($memID);
-
-	// And we might as well now perform the splicing of default values.
-	if (!empty($prefs[0]))
-		foreach ($prefs[0] as $this_pref => $value)
-			if (!isset($prefs[$memID][$this_pref]))
-				$prefs[$memID][$this_pref] = $value;
+	$prefs = getNotifyPrefs($memID,  '', $memID != 0);
 
 	$context['alert_prefs'] = !empty($prefs[$memID]) ? $prefs[$memID] : array();
 
@@ -1899,6 +1895,10 @@ function alert_configuration($memID)
 		'pm' => array(
 			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
 			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
+		),
+		'groupr' => array(
+			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
+			'groupr_rejected' => array('alert' => 'always', 'email' => 'yes'),
 		),
 		'moderation' => array(
 			'unapproved_post' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'approve_posts', 'is_board' => true)),
@@ -1946,22 +1946,18 @@ function alert_configuration($memID)
 			)),
 		),
 	);
-	$disabled_options = array();
+
 	// There are certain things that are disabled at the group level.
 	if (empty($modSettings['cal_enabled']))
-	{
-		foreach ($alert_types['calendar'] as $k => $v)
-			$disabled_options[] = $k;
 		unset($alert_types['calendar']);
-	}
 
 	// Disable paid subscriptions at group level if they're disabled
 	if (empty($modSettings['paid_enabled']))
-	{
-		foreach ($alert_types['paidsubs'] as $k => $v)
-			$disabled_options[] = $k;
 		unset($alert_types['paidsubs']);
-	}
+
+	// Disable membergroup requests at group level if they're disabled
+	if (empty($modSettings['show_group_membership']))
+		unset($alert_types['groupr'], $alert_types['members']['request_group']);
 
 	// Disable mentions if they're disabled
 	if (empty($modSettings['enable_mentions']))
@@ -1971,9 +1967,13 @@ function alert_configuration($memID)
 	if (empty($modSettings['enable_likes']))
 		unset($alert_types['msg']['msg_like']);
 
+	// Disable buddy requests if they're disabled
+	if (empty($modSettings['enable_buddylist']))
+		unset($alert_types['members']['buddy_request']);
+
 	// Now, now, we could pass this through global but we should really get into the habit of
 	// passing content to hooks, not expecting hooks to splatter everything everywhere.
-	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options, &$disabled_options));
+	call_integration_hook('integrate_alert_types', array(&$alert_types, &$group_options));
 
 	// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 	if (!empty($memID))
@@ -2014,10 +2014,7 @@ function alert_configuration($memID)
 				}
 
 				if (!$perms_cache[$alert_value['permission']['name']])
-				{
-					$disabled_options[] = $alert_key;
 					unset ($alert_types[$group][$alert_key]);
-				}
 			}
 
 			if (empty($alert_types[$group]))
@@ -2028,7 +2025,6 @@ function alert_configuration($memID)
 	// And finally, exporting it to be useful later.
 	$context['alert_types'] = $alert_types;
 	$context['alert_group_options'] = $group_options;
-	$context['disabled_alerts'] = $disabled_options;
 
 	$context['alert_bits'] = array(
 		'alert' => 0x01,
@@ -2076,27 +2072,31 @@ function alert_configuration($memID)
 				$this_value = 0;
 				foreach ($context['alert_bits'] as $type => $bitvalue)
 				{
-					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]))
+					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
-				$update_prefs[$item_key] = $this_value;
+				if (!isset($context['alert_prefs'][$item_key]) || $context['alert_prefs'][$item_key] != $this_value)
+					$update_prefs[$item_key] = $this_value;
 			}
 		}
 
 		if (!empty($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
 
-		setNotifyPrefs($memID, $update_prefs);
+		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
 			$context['alert_prefs'][$pref] = $value;
 
 		makeNotificationChanges($memID);
 
 		// Because of how things work in SMF, it's easier to store this as a profile setting rather than an alert pref...
-		updateMemberData($memID, array('notify_announcements' => (int) $_POST['notify_announcements']));
+		if (!empty($modSettings['allow_disableAnnounce']))
+		{
+			updateMemberData($memID, array('notify_announcements' => (int) $_POST['notify_announcements']));
 
-		// This won't show as updated otherwise...
-		$context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+			// This won't show as updated otherwise...
+			$context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+		}
 
 		$context['profile_updated'] = $txt['profile_updated_own'];
 	}

@@ -1196,6 +1196,9 @@ function loadEssentialThemeData()
 	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['right_to_left'] = !empty($txt['lang_rtl']);
+
+	// Tell fatal_lang_error() to not reload the theme.
+	$context['theme_loaded'] = true;
 }
 
 /**
