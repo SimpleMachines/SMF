@@ -490,6 +490,10 @@ function log_error_online($error, $sprintf = array())
 	if (empty($modSettings['who_enabled']))
 		return;
 
+	// Maybe they came from SSI or similar where sessions are not recorded?
+	if (SMF == 'SSI' || SMF == 'BACKGROUND')
+		return;
+
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();
 
 	// First, we have to get the online log, because we need to break apart the serialized string.
