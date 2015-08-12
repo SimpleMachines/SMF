@@ -2219,6 +2219,7 @@ function ModifyAlertsSettings()
 	global $context, $sourcedir, $txt;
 
 	// Dummy settings for the template...
+	$modSettings['allow_disableAnnounce'] = false;
 	$context['user']['is_owner'] = false;
 	$context['member'] = array();
 	$context['id_member'] = 0;
