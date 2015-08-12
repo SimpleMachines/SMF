@@ -2074,7 +2074,7 @@ function alert_configuration($memID)
 					if ($this_options[$type] == 'yes' && !empty($_POST[$type . '_' . $item_key]) || $this_options[$type] == 'always')
 						$this_value |= $bitvalue;
 				}
-				if ($context['alert_prefs'][$item_key] != $this_value)
+				if (!isset($context['alert_prefs'][$item_key]) || $context['alert_prefs'][$item_key] != $this_value)
 					$update_prefs[$item_key] = $this_value;
 			}
 		}
