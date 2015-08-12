@@ -651,6 +651,12 @@ function scheduled_daily_digest()
 	$emails = array();
 	foreach ($members as $mid => $member)
 	{
+		$frequency = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_pref'] : 1;
+
+		// Did they not elect to choose this?
+		if ($frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly)
+			continue;
+
 		// Right character set!
 		$context['character_set'] = empty($modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : $modSettings['global_character_set'];
 
