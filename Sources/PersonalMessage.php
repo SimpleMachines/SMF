@@ -1784,6 +1784,13 @@ function MessagePost()
 		loadTemplate('PersonalMessage');
 		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		// Mentions
+		if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+		{
+			loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+			loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		}
+
 		$context['sub_template'] = 'send';
 	}
 
@@ -2096,6 +2103,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		$context['sub_template'] = 'send';
 		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+		// Mentions
+		if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
+		{
+			loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+			loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		}
 	}
 	elseif (isset($_REQUEST['xml']))
 		$context['sub_template'] = 'pm';
