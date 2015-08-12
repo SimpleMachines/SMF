@@ -39,6 +39,9 @@ function ShowHelp()
 	call_helper($subActions[$sa]);
 }
 
+/**
+ * The main page for the Help section
+ */
 function HelpIndex()
 {
 	global $scripturl, $context, $txt;
@@ -74,6 +77,9 @@ function HelpIndex()
 	$context['sub_template'] = 'manual';
 }
 
+/**
+ * Displays forum rules
+ */
 function HelpRules()
 {
 	global $context, $txt, $boarddir, $user_info, $scripturl;

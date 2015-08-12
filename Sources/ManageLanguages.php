@@ -139,7 +139,7 @@ function AddLanguage()
  * Gets a list of available languages from the mother ship
  * Will return a subset if searching, otherwise all avaialble
  *
- * @return string
+ * @return array An array containing information about each available language
  */
 function list_getLanguagesList()
 {
@@ -697,6 +697,7 @@ function ModifyLanguages()
 /**
  * How many languages?
  * Callback for the list in ManageLanguageSettings().
+ * @return int The number of available languages
  */
 function list_getNumLanguages()
 {
@@ -708,6 +709,7 @@ function list_getNumLanguages()
  * Callback for $listOptions['get_items']['function'] in ManageLanguageSettings.
  * Determines which languages are available by looking for the "index.{language}.php" file.
  * Also figures out how many users are using a particular language.
+ * @return array An array of information about currenty installed languages
  */
 function list_getLanguages()
 {
@@ -777,7 +779,8 @@ function list_getLanguages()
 /**
  * Edit language related settings.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether to return the $config_vars array (used in admin search)
+ * @return void|array Returns nothing or the $config_vars array if $return_config is true
  */
 function ModifyLanguageSettings($return_config = false)
 {
@@ -1236,8 +1239,9 @@ function ModifyLanguage()
  * This function cleans language entries to/from display.
  * @todo This function could be two functions?
  *
- * @param $string
- * @param $to_display
+ * @param string $string The language string
+ * @param bool $to_display Whether or not this is going to be displayed
+ * @return string The cleaned string
  */
 function cleanLangString($string, $to_display = true)
 {

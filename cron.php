@@ -115,8 +115,10 @@ while ($task_details = fetch_task())
 obExit_cron();
 exit;
 
-// The heart of this cron handler...
-
+/**
+ * The heart of this cron handler...
+ * @return bool|array False if there's nothing to do or an array of info about the task
+ */
 function fetch_task()
 {
 	global $smcFunc;
@@ -174,6 +176,11 @@ function fetch_task()
 	}
 }
 
+/**
+ * This actually handles the task
+ * @param array $task_details An array of info about the task
+ * @return bool|void True if the task is invalid; otherwise calls the function to execute the task
+ */
 function perform_task($task_details)
 {
 	global $sourcedir, $boarddir;
@@ -208,6 +215,10 @@ function perform_task($task_details)
 }
 
 // These are all our helper functions that resemble their big brother counterparts. These are not so important.
+/**
+ * Cleans up the request variables
+ * @return void
+ */
 function cleanRequest_cron()
 {
 	global $scripturl, $boardurl;
@@ -224,6 +235,14 @@ function cleanRequest_cron()
 	unset($GLOBALS['_GET'], $GLOBALS['_POST'], $GLOBALS['_REQUEST'], $GLOBALS['_COOKIE'], $GLOBALS['_FILES']);
 }
 
+/**
+ * The error handling function
+ * @param int $error_level One of the PHP error level constants (see )
+ * @param string $error_string The error message
+ * @param string $file The file where the error occurred
+ * @param int $line What line of the specified file the error occurred on
+ * @return void
+ */
 function error_handler_cron($error_level, $error_string, $file, $line)
 {
 	global $modSettings;
@@ -241,6 +260,9 @@ function error_handler_cron($error_level, $error_string, $file, $line)
 		die('No direct access...');
 }
 
+/**
+ * The exit function
+ */
 function obExit_cron()
 {
 	if (FROM_CLI)
@@ -254,15 +276,26 @@ function obExit_cron()
 
 // We would like this to be defined, but we don't want to have to load more stuff than necessary.
 // Thus we declare it here, and any legitimate background task must implement this.
+/**
+ * Class SMF_BackgroundTask
+ */
 abstract class SMF_BackgroundTask
 {
 	protected $_details;
 
+	/**
+	 * The constructor.
+	 * @param $details The details for the task
+	 */
 	public function __construct($details)
 	{
 		$this->_details = $details;
 	}
 
+	/**
+	 * The function to actually execute a task
+	 * @return mixed
+	 */
 	abstract public function execute();
 }
 ?>

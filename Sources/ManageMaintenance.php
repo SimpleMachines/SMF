@@ -2348,8 +2348,8 @@ function list_integration_hooks()
 /**
  * Gets all of the files in a directory and its children directories
  *
- * @param type $dir_path
- * @return array
+ * @param string $dir_path The path to the directory
+ * @return array An array containing information about the files found in the specified directory and its children
  */
 function get_files_recursive($dir_path)
 {
@@ -2376,12 +2376,11 @@ function get_files_recursive($dir_path)
 /**
  * Callback function for the integration hooks list (list_integration_hooks)
  * Gets all of the hooks in the system and their status
- * Would be better documented if Ema was not lazy
  *
- * @param type $start
- * @param type $per_page
- * @param type $sort
- * @return array
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $per_page How many items to display on each page
+ * @param string $sort A string indicating how to sort things
+ * @return array An array of information about the integration hooks
  */
 function get_integration_hooks_data($start, $per_page, $sort)
 {
@@ -2562,8 +2561,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
  * Simply returns the total count of integration hooks
  * Used by the integration hooks list function (list_integration_hooks)
  *
- * @global type $context
- * @return int
+ * @return int The number of hooks currently in use
  */
 function get_integration_hooks_count()
 {
@@ -2588,8 +2586,7 @@ function get_integration_hooks_count()
 /**
  * Parses modSettings to create integration hook array
  *
- * @staticvar type $integration_hooks
- * @return type
+ * @return array An array of information about the integration hooks
  */
 function get_integration_hooks()
 {

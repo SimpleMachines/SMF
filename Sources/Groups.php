@@ -787,9 +787,9 @@ function GroupRequests()
 /**
  * Callback function for createList().
  *
- * @param $where
- * @param $where_parameters
- * @return int, the count of group requests
+ * @param string $where The WHERE clause for the query
+ * @param array $where_parameters The parameters for the WHERE clause
+ * @return int The number of group requests
  */
 function list_getGroupRequestCount($where, $where_parameters)
 {

@@ -13,8 +13,14 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class Likes_Notify_Background
+ */
 class Likes_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+	 * @return bool
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir;

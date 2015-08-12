@@ -458,8 +458,8 @@ function display_loadavg_error()
 
 /**
  * Small utility function for fatal error pages.
- * Used by display_db_error(), display_loadavg_error(),
- * display_maintenance_message()
+ * Used by {@link display_db_error()}, {@link display_loadavg_error()},
+ * {@link display_maintenance_message()}
  */
 function set_fatal_error_headers()
 {

@@ -81,7 +81,8 @@ function ManagePaidSubscriptions()
  * It requires the moderate_forum permission
  * Accessed from ?action=admin;area=paidsubscribe;sa=settings.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */
 function ModifySubscriptionSettings($return_config = false)
 {
@@ -948,9 +949,10 @@ function ViewSubscribedUsers()
  * Returns how many people are subscribed to a paid subscription.
  * @todo refactor away
  *
- * @param int $id_sub
- * @param string $search_string
- * @param array $search_vars = array()
+ * @param int $id_sub The ID of the subscription
+ * @param string $search_string A search string
+ * @param array $search_vars An array of variables for the search string
+ * @return int The number of subscribed users matching the given parameters
  */
 function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = array())
 {
@@ -979,12 +981,13 @@ function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = arr
  * Return the subscribed users list, for the given parameters.
  * @todo refactor outta here
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @param int $id_sub
- * @param string $search_string
- * @param string $search_vars
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show on each page
+ * @param string $sort A string indicating how to sort the results
+ * @param int $id_sub The ID of the subscription
+ * @param string $search_string A search string
+ * @param array $search_vars The variables for the search string
+ * @return array An array of information about the subscribed users matching the given parameters
  */
 function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $search_string, $search_vars = array())
 {
@@ -1361,7 +1364,7 @@ function ModifyUserSubscription()
 /**
  * Reapplies all subscription rules for each of the users.
  *
- * @param array $users
+ * @param array $users An array of user IDs
  */
 function reapplySubscriptions($users)
 {
@@ -1444,11 +1447,11 @@ function reapplySubscriptions($users)
 /**
  * Add or extend a subscription of a user.
  *
- * @param int $id_subscribe
- * @param int $id_member
- * @param string $renewal = 0, options 'D', 'W', 'M', 'Y'
- * @param int $forceStartTime = 0
- * @param int $forceEndTime = 0
+ * @param int $id_subscribe The subscription ID
+ * @param int $id_member The ID of the member
+ * @param int|string $renewal 0 if we're forcing start/end time, otherwise a string indicating how long to renew the subscription for ('D', 'W', 'M' or 'Y')
+ * @param int $forceStartTime If set, forces the subscription to start at the specified time
+ * @param int $forceEndTime If set, forces the subscription to end at the specified time
  */
 function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTime = 0, $forceEndTime = 0)
 {
@@ -1666,9 +1669,9 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 /**
  * Removes a subscription from a user, as in removes the groups.
  *
- * @param $id_subscribe
- * @param $id_member
- * @param $delete
+ * @param int $id_subscribe The ID of the subscription
+ * @param int $id_member The ID of the member
+ * @param bool $delete Whether to delete the subscription or just disable it
  */
 function removeSubscription($id_subscribe, $id_member, $delete = false)
 {
@@ -1933,7 +1936,7 @@ function loadSubscriptions()
  * loads each file to check it's valid, includes each file and returns the
  * function name and whether it should work with this version of SMF.
  *
- * @return array
+ * @return array An array of information about available payment gateways
  */
 function loadPaymentGateways()
 {

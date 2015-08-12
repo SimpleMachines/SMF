@@ -26,6 +26,7 @@ if (!defined('SMF'))
  * It jumps to the correct post depending on a number/time/IS_MSG passed.
  * It depends on the messages_per_page, defaultMaxMessages and enableAllMessages settings.
  * It is accessed by ?topic=id_topic.START.
+ * @return void
  */
 function Display()
 {
@@ -1848,8 +1849,8 @@ function loadAttachmentContext($id_msg)
 
 /**
  * A sort function for putting unapproved attachments first.
- * @param $a An array of info about one attachment
- * @param $b An array of info about a second attachment
+ * @param array $a An array of info about one attachment
+ * @param array $b An array of info about a second attachment
  * @return int -1 if $a is approved but $b isn't, 0 if both are approved/unapproved, 1 if $b is approved but a isn't
  */
 function approved_attach_sort($a, $b)

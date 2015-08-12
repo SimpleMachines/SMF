@@ -13,8 +13,14 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class Register_Notify_Background
+ */
 class Register_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+	 * @return bool
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;

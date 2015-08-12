@@ -633,8 +633,8 @@ function DoLogin()
  * It redirects back to $_SESSION['logout_url'], if it exists.
  * It is accessed via ?action=logout;session_var=...
  *
- * @param bool $internal if true, it doesn't check the session
- * @param $redirect
+ * @param bool $internal If true, it doesn't check the session
+ * @param bool $redirect Whether or not to redirect the user after they log out
  */
 function Logout($internal = false, $redirect = true)
 {
@@ -714,9 +714,9 @@ function Logout($internal = false, $redirect = true)
 /**
  * MD5 Encryption used for older passwords. (SMF 1.0.x/YaBB SE 1.5.x hashing)
  *
- * @param string $data
- * @param string $key
- * @return string, the HMAC MD5 of data with key
+ * @param string $data The data
+ * @param string $key The key
+ * @return string The HMAC MD5 of data with key
  */
 function md5_hmac($data, $key)
 {
@@ -727,9 +727,9 @@ function md5_hmac($data, $key)
 /**
  * Custom encryption for phpBB3 based passwords.
  *
- * @param string $passwd
- * @param string $passwd_hash
- * @return string
+ * @param string $passwd The raw (unhashed) password
+ * @param string $passwd_hash The hashed password
+ * @return string The hashed version of $passwd
  */
 function phpBB3_password_check($passwd, $passwd_hash)
 {
@@ -784,10 +784,10 @@ function phpBB3_password_check($passwd, $passwd_hash)
  * This protects against brute force attacks on a member's password.
  * Importantly, even if the password was right we DON'T TELL THEM!
  *
- * @param $id_member
- * @param $password_flood_value = false
- * @param $was_correct = false
- * @param $tfa = false;
+ * @param int $id_member The ID of the member
+ * @param bool|string $password_flood_value False if we don't have a flood value, otherwise a string with a timestamp and number of tries separated by a |
+ * @param bool $was_correct Whether or not the password was correct
+ * @param bool $tfa Whether we're validating for two-factor authentication
  */
 function validatePasswordFlood($id_member, $password_flood_value = false, $was_correct = false, $tfa = false)
 {

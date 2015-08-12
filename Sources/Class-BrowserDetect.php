@@ -15,6 +15,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
+ * Class browser_detector
  *  This class is an experiment for the job of correctly detecting browsers and settings needed for them.
  * - Detects the following browsers
  * - Opera, Webkit, Firefox, Web_tv, Konqueror, IE, Gecko
@@ -28,16 +29,12 @@ if (!defined('SMF'))
 class browser_detector
 {
 	/**
-	 * Holds all browsers information. Its contents will be placed into $context['browser'].
-	 *
-	 * @var array
+	 * @var array Holds all the browser information. Its contents will be placed into $context['browser']
 	 */
 	private $_browsers = null;
 
 	/**
-	 * Holds if the detected device may be a mobile one
-	 *
-	 * @var boolean
+	 * @var boolean Whether or not this might be a mobile device
 	 */
 	private $_is_mobile = null;
 
@@ -101,7 +98,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is Opera or not
-	* @return boolean true if the browser is Opera otherwise false
+	* @return boolean Whether or not this is Opera
 	*/
 	function isOpera()
 	{
@@ -112,7 +109,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is IE or not
-	* @return boolean true if the browser is IE otherwise false
+	* @return boolean true Whether or not the browser is IE
 	*/
 	function isIe()
 	{
@@ -124,7 +121,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is IE11 or not
-	* @return boolean true if the browser is IE11 otherwise false
+	* @return boolean Whether or not the browser is IE11
 	*/
 	function isIe11()
 	{
@@ -137,7 +134,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is a Webkit based one or not
-	* @return boolean true if the browser is Webkit based otherwise false
+	* @return boolean Whether or not this is a Webkit-based browser
 	*/
 	function isWebkit()
 	{
@@ -148,7 +145,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is Firefox or one of its variants
-	* @return boolean true if the browser is Firefox otherwise false
+	* @return boolean Whether or not this is Firefox (or one of its variants)
 	*/
 	function isFirefox()
 	{
@@ -159,7 +156,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is WebTv or not
-	* @return boolean true if the browser is WebTv otherwise false
+	* @return boolean Whether or not this is WebTV
 	*/
 	function isWebTv()
 	{
@@ -170,7 +167,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is konqueror or not
-	* @return boolean true if the browser is konqueror otherwise false
+	* @return boolean Whether or not this is Konqueror
 	*/
 	function isKonqueror()
 	{
@@ -181,7 +178,7 @@ class browser_detector
 
 	/**
 	* Determine if the browser is Gecko or not
-	* @return boolean true if the browser is Gecko otherwise false
+	* @return boolean Whether or not this is a Gecko-based browser
 	*/
 	function isGecko()
 	{
@@ -191,8 +188,8 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is OperaMini or not
-	* @return boolean true if the browser is OperaMini otherwise false
+	* Determine if the browser is Opera Mini or not
+	* @return boolean Whether or not this is Opera Mini
 	*/
 	function isOperaMini()
 	{
@@ -204,8 +201,8 @@ class browser_detector
 	}
 
 	/**
-	* Determine if the browser is OperaMobi or not
-	* @return boolean true if the browser is OperaMobi otherwise false
+	* Determine if the browser is Opera Mobile or not
+	* @return boolean Whether or not this is Opera Mobile
 	*/
 	function isOperaMobi()
 	{
