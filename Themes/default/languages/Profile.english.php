@@ -159,6 +159,7 @@ $txt['alert_buddy_request'] = 'When other members adds me as their buddy';
 $txt['alert_group_calendar'] = 'Calendar';
 $txt['alert_event_new'] = 'When a new event goes into the calendar';
 $txt['alert_request_group'] = 'When someone requests to join a group I moderate';
+$txt['alert_birthday'] = 'When it\'s my birthday';
 $txt['alert_member_report'] = 'When another member\'s profile is reported';
 $txt['alert_member_report_reply'] = 'When a member report I\'ve replied to gets replied to';
 $txt['alert_group_paidsubs'] = 'Paid Subscriptions';

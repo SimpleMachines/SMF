@@ -40,6 +40,7 @@ $txt['alert_event_new'] = '{member_link} added a new event, <a href="{scripturl}
 $txt['alert_event_new_topic'] = '{member_link} added a new event, {topic_msg}, to the calendar.';
 $txt['alert_paidsubs_expiring'] = 'Your subscription to <a href="{scripturl}?action=profile;area=subscriptions">{subscription_name}</a> is about to expire at {end_time}';
 $txt['alert_buddy_buddy_request'] = '{member_link} added you as their buddy';
+$txt['alert_birthday_mag'] = '{happy_birthday}';
 $txt['alerts_none'] = 'You have no alerts.';
 
 ?>
