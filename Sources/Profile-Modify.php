@@ -1912,6 +1912,7 @@ function alert_configuration($memID)
 			'request_group' => array('alert' => 'yes', 'email' => 'yes'),
 			'warn_any' => array('alert' => 'yes', 'email' => 'yes', 'permission' => array('name' => 'issue_warning', 'is_board' => false)),
 			'buddy_request'  => array('alert' => 'yes', 'email' => 'never'),
+			'birthday'  => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'calendar' => array(
 			'event_new' => array('alert' => 'yes', 'email' => 'yes', 'help' => 'alert_event_new'),
