@@ -63,8 +63,8 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			{
 				// We need to do some shuffling to make this work properly.
 				loadLanguage('EmailTemplates', $lang);
-				$txt['happy_birthday']['subject'] = $txtBirthdayEmails[$greeting . '_subject'];
-				$txt['happy_birthday']['body'] = $txtBirthdayEmails[$greeting . '_body'];
+				$txt['happy_birthday_subject'] = $txtBirthdayEmails[$greeting . '_subject'];
+				$txt['happy_birthday_body'] = $txtBirthdayEmails[$greeting . '_body'];
 				require_once($sourcedir . '/Subs-Notify.php');
 
 				$prefs = getNotifyPrefs(array_keys($members), array('birthday'), true);
@@ -82,7 +82,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => serialize(array('happy_birthday' => $txt['happy_birthday']['body'])),
+							'extra' => serialize(array('happy_birthday' => $txt['happy_birthday_body'])),
 						);
 						updateMemberData($member_id, array('alerts' => '+'));
 					}
