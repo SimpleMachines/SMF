@@ -2216,7 +2216,7 @@ function ModifyGeneralModSettings($return_config = false)
  */
 function ModifyAlertsSettings()
 {
-	global $context, $sourcedir, $txt;
+	global $context, $modSettings, $sourcedir, $txt;
 
 	// Dummy settings for the template...
 	$modSettings['allow_disableAnnounce'] = false;
