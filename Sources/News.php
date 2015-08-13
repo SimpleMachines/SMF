@@ -321,8 +321,8 @@ function ShowXmlFeed()
  * Called from dumpTags to convert data to xml
  * Finds urls for local site and sanitizes them
  *
- * @param type $val
- * @return type
+ * @param string $val A string containing a possible URL
+ * @return string $val The string with any possible URLs sanitized
  */
 function fix_possible_url($val)
 {
@@ -347,9 +347,9 @@ function fix_possible_url($val)
  * Ensures supplied data is properly encapsulated in cdata xml tags
  * Called from getXmlProfile in News.php
  *
- * @param type $data
- * @param type $ns
- * @return type
+ * @param string $data XML data
+ * @param string $ns
+ * @return string The XML data enclosed in cdata tags
  */
 function cdata_parse($data, $ns = '')
 {
@@ -425,10 +425,10 @@ function cdata_parse($data, $ns = '')
  * Additionally formats data based on the specific format passed.
  * This function is recursively called to handle sub arrays of data.
 
- * @param array $data the array to output as xml data
- * @param int $i the amount of indentation to use.
- * @param string $tag if specified, it will be used instead of the keys of data.
- * @param string $xml_format
+ * @param array $data The array to output as xml data
+ * @param int $i The amount of indentation to use.
+ * @param null|string $tag If specified, it will be used instead of the keys of data.
+ * @param string $xml_format The format to use ('atom', 'rss', 'rss2' or empty for plain XML)
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '')
 {
@@ -492,8 +492,8 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
  * The array will be generated to match the format.
  * @todo get the list of members from Subs-Members.
  *
- * @param string $xml_format
- * @return array
+ * @param string $xml_format The format to use. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @return array An array of arrays of feed items. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlMembers($xml_format)
 {
@@ -557,8 +557,8 @@ function getXmlMembers($xml_format)
  * The returned array will be generated to match the xmf_format.
  * @todo does not belong here
  *
- * @param $xml_format
- * @return array, array of topics
+ * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'.
+ * @return array An array of arrays of topic data for the feed. Each array has keys corresponding to the tags for the specified format.
  */
 function getXmlNews($xml_format)
 {
@@ -691,8 +691,8 @@ function getXmlNews($xml_format)
  * The returned array will be generated to match the xml_format.
  * @todo does not belong here.
  *
- * @param $xml_format
- * @return array, of recent posts
+ * @param string $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @return array An array of arrays containing data for the feed. Each array has keys corresponding to the appropriate tags for the specified format.
  */
 function getXmlRecent($xml_format)
 {
@@ -852,8 +852,8 @@ function getXmlRecent($xml_format)
  * which will be generated to match the xml_format.
  * @todo refactor.
  *
- * @param $xml_format
- * @return array, of profile data.
+ * @param $xml_format The XML format. Can be 'atom', 'rdf', 'rss', 'rss2' or 'xml'
+ * @return array An array profile data
  */
 function getXmlProfile($xml_format)
 {

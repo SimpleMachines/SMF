@@ -318,9 +318,10 @@ function ScheduledTasks()
 /**
  * Callback function for createList() in ScheduledTasks().
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
+ * @param int $start The item to start with (not used here)
+ * @param int $items_per_page The number of items to display per page (not used here)
+ * @param string $sort A string indicating how to sort things (not used here)
+ * @return array An array of information about available scheduled tasks
  */
 function list_getScheduledTasks($start, $items_per_page, $sort)
 {
@@ -578,9 +579,10 @@ function TaskLog()
 /**
  * Callback function for createList() in TaskLog().
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to display per page
+ * @param string $sort A string indicating how to sort the results
+ * @return array An array of info about task log entries
  */
 function list_getTaskLogEntries($start, $items_per_page, $sort)
 {
@@ -610,6 +612,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 
 /**
  * Callback function for createList() in TaskLog().
+ * @return int The number of log entries
  */
 function list_getNumTaskLogEntries()
 {
