@@ -1860,11 +1860,7 @@ function alert_configuration($memID)
 	if (!isset($context['action']))
 		$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . $memID;
 
-	// What options are set?
-	$context['member'] += array(
-		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
-	);
-
+	// What options are set
 	loadThemeOptions($memID);
 	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
 
@@ -1876,6 +1872,7 @@ function alert_configuration($memID)
 
 	$context['member'] += array(
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
+		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
 	);
 
 	// Now for the exciting stuff.
