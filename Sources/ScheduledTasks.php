@@ -644,7 +644,7 @@ function scheduled_daily_digest()
 
 	// The preferred way...
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs(array_keys($members), 'msg_notify_pref', true);
+	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
 
 	// Right - send out the silly things - this will take quite some space!
 	$emails = array();
