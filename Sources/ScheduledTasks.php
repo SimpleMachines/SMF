@@ -496,11 +496,9 @@ function scheduled_daily_digest()
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
 			LEFT JOIN {db_prefix}topics AS t ON (ln.id_topic != {int:empty_topic} AND t.id_topic = ln.id_topic)
-		WHERE mem.notify_regularity = {int:notify_regularity}
-			AND mem.is_activated = {int:is_activated}',
+		WHERE mem.is_activated = {int:is_activated}',
 		array(
 			'empty_topic' => 0,
-			'notify_regularity' => $is_weekly ? '3' : '2',
 			'is_activated' => 1,
 		)
 	);
