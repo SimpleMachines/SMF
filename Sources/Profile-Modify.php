@@ -893,8 +893,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 		'notify_regularity',
 		'notify_types',
 	);
-	$profile_floats = array(
-	);
+	$profile_floats = array();
 	$profile_strings = array(
 		'buddy_list',
 		'ignore_boards',
