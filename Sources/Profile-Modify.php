@@ -900,7 +900,7 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	);
 
 	if (isset($_POST['sa']) && $_POST['sa'] == 'ignoreboards' && empty($_POST['ignore_brd']))
-			$_POST['ignore_brd'] = array();
+		$_POST['ignore_brd'] = array();
 
 	unset($_POST['ignore_boards']); // Whatever it is set to is a dirty filthy thing.  Kinda like our minds.
 	if (isset($_POST['ignore_brd']))
