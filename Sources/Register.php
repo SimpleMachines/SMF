@@ -289,14 +289,12 @@ function Register2()
 		'secret_question', 'secret_answer',
 	);
 	$possible_ints = array(
-		'notify_types',
 		'id_theme',
 	);
 	$possible_floats = array(
 		'time_offset',
 	);
 	$possible_bools = array(
-		'notify_announcements', 'notify_regularity', 'notify_send_body',
 		'show_online',
 	);
 

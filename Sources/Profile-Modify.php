@@ -886,13 +886,8 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	}
 
 	// Arrays of all the changes - makes things easier.
-	$profile_bools = array(
-		'notify_announcements', 'notify_send_body',
-	);
-	$profile_ints = array(
-		'notify_regularity',
-		'notify_types',
-	);
+	$profile_bools = array();
+	$profile_ints = array();
 	$profile_floats = array();
 	$profile_strings = array(
 		'buddy_list',
