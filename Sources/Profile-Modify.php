@@ -1871,7 +1871,7 @@ function alert_configuration($memID)
 
 	$context['member'] += array(
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
-		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
+		'notify_announcements' => isset($context['alert_prefs']['notify_announcements']) ? $context['alert_prefs']['notify_announcements'] : 10,
 	);
 
 	// Now for the exciting stuff.
