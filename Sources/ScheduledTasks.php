@@ -652,6 +652,7 @@ function scheduled_daily_digest()
 	foreach ($members as $mid => $member)
 	{
 		$frequency = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_pref'] : 1;
+		$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 		// Did they not elect to choose this?
 		if ($frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly)
@@ -707,24 +708,26 @@ function scheduled_daily_digest()
 		}
 
 		// Finally, moderation actions!
-		$titled = false;
-		foreach ($types as $note_type => $type)
+		if ($notify_types < 3)
 		{
-			if ($note_type == 'topic' || $note_type == 'reply')
-				continue;
+			$titled = false;
+			foreach ($types as $note_type => $type)
+			{
+				if ($note_type == 'topic' || $note_type == 'reply')
+					continue;
 
-			foreach ($type as $id => $board)
-				foreach ($board['lines'] as $topic)
-					if (in_array($mid, $topic['members']))
-					{
-						if (!$titled)
+				foreach ($type as $id => $board)
+					foreach ($board['lines'] as $topic)
+						if (in_array($mid, $topic['members']))
 						{
-							$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
-							$titled = true;
+							if (!$titled)
+							{
+								$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
+								$titled = true;
+							}
+							$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
 						}
-						$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
-					}
-
+			}
 		}
 		if ($titled)
 			$email['body'] .= "\n";
