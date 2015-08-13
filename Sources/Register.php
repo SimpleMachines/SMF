@@ -461,6 +461,10 @@ function Register2()
 	// Do our spam protection now.
 	spamProtection('register');
 
+	// Do they want to recieve announcements?
+	require_once($sourcedir . '/Subs-Notify.php');
+	setNotifyPrefs($memberID, array('announcements' => (!empty($regOptions['notify_announcements']) ? 2 : 0));
+
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
 	{
