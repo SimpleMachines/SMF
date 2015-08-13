@@ -491,7 +491,7 @@ function scheduled_daily_digest()
 
 	// Right - get all the notification data FIRST.
 	$request = $smcFunc['db_query']('', '
-		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name, mem.notify_types,
+		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 			mem.lngfile, mem.id_member
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
@@ -515,7 +515,6 @@ function scheduled_daily_digest()
 				'email' => $row['email_address'],
 				'name' => $row['member_name'],
 				'id' => $row['id_member'],
-				'notifyMod' => $row['notify_types'] < 3 ? true : false,
 				'lang' => $row['lngfile'],
 			);
 			$langs[$row['lngfile']] = $row['lngfile'];
