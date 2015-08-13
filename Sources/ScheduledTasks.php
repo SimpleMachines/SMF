@@ -652,7 +652,7 @@ function scheduled_daily_digest()
 		$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 		// Did they not elect to choose this?
-		if ($frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly)
+		if ($frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4)
 			continue;
 
 		// Right character set!
