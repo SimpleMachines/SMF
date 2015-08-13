@@ -661,6 +661,14 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'request_group', 1);
 ---#
 
+---# Dropping old notification fields from the members table
+ALTER TABLE {$db_prefix}members
+  DROP notify_send_body,
+  DROP notify_types,
+  DROP notify_regularity,
+  DROP notify_announcements;
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/

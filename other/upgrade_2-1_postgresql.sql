@@ -715,6 +715,14 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1);
 ---#
 
+---# Dropping old notification fields from the members table
+ALTER TABLE {$db_prefix}members
+  DROP notify_send_body,
+  DROP notify_types,
+  DROP notify_regularity,
+  DROP notify_announcements;
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
