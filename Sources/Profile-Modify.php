@@ -2083,15 +2083,6 @@ function alert_configuration($memID)
 
 		makeNotificationChanges($memID);
 
-		// Because of how things work in SMF, it's easier to store this as a profile setting rather than an alert pref...
-		if (!empty($modSettings['allow_disableAnnounce']))
-		{
-			updateMemberData($memID, array('notify_announcements' => (int) $_POST['notify_announcements']));
-
-			// This won't show as updated otherwise...
-			$context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
-		}
-
 		$context['profile_updated'] = $txt['profile_updated_own'];
 	}
 
