@@ -1884,8 +1884,8 @@ function alert_configuration($memID)
 			'unapproved_reply' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'pm' => array(
-			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
-			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
+			'pm_new' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
+			'pm_reply' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
 		'groupr' => array(
 			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
