@@ -956,10 +956,6 @@ function SendMailing($clean_only = false)
 			$sendParams['exclude_members'] = $context['recipients']['exclude_members'];
 		}
 
-		// Force them to have it?
-		if (empty($context['email_force']))
-			$sendQuery .= ' AND mem.notify_announcements = {int:notify_announcements}';
-
 		// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
 		$result = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
@@ -972,7 +968,6 @@ function SendMailing($clean_only = false)
 				'start' => $context['start'],
 				'atonce' => $num_at_once,
 				'regular_group' => 0,
-				'notify_announcements' => 1,
 				'is_activated' => 1,
 			))
 		);
