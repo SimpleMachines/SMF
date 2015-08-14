@@ -70,6 +70,12 @@ function smf_fileUpload(oOptions)
 				}
 			});
 
+			// Count ow many items do we have in fileUpload.track, 0 means we need to hide the cancel and upload ALL buttons.
+			if (fileUpload.track.length == 0){
+				$('.uploadAllButton').fadeOut('slow', function() {});
+				$('.cancelAllButton').fadeOut('slow', function() {});
+			}
+
 			// And actually remove the button and the node.
 			$this.remove();
 			data.currentNode.fadeOut('slow', function() {});
