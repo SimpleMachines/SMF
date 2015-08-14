@@ -956,10 +956,6 @@ function SendMailing($clean_only = false)
 			$sendParams['exclude_members'] = $context['recipients']['exclude_members'];
 		}
 
-		// Force them to have it?
-		if (empty($context['email_force']))
-			$sendQuery .= ' AND mem.notify_announcements = {int:notify_announcements}';
-
 		// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
 		$result = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
@@ -972,13 +968,26 @@ function SendMailing($clean_only = false)
 				'start' => $context['start'],
 				'atonce' => $num_at_once,
 				'regular_group' => 0,
-				'notify_announcements' => 1,
 				'is_activated' => 1,
 			))
 		);
-
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		$rows = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			$rows[$row['id_member']] = $row;
+		}
+		$smcFunc['db_free_result']($request);
+
+		// Load their alert preferences
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+		foreach ($rows as $row)
+		{
+			// Force them to have it?
+			if (empty($context['email_force']) || empty($prefs[$row['id_member']]['announcements']))
+				continue;
+
 			// What groups are we looking at here?
 			if (empty($row['additional_groups']))
 				$groups = array($row['id_group'], $row['id_post_group']);
@@ -1018,7 +1027,6 @@ function SendMailing($clean_only = false)
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
-		$smcFunc['db_free_result']($result);
 	}
 
 

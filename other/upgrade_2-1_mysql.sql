@@ -653,11 +653,20 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'groupr_rejected', 3),
 	(0, 'member_report_reply', 3),
 	(0, 'birthday', 2),
+	(0, 'announcements', 2),
 	(0, 'member_report', 3),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
 	(0, 'warn_any', 1),
 	(0, 'request_group', 1);
+---#
+
+---# Dropping old notification fields from the members table
+ALTER TABLE {$db_prefix}members
+  DROP notify_send_body,
+  DROP notify_types,
+  DROP notify_regularity,
+  DROP notify_announcements;
 ---#
 
 /******************************************************************************/

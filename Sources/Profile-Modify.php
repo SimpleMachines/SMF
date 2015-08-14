@@ -886,22 +886,16 @@ function saveProfileChanges(&$profile_vars, &$post_errors, $memID)
 	}
 
 	// Arrays of all the changes - makes things easier.
-	$profile_bools = array(
-		'notify_announcements', 'notify_send_body',
-	);
-	$profile_ints = array(
-		'notify_regularity',
-		'notify_types',
-	);
-	$profile_floats = array(
-	);
+	$profile_bools = array();
+	$profile_ints = array();
+	$profile_floats = array();
 	$profile_strings = array(
 		'buddy_list',
 		'ignore_boards',
 	);
 
 	if (isset($_POST['sa']) && $_POST['sa'] == 'ignoreboards' && empty($_POST['ignore_brd']))
-			$_POST['ignore_brd'] = array();
+		$_POST['ignore_brd'] = array();
 
 	unset($_POST['ignore_boards']); // Whatever it is set to is a dirty filthy thing.  Kinda like our minds.
 	if (isset($_POST['ignore_brd']))
@@ -1860,11 +1854,7 @@ function alert_configuration($memID)
 	if (!isset($context['action']))
 		$context['action'] = 'action=profile;area=notification;sa=alerts;u=' . $memID;
 
-	// What options are set?
-	$context['member'] += array(
-		'notify_announcements' => $user_profile[$memID]['notify_announcements'],
-	);
-
+	// What options are set
 	loadThemeOptions($memID);
 	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
 
@@ -1876,6 +1866,7 @@ function alert_configuration($memID)
 
 	$context['member'] += array(
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
+		'notify_announcements' => isset($context['alert_prefs']['notify_announcements']) ? $context['alert_prefs']['notify_announcements'] : 0,
 	);
 
 	// Now for the exciting stuff.
@@ -1893,8 +1884,8 @@ function alert_configuration($memID)
 			'unapproved_reply' => array('alert' => 'yes', 'email' => 'yes'),
 		),
 		'pm' => array(
-			'pm_new' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
-			'pm_reply' => array('alert' => 'always', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
+			'pm_new' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_read', 'is_board' => false)),
+			'pm_reply' => array('alert' => 'never', 'email' => 'yes', 'help' => 'alert_pm_new', 'permission' => array('name' => 'pm_send', 'is_board' => false)),
 		),
 		'groupr' => array(
 			'groupr_approved' => array('alert' => 'always', 'email' => 'yes'),
@@ -2083,20 +2074,14 @@ function alert_configuration($memID)
 		if (!empty($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
 
+		if (!empty($_POST['notify_announcements']))
+			$update_prefs['announcements'] = $context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+
 		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
 			$context['alert_prefs'][$pref] = $value;
 
 		makeNotificationChanges($memID);
-
-		// Because of how things work in SMF, it's easier to store this as a profile setting rather than an alert pref...
-		if (!empty($modSettings['allow_disableAnnounce']))
-		{
-			updateMemberData($memID, array('notify_announcements' => (int) $_POST['notify_announcements']));
-
-			// This won't show as updated otherwise...
-			$context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
-		}
 
 		$context['profile_updated'] = $txt['profile_updated_own'];
 	}
