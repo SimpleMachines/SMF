@@ -2074,6 +2074,9 @@ function alert_configuration($memID)
 		if (!empty($_POST['opt_alert_timeout']))
 			$update_prefs['alert_timeout'] = $context['member']['alert_timeout'] = (int) $_POST['opt_alert_timeout'];
 
+		if (!empty($_POST['notify_announcements']))
+			$update_prefs['announcements'] = $context['member']['notify_announcements'] = (int) $_POST['notify_announcements'];
+
 		setNotifyPrefs((int) $memID, $update_prefs);
 		foreach ($update_prefs as $pref => $value)
 			$context['alert_prefs'][$pref] = $value;
