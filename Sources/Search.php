@@ -1855,8 +1855,8 @@ function PlushSearch2()
  * - callback function for the results sub template.
  * - loads the necessary contextual data to show a search result.
  *
- * @param $reset = false
- * @return array
+ * @param bool $reset Whether to reset the counter
+ * @return array An array of contextual info related to this search
  */
 function prepareSearchContext($reset = false)
 {
@@ -2137,7 +2137,7 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
- * @return search_api_interface
+ * @return search_api_interface An instance of the search API interface
  */
 function findSearchAPI()
 {

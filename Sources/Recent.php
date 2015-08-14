@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * - respects approved, recycled, and board permissions
  * - @todo is this even used anywhere?
  *
- * @return array
+ * @return array An array of information about the last post that you can see
  */
 function getLastPost()
 {

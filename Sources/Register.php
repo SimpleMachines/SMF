@@ -21,7 +21,7 @@ if (!defined('SMF'))
 /**
  * Begin the registration process.
  *
- * @param array $reg_errors = array()
+ * @param array $reg_errors Holds information about any errors that occurred
  */
 function Register($reg_errors = array())
 {
@@ -739,7 +739,7 @@ function CoppaForm()
 }
 
 /**
- * Show the verification code or let it hear.
+ * Show the verification code or let it be heard.
  */
 function VerificationCode()
 {
