@@ -514,6 +514,9 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 	$emails_sent = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		// Stick their particulars in the replacement data.
 		$replacements['IDMEMBER'] = $row['id_member'];
 		$replacements['REALNAME'] = $row['member_name'];
