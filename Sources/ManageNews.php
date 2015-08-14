@@ -971,9 +971,23 @@ function SendMailing($clean_only = false)
 				'is_activated' => 1,
 			))
 		);
-
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		$rows = array();
+		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
+			$rows[$row['id_member']] = $row;
+		}
+		$smcFunc['db_free_result']($request);
+
+		// Load their alert preferences
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+		foreach ($rows as $row)
+		{
+			// Force them to have it?
+			if (empty($context['email_force']) || empty($prefs[$row['id_member']]['announcements']))
+				continue;
+
 			// What groups are we looking at here?
 			if (empty($row['additional_groups']))
 				$groups = array($row['id_group'], $row['id_post_group']);
@@ -1013,7 +1027,6 @@ function SendMailing($clean_only = false)
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
-		$smcFunc['db_free_result']($result);
 	}
 
 
