@@ -63,17 +63,18 @@ function smf_fileUpload(oOptions)
 			// And remove this file's size from the total.
 			totalSize = totalSize - data.currentFile.size;
 
-			// Need to remove this entry from the track array
-			fileUpload.track = $.grep(fileUpload.track,
-				function(o,i) { return o === data.index; },
-			true);
+			// Need to remove this entry from the track array, need to get the correct index to do so.
+			$.each(fileUpload.track, function (index, file) {
+				if(fileUpload.track[index] === data.uniqueID) {
+					fileUpload.track.splice(index, 1);
+				}
+			});
 
 			// And actually remove the button and the node.
 			$this.remove();
-			data.currentNode.fadeOut('slow', function() {
-				data.currentNode.remove();
-				data.instance.abort();
-			});
+			data.currentNode.fadeOut('slow', function() {});
+			data.currentNode.remove();
+			data.instance.abort();
 		}),
 	deleteButton = $('<a />')
 		.addClass('button_submit deleteButton you_sure')
@@ -321,14 +322,12 @@ function smf_fileUpload(oOptions)
 			else{
 				$.each(data.result.files, function (index, file) {
 
-					// Gotta find the right node.
+					// Gotta find the right node. Do note this is extremely fragile.
 					$.each(data.files, function (dataIndex, dataFile) {
 						if (dataFile.name == file.name && dataFile.size == file.size){
 							var node = $('#attach_holder_' + dataFile.uniqueID);
 						}
 					});
-
-					var node = $(data.context.children('.attach_holder')[index]);
 
 					// Hide the progress bar.
 					node.find('.progressBar').fadeOut(function() {
