@@ -871,6 +871,7 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.
  *
+ * @deprecated since 2.1
  * @param array $array
  * @return array
  */
