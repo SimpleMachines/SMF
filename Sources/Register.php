@@ -463,7 +463,15 @@ function Register2()
 
 	// Do they want to recieve announcements?
 	require_once($sourcedir . '/Subs-Notify.php');
-	setNotifyPrefs($memberID, array('announcements' => (!empty($regOptions['notify_announcements']) ? 2 : 0));
+	$prefs = getNotifyPrefs($memberID, 'announcements', true);
+	$var = !empty($_POST['notify_announcements']);
+	$pref = !empty($prefs[$memberID]['announcements']);
+
+	// Don't update if the default is the same.
+	if ($var != $pref)
+	{
+		setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
+	}
 
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
