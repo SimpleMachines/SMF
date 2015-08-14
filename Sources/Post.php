@@ -2306,8 +2306,23 @@ function AnnouncementSend()
 
 	$announcements = array();
 	// Loop through all members that'll receive an announcement in this batch.
+	$rows = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$rows[$row['id_member']] = $row;
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+	foreach ($rows as $row)
+	{
+		// Force them to have it?
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
 		// If the language wasn't defined yet, load it and compose a notification message.
