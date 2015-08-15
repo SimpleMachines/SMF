@@ -715,6 +715,30 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'request_group', 1);
 ---#
 
+---# Upgrading post notification settings
+---{
+  $existing_notify = $smcFunc['db_query']('', '
+    SELECT id_member, notify_regularity, notify_send_body, notify_types
+    FROM {db_prefix}members',
+    array()
+  );
+  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+  {
+    $smcFunc['db_insert']('ignore',
+      '{db_prefix}user_alerts_prefs',
+      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+      array(
+        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+      ),
+      array('id_member', 'alert_pref')
+    );
+  }
+  $smcFunc['db_free_result']($existing_notify);
+---}
+---#
+
 ---# Dropping old notification fields from the members table
 ALTER TABLE {$db_prefix}members
   DROP notify_send_body,
@@ -1218,7 +1242,6 @@ WHERE variable = 'avatar_action_too_large'
 		$new_settings = array();
 		$admin_features = explode(',', $row['value']);
 
-		// Now, let's just recap something.
 		// cd = calendar, should also have set cal_enabled already
 		// cp = custom profile fields, which already has several fields that cover tracking
 		// k = karma, should also have set karmaMode already
@@ -1828,33 +1851,6 @@ DROP TABLE IF EXISTS {$db_prefix}openid_assoc;
 ---# Removing related settings
 DELETE FROM {$db_prefix}settings
 WHERE variable='enableOpenID' OR variable='dh_keys';
----#
-
-/******************************************************************************/
---- Port post notification settings
-/******************************************************************************/
----# Upgrading post notification settings
----{
-  $existing_notify = $smcFunc['db_query']('', '
-    SELECT id_member, notify_regularity, notify_send_body, notify_types
-    FROM {db_prefix}members',
-    array()
-  );
-  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
-  {
-    $smcFunc['db_insert']('ignore',
-      '{db_prefix}user_alerts_prefs',
-      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-      array(
-        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-      ),
-      array('id_member', 'alert_pref')
-    );
-  }
-  $smcFunc['db_free_result']($existing_notify);
----}
 ---#
 
 /******************************************************************************/
