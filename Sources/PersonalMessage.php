@@ -578,7 +578,7 @@ function MessageFolder()
 
 	// Only show the button if there are messages to delete.
 	$context['show_delete'] = $max_messages > 0;
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page'] ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Start on the last page.
 	if (!is_numeric($_GET['start']) || $_GET['start'] >= $max_messages)
