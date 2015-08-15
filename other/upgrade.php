@@ -717,7 +717,7 @@ function upgradeExit($fallThrough = false)
 			template_upgrade_above();
 		else
 		{
-			header('Content-Type: text/xml; charset=ISO-8859-1');
+			header('Content-Type: text/xml; charset=UTF-8');
 			// Sadly we need to retain the $_GET data thanks to the old upgrade scripts.
 			$upcontext['get_data'] = array();
 			foreach ($_GET as $k => $v)
@@ -3635,7 +3635,7 @@ function template_upgrade_above()
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
+		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
@@ -3644,7 +3644,7 @@ function template_upgrade_above()
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script>
 			var smf_scripturl = \'', $upgradeurl, '\';
-			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
+			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
 			var startPercent = ', $upcontext['overall_percent'], ';
 
 			// This function dynamically updates the step progress bar - and overall one as required.
@@ -3804,7 +3804,7 @@ function template_xml_above()
 {
 	global $upcontext;
 
-	echo '<', '?xml version="1.0" encoding="ISO-8859-1"?', '>
+	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 	<smf>';
 
 	if (!empty($upcontext['get_data']))
