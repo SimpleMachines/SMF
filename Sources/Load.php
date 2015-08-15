@@ -3137,6 +3137,13 @@ function cache_put_data($key, $value, $ttl = 120)
 
 	if (isset($db_show_debug) && $db_show_debug === true)
 		$cache_hits[$cache_count]['t'] = array_sum(explode(' ', microtime())) - array_sum(explode(' ', $st));
+
+	// Invalidate the opcode cache
+	if (function_exists('opcache_invalidate'))
+   		opcache_invalidate($cachedir . '/data_' . $key . '.php', true);
+
+	if (function_exists('apc_delete_file'))
+   		@apc_delete_file($cachedir . '/data_' . $key . '.php');
 }
 
 /**
