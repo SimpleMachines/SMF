@@ -18,8 +18,8 @@ if (!defined('SMF'))
  * Converts the given UTF-8 string into lowercase.
  * equivalent to mb_strtolower($string, 'UTF-8')
  *
- * @param string $string
- * @return string
+ * @param string $string The string
+ * @return string The lowercase version of $string
  */
 function utf8_strtolower($string)
 {
@@ -287,8 +287,8 @@ function utf8_strtolower($string)
  * Convert the given UTF-8 string to uppercase.
  * equivalent to mb_strtoupper($string, 'UTF-8')
  *
- * @param string $string
- * @return string
+ * @param string $string The string
+ * @return string The uppercase version of $string
  */
 function utf8_strtoupper($string)
 {
