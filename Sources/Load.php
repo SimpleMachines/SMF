@@ -88,8 +88,47 @@ function reloadSettings()
 		},
 		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8)
 		{
-			return $ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset));
+			return $smcFunc['fix_utf8mb4']($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
+		'fix_utf8mb4' => function ($string) use ($utf8)
+		{
+			if (!$utf8)
+				return $string;
+
+			$i = 0;
+			$len = strlen($string);
+			$new_string = '';
+			while ($i < $len)
+			{
+				$ord = ord($string[$i]);
+				if ($ord < 128)
+				{
+					$new_string .= $string[$i];
+					$i++;
+				}
+				elseif ($ord < 224)
+				{
+					$new_string .= $string[$i] . $string[$i+1];
+					$i += 2;
+				}
+				elseif ($ord < 240)
+				{
+					$new_string .= $string[$i] . $string[$i+1] . $string[$i+2];
+					$i += 3;
+				}
+				elseif ($ord < 248)
+				{
+					// Magic happens.
+					$val = (ord($string[$i]) & 0x07) << 18;
+					$val += (ord($string[$i+1]) & 0x3F) << 12;
+					$val += (ord($string[$i+2]) & 0x3F) << 6;
+					$val += (ord($string[$i+3]) & 0x3F);
+					$new_string .= '&#' . $val . ';';
+					$i += 4;
+				}
+			}
+			return $new_string;
+		),
 		'htmltrim' => function ($string) use ($utf8, $space_chars, $ent_check)
 		{
 			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
