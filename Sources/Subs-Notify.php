@@ -76,7 +76,7 @@ function setNotifyPrefs($memID, $prefs = array())
 {
 	global $smcFunc;
 
-	if (empty($prefs) || empty($memID))
+	if (empty($prefs) || !is_int($memID))
 		return;
 
 	$update_rows = array();

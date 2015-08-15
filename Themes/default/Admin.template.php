@@ -508,10 +508,10 @@ function template_view_versions()
 											<a href="#" id="Tasks-link">', $txt['dvc_tasks'] ,'</a>
 										</td>
 										<td class="quarter_table">
-											<em id="yourTemplates">??</em>
+											<em id="yourTasks">??</em>
 										</td>
 										<td class="quarter_table">
-											<em id="currentTemplates">??</em>
+											<em id="currentTasks">??</em>
 										</td>
 									</tr>
 								</tbody>
@@ -527,10 +527,10 @@ function template_view_versions()
 											', $filename, '
 										</td>
 										<td class="quarter_table">
-											<em id="yourTemplates', $filename, '">', $version, '</em>
+											<em id="yourTasks', $filename, '">', $version, '</em>
 										</td>
 										<td class="quarter_table">
-											<em id="currentTemplates', $filename, '">??</em>
+											<em id="currentTasks', $filename, '">??</em>
 										</td>
 									</tr>';
 

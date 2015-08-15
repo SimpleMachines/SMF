@@ -252,6 +252,7 @@ function getFileVersions(&$versionOptions)
 		ksort($version_info['default_template_versions']);
 		ksort($version_info['template_versions']);
 		ksort($version_info['default_language_versions']);
+		ksort($version_info['tasks_versions']);
 
 		// For languages sort each language too.
 		foreach ($version_info['default_language_versions'] as $language => $dummy)
@@ -494,39 +495,28 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 	// We certainly want this.
 	require_once($sourcedir . '/Subs-Post.php');
 
-	// Load all groups which are effectively admins.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group
-		FROM {db_prefix}permissions
-		WHERE permission = {string:admin_forum}
-			AND add_deny = {int:add_deny}
-			AND id_group != {int:id_group}',
-		array(
-			'add_deny' => 1,
-			'id_group' => 0,
-			'admin_forum' => 'admin_forum',
-		)
-	);
-	$groups = array(1);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$groups[] = $row['id_group'];
-	$smcFunc['db_free_result']($request);
+	// Load all members which are effectively admins.
+	require_once($sourcedir . '/Subs-Members.php');
+	$members = membersAllowedTo('admin_forum');
+
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address
 		FROM {db_prefix}members
-		WHERE (id_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:group_array_implode}, additional_groups) != 0)
-			AND notify_types != {int:notify_types}
-		ORDER BY lngfile',
+		WHERE id_member IN({array_int:members})',
 		array(
-			'group_list' => $groups,
-			'notify_types' => 4,
-			'group_array_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
+			'members' => $members,
 		)
 	);
 	$emails_sent = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		// Stick their particulars in the replacement data.
 		$replacements['IDMEMBER'] = $row['id_member'];
 		$replacements['REALNAME'] = $row['member_name'];

@@ -150,12 +150,13 @@ ul#likes li {
 }
 
 ul#likes span.avatar {
-	width: 45px;
-	height: 45px;
-	padding: 2px;
+	max-width: 100px;
+	max-height: 100px;
+	padding: 0 10px 0 0;
 }
 ul#likes span.avatar img {
-	max-height: 40px;
+	max-height: 90px;
+	max-width: 90px;
 }
 ul#likes li span.description {
 	font-style: italic;
@@ -384,8 +385,9 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_img {
+.bbc_img, .atc_img {
 	border: 0;
+	max-width: 100%;
 }
 .bbc_table {
 	font: inherit;
@@ -3350,8 +3352,9 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachments .floatleft {
+.attachment {
 	padding: 0 6px 8px 6px;
+	max-width: 100%;
 }
 .attachments_top {
 	margin: 0 auto;

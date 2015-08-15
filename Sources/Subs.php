@@ -310,8 +310,7 @@ function updateMemberData($members, $data)
 	// Everything is assumed to be a string unless it's in the below.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from',
-		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types', 'alerts',
+		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from', 'alerts',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
 	$knownFloats = array(
@@ -872,6 +871,7 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.
  *
+ * @deprecated since 2.1
  * @param array $array
  * @return array
  */
@@ -897,6 +897,59 @@ function permute($array)
 	}
 
 	return $orders;
+}
+
+ /**
+ * Lexicographic permutation function.
+ *
+ * This is a special type of permutation which involves the order of the set. The next
+ * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
+ * set larger than the current one.
+ *
+ * The benefit of this over a recursive solution is that the whole list does NOT need
+ * to be held in memory. So it's actually possible to run 30! permutations without
+ * causing a memory overflow.
+ *
+ * Source: O'Reilly PHP Cookbook
+ *
+ * @param mixed[] $p
+ * @param int $size
+ *
+ * @return mixed[] the next permutation of the passed array $p
+ */
+function pc_next_permutation($p, $size)
+{
+	// Slide down the array looking for where we're smaller than the next guy
+	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
+	{
+	}
+
+	// If this doesn't occur, we've finished our permutations
+	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
+	if ($i === -1)
+	{
+		return false;
+	}
+
+	// Slide down the array looking for a bigger number than what we found before
+	for ($j = $size; $p[$j] <= $p[$i]; --$j)
+	{
+	}
+
+	// Swap them
+	$tmp = $p[$i];
+	$p[$i] = $p[$j];
+	$p[$j] = $tmp;
+
+	// Now reverse the elements in between by swapping the ends
+	for ($i, $j = $size; $i < $j; $i, --$j)
+	{
+		$tmp = $p[$i];
+		$p[$i] = $p[$j];
+		$p[$j] = $tmp;
+	}
+
+	return $p;
 }
 
 /**
@@ -2050,19 +2103,32 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible['parameters']))
 			{
+				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
 
 				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$match = false;
-				$orders = permute($preg);
-				foreach ($orders as $p)
-					if (preg_match('~^' . implode('', $p) . '\]~i', substr($message, $pos1 - 1), $matches) != 0)
-					{
-						$match = true;
-						break;
-					}
+				$param_size = count($preg) - 1;
+				$preg_keys = range(0, $param_size);
+				$message_stub = substr($message, $pos1 - 1);
+
+				// If sometthhing adds many parameters we can exceed max_execution time; let's prevent that.
+				// 5040 = 7, 40,320 = 8, (N!) etc
+				$max_iterations = 5040;
+
+				// Step, one by one, through all possible permutations of the parameters until we have a match.
+				do
+				{
+					$match_preg = '~^';
+					foreach ($preg_keys as $key)
+						$match_preg .= $preg[$key];
+					$match_preg .= '\]~i';
+
+					// Check if this combination of parameters matches the user input.
+					$match = preg_match($match_preg, $message_stub, $matches) !== 0;
+				}
+				while (!$match && --$max_iterations && ($preg_keys = pc_next_permutation($preg_keys, $param_size)));
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
@@ -3270,14 +3336,6 @@ function template_javascript($do_defered = false)
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
-
-		// If we are loading JQuery and we are set to 'auto' load, put in our remote success or load local check
-		if ($id == 'jquery' && (!isset($modSettings['jquery_source']) || !in_array($modSettings['jquery_source'], array('local', 'cdn'))))
-		echo '
-	<script>
-		window.jQuery || document.write(\'<script src="' . $settings['default_theme_url'] . '/scripts/jquery-1.11.0.min.js"><\/script>\');
-	</script>';
-
 	}
 
 	// Inline JavaScript - Actually useful some times!
@@ -3731,7 +3789,7 @@ function setupMenuContext()
 		{
 			require_once($sourcedir . '/Subs-Notify.php');
 
-			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout');
+			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavascript('
@@ -3894,7 +3952,7 @@ function setupMenuContext()
 				if (isset($button['action_hook']))
 					$needs_action_hook = true;
 
-				// Make sure the last button truely is the last button.
+				// Make sure the last button truly is the last button.
 				if (!empty($button['is_last']))
 				{
 					if (isset($last_button))
@@ -3972,13 +4030,6 @@ function setupMenuContext()
 		$context['self_pm'] = true;
 	}
 
-	// Not all actions are simple.
-	if (!empty($needs_action_hook))
-		call_integration_hook('integrate_current_action', array(&$current_action));
-
-	if (isset($context['menu_buttons'][$current_action]))
-		$context['menu_buttons'][$current_action]['active_button'] = true;
-
 	$total_mod_reports = 0;
 
 	if (!empty($user_info['mod_cache']) && $user_info['mod_cache']['bq'] != '0=1' && !empty($context['open_mod_reports']))
@@ -3988,7 +4039,7 @@ function setupMenuContext()
 	}
 
 	// Show how many errors there are
-	if (allowedTo('admin_forum') && !empty($context['num_errors']))
+	if (!empty($context['num_errors']) && allowedTo('admin_forum'))
 	{
 		$context['menu_buttons']['admin']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
 		$context['menu_buttons']['admin']['sub_buttons']['errorlog']['title'] .= ' <span class="amt">' . $context['num_errors'] . '</span>';
@@ -3997,7 +4048,7 @@ function setupMenuContext()
 	/**
 	 * @todo For some reason, $context['open_member_reports'] isn't getting set
 	 */
-	if (allowedTo('moderate_forum') && !empty($context['open_member_reports']))
+	if (!empty($context['open_member_reports']) && allowedTo('moderate_forum'))
 	{
 		$total_mod_reports += $context['open_member_reports'];
 		$context['menu_buttons']['moderate']['sub_buttons']['reported_members']['title'] .= ' <span class="amt">' . $context['open_member_reports'] . '</span>';
@@ -4015,6 +4066,12 @@ function setupMenuContext()
 		$context['menu_buttons']['moderate']['title'] .= ' <span class="amt">' . $total_mod_reports . '</span>';
 	}
 
+	// Not all actions are simple.
+	if (!empty($needs_action_hook))
+		call_integration_hook('integrate_current_action', array(&$current_action));
+
+	if (isset($context['menu_buttons'][$current_action]))
+		$context['menu_buttons'][$current_action]['active_button'] = true;
 }
 
 /**

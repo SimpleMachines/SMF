@@ -378,6 +378,10 @@ function ViewSubscriptions()
 		),
 		'additional_rows' => array(
 			array(
+				'position' => 'above_table_headers',
+				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
+			),
+			array(
 				'position' => 'below_table_data',
 				'value' => '<input type="submit" name="add" value="' . $txt['paid_add_subscription'] . '" class="button_submit">',
 			),
