@@ -37,11 +37,7 @@ function MessageMain()
 
 	loadLanguage('PersonalMessage+Drafts');
 
-	if (WIRELESS && WIRELESS_PROTOCOL == 'wap')
-		fatal_lang_error('wireless_error_notyet', false);
-	elseif (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_pm';
-	elseif (!isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
@@ -191,11 +187,10 @@ function MessageMain()
 	);
 
 	// Preferences...
-	$context['display_mode'] = WIRELESS ? 0 : $user_settings['pm_prefs'] & 3;
+	$context['display_mode'] = $user_settings['pm_prefs'] & 3;
 
 	$subActions = array(
 		'popup' => 'MessagePopup',
-		'addbuddy' => 'WirelessAddBuddy',
 		'manlabels' => 'ManageLabels',
 		'manrules' => 'ManageRules',
 		'pmactions' => 'MessageActionsApply',
@@ -373,7 +368,7 @@ function messageIndexBar($area)
 	$context['menu_item_selected'] = $current_area;
 
 	// Set the template for this area and add the profile layer.
-	if (!WIRELESS && !isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
 
@@ -583,7 +578,7 @@ function MessageFolder()
 
 	// Only show the button if there are messages to delete.
 	$context['show_delete'] = $max_messages > 0;
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page'])S ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Start on the last page.
 	if (!is_numeric($_GET['start']) || $_GET['start'] >= $max_messages)
@@ -657,7 +652,7 @@ function MessageFolder()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;f=' . $context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . $context['sort_by'] . ($descending ? ';desc' : ''), $_GET['start'], $max_messages, $maxPerPage);
 	$context['start'] = $_GET['start'];
 
-	// Determine the navigation context (especially useful for the wireless template).
+	// Determine the navigation context.
 	$context['links'] = array(
 		'first' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=0' : '',
 		'prev' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=' . ($_GET['start'] - $maxPerPage) : '',
@@ -993,8 +988,7 @@ function MessageFolder()
 
 	$context['can_send_pm'] = allowedTo('pm_send');
 	$context['can_send_email'] = allowedTo('moderate_forum');
-	if (!WIRELESS)
-		$context['sub_template'] = 'folder';
+	$context['sub_template'] = 'folder';
 	$context['page_title'] = $txt['pm_inbox'];
 
 	// Finally mark the relevant messages as read.
@@ -1779,13 +1773,10 @@ function MessagePost()
 
 	loadLanguage('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
-	if (!WIRELESS)
-	{
-		loadTemplate('PersonalMessage');
-		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
-		$context['sub_template'] = 'send';
-	}
+	loadTemplate('PersonalMessage');
+	loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
+	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
@@ -2089,15 +2080,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	global $smcFunc, $user_info, $sourcedir;
 
 	if (!isset($_REQUEST['xml']))
-		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
-
-	if (!WIRELESS && !isset($_REQUEST['xml']))
 	{
-		$context['sub_template'] = 'send';
+		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';		$context['sub_template'] = 'send';
 		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 	}
-	elseif (isset($_REQUEST['xml']))
+	else
 		$context['sub_template'] = 'pm';
 
 	$context['page_title'] = $txt['send_message'];
@@ -2550,48 +2538,6 @@ function MessagePost2()
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
 }
-
-/**
- * This function lists all buddies for wireless protocols.
- */
-function WirelessAddBuddy()
-{
-	global $scripturl, $txt, $user_info, $context, $smcFunc;
-
-	isAllowedTo('pm_send');
-	$context['page_title'] = $txt['wireless_pm_add_buddy'];
-
-	$current_buddies = empty($_REQUEST['u']) ? array() : explode(',', $_REQUEST['u']);
-	foreach ($current_buddies as $key => $buddy)
-		$current_buddies[$key] = (int) $buddy;
-
-	$base_url = $scripturl . '?action=pm;sa=send;u=' . (empty($current_buddies) ? '' : implode(',', $current_buddies) . ',');
-	$context['pm_href'] = $scripturl . '?action=pm;sa=send' . (empty($current_buddies) ? '' : ';u=' . implode(',', $current_buddies));
-
-	$context['buddies'] = array();
-	if (!empty($user_info['buddies']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member, real_name
-			FROM {db_prefix}members
-			WHERE id_member IN ({array_int:buddy_list})
-			ORDER BY real_name
-			LIMIT ' . count($user_info['buddies']),
-			array(
-				'buddy_list' => $user_info['buddies'],
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['buddies'][] = array(
-				'id' => $row['id_member'],
-				'name' => $row['real_name'],
-				'selected' => in_array($row['id_member'], $current_buddies),
-				'add_href' => $base_url . $row['id_member'],
-			);
-		$smcFunc['db_free_result']($request);
-	}
-}
-
 /**
  * This function performs all additional stuff...
  */

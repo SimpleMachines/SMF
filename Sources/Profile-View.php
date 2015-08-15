@@ -585,9 +585,9 @@ function showPosts($memID)
 	$range_limit = '';
 
 	if ($context['is_topics'])
-		$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) && !WIRELESS ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
+		$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page'])S ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
 	else
-		$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+		$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page'])S ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	$maxIndex = $maxPerPage;
 
@@ -1031,7 +1031,7 @@ function showUnwatched($memID)
 	$listOptions = array(
 		'id' => 'unwatched_topics',
 		'width' => '100%',
-		'items_per_page' => (empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) && !WIRELESS) ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'],
+		'items_per_page' => (empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page'])S) ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'],
 		'no_items_label' => $txt['unwatched_topics_none'],
 		'base_href' => $scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . $memID,
 		'default_sort_col' => 'started_on',
@@ -1899,7 +1899,7 @@ function TrackIP($memID = 0)
 	ksort($context['ips']);
 
 	// For messages we use the "messages per page" option
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page'])S ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Gonna want this for the list.
 	require_once($sourcedir . '/Subs-List.php');

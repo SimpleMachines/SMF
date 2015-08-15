@@ -108,7 +108,7 @@ function is_not_guest($message = '')
 		obExit(false);
 
 	// Attempt to detect if they came from dlattach.
-	if (!WIRELESS && SMF != 'SSI' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && empty($context['theme_loaded']))
 		loadTheme();
 
 	// Never redirect to an attachment
@@ -118,14 +118,8 @@ function is_not_guest($message = '')
 	// Load the Login template and language file.
 	loadLanguage('Login');
 
-	// Are we in wireless mode?
-	if (WIRELESS)
-	{
-		$context['login_error'] = $message ? $message : $txt['only_members_can_access'];
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
-	}
 	// Apparently we're not in a position to handle this now. Let's go to a safer location for now.
-	elseif (empty($context['template_layers']))
+	if (empty($context['template_layers']))
 	{
 		$_SESSION['login_url'] = $scripturl . '?' . $_SERVER['QUERY_STRING'];
 		redirectexit('action=login');

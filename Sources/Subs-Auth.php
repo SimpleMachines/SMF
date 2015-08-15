@@ -444,16 +444,11 @@ function JSMembers()
 
 	checkSession('get');
 
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_pm';
-	else
-	{
-		// Why is this in the Help template, you ask?  Well, erm... it helps you.  Does that work?
-		loadTemplate('Help');
+	// Why is this in the Help template, you ask?  Well, erm... it helps you.  Does that work?
+	loadTemplate('Help');
 
-		$context['template_layers'] = array();
-		$context['sub_template'] = 'find_members';
-	}
+	$context['template_layers'] = array();
+	$context['sub_template'] = 'find_members';
 
 	if (isset($_REQUEST['search']))
 		$context['last_search'] = $smcFunc['htmlspecialchars']($_REQUEST['search'], ENT_QUOTES);
@@ -484,7 +479,7 @@ function JSMembers()
 
 		$context['page_index'] = constructPageIndex($scripturl . '?action=findmember;search=' . $context['last_search'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';input=' . $context['input_box_name'] . ($context['quote_results'] ? ';quote=1' : '') . ($context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
 
-		// Determine the navigation context (especially useful for the wireless template).
+		// Determine the navigation context.
 		$base_url = $scripturl . '?action=findmember;search=' . urlencode($context['last_search']) . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']) . ';' . $context['session_var'] . '=' . $context['session_id'];
 		$context['links'] = array(
 			'first' => $_REQUEST['start'] >= 7 ? $base_url . ';start=0' : '',

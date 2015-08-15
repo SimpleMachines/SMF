@@ -112,44 +112,6 @@ set_error_handler('error_handler');
 // Start the session. (assuming it hasn't already been.)
 loadSession();
 
-// Determine if this is using WAP, WAP2, or imode.  Technically, we should check that wap comes before application/xhtml or text/html, but this doesn't work in practice as much as it should.
-if (isset($_REQUEST['wap']) || isset($_REQUEST['wap2']) || isset($_REQUEST['imode']))
-	unset($_SESSION['nowap']);
-elseif (isset($_REQUEST['nowap']))
-	$_SESSION['nowap'] = true;
-elseif (!isset($_SESSION['nowap']))
-{
-	if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/vnd.wap.xhtml+xml') !== false)
-		$_REQUEST['wap2'] = 1;
-	elseif (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'text/vnd.wap.wml') !== false)
-	{
-		if (strpos($_SERVER['HTTP_USER_AGENT'], 'DoCoMo/') !== false || strpos($_SERVER['HTTP_USER_AGENT'], 'portalmmm/') !== false)
-			$_REQUEST['imode'] = 1;
-		else
-			$_REQUEST['wap'] = 1;
-	}
-}
-
-if (!defined('WIRELESS'))
-	define('WIRELESS', isset($_REQUEST['wap']) || isset($_REQUEST['wap2']) || isset($_REQUEST['imode']));
-
-// Some settings and headers are different for wireless protocols.
-if (WIRELESS)
-{
-	define('WIRELESS_PROTOCOL', isset($_REQUEST['wap']) ? 'wap' : (isset($_REQUEST['wap2']) ? 'wap2' : (isset($_REQUEST['imode']) ? 'imode' : '')));
-
-	// Some cellphones can't handle output compression...
-	// @todo shouldn't the phone handle that?
-	$modSettings['enableCompressedOutput'] = '0';
-	// @todo Do we want these hard coded?
-	$modSettings['defaultMaxMessages'] = 5;
-	$modSettings['defaultMaxTopics'] = 9;
-
-	// Wireless protocol header.
-	if (WIRELESS_PROTOCOL == 'wap')
-		header('Content-Type: text/vnd.wap.wml');
-}
-
 // What function shall we execute? (done like this for memory's sake.)
 call_user_func(smf_main());
 

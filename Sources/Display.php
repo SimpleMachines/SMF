@@ -20,7 +20,6 @@ if (!defined('SMF'))
 /**
  * The central part of the board - topic display.
  * This function loads the posts in a topic up so they can be displayed.
- * It supports wireless, using wap/wap2/imode and the Wireless templates.
  * It uses the main sub template of the Display template.
  * It requires a topic, and can go to the previous or next topic from it.
  * It jumps to the correct post depending on a number/time/IS_MSG passed.
@@ -37,11 +36,8 @@ function Display()
 	if (empty($topic))
 		fatal_lang_error('no_board', false);
 
-	// Load the proper template and/or sub template.
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_display';
-	else
-		loadTemplate('Display');
+	// Load the proper template.
+	loadTemplate('Display');
 
 	// Not only does a prefetch make things slower for the server, but it makes it impossible to know if they read it.
 	if (isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] == 'prefetch')
@@ -52,7 +48,7 @@ function Display()
 	}
 
 	// How much are we sticking on each page?
-	$context['messages_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$context['messages_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Let's do some work on what to search index.
 	if (count($_GET) > 2)
@@ -454,8 +450,8 @@ function Display()
 		'num_pages' => floor(($context['total_visible_posts'] - 1) / $context['messages_per_page']) + 1,
 	);
 
-	// Figure out all the link to the next/prev/first/last/etc. for wireless mainly.
-	if (WIRELESS || !($can_show_all && isset($_REQUEST['all'])))
+	// Figure out all the link to the next/prev/first/last/etc.
+	if (!($can_show_all && isset($_REQUEST['all'])))
 	{
 		$context['links'] = array(
 			'first' => $_REQUEST['start'] >= $context['messages_per_page'] ? $scripturl . '?topic=' . $topic . '.0' : '',
@@ -1165,13 +1161,6 @@ function Display()
 		$smcFunc['db_free_result']($request);
 
 		$context['oldTopicError'] = $lastPostTime + $modSettings['oldTopicDays'] * 86400 < time();
-	}
-
-	// Wireless shows a "more" if you can do anything special.
-	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
-	{
-		$context['wireless_more'] = $context['can_sticky'] || $context['can_lock'] || allowedTo('modify_any');
-		$context['wireless_moderate'] = isset($_GET['moderate']) ? ';moderate' : '';
 	}
 
 	// You can't link an existing topic to the calendar unless you can modify the first post...

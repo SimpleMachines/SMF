@@ -478,7 +478,7 @@ function UnreadTopics()
 
 	$context['showing_all_topics'] = isset($_GET['all']);
 	$context['start'] = (int) $_REQUEST['start'];
-	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) && !WIRELESS ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
+	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page'])S ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
 	if ($_REQUEST['action'] == 'unread')
 		$context['page_title'] = $context['showing_all_topics'] ? $txt['unread_topics_all'] : $txt['unread_topics_visit'];
 	else
@@ -687,14 +687,9 @@ function UnreadTopics()
 	else
 		$txt['unread_topics_visit_none'] = strtr($txt['unread_topics_visit_none'], array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
 
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_recent';
-	else
-	{
-		loadTemplate('Recent');
-		loadTemplate('MessageIndex');
-		$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
-	}
+	loadTemplate('Recent');
+	loadTemplate('MessageIndex');
+	$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
 
 	// Setup the default topic icons... for checking they exist and the like ;)
 	$context['icon_sources'] = array();
@@ -1236,7 +1231,7 @@ function UnreadTopics()
 
 		// Decide how many pages the topic should have.
 		$topic_length = $row['num_replies'] + 1;
-		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page'])S ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 		if ($topic_length > $messages_per_page)
 		{
 			$tmppages = array();

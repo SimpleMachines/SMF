@@ -573,19 +573,8 @@ function BanEdit()
 		}
 	}
 
-	// If we're in wireless mode remove the admin template layer and use a special template.
-	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
-	{
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_ban_edit';
-		foreach ($context['template_layers'] as $k => $v)
-			if (strpos($v, 'generic_menu') === 0)
-				unset($context['template_layers'][$k]);
-	}
-	else
-	{
-		loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
-		$context['sub_template'] = 'ban_edit';
-	}
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
+	$context['sub_template'] = 'ban_edit';
 
 }
 
