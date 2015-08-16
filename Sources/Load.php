@@ -67,14 +67,53 @@ function reloadSettings()
 
 	// Set a list of common functions.
 	$ent_list = empty($modSettings['disableEntityCheck']) ? '&(#\d{1,7}|quot|amp|lt|gt|nbsp);' : '&(#021|quot|amp|lt|gt|nbsp);';
-	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
+	$ent_check = empty($modSettings['disableEntityCheck']) ? function ($string)
 		{
 			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', $string);
 			return $string;
-		} : function($string)
+		} : function ($string)
 		{
 			return $string;
 		};
+	$fix_utf8mb4 = function ($string) use ($utf8)
+	{
+		if (!$utf8)
+			return $string;
+
+		$i = 0;
+		$len = strlen($string);
+		$new_string = '';
+		while ($i < $len)
+		{
+			$ord = ord($string[$i]);
+			if ($ord < 128)
+			{
+				$new_string .= $string[$i];
+				$i++;
+			}
+			elseif ($ord < 224)
+			{
+				$new_string .= $string[$i] . $string[$i+1];
+				$i += 2;
+			}
+			elseif ($ord < 240)
+			{
+				$new_string .= $string[$i] . $string[$i+1] . $string[$i+2];
+				$i += 3;
+			}
+			elseif ($ord < 248)
+			{
+				// Magic happens.
+				$val = (ord($string[$i]) & 0x07) << 18;
+				$val += (ord($string[$i+1]) & 0x3F) << 12;
+				$val += (ord($string[$i+2]) & 0x3F) << 6;
+				$val += (ord($string[$i+3]) & 0x3F);
+				$new_string .= '&#' . $val . ';';
+				$i += 4;
+			}
+		}
+		return $new_string;
+	};
 
 	// Preg_replace space characters depend on the character set in use
 	$space_chars = $utf8 ? '\x{A0}\x{AD}\x{2000}-\x{200F}\x{201F}\x{202F}\x{3000}\x{FEFF}' : '\x00-\x08\x0B\x0C\x0E-\x19\xA0';
@@ -86,49 +125,10 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8)
+		'htmlspecialchars' => function ($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4)
 		{
-			return $smcFunc['fix_utf8mb4']($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
+			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
-		'fix_utf8mb4' => function ($string) use ($utf8)
-		{
-			if (!$utf8)
-				return $string;
-
-			$i = 0;
-			$len = strlen($string);
-			$new_string = '';
-			while ($i < $len)
-			{
-				$ord = ord($string[$i]);
-				if ($ord < 128)
-				{
-					$new_string .= $string[$i];
-					$i++;
-				}
-				elseif ($ord < 224)
-				{
-					$new_string .= $string[$i] . $string[$i+1];
-					$i += 2;
-				}
-				elseif ($ord < 240)
-				{
-					$new_string .= $string[$i] . $string[$i+1] . $string[$i+2];
-					$i += 3;
-				}
-				elseif ($ord < 248)
-				{
-					// Magic happens.
-					$val = (ord($string[$i]) & 0x07) << 18;
-					$val += (ord($string[$i+1]) & 0x3F) << 12;
-					$val += (ord($string[$i+2]) & 0x3F) << 6;
-					$val += (ord($string[$i+3]) & 0x3F);
-					$new_string .= '&#' . $val . ';';
-					$i += 4;
-				}
-			}
-			return $new_string;
-		),
 		'htmltrim' => function ($string) use ($utf8, $space_chars, $ent_check)
 		{
 			return preg_replace('~^(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+|(?:[ \t\n\r\x0B\x00' . $space_chars . ']|&nbsp;)+$~' . ($utf8 ? 'u' : ''), '', $ent_check($string));
