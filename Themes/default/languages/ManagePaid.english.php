@@ -67,11 +67,15 @@ $txt['nochex_email'] = 'Nochex email address';
 $txt['nochex_email_desc'] = 'Email of a merchant account at Nochex. Leave blank if you are not using Nochex';
 $txt['paid_settings_save'] = 'Save';
 
-$txt['paid_note'] = '<strong class="alert">Note:</strong><br>For subscriptions to be automatically updated for your users, you
-	will need to setup a return URL for each of your payment methods. For all payment types, this return URL should be set as:<br><br>
+$txt['paid_note'] = '<strong class="alert">Note:</strong><br>
+SMF currently supports <strong>PayPal</strong> as the installed payment method.<br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;It is not necessary to enable IPN in your PayPal account; but if you do, the forum will receive payment notifications for all payments made to your account, and this will generate Paid Subscriptions errors for payments that are not subscription related.<br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must have a business or premier account to use recurring payments.<br>
+	&nbsp;&nbsp;&bull;&nbsp;&nbsp;You must provide your primary PayPal email address for validation purposes.<br><br>
+
+If you install a different payment gateway, you may need to set up a return URL for payment notification.   For all payment types, this return URL should be set as:<br><br>
 	&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>' . $boardurl . '/subscriptions.php</strong><br><br>
-	You can edit the link for paypal directly, by clicking <a href="https://www.paypal.com/us/cgi-bin/webscr?cmd=_profile-ipn-notify" target="_blank">here</a>.<br>
-	For the other gateways (If installed) you can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.';
+You can normally find it in your customer panels, usually under the term &quot;Return URL&quot; or &quot;Callback URL&quot;.<br><br><br>';
 
 // View subscription strings.
 $txt['paid_name'] = 'Name';
