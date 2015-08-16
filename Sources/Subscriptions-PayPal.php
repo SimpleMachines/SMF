@@ -42,6 +42,10 @@ class paypal_display
 				'subtext' => $txt['paypal_email_desc']
 			),
 			array(
+				'email', 'paypal_additional_emails',
+				'subtext' => $txt['paypal_additional_emails_desc'],
+			),
+			array(
 				'email', 'paypal_sandbox_email',
 				'subtext' => $txt['paypal_sandbox_email_desc']
 			),
