@@ -567,7 +567,9 @@ function template_view_versions()
 
 }
 
-// Form for stopping people using naughty words, etc.
+/**
+ * Form for stopping people using naughty words, etc.
+ */
 function template_edit_censored()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -651,7 +653,9 @@ function template_edit_censored()
 					</div>';
 }
 
-// Maintenance is a lovely thing, isn't it?
+/**
+ * This is the page shown when we've temporarily paused things such as during maintenance tasks, sending newsletters, etc.
+ */
 function template_not_done()
 {
 	global $context, $txt, $scripturl;
@@ -706,7 +710,9 @@ function template_not_done()
 					</script>';
 }
 
-// Template for showing settings (Of any kind really!)
+/**
+ * Template for showing settings (Of any kind really!)
+ */
 function template_show_settings()
 {
 	global $context, $txt, $settings, $scripturl;
@@ -1008,7 +1014,9 @@ function template_show_settings()
 	', true);
 }
 
-// Template for showing custom profile fields.
+/**
+ * Template for showing custom profile fields.
+ */
 function template_show_custom_profile()
 {
 	global $context, $txt;
@@ -1263,7 +1271,9 @@ function template_edit_profile_field()
 					</script>';
 }
 
-// Results page for an admin search.
+/**
+ * Results page for an admin search.
+ */
 function template_admin_search_results()
 {
 	global $context, $txt, $settings, $scripturl;
@@ -1330,7 +1340,9 @@ function template_admin_search_results()
 					</div>';
 }
 
-// This little beauty shows questions and answer from the captcha type feature.
+/**
+ * This little beauty shows questions and answer from the captcha type feature.
+ */
 function template_callback_question_answer_list()
 {
 	global $txt, $context;
@@ -1379,7 +1391,9 @@ function template_callback_question_answer_list()
 	}
 }
 
-// Repairing boards.
+/**
+ * Repairing boards.
+ */
 function template_repair_boards()
 {
 	global $context, $txt, $scripturl;
@@ -1475,7 +1489,9 @@ function template_repair_boards()
 	}
 }
 
-// Retrieves info from the php_info function, scrubs and preps it for display
+/**
+ * Retrieves info from the php_info function, scrubs and preps it for display
+ */
 function template_php_info()
 {
 	global $context, $txt;
@@ -1554,10 +1570,16 @@ function template_php_info()
 					</div>';
 }
 
+/**
+ *
+ */
 function template_clean_cache_button_above()
 {
 }
 
+/**
+ * Content shown below the clean cache button?
+ */
 function template_clean_cache_button_below()
 {
 	global $txt, $scripturl, $context;
@@ -1576,6 +1598,9 @@ function template_clean_cache_button_below()
 					</div>';
 }
 
+/**
+ * This shows the admin search form
+ */
 function template_admin_quick_search()
 {
 	global $context, $txt, $scripturl;

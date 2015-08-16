@@ -10,11 +10,17 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The top part of the outer layer of the boardindex
+ */
 function template_boardindex_outer_above()
 {
 	template_newsfader();
 }
 
+/**
+ * This shows the newsfader
+ */
 function template_newsfader()
 {
 	global $context, $settings, $options, $txt;
@@ -44,6 +50,9 @@ function template_newsfader()
 	}
 }
 
+/**
+ * This actually displays the board index
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl;
@@ -168,11 +177,17 @@ function template_main()
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 }
 
+/**
+ * The lower part of the outer layer of the board index
+ */
 function template_boardindex_outer_below()
 {
 	template_info_center();
 }
 
+/**
+ * Displays the info center
+ */
 function template_info_center()
 {
 	global $context, $options, $txt;
@@ -238,6 +253,9 @@ function template_info_center()
 	</script>';
 }
 
+/**
+ * The recent posts section of the info center
+ */
 function template_ic_block_recent()
 {
 	global $context, $scripturl, $settings, $txt;
@@ -290,6 +308,9 @@ function template_ic_block_recent()
 			</div>';
 }
 
+/**
+ * The calendar section of the info center
+ */
 function template_ic_block_calendar()
 {
 	global $context, $scripturl, $txt, $settings;
@@ -338,6 +359,9 @@ function template_ic_block_calendar()
 	}
 }
 
+/**
+ * The stats section of the info center
+ */
 function template_ic_block_stats()
 {
 	global $scripturl, $txt, $context, $settings;
@@ -356,6 +380,9 @@ function template_ic_block_stats()
 			</p>';
 }
 
+/**
+ * The who's online section of the admin center
+ */
 function template_ic_block_online()
 {
 	global $context, $scripturl, $txt, $modSettings, $settings;

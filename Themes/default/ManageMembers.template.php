@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The admin member search form
+ */
 function template_search_members()
 {
 	global $context, $scripturl, $txt;
@@ -213,6 +216,9 @@ function template_search_members()
 	</div>';
 }
 
+/**
+ * The admin member list.
+ */
 function template_admin_browse()
 {
 	global $context, $scripturl, $txt;
