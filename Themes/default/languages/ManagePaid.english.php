@@ -46,13 +46,14 @@ $txt['paid_currency_code'] = 'Currency Code';
 $txt['paid_currency_code_desc'] = 'Code used by payment merchants';
 $txt['paid_currency_symbol'] = 'Symbol used by payment method';
 $txt['paid_currency_symbol_desc'] = 'Use \'%1.2f\' to specify where number goes, for example $%1.2f, %1.2fDM etc';
-$txt['paypal_email'] = 'Paypal email address';
-$txt['paypal_email_desc'] = 'Leave blank if you do not wish to use paypal.';
+$txt['paid_settings_save'] = 'Save';
+
+$txt['paypal_email'] = 'PayPal email address';
+$txt['paypal_email_desc'] = 'Leave blank if you do not wish to use PayPal.';
 $txt['paypal_additional_emails'] = 'Primary PayPal email address';
 $txt['paypal_additional_emails_desc'] = 'If different (for business account)';
 $txt['paypal_sandbox_email'] = 'Paypal sandbox email address';
 $txt['paypal_sandbox_email_desc'] = 'Can be left blank if test mode is disabled or not using PayPal.';
-$txt['paid_settings_save'] = 'Save';
 
 $txt['paid_note'] = '<strong class="alert">Note:</strong><br>
 SMF currently supports <strong>PayPal</strong> as the installed payment method.<br>
