@@ -228,7 +228,7 @@ function MessageMain()
 /**
  * A menu to easily access different areas of the PM section
  *
- * @param string $area
+ * @param string $area The area we're currently in
  */
 function messageIndexBar($area)
 {
@@ -1012,8 +1012,9 @@ function MessageFolder()
 /**
  * Get a personal message for the theme.  (used to save memory.)
  *
- * @param $type
- * @param $reset
+ * @param string $type The type of message
+ * @param bool $reset Whether to reset the internal pointer
+ * @return bool|array False on failure, otherwise an array of info
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
@@ -1172,7 +1173,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 }
 
 /**
- * Allows to search through personal messages.
+ * Allows searching through personal messages.
  */
 function MessageSearch()
 {
@@ -2079,8 +2080,8 @@ function MessageDrafts()
 /**
  * An error in the message...
  *
- * @param $error_types
- * @param $named_recipients
+ * @param array $error_types An array of strings indicating which type of errors occurred
+ * @param array $named_recipients
  * @param $recipient_ids
  */
 function messagePostError($error_types, $named_recipients, $recipient_ids = array())
@@ -2969,9 +2970,9 @@ function MessagePrune()
 /**
  * Delete the specified personal messages.
  *
- * @param array $personal_messages array of pm ids
- * @param string $folder = null
- * @param int $owner = null
+ * @param array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
+ * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
+ * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
  */
 function deleteMessages($personal_messages, $folder = null, $owner = null)
 {
@@ -3149,9 +3150,9 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 /**
  * Mark the specified personal messages read.
  *
- * @param array $personal_messages = null, array of pm ids
- * @param string $label = null, if label is set, only marks messages with that label
- * @param int $owner = null, if owner is set, marks messages owned by that member id
+ * @param array|null $personal_messages An array of PM IDs to mark or null to mark all
+ * @param int|null $label The ID of a label. If set, only messages with this label will be marked.
+ * @param int|null $owner If owner is set, marks messages owned by that member id
  */
 function markMessages($personal_messages = null, $label = null, $owner = null)
 {
@@ -3991,7 +3992,7 @@ function ManageRules()
 /**
  * This will apply rules to all unread messages. If all_messages is set will, clearly, do it to all!
  *
- * @param bool $all_messages = false
+ * @param bool $all_messages Whether to apply this to all messages or just unread ones
  */
 function ApplyRules($all_messages = false)
 {
@@ -4120,7 +4121,7 @@ function ApplyRules($all_messages = false)
 /**
  * Load up all the rules for the current user.
  *
- * @param bool $reload = false
+ * @param bool $reload Whether or not to reload all the rules from the database if $context['rules'] is set
  */
 function LoadRules($reload = false)
 {
@@ -4160,9 +4161,9 @@ function LoadRules($reload = false)
 /**
  * Check if the PM is available to the current user.
  *
- * @param int $pmID
- * @param $validFor
- * @return boolean
+ * @param int $pmID The ID of the PM
+ * @param string $validFor Which folders this is valud for - can be 'inbox', 'outbox' or 'in_or_outbox'
+ * @return boolean Whether the PM is accessible in that folder for the current user
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {

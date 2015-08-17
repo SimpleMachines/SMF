@@ -837,6 +837,9 @@ function RemoveTheme()
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing');
 }
 
+/**
+ * Handles enabling/disabling a theme from the admin center
+ */
 function EnableTheme()
 {
 	global $modSettings, $context;

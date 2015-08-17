@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Activate an account.
  *
- * @param int $memID the member ID
+ * @param int $memID The ID of the member whose account we're activating
  */
 function activateAccount($memID)
 {
@@ -62,7 +62,7 @@ function activateAccount($memID)
 /**
  * Issue/manage an user's warning status.
  *
- * @param int $memID
+ * @param int $memID The ID of the user
  */
 function issueWarning($memID)
 {
@@ -437,9 +437,9 @@ function issueWarning($memID)
 }
 
 /**
- * Get the number of warnings a user has.
+ * Get the number of warnings a user has. Callback for $listOptions['get_count'] in issueWarning()
  *
- * @param int $memID
+ * @param int $memID The ID of the user
  * @return int Total number of warnings for the user
  */
 function list_getUserWarningCount($memID)
@@ -463,13 +463,13 @@ function list_getUserWarningCount($memID)
 }
 
 /**
- * Get the data about a users warnings.
+ * Get the data about a user's warnings. Callback function for the list in issueWarning()
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @param int $memID the member ID
- * @return array the preview warnings
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show on each page
+ * @param string $sort A string indicating how to sort the results
+ * @param int $memID The member ID
+ * @return array An array of information about the user's warnings
  */
 function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 {
@@ -511,7 +511,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 /**
  * Present a screen to make sure the user wants to be deleted
  *
- * @param int $memID the member ID
+ * @param int $memID The member ID
  */
 function deleteAccount($memID)
 {
@@ -533,7 +533,7 @@ function deleteAccount($memID)
 /**
  * Actually delete an account.
  *
- * @param int $memID the member ID
+ * @param int $memID The member ID
  */
 function deleteAccount2($memID)
 {
@@ -707,7 +707,7 @@ function deleteAccount2($memID)
 /**
  * Function for doing all the paid subscription stuff - kinda.
  *
- * @param int $memID
+ * @param int $memID The ID of the user whose subscriptions we're viewing
  */
 function subscriptions($memID)
 {

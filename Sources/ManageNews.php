@@ -272,7 +272,7 @@ function EditNews()
 /**
  * Prepares an array of the forum news items for display in the template
  *
- * @return array
+ * @return array An array of information about the news items
  */
 function list_getNews()
 {
@@ -688,7 +688,7 @@ function ComposeMailing()
  * Redirects to itself when more batches need to be sent.
  * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
  *
- * @param bool $clean_only = false; if set, it will only clean the variables, put them in context, then return.
+ * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
  * @uses the ManageNews template and email_members_send sub template.
  */
 function SendMailing($clean_only = false)
@@ -1054,7 +1054,8 @@ function SendMailing($clean_only = false)
  * Requires the forum_admin permission.
  *
  * @uses ManageNews template, news_settings sub-template.
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */
 function ModifyNewsSettings($return_config = false)
 {

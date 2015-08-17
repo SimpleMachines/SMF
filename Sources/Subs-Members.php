@@ -29,8 +29,8 @@ if (!defined('SMF'))
  * ban entries, theme settings, moderator positions, poll and votes.
  *   - updates member statistics afterwards.
  *
- * @param array $users
- * @param bool $check_not_admin = false
+ * @param int|array $users The ID of a user or an array of user IDs
+ * @param bool $check_not_admin Whether to verify that the users aren't admins
  */
 function deleteMembers($users, $check_not_admin = false)
 {
@@ -426,9 +426,9 @@ function deleteMembers($users, $check_not_admin = false)
  * The function will adjust member statistics.
  * If an error is detected will fatal error on all errors unless return_errors is true.
  *
- * @param array $regOptions
- * @param bool $return_errors - specify whether to return the errors
- * @return int, the ID of the newly created member
+ * @param array $regOptions An array of registration options
+ * @param bool $return_errors Whether to return the errors
+ * @return int|array The ID of the newly registered user or an array of error info if $return_errors is true
  */
 function registerMember(&$regOptions, $return_errors = false)
 {
@@ -837,10 +837,11 @@ function registerMember(&$regOptions, $return_errors = false)
  * - the id_member variable is used to ignore duplicate matches with the
  * current member.
  *
- * @param string $name
- * @param int $current_ID_MEMBER
- * @param bool $is_name
- * @param bool $fatal
+ * @param string $name The name to check
+ * @param int $current_ID_MEMBER The ID of the current member (to avoid false positives with the current member)
+ * @param bool $is_name Whether we're checking against reserved names or just usernames
+ * @param bool $fatal Whether to die with a fatal error if the name is reserved
+ * @return bool|void False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
  */
 function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal = true)
 {
@@ -944,10 +945,9 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
  * If board_id is not null, a board permission is assumed.
  * The function takes different permission settings into account.
  *
- * @param string $permission
- * @param int $board_id = null
- * @return an array containing an array for the allowed membergroup ID's
- * and an array for the denied membergroup ID's.
+ * @param string $permission The permission to check
+ * @param int $board_id = null If set, checks permissions for the specified board
+ * @return array An array containing two arrays - 'allowed', which has which groups are allowed to do it and 'denied' which has the groups that are denied
  */
 function groupsAllowedTo($permission, $board_id = null)
 {
@@ -1071,9 +1071,9 @@ function groupsAllowedTo($permission, $board_id = null)
  * Takes different permission settings into account.
  * Takes possible moderators (on board 'board_id') into account.
  *
- * @param string $permission
- * @param int $board_id = null
- * @return an array containing member ID's.
+ * @param string $permission The permission to check
+ * @param int $board_id If set, checks permission for that specific board
+ * @return array An array containing the IDs of the members having that permission
  */
 function membersAllowedTo($permission, $board_id = null)
 {
@@ -1119,11 +1119,11 @@ function membersAllowedTo($permission, $board_id = null)
  * Does not check for any permissions.
  * If add_to_post_count is set, the member's post count is increased.
  *
- * @param int $memID
- * @param string $email = false
- * @param string $membername = false
- * @param bool $post_count = false
- * @return nothing
+ * @param int $memID The ID of the original poster
+ * @param bool|string $email If set, should be the email of the poster
+ * @param bool|string $membername If set, the membername of the poster
+ * @param bool $post_count Whether to adjust post counts
+ * @return array An array containing the number of messages, topics and reports updated
  */
 function reattributePosts($memID, $email = false, $membername = false, $post_count = false)
 {
@@ -1292,12 +1292,13 @@ function BuddyListToggle()
 /**
  * Callback for createList().
  *
- * @param $start
- * @param $items_per_page
- * @param $sort
- * @param $where
- * @param $where_params
- * @param $get_duplicates
+ * @param int $start Which item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show per page
+ * @param string $sort An SQL query indicating how to sort the results
+ * @param string $where An SQL query used to filter the results
+ * @param array $where_params An array of parameters for $where
+ * @param bool $get_duplicates Whether to get duplicates (used for the admin member list)
+ * @return array An array of information for displaying the list of members
  */
 function list_getMembers($start, $items_per_page, $sort, $where, $where_params = array(), $get_duplicates = false)
 {
@@ -1334,8 +1335,9 @@ function list_getMembers($start, $items_per_page, $sort, $where, $where_params =
 /**
  * Callback for createList().
  *
- * @param $where
- * @param $where_params
+ * @param string $where An SQL query to filter the results
+ * @param array $where_params An array of parameters for $where
+ * @return int The number of members matching the given situation
  */
 function list_getNumMembers($where, $where_params = array())
 {
@@ -1365,7 +1367,7 @@ function list_getNumMembers($where, $where_params = array())
 /**
  * Find potential duplicate registration members based on the same IP address
  *
- * @param $members
+ * @param array $members An array of members
  */
 function populateDuplicateMembers(&$members)
 {
@@ -1485,7 +1487,7 @@ function populateDuplicateMembers(&$members)
  * Generate a random validation code.
  * @todo Err. Whatcha doin' here.
  *
- * @return type
+ * @return string A random validation code
  */
 function generateValidationCode()
 {

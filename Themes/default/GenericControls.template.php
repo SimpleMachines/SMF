@@ -10,7 +10,13 @@
  * @version 2.1 Beta 2
  */
 
-// This function displays all the stuff you get with a richedit box - BBC, smileys etc.
+/**
+ * This function displays all the stuff you get with a richedit box - BBC, smileys, etc.
+ *
+ * @param string $editor_id The editor ID
+ * @param null|bool $smileyContainer If null, hides the smiley section regardless of settings
+ * @param null|bool $bbcContainer If null, hides the bbcode buttons regardless of settings
+ */
 function template_control_richedit($editor_id, $smileyContainer = null, $bbcContainer = null)
 {
 	global $context, $settings, $modSettings;
@@ -122,6 +128,11 @@ function template_control_richedit($editor_id, $smileyContainer = null, $bbcCont
 			</script>';
 }
 
+/**
+ * This template shows the form buttons at the bottom of the editor
+ *
+ * @param string $editor_id The editor ID
+ */
 function template_control_richedit_buttons($editor_id)
 {
 	global $context, $settings, $txt, $modSettings;
@@ -210,7 +221,14 @@ function template_control_richedit_buttons($editor_id)
 		</script>';
 }
 
-// What's this, verification?!
+/**
+ * This template displays a verification form
+ *
+ * @param int|string $verify_id The verification control ID
+ * @param string $display_type What type to display. Can be 'single' to only show one verification option or 'all' to show all of them
+ * @param bool $reset Whether to reset the internal tracking counter
+ * @return bool False if there's nothing else to show, true if $display_type is 'single', nothing otherwise
+ */
 function template_control_verification($verify_id, $display_type = 'all', $reset = false)
 {
 	global $context, $txt;

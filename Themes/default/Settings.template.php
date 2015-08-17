@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * This pseudo-template defines all the theme options
+ */
 function template_options()
 {
 	global $context, $txt;
@@ -127,6 +130,9 @@ function template_options()
 	);
 }
 
+/**
+ * This pseudo-template defines all the available theme settings (but not their actual values)
+ */
 function template_settings()
 {
 	global $context, $scripturl, $txt;

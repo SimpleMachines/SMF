@@ -14,8 +14,14 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class EventNew_Notify_Background
+ */
 class EventNew_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+	 * @return bool
+	 */
 	public function execute()
  	{
  		global $sourcedir, $smcFunc, $user_profile;

@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Template for browsing the mail queue.
+ */
 function template_browse()
 {
 	global $context, $txt;

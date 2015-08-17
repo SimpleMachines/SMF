@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The template for sending newsletters
+ */
 function template_email_members()
 {
 	global $context, $txt, $scripturl;
@@ -176,6 +179,9 @@ function template_email_members()
 	</script>';
 }
 
+/**
+ * The form for composing a newsletter
+ */
 function template_email_members_compose()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -382,6 +388,9 @@ function template_email_members_compose()
 	</div>';
 }
 
+/**
+ * The page shown while the newsletter is being sent
+ */
 function template_email_members_send()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -440,6 +449,9 @@ function template_email_members_send()
 	</script>';
 }
 
+/**
+ * The settings page.
+ */
 function template_news_lists()
 {
 	global $context, $txt;

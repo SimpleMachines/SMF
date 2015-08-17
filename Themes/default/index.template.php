@@ -164,6 +164,9 @@ function template_html_above()
 		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">';
 }
 
+/**
+ * The upper part of the main template layer. This is the stuff that shows above the main forum content.
+ */
 function template_body_above()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -325,6 +328,9 @@ function template_body_above()
 			<div id="main_content_section">';
 }
 
+/**
+ * The stuff shown immediately below the main content, including the footer
+ */
 function template_body_below()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -360,6 +366,9 @@ function template_body_below()
 
 }
 
+/**
+ * This shows any deferred JavaScript and closes out the HTML
+ */
 function template_html_below()
 {
 	// load in any javascipt that could be deferred to the end of the page
@@ -372,7 +381,8 @@ function template_html_below()
 
 /**
  * Show a linktree. This is that thing that shows "My Community | General Category | General Discussion"..
- * @param bool $force_show = false
+ *
+ * @param bool $force_show Whether to force showing it even if settings say otherwise
  */
 function theme_linktree($force_show = false)
 {
@@ -500,9 +510,10 @@ function template_menu()
 
 /**
  * Generate a strip of buttons.
- * @param array $button_strip
- * @param string $direction = ''
- * @param array $strip_options = array()
+ *
+ * @param array $button_strip An array with info for displaying the strip
+ * @param string $direction The direction
+ * @param array $strip_options Options for the button strip
  */
 function template_button_strip($button_strip, $direction = '', $strip_options = array())
 {
@@ -562,6 +573,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		</div>';
 }
 
+/**
+ * The upper part of the maintenance warning box
+ */
 function template_maint_warning_above()
 {
 	global $txt, $context, $scripturl;
@@ -579,6 +593,9 @@ function template_maint_warning_above()
 	</div>';
 }
 
+/**
+ * The lower part of the maintenance warning box.
+ */
 function template_maint_warning_below()
 {
 

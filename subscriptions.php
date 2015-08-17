@@ -288,7 +288,8 @@ $gatewayClass->close();
 /**
  * Log an error then exit
  *
- * @param string $text
+ * @param string $text The error to log
+ * @return void
  */
 function generateSubscriptionError($text)
 {

@@ -10,8 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-
-// This is for stuff above the menu in the personal messages section.
+/**
+ * This is for stuff above the menu in the personal messages section
+ */
 function template_pm_above()
 {
 	global $context, $txt;
@@ -40,7 +41,9 @@ function template_pm_above()
 		</div>';
 }
 
-// Just the end of the index bar, nothing special.
+/**
+ * Just the end of the index bar, nothing special.
+ */
 function template_pm_below()
 {
 	echo '
@@ -91,6 +94,9 @@ function template_pm_popup()
 		</div>';
 }
 
+/**
+ * Shows a particular folder (eg inbox or outbox), all the PMs in it, etc.
+ */
 function template_folder()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
@@ -587,7 +593,9 @@ function template_folder()
 </form>';
 }
 
-// Just list all the personal message subjects - to make templates easier.
+/**
+ * Just list all the personal message subjects - to make templates easier.
+ */
 function template_subject_list()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -701,6 +709,9 @@ function template_subject_list()
 	</div>';
 }
 
+/**
+ * The form for the PM search feature
+ */
 function template_search()
 {
 	global $context, $scripturl, $txt;
@@ -826,6 +837,9 @@ function template_search()
 	</form>';
 }
 
+/**
+ * Displays results from a PM search
+ */
 function template_search_results()
 {
 	global $context, $scripturl, $txt;
@@ -934,6 +948,9 @@ function template_search_results()
 
 }
 
+/**
+ * The form for sending a new PM
+ */
 function template_send()
 {
 	global $context, $options, $scripturl, $modSettings, $txt;
@@ -1315,7 +1332,9 @@ function template_send()
 		</script>';
 }
 
-// This template asks the user whether they wish to empty out their folder/messages.
+/**
+ * This template asks the user whether they wish to empty out their folder/messages.
+ */
 function template_ask_delete()
 {
 	global $context, $scripturl, $txt;
@@ -1330,7 +1349,9 @@ function template_ask_delete()
 		</div>';
 }
 
-// This template asks the user what messages they want to prune.
+/**
+ * This template asks the user what messages they want to prune.
+ */
 function template_prune()
 {
 	global $context, $scripturl, $txt;
@@ -1355,7 +1376,9 @@ function template_prune()
 	</div>';
 }
 
-// Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
+/**
+ * Here we allow the user to setup labels, remove labels and change rules for labels (i.e, do quite a bit)
+ */
 function template_labels()
 {
 	global $context, $scripturl, $txt;
@@ -1440,7 +1463,9 @@ function template_labels()
 	</form><br>';
 }
 
-// Template for reporting a personal message.
+/**
+ * Template for reporting a personal message.
+ */
 function template_report_message()
 {
 	global $context, $txt, $scripturl;
@@ -1492,7 +1517,9 @@ function template_report_message()
 	</form>';
 }
 
-// Little template just to say "Yep, it's been submitted"
+/**
+ * Little template just to say "Yep, it's been submitted"
+ */
 function template_report_message_complete()
 {
 	global $context, $txt, $scripturl;
@@ -1507,7 +1534,9 @@ function template_report_message_complete()
 		</div>';
 }
 
-// Manage rules.
+/**
+ * Manage rules.
+ */
 function template_rules()
 {
 	global $context, $txt, $scripturl;
@@ -1580,7 +1609,9 @@ function template_rules()
 
 }
 
-// Template for adding/editing a rule.
+/**
+ * Template for adding/editing a rule.
+ */
 function template_add_rule()
 {
 	global $context, $txt, $scripturl;
@@ -1880,7 +1911,9 @@ function template_add_rule()
 		</script>';
 }
 
-// Template for showing all the PM drafts of the user.
+/**
+ * Template for showing all of a user's PM drafts.
+ */
 function template_showPMDrafts()
 {
 	global $context, $scripturl, $txt;

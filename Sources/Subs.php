@@ -47,223 +47,223 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 	switch ($type)
 	{
-	case 'member':
-		$changes = array(
-			'memberlist_updated' => time(),
-		);
+		case 'member':
+			$changes = array(
+				'memberlist_updated' => time(),
+			);
 
-		// #1 latest member ID, #2 the real name for a new registration.
-		if (is_numeric($parameter1))
-		{
-			$changes['latestMember'] = $parameter1;
-			$changes['latestRealName'] = $parameter2;
+			// #1 latest member ID, #2 the real name for a new registration.
+			if (is_numeric($parameter1))
+			{
+				$changes['latestMember'] = $parameter1;
+				$changes['latestRealName'] = $parameter2;
 
-			updateSettings(array('totalMembers' => true), true);
-		}
+				updateSettings(array('totalMembers' => true), true);
+			}
 
-		// We need to calculate the totals.
-		else
-		{
-			// Update the latest activated member (highest id_member) and count.
-			$result = $smcFunc['db_query']('', '
+			// We need to calculate the totals.
+			else
+			{
+				// Update the latest activated member (highest id_member) and count.
+				$result = $smcFunc['db_query']('', '
 				SELECT COUNT(*), MAX(id_member)
 				FROM {db_prefix}members
 				WHERE is_activated = {int:is_activated}',
-				array(
-					'is_activated' => 1,
-				)
-			);
-			list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'is_activated' => 1,
+					)
+				);
+				list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 
-			// Get the latest activated member's display name.
-			$result = $smcFunc['db_query']('', '
+				// Get the latest activated member's display name.
+				$result = $smcFunc['db_query']('', '
 				SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
 				LIMIT 1',
-				array(
-					'id_member' => (int) $changes['latestMember'],
-				)
-			);
-			list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'id_member' => (int) $changes['latestMember'],
+					)
+				);
+				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 
-			if (!empty($modSettings['registration_method']))
-			{
-				// Are we using registration approval?
-				if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+				if (!empty($modSettings['registration_method']))
 				{
-					// Update the amount of members awaiting approval
-					$result = $smcFunc['db_query']('', '
+					// Are we using registration approval?
+					if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+					{
+						// Update the amount of members awaiting approval
+						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
-						array(
-							'activation_status' => array(3, 4),
-						)
-					);
-					list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-					$smcFunc['db_free_result']($result);
-				}
+							array(
+								'activation_status' => array(3, 4),
+							)
+						);
+						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+						$smcFunc['db_free_result']($result);
+					}
 
-				// What about unapproved COPPA registrations?
-				if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
-				{
-					$result = $smcFunc['db_query']('', '
+					// What about unapproved COPPA registrations?
+					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+					{
+						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated = {int:coppa_approval}',
-						array(
-							'coppa_approval' => 5,
-						)
-					);
-					list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
-					$smcFunc['db_free_result']($result);
+							array(
+								'coppa_approval' => 5,
+							)
+						);
+						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
+						$smcFunc['db_free_result']($result);
 
-					// Add this to the number of unapproved members
-					if (!empty($changes['unapprovedMembers']))
-						$changes['unapprovedMembers'] += $coppa_approvals;
-					else
-						$changes['unapprovedMembers'] = $coppa_approvals;
+						// Add this to the number of unapproved members
+						if (!empty($changes['unapprovedMembers']))
+							$changes['unapprovedMembers'] += $coppa_approvals;
+						else
+							$changes['unapprovedMembers'] = $coppa_approvals;
+					}
 				}
 			}
-		}
-		updateSettings($changes);
-		break;
+			updateSettings($changes);
+			break;
 
-	case 'message':
-		if ($parameter1 === true && $parameter2 !== null)
-			updateSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
-		else
-		{
-			// SUM and MAX on a smaller table is better for InnoDB tables.
-			$result = $smcFunc['db_query']('', '
+		case 'message':
+			if ($parameter1 === true && $parameter2 !== null)
+				updateSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
+			else
+			{
+				// SUM and MAX on a smaller table is better for InnoDB tables.
+				$result = $smcFunc['db_query']('', '
 				SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
 				FROM {db_prefix}boards
 				WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					AND id_board != {int:recycle_board}' : ''),
-				array(
-					'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
-					'blank_redirect' => '',
-				)
-			);
-			$row = $smcFunc['db_fetch_assoc']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+						'blank_redirect' => '',
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($result);
+				$smcFunc['db_free_result']($result);
 
-			updateSettings(array(
-				'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
-				'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
-			));
-		}
-		break;
+				updateSettings(array(
+					'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
+					'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
+				));
+			}
+			break;
 
-	case 'subject':
-		// Remove the previous subject (if any).
-		$smcFunc['db_query']('', '
+		case 'subject':
+			// Remove the previous subject (if any).
+			$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic = {int:id_topic}',
-			array(
-				'id_topic' => (int) $parameter1,
-			)
-		);
+				array(
+					'id_topic' => (int) $parameter1,
+				)
+			);
 
-		// Insert the new subject.
-		if ($parameter2 !== null)
-		{
-			$parameter1 = (int) $parameter1;
-			$parameter2 = text2words($parameter2);
+			// Insert the new subject.
+			if ($parameter2 !== null)
+			{
+				$parameter1 = (int) $parameter1;
+				$parameter2 = text2words($parameter2);
 
-			$inserts = array();
-			foreach ($parameter2 as $word)
-				$inserts[] = array($word, $parameter1);
+				$inserts = array();
+				foreach ($parameter2 as $word)
+					$inserts[] = array($word, $parameter1);
 
-			if (!empty($inserts))
-				$smcFunc['db_insert']('ignore',
-					'{db_prefix}log_search_subjects',
-					array('word' => 'string', 'id_topic' => 'int'),
-					$inserts,
-					array('word', 'id_topic')
-				);
-		}
-		break;
+				if (!empty($inserts))
+					$smcFunc['db_insert']('ignore',
+						'{db_prefix}log_search_subjects',
+						array('word' => 'string', 'id_topic' => 'int'),
+						$inserts,
+						array('word', 'id_topic')
+					);
+			}
+			break;
 
-	case 'topic':
-		if ($parameter1 === true)
-			updateSettings(array('totalTopics' => true), true);
-		else
-		{
-			// Get the number of topics - a SUM is better for InnoDB tables.
-			// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
-			$result = $smcFunc['db_query']('', '
+		case 'topic':
+			if ($parameter1 === true)
+				updateSettings(array('totalTopics' => true), true);
+			else
+			{
+				// Get the number of topics - a SUM is better for InnoDB tables.
+				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
+				$result = $smcFunc['db_query']('', '
 				SELECT SUM(num_topics + unapproved_topics) AS total_topics
 				FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 				WHERE id_board != {int:recycle_board}' : ''),
-				array(
-					'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
-				)
-			);
-			$row = $smcFunc['db_fetch_assoc']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($result);
+				$smcFunc['db_free_result']($result);
 
-			updateSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
-		}
-		break;
+				updateSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
+			}
+			break;
 
-	case 'postgroups':
-		// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-		if ($parameter2 !== null && !in_array('posts', $parameter2))
-			return;
+		case 'postgroups':
+			// Parameter two is the updated columns: we should check to see if we base groups off any of these.
+			if ($parameter2 !== null && !in_array('posts', $parameter2))
+				return;
 
-		$postgroups = cache_get_data('updateStats:postgroups', 360);
-		if ($postgroups == null || $parameter1 == null)
-		{
-			// Fetch the postgroups!
-			$request = $smcFunc['db_query']('', '
+			$postgroups = cache_get_data('updateStats:postgroups', 360);
+			if ($postgroups == null || $parameter1 == null)
+			{
+				// Fetch the postgroups!
+				$request = $smcFunc['db_query']('', '
 				SELECT id_group, min_posts
 				FROM {db_prefix}membergroups
 				WHERE min_posts != {int:min_posts}',
-				array(
-					'min_posts' => -1,
-				)
-			);
-			$postgroups = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$postgroups[$row['id_group']] = $row['min_posts'];
-			$smcFunc['db_free_result']($request);
+					array(
+						'min_posts' => -1,
+					)
+				);
+				$postgroups = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$postgroups[$row['id_group']] = $row['min_posts'];
+				$smcFunc['db_free_result']($request);
 
-			// Sort them this way because if it's done with MySQL it causes a filesort :(.
-			arsort($postgroups);
+				// Sort them this way because if it's done with MySQL it causes a filesort :(.
+				arsort($postgroups);
 
-			cache_put_data('updateStats:postgroups', $postgroups, 360);
-		}
+				cache_put_data('updateStats:postgroups', $postgroups, 360);
+			}
 
-		// Oh great, they've screwed their post groups.
-		if (empty($postgroups))
-			return;
+			// Oh great, they've screwed their post groups.
+			if (empty($postgroups))
+				return;
 
-		// Set all membergroups from most posts to least posts.
-		$conditions = '';
-		$lastMin = 0;
-		foreach ($postgroups as $id => $min_posts)
-		{
-			$conditions .= '
+			// Set all membergroups from most posts to least posts.
+			$conditions = '';
+			$lastMin = 0;
+			foreach ($postgroups as $id => $min_posts)
+			{
+				$conditions .= '
 					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
-			$lastMin = $min_posts;
-		}
+				$lastMin = $min_posts;
+			}
 
-		// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-		$smcFunc['db_query']('', '
+			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
+			$smcFunc['db_query']('', '
 			UPDATE {db_prefix}members
 			SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
 				END' . ($parameter1 != null ? '
 			WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
-			array(
-				'members' => $parameter1,
-			)
-		);
-		break;
+				array(
+					'members' => $parameter1,
+				)
+			);
+			break;
 
 		default:
 			trigger_error('updateStats(): Invalid statistic type \'' . $type . '\'', E_USER_NOTICE);
@@ -900,6 +900,59 @@ function permute($array)
 }
 
  /**
+ * Lexicographic permutation function.
+ *
+ * This is a special type of permutation which involves the order of the set. The next
+ * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
+ * set larger than the current one.
+ *
+ * The benefit of this over a recursive solution is that the whole list does NOT need
+ * to be held in memory. So it's actually possible to run 30! permutations without
+ * causing a memory overflow.
+ *
+ * Source: O'Reilly PHP Cookbook
+ *
+ * @param mixed[] $p
+ * @param int $size
+ *
+ * @return mixed[] the next permutation of the passed array $p
+ */
+function pc_next_permutation($p, $size)
+{
+	// Slide down the array looking for where we're smaller than the next guy
+	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
+	{
+	}
+
+	// If this doesn't occur, we've finished our permutations
+	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
+	if ($i === -1)
+	{
+		return false;
+	}
+
+	// Slide down the array looking for a bigger number than what we found before
+	for ($j = $size; $p[$j] <= $p[$i]; --$j)
+	{
+	}
+
+	// Swap them
+	$tmp = $p[$i];
+	$p[$i] = $p[$j];
+	$p[$j] = $tmp;
+
+	// Now reverse the elements in between by swapping the ends
+	for ($i, $j = $size; $i < $j; $i, --$j)
+	{
+		$tmp = $p[$i];
+		$p[$i] = $p[$j];
+		$p[$j] = $tmp;
+	}
+
+	return $p;
+}
+
+/**
  * Lexicographic permutation function.
  *
  * This is a special type of permutation which involves the order of the set. The next
@@ -3485,7 +3538,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 			WHERE id_attach = {int:id_attach}',
 			array(
 				'id_attach' => $attachment_id,
-		));
+			));
 
 		if ($smcFunc['db_num_rows']($request) === 0)
 			return false;
@@ -4029,15 +4082,15 @@ function setupMenuContext()
 						}
 					}
 
-					// Does this button have its own icon?
-					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']))
-						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
-					else
-						$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
+				// Does this button have its own icon?
+				if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
+					$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
+				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
+					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
+				elseif (isset($button['icon']))
+					$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+				else
+					$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}
@@ -4518,7 +4571,7 @@ function prepareLikesContext($topic)
  *
  * @param string $string
  * @return string $string
-*/
+ */
 function sanitizeMSCutPaste($string)
 {
 	global $context;
@@ -4582,7 +4635,7 @@ function sanitizeMSCutPaste($string)
  *
  * @param array $matches
  * @return string $string
-*/
+ */
 function replaceEntities__callback($matches)
 {
 	global $context;
@@ -4642,7 +4695,7 @@ function replaceEntities__callback($matches)
  *
  * @param array $matches
  * @return string $string
-*/
+ */
 function fixchar__callback($matches)
 {
 	if (!isset($matches[1]))
@@ -4676,7 +4729,7 @@ function fixchar__callback($matches)
  *
  * @param array $matches
  * @return string $string
-*/
+ */
 function entity_fix__callback($matches)
 {
 	if (!isset($matches[2]))
@@ -4732,10 +4785,10 @@ function get_gravatar_url($email_address)
 }
 
 /**
-* Get a list of timezoned.
-*
-* @return array
-*/
+ * Get a list of timezoned.
+ *
+ * @return array
+ */
 function smf_list_timezones()
 {
 	return array(

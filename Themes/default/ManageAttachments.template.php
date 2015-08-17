@@ -10,11 +10,16 @@
  * @version 2.1 Beta 2
  */
 
-// Template template wraps around the simple settings page to add javascript functionality.
+/**
+ * This template wraps around the simple settings page to add javascript functionality.
+ */
 function template_avatar_settings_above()
 {
 }
 
+/**
+ * JavaScript to be output below the simple settings page
+ */
 function template_avatar_settings_below()
 {
 	echo '
@@ -31,6 +36,9 @@ function template_avatar_settings_below()
 ';
 }
 
+/**
+ * The attachment maintenance page
+ */
 function template_maintenance()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -177,6 +185,9 @@ function template_maintenance()
 			<br class="clear">';
 }
 
+/**
+ * The file repair page
+ */
 function template_attachment_repair()
 {
 	global $context, $txt, $scripturl;
@@ -241,6 +252,9 @@ function template_attachment_repair()
 	}
 }
 
+/**
+ * The page that handles managing attachment paths.
+ */
 function template_attachment_paths()
 {
 	global $modSettings;

@@ -756,7 +756,7 @@ function MessageIndex()
 }
 
 /**
- * Allows for moderation from the message index.
+ * Handles moderation from the message index.
  * @todo refactor this...
  */
 function QuickModeration()

@@ -133,7 +133,8 @@ function ModifySettings()
  * - Contains the actual array of settings to show from Settings.php.
  * - Accessed from ?action=admin;area=serversettings;sa=general.
  *
- * @param $return_config
+ * @param bool $return_config Whether to return the $config_vars array (for pagination purposes)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyGeneralSettings($return_config = false)
 {
@@ -208,7 +209,8 @@ $(function()
  * - Uses the edit_settings administration area.
  * - Accessed from ?action=admin;area=serversettings;sa=database.
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyDatabaseSettings($return_config = false)
 {
@@ -255,7 +257,8 @@ function ModifyDatabaseSettings($return_config = false)
 /**
  * This function handles cookies settings modifications.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyCookieSettings($return_config = false)
 {
@@ -376,7 +379,8 @@ function ModifyCookieSettings($return_config = false)
 /**
  * Settings really associated with general security aspects.
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyGeneralSecuritySettings($return_config = false)
 {
@@ -432,7 +436,8 @@ function ModifyGeneralSecuritySettings($return_config = false)
 /**
  * Simply modifying cache functions
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyCacheSettings($return_config = false)
 {
@@ -522,7 +527,8 @@ function ModifyCacheSettings($return_config = false)
 /**
  * Allows to edit load balancing settings.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyLoadBalancingSettings($return_config = false)
 {
@@ -646,7 +652,7 @@ function ModifyLoadBalancingSettings($return_config = false)
  * 'max' => maximum allowed value (for int/float)
  * 'step' => how much to increment/decrement the value by (only for int/float - mostly used for float values).
  *
- * @param array $config_vars
+ * @param array $config_vars An array of configuration variables
  */
 function prepareServerSettingsContext(&$config_vars)
 {
@@ -739,7 +745,7 @@ function prepareServerSettingsContext(&$config_vars)
  * Helper function, it sets up the context for database settings.
  * @todo see rev. 10406 from 2.1-requests
  *
- * @param array $config_vars
+ * @param array $config_vars An array of configuration variables
  */
 function prepareDBSettingContext(&$config_vars)
 {
@@ -971,7 +977,7 @@ function prepareDBSettingContext(&$config_vars)
  * - Requires the admin_forum permission.
  * - Contains arrays of the types of data to save into Settings.php.
  *
- * @param $config_vars
+ * @param $config_vars An array of configuration variables
  */
 function saveSettings(&$config_vars)
 {
@@ -1104,7 +1110,7 @@ function saveSettings(&$config_vars)
  * Helper function for saving database settings.
  * @todo see rev. 10406 from 2.1-requests
  *
- * @param array $config_vars
+ * @param array $config_vars An array of configuration variables
  */
 function saveDBSettings(&$config_vars)
 {

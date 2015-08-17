@@ -159,7 +159,7 @@ function AutoTask()
 }
 
 /**
- * Function to sending out approval notices to moderators etc.
+ * Function for sending out approval notices to moderators etc.
  */
 function scheduled_approval_notification()
 {
@@ -808,10 +808,10 @@ function scheduled_weekly_digest()
 /**
  * Send a group of emails from the mail queue.
  *
- * @param type $number the number to send each loop through
- * @param type $override_limit bypassing our limit flaf
- * @param type $force_send
- * @return boolean
+ * @param bool|int $number The number to send each loop through or false to use the standard limits
+ * @param bool $override_limit Whether to bypass the limit
+ * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
+ * @return bool Whether things were sent
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
@@ -1012,8 +1012,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 /**
  * Calculate the next time the passed tasks should be triggered.
  *
- * @param type $tasks
- * @param type $forceUpdate
+ * @param string|array $tasks The ID of a single task or an array of tasks
+ * @param bool $forceUpdate Whether to force the tasks to run now
  */
 function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 {
@@ -1081,10 +1081,10 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 /**
  * Simply returns a time stamp of the next instance of these time parameters.
  *
- * @param int $regularity
- * @param type $unit
- * @param type $offset
- * @return int
+ * @param int $regularity The regularity
+ * @param string $unit What unit are we using - 'm' for minutes, 'd' for days, 'w' for weeks or anything else for seconds
+ * @param int $offset The offset
+ * @return int The timestamp for the specified time
  */
 function next_time($regularity, $unit, $offset)
 {

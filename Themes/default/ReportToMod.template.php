@@ -25,6 +25,9 @@
 		sc: the session id, or $context['session_id'].
 */
 
+/**
+ * The main "report this to the moderator" page
+ */
 function template_main()
 {
 	global $context, $txt;

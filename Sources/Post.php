@@ -27,7 +27,7 @@ if (!defined('SMF'))
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors holds any errors found tyring to post
+ *  @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {

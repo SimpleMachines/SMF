@@ -21,7 +21,7 @@ if (!defined('SMF'))
  * Check if the current directory is still valid or not.
  * If not creates the new directory
  *
- * @return (bool) false if any error occurred
+ * @return void|bool False if any error occurred
  */
 function automanage_attachments_check_directory()
 {
@@ -121,9 +121,9 @@ function automanage_attachments_check_directory()
 /**
  * Creates a directory
  *
- * @param $updir: the directory to be created
+ * @param string $updir The directory to be created
  *
- * @return (bool) false on errors
+ * @return bool False on errors
  */
 function automanage_attachments_create_directory($updir)
 {
@@ -208,7 +208,7 @@ function automanage_attachments_create_directory($updir)
  * Called when a directory space limit is reached.
  * Creates a new directory and increments the directory suffix number.
  *
- * @return (bool) false on erros
+ * @return void|bool False on errors, true if successful, nothing if auto-management of attachments is disabled
  */
 function automanage_attachments_by_space()
 {
@@ -256,9 +256,9 @@ function automanage_attachments_by_space()
 /**
  * Split a path into a list of all directories and subdirectories
  *
- * @param $directory a path
+ * @param string $directory A path
  *
- * @return (mixed) an array of all the directories and subdirectories or false on failure
+ * @return array|bool An array of all the directories and subdirectories or false on failure
  */
 function get_directory_tree_elements ($directory)
 {
@@ -284,10 +284,10 @@ function get_directory_tree_elements ($directory)
 /**
  * Return the first part of a path (i.e. c:\ or / + the first directory), used by automanage_attachments_create_directory
  *
- * @param $tree an array
- * @param $count the number of elements in $tree
+ * @param array $tree An array
+ * @param int $count The number of elements in $tree
  *
- * @return (string)
+ * @return string|bool The first part of the path or false on error
  */
 function attachments_init_dir (&$tree, &$count)
 {
@@ -488,12 +488,14 @@ function processAttachments()
  * Performs various checks on an uploaded file.
  * - Requires that $_SESSION['temp_attachments'][$attachID] be properly populated.
  *
- * @param $attachID
+ * @param int $attachID The ID of the attachment
+ * @return bool Whether the attachment is OK
  */
 function attachmentChecks($attachID)
 {
 	global $modSettings, $context, $sourcedir, $smcFunc;
 
+	// @todo Fix the typo
 	// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
 	if ( empty($_SESSION['temp_attachments'][$attachID]))
 		$errror = '$_SESSION[\'temp_attachments\'][$attachID]';
@@ -668,7 +670,8 @@ function attachmentChecks($attachID)
  * - Renames the temporary file.
  * - Creates a thumbnail if the file is an image and the option enabled.
  *
- * @param array $attachmentOptions
+ * @param array $attachmentOptions An array of attachment options
+ * @return bool Whether the attachment was created successfully
  */
 function createAttachment(&$attachmentOptions)
 {

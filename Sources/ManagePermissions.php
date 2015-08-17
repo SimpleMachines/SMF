@@ -968,7 +968,8 @@ function ModifyMembergroup2()
 /**
  * A screen to set some general settings for permissions.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */
 function GeneralPermissionSettings($return_config = false)
 {
@@ -1083,9 +1084,9 @@ function GeneralPermissionSettings($return_config = false)
  * Set the permission level for a specific profile, group, or group for a profile.
  * @internal
  *
- * @param string $level
- * @param int $group
- * @param mixed $profile = null, int expected
+ * @param string $level The level ('restrict', 'standard', etc.)
+ * @param int $group The group to set the permission for
+ * @param string|int $profile The ID of the permissions profile or 'null' if we're setting it for a group
  */
 function setPermissionLevel($level, $group, $profile = 'null')
 {
@@ -1689,8 +1690,8 @@ function loadAllPermissions()
  * This function is used by several settings screens to set specific permissions.
  * @internal
  *
- * @param array $permissions
- * @param array $excluded_groups = array()
+ * @param array $permissions The permissions to display inline
+ * @param array $excluded_groups The IDs of one or more groups to exclude
  *
  * @uses ManagePermissions language
  * @uses ManagePermissions template.
@@ -1790,7 +1791,7 @@ function init_inline_permissions($permissions, $excluded_groups = array())
  * The function is called by templates to show a list of permissions settings.
  * Calls the template function template_inline_permissions().
  *
- * @param string $permission
+ * @param string $permission The permission to display inline
  */
 function theme_inline_permissions($permission)
 {
@@ -1806,7 +1807,7 @@ function theme_inline_permissions($permission)
  * Save the permissions of a form containing inline permissions.
  * @internal
  *
- * @param array $permissions
+ * @param array $permissions The permissions to save
  */
 function save_inline_permissions($permissions)
 {
@@ -2053,8 +2054,9 @@ function EditPermissionProfiles()
 /**
  * This function updates the permissions of any groups based off this group.
  *
- * @param mixed $parents (array or int)
- * @param mixed $profile = null, int expected
+ * @param null|array $parents The parent groups
+ * @param null|int $profile the ID of a permissions profile to update
+ * @return void|false Returns nothing if successful or false if there are no child groups to update
  */
 function updateChildPermissions($parents, $profile = null)
 {

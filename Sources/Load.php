@@ -18,7 +18,6 @@ if (!defined('SMF'))
 
 /**
  * Load the $modSettings array.
- *
  */
 function reloadSettings()
 {
@@ -962,7 +961,6 @@ function loadBoard()
 
 /**
  * Load this user's permissions.
- *
  */
 function loadPermissions()
 {
@@ -1465,7 +1463,7 @@ function loadMemberContext($user, $display_custom_fields = false)
  * Loads the user's custom profile fields
  *
  * @param integer|array $users A single user ID or an array of user IDs
- * @param string|array $param Either a string or an array of strings with profile field names
+ * @param string|array $params Either a string or an array of strings with profile field names
  * @return array|boolean An array of data about the fields and their values or false if nothing was loaded
  */
 function loadMemberCustomFields($users, $params)
@@ -1535,8 +1533,7 @@ function loadMemberCustomFields($users, $params)
 
 /**
  * Loads information about what browser the user is viewing with and places it in $context
- *  - uses the class from Class-BrowserDetect.php
- *
+ *  - uses the class from {@link Class-BrowserDetect.php}
  */
 function detectBrowser()
 {
@@ -1550,6 +1547,7 @@ function detectBrowser()
  *
  * Wrapper function for detectBrowser
  * @param string $browser The browser we are checking for.
+ * @return bool Whether or not the current browser is what we're looking for
 */
 function isBrowser($browser)
 {
@@ -2144,7 +2142,7 @@ function loadTheme($id_theme = 0, $initialize = true)
  * @param string $template_name The name of the template to load
  * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
  * @param bool $fatal If true, dies with an error message if the template cannot be found
- * @return boolean True if the template was loaded, false otherwise
+ * @return boolean Whether or not the template was loaded
  */
 function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
 {
@@ -2225,7 +2223,7 @@ function loadTemplate($template_name, $style_sheets = array(), $fatal = true)
  * @todo get rid of reading $_REQUEST directly
  *
  * @param string $sub_template_name The name of the sub-template to load
- * @param bool Whether to die with an error if the sub-template can't be loaded
+ * @param bool $fatal Whether to die with an error if the sub-template can't be loaded
  */
 function loadSubTemplate($sub_template_name, $fatal = false)
 {
@@ -2308,6 +2306,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
  * - all code added with this function is added to the same <style> tag so do make sure your css is valid!
  *
  * @param string $css Some css code
+ * @return void|bool Adds the CSS to the $context['css_header'] array or returns if no CSS is specified
  */
 function addInlineCss($css)
 {
@@ -2394,7 +2393,8 @@ function addJavascriptVar($key, $value, $escape = false)
  * - all code added with this function is added to the same <script> tag so do make sure your JS is clean!
  *
  * @param string $javascript Some JS code
- * @param bool Whether the script should load in <head> or before the closing <html> tag
+ * @param bool $defer Whether the script should load in <head> or before the closing <html> tag
+ * @return void|bool Adds the code to one of the $context['javascript_inline'] arrays or returns if no JS was specified
  */
 function addInlineJavascript($javascript, $defer = false)
 {
@@ -3291,7 +3291,7 @@ function get_memcached_server($level = 3)
  * - filename The attachment filename
  *
  * @param array $data An array of raw info
- * @return array
+ * @return array An array of avatar data
  */
 function set_avatar_data($data = array())
 {

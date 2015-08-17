@@ -23,14 +23,14 @@ if (!defined('SMF'))
 class paypal_display
 {
 	/**
-	 * Name of this payment gateway
+	 * @var string Name of this payment gateway
 	 */
 	public $title = 'PayPal';
 
 	/**
 	 * Return the admin settings for this gateway
 	 *
-	 * @return array
+	 * @return array An array of settings data
 	 */
 	public function getGatewaySettings()
 	{
@@ -53,7 +53,7 @@ class paypal_display
 	/**
 	 * Is this enabled for new payments?
 	 *
-	 * @return boolean
+	 * @return boolean Whether this gateway is enabled (for PayPal, whether the PayPal email is set)
 	 */
 	public function gatewayEnabled()
 	{
@@ -68,12 +68,12 @@ class paypal_display
 	 * Called from Profile-Actions.php to return a unique set of fields for the given gateway
 	 * plus all the standard ones for the subscription form
 	 *
-	 * @param type $unique_id
-	 * @param type $sub_data
-	 * @param type $value
-	 * @param type $period
-	 * @param type $return_url
-	 * @return string
+	 * @param string $unique_id The unique ID of this gateway
+	 * @param array $sub_data Subscription data
+	 * @param int|float $value The amount of the subscription
+	 * @param string $period
+	 * @param string $return_url The URL to return the user to after processing the payment
+	 * @return array An array of data for the form
 	 */
 	public function fetchGatewayFields($unique_id, $sub_data, $value, $period, $return_url)
 	{
@@ -146,7 +146,7 @@ class paypal_payment
 	/**
 	 * This function returns true/false for whether this gateway thinks the data is intended for it.
 	 *
-	 * @return boolean
+	 * @return boolean Whether this gateway things the data is valid
 	 */
 	public function isValid()
 	{
@@ -178,7 +178,7 @@ class paypal_payment
 	 *
 	 * If valid returns the subscription and member IDs we are going to process if it passes
 	 *
-	 * @return string
+	 * @return string A string containing the subscription ID and member ID, separated by a +
 	 */
 	public function precheck()
 	{
@@ -288,7 +288,7 @@ class paypal_payment
 	/**
 	 * Is this a refund?
 	 *
-	 * @return boolean
+	 * @return boolean Whether this is a refund
 	 */
 	public function isRefund()
 	{
@@ -301,7 +301,7 @@ class paypal_payment
 	/**
 	 * Is this a subscription?
 	 *
-	 * @return boolean
+	 * @return boolean Whether this is a subscription
 	 */
 	public function isSubscription()
 	{
@@ -314,7 +314,7 @@ class paypal_payment
 	/**
 	 * Is this a normal payment?
 	 *
-	 * @return boolean
+	 * @return boolean Whether this is a normal payment
 	 */
 	public function isPayment()
 	{
@@ -327,7 +327,7 @@ class paypal_payment
 	/**
 	 * Is this a cancellation?
 	 *
-	 * @return boolean
+	 * @return boolean Whether this is a cancellation
 	 */
 	public function isCancellation()
 	{
@@ -343,7 +343,9 @@ class paypal_payment
 	/**
 	 * Things to do in the event of a cancellation
 	 *
-	 * @return void
+	 * @param string $subscription_id
+	 * @param int $member_id
+	 * @param array $subscription_info
 	 */
 	public function performCancel($subscription_id, $member_id, $subscription_info)
 	{
@@ -356,7 +358,7 @@ class paypal_payment
 	/**
 	 * How much was paid?
 	 *
-	 * @return float
+	 * @return float The amount paid
 	 */
 	public function getCost()
 	{
@@ -392,7 +394,8 @@ class paypal_payment
 	/**
 	 * A private function to find out the subscription details.
 	 *
-	 * @return boolean
+	 * @access private
+	 * @return boolean|void False on failure, otherwise just sets $_POST['item_number']
 	 */
 	private function _findSubscription()
 	{

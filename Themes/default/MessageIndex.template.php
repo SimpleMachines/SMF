@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main messageindex.
+ */
 function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
@@ -363,6 +366,9 @@ function template_main()
 	template_topic_legend();
 }
 
+/**
+ * Shows a legend for topic icons.
+ */
 function template_topic_legend()
 {
 	global $context, $settings, $txt, $modSettings;

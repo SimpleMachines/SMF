@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Template for showing recent posts
+ */
 function template_recent()
 {
 	global $context, $txt, $scripturl;
@@ -77,6 +80,9 @@ function template_recent()
 	</div>';
 }
 
+/**
+ * Template for showing unread posts
+ */
 function template_unread()
 {
 	global $context, $settings, $txt, $scripturl, $modSettings;
@@ -215,6 +221,9 @@ function template_unread()
 		template_topic_legend();
 }
 
+/**
+ * Template for showing unread replies (eg new replies to topics you've posted in)
+ */
 function template_replies()
 {
 	global $context, $settings, $txt, $scripturl, $modSettings;

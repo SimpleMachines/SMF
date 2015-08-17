@@ -303,7 +303,8 @@ function EditHoliday()
 /**
  * Show and allow to modify calendar settings. Obviously.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns $config_vars if $return_config is true
  */
 function ModifyCalendarSettings($return_config = false)
 {

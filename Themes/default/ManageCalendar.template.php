@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Editing or adding holidays.
+/**
+ * Editing or adding holidays.
+ */
 function template_edit_holiday()
 {
 	global $context, $scripturl, $txt, $modSettings;

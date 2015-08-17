@@ -12,8 +12,14 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class ApprovePost_Notify_Background
+ */
 class ApprovePost_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+	 * @return bool
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $scripturl, $modSettings, $language;

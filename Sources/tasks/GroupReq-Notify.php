@@ -14,8 +14,14 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class GroupReq_Notify_Background
+ */
 class GroupReq_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+	 * @return bool
+	 */
 	public function execute()
  	{
  		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;

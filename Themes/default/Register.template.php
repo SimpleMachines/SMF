@@ -45,7 +45,9 @@ function template_registration_agreement()
 
 }
 
-// Before registering - get their information.
+/**
+ * Before registering - get their information.
+ */
 function template_registration_form()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -320,7 +322,9 @@ function template_registration_form()
 		</script>';
 }
 
-// After registration... all done ;).
+/**
+ * After registration... all done ;).
+ */
 function template_after()
 {
 	global $context;
@@ -337,7 +341,9 @@ function template_after()
 		</div>';
 }
 
-// Template for giving instructions about COPPA activation.
+/**
+ * Template for giving instructions about COPPA activation.
+ */
 function template_coppa()
 {
 	global $context, $txt, $scripturl;
@@ -384,7 +390,9 @@ function template_coppa()
 			</div>';
 }
 
-// An easily printable form for giving permission to access the forum for a minor.
+/**
+ * An easily printable form for giving permission to access the forum for a minor.
+ */
 function template_coppa_form()
 {
 	global $context, $txt;
@@ -415,7 +423,9 @@ function template_coppa_form()
 		<br>';
 }
 
-// Show a window containing the spoken verification code.
+/**
+ * Show a window containing the spoken verification code.
+ */
 function template_verification_sound()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -458,6 +468,9 @@ function template_verification_sound()
 </html>';
 }
 
+/**
+ * The template for the form allowing an admin to register a user from the admin center.
+ */
 function template_admin_register()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -559,7 +572,9 @@ function template_admin_register()
 	<br class="clear">';
 }
 
-// Form for editing the agreement shown for people registering to the forum.
+/**
+ * Form for editing the agreement shown for people registering to the forum.
+ */
 function template_edit_agreement()
 {
 	global $context, $scripturl, $txt;
@@ -637,6 +652,9 @@ function template_edit_agreement()
 		</div>';
 }
 
+/**
+ * Template for editing reserved words.
+ */
 function template_edit_reserved_words()
 {
 	global $context, $scripturl, $txt;

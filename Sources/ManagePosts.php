@@ -177,7 +177,8 @@ function SetCensor()
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=posts.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  * @uses Admin template, edit_post_settings sub-template.
  */
 function ModifyPostSettings($return_config = false)
@@ -273,7 +274,8 @@ function ModifyPostSettings($return_config = false)
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=topics.
 
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns $config_vars if $return_config is true
  * @uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyTopicSettings($return_config = false)
@@ -345,7 +347,8 @@ function ModifyTopicSettings($return_config = false)
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=postsettings;sa=drafts
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  * @uses Admin template, edit_topic_settings sub-template.
  */
 function ModifyDraftSettings($return_config = false)

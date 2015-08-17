@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Choose which type of report to run?
+/**
+ * Choose which type of report to run?
+ */
 function template_report_type()
 {
 	global $context, $scripturl, $txt;
@@ -47,7 +49,9 @@ function template_report_type()
 	</div>';
 }
 
-// This is the standard template for showing reports in.
+/**
+ * This is the standard template for showing reports.
+ */
 function template_main()
 {
 	global $context, $txt;
@@ -135,7 +139,9 @@ function template_main()
 	</div>';
 }
 
-// Header of the print page!
+/**
+ * Header of the print page!
+ */
 function template_print_above()
 {
 	global $context, $settings, $modSettings;
@@ -150,6 +156,9 @@ function template_print_above()
 	<body>';
 }
 
+/**
+ * The main print page
+ */
 function template_print()
 {
 	global $context;
@@ -220,7 +229,9 @@ function template_print()
 	}
 }
 
-// Footer of the print page.
+/**
+ * Footer of the print page.
+ */
 function template_print_below()
 {
 	echo '

@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * This tempate handles displaying a topic
+ */
 function template_main()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -329,6 +332,11 @@ function template_main()
 
 }
 
+/**
+ * Template for displaying a single post.
+ *
+ * @param array $message An array of information about the message to display. Should have 'id' and 'member'. Can also have 'first_new', 'is_ignored' and 'css_class'.
+ */
 function template_single_post($message)
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -829,6 +837,9 @@ function template_single_post($message)
 				<hr class="post_separator">';
 }
 
+/**
+ * The template for displaying the quick reply box.
+ */
 function template_quickreply()
 {
 	global $context, $modSettings, $scripturl, $options, $txt;

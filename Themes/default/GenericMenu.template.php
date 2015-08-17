@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// This contains the html for the side bar of the admin center, which is used for all admin pages.
+/**
+ * This contains the HTML for the menu bar at the top of the admin center.
+ */
 function template_generic_menu_dropdown_above()
 {
 	global $context;
@@ -94,14 +96,20 @@ function template_generic_menu_dropdown_above()
 		template_generic_menu_tabs($menu_context);
 }
 
-// Part of the admin layer - used with admin_above to close the table started in it.
+/**
+ * Part of the admin layer - used with generic_menu_dropdown_above to close the admin content div.
+ */
 function template_generic_menu_dropdown_below()
 {
 	echo '
 				</div>';
 }
 
-// Some code for showing a tabbed view.
+/**
+ * The code for displaying the menu
+ *
+ * @param array $menu_context An array of menu context data
+ */
 function template_generic_menu_tabs(&$menu_context)
 {
 	global $context, $settings, $scripturl, $txt;
