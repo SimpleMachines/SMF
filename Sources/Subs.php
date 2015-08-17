@@ -38,8 +38,8 @@ if (!defined('SMF'))
  *  post-based membergroups in the database (restricted by parameter1).
  *
  * @param string $type Stat type - can be 'member', 'message', 'topic', 'subject' or 'postgroups'
- * @param mixed $parameter1 = null
- * @param mixed $parameter2 = null
+ * @param mixed $parameter1 A parameter for updating the stats
+ * @param mixed $parameter2 A 2nd parameter for updating the stats
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
@@ -286,8 +286,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of integers
- * @param array $data
+ * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
@@ -435,8 +435,8 @@ function updateMemberData($members, $data)
  * - when use_update is true, the value can be true or false to increment
  *  or decrement it, respectively.
  *
- * @param array $changeArray
- * @param bool $update = false
+ * @param array $changeArray An array of info about what we're changing in 'setting' => 'value' format
+ * @param bool $update Whether to use an UPDATE query instead of a REPLACE query
  */
 function updateSettings($changeArray, $update = false)
 {
@@ -676,8 +676,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
  *   for example, it might display "1 234,50".
  * - caches the formatting data from the setting for optimization.
  *
- * @param float $number
- * @param bool $override_decimal_count = false
+ * @param float $number A number
+ * @param bool|int $override_decimal_count If set, will use the specified number of decimal places. Otherwise it's automatically determined
+ * @return string A formatted number
  */
 function comma_format($number, $override_decimal_count = false)
 {
@@ -710,9 +711,10 @@ function comma_format($number, $override_decimal_count = false)
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
  * - performs localization (more than just strftime would do alone.)
  *
- * @param int $log_time
- * @param bool $show_today = true
- * @param string $offset_type = false
+ * @param int $log_time A timestamp
+ * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
+ * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
+ * @return string A formatted timestamp
  */
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
@@ -799,8 +801,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  * - removes the base entities (&lt;, &quot;, etc.) from text.
  * - additionally converts &nbsp; and &#039;.
  *
- * @param string $string
- * @return the string without entities
+ * @param string $string A string
+ * @return string The string without entities
  */
 function un_htmlspecialchars($string)
 {
@@ -830,8 +832,9 @@ function un_htmlspecialchars($string)
  * - avoids trailing entities.
  * - returns the shortened string.
  *
- * @param string $subject
- * @param int $len
+ * @param string $subject The subject
+ * @param int $len How many characters to limit it to
+ * @return string The shortened subject - either the entire subject (if it's <= $len) or the subject shortened to $len characters with "..." appended
  */
 function shorten_subject($subject, $len)
 {
@@ -850,9 +853,9 @@ function shorten_subject($subject, $len)
  *
  * - always applies the offset in the time_offset setting.
  *
- * @param bool $use_user_offset = true if use_user_offset is true, applies the user's offset as well
- * @param int $timestamp = null
- * @return int seconds since the unix epoch
+ * @param bool $use_user_offset Whether to apply the user's offset as well
+ * @param int $timestamp A timestamp (null to use current time)
+ * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
  */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
@@ -872,8 +875,8 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * returns an array containing each permutation.
  *
  * @deprecated since 2.1
- * @param array $array
- * @return array
+ * @param array $array An array
+ * @return array An array containing each permutation
  */
 function permute($array)
 {
@@ -912,63 +915,10 @@ function permute($array)
  *
  * Source: O'Reilly PHP Cookbook
  *
- * @param mixed[] $p
- * @param int $size
+ * @param mixed[] $p An array of permutations
+ * @param int $size The size of our array
  *
- * @return mixed[] the next permutation of the passed array $p
- */
-function pc_next_permutation($p, $size)
-{
-	// Slide down the array looking for where we're smaller than the next guy
-	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
-	{
-	}
-
-	// If this doesn't occur, we've finished our permutations
-	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
-	if ($i === -1)
-	{
-		return false;
-	}
-
-	// Slide down the array looking for a bigger number than what we found before
-	for ($j = $size; $p[$j] <= $p[$i]; --$j)
-	{
-	}
-
-	// Swap them
-	$tmp = $p[$i];
-	$p[$i] = $p[$j];
-	$p[$j] = $tmp;
-
-	// Now reverse the elements in between by swapping the ends
-	for ($i, $j = $size; $i < $j; $i, --$j)
-	{
-		$tmp = $p[$i];
-		$p[$i] = $p[$j];
-		$p[$j] = $tmp;
-	}
-
-	return $p;
-}
-
-/**
- * Lexicographic permutation function.
- *
- * This is a special type of permutation which involves the order of the set. The next
- * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
- * set larger than the current one.
- *
- * The benefit of this over a recursive solution is that the whole list does NOT need
- * to be held in memory. So it's actually possible to run 30! permutations without
- * causing a memory overflow.
- *
- * Source: O'Reilly PHP Cookbook
- *
- * @param mixed[] $p
- * @param int $size
- *
- * @return mixed[] the next permutation of the passed array $p
+ * @return mixed[] The next permutation of the passed array $p
  */
 function pc_next_permutation($p, $size)
 {
@@ -1016,11 +966,11 @@ function pc_next_permutation($p, $size)
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
  *  -returns the modified message.
  *
- * @param string $message
- * @param bool $smileys = true
- * @param string $cache_id = ''
- * @param array $parse_tags = null
- * @return string
+ * @param string $message The message
+ * @param bool $smileys Whether to parse smileys as well
+ * @param string $cache_id The cache ID
+ * @param array $parse_tags If set, only parses these tags rather than all of them
+ * @return string The parsed message
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
@@ -2625,6 +2575,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 /**
  * Helper function for usort(), used in parse_bbc().
+ * @param array $a An array containing a tag
+ * @param array $b Another array containing a tag
+ * @return int A number indicating whether $a is bigger than $b
  */
 function sort_bbc_tags($a, $b)
 {
@@ -2640,7 +2593,7 @@ function sort_bbc_tags($a, $b)
  * Caches the smileys from the database or array in memory.
  * Doesn't return anything, but rather modifies message directly.
  *
- * @param string &$message
+ * @param string &$message The message to parse smileys in
  */
 function parsesmileys(&$message)
 {
@@ -2731,8 +2684,8 @@ function parsesmileys(&$message)
  * does special handling to keep the tabs in the code available.
  * used to parse PHP code from inside [code] and [php] tags.
  *
- * @param string $code
- * @return string the code with highlighted HTML.
+ * @param string $code The code
+ * @return string The code with highlighted HTML.
  */
 function highlight_php_code($code)
 {
@@ -2755,8 +2708,9 @@ function highlight_php_code($code)
  * Make sure the browser doesn't come back and repost the form data.
  * Should be used whenever anything is posted.
  *
- * @param string $setLocation = ''
- * @param bool $refresh = false
+ * @param string $setLocation The URL to redirect them to
+ * @param bool $refresh Whether to use a meta refresh instead
+ * @param bool $permanent Whether to send a 301 Moved Permanently instead of a 302 Moved Temporarily
  */
 function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 {
@@ -2823,10 +2777,10 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 /**
  * Ends execution.  Takes care of template loading and remembering the previous URL.
- * @param bool $header = null
- * @param bool $do_footer = null
- * @param bool $from_index = false
- * @param bool $from_fatal_error = false
+ * @param bool $header Whether to do the header
+ * @param bool $do_footer Whether to do the footer
+ * @param bool $from_index Whether we're coming from the board index
+ * @param bool $from_fatal_error Whether we're coming from a fatal error
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
@@ -2931,8 +2885,8 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
  * Uses getimagesize() to determine the size of a file.
  * Attempts to connect to the server first so it won't time out.
  *
- * @param string $url
- * @return array or false, the image size as array (width, height), or false on failure
+ * @param string $url The URL of the image
+ * @return array|false The image size as array (width, height), or false on failure
  */
 function url_image_size($url)
 {
@@ -3010,7 +2964,7 @@ function url_image_size($url)
 
 /**
  * Sets up the basic theme context stuff.
- * @param bool $forceload = false
+ * @param bool $forceload Whether to load the theme even if it's already loaded
  */
 function setupThemeContext($forceload = false)
 {
@@ -3169,7 +3123,7 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
  *
  * @param string $needed The amount of memory to request, if needed, like 256M
  * @param bool $in_use Set to true to account for current memory usage of the script
- * @return boolean, true if we have at least the needed memory
+ * @return boolean True if we have at least the needed memory
  */
 function setMemoryLimit($needed, $in_use = false)
 {
@@ -3401,7 +3355,7 @@ function template_footer()
  * 	- tabbing in this function is to make the HTML source look good proper
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
- * @param bool $do_defered = false
+ * @param bool $do_defered If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
 function template_javascript($do_defered = false)
 {
@@ -3514,11 +3468,12 @@ function template_css()
  * @todo and of course everything relies on this behavior and work around it. :P.
  * Converters included.
  *
- * @param $filename
- * @param $attachment_id
- * @param $dir
- * @param $new
- * @param $file_hash
+ * @param string $filename The name of the file
+ * @param int $attachment_id The ID of the attachment
+ * @param string $dir Which directory it should be in (null to use current one)
+ * @param bool $new Whether this is a new attachment
+ * @param string $file_hash The file hash
+ * @return string The path to the file
  */
 function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
 {
@@ -3568,8 +3523,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  * Convert a single IP to a ranged IP.
  * internal function used to convert a user-readable format to a format suitable for the database.
  *
- * @param string $fullip
- * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
+ * @param string $fullip The full IP
+ * @return array An array of IP parts
  */
 function ip2range($fullip)
 {
@@ -3627,7 +3582,8 @@ function ip2range($fullip)
 /**
  * Lookup an IP; try shell_exec first because we can do a timeout on it.
  *
- * @param string $ip
+ * @param string $ip The IP to get the hostname from
+ * @return string The hostname
  */
 function host_from_ip($ip)
 {
@@ -3680,9 +3636,10 @@ function host_from_ip($ip)
 /**
  * Chops a string into words and prepares them to be inserted into (or searched from) the database.
  *
- * @param string $text
- * @param int $max_chars = 20
- * @param bool $encrypt = false
+ * @param string $text The text to split into words
+ * @param int $max_chars The maximum number of characters per word
+ * @param bool $encrypt Whether to encrypt the results
+ * @return array An array of ints or words depending on $encrypt
  */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
@@ -3730,12 +3687,12 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
- * @param string $name
- * @param string $alt
- * @param string $label = ''
- * @param boolean $custom = ''
- * @param boolean $force_use = false
- * @return string
+ * @param string $name The name of the button (should be a generic_icons class or the name of an image)
+ * @param string $alt The alt text
+ * @param string $label The $txt string to use as the label
+ * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
+ * @param boolean $force_use Whether to force use of this when template_create_button is available
+ * @return string The HTML to display the button
  */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
 {
@@ -3763,7 +3720,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  *  - If no type is specified will perform a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param string $type = ''
+ * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
  */
 function clean_cache($type = '')
 {
@@ -4193,7 +4150,7 @@ function smf_seed_generator()
  *
  * @param string $hook The hook name
  * @param array $parameters An array of parameters this hook implements
- * @return array the results of the functions
+ * @return array The results of the functions
  */
 function call_integration_hook($hook, $parameters = array())
 {
@@ -4247,10 +4204,10 @@ function call_integration_hook($hook, $parameters = array())
  * does nothing if the function is already added.
  *
  * @param string $hook The complete hook name.
- * @param string $function Function name, can be a call to a method via Class::method.
- * @param bool $permanent = true if true, updates the value in settings table.
- * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
- * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
+ * @param string $function The function name. Can be a call to a method via Class::method.
+ * @param bool $permanent If true, updates the value in settings table.
+ * @param string $file The file. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param bool $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  */
 function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
@@ -4312,11 +4269,11 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  * Does nothing if the function is not available.
  *
  * @param string $hook The complete hook name.
- * @param string $function Function name, can be a call to a method via Class::method.
+ * @param string $function The function name. Can be a call to a method via Class::method.
  * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
- * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param string $file The filename. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
 add_integration_function
- * @param boolean $object
+ * @param boolean $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  * @see add_integration_function
  */
 function remove_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
@@ -4522,8 +4479,8 @@ function load_file($string)
 
 /**
  * Prepares an array of "likes" info for the topic specified by $topic
- * @param Integer $topic The topic ID to fetch the info from.
- * @return Array an array of IDs of messages in the specified topic that the current user likes
+ * @param integer $topic The topic ID to fetch the info from.
+ * @return array An array of IDs of messages in the specified topic that the current user likes
  */
 function prepareLikesContext($topic)
 {
@@ -4569,8 +4526,8 @@ function prepareLikesContext($topic)
  * that are not normally displayable.  This converts the popular ones that
  * appear from a cut and paste from windows.
  *
- * @param string $string
- * @return string $string
+ * @param string $string The string
+ * @return string The sanitized string
  */
 function sanitizeMSCutPaste($string)
 {
@@ -4633,8 +4590,8 @@ function sanitizeMSCutPaste($string)
  * Uses capture group 2 in the supplied array
  * Does basic scan to ensure characters are inside a valid range
  *
- * @param array $matches
- * @return string $string
+ * @param array $matches An array of matches (relevant info should be the 3rd item)
+ * @return string A fixed string
  */
 function replaceEntities__callback($matches)
 {
@@ -4693,8 +4650,8 @@ function replaceEntities__callback($matches)
  * Uses capture group 1 in the supplied array
  * Does basic checks to keep characters inside a viewable range.
  *
- * @param array $matches
- * @return string $string
+ * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
+ * @return string The fixed string
  */
 function fixchar__callback($matches)
 {
@@ -4727,8 +4684,8 @@ function fixchar__callback($matches)
  * Callback function used of preg_replace_callback in smcFunc $ent_checks, for example
  * strpos, strlen, substr etc
  *
- * @param array $matches
- * @return string $string
+ * @param array $matches An array of matches (relevant info should be the 3rd item in the array)
+ * @return string The fixed string
  */
 function entity_fix__callback($matches)
 {
@@ -4753,8 +4710,8 @@ function entity_fix__callback($matches)
  *
  * It is SSL aware, and caches most of the parameters.
  *
- * @param string $email_address
- * @return string
+ * @param string $email_address The user's email address
+ * @return string The gravatar URL
  */
 function get_gravatar_url($email_address)
 {
@@ -4787,7 +4744,7 @@ function get_gravatar_url($email_address)
 /**
  * Get a list of timezoned.
  *
- * @return array
+ * @return array An array of timezone info.
  */
 function smf_list_timezones()
 {
