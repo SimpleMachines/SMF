@@ -310,8 +310,7 @@ function updateMemberData($members, $data)
 	// Everything is assumed to be a string unless it's in the below.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from',
-		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types', 'alerts',
+		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from', 'alerts',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
 	$knownFloats = array(
@@ -875,6 +874,7 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.
  *
+ * @deprecated since 2.1
  * @param array $array An array
  * @return array An array containing each permutation
  */
@@ -2104,19 +2104,30 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible['parameters']))
 			{
+				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
 
+
 				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$match = false;
-				$orders = permute($preg);
-				foreach ($orders as $p)
-					if (preg_match('~^' . implode('', $p) . '\]~i', substr($message, $pos1 - 1), $matches) != 0)
-					{
-						$match = true;
-						break;
-					}
+				$param_size = count($preg) - 1;
+				$preg_keys = range(0, $param_size);
+				$message_stub = substr($message, $pos1 - 1);
+				// If sometthhing adds many parameters we can exceed max_execution time; let's prevent that.
+				// 5040 = 7, 40,320 = 8, (N!) etc
+				$max_iterations = 5040;
+				// Step, one by one, through all possible permutations of the parameters until we have a match.
+				do
+				{
+					$match_preg = '~^';
+					foreach ($preg_keys as $key)
+						$match_preg .= $preg[$key];
+					$match_preg .= '\]~i';
+					// Check if this combination of parameters matches the user input.
+					$match = preg_match($match_preg, $message_stub, $matches) !== 0;
+				}
+				while (!$match && --$max_iterations && ($preg_keys = pc_next_permutation($preg_keys, $param_size)));
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
