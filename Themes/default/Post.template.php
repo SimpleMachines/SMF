@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// The main template for the post page.
+/**
+ * The main template for the post page.
+ */
 function template_main()
 {
 	global $context, $options, $txt, $scripturl, $modSettings, $counter;
@@ -910,7 +912,9 @@ function template_main()
 	}
 }
 
-// The template for the spellchecker.
+/**
+ * The template for the spellchecker.
+ */
 function template_spellcheck()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -985,6 +989,9 @@ function template_spellcheck()
 </html>';
 }
 
+/**
+ * The template for the AJAX quote feature
+ */
 function template_quotefast()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -1036,6 +1043,9 @@ function template_quotefast()
 </html>';
 }
 
+/**
+ * The form for sending out an announcement
+ */
 function template_announce()
 {
 	global $context, $txt, $scripturl;
@@ -1081,6 +1091,9 @@ function template_announce()
 	<br>';
 }
 
+/**
+ * The confirmation/progress page, displayed after the admin has clicked the button to send the announcement.
+ */
 function template_announcement_send()
 {
 	global $context, $txt, $scripturl;

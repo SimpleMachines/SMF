@@ -10,10 +10,16 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main template
+ */
 function template_main()
 {
 }
 
+/**
+ * View package details when installing/uninstalling
+ */
 function template_view_package()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -376,6 +382,9 @@ function template_view_package()
 	</script>';
 }
 
+/**
+ * Extract package contents
+ */
 function template_extract_package()
 {
 	global $context, $txt, $scripturl;
@@ -453,6 +462,9 @@ function template_extract_package()
 	</div>';
 }
 
+/**
+ * List files in a package
+ */
 function template_list()
 {
 	global $context, $txt, $scripturl;
@@ -480,6 +492,9 @@ function template_list()
 	</div>';
 }
 
+/**
+ * Examine a single file within a package
+ */
 function template_examine()
 {
 	global $context, $txt, $scripturl;
@@ -499,6 +514,9 @@ function template_examine()
 	</div>';
 }
 
+/**
+ * List all packages
+ */
 function template_browse()
 {
 	global $context, $txt, $scripturl, $modSettings, $forum_version;
@@ -656,6 +674,9 @@ function template_browse()
 	</script>';
 }
 
+/**
+ * List package servers
+ */
 function template_servers()
 {
 	global $context, $txt, $scripturl;
@@ -807,6 +828,9 @@ function template_servers()
 	</div>';
 }
 
+/**
+ * Confirm package operation
+ */
 function template_package_confirm()
 {
 	global $context, $txt;
@@ -823,6 +847,9 @@ function template_package_confirm()
 	</div>';
 }
 
+/**
+ * List packages.
+ */
 function template_package_list()
 {
 	global $context, $txt, $smcFunc;
@@ -983,6 +1010,9 @@ function template_package_list()
 		}
 }
 
+/**
+ * Confirmation page showing a package was uploaded/downloaded successfully.
+ */
 function template_downloaded()
 {
 	global $context, $txt, $scripturl;
@@ -1006,6 +1036,9 @@ function template_downloaded()
 	</div>';
 }
 
+/**
+ * Installation options - FTP info and backup settings
+ */
 function template_install_options()
 {
 	global $context, $txt, $scripturl;
@@ -1065,6 +1098,11 @@ function template_install_options()
 	</div>';
 }
 
+/**
+ * CHMOD control form
+ *
+ * @return bool False if nothing to do.
+ */
 function template_control_chmod()
 {
 	global $context, $txt;
@@ -1213,6 +1251,9 @@ function template_control_chmod()
 	</script>';
 }
 
+/**
+ * Wrapper for the above template function showing that FTP is required
+ */
 function template_ftp_required()
 {
 	global $txt;
@@ -1228,6 +1269,9 @@ function template_ftp_required()
 		</fieldset>';
 }
 
+/**
+ * View operation details.
+ */
 function template_view_operations()
 {
 	global $context, $txt, $settings, $modSettings;
@@ -1255,6 +1299,9 @@ function template_view_operations()
 </html>';
 }
 
+/**
+ * The file permissions page.
+ */
 function template_file_permissions()
 {
 	global $txt, $scripturl, $context, $settings;
@@ -1573,6 +1620,14 @@ function template_file_permissions()
 	</form><br>';
 }
 
+/**
+ * Shows permissions for items within a directory (called from template_file_permissions)
+ *
+ * @param string $ident A unique ID - typically the directory name
+ * @param array $contents An array of items within the directory
+ * @param int $level How far to go inside the directory
+ * @param bool $has_more Whether there are more files to display besides what's in $contents
+ */
 function template_permission_show_contents($ident, $contents, $level, $has_more = false)
 {
 	global $settings, $txt, $scripturl, $context;
@@ -1654,6 +1709,9 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 	}
 }
 
+/**
+ * A progress page showing what permissions changes are being applied
+ */
 function template_action_permissions()
 {
 	global $txt, $scripturl, $context;
