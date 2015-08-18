@@ -1553,29 +1553,6 @@ function isBrowser($browser)
 {
 	global $context;
 
-	// @todo REMOVE THIS BEFORE BETA 1 RELEASE.
-	if (in_array($browser, array('ie7', 'ie6', 'ie5.5', 'ie5', 'ie5', 'ie4', 'mac_ie', 'firefox1')))
-	{
-		$line = $file = null;
-		foreach (debug_backtrace() as $step)
-		{
-			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), array('smf_db_', 'preg_re', 'db_erro', 'call_us')) && strpos($step['function'], '__') !== 0)
-			{
-				$function = '<br>Function: ' . $step['function'];
-				break;
-			}
-
-			if (isset($step['line']))
-			{
-				$file = $step['file'];
-				$line = $step['line'];
-			}
-		}
-
-		log_error('Old browser support' . $function, 'debug', $file, $line);
-	}
-
 	// Don't know any browser!
 	if (empty($context['browser']))
 		detectBrowser();
