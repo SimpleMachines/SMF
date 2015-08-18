@@ -921,27 +921,8 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	}
 
 	// Load the groups that are allowed to read PMs.
-	// @todo move into a separate function on $permission.
-	$allowed_groups = array();
-	$disallowed_groups = array();
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group, add_deny
-		FROM {db_prefix}permissions
-		WHERE permission = {string:read_permission}',
-		array(
-			'read_permission' => 'pm_read',
-		)
-	);
-
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (empty($row['add_deny']))
-			$disallowed_groups[] = $row['id_group'];
-		else
-			$allowed_groups[] = $row['id_group'];
-	}
-
-	$smcFunc['db_free_result']($request);
+	require_once($sourcedir . '/Subs-Members.php');
+	list($allowed_groups, $disallowed_groups) = groupsAllowedTo('pm_read');
 
 	if (empty($modSettings['permission_enable_deny']))
 		$disallowed_groups = array();
