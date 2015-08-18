@@ -2840,7 +2840,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
 
 	// Hand off the output to the portal, etc. we're integrated with.
-	call_integration_hook('integrate_exit', array($do_footerS));
+	call_integration_hook('integrate_exit', array($do_footer));
 
 	// Don't exit if we're coming from index.php; that will pass through normally.
 	if (!$from_index)
