@@ -1386,12 +1386,20 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 	$smcFunc['db_free_result']($request);
 
 	// Check if they can vote.
+	$already_voted = false;
 	if (!empty($row['expire_time']) && $row['expire_time'] < time())
 		$allow_vote = false;
-	elseif ($user_info['is_guest'] && $row['guest_vote'] && (!isset($_COOKIE['guest_poll_vote']) || !in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))))
-		$allow_vote = true;
 	elseif ($user_info['is_guest'])
-		$allow_vote = false;
+	{
+		// There's a difference between "allowed to vote" and "already voted"...
+		$allow_vote = $row['guest_vote'];
+
+		// Did you already vote?
+		if (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))
+		{
+			$already_voted = true;
+		}
+	}
 	elseif (!empty($row['voting_locked']) || !allowedTo('poll_vote', $row['id_board']))
 		$allow_vote = false;
 	else
@@ -1408,12 +1416,13 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			)
 		);
 		$allow_vote = $smcFunc['db_num_rows']($request) == 0;
+		$already_voted = $allow_vote;
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Can they view?
 	$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
-	$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && !$allow_vote) || $is_expired;
+	$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && $already_voted) || $is_expired;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(DISTINCT id_member)
@@ -1492,7 +1501,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>';
 	}
-	elseif ($return['allow_view_results'])
+	else
 	{
 		echo '
 			<div class="ssi_poll">
@@ -1500,23 +1509,30 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 				<dl>';
 
 		foreach ($return['options'] as $option)
+		{
 			echo '
 					<dt>', $option['option'], '</dt>
-					<dd>
+					<dd>';
+
+			if ($return['allow_view_results'])
+			{
+				echo '
 						<div class="ssi_poll_bar" style="border: 1px solid #666; height: 1em">
 							<div class="ssi_poll_bar_fill" style="background: #ccf; height: 1em; width: ', $option['percent'], '%;">
 							</div>
 						</div>
-						', $option['votes'], ' (', $option['percent'], '%)
+						', $option['votes'], ' (', $option['percent'], '%)';
+			}
+
+			echo '
 					</dd>';
+		}
+
 		echo '
-				</dl>
-				<strong>', $txt['poll_total_voters'], ': ', $return['total_votes'], '</strong>
+				</dl>', ($return['allow_view_results'] ? '
+				<strong>'. $txt['poll_total_voters'] .': '. $return['total_votes'] .'</strong>' : ''), '
 			</div>';
 	}
-	// Cannot see it I'm afraid!
-	else
-		echo $txt['poll_cannot_see'];
 }
 
 /**

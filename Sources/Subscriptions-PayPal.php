@@ -39,11 +39,18 @@ class paypal_display
 		$setting_data = array(
 			array(
 				'email', 'paypal_email',
-				'subtext' => $txt['paypal_email_desc']
+				'subtext' => $txt['paypal_email_desc'],
+				'size' => 60
+			),
+			array(
+				'email', 'paypal_additional_emails',
+				'subtext' => $txt['paypal_additional_emails_desc'],
+				'size' => 60
 			),
 			array(
 				'email', 'paypal_sandbox_email',
-				'subtext' => $txt['paypal_sandbox_email_desc']
+				'subtext' => $txt['paypal_sandbox_email_desc'],
+				'size' => 60
 			),
 		);
 
@@ -163,9 +170,9 @@ class paypal_payment
 			$_POST['business'] = $_POST['receiver_email'];
 
 		// Are we testing?
-		if (!empty($modSettings['paidsubs_test']) && $modSettings['paypal_sandbox_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
+		if (empty($modSettings['paidsubs_test']) && strtolower($modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
 			return false;
-		elseif ($modSettings['paypal_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
+		elseif (strtolower($modSettings['paypal_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', $modSettings['paypal_additional_emails']))))
 			return false;
 		return true;
 	}
@@ -262,7 +269,7 @@ class paypal_payment
 			exit;
 
 		// Check that this is intended for us.
-		if ($modSettings['paypal_email'] !== $_POST['business'] && (empty($modSettings['paypal_additional_emails']) || !in_array($_POST['business'], explode(',', $modSettings['paypal_additional_emails']))))
+		if (strtolower($modSettings['paypal_email']) != strtolower($_POST['business']) && (empty($modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower($modSettings['paypal_additional_emails'])))))
 			exit;
 
 		// Is this a subscription - and if so is it a secondary payment that we need to process?
