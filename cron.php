@@ -22,7 +22,6 @@
 
 define('SMF', 'BACKGROUND');
 define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
-define('WIRELESS', false);
 
 // This one setting is worth bearing in mind. If you are running this from proper cron, make sure you
 // don't run this file any more frequently than indicated here. It might turn ugly if you do.

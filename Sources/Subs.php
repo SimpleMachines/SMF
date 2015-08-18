@@ -523,7 +523,6 @@ function updateSettings($changeArray, $update = false)
  *
  * - builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
  * - flexible_start causes it to use "url.page" instead of "url;start=page".
- * - handles any wireless settings (adding special things to URLs.)
  * - very importantly, cleans up the start value passed, and forces it to
  *   be a multiple of num_per_page.
  * - checks that start is not more than max_value.
@@ -562,10 +561,6 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		$start = max(0, (int) $start - ((int) $start % (int) $num_per_page));
 
 	$context['current_page'] = $start / $num_per_page;
-
-	// Wireless will need the protocol on the URL somewhere.
-	if (WIRELESS)
-		$base_url .= ';' . WIRELESS_PROTOCOL;
 
 	// Define some default page index settings if we don't already have it...
 	if (!isset($settings['page_index']))
@@ -996,10 +991,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		return $message;
 	}
 
-	// Never show smileys for wireless clients.  More bytes, can't see it anyway :P.
-	if (WIRELESS)
-		$smileys = false;
-	elseif ($smileys !== null && ($smileys == '1' || $smileys == '0'))
+	if ($smileys !== null && ($smileys == '1' || $smileys == '0'))
 		$smileys = (bool) $smileys;
 
 	if (empty($modSettings['enableBBC']) && $message !== false)
@@ -2723,20 +2715,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
 
-	if (WIRELESS)
-	{
-		// Add the scripturl on if needed.
-		if ($add)
-			$setLocation = $scripturl . '?' . $setLocation;
-
-		$char = strpos($setLocation, '?') === false ? '?' : ';';
-
-		if (strpos($setLocation, '#') !== false)
-			$setLocation = strtr($setLocation, array('#' => $char . WIRELESS_PROTOCOL . '#'));
-		else
-			$setLocation .= $char . WIRELESS_PROTOCOL;
-	}
-	elseif ($add)
+	if ($add)
 		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
 	// Put the session ID in.
@@ -2842,10 +2821,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 	if ($do_footer)
 	{
-		if (WIRELESS && !isset($context['sub_template']))
-			fatal_lang_error('wireless_error_notyet', false);
-
-		// Just show the footer, then.
 		loadSubTemplate(isset($context['sub_template']) ? $context['sub_template'] : 'main');
 
 		// Anything special to put out?
@@ -2872,10 +2847,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
 
 	// Hand off the output to the portal, etc. we're integrated with.
-	call_integration_hook('integrate_exit', array($do_footer && !WIRELESS));
+	call_integration_hook('integrate_exit', array($do_footer));
 
 	// Don't exit if we're coming from index.php; that will pass through normally.
-	if (!$from_index || WIRELESS)
+	if (!$from_index)
 		exit;
 }
 
@@ -3194,14 +3169,13 @@ function template_header()
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
-		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie') && !WIRELESS)
+		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie'))
 			header('Content-Type: application/xhtml+xml');
-		elseif (!isset($_REQUEST['xml']) && !WIRELESS)
+		elseif (!isset($_REQUEST['xml']))
 			header('Content-Type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	}
 
-	if (!WIRELESS || WIRELESS_PROTOCOL != 'wap')
-		header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
 	if ($context['in_maintenance'] && $context['user']['is_admin'])

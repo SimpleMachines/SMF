@@ -23,8 +23,6 @@ if (!defined('SMF'))
  *  It caches the referring URL in $_SESSION['login_url'].
  *  It is accessed from ?action=login.
  *  @uses Login template and language file with the login sub-template.
- *  @uses the protocol_login sub-template in the Wireless template,
- *   if you are using a wireless device
  */
 function Login()
 {
@@ -34,22 +32,16 @@ function Login()
 	if (!empty($user_info['id']))
 		redirectexit();
 
-	// In wireless?  If so, use the correct sub template.
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
-	// Otherwise, we need to load the Login template/language file.
-	else
+	// We need to load the Login template/language file.
+	loadLanguage('Login');
+	loadTemplate('Login');
+
+	$context['sub_template'] = 'login';
+
+	if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
 	{
-		loadLanguage('Login');
-		loadTemplate('Login');
-
-		$context['sub_template'] = 'login';
-
-		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
-		{
-			$context['from_ajax'] = true;
-			$context['template_layers'] = array();
-		}
+		$context['from_ajax'] = true;
+		$context['template_layers'] = array();
 	}
 
 	// Get the template ready.... not really much else to do.
@@ -182,14 +174,9 @@ function Login2()
 		$modSettings['cookieTime'] = (int) $_POST['cookielength'];
 
 	loadLanguage('Login');
-	// Load the template stuff - wireless or normal.
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
-	else
-	{
-		loadTemplate('Login');
-		$context['sub_template'] = 'login';
-	}
+	// Load the template stuff.
+	loadTemplate('Login');
+	$context['sub_template'] = 'login';
 
 	// Set up the default/fallback stuff.
 	$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\1;', $smcFunc['htmlspecialchars']($_POST['user'])) : '';

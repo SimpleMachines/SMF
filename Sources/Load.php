@@ -287,7 +287,7 @@ function reloadSettings()
 	$context['server']['needs_login_fix'] = $context['server']['is_cgi'] && $context['server']['is_iis'];
 
 	// Define a list of icons used across multiple places.
-	$context['stable_icons'] = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'wireless', 'clip');
+	$context['stable_icons'] = array('xx', 'thumbup', 'thumbdown', 'exclamation', 'question', 'lamp', 'smiley', 'angry', 'cheesy', 'grin', 'sad', 'wink', 'poll', 'moved', 'recycled', 'clip');
 
 	// Define an array for custom profile fields placements.
 	$context['cust_profile_fields_placement'] = array(
@@ -1920,15 +1920,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	call_integration_hook('integrate_simple_actions', array(&$simpleActions, &$simpleAreas, &$simpleSubActions));
 	$context['simple_action'] = in_array($context['current_action'], $simpleActions) || isset($_REQUEST['area']) && in_array($_REQUEST['area'], $simpleAreas) || in_array($context['current_subaction'], $simpleSubActions);
 
-	// Wireless mode?  Load up the wireless stuff.
-	if (WIRELESS)
-	{
-		$context['template_layers'] = array(WIRELESS_PROTOCOL);
-		loadLanguage('Wireless+index+Modifications');
-		loadTemplate('Wireless');
-	}
 	// Output is fully XML, so no need for the index template.
-	elseif (isset($_REQUEST['xml']))
+	if (isset($_REQUEST['xml']))
 	{
 		loadLanguage('index+Modifications');
 		loadTemplate('Xml');
@@ -2812,7 +2805,7 @@ function template_include($filename, $once = false)
 		else
 			ob_start();
 
-		if (isset($_GET['debug']) && !WIRELESS)
+		if (isset($_GET['debug']))
 			header('Content-Type: application/xhtml+xml; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 		// Don't cache error pages!!
