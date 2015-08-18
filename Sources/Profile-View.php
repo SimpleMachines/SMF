@@ -1714,7 +1714,7 @@ function trackActivity($memID)
  *
  * @param string $where A query to limit which errors are counted
  * @param array $where_vars The parameters for $where
- * @return string number of user errors
+ * @return int Number of user errors
  */
 function list_getUserErrorCount($where, $where_vars = array())
 {
@@ -1729,8 +1729,7 @@ function list_getUserErrorCount($where, $where_vars = array())
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// @todo cast this to an integer
-	return $count;
+	return (int) $count;
 }
 
 /**
@@ -1781,7 +1780,7 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
  *
  * @param string $where A query indicating which posts to count
  * @param array $where_vars The parameters for $where
- * @return string count of messages matching the IP
+ * @return int Count of messages matching the IP
  */
 function list_getIPMessageCount($where, $where_vars = array())
 {
@@ -1797,8 +1796,7 @@ function list_getIPMessageCount($where, $where_vars = array())
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// @todo cast to integer
-	return $count;
+	return (int) $count;
 }
 
 /**
@@ -2219,7 +2217,7 @@ function TrackLogins($memID = 0)
  *
  * @param string $where A query to limit which logins are counted
  * @param array $where_vars An array of parameters for $where
- * @return string count of messages matching the IP
+ * @return int count of messages matching the IP
  */
 function list_getLoginCount($where, $where_vars = array())
 {
@@ -2236,8 +2234,7 @@ function list_getLoginCount($where, $where_vars = array())
 	list ($count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// @todo cast to integer
-	return $count;
+	return (int) $count;
 }
 
 /**
@@ -2380,7 +2377,7 @@ function trackEdits($memID)
  * How many edits?
  *
  * @param int $memID The ID of the member
- * @return string The number of profile edits
+ * @return int The number of profile edits
  */
 function list_getProfileEditCount($memID)
 {
@@ -2399,8 +2396,7 @@ function list_getProfileEditCount($memID)
 	list ($edit_count) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// @todo cast to integer
-	return $edit_count;
+	return (int) $edit_count;
 }
 
 /**

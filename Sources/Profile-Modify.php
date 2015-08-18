@@ -2546,8 +2546,7 @@ function list_getTopicNotificationCount($memID)
 	list ($totalNotifications) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	// @todo make this an integer before it gets returned
-	return $totalNotifications;
+	return (int) $totalNotifications;
 }
 
 /**
