@@ -203,16 +203,6 @@ $.sceditor.command.set(
 	}
 );
 $.sceditor.command.set(
-	'move', {
-		tooltip: 'Marquee',
-		txtExec: ["[move]", "[/move]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('<marquee>', '</marquee>');
-		}
-	}
-);
-
-$.sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
 			var	display = selected && selected.indexOf('@') > -1 ? null : selected,

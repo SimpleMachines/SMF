@@ -1722,10 +1722,6 @@ function create_control_richedit($editorOptions)
 				'description' => $editortxt['ftp']
 			),
 			array(),
-			array(
-				'code' => 'move',
-				'description' => $editortxt['marquee']
-			),
 			array(),
 			array(
 				'code' => 'superscript',
