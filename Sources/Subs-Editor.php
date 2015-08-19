@@ -1717,23 +1717,6 @@ function create_control_richedit($editorOptions)
 				'code' => 'email',
 				'description' => $editortxt['insert_email']
 			),
-			array(
-				'code' => 'ftp',
-				'description' => $editortxt['ftp']
-			),
-			array(),
-			array(
-				'code' => 'glow',
-				'description' => $editortxt['glow']
-			),
-			array(
-				'code' => 'shadow',
-				'description' => $editortxt['shadow']
-			),
-			array(
-				'code' => 'move',
-				'description' => $editortxt['marquee']
-			),
 			array(),
 			array(
 				'code' => 'superscript',
@@ -1742,10 +1725,6 @@ function create_control_richedit($editorOptions)
 			array(
 				'code' => 'subscript',
 				'description' => $editortxt['subscript']
-			),
-			array(
-				'code' => 'tt',
-				'description' => $editortxt['teletype']
 			),
 			array(),
 			array(
@@ -1775,7 +1754,7 @@ function create_control_richedit($editorOptions)
 			),
 		);
 
-		$disabled_editor_tags = array(
+		$editor_tag_map = array(
 			'b' => 'bold',
 			'i' => 'italic',
 			'u' => 'underline',
@@ -1789,7 +1768,7 @@ function create_control_richedit($editorOptions)
 
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
-		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags']));
+		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$editor_tag_map));
 
 		// Show the toggle?
 		if (empty($modSettings['disable_wysiwyg']))
@@ -1820,7 +1799,7 @@ function create_control_richedit($editorOptions)
 				$context['disabled_tags']['orderedlist'] = true;
 			}
 
-			foreach ($disabled_editor_tags as $thisTag => $tagNameBBC)
+			foreach ($editor_tag_map as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
 

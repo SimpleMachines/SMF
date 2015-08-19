@@ -1261,37 +1261,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</span>',
 			),
 			array(
-				'tag' => 'ftp',
-				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
-				},
-			),
-			array(
-				'tag' => 'ftp',
-				'type' => 'unparsed_equals',
-				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
-				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
-				},
-				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
-				'disabled_after' => ' ($1)',
-			),
-			array(
-				'tag' => 'glow',
-				'type' => 'unparsed_commas',
-				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 0 0 3px">',
-				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
-			),
-			array(
 				'tag' => 'html',
 				'type' => 'unparsed_content',
 				'content' => '$1',
@@ -1433,13 +1402,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 			),
 			array(
-				'tag' => 'move',
-				'before' => '<marquee>',
-				'after' => '</marquee>',
-				'block_level' => true,
-				'disallow_children' => array('move'),
-			),
-			array(
 				'tag' => 'nobbc',
 				'type' => 'unparsed_content',
 				'content' => '$1',
@@ -1532,38 +1494,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 's',
 				'before' => '<s>',
 				'after' => '</s>',
-			),
-			array(
-				'tag' => 'shadow',
-				'type' => 'unparsed_commas',
-				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
-				'before' => isBrowser('ie') ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
-				'after' => '</span>',
-				'validate' => isBrowser('ie') ? function (&$tag, &$data, $disabled)
-				{
-					if ($data[1] == 'left')
-						$data[1] = 270;
-					elseif ($data[1] == 'right')
-						$data[1] = 90;
-					elseif ($data[1] == 'top')
-						$data[1] = 0;
-					elseif ($data[1] == 'bottom')
-						$data[1] = 180;
-					else
-						$data[1] = (int) $data[1];
-				} : function (&$tag, &$data, $disabled)
-				{
-					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
-						$data[1] = '0 -2px 1px';
-					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
-						$data[1] = '2px 0 1px';
-					elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
-						$data[1] = '0 2px 1px';
-					elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
-						$data[1] = '-2px 0 1px';
-					else
-						$data[1] = '1px 1px 1px';
-				},
 			),
 			array(
 				'tag' => 'size',
@@ -1670,7 +1600,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$no_autolink_tags = array(
 			'url',
 			'iurl',
-			'ftp',
 			'email',
 		);
 

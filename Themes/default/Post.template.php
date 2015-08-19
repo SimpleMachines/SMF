@@ -575,15 +575,7 @@ function template_main()
 			var new_replies = new Array();
 			var reply_counter = ', empty($counter) ? 0 : $counter, ';
 			function previewPost()
-			{';
-	if (isBrowser('is_firefox'))
-		echo '
-				// Firefox doesn\'t render <marquee> that have been put it using javascript
-				if (document.forms.postmodify.elements[', JavaScriptEscape($context['post_box_name']), '].value.indexOf(\'[move]\') != -1)
-				{
-					return submitThisOnce(document.forms.postmodify);
-				}';
-	echo '
+			{
 				if (window.XMLHttpRequest)
 				{
 					// Opera didn\'t support setRequestHeader() before 8.01.
