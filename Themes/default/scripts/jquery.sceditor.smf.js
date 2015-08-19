@@ -456,18 +456,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'ftp', {
-		allowsEmpty: true,
-		html: function (token, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				attrs.defaultattr = content;
-
-			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
