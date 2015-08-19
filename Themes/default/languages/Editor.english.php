@@ -67,6 +67,5 @@ $editortxt['Teal'] = 'Teal';
 $editortxt['Navy'] = 'Navy';
 $editortxt['Maroon'] = 'Maroon';
 $editortxt['Lime Green'] = 'Lime Green';
-$editortxt['White'] = 'White';
 // end @todo
 ?>
