@@ -53,7 +53,6 @@ $editortxt['Print'] = 'Print';
 $editortxt['Preformatted Text'] = 'Preformatted Text';
 $editortxt['View source'] = 'View source';
 $editortxt['Marquee'] = 'Marquee';
-$editortxt['Shadow'] = 'Shadow';
 $editortxt['Pre'] = 'Preformatted text';
 // @todo flash doesn't seem to be there
 $editortxt['flash'] = 'Insert Flash';
