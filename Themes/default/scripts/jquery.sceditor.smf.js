@@ -489,16 +489,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'move', {
-		tags: {
-			marquee: null
-		},
-		format: "[move]{0}[/move]",
-		html: '<marquee>{0}</marquee>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'php', {
 		isInline: false,
 		format: "[php]{0}[/php]",
