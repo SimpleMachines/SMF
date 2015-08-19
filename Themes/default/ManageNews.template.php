@@ -267,15 +267,7 @@ function template_email_members_compose()
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";
 			function previewPost()
-			{';
-	if (isBrowser('is_firefox'))
-		echo '
-				// Firefox doesn\'t render <marquee> that have been put it using javascript
-				if (document.forms.newsmodify.elements[', JavaScriptEscape($context['post_box_name']), '].value.indexOf(\'[move]\') != -1)
-				{
-					return submitThisOnce(document.forms.newsmodify);
-				}';
-	echo '
+			{
 				if (window.XMLHttpRequest)
 				{
 					// Opera didn\'t support setRequestHeader() before 8.01.
