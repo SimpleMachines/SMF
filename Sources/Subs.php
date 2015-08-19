@@ -1600,7 +1600,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		$no_autolink_tags = array(
 			'url',
 			'iurl',
-			'ftp',
 			'email',
 		);
 
