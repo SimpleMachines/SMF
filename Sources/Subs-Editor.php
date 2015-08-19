@@ -1717,11 +1717,6 @@ function create_control_richedit($editorOptions)
 				'code' => 'email',
 				'description' => $editortxt['insert_email']
 			),
-			array(
-				'code' => 'ftp',
-				'description' => $editortxt['ftp']
-			),
-			array(),
 			array(),
 			array(
 				'code' => 'superscript',

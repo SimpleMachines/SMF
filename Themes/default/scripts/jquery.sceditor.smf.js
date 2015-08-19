@@ -151,49 +151,6 @@
 })(jQuery);
 
 $.sceditor.command.set(
-	'ftp', {
-		tooltip: 'Insert FTP Link',
-		txtExec: ["[ftp]", "[/ftp]"],
-		exec: function (caller) {
-			var	editor  = this,
-				content = $(this._('<form><div><label for="link">{0}</label> <input type="text" id="link" value="ftp://"></div>' +
-						'<div><label for="des">{1}</label> <input type="text" id="des" value=""></div></form>',
-					this._("URL:"),
-					this._("Description (optional):")
-				))
-				.submit(function () {return false;});
-
-			content.append($(
-				this._('<div><input type="button" class="button" value="{0}"></div>',
-					this._("Insert")
-				)).click(function (e) {
-				var val = $(this).parent("form").find("#link").val(),
-					description = $(this).parent("form").find("#des").val();
-
-				if (val !== "" && val !== "ftp://") {
-					// needed for IE to reset the last range
-					editor.focus();
-
-					if (!editor.getRangeHelper().selectedHtml() || description)
-					{
-						if (!description)
-							description = val;
-
-						editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
-					}
-					else
-						editor.execCommand("createlink", val);
-				}
-
-				editor.closeDropDown(true);
-				e.preventDefault();
-			}));
-
-			editor.createDropDown(caller, "insertlink", content);
-		}
-	}
-);
-$.sceditor.command.set(
 	'pre', {
 		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],

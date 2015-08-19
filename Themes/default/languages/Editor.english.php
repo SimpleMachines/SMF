@@ -56,8 +56,6 @@ $editortxt['Pre'] = 'Preformatted text';
 // @todo flash doesn't seem to be there
 $editortxt['flash'] = 'Insert Flash';
 
-$editortxt['Insert FTP Link'] = 'Insert FTP Link';
-
 // @todo Not sure if these are really needed
 $editortxt['Black'] = 'Black';
 $editortxt['Red'] = 'Red';
