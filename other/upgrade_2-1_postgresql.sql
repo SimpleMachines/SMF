@@ -1933,3 +1933,8 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]',
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
 ---#
+
+---# Replacing [red] with [color=red]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
+---#
