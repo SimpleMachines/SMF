@@ -57,7 +57,6 @@ $editortxt['Pre'] = 'Preformatted text';
 $editortxt['flash'] = 'Insert Flash';
 
 // @todo Not sure if these are really needed
-$editortxt['Black'] = 'Black';
 $editortxt['Red'] = 'Red';
 $editortxt['Yellow'] = 'Yellow';
 $editortxt['Pink'] = 'Pink';
