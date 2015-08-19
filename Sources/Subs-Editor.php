@@ -1723,10 +1723,6 @@ function create_control_richedit($editorOptions)
 			),
 			array(),
 			array(
-				'code' => 'glow',
-				'description' => $editortxt['glow']
-			),
-			array(
 				'code' => 'shadow',
 				'description' => $editortxt['shadow']
 			),

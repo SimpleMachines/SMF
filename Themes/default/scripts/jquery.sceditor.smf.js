@@ -194,15 +194,6 @@ $.sceditor.command.set(
 	}
 );
 $.sceditor.command.set(
-	'glow', {
-		tooltip: 'Glow',
-		txtExec: ["[glow=red,2,300]", "[/glow]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('[glow=red,2,300]', '[/glow]');
-		}
-	}
-);
-$.sceditor.command.set(
 	'shadow', {
 		tooltip: 'Shadow',
 		txtExec: ["[shadow=red,right]", "[/shadow]"],
