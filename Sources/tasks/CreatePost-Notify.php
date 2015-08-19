@@ -70,7 +70,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$groups = array_merge(array($row['id_group'], $row['id_post_group']), explode(',', $row['additional_groups']));
+			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
 
