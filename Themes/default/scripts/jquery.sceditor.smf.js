@@ -250,27 +250,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'bdo', {
-		tags: {
-			bdo: {
-				dir: null
-			}
-		},
-		format: function (element, content) {
-			return '[bdo=' + element.attr('dir') + ']' + content + '[/bdo]';
-		},
-		html: function (element, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				return content;
-			if (attrs.defaultattr != 'rtl' && attrs.defaultattr != 'ltr')
-				return '[bdo=' + attrs.defaultattr + ']' + content + '[/bdo]';
-
-			return '<bdo dir="' + attrs.defaultattr + '">' + content + '</bdo>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'black', {
 		html: '<font color="black">{0}</font>'
 	}
