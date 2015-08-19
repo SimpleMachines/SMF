@@ -1823,3 +1823,8 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
 ---#
+
+---# Replacing [white] with [color=white]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
+---#
