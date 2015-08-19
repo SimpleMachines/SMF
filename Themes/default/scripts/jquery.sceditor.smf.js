@@ -468,16 +468,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'tt', {
-		tags: {
-			tt: null
-		},
-		format: "[tt]{0}[/tt]",
-		html: '<tt>{0}</tt>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
