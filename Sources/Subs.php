@@ -1409,13 +1409,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</a>',
 			),
 			array(
-				'tag' => 'move',
-				'before' => '<marquee>',
-				'after' => '</marquee>',
-				'block_level' => true,
-				'disallow_children' => array('move'),
-			),
-			array(
 				'tag' => 'nobbc',
 				'type' => 'unparsed_content',
 				'content' => '$1',
