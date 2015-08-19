@@ -1813,3 +1813,8 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[tt]', '[
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
 ---#
+
+---# Replacing [bdo=rtl] with [rtl]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
+---#
