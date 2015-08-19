@@ -1790,3 +1790,11 @@ ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 		);
 ---}
 ---#
+
+/******************************************************************************/
+--- Converting old bbcodes
+/******************************************************************************/
+---# Replacing [br] with &lt;br&gt;
+UPDATE {$db_prefix}messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
+---#
