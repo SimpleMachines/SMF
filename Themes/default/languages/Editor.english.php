@@ -63,7 +63,6 @@ $editortxt['Pink'] = 'Pink';
 $editortxt['Green'] = 'Green';
 $editortxt['Orange'] = 'Orange';
 $editortxt['Purple'] = 'Purple';
-$editortxt['Blue'] = 'Blue';
 $editortxt['Beige'] = 'Beige';
 $editortxt['Brown'] = 'Brown';
 $editortxt['Teal'] = 'Teal';
