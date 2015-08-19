@@ -250,25 +250,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'acronym', {
-		tags: {
-			acronym: {
-				title: null
-			}
-		},
-		format: function (element, content) {
-			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
-		},
-		html: function (element, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				return content;
-
-			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'bdo', {
 		tags: {
 			bdo: {
