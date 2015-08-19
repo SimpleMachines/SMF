@@ -1122,14 +1122,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
-				'tag' => 'acronym',
-				'type' => 'unparsed_equals',
-				'before' => '<abbr title="$1">',
-				'after' => '</abbr>',
-				'quoted' => 'optional',
-				'disabled_after' => ' ($1)',
-			),
-			array(
 				'tag' => 'anchor',
 				'type' => 'unparsed_equals',
 				'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
@@ -1138,31 +1130,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'b',
-				'before' => '<span class="bbc_bold">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'bdo',
-				'type' => 'unparsed_equals',
-				'before' => '<bdo dir="$1">',
-				'after' => '</bdo>',
-				'test' => '(rtl|ltr)\]',
-				'block_level' => true,
-			),
-			array(
-				'tag' => 'black',
-				'before' => '<span style="color: black;" class="bbc_color">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'blue',
-				'before' => '<span class="bbc_color blue">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'br',
-				'type' => 'closed',
-				'content' => '<br>',
+				'before' => '<b>',
+				'after' => '</b>',
 			),
 			array(
 				'tag' => 'center',
@@ -1173,7 +1142,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1210,7 +1179,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1274,7 +1243,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'flash',
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
-				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1"><param name="play" value="true"><param name="loop" value="true"><param name="quality" value="high"><param name="AllowScriptAccess" value="never"><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
+				'content' => '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					if (isset($disabled['url']))
@@ -1323,11 +1292,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
 			),
 			array(
-				'tag' => 'green',
-				'before' => '<span class="bbc_color green">',
-				'after' => '</span>',
-			),
-			array(
 				'tag' => 'html',
 				'type' => 'unparsed_content',
 				'content' => '$1',
@@ -1342,8 +1306,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'i',
-				'before' => '<em>',
-				'after' => '</em>',
+				'before' => '<i>',
+				'after' => '</i>',
 			),
 			array(
 				'tag' => 'img',
@@ -1448,8 +1412,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'ltr',
-				'before' => '<div dir="ltr">',
-				'after' => '</div>',
+				'before' => '<bdo dir="ltr">',
+				'after' => '</bdo>',
 				'block_level' => true,
 			),
 			array(
@@ -1505,7 +1469,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'quote',
 				'before' => '<div class="quoteheader">' . $txt['quote'] . '</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1515,7 +1479,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'author' => array('match' => '(.{1,192}?)', 'quoted' => true),
 				),
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1523,7 +1487,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'quote',
 				'type' => 'parsed_equals',
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': $1</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'quoted' => 'optional',
 				// Don't allow everything to be embedded with the author name.
@@ -1538,7 +1502,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
 				'before' => '<div class="quoteheader"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1548,14 +1512,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'author' => array('match' => '(.{1,192}?)'),
 				),
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
-			),
-			array(
-				'tag' => 'red',
-				'before' => '<span class="bbc_color red">',
-				'after' => '</span>',
 			),
 			array(
 				'tag' => 'right',
@@ -1565,14 +1524,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'rtl',
-				'before' => '<div dir="rtl">',
-				'after' => '</div>',
+				'before' => '<bdo dir="rtl">',
+				'after' => '</bdo>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 's',
-				'before' => '<del>',
-				'after' => '</del>',
+				'before' => '<s>',
+				'after' => '</s>',
 			),
 			array(
 				'tag' => 'shadow',
@@ -1677,14 +1636,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => '',
 			),
 			array(
-				'tag' => 'tt',
-				'before' => '<span class="bbc_tt">',
-				'after' => '</span>',
-			),
-			array(
 				'tag' => 'u',
-				'before' => '<span class="bbc_u">',
-				'after' => '</span>',
+				'before' => '<u>',
+				'after' => '</u>',
 			),
 			array(
 				'tag' => 'url',
@@ -1709,11 +1663,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				},
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
-			),
-			array(
-				'tag' => 'white',
-				'before' => '<span style="color: white;" class="bbc_color">',
-				'after' => '</span>',
 			),
 		);
 
