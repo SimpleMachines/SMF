@@ -212,15 +212,6 @@ $.sceditor.command.set(
 	}
 );
 $.sceditor.command.set(
-	'tt', {
-		tooltip: 'Teletype',
-		txtExec: ["[tt]", "[/tt]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('<tt>', '</tt>');
-		}
-	}
-);
-$.sceditor.command.set(
 	'pre', {
 		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],

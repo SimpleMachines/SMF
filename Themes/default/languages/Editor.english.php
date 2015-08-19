@@ -53,7 +53,6 @@ $editortxt['Print'] = 'Print';
 $editortxt['Preformatted Text'] = 'Preformatted Text';
 $editortxt['View source'] = 'View source';
 $editortxt['Marquee'] = 'Marquee';
-$editortxt['Teletype'] = 'Teletype';
 $editortxt['Glow'] = 'Glow';
 $editortxt['Shadow'] = 'Shadow';
 $editortxt['Pre'] = 'Preformatted text';

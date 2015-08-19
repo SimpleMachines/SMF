@@ -1743,10 +1743,6 @@ function create_control_richedit($editorOptions)
 				'code' => 'subscript',
 				'description' => $editortxt['subscript']
 			),
-			array(
-				'code' => 'tt',
-				'description' => $editortxt['teletype']
-			),
 			array(),
 			array(
 				'code' => 'table',
