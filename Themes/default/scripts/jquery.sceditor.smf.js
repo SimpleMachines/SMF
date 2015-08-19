@@ -256,12 +256,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'red', {
-		html: '<font color="red">{0}</font>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'white', {
 		html: '<font color="white">{0}</font>'
 	}
