@@ -1768,7 +1768,7 @@ function create_control_richedit($editorOptions)
 
 		// Allow mods to modify BBC buttons.
 		// Note: pass the array here is not necessary and is deprecated, but it is kept for backward compatibility with 2.0
-		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$$editor_tag_map));
+		call_integration_hook('integrate_bbc_buttons', array(&$context['bbc_tags'], &$editor_tag_map));
 
 		// Show the toggle?
 		if (empty($modSettings['disable_wysiwyg']))
@@ -1799,7 +1799,7 @@ function create_control_richedit($editorOptions)
 				$context['disabled_tags']['orderedlist'] = true;
 			}
 
-			foreach ($$editor_tag_map as $thisTag => $tagNameBBC)
+			foreach ($editor_tag_map as $thisTag => $tagNameBBC)
 				if ($tag === $thisTag)
 					$context['disabled_tags'][$tagNameBBC] = true;
 
