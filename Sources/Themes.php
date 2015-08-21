@@ -1290,6 +1290,10 @@ function InstallFile()
 	// Set a temp dir for dumping all required files on it.
 	$dirtemp = $themedir .'/temp';
 
+	// Make sure the temp dir doesn't already exist
+	if (file_exists($dirtemp))
+		remove_dir($dirtemp);
+
 	// Create the temp dir.
 	mkdir($dirtemp, 0777);
 
