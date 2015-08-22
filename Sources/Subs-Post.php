@@ -922,10 +922,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	// Load the groups that are allowed to read PMs.
 	require_once($sourcedir . '/Subs-Members.php');
-	list($allowed_groups, $disallowed_groups) = groupsAllowedTo('pm_read');
+	$pmReadGroups = groupsAllowedTo('pm_read');
 
 	if (empty($modSettings['permission_enable_deny']))
-		$disallowed_groups = array();
+		$pmReadGroups['denied'] = array();
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -991,7 +991,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			}
 
 			// Do they have any of the allowed groups?
-			if (count(array_intersect($allowed_groups, $groups)) == 0 || count(array_intersect($disallowed_groups, $groups)) != 0)
+			if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0)
 			{
 				$log['failed'][$row['id_member']] = sprintf($txt['pm_error_user_cannot_read'], $row['real_name']);
 				unset($all_to[array_search($row['id_member'], $all_to)]);
