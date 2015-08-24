@@ -872,7 +872,7 @@ function UnreadTopics()
 			WHERE b.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND ms.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
+				AND ms.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1012,7 +1012,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
+					AND t.approved = {int:is_approved}' : '') . '
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
