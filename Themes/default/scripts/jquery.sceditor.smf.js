@@ -468,12 +468,12 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			if (element.attr('author'))
 				author = ' author=' + element.attr('author').php_unhtmlspecialchars();
-			if (element.attr('date'))
-				date = ' date=' + element.attr('date');
 			if (element.attr('link'))
 				link = ' link=' + element.attr('link');
+			if (element.attr('date'))
+				date = ' date=' + element.attr('date');
 
-			return '[quote' + author + date + link + ']' + content + '[/quote]';
+			return '[quote' + author + link + date + ']' + content + '[/quote]';
 		},
 		html: function (element, attrs, content) {
 			var attr_author = '', author = '';
