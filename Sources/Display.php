@@ -1015,8 +1015,7 @@ function Display()
 		call_integration_hook('integrate_query_message', array(&$msg_selects, &$msg_tables, &$msg_parameters));
 
 		// What?  It's not like it *couldn't* be only guests in this topic...
-		if (!empty($posters))
-			loadMemberData($posters);
+		loadMemberData($posters);
 		$messages_request = $smcFunc['db_query']('', '
 			SELECT
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,

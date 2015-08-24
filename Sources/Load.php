@@ -1127,7 +1127,7 @@ function loadPermissions()
  * @param array|string $users An array of users by id or name or a single username/id
  * @param bool $is_name Whether $users contains names
  * @param string $set What kind of data to load (normal, profile, minimal)
- * @return array|bool The ids of the members loaded or false if no data was loaded
+ * @return array The ids of the members loaded
  */
 function loadMemberData($users, $is_name = false, $set = 'normal')
 {
@@ -1136,7 +1136,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Can't just look for no users :P.
 	if (empty($users))
-		return false;
+		return array();
 
 	// Pass the set value
 	$context['loadMemberContext_set'] = $set;
@@ -1303,7 +1303,7 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 		}
 	}
 
-	return empty($loaded_ids) ? false : $loaded_ids;
+	return $loaded_ids;
 }
 
 /**
