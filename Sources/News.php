@@ -860,7 +860,7 @@ function getXmlProfile($xml_format)
 	global $scripturl, $memberContext, $user_profile, $user_info;
 
 	// You must input a valid user....
-	if (empty($_GET['u']) || loadMemberData((int) $_GET['u']) === false)
+	if (empty($_GET['u']) || !loadMemberData((int) $_GET['u']))
 		return array();
 
 	// Make sure the id is a number and not "I like trying to hack the database".

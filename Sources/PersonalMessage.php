@@ -441,12 +441,9 @@ function MessagePopup()
 		}
 		$smcFunc['db_free_result']($request);
 
-		if (!empty($senders))
-		{
-			$senders = loadMemberData($senders);
-			foreach ($senders as $member)
-				loadMemberContext($member);
-		}
+		$senders = loadMemberData($senders);
+		foreach ($senders as $member)
+			loadMemberContext($member);
 
 		// Having loaded everyone, attach them to the PMs.
 		foreach ($context['unread_pms'] as $id_pm => $details)
@@ -929,9 +926,7 @@ function MessageFolder()
 		}
 
 		// Load any users....
-		$posters = array_unique($posters);
-		if (!empty($posters))
-			loadMemberData($posters);
+		loadMemberData($posters);
 
 		// If we're on grouped/restricted view get a restricted list of messages.
 		if ($context['display_mode'] != 0)
@@ -1629,9 +1624,7 @@ function MessageSearch2()
 	}
 
 	// Load the users...
-	$posters = array_unique($posters);
-	if (!empty($posters))
-		loadMemberData($posters);
+	loadMemberData($posters);
 
 	// Sort out the page index.
 	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;sa=search2;params=' . $context['params'], $_GET['start'], $numResults, $modSettings['search_results_per_page'], false);
@@ -2059,7 +2052,7 @@ function MessageDrafts()
 
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
-	if (!is_array($memberResult))
+	if (!$memberResult)
 		fatal_lang_error('not_a_user', false);
 	list ($memID) = $memberResult;
 

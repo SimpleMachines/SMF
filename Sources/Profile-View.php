@@ -246,12 +246,9 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 	}
 	$smcFunc['db_free_result']($request);
 
-	if (!empty($senders))
-	{
-		$senders = loadMemberData($senders);
-		foreach ($senders as $member)
-			loadMemberContext($member);
-	}
+	$senders = loadMemberData($senders);
+	foreach ($senders as $member)
+		loadMemberContext($member);
 
 	// Now go through and actually make with the text.
 	loadLanguage('Alerts');
