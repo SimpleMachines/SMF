@@ -246,10 +246,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		// This may not always be defined...
 		$return = array();
 
-		// PharData requires a valid file extension, so give it one...
-		@rename($file, $file . '.zip');
-
-		$archive = new PharData($file . '.zip', Phar::CURRENT_AS_FILEINFO);
+		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO, null, Phar::ZIP);
 		$iterator = new RecursiveIteratorIterator($archive);
 
 		// go though each file in the archive
