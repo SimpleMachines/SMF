@@ -72,8 +72,12 @@ function smf_fileUpload(oOptions)
 
 			// Count ow many items do we have in fileUpload.track, 0 means we need to hide the cancel and upload ALL buttons.
 			if (fileUpload.track.length == 0){
-				$('.uploadAllButton').fadeOut('slow', function() {});
-				$('.cancelAllButton').fadeOut('slow', function() {});
+				$('.uploadAllButton').fadeOut('slow', function() {
+					$(this).remove();
+				});
+				$('.cancelAllButton').fadeOut('slow', function() {
+					$(this).remove();
+				});
 			}
 
 			// And actually remove the button and the node.
@@ -231,7 +235,7 @@ function smf_fileUpload(oOptions)
 				// Set a unique identifier for this file.
 				++uniqueID;
 
-				var node = $('<dd/>').addClass('attach_holder smalltext')
+				var node = $('<dd/>').addClass('attach_holder smalltext descbox')
 				.attr('id', 'attach_holder_' + uniqueID)
 				.html('<div class="file_details"><div class="file_info"></div></div><div class="file_buttons clear"><div class="progressBar"><span></span></div>');
 
@@ -331,7 +335,8 @@ function smf_fileUpload(oOptions)
 					// Gotta find the right node. Do note this is extremely fragile.
 					$.each(data.files, function (dataIndex, dataFile) {
 						if (dataFile.name == file.name && dataFile.size == file.size){
-							var node = $('#attach_holder_' + dataFile.uniqueID);
+							node = $('#attach_holder_' + dataFile.uniqueID);
+							return false;
 						}
 					});
 
