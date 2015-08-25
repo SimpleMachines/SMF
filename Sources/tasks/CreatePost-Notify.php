@@ -121,8 +121,13 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : (!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
 				$message_type = 'notification_' . $type;
 
-				if (!empty($frequency) && $type == 'reply')
-					$message_type .= '_once';
+				if ($type == 'reply')
+				{
+					if (!empty($prefs[$member]['msg_receive_body']))
+						$message_type .= '_body';
+					if (!empty($frequency))
+						$message_type .= '_once';
+				}
 
 				$content_type = 'topic';
 			}
@@ -134,13 +139,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$content_type = 'board';
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				if (!empty($prefs[$member]['msg_receive_body']))
+					$message_type .= '_body';
 			}
 			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
 			else
 				continue;
-
-			if (!empty($prefs[$member]['msg_receive_body']) && in_array($type, array('topic', 'reply')))
-				$message_type .= '_body';
 
 			if ($pref & 0x02)
 			{
