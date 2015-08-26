@@ -972,11 +972,11 @@ function SendMailing($clean_only = false)
 			))
 		);
 		$rows = array();
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
 			$rows[$row['id_member']] = $row;
 		}
-		$smcFunc['db_free_result']($request);
+		$smcFunc['db_free_result']($result);
 
 		// Load their alert preferences
 		require_once($sourcedir . '/Subs-Notify.php');
