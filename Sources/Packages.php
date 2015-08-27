@@ -657,7 +657,8 @@ function PackageInstallTest()
 				$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
 		}
 
-		if (isset($action['filename']) && !file_exists($file))
+		// Don't fail if a file/directory we're trying to create doesn't exist...
+		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')))
 		{
 			$context['has_failure'] = true;
 
