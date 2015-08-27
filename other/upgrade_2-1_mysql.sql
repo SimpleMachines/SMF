@@ -663,10 +663,13 @@ VALUES (0, 'member_group_request', 1),
 
 ---# Upgrading post notification settings
 ---{
+	// Skip errors here so we don't croak if the columns don't exist...
   $existing_notify = $smcFunc['db_query']('', '
     SELECT id_member, notify_regularity, notify_send_body, notify_types
     FROM {db_prefix}members',
-    array()
+    array(
+    	'db_error_skip' => true,
+    )
   );
   while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
   {
