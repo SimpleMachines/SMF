@@ -13,8 +13,15 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class Birthday_Notify_Background
+ */
 class Birthday_Notify_Background extends SMF_BackgroundTask
 {
+    /**
+     * This executes the task. It loads up the birthdays, figures out the greeting, etc.
+     * @return bool Always returns true
+     */
 	public function execute()
  	{
 		global $txt, $smcFunc, $txtBirthdayEmails, $smcFunc, $language, $modSettings, $sourcedir;

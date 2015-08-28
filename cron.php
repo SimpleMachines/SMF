@@ -280,11 +280,15 @@ function obExit_cron()
  */
 abstract class SMF_BackgroundTask
 {
+
+	/**
+	 * @var array Holds the details for the task
+	 */
 	protected $_details;
 
 	/**
 	 * The constructor.
-	 * @param $details The details for the task
+	 * @param array $details The details for the task
 	 */
 	public function __construct($details)
 	{

@@ -18,7 +18,8 @@
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-	 * @return bool
+     * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * @return bool Always returns true
 	 */
 	public function execute()
 	{
