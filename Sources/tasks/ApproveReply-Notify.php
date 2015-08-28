@@ -18,7 +18,8 @@
 class ApproveReply_Notify_Background extends SMF_BackgroundTask
 {
 	/**
-	 * @return bool
+     * This executes the task - loads up the information, puts the email in the queue and inserts alerts.
+	 * @return bool Always returns true.
 	 */
 	public function execute()
 	{
