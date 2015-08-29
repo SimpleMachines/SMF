@@ -413,8 +413,8 @@ function template_main()
 		foreach ($context['current_attachments'] as $attachment)
 			echo '
 							<dd class="smalltext">
-								<label for="attachment_', $attachment['attachID'], '"><input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
-								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label><p class="attached_BBC">', $txt['attached_file_insert'] ,':<input type="text" name="editedAttachBBC_', $attachment['attachID'], '" value="[attach]', $attachment['attachID'], '[/attach]" readonly><a class="button_submit editeIinsertBBC" data-attach="', $attachment['attachID'], '">', $txt['attached_insertBBC'] ,'</a></p>
+								<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
+								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label><p class="attached_BBC">', $txt['attached_file_insert'] ,':<input type="text" name="editedAttachBBC_', $attachment['id'], '" value="[attach]', $attachment['id'], '[/attach]" readonly><a class="button_submit editeIinsertBBC" data-attach="', $attachment['id'], '">', $txt['attached_insertBBC'] ,'</a></p>
 							</dd>';
 
 		echo '
