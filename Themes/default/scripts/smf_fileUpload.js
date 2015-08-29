@@ -299,6 +299,9 @@ function smf_fileUpload(oOptions)
 
 					node.removeClass('descbox').addClass('errorbox');
 					data.abort();
+
+					// Remove the upload button.
+					node.find('.uploadButton').remove();
 				}
 
 				// The file was added.
