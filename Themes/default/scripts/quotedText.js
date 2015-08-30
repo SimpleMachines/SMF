@@ -12,7 +12,6 @@ function getClosest(el, divID)
 
 		if (el.id === divID)
 		{
-			// tag name is found!
 			return el;
 		}
 	}
