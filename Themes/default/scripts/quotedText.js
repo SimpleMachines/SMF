@@ -1,3 +1,4 @@
+// Traverse the DOM tree in our spinoff of jQuery's closest()
 function getClosest(el, divID)
 {
 	if (typeof divID == 'undefined' || divID == false)
