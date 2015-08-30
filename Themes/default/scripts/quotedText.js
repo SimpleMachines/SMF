@@ -5,6 +5,10 @@ function getClosest(el, divID)
 
 	do
 	{
+		// End the loop if quick edit is detected.
+		if (el.nodeName === 'TEXTAREA' || el.nodeName === 'INPUT' || el.id === 'error_box')
+			break;
+
 		if (el.id === divID)
 		{
 			// tag name is found!
