@@ -671,20 +671,23 @@ VALUES (0, 'member_group_request', 1),
 			'db_error_skip' => true,
 		)
 	);
-	while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+	if (!empty($existing_notify))
 	{
-		$smcFunc['db_insert']('ignore',
-			'{db_prefix}user_alerts_prefs',
-			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-			array(
-				array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-				array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-				array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-			),
-			array('id_member', 'alert_pref')
-		);
+		while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+		{
+			$smcFunc['db_insert']('ignore',
+				'{db_prefix}user_alerts_prefs',
+				array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+				array(
+					array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+					array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+					array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+				),
+				array('id_member', 'alert_pref')
+			);
+		}
+		$smcFunc['db_free_result']($existing_notify);
 	}
-	$smcFunc['db_free_result']($existing_notify);
 ---}
 ---#
 
