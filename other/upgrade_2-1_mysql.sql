@@ -167,12 +167,12 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Calculate appropriate hash cost
 ---{
-  $smcFunc['db_insert']('replace',
+	$smcFunc['db_insert']('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		array('bcrypt_hash_cost', hash_benchmark()),
 		array('variable')
-  );
+	);
 ---}
 
 /******************************************************************************/
@@ -516,12 +516,12 @@ VALUES
 /******************************************************************************/
 ---# Adding the new table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-  id_task INT(10) UNSIGNED AUTO_INCREMENT,
-  task_file VARCHAR(255) NOT NULL DEFAULT '',
-  task_class VARCHAR(255) NOT NULL DEFAULT '',
-  task_data mediumtext NOT NULL,
-  claimed_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_task)
+	id_task INT(10) UNSIGNED AUTO_INCREMENT,
+	task_file VARCHAR(255) NOT NULL DEFAULT '',
+	task_class VARCHAR(255) NOT NULL DEFAULT '',
+	task_data mediumtext NOT NULL,
+	claimed_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_task)
 ) ENGINE=MyISAM;
 ---#
 
@@ -611,28 +611,28 @@ ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
 
 ---# Adding the new table for alerts.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
-  id_alert INT(10) UNSIGNED AUTO_INCREMENT,
-  alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
-  member_name VARCHAR(255) NOT NULL DEFAULT '',
-  content_type VARCHAR(255) NOT NULL DEFAULT '',
-  content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  content_action VARCHAR(255) NOT NULL DEFAULT '',
-  is_read INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  extra TEXT NOT NULL,
-  PRIMARY KEY (id_alert),
-  INDEX idx_id_member (id_member),
-  INDEX idx_alert_time (alert_time)
+	id_alert INT(10) UNSIGNED AUTO_INCREMENT,
+	alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	member_name VARCHAR(255) NOT NULL DEFAULT '',
+	content_type VARCHAR(255) NOT NULL DEFAULT '',
+	content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	content_action VARCHAR(255) NOT NULL DEFAULT '',
+	is_read INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	extra TEXT NOT NULL,
+	PRIMARY KEY (id_alert),
+	INDEX idx_id_member (id_member),
+	INDEX idx_alert_time (alert_time)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding alert preferences.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
-  alert_pref VARCHAR(32) DEFAULT '',
-  alert_value TINYINT(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_member, alert_pref)
+	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	alert_pref VARCHAR(32) DEFAULT '',
+	alert_value TINYINT(3) NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, alert_pref)
 ) ENGINE=MyISAM;
 
 INSERT INTO {$db_prefix}user_alerts_prefs
@@ -664,36 +664,36 @@ VALUES (0, 'member_group_request', 1),
 ---# Upgrading post notification settings
 ---{
 	// Skip errors here so we don't croak if the columns don't exist...
-  $existing_notify = $smcFunc['db_query']('', '
-    SELECT id_member, notify_regularity, notify_send_body, notify_types
-    FROM {db_prefix}members',
-    array(
-    	'db_error_skip' => true,
-    )
-  );
-  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
-  {
-    $smcFunc['db_insert']('ignore',
-      '{db_prefix}user_alerts_prefs',
-      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-      array(
-        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-      ),
-      array('id_member', 'alert_pref')
-    );
-  }
-  $smcFunc['db_free_result']($existing_notify);
+	$existing_notify = $smcFunc['db_query']('', '
+		SELECT id_member, notify_regularity, notify_send_body, notify_types
+		FROM {db_prefix}members',
+		array(
+			'db_error_skip' => true,
+		)
+	);
+	while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+	{
+		$smcFunc['db_insert']('ignore',
+			'{db_prefix}user_alerts_prefs',
+			array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+			array(
+				array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+				array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+				array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+			),
+			array('id_member', 'alert_pref')
+		);
+	}
+	$smcFunc['db_free_result']($existing_notify);
 ---}
 ---#
 
 ---# Dropping old notification fields from the members table
 ALTER TABLE {$db_prefix}members
-  DROP notify_send_body,
-  DROP notify_types,
-  DROP notify_regularity,
-  DROP notify_announcements;
+	DROP notify_send_body,
+	DROP notify_types,
+	DROP notify_regularity,
+	DROP notify_announcements;
 ---#
 
 /******************************************************************************/
@@ -978,12 +978,12 @@ if (!empty($select_columns))
 
 ---# Dropping old fields
 ALTER TABLE `{$db_prefix}members`
-  DROP `icq`,
-  DROP `aim`,
-  DROP `yim`,
-  DROP `msn`,
-  DROP `location`,
-  DROP `gender`;
+	DROP `icq`,
+	DROP `aim`,
+	DROP `yim`,
+	DROP `msn`,
+	DROP `location`,
+	DROP `gender`;
 ---#
 
 ---# Create the displayFields setting
@@ -1028,22 +1028,22 @@ ALTER TABLE `{$db_prefix}members`
 /******************************************************************************/
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-  id_draft INT(10) UNSIGNED AUTO_INCREMENT,
-  id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  type TINYINT(4) NOT NULL DEFAULT '0',
-  poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  subject VARCHAR(255) NOT NULL DEFAULT '',
-  smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
-  body mediumtext NOT NULL,
-  icon VARCHAR(16) NOT NULL DEFAULT 'xx',
-  locked TINYINT(4) NOT NULL DEFAULT '0',
-  is_sticky TINYINT(4) NOT NULL DEFAULT '0',
-  to_list VARCHAR(255) NOT NULL DEFAULT '',
-  PRIMARY KEY id_draft(id_draft),
-  INDEX idx_id_member (id_member, id_draft, type)
+	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
+	id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+	id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	type TINYINT(4) NOT NULL DEFAULT '0',
+	poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	subject VARCHAR(255) NOT NULL DEFAULT '',
+	smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
+	body mediumtext NOT NULL,
+	icon VARCHAR(16) NOT NULL DEFAULT 'xx',
+	locked TINYINT(4) NOT NULL DEFAULT '0',
+	is_sticky TINYINT(4) NOT NULL DEFAULT '0',
+	to_list VARCHAR(255) NOT NULL DEFAULT '',
+	PRIMARY KEY id_draft(id_draft),
+	INDEX idx_id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1109,13 +1109,13 @@ VALUES
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-  id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
-  content_type CHAR(6) DEFAULT '',
-  content_id INT(10) UNSIGNED DEFAULT '0',
-  like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (content_id, content_type, id_member),
-  INDEX idx_content (content_id, content_type),
-  INDEX idx_liker (id_member)
+	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	content_type CHAR(6) DEFAULT '',
+	content_id INT(10) UNSIGNED DEFAULT '0',
+	like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (content_id, content_type, id_member),
+	INDEX idx_content (content_id, content_type),
+	INDEX idx_liker (id_member)
 ) ENGINE=MyISAM;
 ---#
 
@@ -1129,14 +1129,14 @@ ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 /******************************************************************************/
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
-  content_id INT DEFAULT '0',
-  content_type VARCHAR(10) DEFAULT '',
-  id_mentioned INT DEFAULT 0,
-  id_member INT NOT NULL DEFAULT 0,
-  `time` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned),
-  INDEX idx_content (content_id, content_type),
-  INDEX idx_mentionee (id_member)
+	content_id INT DEFAULT '0',
+	content_type VARCHAR(10) DEFAULT '',
+	id_mentioned INT DEFAULT 0,
+	id_member INT NOT NULL DEFAULT 0,
+	`time` INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (content_id, content_type, id_mentioned),
+	INDEX idx_content (content_id, content_type),
+	INDEX idx_mentionee (id_member)
 ) ENGINE=MyISAM;
 ---#
 
@@ -1145,9 +1145,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 /******************************************************************************/
 ---# Creating moderator_groups table
 CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
-  id_board SMALLINT(5) UNSIGNED DEFAULT '0',
-  id_group SMALLINT(5) UNSIGNED DEFAULT '0',
-  PRIMARY KEY (id_board, id_group)
+	id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+	id_group SMALLINT(5) UNSIGNED DEFAULT '0',
+	PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1268,12 +1268,12 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
-  lngfile VARCHAR(255) NOT NULL DEFAULT '',
-  question VARCHAR(255) NOT NULL DEFAULT '',
-  answers TEXT NOT NULL,
-  PRIMARY KEY (id_question),
-  INDEX idx_lngfile (lngfile)
+	id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+	lngfile VARCHAR(255) NOT NULL DEFAULT '',
+	question VARCHAR(255) NOT NULL DEFAULT '',
+	answers TEXT NOT NULL,
+	PRIMARY KEY (id_question),
+	INDEX idx_lngfile (lngfile)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1413,18 +1413,18 @@ $request = upgrade_query("
 /******************************************************************************/
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
-  id_label INT(10) UNSIGNED AUTO_INCREMENT,
-  id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  name VARCHAR(30) NOT NULL DEFAULT '',
-  PRIMARY KEY (id_label)
+	id_label INT(10) UNSIGNED AUTO_INCREMENT,
+	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	name VARCHAR(30) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_label)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding pm_labeled_messages table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
-  id_label INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  id_pm INT(10) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (id_label, id_pm)
+	id_label INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_pm INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_label, id_pm)
 ) ENGINE=MyISAM;
 ---#
 
