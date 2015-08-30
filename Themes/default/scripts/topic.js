@@ -439,7 +439,7 @@ QuickModify.prototype.modifyCancel = function ()
 			{
 				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
 				{
-					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
 				}
 			}
 		}
@@ -469,7 +469,7 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 			{
 				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
 				{
-					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
 				}
 			}
 		}
