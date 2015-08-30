@@ -554,12 +554,12 @@ CREATE SEQUENCE {$db_prefix}background_tasks_seq;
 
 ---# Adding the table
 CREATE TABLE {$db_prefix}background_tasks (
-  id_task int default nextval('{$db_prefix}background_tasks_seq'),
-  task_file varchar(255) NOT NULL default '',
-  task_class varchar(255) NOT NULL default '',
-  task_data text NOT NULL,
-  claimed_time int NOT NULL default '0',
-  PRIMARY KEY (id_task)
+	id_task int default nextval('{$db_prefix}background_tasks_seq'),
+	task_file varchar(255) NOT NULL default '',
+	task_class varchar(255) NOT NULL default '',
+	task_data text NOT NULL,
+	claimed_time int NOT NULL default '0',
+	PRIMARY KEY (id_task)
 );
 ---#
 
@@ -666,17 +666,17 @@ ADD COLUMN alerts int NOT NULL default '0';
 CREATE SEQUENCE {$db_prefix}user_alerts_seq;
 
 CREATE TABLE {$db_prefix}user_alerts (
-  id_alert int default nextval('{$db_prefix}user_alerts_seq'),
-  alert_time int NOT NULL default '0',
-  id_member int NOT NULL default '0',
-  id_member_started int NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read int NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert)
+	id_alert int default nextval('{$db_prefix}user_alerts_seq'),
+	alert_time int NOT NULL default '0',
+	id_member int NOT NULL default '0',
+	id_member_started int NOT NULL default '0',
+	member_name varchar(255) NOT NULL default '',
+	content_type varchar(255) NOT NULL default '',
+	content_id int NOT NULL default '0',
+	content_action varchar(255) NOT NULL default '',
+	is_read int NOT NULL default '0',
+	extra text NOT NULL,
+	PRIMARY KEY (id_alert)
 );
 
 CREATE INDEX {$db_prefix}user_alerts_id_member ON {$db_prefix}user_alerts (id_member);
@@ -685,10 +685,10 @@ CREATE INDEX {$db_prefix}user_alerts_alert_time ON {$db_prefix}user_alerts (aler
 
 ---# Adding alert preferences.
 CREATE TABLE {$db_prefix}user_alerts_prefs (
-  id_member int NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value smallint NOT NULL default '0',
-  PRIMARY KEY (id_member, alert_pref)
+	id_member int NOT NULL default '0',
+	alert_pref varchar(32) NOT NULL default '',
+	alert_value smallint NOT NULL default '0',
+	PRIMARY KEY (id_member, alert_pref)
 );
 
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_group_request', 1);
@@ -718,36 +718,39 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 ---# Upgrading post notification settings
 ---{
 	// Skip errors here so we don't croak if the columns don't exist...
-  $existing_notify = $smcFunc['db_query']('', '
-    SELECT id_member, notify_regularity, notify_send_body, notify_types
-    FROM {db_prefix}members',
-    array(
-    	'db_error_skip' => true,
-    )
-  );
-  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
-  {
-    $smcFunc['db_insert']('ignore',
-      '{db_prefix}user_alerts_prefs',
-      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-      array(
-        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-      ),
-      array('id_member', 'alert_pref')
-    );
-  }
-  $smcFunc['db_free_result']($existing_notify);
+	$existing_notify = $smcFunc['db_query']('', '
+		SELECT id_member, notify_regularity, notify_send_body, notify_types
+		FROM {db_prefix}members',
+		array(
+			'db_error_skip' => true,
+		)
+	);
+	if (!empty($existing_notify))
+	{
+		while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+		{
+			$smcFunc['db_insert']('ignore',
+				'{db_prefix}user_alerts_prefs',
+				array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+				array(
+					array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+					array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+					array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+				),
+				array('id_member', 'alert_pref')
+			);
+		}
+		$smcFunc['db_free_result']($existing_notify);
+	}
 ---}
 ---#
 
 ---# Dropping old notification fields from the members table
 ALTER TABLE {$db_prefix}members
-  DROP notify_send_body,
-  DROP notify_types,
-  DROP notify_regularity,
-  DROP notify_announcements;
+	DROP notify_send_body,
+	DROP notify_types,
+	DROP notify_regularity,
+	DROP notify_announcements;
 ---#
 
 /******************************************************************************/
@@ -1034,12 +1037,12 @@ if (!empty($select_columns))
 ---#
 ---# Dropping old fields
 ALTER TABLE {$db_prefix}members
-  DROP icq,
-  DROP aim,
-  DROP yim,
-  DROP msn,
-  DROP location,
-  DROP gender;
+	DROP icq,
+	DROP aim,
+	DROP yim,
+	DROP msn,
+	DROP location,
+	DROP gender;
 ---#
 
 ---# Create the displayFields setting
@@ -1170,11 +1173,11 @@ INSERT INTO {$db_prefix}themes (id_theme, variable, value) VALUES ('1', 'drafts_
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE {$db_prefix}user_likes (
-  id_member int NOT NULL default '0',
-  content_type char(6) default '',
-  content_id int NOT NULL default '0',
-  like_time int NOT NULL default '0',
-  PRIMARY KEY (content_id, content_type, id_member)
+	id_member int NOT NULL default '0',
+	content_type char(6) default '',
+	content_id int NOT NULL default '0',
+	like_time int NOT NULL default '0',
+	PRIMARY KEY (content_id, content_type, id_member)
 );
 
 CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
@@ -1191,12 +1194,12 @@ ADD COLUMN likes smallint NOT NULL default '0';
 /******************************************************************************/
 ---# Creating mentions table
 CREATE TABLE  {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
-  content_type varchar(10) default '',
-  id_mentioned int NOT NULL default 0,
-  id_member int NOT NULL default 0,
-  time int NOT NULL default 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned)
+	content_id int NOT NULL default '0',
+	content_type varchar(10) default '',
+	id_mentioned int NOT NULL default 0,
+	id_member int NOT NULL default 0,
+	time int NOT NULL default 0,
+	PRIMARY KEY (content_id, content_type, id_mentioned)
 );
 
 CREATE INDEX {$db_prefix}mentions_content ON {$db_prefix}mentions (content_id, content_type);
@@ -1208,9 +1211,9 @@ CREATE INDEX {$db_prefix}mentions_mentionee ON {$db_prefix}mentions (id_member);
 /******************************************************************************/
 ---# Creating moderator_groups table
 CREATE TABLE {$db_prefix}moderator_groups (
-  id_board smallint NOT NULL default '0',
-  id_group smallint NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group)
+	id_board smallint NOT NULL default '0',
+	id_group smallint NOT NULL default '0',
+	PRIMARY KEY (id_board, id_group)
 );
 ---#
 
@@ -1306,12 +1309,12 @@ WHERE variable IN ('show_board_desc', 'no_new_reply_warning', 'display_quick_rep
 
 ---# Calculate appropriate hash cost
 ---{
-  $smcFunc['db_insert']('replace',
+	$smcFunc['db_insert']('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		array('bcrypt_hash_cost', hash_benchmark()),
 		array('variable')
-  );
+	);
 ---}
 
 /******************************************************************************/
@@ -1356,12 +1359,12 @@ $smcFunc['db_free_result']($file_check);
 CREATE SEQUENCE {$db_prefix}qanda_seq;
 
 CREATE TABLE {$db_prefix}qanda (
-  id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
-  lngfile varchar(255) NOT NULL default '',
-  question varchar(255) NOT NULL default '',
-  answers text NOT NULL,
-  PRIMARY KEY (id_question),
-  KEY lngfile (lngfile)
+	id_question smallint NOT NULL default nextval('{$db_prefix}qanda_seq'),
+	lngfile varchar(255) NOT NULL default '',
+	question varchar(255) NOT NULL default '',
+	answers text NOT NULL,
+	PRIMARY KEY (id_question),
+	KEY lngfile (lngfile)
 );
 ---#
 
@@ -1518,18 +1521,18 @@ CREATE SEQUENCE {$db_prefix}pm_labels_seq;
 
 ---# Adding pm_labels table...
 CREATE TABLE {$db_prefix}pm_labels (
-  id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
-  id_member int NOT NULL default '0',
-  name varchar(30) NOT NULL default '',
-  PRIMARY KEY (id_label)
+	id_label int NOT NULL default nextval('{$db_prefix}pm_labels_seq'),
+	id_member int NOT NULL default '0',
+	name varchar(30) NOT NULL default '',
+	PRIMARY KEY (id_label)
 );
 ---#
 
 ---# Adding pm_labeled_messages table...
 CREATE TABLE {$db_prefix}pm_labeled_messages (
-  id_label int NOT NULL default '0',
-  id_pm int NOT NULL default '0',
-  PRIMARY KEY (id_label, id_pm)
+	id_label int NOT NULL default '0',
+	id_pm int NOT NULL default '0',
+	PRIMARY KEY (id_label, id_pm)
 );
 ---#
 
