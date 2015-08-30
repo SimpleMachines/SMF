@@ -39,10 +39,10 @@ function getSelectedText(divID)
 
 	// Need to be sure the selected text does belong to the right div.
 	for (var i = 0; i < selection.rangeCount; i++) {
-			s = selection.getRangeAt(i).startContainer.parentNode.id;
-			e = selection.getRangeAt(i).endContainer.parentNode.id;
+			s = getClosest(selection.getRangeAt(i).startContainer, divID);
+			e = getClosest(selection.getRangeAt(i).endContainer, divID);
 
-			if (s == divID || (s != divID && e == 'child'))
+			if (s !== null && e !== null)
 			{
 				found = 1;
 				break;
