@@ -1,3 +1,22 @@
+function getClosest(el, divID)
+{
+	if (typeof divID == 'undefined' || divID == false)
+		return null;
+
+	do
+	{
+		if (el.id === divID)
+		{
+			// tag name is found!
+			return el;
+		}
+	}
+	while (el = el.parentNode);
+
+	// not found :(
+	return null;
+}
+
 function getSelectedText(divID)
 {
 	if (typeof divID == 'undefined' || divID == false)
