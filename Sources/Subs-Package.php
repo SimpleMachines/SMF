@@ -247,7 +247,7 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		$return = array();
 
 		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO, null, Phar::ZIP);
-		$iterator = new RecursiveIteratorIterator($archive);
+		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
 
 		// go though each file in the archive
 		foreach ($iterator as $file_info)
@@ -1889,7 +1889,7 @@ function copytree($source, $destination)
 	if (!is_writable($destination))
 		mktree($destination, 0777);
 
-	$current_dir = opendir($source);
+	$current_dir = @opendir($source);
 	if ($current_dir == false)
 		return;
 
