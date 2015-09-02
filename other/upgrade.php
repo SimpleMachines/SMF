@@ -1265,7 +1265,7 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $db_last_error;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
@@ -1456,6 +1456,76 @@ function UpgradeOptions()
 
 	// Update Settings.php with the new settings.
 	changeSettings($changes);
+
+	// Back up again before we do anything else, just in case...
+	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+
+	// Read the contents of the file in as a string
+	$settings_file = file_get_contents($boarddir . '/Settings.php');
+
+	// Look to see if the new error-catching section is there...
+	if (stripos('if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))', $settings_file) === false)
+	{
+		// This is what we want to add...
+		$error_catching_header = '
+########## Error-Catching ##########
+# Note: You shouldn\'t touch these settings.';
+
+		$error_catching = '
+if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))
+	include(dirname(__FILE__) . \'/db_last_error.php\');
+
+if (!isset($db_last_error))
+{
+	// File does not exist so lets try to create it
+	file_put_contents(dirname(__FILE__) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');
+	$db_last_error = 0;
+}
+';
+		// Before we go any further, check to see if the original code is there first...
+		if (stripos('########## Error-Catching ##########', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code - assuming the header is already there
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching, $settings_file);
+		}
+		// What about just the db_last_error line?
+		elseif (stripos('$db_last_error =', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching_header . $error_catching, $settings_file);
+		}
+		else
+		{
+			$found_old = false;
+			// We want the comments as well as the code...
+			$error_catching = $error_catching_header . $error_catching;
+		}
+
+		// Blank out the file - done to fix a oddity with some servers.
+		$fp = fopen($boarddir . '/Settings.php', 'w');
+		fclose($fp);
+
+		// Open the file for writing
+		$file = fopen($boarddir . '/Settings.php', 'r+');
+
+		// Write the original contents...
+		fwrite($file, $settings_file);
+
+		// If we didn't find the old code, add the new code at the end instead...
+		if (!$found_old)
+		{
+			// Go to the position two bytes before the end - in front of the closing PHP tag
+			fseek($file, -2, SEEK_END);
+
+			// Append our new data - the extra line break above will prevent us from breaking things...
+			fwrite($file, $error_catching);
+		}
+
+		// Close the file
+		fclose($file);
+	}
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
