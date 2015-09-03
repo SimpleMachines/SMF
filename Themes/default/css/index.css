@@ -1783,7 +1783,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
-	background-position: -213px -5px;
+	background-position: -239px -5px;
 }
 /* 2nd row */
 .generic_icons.move, .generic_icons.next_page {
@@ -3352,7 +3352,7 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachment {
+.attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
 }

@@ -617,7 +617,7 @@ function template_single_post($message)
 			}
 
 			echo '
-									<div class="floatleft attachment">';
+									<div class="floatleft attached">';
 
 			if ($attachment['is_image'])
 			{
