@@ -112,7 +112,7 @@ class ProxyServer
 		}
 
 		// Make sure we're serving an image
-		$contentParts = explode('/', !empty($cached['content-type']) ? $cached['content-type'] : '');
+		$contentParts = explode('/', !empty($cached['content_type']) ? $cached['content_type'] : '');
 		if ($contentParts[0] != 'image')
 			exit;
 
