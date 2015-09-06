@@ -235,7 +235,7 @@ function read_tgz_data($gzfilename, $destination, $single_file = false, $overwri
  * @param boolean $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
  * @param boolean $overwrite If true, will overwrite files with newer modication times. Default is false.
  * @param array $files_to_extract Specific files to extract
- * @uses {@link ZipExtract}
+ * @uses {@link PharData}
  * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
  */
 
@@ -246,8 +246,8 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 		// This may not always be defined...
 		$return = array();
 
-		$archive = new PharData($file, Phar::CURRENT_AS_FILEINFO, null, Phar::ZIP);
-		$iterator = new RecursiveIteratorIterator($archive);
+		$archive = new PharData($file, RecursiveIteratorIterator::SELF_FIRST, null, Phar::ZIP);
+		$iterator = new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::SELF_FIRST);
 
 		// go though each file in the archive
 		foreach ($iterator as $file_info)
@@ -263,8 +263,15 @@ function read_zip_file($file, $destination, $single_file = false, $overwrite = f
 					$write_this = false;
 
 				// Get the actual compressed data.
-				if (!is_dir($file_info))
+				if (!$file_info->isDir())
 					$file_data = file_get_contents($file_info);
+				elseif ($destination !== null && !$single_file)
+				{
+					// Folder... create.
+					if (!file_exists($destination . '/' . $i))
+						mktree($destination . '/' . $i, 0777);
+					$file_data = null;
+				}
 				else
 					$file_data = null;
 
