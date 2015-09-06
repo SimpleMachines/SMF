@@ -341,7 +341,7 @@ h3.largetext {
 .bbc_code {
 	display: block;
 	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
-	font-size: 0.9em;
+	font-size: 0.75em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -385,11 +385,9 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_bold {
-	font-weight: bold;
-}
-.bbc_img {
+.bbc_img, .atc_img {
 	border: 0;
+	max-width: 100%;
 }
 .bbc_table {
 	font: inherit;
@@ -400,17 +398,10 @@ h3.largetext {
 	color: inherit;
 	vertical-align: top;
 }
-.bbc_u {
-	text-decoration: underline;
-}
 .bbc_list {
 	text-align: left;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
-}
-/* Everything is same except HTML5 valid */
-.bbc_tt {
-	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }
 /* No image should have a border when linked. */
 a img {
@@ -1792,7 +1783,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
-	background-position: -213px -5px;
+	background-position: -239px -5px;
 }
 /* 2nd row */
 .generic_icons.move, .generic_icons.next_page {
@@ -3361,8 +3352,9 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachments .floatleft {
+.attached {
 	padding: 0 6px 8px 6px;
+	max-width: 100%;
 }
 .attachments_top {
 	margin: 0 auto;

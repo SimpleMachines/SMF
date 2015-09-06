@@ -277,7 +277,7 @@ function error_handler($error_level, $error_string, $file, $line)
 
 /**
  * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
- * @uses Errors template, fatal_error sub template, or Wireless template, error sub template.
+ * @uses Errors template, fatal_error sub template.
  *
  * @param string $error_message The error message
  * @param string $error_code An error code
@@ -308,15 +308,8 @@ function setup_fatal_error_context($error_message, $error_code = null)
 	if (empty($context['page_title']))
 		$context['page_title'] = $context['error_title'];
 
-	// Display the error message - wireless?
-	if (defined('WIRELESS') && WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_error';
-	// Load the template and set the sub template.
-	else
-	{
-		loadTemplate('Errors');
-		$context['sub_template'] = 'fatal_error';
-	}
+	loadTemplate('Errors');
+	$context['sub_template'] = 'fatal_error';
 
 	// If this is SSI, what do they want us to do?
 	if (SMF == 'SSI')
@@ -458,8 +451,8 @@ function display_loadavg_error()
 
 /**
  * Small utility function for fatal error pages.
- * Used by display_db_error(), display_loadavg_error(),
- * display_maintenance_message()
+ * Used by {@link display_db_error()}, {@link display_loadavg_error()},
+ * {@link display_maintenance_message()}
  */
 function set_fatal_error_headers()
 {
@@ -488,6 +481,10 @@ function log_error_online($error, $sprintf = array())
 
 	// Don't bother if Who's Online is disabled.
 	if (empty($modSettings['who_enabled']))
+		return;
+
+	// Maybe they came from SSI or similar where sessions are not recorded?
+	if (SMF == 'SSI' || SMF == 'BACKGROUND')
 		return;
 
 	$session_id = $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id();

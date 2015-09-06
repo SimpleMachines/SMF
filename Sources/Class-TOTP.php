@@ -23,35 +23,34 @@ namespace TOTP;
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class Auth
+ * @package TOTP
+ */
 class Auth
 {
 	/**
-	 * Internal lookup table
-	 * @var array
+	 * @var array Internal lookup table
 	 */
 	private $lookup = array();
 
 	/**
-	 * Initialization key
-	 * @var string
+	 * @var string Initialization key
 	 */
 	private $initKey = null;
 
 	/**
-	 * Seconds between key refreshes
-	 * @var integer
+	 * @var integer Seconds between key refreshes
 	 */
 	private $refreshSeconds = 30;
 
 	/**
-	 * Length of codes to generate
-	 * @var integer
+	 * @var integer The length of codes to generate
 	 */
 	private $codeLength = 6;
 
 	/**
-	 * Range plus/minus for "window of opportunity" on allowed codes
-	 * @var integer
+	 * @var integer Range plus/minus for "window of opportunity" on allowed codes
 	 */
 	private $range = 2;
 
@@ -72,8 +71,6 @@ class Auth
 
 	/**
 	 * Build the base32 lookup table
-	 *
-	 * @return null
 	 */
 	public function buildLookup()
 	{
@@ -280,7 +277,7 @@ class Auth
 	}
 
 	/**
-	 * Geenrate the timestamp for the calculation
+	 * Generate the timestamp for the calculation
 	 *
 	 * @return integer Timestamp
 	 */
@@ -310,7 +307,7 @@ class Auth
 	/**
 	 * Base32 decoding function
 	 *
-	 * @param string base32 encoded hash
+	 * @param string $hash The base32-encoded hash
 	 * @throws \InvalidArgumentException When hash is not valid
 	 * @return string Binary value of hash
 	 */
@@ -344,8 +341,9 @@ class Auth
 	/**
 	 * Returns a URL to QR code for embedding the QR code
 	 *
-	 * @param string Generated code
-	 * @return string URL
+	 * @param string $name The name
+	 * @param string $code The generated code
+	 * @return string The URL to the QR code
 	 */
 	public function getQrCodeUrl($name, $code)
 	{

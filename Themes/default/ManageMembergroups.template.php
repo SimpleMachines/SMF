@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main page listing all the groups.
+ */
 function template_main()
 {
 	template_show_list('regular_membergroups_list');
@@ -17,6 +20,9 @@ function template_main()
 	template_show_list('post_count_membergroups_list');
 }
 
+/**
+ * Add a new membergroup.
+ */
 function template_new_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -144,6 +150,9 @@ function template_new_group()
 	</div>';
 }
 
+/**
+ * Edit an existing membergroup.
+ */
 function template_edit_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -418,6 +427,11 @@ function template_edit_group()
 		</script>';
 }
 
+/**
+ * The template for determining which boards a group has access to.
+ *
+ * @param bool $collapse Whether to collapse the list by default
+ */
 function template_add_edit_group_boards_list($collapse = true)
 {
 	global $context, $txt, $modSettings;
@@ -507,7 +521,9 @@ function template_add_edit_group_boards_list($collapse = true)
 							</script>';
 }
 
-// Templating for viewing the members of a group.
+/**
+ * Templatine for viewing the members of a group.
+ */
 function template_group_members()
 {
 	global $context, $scripturl, $txt;
@@ -681,7 +697,9 @@ function template_group_members()
 		</script>';
 }
 
-// Allow the moderator to enter a reason to each user being rejected.
+/**
+ * Allow the moderator to enter a reason to each user being rejected.
+ */
 function template_group_request_reason()
 {
 	global $context, $txt, $scripturl;

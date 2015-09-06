@@ -837,6 +837,9 @@ function RemoveTheme()
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing');
 }
 
+/**
+ * Handles enabling/disabling a theme from the admin center
+ */
 function EnableTheme()
 {
 	global $modSettings, $context;
@@ -1286,6 +1289,10 @@ function InstallFile()
 
 	// Set a temp dir for dumping all required files on it.
 	$dirtemp = $themedir .'/temp';
+
+	// Make sure the temp dir doesn't already exist
+	if (file_exists($dirtemp))
+		remove_dir($dirtemp);
 
 	// Create the temp dir.
 	mkdir($dirtemp, 0777);

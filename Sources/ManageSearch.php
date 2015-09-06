@@ -82,7 +82,8 @@ function ManageSearch()
  * Called by ?action=admin;area=managesearch;sa=settings.
  * Requires the admin_forum permission.
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  * @uses ManageSearch template, 'modify_settings' sub-template.
  */
 function EditSearchSettings($return_config = false)

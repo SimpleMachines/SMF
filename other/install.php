@@ -381,7 +381,7 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl, $txt;
 
 	// Send character set.
-	header('Content-Type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1'));
+	header('Content-Type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8'));
 
 	// We usually dump our templates out.
 	if (!$fallThrough)
@@ -1105,7 +1105,12 @@ function DatabasePopulation()
 		// Does this table already exist?  If so, don't insert more data into it!
 		if (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) != 0 && in_array($match[1], $exists))
 		{
-			$incontext['sql_results']['insert_dups']++;
+			preg_match_all('~\)[,;]~', $current_statement, $matches);
+			if (!empty($matches[0]))
+				$incontext['sql_results']['insert_dups'] += count($matches[0]);
+			else
+				$incontext['sql_results']['insert_dups']++;
+
 			$current_statement = '';
 			continue;
 		}
@@ -1134,7 +1139,7 @@ function DatabasePopulation()
 		{
 			if (preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 				$incontext['sql_results']['tables']++;
-			else
+			elseif (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				preg_match_all('~\)[,;]~', $current_statement, $matches);
 				if (!empty($matches[0]))
@@ -1249,8 +1254,19 @@ function DatabasePopulation()
 			}
 		}
 	}
+
+	// Find database user privileges.
+	$privs = array();
+	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
+	while ($row = $smcFunc['db_fetch_assoc']($get_privs))
+	{
+		if ($row['Privilege'] == 'Alter')
+			$privs[] = $row['Privilege'];
+	}
+	$smcFunc['db_free_result']($get_privs);
+
 	// Check for the ALTER privilege.
-	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
+	if (!empty($databases[$db_type]['alter_support']) && !in_array('Alter', $privs))
 	{
 		$incontext['error'] = $txt['error_db_alter_priv'];
 		return false;
@@ -2088,7 +2104,7 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
 		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">

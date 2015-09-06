@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Our main calendar template, which encapsulates weeks and months.
+/**
+ * Our main calendar template, which encapsulates weeks and months.
+ */
 function template_main()
 {
 	global $context;
@@ -53,7 +55,13 @@ function template_main()
 	</div>';
 }
 
-// Display a monthly calendar grid.
+/**
+ * Display a monthly calendar grid.
+ *
+ * @param string $grid_name The grid name
+ * @param bool $is_mini Is this a mini grid?
+ * @return void|bool Returns false if the grid doesn't exist.
+ */
 function template_show_month_grid($grid_name, $is_mini = false)
 {
 	global $context, $settings, $txt, $scripturl, $modSettings;
@@ -298,7 +306,12 @@ function template_show_month_grid($grid_name, $is_mini = false)
 	echo '</table>';
 }
 
-// Or show a weekly one?
+/**
+ * Shows a weekly grid
+ *
+ * @param string $grid_name The name of the grid
+ * @return void|bool Returns false if the grid doesn't exist
+ */
 function template_show_week_grid($grid_name)
 {
 	global $context, $settings, $txt, $scripturl, $modSettings;
@@ -463,13 +476,13 @@ function template_show_week_grid($grid_name)
 	}
 }
 
-/*
+/**
  * Calendar Grid Base
  *
  * This function is ONLY designed for use
  * within an existing table element.
  *
- * @param int $col_span = 1
+ * @param int $col_span How many columns to span
  */
 function template_calendar_base($col_span = 1)
 {
@@ -500,7 +513,9 @@ function template_calendar_base($col_span = 1)
 		</tr>';
 }
 
-// Template for posting a calendar event.
+/**
+ * Template for posting a calendar event.
+ */
 function template_event_post()
 {
 	global $context, $txt, $scripturl, $modSettings;

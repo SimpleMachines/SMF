@@ -12,8 +12,15 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class CreatePost_Notify_Background
+ */
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+     * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $language;
@@ -64,7 +71,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$groups = array_merge(array($row['id_group'], $row['id_post_group']), explode(',', $row['additional_groups']));
+			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
 
@@ -93,7 +100,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
-			$frequency = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_pref'] : 1;
+			$frequency = !empty($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 1;
 			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $data['id_member_started'])
@@ -115,8 +122,13 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : (!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
 				$message_type = 'notification_' . $type;
 
-				if (!empty($frequency) && $type == 'reply')
-					$message_type .= '_once';
+				if ($type == 'reply')
+				{
+					if (!empty($prefs[$member]['msg_receive_body']))
+						$message_type .= '_body';
+					if (!empty($frequency))
+						$message_type .= '_once';
+				}
 
 				$content_type = 'topic';
 			}
@@ -128,13 +140,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				$content_type = 'board';
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				if (!empty($prefs[$member]['msg_receive_body']))
+					$message_type .= '_body';
 			}
 			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
 			else
 				continue;
-
-			if (!empty($prefs[$member]['msg_receive_body']) && in_array($type, array('topic', 'reply')))
-				$message_type .= '_body';
 
 			if ($pref & 0x02)
 			{

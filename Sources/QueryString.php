@@ -325,8 +325,8 @@ function cleanRequest()
 /**
  * Validates a IPv6 address. returns true if it is ipv6.
  *
- * @param string $ip ip address to be validated
- * @return boolean true|false
+ * @param string $ip The ip address to be validated
+ * @return boolean Whether the specified IP is a valid IPv6 address
  */
 function isValidIPv6($ip)
 {
@@ -339,8 +339,8 @@ function isValidIPv6($ip)
 /**
  * Converts IPv6s to numbers.  This makes ban checks much easier.
  *
- * @param string $ip ip address to be converted
- * @return array
+ * @param string $ip The IP address to be converted
+ * @return array An array containing the expanded IP parts
  */
 function convertIPv6toInts($ip)
 {
@@ -366,9 +366,9 @@ function convertIPv6toInts($ip)
 /**
  * Expands a IPv6 address to its full form.
  *
- * @param type $addr
- * @param type $strict_check checks length to expand address for compliance
- * @return boolean/string expanded ipv6 address.
+ * @param string $addr The IPv6 address
+ * @param bool $strict_check Whether to check the length of the expanded address for compliance
+ * @return string|bool The expanded IPv6 address or false if $strict_check is true and the result isn't valid
  */
 function expandIPv6($addr, $strict_check = true)
 {
@@ -419,9 +419,9 @@ function expandIPv6($addr, $strict_check = true)
  * Detect if a IP is in a CIDR address
  * - returns true or false
  *
- * @param string IP address to check
- * @param string CIDR address to verify
- * @return bool
+ * @param string $ip_address IP address to check
+ * @param string $cidr_address CIDR address to verify
+ * @return bool Whether the IP matches the CIDR
 */
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
@@ -436,8 +436,8 @@ function matchIPtoCIDR($ip_address, $cidr_address)
  * - importantly escapes all keys and values!
  * - calls itself recursively if necessary.
  *
- * @param array|string $var
- * @return array|string
+ * @param array|string $var A string or array of strings to escape
+ * @return array|string The escaped string or array of escaped strings
  */
 function escapestring__recursive($var)
 {
@@ -463,9 +463,9 @@ function escapestring__recursive($var)
  * - importantly, does not effect keys, only values.
  * - calls itself recursively if necessary.
  *
- * @param array|string $var
- * @param int $level = 0
- * @return array|string
+ * @param array|string $var The string or array of strings to add entites to
+ * @param int $level Which level we're at within the array (if called recursively)
+ * @return array|string The string or array of strings with entities added
  */
 function htmlspecialchars__recursive($var, $level = 0)
 {
@@ -488,9 +488,9 @@ function htmlspecialchars__recursive($var, $level = 0)
  * - importantly, does it to keys too!
  * - calls itself recursively if there are any sub arrays.
  *
- * @param array|string $var
- * @param int $level = 0
- * @return array|string
+ * @param array|string $var The string or array of strings to decode
+ * @param int $level Which level we're at within the array (if called recursively)
+ * @return array|string The decoded string or array of decoded strings
  */
 function urldecode__recursive($var, $level = 0)
 {
@@ -513,8 +513,8 @@ function urldecode__recursive($var, $level = 0)
  * - effects both keys and values of arrays.
  * - calls itself recursively to handle arrays of arrays.
  *
- * @param array|string $var
- * @return array|string
+ * @param array|string $var The string or array of strings to unescape
+ * @return array|string The unescaped string or array of unescaped strings
  */
 function unescapestring__recursive($var)
 {
@@ -540,9 +540,9 @@ function unescapestring__recursive($var)
  * - effects both keys and values of arrays.
  * - calls itself recursively to handle arrays of arrays.
  *
- * @param array|string $var
- * @param int $level = 0
- * @return array|string
+ * @param array|string $var The string or array of strings to strip slashes from
+ * @param int $level = 0 What level we're at within the array (if called recursively)
+ * @return array|string The string or array of strings with slashes stripped
  */
 function stripslashes__recursive($var, $level = 0)
 {
@@ -566,9 +566,9 @@ function stripslashes__recursive($var, $level = 0)
  * - does not effect keys, only values.
  * - may call itself recursively if needed.
  *
- * @param array|string $var
- * @param int $level = 0
- * @return array|string
+ * @param array|string $var The string or array of strings to trim
+ * @param int $level = 0 How deep we're at within the array (if called recursively)
+ * @return array|string The trimmed string or array of trimmed strings
  */
 function htmltrim__recursive($var, $level = 0)
 {
@@ -591,8 +591,8 @@ function htmltrim__recursive($var, $level = 0)
  * - removes invalid XML characters to assure the input string being
  * - parsed properly.
  *
- * @param string $string
- * @return string
+ * @param string $string The string to clean
+ * @return string The cleaned string
  */
 function cleanXml($string)
 {
@@ -605,8 +605,8 @@ function cleanXml($string)
 /**
  * Escapes (replaces) characters in strings to make them safe for use in javascript
  *
- * @param string $string
- * @return string
+ * @param string $string The string to escape
+ * @return string The escaped string
  */
 function JavaScriptEscape($string)
 {
@@ -637,8 +637,8 @@ function JavaScriptEscape($string)
  * - because of bugs in certain builds of PHP, does not function in
  *   versions lower than 4.3.0 - please upgrade if this hurts you.
  *
- * @param string $buffer
- * @return string
+ * @param string $buffer The unmodified output buffer
+ * @return string The modified buffer
  */
 function ob_sessrewrite($buffer)
 {

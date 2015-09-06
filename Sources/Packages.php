@@ -657,7 +657,8 @@ function PackageInstallTest()
 				$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
 		}
 
-		if (isset($action['filename']) && !file_exists($file))
+		// Don't fail if a file/directory we're trying to create doesn't exist...
+		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')))
 		{
 			$context['has_failure'] = true;
 
@@ -1048,7 +1049,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'redirect' && !empty($action['redirect_url']))
 			{
 				$context['redirect_url'] = $action['redirect_url'];
-				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
+				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename'])) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
 				$context['redirect_timeout'] = $action['redirect_timeout'];
 
 				// Parse out a couple of common urls.
@@ -1515,11 +1516,11 @@ function PackageBrowse()
  * Determines if the package is a mod, avatar, language package
  * Determines if the package has been installed or not
  *
- * @param type $start
- * @param type $items_per_page
- * @param type $sort
- * @param type $params
- * @return type
+ * @param int $start The item to start with (not used here)
+ * @param int $items_per_page The number of items to show per page (not used here)
+ * @param string $sort A string indicating how to sort the results
+ * @param string? $params A key for the $packages array
+ * @return array An array of information about the packages
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
@@ -2237,10 +2238,9 @@ function PackagePermissions()
 /**
  * Checkes the permissions of all the areas that will be affected by the package
  *
- * @param type $path
- * @param type $data
- * @param type $level
- * @return type
+ * @param string $path The path to the directiory to check permissions for
+ * @param array $data An array of data about the directory
+ * @param int $level How far deep to go
  */
 function fetchPerms__recursive($path, &$data, $level)
 {

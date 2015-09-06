@@ -577,7 +577,7 @@ function MLSearch()
  * Retrieves results of the request passed to it
  * Puts results of request into the context for the sub template.
  *
- * @param resource $request
+ * @param resource $request An SQL result resource
  */
 function printMemberListRows($request)
 {
@@ -648,7 +648,7 @@ function printMemberListRows($request)
 /**
  * Sets the label, sort and join info for every custom field column.
  *
- * @return array
+ * @return array An array of info about the custom fields for the member list
  */
 function getCustFieldsMList()
 {

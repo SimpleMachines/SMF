@@ -23,8 +23,8 @@ if (!defined('SMF'))
  * Cleans up links (javascript, etc.) and code/quote sections.
  * Won't convert \n's and a few other things if previewing is true.
  *
- * @param $message
- * @param $previewing
+ * @param string $message The mesasge
+ * @param bool $previewing Whether we're previewing
  */
 function preparsecode(&$message, $previewing = false)
 {
@@ -210,7 +210,7 @@ function preparsecode(&$message, $previewing = false)
 /**
  * This is very simple, and just removes things done by preparsecode.
  *
- * @param $message
+ * @param string $message The message
  */
 function un_preparsecode($message)
 {
@@ -245,7 +245,7 @@ function un_preparsecode($message)
  * Fix any URLs posted - ie. remove 'javascript:'.
  * Used by preparsecode, fixes links in message and returns nothing.
  *
- * @param string $message
+ * @param string $message The message
  */
 function fixTags(&$message)
 {
@@ -391,12 +391,12 @@ function fixTags(&$message)
  * Fix a specific class of tag - ie. url with =.
  * Used by fixTags, fixes a specific tag's links.
  *
- * @param string $message
- * @param string $myTag - the tag
- * @param string $protocols - http or ftp
- * @param bool $embeddedUrl = false - whether it *can* be set to something
- * @param bool $hasEqualSign = false, whether it *is* set to something
- * @param bool $hasExtra = false - whether it can have extra cruft after the begin tag.
+ * @param string $message The message
+ * @param string $myTag The tag
+ * @param string $protocols The protocols
+ * @param bool $embeddedUrl Whether it *can* be set to something
+ * @param bool $hasEqualSign Whether it *is* set to something
+ * @param bool $hasExtra Whether it can have extra cruft after the begin tag.
  */
 function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSign = false, $hasExtra = false)
 {
@@ -473,16 +473,16 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
  * This function sends an email to the specified recipient(s).
  * It uses the mail_type settings and webmaster_email variable.
  *
- * @param array $to - the email(s) to send to
- * @param string $subject - email subject, expected to have entities, and slashes, but not be parsed
- * @param string $message - email body, expected to have slashes, no htmlentities
- * @param string $from = null - the address to use for replies
- * @param string $message_id = null - if specified, it will be used as local part of the Message-ID header.
- * @param bool $send_html = false, whether or not the message is HTML vs. plain text
- * @param int $priority = 3
- * @param bool $hotmail_fix = null
- * @param $is_private
- * @return boolean, whether ot not the email was sent properly.
+ * @param array $to The email(s) to send to
+ * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
+ * @param string $message Email body, expected to have slashes, no htmlentities
+ * @param string $from The address to use for replies
+ * @param string $message_id If specified, it will be used as local part of the Message-ID header.
+ * @param bool $send_html Whether or not the message is HTML vs. plain text
+ * @param int $priority The priority of the message
+ * @param bool $hotmail_fix Whether to apply the "hotmail fix"
+ * @param bool $is_private Whether this is private
+ * @return boolean Whether ot not the email was sent properly.
  */
 function sendmail($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
 {
@@ -666,15 +666,15 @@ function sendmail($to, $subject, $message, $from = null, $message_id = null, $se
 /**
  * Add an email to the mail queue.
  *
- * @param bool $flush = false
- * @param array $to_array = array()
- * @param string $subject = ''
- * @param string $message = ''
- * @param string $headers = ''
- * @param bool $send_html = false
- * @param int $priority = 3
- * @param $is_private
- * @return boolean
+ * @param bool $flush Whether to flush the queue
+ * @param array $to_array An array of recipients
+ * @param string $subject The subject of the message
+ * @param string $message The message
+ * @param string $headers The headers
+ * @param bool $send_html Whether to send in HTML format
+ * @param int $priority The priority
+ * @param bool $is_private Whether this is private
+ * @return boolean Whether the message was added
  */
 function AddMailQueue($flush = false, $to_array = array(), $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
 {
@@ -769,13 +769,13 @@ function AddMailQueue($flush = false, $to_array = array(), $subject = '', $messa
  * Sends an personal message from the specified person to the specified people
  * ($from defaults to the user)
  *
- * @param array $recipients - an array containing the arrays 'to' and 'bcc', both containing id_member's.
- * @param string $subject - should have no slashes and no html entities
- * @param string $message - should have no slashes and no html entities
- * @param bool $store_outbox
- * @param array $from - an array with the id, name, and username of the member.
- * @param int $pm_head - the ID of the chain being replied to - if any.
- * @return array, an array with log entries telling how many recipients were successful and which recipients it failed to send to.
+ * @param array $recipients An array containing the arrays 'to' and 'bcc', both containing id_member's.
+ * @param string $subject Should have no slashes and no html entities
+ * @param string $message Should have no slashes and no html entities
+ * @param bool $store_outbox Whether to store it in the sender's outbox
+ * @param array $from An array with the id, name, and username of the member.
+ * @param int $pm_head The ID of the chain being replied to - if any.
+ * @return array An array with log entries telling how many recipients were successful and which recipients it failed to send to.
  */
 function sendpm($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0)
 {
@@ -921,30 +921,11 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	}
 
 	// Load the groups that are allowed to read PMs.
-	// @todo move into a separate function on $permission.
-	$allowed_groups = array();
-	$disallowed_groups = array();
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group, add_deny
-		FROM {db_prefix}permissions
-		WHERE permission = {string:read_permission}',
-		array(
-			'read_permission' => 'pm_read',
-		)
-	);
-
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		if (empty($row['add_deny']))
-			$disallowed_groups[] = $row['id_group'];
-		else
-			$allowed_groups[] = $row['id_group'];
-	}
-
-	$smcFunc['db_free_result']($request);
+	require_once($sourcedir . '/Subs-Members.php');
+	$pmReadGroups = groupsAllowedTo('pm_read');
 
 	if (empty($modSettings['permission_enable_deny']))
-		$disallowed_groups = array();
+		$pmReadGroups['denied'] = array();
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -1010,7 +991,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 			}
 
 			// Do they have any of the allowed groups?
-			if (count(array_intersect($allowed_groups, $groups)) == 0 || count(array_intersect($disallowed_groups, $groups)) != 0)
+			if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0)
 			{
 				$log['failed'][$row['id_member']] = sprintf($txt['pm_error_user_cannot_read'], $row['real_name']);
 				unset($all_to[array_search($row['id_member'], $all_to)]);
@@ -1171,13 +1152,12 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
  * function will attempt the transport method 'quoted-printable'.
  * Otherwise the transport method '7bit' is used.
  *
- * @param string $string
- * @param bool $with_charset = true
- * @param bool $hotmail_fix = false, with hotmail_fix set all higher ASCII
- *  characters are converted to HTML entities to assure proper display of the mail
- * @param $line_break
- * @param string $custom_charset = null, if set, it uses this character set
- * @return array an array containing the character set, the converted string and the transport method.
+ * @param string $string The string
+ * @param bool $with_charset Whether we're specifying a charset ($custom_charset must be set here)
+ * @param bool $hotmail_fix Whether to apply the hotmail fix  (all higher ASCII characters are converted to HTML entities to assure proper display of the mail)
+ * @param string $line_break The linebreak
+ * @param string $custom_charset If set, it uses this character set
+ * @return array An array containing the character set, the converted string and the transport method.
  */
 function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
 {
@@ -1273,11 +1253,11 @@ function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $
  * It expects no slashes or entities.
  * @internal
  *
- * @param array $mail_to_array - array of strings (email addresses)
- * @param string $subject email subject
- * @param string $message email message
- * @param string $headers
- * @return boolean whether it sent or not.
+ * @param array $mail_to_array Array of strings (email addresses)
+ * @param string $subject Email subject
+ * @param string $message Email message
+ * @param string $headers Email headers
+ * @return boolean Whether it sent or not.
  */
 function smtp_mail($mail_to_array, $subject, $message, $headers)
 {
@@ -1402,10 +1382,10 @@ function smtp_mail($mail_to_array, $subject, $message, $headers)
  * expected response.
  * @internal
  *
- * @param string $message - the message to send
- * @param resource $socket - socket to send on
- * @param string $response - the expected response code
- * @return whether it responded as such.
+ * @param string $message The message to send
+ * @param resource $socket Socket to send on
+ * @param string $response The expected response code
+ * @return bool Whether it responded as such.
  */
 function server_parse($message, $socket, $response)
 {
@@ -1527,12 +1507,10 @@ function SpellCheck()
  * checks permissions for each member who is "signed up" for notifications.
  * It will not send 'reply' notifications more than once in a row.
  *
- * @param array $topics - represents the topics the action is happening to.
- * @param string $type - can be any of reply, sticky, lock, unlock, remove,
- *  move, merge, and split.  An appropriate message will be sent for each.
- * @param array $exclude = array() - members in the exclude array will not be
- *  processed for the topic with the same key.
- * @param array $members_only = array() - are the only ones that will be sent the notification if they have it on.
+ * @param array $topics Represents the topics the action is happening to.
+ * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
+ * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
+ * @param array $members_only Are the only ones that will be sent the notification if they have it on.
  * @uses Post language file
  */
 function sendNotifications($topics, $type, $exclude = array(), $members_only = array())
@@ -1608,9 +1586,10 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
  * - Integers have been cast to integer.
  * - Mandatory parameters are set.
  *
- * @param array $msgOptions
- * @param array $topicOptions
- * @param array $posterOptions
+ * @param array $msgOptions An array of information/options for the post
+ * @param array $topicOptions An array of information/options for the topic
+ * @param array $posterOptions An array of information/options for the poster
+ * @return bool Whether the operation was a success
  */
 function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
@@ -2008,9 +1987,10 @@ function createPost(&$msgOptions, &$topicOptions, &$posterOptions)
 /**
  * Modifying a post...
  *
- * @param array &$msgOptions
- * @param array &$topicOptions
- * @param array &$posterOptions
+ * @param array &$msgOptions An array of information/options for the post
+ * @param array &$topicOptions An array of information/options for the topic
+ * @param array &$posterOptions An array of information/options for the poster
+ * @return bool Whether the post was modified successfully
  */
 function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 {
@@ -2191,9 +2171,10 @@ function modifyPost(&$msgOptions, &$topicOptions, &$posterOptions)
 /**
  * Approve (or not) some posts... without permission checks...
  *
- * @param array $msgs - array of message ids
- * @param bool $approve = true
- * @param bool $notify
+ * @param array $msgs Array of message ids
+ * @param bool $approve Whether to approve the posts (if false, posts are unapproved)
+ * @param bool $notify Whether to notify users
+ * @return bool Whether the operation was successful
  */
 function approvePosts($msgs, $approve = true, $notify = true)
 {
@@ -2444,8 +2425,9 @@ function approvePosts($msgs, $approve = true, $notify = true)
  * Approve topics?
  * @todo shouldn't this be in topic
  *
- * @param array $topics array of topics ids
- * @param bool $approve = true
+ * @param array $topics Array of topic ids
+ * @param bool $approve Whether to approve the topics. If false, unapproves them instead
+ * @return bool Whether the operation was successful
  */
 function approveTopics($topics, $approve = true)
 {
@@ -2486,8 +2468,9 @@ function approveTopics($topics, $approve = true)
  * Note that id_last_msg should always be updated using this function,
  * and is not automatically updated upon other changes.
  *
- * @param array $setboards
- * @param int $id_msg = 0
+ * @param array $setboards An array of board IDs
+ * @param int $id_msg The ID of the message
+ * @return void|false Returns false if $setboards is empty for some reason
  */
 function updateLastMessages($setboards, $id_msg = 0)
 {
@@ -2622,9 +2605,9 @@ function updateLastMessages($setboards, $id_msg = 0)
  * Email is sent to all groups that have the moderate_forum permission.
  * The language set by each member is being used (if available).
  *
- * @param string $type types supported are 'approval', 'activation', and 'standard'.
- * @param int $memberID
- * @param string $member_name = null
+ * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
+ * @param int $memberID The ID of the member
+ * @param string $member_name The name of the member (if null, it is pulled from the database)
  * @uses the Login language file.
  */
 function adminNotify($type, $memberID, $member_name = null)
@@ -2664,10 +2647,11 @@ function adminNotify($type, $memberID, $member_name = null)
 /**
  * Load a template from EmailTemplates language file.
  *
- * @param string $template
- * @param array $replacements = array()
- * @param string $lang = ''
- * @param bool $loadLang = true
+ * @param string $template The name of the template to load
+ * @param array $replacements An array of replacements for the variables in the template
+ * @param string $lang The language to use, if different than the user's current language
+ * @param bool $loadLang Whether to load the language file first
+ * @return array An array containing the subject and body of the email template, with replacements made
  */
 function loadEmailTemplate($template, $replacements = array(), $lang = '', $loadLang = true)
 {
@@ -2721,8 +2705,8 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
  * Callback function for loademaitemplate on subject and body
  * Uses capture group 1 in array
  *
- * @param type $matches
- * @return string
+ * @param array $matches An array of matches
+ * @return string The match
  */
 function user_info_callback($matches)
 {

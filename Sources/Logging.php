@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Put this user in the online log.
  *
- * @param bool $force = false
+ * @param bool $force Whether to force logging the data
  */
 function writeLog($force = false)
 {
@@ -205,7 +205,7 @@ function displayDebug()
 	global $db_cache, $db_count, $db_show_debug, $cache_count, $cache_hits, $smcFunc, $txt;
 
 	// Add to Settings.php if you want to show the debugging information.
-	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery') || WIRELESS)
+	if (!isset($db_show_debug) || $db_show_debug !== true || (isset($_GET['action']) && $_GET['action'] == 'viewquery'))
 		return;
 
 	if (empty($_SESSION['view_queries']))
@@ -326,8 +326,8 @@ function displayDebug()
  * It does not actually commit the changes until the end of the page view.
  * It depends on the trackStats setting.
  *
- * @param array $stats = array()
- * @return boolean|array
+ * @param array $stats An array of data
+ * @return bool Whether or not the info was updated successfully
  */
 function trackStats($stats = array())
 {
@@ -386,9 +386,10 @@ function trackStats($stats = array())
  * You should use {@link logActions()} instead.
  * @example logAction('remove', array('starter' => $id_member_started));
  *
- * @param string $action
- * @param array $extra = array()
- * @param string $log_type options: 'moderate', 'admin', ...etc.
+ * @param string $action The action to log
+ * @param array $extra = array() An array of additional data
+ * @param string $log_type What type of log ('admin', 'moderate', etc.)
+ * @return int The ID of the row containing the logged data
  */
 function logAction($action, $extra = array(), $log_type = 'moderate')
 {
@@ -403,8 +404,8 @@ function logAction($action, $extra = array(), $log_type = 'moderate')
  * Log changes to the forum, such as moderation events or administrative changes.
  * This behaves just like logAction() in SMF 2.0, except that it is designed to log multiple actions at once.
  *
- * @param array $logs
- * @return the last logged ID
+ * @param array $logs An array of log data
+ * @return int The last logged ID
  */
 function logActions($logs)
 {

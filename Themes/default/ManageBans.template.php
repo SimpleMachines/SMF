@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Add or edit a ban
+ */
 function template_ban_edit()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -236,6 +239,9 @@ function template_ban_edit()
 		}</script>';
 }
 
+/**
+ * Add or edit a ban trigger
+ */
 function template_ban_edit_trigger()
 {
 	global $context, $txt, $modSettings;

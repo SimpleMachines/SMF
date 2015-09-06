@@ -1263,8 +1263,8 @@ function AdminApprove()
  * Requires a unix timestamp as input, returns an integer.
  * Named in honour of Jeff Lewis, the original creator of...this function.
  *
- * @param $old
- * @return int, the returned number of days, based on the forum time.
+ * @param int $old The timestamp of the old date
+ * @return int The number of days since $old, based on the forum time
  */
 function jeffsdatediff($old)
 {

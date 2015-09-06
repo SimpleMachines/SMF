@@ -17,9 +17,9 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main admin handling function.
- * It initialises all the basic context required for the admin center.
- * It passes execution onto the relevant admin section.
+ * The main admin handling function.<br>
+ * It initialises all the basic context required for the admin center.<br>
+ * It passes execution onto the relevant admin section.<br>
  * If the passed section is not found it shows the admin home page.
  */
 function AdminMain()
@@ -40,7 +40,7 @@ function AdminMain()
 	// Some preferences.
 	$context['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
 
-	// Define all the menu structure - see Subs-Menu.php for details!
+	/** @var array $admin_areas Defines the menu structure for the admin center. See {@link Subs-Menu.php Subs-Menu.php} for details! */
 	$admin_areas = array(
 		'forum' => array(
 			'title' => $txt['admin_main'],
@@ -811,6 +811,7 @@ function AdminSearchInternal()
 
 /**
  * All this does is pass through to manage members.
+ * {@see ViewMembers()}
  */
 function AdminSearchMember()
 {

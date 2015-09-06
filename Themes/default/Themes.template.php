@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// The main sub template - for theme administration.
+/**
+ * The main sub template - for theme administration.
+ */
 function template_main()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -187,6 +189,9 @@ function template_main()
 	</script>';
 }
 
+/**
+ * This lists all themes
+ */
 function template_list_themes()
 {
 	global $context, $scripturl, $txt;
@@ -285,6 +290,9 @@ function template_list_themes()
 	</div>';
 }
 
+/**
+ * This lets you reset themes
+ */
 function template_reset_list()
 {
 	global $context, $scripturl, $txt;
@@ -326,6 +334,9 @@ function template_reset_list()
 	</div>';
 }
 
+/**
+ * This displays the form for setting theme options
+ */
 function template_set_options()
 {
 	global $context, $scripturl, $txt;
@@ -441,6 +452,9 @@ function template_set_options()
 	</div>';
 }
 
+/**
+ * The page for setting and managing theme settings.
+ */
 function template_set_settings()
 {
 	global $context, $settings, $scripturl, $txt;
@@ -688,7 +702,9 @@ function template_set_settings()
 	}
 }
 
-// This template allows for the selection of different themes ;).
+/**
+ * This template allows for the selection of different themes ;).
+ */
 function template_pick()
 {
 	global $context, $scripturl, $txt;
@@ -782,7 +798,9 @@ function template_pick()
 	</div>';
 }
 
-// Okay, that theme was installed/updated successfully!
+/**
+ * Okay, that theme was installed/updated successfully!
+ */
 function template_installed()
 {
 	global $context, $scripturl, $txt;
@@ -817,6 +835,9 @@ function template_installed()
 	</div>';
 }
 
+/**
+ * The page for editing themes.
+ */
 function template_edit_list()
 {
 	global $context, $scripturl, $txt;
@@ -850,6 +871,9 @@ function template_edit_list()
 	</div>';
 }
 
+/**
+ * The page allowing you to copy a template from one theme to another.
+ */
 function template_copy_template()
 {
 	global $context, $scripturl, $txt;
@@ -888,6 +912,9 @@ function template_copy_template()
 	</div>';
 }
 
+/**
+ * This lets you browse a list of files in a theme so you can choose which one to edit.
+ */
 function template_edit_browse()
 {
 	global $context, $txt;
@@ -941,7 +968,9 @@ function template_edit_browse()
 	</div>';
 }
 
-// Wanna edit the stylesheet?
+/**
+ * Wanna edit the stylesheet?
+ */
 function template_edit_style()
 {
 	global $context, $settings, $scripturl, $txt;
@@ -1099,7 +1128,9 @@ function template_edit_style()
 	</div>';
 }
 
-// This edits the template...
+/**
+ * This edits the template...
+ */
 function template_edit_template()
 {
 	global $context, $scripturl, $txt;
@@ -1155,6 +1186,9 @@ function template_edit_template()
 	</div>';
 }
 
+/**
+ * This allows you to edit a file
+ */
 function template_edit_file()
 {
 	global $context, $scripturl, $txt;

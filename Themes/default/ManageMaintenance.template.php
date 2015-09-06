@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Template for the database maintenance tasks.
+/**
+ * Tempalte for the database maintenance tasks.
+ */
 function template_maintain_database()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -93,7 +95,9 @@ function template_maintain_database()
 	</div>';
 }
 
-// Template for the routine maintenance tasks.
+/**
+ * Template for the routine maintenance tasks.
+ */
 function template_maintain_routine()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -172,7 +176,9 @@ function template_maintain_routine()
 	</div>';
 }
 
-// Template for the member maintenance tasks.
+/**
+ * Template for the member maintenance tasks.
+ */
 function template_maintain_members()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -332,7 +338,9 @@ function template_maintain_members()
 	</script>';
 }
 
-// Template for the topic maintenance tasks.
+/**
+ * Template for the topic maintenance tasks.
+ */
 function template_maintain_topics()
 {
 	global $scripturl, $txt, $context, $settings, $modSettings;
@@ -505,7 +513,9 @@ function template_maintain_topics()
 	</div>';
 }
 
-// Simple template for showing results of our optimization...
+/**
+ * Simple template for showing results of our optimization...
+ */
 function template_optimize()
 {
 	global $context, $txt, $scripturl;
@@ -536,6 +546,9 @@ function template_optimize()
 	</div>';
 }
 
+/**
+ * Template for converting data to UTF-8.
+ */
 function template_convert_utf8()
 {
 	global $context, $txt, $scripturl;
@@ -572,6 +585,9 @@ function template_convert_utf8()
 	</div>';
 }
 
+/**
+ * Template for converting entities to UTF-8 characters
+ */
 function template_convert_entities()
 {
 	global $context, $txt, $scripturl;
@@ -590,6 +606,9 @@ function template_convert_entities()
 	</div>';
 }
 
+/**
+ * Template for converting posts to UTF-8.
+ */
 function template_convert_msgbody()
 {
 	global $context, $txt, $scripturl;

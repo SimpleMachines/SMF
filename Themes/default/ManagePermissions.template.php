@@ -11,6 +11,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main manage permissions page
+ */
 function template_permission_index()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -260,6 +263,9 @@ function template_permission_index()
 	</div>';
 }
 
+/**
+ * THe page that shows which permissions profile applies to each board
+ */
 function template_by_board()
 {
 	global $context, $scripturl, $txt;
@@ -345,7 +351,9 @@ function template_by_board()
 	</div>';
 }
 
-// Edit permission profiles (predefined).
+/**
+ * Edit permission profiles (predefined).
+ */
 function template_edit_profiles()
 {
 	global $context, $scripturl, $txt;
@@ -441,6 +449,9 @@ function template_edit_profiles()
 	</div>';
 }
 
+/**
+ * Modify a group's permissions
+ */
 function template_modify_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -527,7 +538,11 @@ function template_modify_group()
 	</div>';
 }
 
-// The way of looking at permissions.
+/**
+ * The way of looking at permissions.
+ *
+ * @param string $type The permissions type
+ */
 function template_modify_group_display($type)
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -658,6 +673,9 @@ function template_modify_group_display($type)
 				<br class="clear">';
 }
 
+/**
+ * A form for displaying inline permissions, such as on a settings page.
+ */
 function template_inline_permissions()
 {
 	global $context, $txt, $modSettings;
@@ -732,7 +750,9 @@ function template_inline_permissions()
 											</script>';
 }
 
-// Edit post moderation permissions.
+/**
+ * Edit post moderation permissions.
+ */
 function template_postmod_permissions()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;

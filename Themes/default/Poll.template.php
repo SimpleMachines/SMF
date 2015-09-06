@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * A form for creating and/or editing a poll.
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl;

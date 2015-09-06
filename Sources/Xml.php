@@ -16,7 +16,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
-
+/**
+ * The main handler and designator for AJAX stuff - jumpto, message icons and previews
+ */
 function XMLhttpMain()
 {
 	loadTemplate('Xml');
@@ -62,6 +64,9 @@ function GetJumpTo()
 	$context['sub_template'] = 'jump_to';
 }
 
+/**
+ * Gets a list of available message icons and sends the info to the template for display
+ */
 function ListMessageIcons()
 {
 	global $context, $sourcedir, $board;
@@ -72,6 +77,11 @@ function ListMessageIcons()
 	$context['sub_template'] = 'message_icons';
 }
 
+/**
+ * Handles retrieving previews of news items, newsletters, signatures and warnings.
+ * Calls the appropriate function based on $_POST['item']
+ * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
+ */
 function RetrievePreview()
 {
 	global $context;
@@ -91,6 +101,9 @@ function RetrievePreview()
 	$_POST['item']();
 }
 
+/**
+ * Handles previewing news items
+ */
 function newspreview()
 {
 	global $context, $sourcedir, $smcFunc;
@@ -119,6 +132,10 @@ function newspreview()
 		),
 	);
 }
+
+/**
+ * Handles previewing newsletters
+ */
 function newsletterpreview()
 {
 	global $context, $sourcedir, $txt;
@@ -141,6 +158,9 @@ function newsletterpreview()
 	$context['sub_template'] = 'pm';
 }
 
+/**
+ * Handles previewing signatures
+ */
 function sig_preview()
 {
 	global $context, $sourcedir, $smcFunc, $txt, $user_info;
@@ -221,6 +241,9 @@ function sig_preview()
 		);
 }
 
+/**
+ * Handles previewing user warnings
+ */
 function warning_preview()
 {
 	global $context, $sourcedir, $smcFunc, $txt, $user_info, $scripturl, $mbname;

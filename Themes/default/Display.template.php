@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * This tempate handles displaying a topic
+ */
 function template_main()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -329,6 +332,11 @@ function template_main()
 
 }
 
+/**
+ * Template for displaying a single post.
+ *
+ * @param array $message An array of information about the message to display. Should have 'id' and 'member'. Can also have 'first_new', 'is_ignored' and 'css_class'.
+ */
 function template_single_post($message)
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -609,7 +617,7 @@ function template_single_post($message)
 			}
 
 			echo '
-									<div class="floatleft">';
+									<div class="floatleft attached">';
 
 			if ($attachment['is_image'])
 			{
@@ -618,10 +626,10 @@ function template_single_post($message)
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '"></a>';
+											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '" class="atc_img"></a>';
 				else
 					echo '
-											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '"/>';
+											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '" class="atc_img">';
 
 				echo '
 										</div>';
@@ -829,6 +837,9 @@ function template_single_post($message)
 				<hr class="post_separator">';
 }
 
+/**
+ * The template for displaying the quick reply box.
+ */
 function template_quickreply()
 {
 	global $context, $modSettings, $scripturl, $options, $txt;

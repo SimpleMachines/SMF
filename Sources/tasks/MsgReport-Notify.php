@@ -13,8 +13,15 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class MsgReport_Notify_Background
+ */
 class MsgReport_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+     * This executes the task - loads up the information, puts the email in the queue and inserts alerts as needed.
+	 * @return bool Always returns true.
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $modSettings, $language, $scripturl;

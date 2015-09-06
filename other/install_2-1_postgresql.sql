@@ -1121,10 +1121,6 @@ CREATE TABLE {$db_prefix}members (
   time_offset float NOT NULL default '0',
   avatar varchar(255) NOT NULL,
   usertitle varchar(255) NOT NULL,
-  notify_announcements smallint NOT NULL default '1',
-  notify_regularity smallint NOT NULL default '1',
-  notify_send_body smallint NOT NULL default '0',
-  notify_types smallint NOT NULL default '2',
   member_ip varchar(255) NOT NULL,
   member_ip2 varchar(255) NOT NULL,
   secret_question varchar(255) NOT NULL,
@@ -2718,6 +2714,10 @@ INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) V
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'msg_quote', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_new', 1);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'pm_reply', 1);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_approved', 3);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'groupr_rejected', 3);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'birthday', 2);
+INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'announcements', 2);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report_reply', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'member_report', 3);
 INSERT INTO {$db_prefix}user_alerts_prefs (id_member, alert_pref, alert_value) VALUES (0, 'unapproved_post', 1);

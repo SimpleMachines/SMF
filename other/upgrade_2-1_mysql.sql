@@ -6,14 +6,14 @@
 
 ---# Adding login history...
 CREATE TABLE IF NOT EXISTS {$db_prefix}member_logins (
-	id_login int(10) NOT NULL auto_increment,
-	id_member mediumint(8) NOT NULL,
-	time int(10) NOT NULL,
-	ip varchar(255) NOT NULL default '',
-	ip2 varchar(255) NOT NULL default '',
+	id_login INT(10) AUTO_INCREMENT,
+	id_member MEDIUMINT(8) NOT NULL,
+	time INT(10) NOT NULL,
+	ip VARCHAR(255) NOT NULL DEFAULT '',
+	ip2 VARCHAR(255) NOT NULL DEFAULT '',
 	PRIMARY KEY id_login(id_login),
-	KEY id_member (id_member),
-	KEY time (time)
+	INDEX idx_id_member (id_member),
+	INDEX idx_time (time)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -109,7 +109,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts',
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
 
----# Adding new "defaultMaxListItems" setting
+---# Adding new "DEFAULTMaxListItems" setting
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems', '15');
 ---#
 
@@ -167,12 +167,12 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 
 ---# Calculate appropriate hash cost
 ---{
-  $smcFunc['db_insert']('replace',
+	$smcFunc['db_insert']('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
 		array('bcrypt_hash_cost', hash_benchmark()),
 		array('variable')
-  );
+	);
 ---}
 
 /******************************************************************************/
@@ -390,26 +390,26 @@ if (!empty($attachs))
 
 ---# Adding new columns to ban items...
 ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 smallint(255) unsigned NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 smallint(255) unsigned NOT NULL DEFAULT '0';
+ADD COLUMN ip_low5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_high5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_low6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_high6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_low7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_high7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_low8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN ip_high8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 ---# Changing existing columns to ban items...
 ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 smallint(255) unsigned NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
+CHANGE ip_low1 ip_low1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_high1 ip_high1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_low2 ip_low2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_high2 ip_high2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_low3 ip_low3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_high3 ip_high3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_low4 ip_low4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
+CHANGE ip_high4 ip_high4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -418,17 +418,17 @@ CHANGE ip_high4 ip_high4 smallint(255) unsigned NOT NULL DEFAULT '0';
 
 ---# Adding new columns to log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
-ADD COLUMN status tinyint(3) unsigned NOT NULL default '0',
-ADD COLUMN id_member_acted mediumint(8) unsigned NOT NULL default '0',
-ADD COLUMN member_name_acted varchar(255) NOT NULL default '',
-ADD COLUMN time_acted int(10) unsigned NOT NULL default '0',
-ADD COLUMN act_reason text NOT NULL;
+ADD COLUMN status TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN id_member_acted MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN member_name_acted VARCHAR(255) NOT NULL DEFAULT '',
+ADD COLUMN time_acted INT(10) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN act_reason TEXT NOT NULL;
 ---#
 
 ---# Adjusting the indexes for log_group_requests
 ALTER TABLE {$db_prefix}log_group_requests
 DROP INDEX `id_member`,
-ADD INDEX `id_member` (`id_member`, `id_group`);
+ADD INDEX `idx_id_member` (`id_member`, `id_group`);
 ---#
 
 /******************************************************************************/
@@ -436,7 +436,7 @@ ADD INDEX `id_member` (`id_member`, `id_group`);
 /******************************************************************************/
 ---# Adding new columns to log_packages ..
 ALTER TABLE {$db_prefix}log_packages
-ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN credits VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -444,13 +444,13 @@ ADD COLUMN credits varchar(255) NOT NULL DEFAULT '';
 /******************************************************************************/
 ---# Altering the session_id columns...
 ALTER TABLE {$db_prefix}log_online
-CHANGE `session` `session` varchar(64) NOT NULL DEFAULT '';
+CHANGE `session` `session` VARCHAR(64) NOT NULL DEFAULT '';
 
 ALTER TABLE {$db_prefix}log_errors
-CHANGE `session` `session` char(64) NOT NULL default '                                                                ';
+CHANGE `session` `session` CHAR(64) NOT NULL DEFAULT '                                                                ';
 
 ALTER TABLE {$db_prefix}sessions
-CHANGE `session_id` `session_id` char(64) NOT NULL;
+CHANGE `session_id` `session_id` CHAR(64) NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -458,8 +458,8 @@ CHANGE `session_id` `session_id` char(64) NOT NULL;
 /******************************************************************************/
 ---# Adding new columns to topics ..
 ALTER TABLE {$db_prefix}topics
-ADD COLUMN redirect_expires int(10) unsigned NOT NULL default '0',
-ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0';
+ADD COLUMN redirect_expires INT(10) UNSIGNED NOT NULL DEFAULT '0',
+ADD COLUMN id_redirect_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -467,7 +467,7 @@ ADD COLUMN id_redirect_topic mediumint(8) unsigned NOT NULL default '0';
 /******************************************************************************/
 ---# Adding a new column "callable" to scheduled_tasks table
 ALTER TABLE {$db_prefix}scheduled_tasks
-ADD COLUMN callable varchar(60) NOT NULL default '';
+ADD COLUMN callable VARCHAR(60) NOT NULL DEFAULT '';
 ---#
 
 ---# Adding new scheduled tasks
@@ -516,12 +516,12 @@ VALUES
 /******************************************************************************/
 ---# Adding the new table
 CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
-  id_task int(10) unsigned NOT NULL auto_increment,
-  task_file varchar(255) NOT NULL default '',
-  task_class varchar(255) NOT NULL default '',
-  task_data mediumtext NOT NULL,
-  claimed_time int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY (id_task)
+	id_task INT(10) UNSIGNED AUTO_INCREMENT,
+	task_file VARCHAR(255) NOT NULL DEFAULT '',
+	task_class VARCHAR(255) NOT NULL DEFAULT '',
+	task_data mediumtext NOT NULL,
+	claimed_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_task)
 ) ENGINE=MyISAM;
 ---#
 
@@ -530,7 +530,7 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}background_tasks (
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}boards
-ADD COLUMN deny_member_groups varchar(255) NOT NULL DEFAULT '';
+ADD COLUMN deny_member_groups VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -598,7 +598,7 @@ if (!empty($member_groups))
 /******************************************************************************/
 ---# Adding new columns to categories...
 ALTER TABLE {$db_prefix}categories
-ADD COLUMN description text NOT NULL;
+ADD COLUMN description TEXT NOT NULL;
 ---#
 
 /******************************************************************************/
@@ -606,33 +606,33 @@ ADD COLUMN description text NOT NULL;
 /******************************************************************************/
 ---# Adding the count to the members table...
 ALTER TABLE {$db_prefix}members
-ADD COLUMN alerts int(10) unsigned NOT NULL default '0';
+ADD COLUMN alerts INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 ---# Adding the new table for alerts.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts (
-  id_alert int(10) unsigned NOT NULL auto_increment,
-  alert_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(10) unsigned NOT NULL default '0',
-  id_member_started mediumint(10) unsigned NOT NULL default '0',
-  member_name varchar(255) NOT NULL default '',
-  content_type varchar(255) NOT NULL default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  content_action varchar(255) NOT NULL default '',
-  is_read int(10) unsigned NOT NULL default '0',
-  extra text NOT NULL,
-  PRIMARY KEY (id_alert),
-  KEY id_member (id_member),
-  KEY alert_time (alert_time)
+	id_alert INT(10) UNSIGNED AUTO_INCREMENT,
+	alert_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member_started MEDIUMINT(10) UNSIGNED NOT NULL DEFAULT '0',
+	member_name VARCHAR(255) NOT NULL DEFAULT '',
+	content_type VARCHAR(255) NOT NULL DEFAULT '',
+	content_id INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	content_action VARCHAR(255) NOT NULL DEFAULT '',
+	is_read INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	extra TEXT NOT NULL,
+	PRIMARY KEY (id_alert),
+	INDEX idx_id_member (id_member),
+	INDEX idx_alert_time (alert_time)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding alert preferences.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_alerts_prefs (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  alert_pref varchar(32) NOT NULL default '',
-  alert_value tinyint(3) NOT NULL default '0',
-  PRIMARY KEY (id_member, alert_pref)
+	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	alert_pref VARCHAR(32) DEFAULT '',
+	alert_value TINYINT(3) NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_member, alert_pref)
 ) ENGINE=MyISAM;
 
 INSERT INTO {$db_prefix}user_alerts_prefs
@@ -649,7 +649,11 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'msg_quote', 1),
 	(0, 'pm_new', 1),
 	(0, 'pm_reply', 1),
+	(0, 'groupr_approved', 3),
+	(0, 'groupr_rejected', 3),
 	(0, 'member_report_reply', 3),
+	(0, 'birthday', 2),
+	(0, 'announcements', 2),
 	(0, 'member_report', 3),
 	(0, 'unapproved_post', 1),
 	(0, 'buddy_request', 1),
@@ -657,12 +661,50 @@ VALUES (0, 'member_group_request', 1),
 	(0, 'request_group', 1);
 ---#
 
+---# Upgrading post notification settings
+---{
+	// Skip errors here so we don't croak if the columns don't exist...
+	$existing_notify = $smcFunc['db_query']('', '
+		SELECT id_member, notify_regularity, notify_send_body, notify_types
+		FROM {db_prefix}members',
+		array(
+			'db_error_skip' => true,
+		)
+	);
+	if (!empty($existing_notify))
+	{
+		while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
+		{
+			$smcFunc['db_insert']('ignore',
+				'{db_prefix}user_alerts_prefs',
+				array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
+				array(
+					array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
+					array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
+					array($row['id_member'], 'msg_notify_type', $row['notify_types']),
+				),
+				array('id_member', 'alert_pref')
+			);
+		}
+		$smcFunc['db_free_result']($existing_notify);
+	}
+---}
+---#
+
+---# Dropping old notification fields from the members table
+ALTER TABLE {$db_prefix}members
+	DROP notify_send_body,
+	DROP notify_types,
+	DROP notify_regularity,
+	DROP notify_announcements;
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
 ---# Adding new columns to boards...
 ALTER TABLE {$db_prefix}log_topics
-ADD COLUMN unwatched tinyint(3) NOT NULL DEFAULT '0';
+ADD COLUMN unwatched TINYINT(3) NOT NULL DEFAULT '0';
 
 UPDATE {$db_prefix}log_topics
 SET unwatched = 0;
@@ -670,7 +712,7 @@ SET unwatched = 0;
 
 ---# Fixing column name change...
 ALTER TABLE {$db_prefix}log_topics
-CHANGE COLUMN disregarded unwatched tinyint(3) NOT NULL DEFAULT '0';
+CHANGE COLUMN disregarded unwatched TINYINT(3) NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -686,7 +728,7 @@ CHANGE body body mediumtext NOT NULL;
 /******************************************************************************/
 ---# Altering the membergroup stars to icons
 ALTER TABLE {$db_prefix}membergroups
-CHANGE `stars` `icons` varchar(255) NOT NULL DEFAULT '';
+CHANGE `stars` `icons` VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 ---# Renaming default theme...
@@ -840,12 +882,12 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/core'))
 /******************************************************************************/
 ---# Adding new field_order column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN field_order smallint NOT NULL default '0';
+ADD COLUMN field_order SMALLINT NOT NULL DEFAULT '0';
 ---#
 
 ---# Adding new show_mlist column...
 ALTER TABLE {$db_prefix}custom_fields
-ADD COLUMN show_mlist smallint NOT NULL default '0';
+ADD COLUMN show_mlist SMALLINT NOT NULL DEFAULT '0';
 ---#
 
 ---# Insert fields
@@ -921,8 +963,8 @@ if (!empty($select_columns))
 		if (!empty($row['location']))
 			$inserts[] = array($row['id_member'], -1, 'cust_loca', $row['location']);
 
-		if (!empty($row['gender']) && isset($genderTypes[intval($row['gender'])]))
-			$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[intval($row['gender'])]);
+		if (!empty($row['gender']) && isset($genderTypes[INTval($row['gender'])]))
+			$inserts[] = array($row['id_member'], -1, 'cust_gender', $genderTypes[INTval($row['gender'])]);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -939,12 +981,12 @@ if (!empty($select_columns))
 
 ---# Dropping old fields
 ALTER TABLE `{$db_prefix}members`
-  DROP `icq`,
-  DROP `aim`,
-  DROP `yim`,
-  DROP `msn`,
-  DROP `location`,
-  DROP `gender`;
+	DROP `icq`,
+	DROP `aim`,
+	DROP `yim`,
+	DROP `msn`,
+	DROP `location`,
+	DROP `gender`;
 ---#
 
 ---# Create the displayFields setting
@@ -989,22 +1031,22 @@ ALTER TABLE `{$db_prefix}members`
 /******************************************************************************/
 ---# Creating draft table
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_drafts (
-  id_draft int(10) unsigned NOT NULL auto_increment,
-  id_topic mediumint(8) unsigned NOT NULL default '0',
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_reply int(10) unsigned NOT NULL default '0',
-  type tinyint(4) NOT NULL default '0',
-  poster_time int(10) unsigned NOT NULL default '0',
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  subject varchar(255) NOT NULL default '',
-  smileys_enabled tinyint(4) NOT NULL default '1',
-  body mediumtext NOT NULL,
-  icon varchar(16) NOT NULL default 'xx',
-  locked tinyint(4) NOT NULL default '0',
-  is_sticky tinyint(4) NOT NULL default '0',
-  to_list varchar(255) NOT NULL default '',
-  PRIMARY KEY id_draft(id_draft),
-  UNIQUE id_member (id_member, id_draft, type)
+	id_draft INT(10) UNSIGNED AUTO_INCREMENT,
+	id_topic MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	id_board SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+	id_reply INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	type TINYINT(4) NOT NULL DEFAULT '0',
+	poster_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	subject VARCHAR(255) NOT NULL DEFAULT '',
+	smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
+	body mediumtext NOT NULL,
+	icon VARCHAR(16) NOT NULL DEFAULT 'xx',
+	locked TINYINT(4) NOT NULL DEFAULT '0',
+	is_sticky TINYINT(4) NOT NULL DEFAULT '0',
+	to_list VARCHAR(255) NOT NULL DEFAULT '',
+	PRIMARY KEY id_draft(id_draft),
+	INDEX idx_id_member (id_member, id_draft, type)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1070,19 +1112,19 @@ VALUES
 /******************************************************************************/
 ---# Creating likes table.
 CREATE TABLE IF NOT EXISTS {$db_prefix}user_likes (
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  content_type char(6) default '',
-  content_id int(10) unsigned NOT NULL default '0',
-  like_time int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY (content_id, content_type, id_member),
-  INDEX content (content_id, content_type),
-  INDEX liker (id_member)
+	id_member MEDIUMINT(8) UNSIGNED DEFAULT '0',
+	content_type CHAR(6) DEFAULT '',
+	content_id INT(10) UNSIGNED DEFAULT '0',
+	like_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (content_id, content_type, id_member),
+	INDEX idx_content (content_id, content_type),
+	INDEX idx_liker (id_member)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding count to the messages table.
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN likes smallint(5) unsigned NOT NULL DEFAULT '0';
+ADD COLUMN likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -1090,14 +1132,14 @@ ADD COLUMN likes smallint(5) unsigned NOT NULL DEFAULT '0';
 /******************************************************************************/
 ---# Creating mentions table
 CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
-  content_id int NOT NULL default '0',
-  content_type varchar(10) default '',
-  id_mentioned int NOT NULL default 0,
-  id_member int NOT NULL default 0,
-  `time` int NOT NULL default 0,
-  PRIMARY KEY (content_id, content_type, id_mentioned),
-  INDEX content (content_id, content_type),
-  INDEX mentionee (id_member)
+	content_id INT DEFAULT '0',
+	content_type VARCHAR(10) DEFAULT '',
+	id_mentioned INT DEFAULT 0,
+	id_member INT NOT NULL DEFAULT 0,
+	`time` INT NOT NULL DEFAULT 0,
+	PRIMARY KEY (content_id, content_type, id_mentioned),
+	INDEX idx_content (content_id, content_type),
+	INDEX idx_mentionee (id_member)
 ) ENGINE=MyISAM;
 ---#
 
@@ -1106,9 +1148,9 @@ CREATE TABLE IF NOT EXISTS {$db_prefix}mentions (
 /******************************************************************************/
 ---# Creating moderator_groups table
 CREATE TABLE IF NOT EXISTS {$db_prefix}moderator_groups (
-  id_board smallint(5) unsigned NOT NULL default '0',
-  id_group smallint(5) unsigned NOT NULL default '0',
-  PRIMARY KEY (id_board, id_group)
+	id_board SMALLINT(5) UNSIGNED DEFAULT '0',
+	id_group SMALLINT(5) UNSIGNED DEFAULT '0',
+	PRIMARY KEY (id_board, id_group)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1143,7 +1185,6 @@ WHERE variable = 'avatar_action_too_large'
 		$new_settings = array();
 		$admin_features = explode(',', $row['value']);
 
-		// Now, let's just recap something.
 		// cd = calendar, should also have set cal_enabled already
 		// cp = custom profile fields, which already has several fields that cover tracking
 		// ps = paid subs, should also have set paid_enabled already
@@ -1230,12 +1271,12 @@ $smcFunc['db_free_result']($file_check);
 /******************************************************************************/
 ---# Creating qanda table
 CREATE TABLE IF NOT EXISTS {$db_prefix}qanda (
-  id_question smallint(5) unsigned NOT NULL auto_increment,
-  lngfile varchar(255) NOT NULL default '',
-  question varchar(255) NOT NULL default '',
-  answers text NOT NULL,
-  PRIMARY KEY (id_question),
-  KEY lngfile (lngfile)
+	id_question SMALLINT(5) UNSIGNED AUTO_INCREMENT,
+	lngfile VARCHAR(255) NOT NULL DEFAULT '',
+	question VARCHAR(255) NOT NULL DEFAULT '',
+	answers TEXT NOT NULL,
+	PRIMARY KEY (id_question),
+	INDEX idx_lngfile (lngfile)
 ) ENGINE=MyISAM{$db_collation};
 ---#
 
@@ -1375,24 +1416,24 @@ $request = upgrade_query("
 /******************************************************************************/
 ---# Adding pm_labels table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labels (
-  id_label int(10) unsigned NOT NULL auto_increment,
-  id_member mediumint(8) unsigned NOT NULL default '0',
-  name varchar(30) NOT NULL default '',
-  PRIMARY KEY (id_label)
+	id_label INT(10) UNSIGNED AUTO_INCREMENT,
+	id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	name VARCHAR(30) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_label)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding pm_labeled_messages table...
 CREATE TABLE IF NOT EXISTS {$db_prefix}pm_labeled_messages (
-  id_label int(10) unsigned NOT NULL default '0',
-  id_pm int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY (id_label, id_pm)
+	id_label INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	id_pm INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (id_label, id_pm)
 ) ENGINE=MyISAM;
 ---#
 
 ---# Adding "in_inbox" column to pm_recipients
 ALTER TABLE {$db_prefix}pm_recipients
-ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
+ADD COLUMN in_inbox TINYINT(3) NOT NULL DEFAULT '1';
 ---#
 
 ---# Moving label info to new tables and updating rules...
@@ -1519,7 +1560,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 		// Go through the rules, unserialize the actions, then figure out if there's anything we can use
 		while ($row = $smcFunc['db_fetch_assoc']($get_pm_rules))
 		{
-			// Turn this into an array...
+			// Turn this INTo an array...
 			$actions = unserialize($row['actions']);
 
 			// Loop through the actions and see if we're applying a label anywhere
@@ -1560,7 +1601,7 @@ ADD COLUMN in_inbox tinyint(3) NOT NULL default '1';
 /******************************************************************************/
 ---# Adding "modified_reason" column to messages
 ALTER TABLE {$db_prefix}messages
-ADD COLUMN modified_reason varchar(255) NOT NULL default '';
+ADD COLUMN modified_reason VARCHAR(255) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
@@ -1613,7 +1654,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding mail queue settings
 /******************************************************************************/
----# Adding default settings for the mail queue
+---# Adding DEFAULT settings for the mail queue
 ---{
 	if (empty($modSettings['mail_limit']))
 	{
@@ -1633,7 +1674,7 @@ ADD COLUMN modified_reason varchar(255) NOT NULL default '';
 /******************************************************************************/
 --- Adding gravatar settings
 /******************************************************************************/
----# Adding default gravatar settings
+---# Adding DEFAULT gravatar settings
 ---{
 	if (empty($modSettings['gravatarEnabled']))
 	{
@@ -1714,43 +1755,16 @@ WHERE variable='enableOpenID' OR variable='dh_keys';
 ---#
 
 /******************************************************************************/
---- Port post notification settings
-/******************************************************************************/
----# Upgrading post notification settings
----{
-  $existing_notify = $smcFunc['db_query']('', '
-    SELECT id_member, notify_regularity, notify_send_body, notify_types
-    FROM {db_prefix}members',
-    array()
-  );
-  while ($row = $smcFunc['db_fetch_assoc']($existing_notify))
-  {
-    $smcFunc['db_insert']('ignore',
-      '{db_prefix}user_alerts_prefs',
-      array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
-      array(
-        array($row['id_member'], 'msg_receive_body', !empty($row['notify_send_body']) ? 1 : 0),
-        array($row['id_member'], 'msg_notify_pref', $row['notify_regularity']),
-        array($row['id_member'], 'msg_notify_type', $row['notify_types']),
-      ),
-      array('id_member', 'alert_pref')
-    );
-  }
-  $smcFunc['db_free_result']($existing_notify);
----}
----#
-
-/******************************************************************************/
 --- Fixing the url column in the log_spider_hits and log_online tables
 /******************************************************************************/
 ---# Changing url column size in log_spider_hits from 255 to 1024
 ALTER TABLE {$db_prefix}log_spider_hits
-CHANGE `url` `url` varchar(1024) NOT NULL DEFAULT '';
+CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
 ---#
 
----# Changing url column in log_online from text to varchar(1024)
+---# Changing url column in log_online from TEXT to VARCHAR(1024)
 ALTER TABLE {$db_prefix}log_online
-CHANGE `url` `url` varchar(1024) NOT NULL DEFAULT '';
+CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
 
 /******************************************************************************/
 --- Adding support for 2FA
@@ -1767,7 +1781,7 @@ ADD tfa_backup VARCHAR(64) NOT NULL DEFAULT '';
 
 ---# Force 2FA per membergroup?
 ALTER TABLE {$db_prefix}membergroups
-ADD COLUMN tfa_required tinyint(3) NOT NULL default '0';
+ADD COLUMN tfa_required TINYINT(3) NOT NULL DEFAULT '0';
 ---#
 
 
@@ -1781,4 +1795,57 @@ ADD COLUMN tfa_required tinyint(3) NOT NULL default '0';
 			array('variable')
 		);
 ---}
+---#
+
+/******************************************************************************/
+--- Converting old bbcodes
+/******************************************************************************/
+---# Replacing [br] with &lt;br&gt;
+UPDATE {$db_prefix}messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(body, '[br]', '<br>') WHERE body LIKE '%[br]%';
+---#
+
+---# Replacing [acronym] with [abbr]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[acronym=', '[abbr='), '[/acronym]', '[/abbr]') WHERE body LIKE '%[acronym=%';
+---#
+
+---# Replacing [tt] with [font=monospace]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[tt]', '[font=monospace]'), '[/tt]', '[/font]') WHERE body LIKE '%[tt]%';
+---#
+
+---# Replacing [bdo=ltr] with [ltr]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=ltr]', '[ltr]'), '[/bdo]', '[/ltr]') WHERE body LIKE '%[bdo=ltr]%';
+---#
+
+---# Replacing [bdo=rtl] with [rtl]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[bdo=rtl]', '[rtl]'), '[/bdo]', '[/rtl]') WHERE body LIKE '%[bdo=rtl]%';
+---#
+
+---# Replacing [black] with [color=black]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[black]', '[color=black]'), '[/black]', '[/color]') WHERE body LIKE '%[black]%';
+---#
+
+---# Replacing [white] with [color=white]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[white]', '[color=white]'), '[/white]', '[/color]') WHERE body LIKE '%[white]%';
+---#
+
+---# Replacing [red] with [color=red]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[red]', '[color=red]'), '[/red]', '[/color]') WHERE body LIKE '%[red]%';
+---#
+
+---# Replacing [green] with [color=green]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]', '[color=green]'), '[/green]', '[/color]') WHERE body LIKE '%[green]%';
+---#
+
+---# Replacing [blue] with [color=blue]
+UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
+UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 ---#

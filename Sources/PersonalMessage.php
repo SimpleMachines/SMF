@@ -37,11 +37,7 @@ function MessageMain()
 
 	loadLanguage('PersonalMessage+Drafts');
 
-	if (WIRELESS && WIRELESS_PROTOCOL == 'wap')
-		fatal_lang_error('wireless_error_notyet', false);
-	elseif (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_pm';
-	elseif (!isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		loadTemplate('PersonalMessage');
 
 	// Load up the members maximum message capacity.
@@ -191,11 +187,10 @@ function MessageMain()
 	);
 
 	// Preferences...
-	$context['display_mode'] = WIRELESS ? 0 : $user_settings['pm_prefs'] & 3;
+	$context['display_mode'] = $user_settings['pm_prefs'] & 3;
 
 	$subActions = array(
 		'popup' => 'MessagePopup',
-		'addbuddy' => 'WirelessAddBuddy',
 		'manlabels' => 'ManageLabels',
 		'manrules' => 'ManageRules',
 		'pmactions' => 'MessageActionsApply',
@@ -228,7 +223,7 @@ function MessageMain()
 /**
  * A menu to easily access different areas of the PM section
  *
- * @param string $area
+ * @param string $area The area we're currently in
  */
 function messageIndexBar($area)
 {
@@ -373,7 +368,7 @@ function messageIndexBar($area)
 	$context['menu_item_selected'] = $current_area;
 
 	// Set the template for this area and add the profile layer.
-	if (!WIRELESS && !isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		$context['template_layers'][] = 'pm';
 }
 
@@ -446,12 +441,9 @@ function MessagePopup()
 		}
 		$smcFunc['db_free_result']($request);
 
-		if (!empty($senders))
-		{
-			$senders = loadMemberData($senders);
-			foreach ($senders as $member)
-				loadMemberContext($member);
-		}
+		$senders = loadMemberData($senders);
+		foreach ($senders as $member)
+			loadMemberContext($member);
 
 		// Having loaded everyone, attach them to the PMs.
 		foreach ($context['unread_pms'] as $id_pm => $details)
@@ -583,7 +575,7 @@ function MessageFolder()
 
 	// Only show the button if there are messages to delete.
 	$context['show_delete'] = $max_messages > 0;
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 
 	// Start on the last page.
 	if (!is_numeric($_GET['start']) || $_GET['start'] >= $max_messages)
@@ -657,7 +649,7 @@ function MessageFolder()
 	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;f=' . $context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . $context['sort_by'] . ($descending ? ';desc' : ''), $_GET['start'], $max_messages, $maxPerPage);
 	$context['start'] = $_GET['start'];
 
-	// Determine the navigation context (especially useful for the wireless template).
+	// Determine the navigation context.
 	$context['links'] = array(
 		'first' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=0' : '',
 		'prev' => $_GET['start'] >= $maxPerPage ? $scripturl . '?action=pm;start=' . ($_GET['start'] - $maxPerPage) : '',
@@ -934,9 +926,7 @@ function MessageFolder()
 		}
 
 		// Load any users....
-		$posters = array_unique($posters);
-		if (!empty($posters))
-			loadMemberData($posters);
+		loadMemberData($posters);
 
 		// If we're on grouped/restricted view get a restricted list of messages.
 		if ($context['display_mode'] != 0)
@@ -993,8 +983,7 @@ function MessageFolder()
 
 	$context['can_send_pm'] = allowedTo('pm_send');
 	$context['can_send_email'] = allowedTo('moderate_forum');
-	if (!WIRELESS)
-		$context['sub_template'] = 'folder';
+	$context['sub_template'] = 'folder';
 	$context['page_title'] = $txt['pm_inbox'];
 
 	// Finally mark the relevant messages as read.
@@ -1012,8 +1001,9 @@ function MessageFolder()
 /**
  * Get a personal message for the theme.  (used to save memory.)
  *
- * @param $type
- * @param $reset
+ * @param string $type The type of message
+ * @param bool $reset Whether to reset the internal pointer
+ * @return bool|array False on failure, otherwise an array of info
  */
 function prepareMessageContext($type = 'subject', $reset = false)
 {
@@ -1172,7 +1162,7 @@ function prepareMessageContext($type = 'subject', $reset = false)
 }
 
 /**
- * Allows to search through personal messages.
+ * Allows searching through personal messages.
  */
 function MessageSearch()
 {
@@ -1634,9 +1624,7 @@ function MessageSearch2()
 	}
 
 	// Load the users...
-	$posters = array_unique($posters);
-	if (!empty($posters))
-		loadMemberData($posters);
+	loadMemberData($posters);
 
 	// Sort out the page index.
 	$context['page_index'] = constructPageIndex($scripturl . '?action=pm;sa=search2;params=' . $context['params'], $_GET['start'], $numResults, $modSettings['search_results_per_page'], false);
@@ -1779,13 +1767,10 @@ function MessagePost()
 
 	loadLanguage('PersonalMessage');
 	// Just in case it was loaded from somewhere else.
-	if (!WIRELESS)
-	{
-		loadTemplate('PersonalMessage');
-		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
-		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
-		$context['sub_template'] = 'send';
-	}
+	loadTemplate('PersonalMessage');
+	loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
+	loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
+	$context['sub_template'] = 'send';
 
 	// Extract out the spam settings - cause it's neat.
 	list ($modSettings['max_pm_recipients'], $modSettings['pm_posts_verification'], $modSettings['pm_posts_per_hour']) = explode(',', $modSettings['pm_spam_settings']);
@@ -2067,7 +2052,7 @@ function MessageDrafts()
 
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
-	if (!is_array($memberResult))
+	if (!$memberResult)
 		fatal_lang_error('not_a_user', false);
 	list ($memID) = $memberResult;
 
@@ -2079,8 +2064,8 @@ function MessageDrafts()
 /**
  * An error in the message...
  *
- * @param $error_types
- * @param $named_recipients
+ * @param array $error_types An array of strings indicating which type of errors occurred
+ * @param array $named_recipients
  * @param $recipient_ids
  */
 function messagePostError($error_types, $named_recipients, $recipient_ids = array())
@@ -2089,15 +2074,12 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 	global $smcFunc, $user_info, $sourcedir;
 
 	if (!isset($_REQUEST['xml']))
-		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';
-
-	if (!WIRELESS && !isset($_REQUEST['xml']))
 	{
-		$context['sub_template'] = 'send';
+		$context['menu_data_' . $context['pm_menu_id']]['current_area'] = 'send';		$context['sub_template'] = 'send';
 		loadJavascriptFile('PersonalMessage.js', array('default_theme' => true, 'defer' => false), 'smf_pms');
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 	}
-	elseif (isset($_REQUEST['xml']))
+	else
 		$context['sub_template'] = 'pm';
 
 	$context['page_title'] = $txt['send_message'];
@@ -2550,48 +2532,6 @@ function MessagePost2()
 	// Go back to the where they sent from, if possible...
 	redirectexit($context['current_label_redirect']);
 }
-
-/**
- * This function lists all buddies for wireless protocols.
- */
-function WirelessAddBuddy()
-{
-	global $scripturl, $txt, $user_info, $context, $smcFunc;
-
-	isAllowedTo('pm_send');
-	$context['page_title'] = $txt['wireless_pm_add_buddy'];
-
-	$current_buddies = empty($_REQUEST['u']) ? array() : explode(',', $_REQUEST['u']);
-	foreach ($current_buddies as $key => $buddy)
-		$current_buddies[$key] = (int) $buddy;
-
-	$base_url = $scripturl . '?action=pm;sa=send;u=' . (empty($current_buddies) ? '' : implode(',', $current_buddies) . ',');
-	$context['pm_href'] = $scripturl . '?action=pm;sa=send' . (empty($current_buddies) ? '' : ';u=' . implode(',', $current_buddies));
-
-	$context['buddies'] = array();
-	if (!empty($user_info['buddies']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_member, real_name
-			FROM {db_prefix}members
-			WHERE id_member IN ({array_int:buddy_list})
-			ORDER BY real_name
-			LIMIT ' . count($user_info['buddies']),
-			array(
-				'buddy_list' => $user_info['buddies'],
-			)
-		);
-		while ($row = $smcFunc['db_fetch_assoc']($request))
-			$context['buddies'][] = array(
-				'id' => $row['id_member'],
-				'name' => $row['real_name'],
-				'selected' => in_array($row['id_member'], $current_buddies),
-				'add_href' => $base_url . $row['id_member'],
-			);
-		$smcFunc['db_free_result']($request);
-	}
-}
-
 /**
  * This function performs all additional stuff...
  */
@@ -2969,9 +2909,9 @@ function MessagePrune()
 /**
  * Delete the specified personal messages.
  *
- * @param array $personal_messages array of pm ids
- * @param string $folder = null
- * @param int $owner = null
+ * @param array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
+ * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
+ * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
  */
 function deleteMessages($personal_messages, $folder = null, $owner = null)
 {
@@ -3149,9 +3089,9 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 /**
  * Mark the specified personal messages read.
  *
- * @param array $personal_messages = null, array of pm ids
- * @param string $label = null, if label is set, only marks messages with that label
- * @param int $owner = null, if owner is set, marks messages owned by that member id
+ * @param array|null $personal_messages An array of PM IDs to mark or null to mark all
+ * @param int|null $label The ID of a label. If set, only messages with this label will be marked.
+ * @param int|null $owner If owner is set, marks messages owned by that member id
  */
 function markMessages($personal_messages = null, $label = null, $owner = null)
 {
@@ -3991,7 +3931,7 @@ function ManageRules()
 /**
  * This will apply rules to all unread messages. If all_messages is set will, clearly, do it to all!
  *
- * @param bool $all_messages = false
+ * @param bool $all_messages Whether to apply this to all messages or just unread ones
  */
 function ApplyRules($all_messages = false)
 {
@@ -4120,7 +4060,7 @@ function ApplyRules($all_messages = false)
 /**
  * Load up all the rules for the current user.
  *
- * @param bool $reload = false
+ * @param bool $reload Whether or not to reload all the rules from the database if $context['rules'] is set
  */
 function LoadRules($reload = false)
 {
@@ -4160,9 +4100,9 @@ function LoadRules($reload = false)
 /**
  * Check if the PM is available to the current user.
  *
- * @param int $pmID
- * @param $validFor
- * @return boolean
+ * @param int $pmID The ID of the PM
+ * @param string $validFor Which folders this is valud for - can be 'inbox', 'outbox' or 'in_or_outbox'
+ * @return boolean Whether the PM is accessible in that folder for the current user
  */
 function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 {

@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main search form
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -220,6 +223,9 @@ function template_main()
 	</script>';
 }
 
+/**
+ * The search results page.
+ */
 function template_results()
 {
 	global $context, $settings, $options, $txt, $scripturl, $message;

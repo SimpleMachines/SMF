@@ -394,13 +394,13 @@ pre.file_content {
 }
 
 .generic_icons.select_above {
-	background-position: -134px -30px;
+	background-position: -161px -5px;
 }
 .generic_icons.select_here {
-	background-position: -108px -30px;
+	background-position: -187px -5px;
 }
 .generic_icons.select_below {
-	background-position: -80px -30px;
+	background-position: -213px -5px;
 }
 
 /* Styles for the BBC permissions */

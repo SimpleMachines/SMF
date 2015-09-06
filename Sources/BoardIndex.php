@@ -20,7 +20,6 @@ if (!defined('SMF'))
 /**
  * This function shows the board index.
  * It uses the BoardIndex template, and main sub template.
- * It may use the boardindex subtemplate for wireless support.
  * It updates the most online statistics.
  * It is accessed by ?action=boardindex.
  */
@@ -28,14 +27,8 @@ function BoardIndex()
 {
 	global $txt, $user_info, $sourcedir, $modSettings, $context, $settings, $scripturl;
 
-	// For wireless, we use the Wireless template...
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_boardindex';
-	else
-	{
-		loadTemplate('BoardIndex');
-		$context['template_layers'][] = 'boardindex_outer';
-	}
+	loadTemplate('BoardIndex');
+	$context['template_layers'][] = 'boardindex_outer';
 
 	// Set a canonical URL for this page.
 	$context['canonical_url'] = $scripturl;
