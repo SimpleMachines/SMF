@@ -2261,13 +2261,10 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 /**
  * Add a CSS file for output later
  *
- * @param string $filename THe name of the file to load
+ * @param string $filename The name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
- * 	- ['default_theme'] (true/false): force use of default theme url
- * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
- *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
@@ -2330,17 +2327,11 @@ function addInlineCss($css)
 
 /**
  * Add a Javascript file for output later
-
+ *
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
- * 	- ['default_theme'] (true/false): force use of default theme url
- * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
- * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
- *	default theme if not found in the current theme
- *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
- *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *
  * @param string $id An ID to stick on the end of the filename
