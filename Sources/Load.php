@@ -1980,13 +1980,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css');
+	loadCSSFile('index.css', array(), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true));
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css');
+		loadCSSFile('rtl.css', array(), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2009,9 +2009,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css');
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css');
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2057,7 +2057,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	if (!$user_info['is_guest'])
 	{
 		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
-		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
+		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_jquery_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
