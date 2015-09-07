@@ -72,7 +72,7 @@ function template_init()
 
 	// Allow css/js files to be disable for this specific theme. Add the name of the file (without its extension) as an array key. IE array('script'); Some files could add unique identifiers, on those cases use that identifier instead of the actual filename.
 	if (!isset($settings['disable_files']))
-		$settings['disable_files'] = array('smf_alerts');
+		$settings['disable_files'] = array('');
 }
 
 /**
