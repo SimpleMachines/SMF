@@ -2276,32 +2276,32 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	// Is this a local file?
-	if (empty($params['external']))
+	// Obviously, the current theme is most important to check.
+	$attempts = array($settings['theme_url']);
+
+	// Do we have a base theme to worry about?
+	if (isset($settings['base_theme_dir']))
+		$attempts[] = $settings['base_theme_url'];
+
+	// Fall back on the default theme if necessary.
+	$attempts[] = $settings['default_theme_url'];
+
+	// Try to find the file.
+	$found = false;
+	foreach ($attempts as $theme)
 	{
-		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
-		{
-			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
-				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
-			else
-				$filename = false;
-		}
-		else
-			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+		if (file_exists($found = $theme . '/css/' . $filename . ($has_seed ? '' : $params['seed'])))
+			break;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($found) || file_exists($found = $filename . ($has_seed ? '' : $params['seed'])))
+		$context['css_files'][$id] = array('filename' => $found, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
