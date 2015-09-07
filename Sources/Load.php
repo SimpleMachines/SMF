@@ -2279,9 +2279,9 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
-	// account for shorthand like admin.css?alp21 filenames
+	// Account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	$id = empty($id) ? strtr(basename(str_replace('.css', '', $filename)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
@@ -2353,9 +2353,9 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
-	// account for shorthand like admin.js?alp21 filenames
+	// Account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	$id = empty($id) ? strtr(basename(str_replace('.js', '', $filename)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
