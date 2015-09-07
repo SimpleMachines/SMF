@@ -2350,32 +2350,32 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	// Is this a local file?
-	if (empty($params['external']))
+	// Obviously, the current theme is most important to check.
+	$attempts = array($settings['theme_url']);
+
+	// Do we have a base theme to worry about?
+	if (isset($settings['base_theme_dir']))
+		$attempts[] = $settings['base_theme_url'];
+
+	// Fall back on the default theme if necessary.
+	$attempts[] = $settings['default_theme_url'];
+
+	// Try to find the file.
+	$found = false;
+	foreach ($attempts as $theme)
 	{
-		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
-		{
-			// can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
-				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
-			else
-				$filename = false;
-		}
-		else
-			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+		if (file_exists($found = $theme . '/scripts/' . $filename . ($has_seed ? '' : $params['seed'])))
+			break;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($found) || file_exists($found = $filename . ($has_seed ? '' : $params['seed'])))
+		$context['javascript_files'][$id] = array('filename' => $found, 'options' => $params);
 }
 
 /**
