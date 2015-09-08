@@ -2538,6 +2538,7 @@ function template_deleteAccount()
 
 		// Only actually give these options if they are kind of important.
 		if ($context['can_delete_posts'])
+		{
 			echo '
 				<div>
 					<label for="deleteVotes"><input type="checkbox" name="deleteVotes" id="deleteVotes" value="1" class="input_check"> ', $txt['deleteAccount_votes'], ':</label><br>
@@ -2546,12 +2547,15 @@ function template_deleteAccount()
 						<option value="posts">', $txt['deleteAccount_all_posts'], '</option>
 						<option value="topics">', $txt['deleteAccount_topics'], '</option>
 					</select>';
-		if ($context['show_perma_delete'])
+
+			if ($context['show_perma_delete'])
+				echo '<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
+
 			echo '
-					<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
+				</div>';
+		}
 
 		echo '
-				</div>
 				<div>
 					<label for="deleteAccount"><input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" class="input_check" onclick="if (this.checked) return confirm(\'', $txt['deleteAccount_confirm'], '\');"> ', $txt['deleteAccount_member'], '.</label>
 				</div>
