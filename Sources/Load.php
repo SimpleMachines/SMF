@@ -2261,13 +2261,10 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 /**
  * Add a CSS file for output later
  *
- * @param string $filename THe name of the file to load
+ * @param string $filename The name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
- * 	- ['default_theme'] (true/false): force use of default theme url
- * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
- *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
@@ -2276,32 +2273,32 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	// Is this a local file?
-	if (empty($params['external']))
+	// Obviously, the current theme is most important to check.
+	$attempts = array($settings['theme_url']);
+
+	// Do we have a base theme to worry about?
+	if (isset($settings['base_theme_dir']))
+		$attempts[] = $settings['base_theme_url'];
+
+	// Fall back on the default theme if necessary.
+	$attempts[] = $settings['default_theme_url'];
+
+	// Try to find the file.
+	$found = false;
+	foreach ($attempts as $theme)
 	{
-		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
-		{
-			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
-				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
-			else
-				$filename = false;
-		}
-		else
-			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+		if (file_exists($found = $theme . '/css/' . $filename . ($has_seed ? '' : $params['seed'])))
+			break;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($found) || file_exists($found = $filename . ($has_seed ? '' : $params['seed'])))
+		$context['css_files'][$id] = array('filename' => $found, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2330,17 +2327,11 @@ function addInlineCss($css)
 
 /**
  * Add a Javascript file for output later
-
+ *
  * @param string $filename The name of the file to load
  * @param array $params An array of parameter info
  * Keys are the following:
- * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
- * 	- ['default_theme'] (true/false): force use of default theme url
- * 	- ['defer'] (true/false): define if the file should load in <head> or before the closing <html> tag
- * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the
- *	default theme if not found in the current theme
- *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
- *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  *
  * @param string $id An ID to stick on the end of the filename
@@ -2350,32 +2341,32 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
-	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
 	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
 
-	// Is this a local file?
-	if (empty($params['external']))
+	// Obviously, the current theme is most important to check.
+	$attempts = array($settings['theme_url']);
+
+	// Do we have a base theme to worry about?
+	if (isset($settings['base_theme_dir']))
+		$attempts[] = $settings['base_theme_url'];
+
+	// Fall back on the default theme if necessary.
+	$attempts[] = $settings['default_theme_url'];
+
+	// Try to find the file.
+	$found = false;
+	foreach ($attempts as $theme)
 	{
-		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
-		{
-			// can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
-				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
-			else
-				$filename = false;
-		}
-		else
-			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+		if (file_exists($found = $theme . '/scripts/' . $filename . ($has_seed ? '' : $params['seed'])))
+			break;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($found) || file_exists($found = $filename . ($has_seed ? '' : $params['seed'])))
+		$context['javascript_files'][$id] = array('filename' => $found, 'options' => $params);
 }
 
 /**
