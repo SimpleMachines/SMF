@@ -2549,7 +2549,8 @@ function template_deleteAccount()
 					</select>';
 
 			if ($context['show_perma_delete'])
-				echo '<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
+				echo '
+					<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
 
 			echo '
 				</div>';
