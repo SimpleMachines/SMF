@@ -136,14 +136,6 @@ body#chrome #quick_search form input {
 /* Cleaned this up a bit for less clutter.
 /* Admin and moderation could generally do with a clean up everywhere.
 /* Live news from smorg and support information. */
-#live_news, #supportVersionsTable {
-	width: 70%;
-	box-sizing: border-box;
-}
-#supportVersionsTable {
-	width: 30%;
-	padding-left: 6px;
-}
 #admin_main_section {
 	overflow: auto;
 }

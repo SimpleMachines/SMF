@@ -30,7 +30,8 @@ function template_admin()
 
 	// Display the "live news" from simplemachines.org.
 	echo '
-							<div id="live_news" class="floatleft">
+							<div class="grid">
+							<div id="live_news" class="cell11 mcell16">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['live'], '
@@ -43,7 +44,7 @@ function template_admin()
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="floatright">
+							<div id="supportVersionsTable" class="cekk5 mhide">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
@@ -71,6 +72,7 @@ function template_admin()
 	echo '
 									</div>
 								</div>
+							</div>
 							</div>
 						</div>';
 
