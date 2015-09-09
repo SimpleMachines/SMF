@@ -2131,30 +2131,8 @@ dl {
 #basicinfo #userstatus img {
 	vertical-align: middle;
 }
-#detailedinfo dl, #tracking dl {
-	clear: right;
-	overflow: auto;
-	margin: 0 0 18px 0;
-	padding: 0 0 15px 0;
-	border-bottom: 1px #ccc solid;
-}
 #detailedinfo dt, #tracking dt {
-	width: 35%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
 	font-weight: bold;
-	color: #444;
-	clear: both;
-}
-#detailedinfo dd, #tracking dd {
-	width: 65%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-}
-#detailedinfo .noborder {
-	border-bottom: 0;
 }
 #detailedinfo dt.clear {
 	width: 100%;

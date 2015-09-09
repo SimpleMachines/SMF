@@ -271,7 +271,7 @@ function template_summary()
 
 	echo '
 		<div id="detailedinfo" class="cell12 mcell16">
-			<dl>';
+			<dl class="grid">';
 
 	if ($context['user']['is_owner'] || $context['user']['is_admin'])
 		echo '
@@ -304,27 +304,15 @@ function template_summary()
 				<dt>', $txt['age'], ':</dt>
 				<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
-	echo '
-			</dl>';
-
 	// Any custom fields for standard placement?
 	if (!empty($context['print_custom_fields']['standard']))
 	{
-		echo '
-				<dl>';
-
 		foreach ($context['print_custom_fields']['standard'] as $field)
 			if (!empty($field['output_html']))
 				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
-
-		echo '
-				</dl>';
 	}
-
-	echo '
-				<dl class="noborder">';
 
 	// Can they view/issue a warning?
 	if ($context['can_view_warning'] && $context['member']['warning'])
@@ -903,7 +891,7 @@ function template_trackActivity()
 	// The last IP the user used.
 	echo '
 		<div id="tracking" class="windowbg2">
-			<dl class="noborder">
+			<dl class="grid">
 				<dt>', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
 					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
@@ -1201,7 +1189,7 @@ function template_statPanel()
 	echo '
 	<div id="profileview" class="roundframe">
 		<div id="generalstats">
-			<dl class="stats">
+			<dl class="grid">
 				<dt>', $txt['statPanel_total_time_online'], ':</dt>
 				<dd>', $context['time_logged_in'], '</dd>
 				<dt>', $txt['statPanel_total_posts'], ':</dt>

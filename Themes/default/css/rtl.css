@@ -479,21 +479,12 @@ div#admin_menu {
 
 /* Styles for the profile section.
 ------------------------------------------------- */
-#basicinfo {
-	float: right;
-}
-#detailedinfo {
-	float: left;
-}
 #basicinfo ul li {
 	float: right;
 	margin-right: 0;
 	margin-left: 5px;
 }
 #avatar_server_stored div {
-	float: right;
-}
-#detailedinfo dt, #tracking dt {
 	float: right;
 }
 
