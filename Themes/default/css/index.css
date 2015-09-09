@@ -2970,11 +2970,6 @@ span.postby {
 
 /* MessageIndex */
 /* Topic list */
-#topic_container .windowbg, #topic_container .windowbg2 {
-	height: 4em;
-	border: 1px solid #ddd;
-	border-top: none;
-}
 #topic_header .board_icon, #topic_header .info, #topic_header .board_stats, #topic_header .lastpost, #topic_header .moderation {
 	height: 2em;
 	font-weight: bold;
@@ -3004,7 +2999,11 @@ span.postby {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	height: 3.5em;
+	height: 4em;
+}
+#topic_container .windowbg, #topic_container .windowbg2 {
+	border: 1px solid #ddd;
+	border-top: none;
 }
 #topic_container .icons span {
 	margin: 2px 0 0 5px;
@@ -3016,52 +3015,65 @@ span.postby {
 	margin-top: 5px;
 	border: none;
 }
+/* MessageIndex */
 /* Start with description and other things */
 #description_board {
-	padding: 8px 10px 8px 10px;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-	border-bottom: 0;
+	padding: 8px 10px;
+	border-radius: 6px 6px 0 0;
+	border-bottom: none;
 	box-shadow: none;
 }
-.lastpost span.last_post {
-	float: right;
-	margin: 4px;
+#description_board h3, #description_board p {
+	display: inline-block;
 }
-select.qaction {
+#description_board h3:after {
+	content: ' - ';
+}
+/* Topic list */
+.moderation {
+	display: table-cell;
+	width: 35px;
+	vertical-align: middle;
+}
+
+/* Quick moderation selects and submit */
+#quick_actions {
+	padding: 4px 0;
+}
+.qaction {
 	padding: 0;
 }
-#quick_actions {
-	padding-right: 4px;
-	margin-top: 5px;
+/* Investigate default select and button sizing. Something is slightly off there.*/
+.qaction.button_submit {
+	margin: 1px 4px 0 4px;
 }
-.qaction_cell .button_submit {
-	margin: 2px 4px 0 4px;
-}
-#topic_icons {
-	margin-top: 10px;
-	float: left;
-	width: 100%;
+/* Icons and jump to */
+#topic_icons:before {
+	display: block;
+	height: 8px;
+	clear: both;
+	content: '';
 }
 #topic_icons .information {
-	border-radius: 7px;
+	font-size: .9em;
+	border-radius: 4px;
 }
 #topic_icons p {
+	padding: 0 12px 0 4px;
 	line-height: 2em;
 }
-#topic_icons p.floatleft {
-	padding: 0 12px 2px 0;
-}
-/* Just to correct Fred there without requiring an extra image. Should make a new Fred with clear padding. */
-#topic_icons p.floatleft img:first-child {
+/* Should lose this before RC1. It's a kludge. Can be fixed by new image */
+#topic_icons .floatleft img:first-child {
 	padding: 0 2px;
 }
 #message_index_jump_to_select {
 	font-size: 1em;
-	padding: 2px;
+	padding: 0;
 }
+/* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
-	padding: 4px 6px 2px 6px;
+	margin-top: 3px;
+	padding: 0px 6px;
 }
 
 /* Display */
@@ -3597,7 +3609,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 p.information img {
 	vertical-align: middle;
 }
-#messageindex .information, #topic_container .info {
+#messageindex .information {
 	border-radius: 0;
 	margin: 0;
 }

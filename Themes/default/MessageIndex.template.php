@@ -124,7 +124,7 @@ function template_main()
 		{
 		echo '
 	<div id="description_board" class="generic_list_wrapper">
-		<h3 class="floatleft">', $context['name'], '&nbsp;-&nbsp;</h3>
+		<h3>', $context['name'], '</h3>
 		<p>';
 	if ($context['description'] != '')
 	echo '
@@ -215,22 +215,22 @@ function template_main()
 
 			// Now we handle the icons
 			echo '
-							<div class="icons">';
+							<div class="icons floatright">';
 			if ($topic['is_watched'])
 				echo '
-								<span class="generic_icons watch floatright" title="', $txt['watching_this_topic'], '"></span>';
+								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock floatright"></span>';
+								<span class="generic_icons lock"></span>';
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky floatright"></span>';
+								<span class="generic_icons sticky"></span>';
 			if ($topic['is_redirect'])
 				echo '
-								<span class="generic_icons move floatright"></span>';
+								<span class="generic_icons move"></span>';
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll floatright"></span>';
+								<span class="generic_icons poll"></span>';
 			echo '
 							</div>';
 

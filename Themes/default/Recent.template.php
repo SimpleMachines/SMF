@@ -139,16 +139,16 @@ function template_unread()
 
 			// Now we handle the icons
 			echo '
-							<div class="icons">';
+							<div class="icons floatright">';
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock floatright"></span>';
+								<span class="generic_icons lock"></span>';
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky floatright"></span>';
+								<span class="generic_icons sticky"></span>';
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll floatright"></span>';
+								<span class="generic_icons poll"></span>';
 			echo '
 							</div>';
 
@@ -280,16 +280,16 @@ function template_replies()
 
 			// Now we handle the icons
 			echo '
-								<div class="icons">';
+								<div class="icons floatright">';
 			if ($topic['is_locked'])
 				echo '
-									<span class="generic_icons lock floatright"></span>';
+									<span class="generic_icons lock"></span>';
 			if ($topic['is_sticky'])
 				echo '
-									<span class="generic_icons sticky floatright"></span>';
+									<span class="generic_icons sticky"></span>';
 			if ($topic['is_poll'])
 				echo '
-									<span class="generic_icons poll floatright"></span>';
+									<span class="generic_icons poll"></span>';
 			echo '
 								</div>';
 
