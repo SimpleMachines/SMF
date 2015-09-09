@@ -2913,7 +2913,7 @@ h3 .collapse {
 .lastpost p {
 	margin: 3px 0 0 0;
 }
-.board_icon, .info, .stats, .lastpost {
+.board_icon, .info, .board_stats, .lastpost {
 	min-height: 4.5em;
 	display: table-cell;
 	vertical-align: middle;
