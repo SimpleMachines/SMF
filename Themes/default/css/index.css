@@ -3705,7 +3705,7 @@ h3.profile_hd {
  * Grid container
  * Must only contain `.cell` components as children.
  */
-.grid, dl.settings, dl.register_form {
+.grid, dl.settings, dl.grid {
 	display: block;
 	letter-spacing: -0.31em;
 }
@@ -3714,7 +3714,7 @@ h3.profile_hd {
  * Grid units
  * No explicit width by default.
  */
-.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
+.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
 	box-sizing: border-box;
 	display: inline-block;
 	padding: 6px 8px;
@@ -3744,7 +3744,7 @@ h3.profile_hd {
 .cell7, .w7 {
 	width: 43.75%;
 }
-.cell8, .w8, dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
+.cell8, .w8, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
 	width: 50%;
 }
 .cell9, .w9 {
@@ -3827,7 +3827,7 @@ h3.profile_hd {
 	.mcell15 {
 		width: 93.75%;
 	}
-	.mcell16, dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
+	.mcell16, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
 		width: 100%;
 	}
 }

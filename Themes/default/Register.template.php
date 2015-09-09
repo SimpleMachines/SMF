@@ -96,7 +96,7 @@ function template_registration_form()
 			</div>
 			<div class="roundframe">
 				<fieldset>
-					<dl class="register_form">
+					<dl class="grid">
 						<dt><strong><label for="smf_autov_username">', $txt['username'], ':</label></strong></dt>
 						<dd>
 							<input type="text" name="user" id="smf_autov_username" size="30" tabindex="', $context['tabindex']++, '" maxlength="25" value="', isset($context['username']) ? $context['username'] : '', '" class="input_text">
@@ -111,7 +111,7 @@ function template_registration_form()
 							<input type="text" name="email" id="smf_autov_reserve1" size="30" tabindex="', $context['tabindex']++, '" value="', isset($context['email']) ? $context['email'] : '', '" class="input_text">
 						</dd>
 					</dl>
-					<dl class="register_form" id="password1_group">
+					<dl class="grid" id="password1_group">
 						<dt><strong><label for="smf_autov_pwmain">', ucwords($txt['choose_pass']), ':</label></strong></dt>
 						<dd>
 							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="30" tabindex="', $context['tabindex']++, '" class="input_password">
@@ -120,7 +120,7 @@ function template_registration_form()
 							</span>
 						</dd>
 					</dl>
-					<dl class="register_form" id="password2_group">
+					<dl class="grid" id="password2_group">
 						<dt><strong><label for="smf_autov_pwverify">', ucwords($txt['verify_pass']), ':</label></strong></dt>
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="30" tabindex="', $context['tabindex']++, '" class="input_password">
@@ -129,7 +129,7 @@ function template_registration_form()
 							</span>
 						</dd>
 					</dl>
-					<dl class="register_form" id="notify_announcements">
+					<dl class="grid" id="notify_announcements">
 						<dt><strong><label for="notify_announcements">', $txt['notify_announcements'], ':</label></strong></dt>
 						<dd>
 							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', $context['tabindex']++, '"', $context['notify_announcements'] ? ' checked="checked"' : '', ' class="input_check" />
@@ -141,7 +141,7 @@ function template_registration_form()
 	{
 		echo '
 
-					<dl class="register_form">';
+					<dl class="grid">';
 
 		foreach ($context['custom_fields'] as $field)
 			if ($field['show_reg'] > 1)
@@ -169,7 +169,7 @@ function template_registration_form()
 			</div>
 			<div class="roundframe">
 				<fieldset>
-					<dl class="register_form" id="custom_group">';
+					<dl class="grid" id="custom_group">';
 	}
 
 	if (!empty($context['profile_fields']))
@@ -491,7 +491,7 @@ function template_admin_register()
 					</div>';
 
 	echo '
-					<dl class="register_form" id="admin_register_form">
+					<dl class="grid" id="admin_grid">
 						<dt>
 							<strong><label for="user_input">', $txt['admin_register_username'], ':</label></strong>
 							<span class="smalltext">', $txt['admin_register_username_desc'], '</span>
