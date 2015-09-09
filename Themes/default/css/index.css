@@ -3558,20 +3558,12 @@ div.cat_bar {
 	margin: -8px 0 4px 8px;
 }
 h3.catbg {
-	overflow: hidden;
-	font-size: 1.1em;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
 	line-height: 1.5em;
 	padding: 8px;
-	background: none;
 }
 h3.catbg, h3.catbg a:link, h3.catbg a:visited, h3.catbg a:hover {
 	color: #fff;
-}
-h3.catbg a:hover {
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
-	text-decoration: none;
 }
 h3.catbg .icon {
 	vertical-align: middle;
