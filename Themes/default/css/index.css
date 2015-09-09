@@ -1543,12 +1543,16 @@ fieldset.merge_options {
 
 /* Styles for the login areas.
 ------------------------------------------------------- */
-.login {
-	width: 540px;
-	margin: 0 auto;
+@media screen and (min-width: 720px) {
+	.login {
+		width: 540px;
+		margin: 0 auto;
+	}
+	.login dt {
+		text-align: right;
+	}
 }
 .login dt {
-	text-align: right;
 	font-weight: bold;
 }
 .login p {
@@ -3771,4 +3775,12 @@ h3.profile_hd {
 	.mcell16, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
 		width: 100%;
 	}
+	.mcell16, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
+		width: 100%;
+	}
+	#detailedinfo dl.settings dt, #detailedinfo dl.settings dd, .login dl.grid dt,.login  dl.grid dd {
+		width: 50%;
+	}
+}
+
 }
