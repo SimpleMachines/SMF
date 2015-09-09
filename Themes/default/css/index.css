@@ -1562,8 +1562,6 @@ fieldset.merge_options {
 /* Additional register fields */
 #registration fieldset {
 	border: none;
-	padding: 0;
-	margin: 0;
 }
 #registration .roundframe {
 	border-top: none;
@@ -2058,15 +2056,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	padding: 7px 10px 7px 10px;
 	border: 1px solid #c5c5c5;
 	margin: 6px 0;
-}
-
-/* Styles for the profile section.
-------------------------------------------------- */
-
-dl {
-	overflow: auto;
-	margin: 0;
-	padding: 0;
 }
 
 /* The basic user info on the left */
