@@ -19,14 +19,6 @@
 .lefttext {
 	text-align: right;
 }
-
-/* This place covers board places (boardindex-messageindex) */
-div.icon, div.info, div.stats, div.lastpost {
-	float: right !important;
-}
-.moderation {
-	float: left;
-}
 /* Styling for BBC tags */
 .bbc_list {
 	text-align: right;
@@ -154,11 +146,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	overflow: auto;
 	padding: 0 5px 10px 0;
 	font-size: 0.9em;
-}
-
-/* the active one */
-.align_top a, .align_bottom a {
-	margin: 0 0 0 12px;
 }
 
 /* The extra menu rows for admin sections, etc. */
