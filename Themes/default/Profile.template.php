@@ -1254,13 +1254,12 @@ function template_statPanel()
 	}
 
 	echo '
-			<span class="clear">
 		</div>';
 
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
 	echo '
-		<div class="flow_hidden">
-			<div class="half_content">
+		<div class="grid">
+			<div class="cell8 mcell16">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoards'], '
@@ -1293,9 +1292,8 @@ function template_statPanel()
 				</dl>';
 	}
 	echo '
-			</div>';
-	echo '
-			<div class="half_content">
+			</div>
+			<div class="cell8 mcell16">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoardsActivity'], '
