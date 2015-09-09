@@ -2930,8 +2930,6 @@ h3 .collapse {
 }
 /* Child boards */
 .children {
-	width: 100%;
-	float: left;
 	border-top: 1px solid #DDD;
 	padding: 5px;
 }
@@ -2943,8 +2941,7 @@ p.moderators {
 	font-weight: bold;
 }
 span.postby {
-	width: 100%;
-	float: left;
+	display: block;
 }
 /* Info Center */
 #info_center {
