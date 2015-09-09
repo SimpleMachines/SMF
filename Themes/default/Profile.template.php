@@ -2134,8 +2134,8 @@ function template_ignoreboards()
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg2">
-			<div class="flow_hidden">
-				<ul class="ignoreboards floatleft">';
+			<div class="selectboards grid">
+				<ul class="cell8 mcell16">';
 
 	$i = 0;
 	$limit = ceil($context['num_boards'] / 2);
@@ -2145,7 +2145,7 @@ function template_ignoreboards()
 		{
 			echo '
 				</ul>
-				<ul class="ignoreboards floatright">';
+				<ul class="cell8 mcell16">';
 
 			$i++;
 		}
@@ -2162,7 +2162,7 @@ function template_ignoreboards()
 						</ul>
 					</li>
 				</ul>
-				<ul class="ignoreboards floatright">
+				<ul class="cell8 mcell16">
 					<li class="category">
 						<ul>';
 
