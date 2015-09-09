@@ -3593,19 +3593,12 @@ h3.catbg .icon {
 }
 .sub_bar {
 	border-bottom: 1px solid #ddd;
-	text-shadow: none;
-	background: none;
 	box-shadow: 0 -1px 0 #999 inset;
-	clear: both;
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
-	background: none;
 	color: #555;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	overflow: hidden;
 	padding: 6px 12px 5px 12px;
-	text-shadow: none;
 }
 .titlebg a, .subbg a {
 	background: none;
