@@ -80,14 +80,6 @@
 	#registration .button_submit {
 		font-size: 0.67em;
 	}
-	dl.register_form {
-		float: none !important;
-		max-width: 350px !important;
-	}
-	dl.register_form dt, dl.register_form dd {
-		float: none !important;
-		min-width: 250px !important;
-	}
 
 	/* Display (Topic View) */
 	.poster {
@@ -306,7 +298,7 @@
 		float: left;
 		margin: 5px 0 0 3px;
 	}
-	dl.register_form dt span {
+	#registration dt span {
 		display: inline;
 	}
 	.button_submit.qaction {

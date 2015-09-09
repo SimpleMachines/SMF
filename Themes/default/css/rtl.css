@@ -412,15 +412,6 @@ ul.post_options li {
 	margin: 0 0 0.5em;
 }
 
-/* Additional profile fields */
-dl.register_form {
-	clear: left;
-}
-
-dl.register_form dt {
-	float: right;
-}
-
 /* Styles for maintenance mode.
 ------------------------------------------------------- */
 #maintenance_mode {

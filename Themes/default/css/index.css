@@ -1596,24 +1596,8 @@ fieldset.merge_options {
 #registration .roundframe {
 	border-top: none;
 }
-dl.register_form {
-	margin: 0;
-	clear: right;
-}
-dl.register_form dt {
-	font-weight: normal;
-	float: left;
-	clear: both;
-	width: 50%;
-	margin: 6px 0 0 0;
-}
-dl.register_form dt span {
+#registration dt span {
 	display: block;
-}
-dl.register_form dd {
-	float: left;
-	width: 49%;
-	margin: 6px 0 0 0;
 }
 #confirm_buttons {
 	text-align: center;
@@ -3721,7 +3705,7 @@ h3.profile_hd {
  * Grid container
  * Must only contain `.cell` components as children.
  */
-.grid {
+.grid, dl.settings, dl.register_form {
 	display: block;
 	letter-spacing: -0.31em;
 }
@@ -3730,7 +3714,7 @@ h3.profile_hd {
  * Grid units
  * No explicit width by default.
  */
-.grid [class*='cell'], dl.settings dt, dl.settings dd {
+.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
 	box-sizing: border-box;
 	display: inline-block;
 	padding: 6px 8px;
@@ -3760,7 +3744,7 @@ h3.profile_hd {
 .cell7, .w7 {
 	width: 43.75%;
 }
-.cell8, .w8, dl.settings dt, dl.settings dd {
+.cell8, .w8, dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
 	width: 50%;
 }
 .cell9, .w9 {
@@ -3843,7 +3827,7 @@ h3.profile_hd {
 	.mcell15 {
 		width: 93.75%;
 	}
-	.mcell16 {
+	.mcell16, dl.settings dt, dl.settings dd, dl.register_form dt, dl.register_form dd {
 		width: 100%;
 	}
 }
