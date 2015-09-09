@@ -148,11 +148,6 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 	font-size: 0.9em;
 }
 
-/* the active one */
-.align_top a, .align_bottom a {
-	margin: 0 0 0 12px;
-}
-
 /* The extra menu rows for admin sections, etc. */
 #adm_submenus {
 	padding-left: 0;

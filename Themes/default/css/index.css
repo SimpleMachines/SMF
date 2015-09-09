@@ -1039,9 +1039,6 @@ img.sort, .sort {
 	color: #ffc187;
 	background: #557ea0;
 }
-.align_top a, .align_bottom a {
-	margin: 0 12px 0 0;
-}
 .button.last {
 	margin-top: 9px;
 }
