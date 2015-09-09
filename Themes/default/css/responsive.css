@@ -139,12 +139,7 @@
 	.move_topic {
 		width: 100%;
 	}
-	/* Stats Center */
-	.half_content {
-		width: 100%;
-		margin: 0;
-		padding: 0;
-	}
+	/* Info Center */
 	#ic_recentposts {
 		margin: 0 !important;
 		width: 100% !important;

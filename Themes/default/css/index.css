@@ -290,20 +290,6 @@ h3.largetext {
 .main_section, .lower_padding {
 	padding-bottom: 6px;
 }
-.half_content {
-	box-sizing: border-box;
-	width: 50%;
-	display: inline-block;
-	vertical-align: top;
-}
-.half_content:nth-of-type(even) {
-	margin-right: -0.25em;
-	padding-right: 0.3%;
-}
-.half_content:nth-of-type(odd) {
-	margin-left: -0.2em;
-	padding-left: 0.3%;
-}
 
 /* BBC */
 /* A quote, perhaps from another post. */
@@ -2407,6 +2393,9 @@ dl {
 	margin: 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+}
+.title_bar.cell16 {
+	padding: 0 !important;
 }
 dl.stats dt {
 	width: 50%;
