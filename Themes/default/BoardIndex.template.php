@@ -118,7 +118,7 @@ function template_main()
 				// Show some basic information about the number of posts, etc.
 					echo '
 					</div>
-					<div class="stats">
+					<div class="board_stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
