@@ -2639,31 +2639,22 @@ dl.addrules dt.floatleft {
 	z-index: 3;
 }
 .popup_window {
-	position: relative;
+	position: absolute;
 	width: 480px;
-	z-index: 99;
 	padding: 0 6px 6px 6px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
-	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
-	overflow: visible!important;
-	background: #FFFFFF;
-	top: 15%;
-	margin: 0 auto;
 }
 .popup_heading {
-	margin: 0;
 	padding: 10px 4px;
 	color: #bf6900;
 	background: none;
 }
 .popup_content {
-	color: #222;
 	line-height: 1.6em;
 	max-height: 30em;
 	overflow: auto;
-	margin: 0;
 	padding: 10px 8px;
 	border-top: 1px solid #ddd;
 }
