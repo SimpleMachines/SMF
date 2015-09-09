@@ -621,7 +621,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="windowbg2 padding centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -942,7 +942,7 @@ function template_trackIP()
 	// This function always defaults to the last IP used by a member but can be set to track any IP.
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
 	echo '
-	<div class="tborder">
+	<div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
@@ -1063,7 +1063,7 @@ function template_showPermissions()
 
 		// General Permissions section.
 		echo '
-				<div class="tborder">
+				<div>
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['showPermissions_general'], '</h3>
 					</div>';
@@ -1110,7 +1110,7 @@ function template_showPermissions()
 
 		// Board permission section.
 		echo '
-			<div class="tborder">
+			<div>
 				<form action="' . $scripturl . '?action=profile;u=', $context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', $context['character_set'], '">
 					<div class="cat_bar">
 						<h3 class="catbg">

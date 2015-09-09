@@ -18,7 +18,7 @@ function template_login()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
@@ -112,7 +112,7 @@ function template_login_tfa()
 	global $context, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['tfa_profile_label'] ,'
@@ -184,7 +184,7 @@ function template_kick_guest()
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
 			</div>';
@@ -244,7 +244,7 @@ function template_maintenance()
 	// Display the administrator's message at the top.
 	echo '
 <form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
-	<div class="tborder login" id="maintenance_mode">
+	<div class="login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
@@ -286,7 +286,7 @@ function template_admin_login()
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
 <form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-	<div class="tborder login" id="admin_login">
+	<div class="login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '

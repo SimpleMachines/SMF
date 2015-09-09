@@ -640,9 +640,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 
 /* Styles for the package manager.
 ------------------------------------------------- */
-#package_list .tborder {
-	margin: .25em 26px .25em 0;
-}
 #package_list ol, #package_list ol li {
 	margin-left: 0;
 	margin-right: 50px;

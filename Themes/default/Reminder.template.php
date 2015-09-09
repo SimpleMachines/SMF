@@ -20,7 +20,7 @@ function template_main()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
@@ -49,7 +49,7 @@ function template_reminder_pick()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
@@ -83,7 +83,7 @@ function template_sent()
 
 	echo '
 		<br>
-		<div class="tborder login" id="reminder_sent">
+		<div class="login" id="reminder_sent">
 			<div class="cat_bar">
 				<h3 class="catbg">' . $context['page_title'] . '</h3>
 			</div>
@@ -101,7 +101,7 @@ function template_set_password()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
@@ -152,7 +152,7 @@ function template_ask()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
