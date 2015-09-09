@@ -2155,14 +2155,6 @@ dl {
 }
 
 /* The basic user info on the left */
-#basicinfo {
-	width: 20%;
-	float: left;
-}
-#detailedinfo {
-	width: 79.5%;
-	float: right;
-}
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;

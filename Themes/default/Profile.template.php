@@ -157,8 +157,8 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto">
-		<div id="basicinfo">';
+	<div id="profileview" class="roundframe grid">
+		<div id="basicinfo" class="cell4 mcell16">';
 
 	// Are there any custom profile fields for above the name?
 	if (!empty($context['print_custom_fields']['above_member']))
@@ -270,7 +270,7 @@ function template_summary()
 		</div>';
 
 	echo '
-		<div id="detailedinfo">
+		<div id="detailedinfo" class="cell12 mcell16">
 			<dl>';
 
 	if ($context['user']['is_owner'] || $context['user']['is_admin'])
