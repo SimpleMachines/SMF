@@ -2864,22 +2864,22 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-div.icon span {
+.board_on, .board_on2, .board_off, .board_redirect {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
 	width: 45px;
 	height: 45px;
 }
-div.icon span.board_on {
+.board_on {
 	background-position: 0 0;
 }
-div.icon span.board_on2 {
+.board_on2 {
 	background-position: -45px 0;
 }
-div.icon span.board_off {
+.board_off {
 	background-position: 0 -45px;
 }
-div.icon span.board_redirect {
+.board_redirect {
 	background-position: -45px -45px;
 }
 div.icon {
