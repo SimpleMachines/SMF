@@ -2894,8 +2894,7 @@ div.info {
 	width: 50%;
 	margin: 10px 0 5px 0;
 }
-div.info .subject {
-	font-weight: 600;
+h4 .subject {
 	font-size: 1.1em;
 	color: #A85400;
 }

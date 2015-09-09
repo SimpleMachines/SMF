@@ -101,7 +101,7 @@ function template_main()
 						</a>
 					</div>
 					<div class="info">
-						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
+						<h4><a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 				// Has it outstanding posts for approval?
 				if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
@@ -110,7 +110,7 @@ function template_main()
 
 				echo '
 
-						<p>', $board['description'] , '</p>';
+						</h4><p>', $board['description'] , '</p>';
 
 				// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 				if (!empty($board['link_moderators']))
