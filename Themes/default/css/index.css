@@ -2870,9 +2870,6 @@ div.board_icon a {
 	width: 45px;
 	height: 45px;
 }
-div.board_icon a.board_on {
-	background-position: 0 0;
-}
 div.board_icon a.board_on2 {
 	background-position: -45px 0;
 }
