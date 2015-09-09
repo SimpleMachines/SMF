@@ -39,9 +39,7 @@ function template_main()
 			echo '
 				<div id="board_', $board['id'], '" class="up_contain">
 					<div class="board_icon">
-						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
-							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
-						</a>
+						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>
 					</div>
 					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
