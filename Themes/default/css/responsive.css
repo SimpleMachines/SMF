@@ -54,7 +54,7 @@
 		float: none;
 	}
 	/* BoardIndex */
-	div.icon {
+	.board_icon {
 		width: 15% !important;
 	}
 	div.lastpost {
@@ -364,13 +364,13 @@
 	}
 
 	/* BoardIndex */
-	div.icon span {
+	.board_icon {
 		margin-top: 10px;
 	}
 	div.info {
 		width: 75% !important;
 	}
-	div.stats {
+	.board_stats {
 		display: none;
 	}
 	div.lastpost {
@@ -383,7 +383,7 @@
 	}
 
 	/* MessageIndex */
-	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
+	#messageindex .board_icon, #messageindex .lastpost, #messageindex .moderation {
 		display: none;
 	}
 	#messageindex .info {
@@ -476,7 +476,7 @@
 	div.lastpost {
 		margin: 0 0 0 20px !important;
 	}
-	div.stats {
+	.board_stats {
 		display: none;
 	}
 }
