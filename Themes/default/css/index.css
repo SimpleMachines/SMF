@@ -544,11 +544,6 @@ a.moderation_link, a.moderation_link:visited {
 	color: red;
 	font-weight: bold;
 }
-
-p.para2 {
-	padding: 12px 0 44px 0;
-	margin: 0;
-}
 /* AJAX notification bar
 ------------------------------------------------------- */
 #ajax_in_progress {
@@ -666,28 +661,17 @@ img.sort, .sort {
 
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
-#main_menu {
-	margin: 0;
-	padding: 0;
-	float: left;
-	width: 100%;
-}
 .dropmenu, #top_info {
-	width: 100%;
 	position: relative;
 	box-sizing: border-box;
 }
-#menu_nav {
-	padding: 0 40px 0 0;
-}
 /* Level 1 button background. */
 .dropmenu li, #top_info > li {
+	display: inline-block;
 	margin: 0 2px 0 1px;
 	padding: 0 0 0.3em 0;
-	float: left;
 	font-size: 0.9em;
 	line-height: 1.9em;
-	position: relative;
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
 .amt {
@@ -708,12 +692,7 @@ img.sort, .sort {
 .dropmenu li strong {
 	color: #333;
 }
-/* For the upshrink button in the main menu bar. */
-#collapse_button {
-	position: absolute;
-	top: 0;
-	right: 0;
-}
+
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
 	margin: 0;
@@ -844,18 +823,17 @@ img.sort, .sort {
 	margin: 0;
 	padding: 0;
 	width: 17em;
-	position: relative;
-	float: none;
 	font-size: 1em;
 	border-radius: 3px;
 	border: 1px solid transparent;
 }
-.dropmenu li li a {
-	position: relative;
-	line-height: 2.2em;
-	padding: 0 7px;
-	display: block;
+/* Necessary to allow highlighting of 1st level while hovering over submenu. */
+.dropmenu li:hover li a, .dropmenu li li a {
+	background: none;
+	padding: 0 9px;
 	color: #346;
+	border: none;
+	line-height: 2.2em;
 }
 .dropmenu li li a>img {
 	vertical-align: middle;
@@ -878,13 +856,6 @@ img.sort, .sort {
 	margin-left: 0;
 	width: auto;
 }
-/* Necessary to allow highlighting of 1st level while hovering over submenu. */
-.dropmenu li:hover li a, .dropmenu li li a {
-	padding: 0 9px;
-	background: none;
-	color: #346;
-	border: none;
-}
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2em 0 0 15.3em;
@@ -904,9 +875,6 @@ img.sort, .sort {
 	border-top: 1px solid #d4dee6;
 }
 /* Reposition Level 2 submenu as visible on hover. */
-.dropmenu li ul {
-	display: none;
-}
 .dropmenu li:hover ul {
 	display: block;
 }
@@ -984,9 +952,6 @@ img.sort, .sort {
 .button.active:hover {
 	color: #ffc187;
 	background: #557ea0;
-}
-.align_top a, .align_bottom a {
-	margin: 0 12px 0 0;
 }
 .button.last {
 	margin-top: 9px;
