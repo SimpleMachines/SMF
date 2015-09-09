@@ -26,7 +26,7 @@ function template_main()
 			</div>
 			<div class="roundframe">
 				<p class="smalltext centertext">', $txt['password_reminder_desc'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['user_email'], ':</dt>
 					<dd><input type="text" name="user" size="30" class="input_text"></dd>
 				</dl>
@@ -106,7 +106,7 @@ function template_set_password()
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['choose_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password">
@@ -158,7 +158,7 @@ function template_ask()
 			</div>
 			<div class="roundframe">
 				<p class="smalltext">', $txt['enter_new_password'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['secret_question'], ':</dt>
 					<dd>', $context['secret_question'], '</dd>
 					<dt>', $txt['secret_answer'], ':</dt>

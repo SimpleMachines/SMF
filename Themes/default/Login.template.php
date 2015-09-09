@@ -39,13 +39,11 @@ function template_login()
 
 	// Now just get the basic information - username, password, etc.
 	echo '
-					<dl>
+					<dl class="grid">
 						<dt>', $txt['username'], ':</dt>
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-					</dl>
-					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
 						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1" max="525600"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
@@ -210,7 +208,7 @@ function template_kick_guest()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
@@ -258,7 +256,7 @@ function template_maintenance()
 			<h4 class="titlebg">', $txt['admin_login'], '</h4>
 		</div>
 		<div class="roundframe">
-			<dl>
+			<dl class="grid">
 				<dt>', $txt['username'], ':</dt>
 				<dd><input type="text" name="user" size="20" class="input_text"></dd>
 				<dt>', $txt['password'], ':</dt>
@@ -340,7 +338,7 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty($context['member_id']))
 		echo '
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30" class="input_text"></dd>';
 
@@ -367,12 +365,12 @@ function template_resend()
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="40" value="', $context['default_username'], '" class="input_text"></dd>
 				</dl>
 				<p>', $txt['invalid_activation_new'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_new_email'], ':</dt>
 					<dd><input type="text" name="new_email" size="40" class="input_text"></dd>
 					<dt>', $txt['invalid_activation_password'], ':</dt>
@@ -382,7 +380,7 @@ function template_resend()
 	if ($context['can_activate'])
 		echo '
 				<p>', $txt['invalid_activation_known'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_retry'], ':</dt>
 					<dd><input type="text" name="code" size="30" class="input_text"></dd>
 				</dl>';

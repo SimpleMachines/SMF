@@ -864,19 +864,6 @@ img.sort, .sort {
 .top_menu {
 	width: 25em;
 }
-.top_menu .login {
-	width: 100%;
-}
-.top_menu .login dt {
-	text-align: left;
-	width: 55%;
-}
-.top_menu .login dd {
-	width: 43%;
-}
-.top_menu .login input {
-	width: 90%;
-}
 /* Note: The next declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus, .dropmenu ul ul a:focus {
 	margin-left: 9990px;
@@ -1560,28 +1547,9 @@ fieldset.merge_options {
 	width: 540px;
 	margin: 0 auto;
 }
-.popup_content .login {
-	width: 100%;
-}
-.login dl {
-	overflow: auto;
-	clear: right;
-}
-.login dt, .login dd {
-	margin: 0 0 5px 0;
-	width: 44%;
-	padding: 1px;
-}
 .login dt {
-	float: left;
-	clear: both;
 	text-align: right;
 	font-weight: bold;
-}
-.login dd {
-	width: 54%;
-	float: right;
-	text-align: left;
 }
 .login p {
 	text-align: center;
