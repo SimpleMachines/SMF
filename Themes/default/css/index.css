@@ -2864,33 +2864,31 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-div.icon span {
+div.board_icon a {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
 	width: 45px;
 	height: 45px;
 }
-div.icon span.board_on {
+div.board_icon a.board_on {
 	background-position: 0 0;
 }
-div.icon span.board_on2 {
+div.board_icon a.board_on2 {
 	background-position: -45px 0;
 }
-div.icon span.board_off {
+div.board_icon a.board_off {
 	background-position: 0 -45px;
 }
-div.icon span.board_redirect {
+div.board_icon a.board_redirect {
 	background-position: -45px -45px;
 }
-div.icon {
-	float: left;
+div.board_icon {
 	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
 	min-width: 60px;
 }
 div.info {
-	float: left;
 	width: 50%;
 	margin: 10px 0 5px 0;
 }
@@ -2901,8 +2899,7 @@ div.info .subject {
 }
 div.stats {
 	width: 14%;
-	float: left;
-	padding: 7px;
+	padding: 10px;
 	font-size: 0.9em;
 }
 div.stats p {
@@ -2914,15 +2911,15 @@ div.stats p {
 }
 div.lastpost {
 	width: 25%;
-	float: left;
-	padding-top: 7px;
 	font-size: 0.9em;
 }
 div.lastpost p {
 	margin: 3px 0 0 0;
 }
-#boardindex_table .icon, #boardindex_table .info, #boardindex_table .stats, #boardindex_table .lastpost {
+.board_icon, .info, .stats, .lastpost {
 	min-height: 4.5em;
+	display: table-cell;
+	vertical-align: middle;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -3019,11 +3016,8 @@ span.postby {
 	border: 1px solid #ddd;
 	border-top: none;
 }
-#topic_header {
+#topic_header .board_icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
 	height: 2em;
-}
-#topic_header .icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
-	height: 1.5em !important;
 	font-weight: bold;
 	font-size: 1em;
 	margin-top: 3px;
@@ -3045,7 +3039,7 @@ span.postby {
 	width: 35px;
 	margin: 5px 0 0 0;
 }
-#topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;

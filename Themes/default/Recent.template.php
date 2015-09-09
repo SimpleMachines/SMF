@@ -109,7 +109,7 @@ function template_unread()
 		echo '
 			<div id="unread">
 				<div id="topic_header" class="title_bar">
-					<div class="icon"></div>
+					<div class="board_icon"></div>
 					<div class="info">
 						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
@@ -135,7 +135,7 @@ function template_unread()
 		{
 			echo '
 					<div class="', $topic['css_class'], '">
-						<div class="icon">
+						<div class="board_icon">
 							<img src="', $topic['first_post']['icon_url'], '" alt="">
 								', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;">' : '','
 						</div>
@@ -250,7 +250,7 @@ function template_replies()
 		echo '
 			<div id="unreadreplies">
 				<div id="topic_header" class="title_bar">
-					<div class="icon"></div>
+					<div class="board_icon"></div>
 					<div class="info">
 						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
@@ -276,7 +276,7 @@ function template_replies()
 		{
 			echo '
 						<div class="', $topic['css_class'], '">
-							<div class="icon">
+							<div class="board_icon">
 								<img src="', $topic['first_post']['icon_url'], '" alt="">
 								', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '','
 							</div>

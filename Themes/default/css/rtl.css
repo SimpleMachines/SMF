@@ -19,14 +19,6 @@
 .lefttext {
 	text-align: right;
 }
-
-/* This place covers board places (boardindex-messageindex) */
-div.icon, div.info, div.stats, div.lastpost {
-	float: right !important;
-}
-.moderation {
-	float: left;
-}
 /* Styling for BBC tags */
 .bbc_list {
 	text-align: right;

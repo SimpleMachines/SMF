@@ -38,7 +38,7 @@ function template_main()
 		{
 			echo '
 				<div id="board_', $board['id'], '" class="up_contain">
-					<div class="icon">
+					<div class="board_icon">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
@@ -168,7 +168,7 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-					<div class="icon">&nbsp;</div>
+					<div class="board_icon">&nbsp;</div>
 					<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
 					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
 					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
@@ -208,7 +208,7 @@ function template_main()
 		{
 			echo '
 			<div class="', $topic['css_class'], '">
-				<div class="icon">
+				<div class="board_icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
 				</div>
