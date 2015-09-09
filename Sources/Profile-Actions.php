@@ -639,7 +639,7 @@ function deleteAccount2($memID)
 			// Include RemoveTopics - essential for this type of work!
 			require_once($sourcedir . '/RemoveTopic.php');
 
-			$extra = empty($_POST['perma_delete']) ? '' : ' AND t.id_board != {int:recycle_board}';
+			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
 			$recycle_board = empty($modSettings['recycle_board']) ? 0 : $modSettings['recycle_board'];
 
 			// First off we delete any topics the member has started - if they wanted topics being done.
@@ -660,9 +660,9 @@ function deleteAccount2($memID)
 					$topicIDs[] = $row['id_topic'];
 				$smcFunc['db_free_result']($request);
 
-				// Actually remove the topics.
+				// Actually remove the topics. Ignore recycling if we want to perma-delete things...
 				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
-				removeTopics($topicIDs);
+				removeTopics($topicIDs, true, !empty($extra));
 			}
 
 			// Now delete the remaining messages.
