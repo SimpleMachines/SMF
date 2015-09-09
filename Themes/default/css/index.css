@@ -2869,14 +2869,8 @@ span.postby {
 	float: left;
 }
 /* Info Center */
-#info_center {
-	clear: both;
-}
-#info_center .sub_bar {
+#info_center .sub_bar:not(:first-child) {
 	border-top: 1px solid #ddd;
-}
-#info_center .sub_bar:first-child {
-	border-top: none;
 }
 #upshrinkHeaderIC {
 	margin-top: 4px;
