@@ -53,13 +53,6 @@
 		margin: 5px;
 		float: none;
 	}
-	/* BoardIndex */
-	div.icon {
-		width: 15% !important;
-	}
-	div.lastpost {
-		display: none;
-	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -362,22 +355,6 @@
 		padding: 5px 0 5px 0 !important;
 		margin-right: 3px;
 	}
-
-	/* BoardIndex */
-	div.icon span {
-		margin-top: 10px;
-	}
-	div.info {
-		width: 75% !important;
-	}
-	div.stats {
-		display: none;
-	}
-	div.lastpost {
-		width: 100%;
-		margin: 0 0 0 5px;
-		padding: 0;
-	}
 	span.postby {
 		float: none;
 	}
@@ -468,23 +445,5 @@
 	}
 	#private, #enclose {
 		width: 95%;
-	}
-}
-/* Still not enough data or people to test this... */
-/* This needs more data and this range is probably for iPad Air (alike) tablets... */
-@media (min-width: 721px) and (max-width: 855px) {
-	div.lastpost {
-		margin: 0 0 0 20px !important;
-	}
-	div.stats {
-		display: none;
-	}
-}
-
-/* Some very big stuff? Dunno... */
-@media (min-width: 856px) and (max-width: 1024px) {
-	div.lastpost {
-		width: 20% !important;
-		margin: 3px 0 0 5px;
 	}
 }

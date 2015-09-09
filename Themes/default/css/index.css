@@ -2882,46 +2882,9 @@ h3 .collapse {
 .board_redirect {
 	background-position: -45px -45px;
 }
-div.icon {
-	float: left;
-	width: 5%;
-	text-align: center;
-	padding: 8px 0 0 0;
-	min-width: 60px;
-}
-div.info {
-	float: left;
-	width: 50%;
-	margin: 10px 0 5px 0;
-}
 h4 .subject {
 	font-size: 1.1em;
 	color: #A85400;
-}
-div.stats {
-	width: 14%;
-	float: left;
-	padding: 7px;
-	font-size: 0.9em;
-}
-div.stats p {
-	border-left: 1px solid #DDD;
-	border-right: 1px solid #DDD;
-	text-align: center;
-	min-height: 3em;
-	margin: 3px 0 0;
-}
-div.lastpost {
-	width: 25%;
-	float: left;
-	padding-top: 7px;
-	font-size: 0.9em;
-}
-div.lastpost p {
-	margin: 3px 0 0 0;
-}
-#boardindex_table .icon, #boardindex_table .info, #boardindex_table .stats, #boardindex_table .lastpost {
-	min-height: 4.5em;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -2932,16 +2895,6 @@ div.lastpost p {
 	border: 1px solid #DDD;
 	margin-bottom: 3px;
 	margin-top: -1px;
-}
-/* Child boards */
-.children {
-	width: 100%;
-	float: left;
-	border-top: 1px solid #DDD;
-	padding: 5px;
-}
-.children p {
-	font-size: 0.9em;
 }
 p.moderators {
 	font-size: 0.9em;

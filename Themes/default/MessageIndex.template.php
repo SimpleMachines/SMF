@@ -37,44 +37,44 @@ function template_main()
 		foreach ($context['boards'] as $board)
 		{
 			echo '
-				<div id="board_', $board['id'], '" class="up_contain">
-					<div class="icon">
-						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
-							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
-						</a>
-					</div>
-					<div class="info">
-						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
+			<div id="board_', $board['id'], '" class="grid up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
+				<div class="cell1 mcell2 centertext">
+					<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
+						<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
+					</a>
+				</div>
+				<div class="cell9 mcell14">
+					<h4><a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 			// Has it outstanding posts for approval?
 			if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
 				echo '
-						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
+					<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 			echo '
-						<p>', $board['description'] , '</p>';
+
+					</h4><p>', $board['description'] , '</p>';
 
 			// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
-			if (!empty($board['moderators']) || !empty($board['moderator_groups']))
+			if (!empty($board['link_moderators']))
 				echo '
-						<p class="moderators">', count($board['link_moderators']) === 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
+					<p class="moderators">', count($board['link_moderators']) == 1 ? $txt['moderator'] : $txt['moderators'], ': ', implode(', ', $board['link_moderators']), '</p>';
 
 			// Show some basic information about the number of posts, etc.
-			echo '
-					</div>
-					<div class="stats">
-						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
-						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
-						</p>
-					</div>
-					<div class="lastpost">';
+				echo '
+				</div>
+				<div class="mhide cell2 centertext">
+					<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
+					', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
+					</p>
+				</div>
+				<div class="mhide cell4">';
 
 			if (!empty($board['last_post']['id']))
 				echo '
-						<p>', $board['last_post']['last_post_message'], '</p>';
+					<p>', $board['last_post']['last_post_message'], '</p>';
 			echo '
-					</div>';
-
+				</div>';
 			// Show the "Child Boards: ". (there's a link_children but we're going to bold the new ones...)
 			if (!empty($board['children']))
 			{
@@ -85,19 +85,19 @@ function template_main()
 				foreach ($board['children'] as $child)
 				{
 					if (!$child['is_redirect'])
-						$child['link'] = '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . ($child['new'] ? '</a> <a  ' . ($child['new'] ? 'class="new_posts" ' : '') . 'href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')"><span class="new_posts">' . $txt['new'] . '</span>' : '') . '</a>';
+						$child['link'] = '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . ($child['new'] ? $txt['new_posts'] : $txt['old_posts']) . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')">' . $child['name'] . ($child['new'] ? '</a> <a href="' . $scripturl . '?action=unread;board=' . $child['id'] . '" title="' . $txt['new_posts'] . ' (' . $txt['board_topics'] . ': ' . comma_format($child['topics']) . ', ' . $txt['posts'] . ': ' . comma_format($child['posts']) . ')"><span class="new_posts">' . $txt['new'] . '</span>' : '') . '</a>';
 					else
-						$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . '">' . $child['name'] . '</a>';
+						$child['link'] = '<a href="' . $child['href'] . '" title="' . comma_format($child['posts']) . ' ' . $txt['redirects'] . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 
 					// Has it posts awaiting approval?
-					if ($child['can_approve_posts'] && ($child['unapproved_posts'] | $child['unapproved_topics']))
+					if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics']))
 						$child['link'] .= ' <a href="' . $scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" title="' . sprintf($txt['unapproved_posts'], $child['unapproved_topics'], $child['unapproved_posts']) . '" class="moderation_link">(!)</a>';
 
 					$children[] = $child['new'] ? '<strong>' . $child['link'] . '</strong>' : $child['link'];
 				}
 
 			echo '
-				<div id="board_', $board['id'], '_children" class="children">
+				<div id="board_', $board['id'], '_children" class="mhide cell16">
 					<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
 				</div>';
 			}

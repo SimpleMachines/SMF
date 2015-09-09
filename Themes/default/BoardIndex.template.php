@@ -94,13 +94,13 @@ function template_main()
 			foreach ($category['boards'] as $board)
 			{
 				echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
-					<div class="icon">
+				<div id="board_', $board['id'], '" class="grid up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
+					<div class="cell1 mcell2 centertext">
 						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
 							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
 						</a>
 					</div>
-					<div class="info">
+					<div class="cell9 mcell14">
 						<h4><a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
 
 				// Has it outstanding posts for approval?
@@ -120,12 +120,12 @@ function template_main()
 				// Show some basic information about the number of posts, etc.
 					echo '
 					</div>
-					<div class="stats">
+					<div class="mhide cell2 centertext">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</div>
-					<div class="lastpost">';
+					<div class="mhide cell4">';
 
 				if (!empty($board['last_post']['id']))
 					echo '
@@ -154,7 +154,7 @@ function template_main()
 					}
 
 				echo '
-					<div id="board_', $board['id'], '_children" class="children">
+					<div id="board_', $board['id'], '_children" class="mhide cell16">
 						<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
 					</div>';
 				}
