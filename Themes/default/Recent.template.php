@@ -24,9 +24,7 @@ function template_recent()
 				<span class="xx"></span>',$txt['recent_posts'],'
 			</h3>
 		</div>
-		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-		</div>';
+		<div class="pagesection">', $context['page_index'], '</div>';
 
 	if (empty($context['posts']))
 	{
@@ -74,9 +72,7 @@ function template_recent()
 	}
 
 	echo '
-		<div class="pagesection">
-			<span>', $context['page_index'], '</span>
-		</div>
+		<div class="pagesection">', $context['page_index'], '</div>
 	</div>';
 }
 
@@ -137,7 +133,7 @@ function template_unread()
 					<div class="', $topic['css_class'], '">
 						<div class="board_icon">
 							<img src="', $topic['first_post']['icon_url'], '" alt="">
-								', $topic['is_posted_in'] ? '<img src="'. $settings['images_url']. '/icons/profile_sm.png" alt="" style="position: absolute; z-index: 5; right: 4px; bottom: -3px;">' : '','
+							', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
 						</div>
 						<div class="info">';
 
