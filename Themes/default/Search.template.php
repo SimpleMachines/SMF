@@ -133,8 +133,8 @@ function template_main()
 						<a href="#" id="advanced_panel_link">', $txt['choose_board'], '</a>
 					</h4>
 				</div>
-				<div class="flow_auto" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
-					<ul class="ignoreboards floatleft">';
+				<div class="selectboards grid" id="advanced_panel_div"', $context['boards_check_all'] ? ' style="display: none;"' : '', '>
+					<ul class="cell8 mcell16">';
 
 		$i = 0;
 		$limit = ceil($context['num_boards'] / 2);
@@ -152,7 +152,7 @@ function template_main()
 							</ul>
 						</li>
 					</ul>
-					<ul class="ignoreboards floatright">
+					<ul class="cell8 mcell16">
 						<li class="category">
 							<ul>';
 
