@@ -575,40 +575,13 @@ p.para2 {
 
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
-dl.settings {
-	clear: right;
+dl.settings dd {
+	margin: 0 0 10px 0;
 	overflow: auto;
-	margin: 0 0 10px 0;
-	padding: 5px;
-}
-dl.settings dt {
-	width: 40%;
-	float: left;
-	margin: 0 0 10px 0;
 	padding: 0;
-	clear: both;
 }
 dl.settings dt.settings_title {
-	width: 100%;
-	float: none;
-	margin: 0 0 10px 0;
-	padding: 5px 0 0 0;
 	font-weight: bold;
-	clear: both;
-}
-dl.settings dt.windowbg {
-	width: 98%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0 0 5px 0;
-	clear: both;
-}
-dl.settings dd {
-	width: 56%;
-	float: right;
-	overflow: auto;
-	margin: 0 0 3px 0;
-	padding: 0;
 }
 dl.settings img {
 	margin: 0 10px 0 0;
@@ -3757,7 +3730,7 @@ h3.profile_hd {
  * Grid units
  * No explicit width by default.
  */
-.grid [class*='cell'] {
+.grid [class*='cell'], dl.settings dt, dl.settings dd {
 	box-sizing: border-box;
 	display: inline-block;
 	padding: 6px 8px;
@@ -3787,7 +3760,7 @@ h3.profile_hd {
 .cell7, .w7 {
 	width: 43.75%;
 }
-.cell8, .w8 {
+.cell8, .w8, dl.settings dt, dl.settings dd {
 	width: 50%;
 }
 .cell9, .w9 {
@@ -3811,7 +3784,7 @@ h3.profile_hd {
 .cell15, .w15 {
 	width: 93.75%;
 }
-.cell16, .w16 {
+.cell16, .w16, dl.settings dt.settings_title {
 	width: 100%;
 }
 .w33 {
