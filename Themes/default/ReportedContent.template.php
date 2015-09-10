@@ -123,7 +123,7 @@ function template_reported_posts_block()
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['reported_posts'] as $report)
 			echo '
@@ -332,7 +332,7 @@ function template_reported_members_block()
 		</div>
 		<div class="windowbg" id="reported_users_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['reported_members'] as $report)
 			echo '

@@ -203,7 +203,7 @@ function template_summary()
 	}
 
 		echo '
-			<ul class="reset clear">';
+			<ul class="clear">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -254,7 +254,7 @@ function template_summary()
 	{
 		echo '
 			<div class="custom_fields_bottom">
-				<ul class="reset nolist">';
+				<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['bottom_poster'] as $field)
 			if (!empty($field['output_html']))
@@ -409,7 +409,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -434,7 +434,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_below_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -2459,7 +2459,7 @@ function template_issueWarning()
 					if ($(request).find("error").text() != \'\')
 					{
 						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors" class="reset">\';
+						var errors_html = \'<ul class="list_errors">\';
 						var errors = $(request).find(\'error\').each(function() {
 							errors_html += \'<li>\' + $(this).text() + \'</li>\';
 						});

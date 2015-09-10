@@ -242,7 +242,7 @@ function template_email_members_compose()
 				', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message');
 
 					echo '
-				<ul class="reset">
+				<ul>
 					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty($context['send_pm']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_pms'], '</label></li>
 					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty($context['send_html']) ? ' checked' : '', ' class="input_check" onclick="checkboxes_status(this);"> ', $txt['email_as_html'], '</label></li>
 					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled class="input_check"> ', $txt['email_parsed_html'], '</label></li>

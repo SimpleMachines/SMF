@@ -315,7 +315,7 @@ function template_reset_list()
 				<h3 class="catbg">', $theme['name'], '</h3>
 			</div>
 			<div class="windowbg">
-				<ul class="reset">
+				<ul>
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=reset">', $txt['themeadmin_reset_defaults'], '</a> <em class="smalltext">(', $theme['num_default_options'], ' ', $txt['themeadmin_reset_defaults_current'], ')</em>
 					</li>
@@ -478,7 +478,7 @@ function template_set_settings()
 				</h3>
 			</div>
 			<div class="windowbg2">
-				<ul class="reset">
+				<ul>
 					<li>
 						<a href="', $scripturl, '?action=admin;area=theme;th=', $context['theme_settings']['theme_id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit;filename=index.template.php">', $txt['theme_edit_index'], '</a>
 					</li>
@@ -751,7 +751,7 @@ function template_pick()
 						<em class="smalltext">', $theme['num_users'], ' ', ($theme['num_users'] == 1 ? $txt['theme_user'] : $txt['theme_users']), '</em>
 					</p>
 					<br>
-					<ul class="reset">
+					<ul>
 						<li>
 							<a href="', $scripturl, '?action=theme;sa=pick;u=', $context['current_member'], ';th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], !empty($theme['variants']) ? ';vrt=' . $theme['selected_variant'] : '', '" id="theme_use_', $theme['id'], '">[', $txt['theme_set'], ']</a>
 						</li>
@@ -859,7 +859,7 @@ function template_edit_list()
 			</h3>
 		</div>
 		<div class="windowbg">
-			<ul class="reset">
+			<ul>
 				<li><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=edit">', $txt['themeadmin_edit_browse'], '</a></li>', $theme['can_edit_style'] ? '
 				<li><a href="' . $scripturl . '?action=admin;area=theme;th=' . $theme['id'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;directory=css">' . $txt['themeadmin_edit_style'] . '</a></li>' : '', '
 				<li><a href="', $scripturl, '?action=admin;area=theme;th=', $theme['id'], ';', $context['session_var'], '=', $context['session_id'], ';sa=copy">', $txt['themeadmin_edit_copy_template'], '</a></li>
@@ -892,7 +892,7 @@ function template_copy_template()
 	foreach ($context['available_templates'] as $template)
 	{
 		echo '
-				<li class="reset flow_hidden windowbg">
+				<li class="flow_hidden windowbg">
 					<span class="floatleft">', $template['filename'], $template['already_exists'] ? ' <span class="error">(' . $txt['themeadmin_edit_exists'] . ')</span>' : '', '</span>
 					<span class="floatright">';
 

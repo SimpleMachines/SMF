@@ -415,7 +415,7 @@ function template_maintain_topics()
 		echo '
 							<fieldset>
 								<legend>', $category['name'], '</legend>
-								<ul class="reset">';
+								<ul>';
 
 		// Display a checkbox with every board.
 		foreach ($category['boards'] as $board)

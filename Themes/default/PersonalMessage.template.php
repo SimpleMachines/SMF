@@ -228,7 +228,7 @@ function template_folder()
 		{
 			echo '
 			<div class="custom_fields_above_member">
-				<ul class="reset nolist">';
+				<ul class="nolist">';
 
 			foreach ($message['custom_fields']['above_member'] as $custom)
 				echo '
@@ -474,7 +474,7 @@ function template_folder()
 			{
 				echo '
 					<div class="custom_fields_above_signature">
-						<ul class="reset nolist">';
+						<ul class="nolist">';
 
 				foreach ($message['custom_fields']['above_signature'] as $custom)
 					echo '
@@ -495,7 +495,7 @@ function template_folder()
 			{
 				echo '
 					<div class="custom_fields_below_signature">
-						<ul class="reset nolist">';
+						<ul class="nolist">';
 
 				foreach ($message['custom_fields']['below_signature'] as $custom)
 					echo '
@@ -786,7 +786,7 @@ function template_search()
 					</h3>
 				</div>
 				<div id="advanced_panel_div">
-					<ul id="searchLabelsExpand" class="reset">';
+					<ul id="searchLabelsExpand">';
 
 		foreach ($context['search_labels'] as $label)
 			echo '
