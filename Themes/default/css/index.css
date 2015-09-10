@@ -2241,58 +2241,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 .title_bar.cell16 {
 	padding: 0 !important;
 }
-dl.stats dt {
-	width: 50%;
-	float: left;
-	margin: 0 0 4px 0;
-	padding: 0;
-	line-height: 1.5em;
-	clear: both;
-	font-size: 1em;
-}
-dl.stats dd {
-	width: 50%;
-	font-size: 1em;
-	float: left;
-	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 2px;
-	position: relative;
-}
-.statsbar div.bar {
-	float: left;
-	background: orange;
-	border-right: 1px solid #999;
-	border-radius: 1px 0 0 1px;
-	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
-	display: block;
-	margin: 0 4px 0 0;
-	height: 1.4em;
-}
-.statsbar div.bar.empty {
-	width: 0;
-	border-right: none;
-}
-#profileview dd, .nobb, .nobb dd {
-	background: none !important;
-	border: none !important;
-}
-dl.stats {
-	padding: 5px;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-dl.stats dd span {
-	padding: 0 5px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 2;
-	white-space: pre;
-}
-
 /* Forum history table. */
 #stats td, #stats th {
 	width: 15%;
@@ -2500,7 +2448,6 @@ dl.addrules dt.floatleft {
 	z-index: 3;
 }
 .popup_window {
-	position: absolute;
 	width: 480px;
 	padding: 0 6px 6px 6px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.5);
@@ -2774,8 +2721,6 @@ select.qaction {
 }
 #topic_icons {
 	margin-top: 10px;
-	float: left;
-	width: 100%;
 }
 #topic_icons .information {
 	border-radius: 7px;
