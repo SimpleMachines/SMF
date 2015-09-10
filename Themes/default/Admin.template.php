@@ -44,7 +44,7 @@ function template_admin()
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="cekk5 mhide">
+							<div id="supportVersionsTable" class="cell5 mhide">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
