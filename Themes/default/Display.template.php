@@ -845,7 +845,7 @@ function template_quickreply()
 	global $context, $modSettings, $scripturl, $options, $txt;
 	echo '
 		<a id="quickreply"></a>
-		<div class="tborder" id="quickreplybox">
+		<div id="quickreplybox">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['quick_reply'], '
