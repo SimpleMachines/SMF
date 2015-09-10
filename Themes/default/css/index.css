@@ -77,8 +77,6 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 }
 /* Fieldsets are used to group elements. */
 fieldset {
-	padding: 18px;
-	margin: 0 0 6px 0;
 	border: 1px solid #ddd;
 	border-radius: 3px;
 }
