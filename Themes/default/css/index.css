@@ -2814,33 +2814,8 @@ select.qaction {
 }
 
 /* Poll results */
-#poll_options dl.options {
-	padding: 12px 0 12px 25px;
-	line-height: 1.4em;
-}
-#poll_options dl.options dt {
-	padding: 4px 0;
-	width: 30%;
-	max-width: 30em;
-	float: left;
-	margin: 0;
-	clear: left;
-}
 #poll_options dl.options .voted {
 	font-weight: bold;
-}
-#poll_options dl.options dd {
-	width: 60%;
-	max-width: 45em;
-	float: left;
-	margin: 0 0 4px 0;
-	padding: 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 2px;
-	position: relative;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 #poll_options dl.options .percentage {
@@ -3521,24 +3496,22 @@ h3.profile_hd {
 	transform: translate(-50%, -50%);
 }
 
-
 /*
  * Grid container
  * Must only contain `.cell` components as children.
  */
-.grid, dl.settings, dl.grid {
+.grid, dl.settings, dl.grid, #poll_options dl {
 	display: block;
 	letter-spacing: -0.31em;
 }
 
 /*
  * Grid units
- * No explicit width by default.
  */
-.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
+.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd, #poll_options dt, #poll_options dd {
 	box-sizing: border-box;
 	display: inline-block;
-	padding: 6px 8px;
+	padding: 3px 8px;
 	vertical-align: top;
 	letter-spacing: normal;
 	word-spacing: normal;
