@@ -1863,7 +1863,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
+	loadJavascriptFile('alertSettings.js', array('default_theme' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');
