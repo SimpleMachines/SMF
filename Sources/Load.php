@@ -2268,6 +2268,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  * 	- ['default_theme'] (true/false): force use of default theme url
  * 	- ['force_current'] (true/false): if this is false, we will attempt to load the file from the default theme if not found in the current theme
  *  - ['validate'] (true/false): if true script will validate the local file exists
+ *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */

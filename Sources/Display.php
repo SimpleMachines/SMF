@@ -1283,6 +1283,7 @@ function Display()
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
 		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
 	}
 }
