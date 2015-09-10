@@ -3493,7 +3493,10 @@ h3.profile_hd {
 .centerbox {
 	top: 50%;
 	left: 50%;
+	position: absolute;
 	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50);  /* Chrome, Opera 15+, Safari 3.1+  */
+	-ms-transform: translate(-50%, -50);  /* IE 9  */
 }
 
 /*
