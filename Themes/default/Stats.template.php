@@ -28,7 +28,7 @@ function template_main()
 					<span class="generic_icons general"></span> ', $txt['general_stats'], '
 				</h4>
 			</div>
-			<dl class="stats cell8 mcell16 nobb">
+			<dl class="cell8 mcell16 grid">
 				<dt>', $txt['total_members'], ':</dt>
 				<dd>', $context['show_member_list'] ? '<a href="' . $scripturl . '?action=mlist">' . $context['num_members'] . '</a>' : $context['num_members'], '</dd>
 				<dt>', $txt['total_posts'], ':</dt>
@@ -51,7 +51,7 @@ function template_main()
 
 	echo '
 			</dl>
-			<dl class="stats cell8 mcell16 nobb">
+			<dl class="cell8 mcell16 grid">
 				<dt>', $txt['average_members'], ':</dt>
 				<dd>', $context['average_members'], '</dd>
 				<dt>', $txt['average_posts'], ':</dt>
@@ -95,7 +95,7 @@ function template_main()
 						<span class="generic_icons ', $name, '"></span> ', $txt['top_' . $name], '
 					</h4>
 				</div>
-					<dl class="stats">';
+					<dl class="grid">';
 
 		foreach ($block as $item)
 		{
