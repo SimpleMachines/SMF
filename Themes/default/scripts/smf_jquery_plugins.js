@@ -3,7 +3,7 @@
  *
  * - will use the hoverintent plugin if available
  * - shows the tooltip in a div with the class defined in tooltipClass
- * - moves all selector titles to a hidden div and removes the title attribute to 
+ * - moves all selector titles to a hidden div and removes the title attribute to
  *   prevent any default browser actions
  * - attempts to keep the tooltip on screen
  *
@@ -17,7 +17,7 @@
  * @version 2.1 Beta 2
  *
  */
- 
+
 (function($) {
 	$.fn.SMFtooltip = function(oInstanceSettings) {
 		$.fn.SMFtooltip.oDefaultsSettings = {
@@ -41,16 +41,16 @@
 			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + htmlspecialchars(this.title) + '</span>').hide();
 			$(this).append(sTitle).attr('title', '');
 		});
-		
+
 		// determine where we are going to place the tooltip, while trying to keep it on screen
 		var positionTooltip = function(event)
 		{
 			var iPosx = 0;
 			var iPosy = 0;
-			
+
 			if (!event)
 				var event = window.event;
-				
+
 			if (event.pageX || event.pageY)
 			{
 				iPosx = event.pageX;
@@ -61,7 +61,7 @@
 				iPosx = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
 				iPosy = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
 			}
-			
+
 			// Position of the tooltip top left corner and its size
 			var oPosition = {
 				x: iPosx + oSettings.positionLeft,
@@ -92,27 +92,27 @@
 			{
 				oPosition.y = oPosition.y - (((oPosition.y + oPosition.h) - (oLimits.y + oLimits.h)) + 24);
 			}
-			
+
 			// finally set the position we determined
 			$('#' + oSettings.tooltipID).css({'left': oPosition.x + 'px', 'top': oPosition.y + 'px'});
 		}
-		
+
 		// used to show a tooltip
 		var showTooltip = function(){
 			$('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID).show();
 		}
-		
+
 		// used to hide a tooltip
 		var hideTooltip = function(valueOfThis){
 			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
 		}
-		
+
 		// used to keep html encoded
 		function htmlspecialchars(string)
 		{
 			return $('<span>').text(string).html();
 		}
-		
+
 		// for all of the elements that match the selector on the page, lets set up some actions
 		return this.each(function(index)
 		{
@@ -132,7 +132,7 @@
 				// plain old hover it is
 				$(this).hover(smf_tooltip_on, smf_tooltip_off);
 			}
-			
+
 			// create the on tip action
 			function smf_tooltip_on(event)
 			{
@@ -141,34 +141,34 @@
 				{
 					// create a ID'ed div with our style class that holds the tooltip info, hidden for now
 					$('body').append('<div id="' + oSettings.tooltipID + '" class="' + oSettings.tooltipClass + '"><div id="' + oSettings.tooltipTextID + '" style="display:none;"></div></div>');
-					
+
 					// load information in to our newly created div
 					var tt = $('#' + oSettings.tooltipID);
 					var ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
-					
+
 					if (oSettings.tooltipContent == 'html')
 						ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
 					else
 						ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
-					
+
 					oSettings.tooltipContent
-					
+
 					// show then position or it may postion off screen
 					tt.show();
 					showTooltip();
 					positionTooltip(event);
 				}
-			
+
 				return false;
 			};
-			
+
 			// create the Bye bye tip
 			function smf_tooltip_off(event)
 			{
 				hideTooltip(this);
 				return false;
 			};
-			
+
 			// create the tip move with the cursor
 			if (oSettings.followMouse)
 			{
@@ -177,7 +177,7 @@
 					return false;
 				});
 			}
-			
+
 			// clear the tip on a click
 			$(this).bind("click", function(event){
 				hideTooltip(this);
@@ -186,7 +186,7 @@
 
 		});
 	};
-	
+
 })(jQuery);
 
 /**
