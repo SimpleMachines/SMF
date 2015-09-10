@@ -3179,11 +3179,7 @@ function theme_copyright()
 		return;
 
 	// Put in the version...
-	$forum_copyright = sprintf($forum_copyright, $forum_version, $software_year);
-
-	echo '
-			<span class="smalltext" style="display: inline; visibility: visible; font-family: Verdana, Arial, sans-serif;">' . $forum_copyright . '
-			</span>';
+	printf($forum_copyright, $forum_version, $software_year);
 }
 
 /**

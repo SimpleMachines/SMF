@@ -1268,6 +1268,7 @@ ul li.greeting {
 }
 #footer li.copyright {
 	display: block;
+	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
 
 /* the posting icons */
