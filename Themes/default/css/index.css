@@ -3290,7 +3290,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 p.information img {
 	vertical-align: middle;
 }
-#messageindex .information, #topic_container .info {
+#messageindex .information {
 	border-radius: 0;
 	margin: 0;
 }
