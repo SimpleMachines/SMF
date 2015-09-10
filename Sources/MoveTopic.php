@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -381,9 +381,8 @@ function MoveTopic2()
  * Handles the moving of mark_read data
  * Updates the posts count of the affected boards
  *
- * @param array $topics
- * @param int $toBoard
- * @return void
+ * @param int|int[] $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
+ * @param int $toBoard The ID of the board to move the topics to
  */
 function moveTopics($topics, $toBoard)
 {
@@ -710,7 +709,6 @@ function moveTopics($topics, $toBoard)
 
 /**
  * Called after a topic is moved to update $board_link and $topic_link to point to new location
- *
  */
 function moveTopicConcurrence()
 {

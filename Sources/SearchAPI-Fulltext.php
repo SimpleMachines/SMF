@@ -8,37 +8,35 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Fulltext API, used when an SQL fulltext index is used
+ * Class fulltext_search
+ * Used for fulltext index searching
  */
 class fulltext_search extends search_api
 {
 	/**
-	 * What words are banned?
-	 * @var type
+	 * @var array Which words are banned
 	 */
 	protected $bannedWords = array();
 
 	/**
-	 * What is the minimum word length?
-	 * @var type
+	 * @var int The minimum word length
 	 */
 	protected $min_word_length = 4;
 
 	/**
-	 * What databases support the fulltext index?
-	 * @var type
+	 * @var array Which databases support this method?
 	 */
 	protected $supported_databases = array('mysql', 'mysqli');
 
 	/**
-	 * fulltext_search::__construct()
+	 * The constructor function
 	 */
 	public function __construct()
 	{
@@ -80,7 +78,7 @@ class fulltext_search extends search_api
 	 *
 	 * What is the minimum word length full text supports?
 	 *
-	 * @return int
+	 * @return int The minimum word length
 	 */
 	protected function _getMinWordLength()
 	{

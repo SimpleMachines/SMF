@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -22,12 +22,11 @@ if (!defined('SMF'))
  *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
- * - allows wireless access using the protocol_post sub template.
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors holds any errors found tyring to post
+ *  @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {
@@ -1048,10 +1047,6 @@ function Post($post_errors = array())
 			'extra_after' => '<span><strong class="nav">)</strong></span>'
 		);
 
-	// Give wireless a linktree url to the post screen, so that they can switch to full version.
-	if (WIRELESS)
-		$context['linktree'][count($context['linktree']) - 1]['url'] = $scripturl . '?action=post;' . (!empty($topic) ? 'topic=' . $topic : 'board=' . $board) . '.' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . (int) $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '');
-
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
@@ -1170,7 +1165,8 @@ function Post($post_errors = array())
 	// Mentions
 	if (!empty($modSettings['enable_mentions']) && allowedTo('mention'))
 	{
-		loadJavascriptFile('jquery.atwho.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
+		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
+		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
 	}
 
@@ -1178,9 +1174,7 @@ function Post($post_errors = array())
 	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
 
 	// Finally, load the template.
-	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_post';
-	elseif (!isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
 }
 
@@ -1318,7 +1312,21 @@ function Post2()
 
 		// Do the permissions and approval stuff...
 		$becomesApproved = true;
-		if ($topic_info['id_member_started'] != $user_info['id'])
+		$topicAndMessageBothUnapproved = false;
+
+		// If the topic is unapproved the message automatically becomes unapproved too.
+		if (empty($topic_info['approved']))
+		{
+			$becomesApproved = false;
+
+			// camelCase fan much? :P
+			$topicAndMessageBothUnapproved = true;
+
+			// Set a nice session var...
+			$_SESSION['becomesUnapproved'] = true;
+		}
+
+		elseif ($topic_info['id_member_started'] != $user_info['id'])
 		{
 			if ($modSettings['postmod_active'] && allowedTo('post_unapproved_replies_any') && !allowedTo('post_reply_any'))
 				$becomesApproved = false;
@@ -1356,8 +1364,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1367,8 +1375,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['is_sticky']) ? 'un' : '') . 'sticky';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['is_sticky']) ? 'un' : '') . 'sticky';
 		}
 
 		// If drafts are enabled, then pass this off
@@ -1471,8 +1479,8 @@ function Post2()
 				$_POST['lock'] = empty($_POST['lock']) ? 0 : 1;
 
 				// Did someone (un)lock this while you were posting?
-				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topicinfo['locked'])
-					$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'locked';
+				if (isset($_POST['already_locked']) && $_POST['already_locked'] != $topic_info['locked'])
+					$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'locked';
 			}
 		}
 
@@ -1482,8 +1490,8 @@ function Post2()
 		elseif (isset($_POST['sticky']))
 		{
 			// Did someone (un)sticky this while you were posting?
-			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topicinfo['is_sticky'])
-				$post_errors[] = 'topic_' . (empty($topicinfo['locked']) ? 'un' : '') . 'stickied';
+			if (isset($_POST['already_sticky']) && $_POST['already_sticky'] != $topic_info['is_sticky'])
+				$post_errors[] = 'topic_' . (empty($topic_info['locked']) ? 'un' : '') . 'stickied';
 		}
 
 		if ($row['id_member'] == $user_info['id'] && !allowedTo('modify_any'))
@@ -1532,8 +1540,8 @@ function Post2()
 		}
 	}
 
-	// Incase we want to override
-	if (allowedTo('approve_posts'))
+	// In case we want to override but still respect the unapproved topic rule.
+	if (allowedTo('approve_posts') && empty($topicAndMessageBothUnapproved))
 	{
 		$becomesApproved = !isset($_REQUEST['approve']) || !empty($_REQUEST['approve']) ? 1 : 0;
 		$approve_has_changed = isset($row['approved']) ? $row['approved'] != $becomesApproved : false;
@@ -2262,15 +2270,13 @@ function AnnouncementSend()
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
 		FROM {db_prefix}members AS mem
-		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)' . (!empty($modSettings['allow_disableAnnounce']) ? '
-			AND mem.notify_announcements = {int:notify_announcements}' : '') . '
+		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
 			AND mem.is_activated = {int:is_activated}
 			AND mem.id_member > {int:start}
 		ORDER BY mem.id_member
 		LIMIT {int:chunk_size}',
 		array(
 			'group_list' => $_POST['who'],
-			'notify_announcements' => 1,
 			'is_activated' => 1,
 			'start' => $context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
@@ -2293,8 +2299,23 @@ function AnnouncementSend()
 
 	$announcements = array();
 	// Loop through all members that'll receive an announcement in this batch.
+	$rows = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$rows[$row['id_member']] = $row;
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+	foreach ($rows as $row)
+	{
+		// Force them to have it?
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
 		// If the language wasn't defined yet, load it and compose a notification message.
@@ -2507,7 +2528,7 @@ function QuoteFast()
 function JavaScriptModify()
 {
 	global $sourcedir, $modSettings, $board, $topic, $txt;
-	global $user_info, $context, $smcFunc, $language;
+	global $user_info, $context, $smcFunc, $language, $board_info;
 
 	// We have to have a topic!
 	if (empty($topic))
@@ -2521,7 +2542,8 @@ function JavaScriptModify()
 		SELECT
 			t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 			m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
-			m.modified_time, m.modified_name, m.modified_reason, m.approved
+			m.modified_time, m.modified_name, m.modified_reason, m.approved,
+			m.poster_name, m.poster_email
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
 		WHERE m.id_msg = {raw:id_msg}
@@ -2651,7 +2673,12 @@ function JavaScriptModify()
 			'sticky_mode' => isset($_POST['sticky']) ? (int) $_POST['sticky'] : null,
 			'mark_as_read' => true,
 		);
-		$posterOptions = array();
+		$posterOptions = array(
+			'id' => $user_info['id'],
+			'name' => $row['poster_name'],
+			'email' => $row['poster_email'],
+			'update_post_count' => !$user_info['is_guest'] && !isset($_REQUEST['msg']) && $board_info['posts_count'],
+		);
 
 		// Only consider marking as editing if they have edited the subject, message or icon.
 		if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon']))

@@ -8,10 +8,10 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 1';
+$GLOBALS['current_smf_version'] = '2.1 Beta 2';
 $GLOBALS['db_script_version'] = '2-1';
 
 $GLOBALS['required_php_version'] = '5.3.8';
@@ -205,7 +205,7 @@ function initialize_inputs()
 	// Add slashes, as long as they aren't already being added.
 	if (!function_exists('get_magic_quotes_gpc') || @get_magic_quotes_gpc() == 0)
 		foreach ($_POST as $k => $v)
-			if (strpos($k, 'password') === false)
+			if (strpos($k, 'password') === false && strpos($k, 'db_passwd') === false)
 				$_POST[$k] = addslashes($v);
 
 	// This is really quite simple; if ?delete is on the URL, delete the installer...
@@ -381,7 +381,7 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl, $txt;
 
 	// Send character set.
-	header('Content-Type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1'));
+	header('Content-Type: text/html; charset=' . (isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8'));
 
 	// We usually dump our templates out.
 	if (!$fallThrough)
@@ -994,6 +994,7 @@ function DatabasePopulation()
 			'db_error_skip' => true,
 		)
 	);
+	$newSettings = array();
 	$modSettings = array();
 	if ($result !== false)
 	{
@@ -1057,14 +1058,23 @@ function DatabasePopulation()
 		// Done with this now
 		$smcFunc['db_free_result']($get_engines);
 
-		$replaces['{$engine}'] = in_array('InnoDB', $engines) ? 'InnoDB' : 'MyISAM';
-		$replaces['{$memory}'] = in_array('MEMORY', $engines) ? 'MEMORY' : $replaces['{$engine}'];
+		// InnoDB is better, so use it if possible...
+		$has_innodb = in_array('InnoDB', $engines);
+		$replaces['{$engine}'] = $has_innodb ? 'InnoDB' : 'MyISAM';
+		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// If the UTF-8 setting was enabled, add it to the table definitions.
 		if (!empty($databases[$db_type]['utf8_support']) && (!empty($databases[$db_type]['utf8_required']) || isset($_POST['utf8'])))
 		{
 			$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
 			$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		}
+
+		// One last thing - if we don't have InnoDB, we can't do transactions...
+		if (!$has_innodb)
+		{
+			$replaces['START TRANSACTION;'] = '';
+			$replaces['COMMIT;'] = '';
 		}
 	}
 
@@ -1095,7 +1105,12 @@ function DatabasePopulation()
 		// Does this table already exist?  If so, don't insert more data into it!
 		if (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) != 0 && in_array($match[1], $exists))
 		{
-			$incontext['sql_results']['insert_dups']++;
+			preg_match_all('~\)[,;]~', $current_statement, $matches);
+			if (!empty($matches[0]))
+				$incontext['sql_results']['insert_dups'] += count($matches[0]);
+			else
+				$incontext['sql_results']['insert_dups']++;
+
 			$current_statement = '';
 			continue;
 		}
@@ -1124,7 +1139,7 @@ function DatabasePopulation()
 		{
 			if (preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 				$incontext['sql_results']['tables']++;
-			else
+			elseif (preg_match('~^\s*INSERT INTO ([^\s\n\r]+?)~', $current_statement, $match) == 1)
 			{
 				preg_match_all('~\)[,;]~', $current_statement, $matches);
 				if (!empty($matches[0]))
@@ -1135,6 +1150,9 @@ function DatabasePopulation()
 		}
 
 		$current_statement = '';
+
+		// Wait, wait, I'm still working here!
+		set_time_limit(60);
 	}
 
 	// Sort out the context for the SQL.
@@ -1148,16 +1166,7 @@ function DatabasePopulation()
 
 	// Make sure UTF will be used globally.
 	if ((!empty($databases[$db_type]['utf8_support']) && !empty($databases[$db_type]['utf8_required'])) || (empty($databases[$db_type]['utf8_required']) && !empty($databases[$db_type]['utf8_support']) && isset($_POST['utf8'])))
-		$smcFunc['db_insert']('replace',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'global_character_set', 'UTF-8',
-			),
-			array('variable')
-		);
+		$newSettings[] = array('global_character_set', 'UTF-8');
 
 	// Maybe we can auto-detect better cookie settings?
 	preg_match('~^http[s]?://([^\.]+?)([^/]*?)(/.*)?$~', $boardurl, $matches);
@@ -1175,19 +1184,9 @@ function DatabasePopulation()
 			$localCookies = true;
 
 		if ($globalCookies)
-			$rows[] = array('globalCookies', '1');
+			$newSettings[] = array('globalCookies', '1');
 		if ($localCookies)
-			$rows[] = array('localCookies', '1');
-
-		if (!empty($rows))
-		{
-			$smcFunc['db_insert']('replace',
-				$db_prefix . 'settings',
-				array('variable' => 'string-255', 'value' => 'string-65534'),
-				$rows,
-				array('variable')
-			);
-		}
+			$newSettings[] = array('localCookies', '1');
 	}
 
 	// Are we allowing stat collection?
@@ -1212,33 +1211,13 @@ function DatabasePopulation()
 			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
 
 			if (!empty($ID[1]))
-				$smcFunc['db_insert']('',
-					$db_prefix . 'settings',
-					array(
-						'variable' => 'string-255', 'value' => 'string-65534',
-					),
-					array(
-						'allow_sm_stats', $ID[1],
-					),
-					array('variable')
-				);
+				$newSettings[] = array('allow_sm_stats', $ID[1]);
 		}
 	}
 
 	// Are we enabling SSL?
 	if (!empty($_POST['force_ssl']))
-	{
-		$smcFunc['db_insert']('',
-			$db_prefix . 'settings',
-			array(
-				'variable' => 'string-255', 'value' => 'string-65534',
-			),
-			array(
-				'force_ssl', 2,
-			),
-			array('variable')
-		);
-	}
+		$newSettings[] = array('force_ssl', 2);
 
 	// As of PHP 5.1, setting a timezone is required.
 	if (!isset($modSettings['default_timezone']) && function_exists('date_default_timezone_set'))
@@ -1246,34 +1225,48 @@ function DatabasePopulation()
 		$server_offset = mktime(0, 0, 0, 1, 1, 1970);
 		$timezone_id = 'Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600);
 		if (date_default_timezone_set($timezone_id))
-			$smcFunc['db_insert']('',
-				$db_prefix . 'settings',
-				array(
-					'variable' => 'string-255', 'value' => 'string-65534',
-				),
-				array(
-					'default_timezone', $timezone_id,
-				),
-				array('variable')
-			);
+			$newSettings[] = array('default_timezone', $timezone_id);
 	}
 
-	// Let's optimize those new tables.
-	db_extend();
-	$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
-	foreach ($tables as $table)
+	if (!empty($newSettings))
 	{
-		$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+		$smcFunc['db_insert']('replace',
+			'{db_prefix}settings',
+			array('variable' => 'string-255', 'value' => 'string-65534'),
+			$newSettings,
+			array('variable')
+		);
+	}
 
-		if (!empty($db_messed))
+	// Let's optimize those new tables, but not on InnoDB, ok?
+	if (!$has_innodb)
+	{
+		db_extend();
+		$tables = $smcFunc['db_list_tables']($db_name, $db_prefix . '%');
+		foreach ($tables as $table)
 		{
-			$incontext['failures'][-1] = $smcFunc['db_error']();
-			break;
+			$smcFunc['db_optimize_table']($table) != -1 or $db_messed = true;
+
+			if (!empty($db_messed))
+			{
+				$incontext['failures'][-1] = $smcFunc['db_error']();
+				break;
+			}
 		}
 	}
 
+	// Find database user privileges.
+	$privs = array();
+	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
+	while ($row = $smcFunc['db_fetch_assoc']($get_privs))
+	{
+		if ($row['Privilege'] == 'Alter')
+			$privs[] = $row['Privilege'];
+	}
+	$smcFunc['db_free_result']($get_privs);
+
 	// Check for the ALTER privilege.
-	if (!empty($databases[$db_type]['alter_support']) && $smcFunc['db_query']('', "ALTER TABLE {$db_prefix}boards ORDER BY id_board", array('security_override' => true, 'db_error_skip' => true)) === false)
+	if (!empty($databases[$db_type]['alter_support']) && !in_array('Alter', $privs))
 	{
 		$incontext['error'] = $txt['error_db_alter_priv'];
 		return false;
@@ -2111,12 +2104,12 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['smf_installer'], '</title>
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/index.css?alp21">
-		<link rel="stylesheet" type="text/css" href="Themes/default/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="Themes/default/css/rtl.css?alp21">' : '' , '
+		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
+		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2248,7 +2241,7 @@ function template_welcome_message()
 
 	// For the latest version stuff.
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			// Latest version?
 			function smfCurrentVersion()
 			{
@@ -2269,7 +2262,7 @@ function template_welcome_message()
 					document.getElementById(\'version_warning\').style.display = \'\';
 			}
 			addLoadEvent(smfCurrentVersion);
-		// ]]></script>';
+		</script>';
 }
 
 // A shortcut for any warning stuff.
@@ -2458,7 +2451,7 @@ function template_database_settings()
 
 	// Toggles a warning related to db names in PostgreSQL
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		function toggleDBInput()
 		{
 			if (document.getElementById(\'db_type_input\').value == \'postgresql\')
@@ -2467,7 +2460,7 @@ function template_database_settings()
 				document.getElementById(\'db_name_info_warning\').style.display = \'\';
 		}
 		toggleDBInput();
-	// ]]></script>';
+	</script>';
 }
 
 // Stick in their forum settings.
@@ -2686,7 +2679,7 @@ function template_delete_install()
 		<div style="margin: 1ex; font-weight: bold;">
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete();" class="input_check" /> ', $txt['delete_installer'], !isset($_SESSION['installer_temp_ftp']) ? ' ' . $txt['delete_installer_maybe'] : '', '</label>
 		</div>
-		<script><!-- // --><![CDATA[
+		<script>
 			function doTheDelete()
 			{
 				var theCheck = document.getElementById ? document.getElementById("delete_self") : document.all.delete_self;
@@ -2696,7 +2689,7 @@ function template_delete_install()
 				tempImage.width = 0;
 				theCheck.disabled = true;
 			}
-		// ]]></script>
+		</script>
 		<br />';
 
 	echo '

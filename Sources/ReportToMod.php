@@ -9,7 +9,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -222,6 +222,12 @@ function ReportToModerator2()
 	}
 }
 
+/**
+ * Actually reports a post using information specified from a form
+ *
+ * @param int $msg The ID of the post being reported
+ * @param string $reason The reason specified for reporting the post
+ */
 function reportPost($msg, $reason)
 {
 	global $context, $smcFunc, $user_info, $topic;
@@ -344,6 +350,12 @@ function reportPost($msg, $reason)
 	redirectexit('reportsent;topic=' . $topic . '.msg' . $_POST['msg'] . '#msg' . $_POST['msg']);
 }
 
+/**
+ * Actually reports a user's profile using information specified from a form
+ *
+ * @param int $id_member The ID of the member whose profile is being reported
+ * @param string $reason The reason specified by the reporter for this report
+ */
 function reportUser($id_member, $reason)
 {
 	global $context, $smcFunc, $user_info;

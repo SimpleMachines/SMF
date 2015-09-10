@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -358,7 +358,7 @@ function PackageInstallTest()
 				$context['actions'][] = array(
 					'type' => $txt['execute_modification'],
 					'action' => $smcFunc['htmlspecialchars'](strtr($action['filename'], array($boarddir => '.'))),
-					'description' => $txt['package_action_error'],
+					'description' => $txt['package_action_missing'],
 					'failed' => true,
 				);
 			}
@@ -657,7 +657,8 @@ function PackageInstallTest()
 				$file =  $packagesdir . '/temp/' . $context['base_path'] . $action['filename'];
 		}
 
-		if (isset($action['filename']) && !file_exists($file))
+		// Don't fail if a file/directory we're trying to create doesn't exist...
+		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')))
 		{
 			$context['has_failure'] = true;
 
@@ -1018,6 +1019,7 @@ function PackageInstall()
 				$credits_tag = array(
 					'url' => $action['url'],
 					'license' => $action['license'],
+					'licenseurl' => $action['licenseurl'],
 					'copyright' => $action['copyright'],
 					'title' => $action['title'],
 				);
@@ -1025,9 +1027,9 @@ function PackageInstall()
 			elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function']))
 			{
 				if ($action['reverse'])
-					remove_integration_function($action['hook'], $action['function'], $action['include_file']);
+					remove_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 				else
-					add_integration_function($action['hook'], $action['function'], $action['include_file']);
+					add_integration_function($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
 			}
 			// Only do the database changes on uninstall if requested.
 			elseif ($action['type'] == 'database' && !empty($action['filename']) && (!$context['uninstalling'] || !empty($_POST['do_db_changes'])))
@@ -1047,7 +1049,7 @@ function PackageInstall()
 			elseif ($action['type'] == 'redirect' && !empty($action['redirect_url']))
 			{
 				$context['redirect_url'] = $action['redirect_url'];
-				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
+				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename'])) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
 				$context['redirect_timeout'] = $action['redirect_timeout'];
 
 				// Parse out a couple of common urls.
@@ -1497,8 +1499,10 @@ function PackageBrowse()
 	$data = $smcFunc['db_fetch_assoc']($get_versions);
 	$smcFunc['db_free_result']($get_versions);
 
-	// Which versions are "safe" for emulating? Strip "SMF" off the list as well...
-	$context['emulation_versions'] = preg_replace('~^SMF ~', '', explode("\r\n", $data['data']));
+	// Decode the data.
+	$items = json_decode($data['data']);
+
+	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
 	// Current SMF version, which is selected by default
 	$context['default_version'] = preg_replace('~^SMF ~', '', $forum_version);
@@ -1512,11 +1516,11 @@ function PackageBrowse()
  * Determines if the package is a mod, avatar, language package
  * Determines if the package has been installed or not
  *
- * @param type $start
- * @param type $items_per_page
- * @param type $sort
- * @param type $params
- * @return type
+ * @param int $start The item to start with (not used here)
+ * @param int $items_per_page The number of items to show per page (not used here)
+ * @param string $sort A string indicating how to sort the results
+ * @param string? $params A key for the $packages array
+ * @return array An array of information about the packages
  */
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
@@ -2234,10 +2238,9 @@ function PackagePermissions()
 /**
  * Checkes the permissions of all the areas that will be affected by the package
  *
- * @param type $path
- * @param type $data
- * @param type $level
- * @return type
+ * @param string $path The path to the directiory to check permissions for
+ * @param array $data An array of data about the directory
+ * @param int $level How far deep to go
  */
 function fetchPerms__recursive($path, &$data, $level)
 {

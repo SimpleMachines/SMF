@@ -8,43 +8,40 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Custom Search API class .. used when custom SMF index is used
+ * Used for the "custom search index" option
+ * Class custom_search
  */
 class custom_search extends search_api
 {
 	/**
-	 * Index Settings
-	 * @var type
+	 * @var array Index settings
 	 */
 	protected $indexSettings = array();
 
 	/**
-	 * What words are banned?
-	 * @var type
+	 * @var array An array of banned words
 	 */
 	protected $bannedWords = array();
 
 	/**
-	 * What is the minimum word length?
-	 * @var type
+	 * @var int|null Minimum word length (null for no minimum)
 	 */
 	protected $min_word_length = null;
 
 	/**
-	 * What databases support the custom index?
-	 * @var type
+	 * @var array Which databases support this method
 	 */
 	protected $supported_databases = array('mysql', 'mysqli', 'postgresql');
 
 	/**
-	 * constructor function
+	 * Constructor function
 	 */
 	public function __construct()
 	{

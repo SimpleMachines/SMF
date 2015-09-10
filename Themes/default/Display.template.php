@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * This tempate handles displaying a topic
+ */
 function template_main()
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -23,10 +26,19 @@ function template_main()
 			</div>';
 	}
 
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+	{
+		echo '
+			<div class="noticebox">
+				', $txt['post_becomesUnapproved'], '
+			</div>';
+	}
+
 	// Show new topic info here?
 	echo '
 		<div id="display_head" class="information">
-			<h2 class="display_title">', $context['subject'], ($context['is_locked']) ? ' <span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? ' <span class="generic_icons sticky"></span>' : '', '</h2>
+			<h2 class="display_title"><span id="top_subject">', $context['subject'], '</span>', ($context['is_locked']) ? ' <span class="generic_icons lock"></span>' : '', ($context['is_sticky']) ? ' <span class="generic_icons sticky"></span>' : '', '</h2>
 			<p>',$txt['started_by'],' ', $context['topic_poster_name'],', ', $context['topic_started_time'],'</p>';
 
 	// Next - Prev
@@ -218,7 +230,7 @@ function template_main()
 	template_quickreply();
 
 		echo '
-				<script><!-- // --><![CDATA[';
+				<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
 		echo '
@@ -258,7 +270,7 @@ function template_main()
 								<div id="quick_edit_body_container">
 									<div id="error_box" class="error"></div>
 									<textarea class="editor" name="message" rows="12" style="margin-bottom: 10px;" tabindex="' . $context['tabindex']++ . '">%body%</textarea><br>
-									<input type="hidden" name="' . $context['session_var']  . '" value="' . $context['session_id'] . '">
+									<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 									<input type="hidden" name="topic" value="' . $context['current_topic'] . '">
 									<input type="hidden" name="msg" value="%msg_id%">
 									<div class="righttext">
@@ -268,7 +280,7 @@ function template_main()
 							sTemplateSubjectEdit: ', JavaScriptEscape('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text">'), ',
 							sTemplateBodyNormal: ', JavaScriptEscape('%body%'), ',
 							sTemplateSubjectNormal: ', JavaScriptEscape('<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
-							sTemplateTopSubject: ', JavaScriptEscape($txt['topic'] . ': %subject% &nbsp;(' . $context['num_views_text'] . ')'), ',
+							sTemplateTopSubject: ', JavaScriptEscape('%subject%'), ',
 							sTemplateReasonEdit: ', JavaScriptEscape('<input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . $context['tabindex']++ . '" class="input_text">)'), ',
 							sTemplateReasonNormal: ', JavaScriptEscape('%modify_text'), ',
 							sErrorBorderStyle: ', JavaScriptEscape('1px solid red'), ($context['can_reply']) ? ',
@@ -316,10 +328,15 @@ function template_main()
 					ignore_toggles([', implode(', ', $context['ignoredMsgs']), '], ', JavaScriptEscape($txt['show_ignore_user_post']), ');';
 
 	echo '
-				// ]]></script>';
+				</script>';
 
 }
 
+/**
+ * Template for displaying a single post.
+ *
+ * @param array $message An array of information about the message to display. Should have 'id' and 'member'. Can also have 'first_new', 'is_ignored' and 'css_class'.
+ */
 function template_single_post($message)
 {
 	global $context, $settings, $options, $txt, $scripturl, $modSettings;
@@ -492,7 +509,7 @@ function template_single_post($message)
 		echo '
 								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $message['member']['ip'], '</a></li>';
 
-	// Okay, are you at least logged in?  Then we can show something about why IPs are logged...
+	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!$context['user']['is_guest'])
 		echo '
 								<li class="poster_ip"><a href="', $scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', $txt['logged'], '</a></li>';
@@ -600,7 +617,7 @@ function template_single_post($message)
 			}
 
 			echo '
-									<div class="floatleft">';
+									<div class="floatleft attached">';
 
 			if ($attachment['is_image'])
 			{
@@ -609,10 +626,10 @@ function template_single_post($message)
 
 				if ($attachment['thumbnail']['has_thumb'])
 					echo '
-											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '"></a>';
+											<a href="', $attachment['href'], ';image" id="link_', $attachment['id'], '" onclick="', $attachment['thumbnail']['javascript'], '"><img src="', $attachment['thumbnail']['href'], '" alt="" id="thumb_', $attachment['id'], '" class="atc_img"></a>';
 				else
 					echo '
-											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '"/>';
+											<img src="' . $attachment['href'] . ';image" alt="" width="' . $attachment['width'] . '" height="' . $attachment['height'] . '" class="atc_img">';
 
 				echo '
 										</div>';
@@ -703,7 +720,7 @@ function template_single_post($message)
 									<li><a href="', $scripturl, '?action=post;quote=', $message['id'], ';topic=', $context['current_topic'], '.', $context['start'], ';last_msg=', $context['topic_last_message'], '" onclick="return oQuickReply.quote(', $message['id'], ');"><span class="generic_icons quote"></span>', $txt['quote_action'], '</a></li>
 									<li style="display:none;" id="quoteSelected_', $message['id'], '"><a href="javascript:void(0)"><span class="generic_icons quote_selected"></span>', $txt['quote_selected_action'] ,'</a></li>';
 
-		// Can the user modify the contents of this post?  Show the modify inline image.
+		// Can the user modify the contents of this post? Show the modify inline image.
 		if ($message['can_modify'])
 			echo '
 									<li class="quick_edit"><a title="', $txt['modify_msg'], '" class="modifybutton" id="modify_button_', $message['id'], '" onclick="oQuickModify.modifyMsg(\'', $message['id'], '\', \'', !empty($modSettings['toggle_subject']), '\')"><span class="generic_icons quick_edit_button"></span>', $txt['quick_edit'], '</a></li>';
@@ -733,7 +750,7 @@ function template_single_post($message)
 			echo '
 											<li><a href="', $scripturl, '?action=splittopics;topic=', $context['current_topic'], '.0;at=', $message['id'], '"><span class="generic_icons split_button"></span>', $txt['split'], '</a></li>';
 
-		// Can we issue a warning because of this post?  Remember, we can't give guests warnings.
+		// Can we issue a warning because of this post? Remember, we can't give guests warnings.
 		if ($context['can_issue_warning'] && !$message['is_message_author'] && !$message['member']['is_guest'])
 			echo '
 											<li><a href="', $scripturl, '?action=profile;area=issuewarning;u=', $message['member']['id'], ';msg=', $message['id'], '"><span class="generic_icons warn_button"></span>', $txt['issue_warning'], '</a></li>';
@@ -820,6 +837,9 @@ function template_single_post($message)
 				<hr class="post_separator">';
 }
 
+/**
+ * The template for displaying the quick reply box.
+ */
 function template_quickreply()
 {
 	global $context, $modSettings, $scripturl, $options, $txt;
@@ -870,7 +890,7 @@ function template_quickreply()
 
 		echo '
 						', template_control_richedit($context['post_box_name'], 'smileyBox_message', 'bbcBox_message'), '
-						<script><!-- // --><![CDATA[
+						<script>
 							function insertQuoteFast(messageid)
 							{
 								if (window.XMLHttpRequest)
@@ -888,7 +908,7 @@ function template_quickreply()
 
 								ajax_indicator(false);
 							}
-						// ]]></script>';
+						</script>';
 
 	// Is visual verification enabled?
 	if ($context['require_verification'])
@@ -916,7 +936,7 @@ function template_quickreply()
 	// draft autosave available and the user has it enabled?
 	if (!empty($context['drafts_autosave']))
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				var oDraftAutoSave = new smf_DraftAutoSave({
 					sSelf: \'oDraftAutoSave\',
 					sLastNote: \'draft_lastautosave\',
@@ -926,14 +946,14 @@ function template_quickreply()
 					iBoard: ', (empty($context['current_board']) ? 0 : $context['current_board']), ',
 					iFreq: ', (empty($modSettings['masterAutoSaveDraftsDelay']) ? 60000 : $modSettings['masterAutoSaveDraftsDelay'] * 1000), '
 				});
-			// ]]></script>';
+			</script>';
 
 	if ($context['show_spellchecking'])
 		echo '
 			<form action="', $scripturl, '?action=spellcheck" method="post" accept-charset="', $context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow"><input type="hidden" name="spellstring" value=""></form>';
 
 	echo '
-				<script><!-- // --><![CDATA[
+				<script>
 					var oQuickReply = new QuickReply({
 						bDefaultCollapsed: false,
 						iTopicId: ', $context['current_topic'], ',
@@ -950,6 +970,6 @@ function template_quickreply()
 					var oEditorID = "', $context['post_box_name'] ,'";
 					var oEditorObject = oEditorHandle_', $context['post_box_name'], ';
 					var oJumpAnchor = "quickreply";
-				// ]]></script>';
+				</script>';
 }
 ?>

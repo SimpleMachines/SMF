@@ -27,7 +27,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -837,6 +837,9 @@ function RemoveTheme()
 	redirectexit('action=admin;area=theme;sa=list;' . $context['session_var'] . '=' . $context['session_id'] .';done=removing');
 }
 
+/**
+ * Handles enabling/disabling a theme from the admin center
+ */
 function EnableTheme()
 {
 	global $modSettings, $context;
@@ -1286,6 +1289,10 @@ function InstallFile()
 
 	// Set a temp dir for dumping all required files on it.
 	$dirtemp = $themedir .'/temp';
+
+	// Make sure the temp dir doesn't already exist
+	if (file_exists($dirtemp))
+		remove_dir($dirtemp);
 
 	// Create the temp dir.
 	mkdir($dirtemp, 0777);
@@ -1845,7 +1852,7 @@ function EditTheme()
 	{
 		$context['sub_template'] = 'edit_file';
 
-		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($context['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
+		$context['entire_file'] = $smcFunc['htmlspecialchars'](strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), array("\t" => '   ')));
 	}
 
 	// Create a special token to allow editing of multiple files.

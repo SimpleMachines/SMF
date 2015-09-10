@@ -15,7 +15,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -29,11 +29,11 @@ if (!defined('SMF'))
  * - updates the database info for the member's avatar.
  * - returns whether the download and resize was successful.
  *
- * @param string $url the full path to the temporary file
- * @param int $memID member ID
- * @param int $max_width
- * @param int $max_height
- * @return boolean whether the download and resize was successful.
+ * @param string $url The full path to the temporary file
+ * @param int $memID The ember ID
+ * @param int $max_width The maximum allowed width for the avatar
+ * @param int $max_height The maximum allowed height for the avatar
+ * @return boolean Whether the download and resize was successful.
  *
  */
 function downloadAvatar($url, $memID, $max_width, $max_height)
@@ -132,10 +132,10 @@ function downloadAvatar($url, $memID, $max_width, $max_height)
  *
  * @uses resizeImageFile() function to achieve the resize.
  *
- * @param string $source
- * @param int $max_width
- * @param int $max_height
- * @return boolean, whether the thumbnail creation was successful.
+ * @param string $source The name of the source image
+ * @param int $max_width The maximum allowed width
+ * @param int $max_height The maximum allowed height
+ * @return boolean Whether the thumbnail creation was successful.
  */
 function createThumbnail($source, $max_width, $max_height)
 {
@@ -168,9 +168,9 @@ function createThumbnail($source, $max_width, $max_height)
  * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
  * - the function makes sure that all non-essential image contents are disposed.
  *
- * @param string $fileName
- * @param int $preferred_format = 0
- * @return boolean, true on success, false on failure.
+ * @param string $fileName The path to the file
+ * @param int $preferred_format The preferred format - 0 to automatically determine, 1 for gif, 2 for jpg, 3 for png, 6 for bmp and 15 for wbmp
+ * @return boolean Whether the reencoding was successful
  */
 function reencodeImage($fileName, $preferred_format = 0)
 {
@@ -193,9 +193,9 @@ function reencodeImage($fileName, $preferred_format = 0)
  * Searches through the file to see if there's potentially harmful non-binary content.
  * - if extensiveCheck is true, searches for asp/php short tags as well.
  *
- * @param string $fileName
- * @param bool $extensiveCheck = false
- * @return true on success, false on failure.
+ * @param string $fileName The path to the file
+ * @param bool $extensiveCheck Whether to perform extensive checks
+ * @return bool Whether the image appears to be safe
  */
 function checkImageContents($fileName, $extensiveCheck = false)
 {
@@ -238,7 +238,7 @@ function checkImageContents($fileName, $extensiveCheck = false)
  * Sets a global $gd2 variable needed by some functions to determine
  * whether the GD2 library is present.
  *
- * @return whether or not GD1 is available.
+ * @return bool Whether or not GD1 is available.
  */
 function checkGD()
 {
@@ -257,7 +257,7 @@ function checkGD()
 /**
  * Checks whether the Imagick class is present.
  *
- * @return whether or not Imagick is available.
+ * @return bool Whether or not the Imagick extension is available.
  */
 function checkImagick()
 {
@@ -267,7 +267,7 @@ function checkImagick()
 /**
  * Checks whether the MagickWand extension is present.
  *
- * @return whether or not MagickWand is available.
+ * @return bool Whether or not the MagickWand extension is available.
  */
  function checkMagickWand()
  {
@@ -278,7 +278,7 @@ function checkImagick()
  * See if we have enough memory to thumbnail an image
  *
  * @param array $sizes image size
- * @return whether we do
+ * @return bool Whether we do
  */
 function imageMemoryCheck($sizes)
 {
@@ -306,12 +306,12 @@ function imageMemoryCheck($sizes)
  * The file would have the format preferred_format if possible,
  * otherwise the default format is jpeg.
  *
- * @param string $source
- * @param string $destination
- * @param int $max_width
- * @param int $max_height
- * @param int $preferred_format = 0
- * @return whether it succeeded.
+ * @param string $source The path to the source image
+ * @param string $destination The path to the destination image
+ * @param int $max_width The maximum allowed width
+ * @param int $max_height The maximum allowed height
+ * @param int $preferred_format - The preferred format (0 to use jpeg, 1 for gif, 2 to force jpeg, 3 for png, 6 for bmp and 15 for wbmp)
+ * @return bool Whether it succeeded.
  */
 function resizeImageFile($source, $destination, $max_width, $max_height, $preferred_format = 0)
 {
@@ -390,16 +390,17 @@ function resizeImageFile($source, $destination, $max_width, $max_height, $prefer
  * If GD2 is present, it'll use it to achieve better quality.
  * It saves the new image to destination_filename, as preferred_format
  * if possible, default is jpeg.
- * @uses GD
+ * @uses Imagemagick (IMagick or MagickWand extension) or GD
  *
- * @param resource $src_img
- * @param string $destName
- * @param int $src_width
- * @param int $src_height
- * @param int $max_width
- * @param int $max_height
- * @param bool $force_resize = false
- * @param int $preferred_format = 0
+ * @param resource $src_img The source image
+ * @param string $destName The path to the destination image
+ * @param int $src_width The width of the source image
+ * @param int $src_height The height of the source image
+ * @param int $max_width The maximum allowed width
+ * @param int $max_height The maximum allowed height
+ * @param bool $force_resize = false Whether to forcibly resize it
+ * @param int $preferred_format - 1 for gif, 2 for jpeg, 3 for png, 6 for bmp or 15 for wbmp
+ * @return bool Whether the resize was successful
  */
 function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $max_height, $force_resize = false, $preferred_format = 0)
 {
@@ -523,16 +524,16 @@ function resizeImage($src_img, $destName, $src_width, $src_height, $max_width, $
  * Copy image.
  * Used when imagecopyresample() is not available.
 
- * @param resource $dst_img
- * @param resource $src_img
- * @param int $dst_x
- * @param int $dst_y
- * @param int $src_x
- * @param int $src_y
- * @param int $dst_w
- * @param int $dst_h
- * @param int $src_w
- * @param int $src_h
+ * @param resource $dst_img The destination image - a GD image resource
+ * @param resource $src_img The source image - a GD image resource
+ * @param int $dst_x The "x" coordinate of the destination image
+ * @param int $dst_y The "y" coordinate of the destination image
+ * @param int $src_x The "x" coordinate of the source image
+ * @param int $src_y The "y" coordinate of the source image
+ * @param int $dst_w The width of the destination image
+ * @param int $dst_h The height of the destination image
+ * @param int $src_w The width of the destination image
+ * @param int $src_h The height of the destination image
  */
 function imagecopyresamplebicubic($dst_img, $src_img, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h)
 {
@@ -587,8 +588,8 @@ if (!function_exists('imagecreatefrombmp'))
 	 * It is set only if it doesn't already exist (for forwards compatiblity.)
 	 * It only supports uncompressed bitmaps.
 	 *
-	 * @param string $filename
-	 * @return resource, an image identifier representing the bitmap image
+	 * @param string $filename The name of the file
+	 * @return resource An image identifier representing the bitmap image
 	 * obtained from the given filename.
 	 */
 	function imagecreatefrombmp($filename)
@@ -754,10 +755,10 @@ if (!function_exists('imagecreatefrombmp'))
 /**
  * Writes a gif file to disk as a png file.
 
- * @param resource $gif
- * @param string $lpszFileName
- * @param int $background_color = -1
- * @return boolean, whether it was successful or not.
+ * @param resource $gif A gif image resource
+ * @param string $lpszFileName The name of the file
+ * @param int $background_color The background color
+ * @return boolean Whether the operation was successful
  */
 function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
 {
@@ -784,8 +785,8 @@ function gif_outputAsPng($gif, $lpszFileName, $background_color = -1)
  * Uses a random font for each letter from default_theme_dir/fonts.
  * Outputs a gif or a png (depending on whether gif ix supported).
  *
- * @param string $code
- * @return false if something goes wrong.
+ * @param string $code The code to display
+ * @return void|false False if something goes wrong.
  */
 function showCodeImage($code)
 {
@@ -1121,7 +1122,8 @@ function showCodeImage($code)
  * Alternative function for showCodeImage() in case GD is missing.
  * Includes an image from a random sub directory of default_theme_dir/fonts.
  *
- * @param string $letter
+ * @param string $letter A letter to show as an image
+ * @return void|false False if something went wrong
  */
 function showLetterImage($letter)
 {

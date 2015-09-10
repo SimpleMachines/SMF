@@ -8,7 +8,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -18,9 +18,9 @@ if (!defined('SMF'))
  * Fetches the list of preferences (or a single/subset of preferences) for
  * notifications for one or more users.
  *
- * @param mixed $members A user id or an array of (integer) user ids to load preferences for
- * @param mixed $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
- * @param mixed $process_default Whether to apply the default values to the members' values or not.
+ * @param int|array $members A user id or an array of (integer) user ids to load preferences for
+ * @param string|array $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
+ * @param bool $process_default Whether to apply the default values to the members' values or not.
  * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
  */
 function getNotifyPrefs($members, $prefs = '', $process_default = false)
@@ -76,7 +76,7 @@ function setNotifyPrefs($memID, $prefs = array())
 {
 	global $smcFunc;
 
-	if (empty($prefs) || empty($memID))
+	if (empty($prefs) || !is_int($memID))
 		return;
 
 	$update_rows = array();
@@ -95,8 +95,7 @@ function setNotifyPrefs($memID, $prefs = array())
  * Deletes notification preference
  *
  * @param int $memID The user whose preference you're setting
- * @param array $prefs
- * @return void
+ * @param array $prefs The preferences to delete
  */
 function deleteNotifyPrefs($memID, array $prefs)
 {

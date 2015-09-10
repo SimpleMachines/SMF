@@ -16,13 +16,15 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
+ * Class gif_lzw_compression
+ *
  * An implementation of the LZW compression algorithm
  */
 class gif_lzw_compression
@@ -30,7 +32,7 @@ class gif_lzw_compression
 	public $MAX_LZW_BITS;
 	public $Fresh, $CodeSize, $SetCodeSize, $MaxCode, $MaxCodeSize, $FirstCode, $OldCode;
 	public $ClearCode, $EndCode, $Next, $Vals, $Stack, $sp, $Buf, $CurBit, $LastBit, $Done, $LastByte;
-
+	
 	public function __construct()
 	{
 		$this->MAX_LZW_BITS = 12;

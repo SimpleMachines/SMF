@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -272,7 +272,7 @@ function EditNews()
 /**
  * Prepares an array of the forum news items for display in the template
  *
- * @return array
+ * @return array An array of information about the news items
  */
 function list_getNews()
 {
@@ -611,7 +611,7 @@ function ComposeMailing()
 		FROM {db_prefix}ban_items AS bi
 			INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
 		WHERE (bg.cannot_access = {int:cannot_access} OR bg.cannot_login = {int:cannot_login})
-			AND (COALESCE(bg.expire_time, 1=1) OR bg.expire_time > {int:current_time})
+			AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time})
 			AND bi.email_address != {string:blank_string}',
 		array(
 			'cannot_access' => 1,
@@ -688,7 +688,7 @@ function ComposeMailing()
  * Redirects to itself when more batches need to be sent.
  * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
  *
- * @param bool $clean_only = false; if set, it will only clean the variables, put them in context, then return.
+ * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
  * @uses the ManageNews template and email_members_send sub template.
  */
 function SendMailing($clean_only = false)
@@ -956,10 +956,6 @@ function SendMailing($clean_only = false)
 			$sendParams['exclude_members'] = $context['recipients']['exclude_members'];
 		}
 
-		// Force them to have it?
-		if (empty($context['email_force']))
-			$sendQuery .= ' AND mem.notify_announcements = {int:notify_announcements}';
-
 		// Get the smelly people - note we respect the id_member range as it gives us a quicker query.
 		$result = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
@@ -972,13 +968,26 @@ function SendMailing($clean_only = false)
 				'start' => $context['start'],
 				'atonce' => $num_at_once,
 				'regular_group' => 0,
-				'notify_announcements' => 1,
 				'is_activated' => 1,
 			))
 		);
-
+		$rows = array();
 		while ($row = $smcFunc['db_fetch_assoc']($result))
 		{
+			$rows[$row['id_member']] = $row;
+		}
+		$smcFunc['db_free_result']($result);
+
+		// Load their alert preferences
+		require_once($sourcedir . '/Subs-Notify.php');
+		$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+		foreach ($rows as $row)
+		{
+			// Force them to have it?
+			if (empty($context['email_force']) || empty($prefs[$row['id_member']]['announcements']))
+				continue;
+
 			// What groups are we looking at here?
 			if (empty($row['additional_groups']))
 				$groups = array($row['id_group'], $row['id_post_group']);
@@ -1018,7 +1027,6 @@ function SendMailing($clean_only = false)
 			else
 				sendpm(array('to' => array($row['id_member']), 'bcc' => array()), $subject, $message);
 		}
-		$smcFunc['db_free_result']($result);
 	}
 
 
@@ -1046,7 +1054,8 @@ function SendMailing($clean_only = false)
  * Requires the forum_admin permission.
  *
  * @uses ManageNews template, news_settings sub-template.
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the config_vars array if $return_config is true
  */
 function ModifyNewsSettings($return_config = false)
 {

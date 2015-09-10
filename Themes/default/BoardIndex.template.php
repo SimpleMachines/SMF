@@ -7,14 +7,20 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The top part of the outer layer of the boardindex
+ */
 function template_boardindex_outer_above()
 {
 	template_newsfader();
 }
 
+/**
+ * This shows the newsfader
+ */
 function template_newsfader()
 {
 	global $context, $settings, $options, $txt;
@@ -44,6 +50,9 @@ function template_newsfader()
 	}
 }
 
+/**
+ * This actually displays the board index
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl;
@@ -86,10 +95,8 @@ function template_main()
 			{
 				echo '
 				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : '') ,'">
-					<div class="icon">
-						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
-							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
-						</a>
+					<div class="board_icon">
+						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>
 					</div>
 					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
@@ -101,7 +108,7 @@ function template_main()
 
 				echo '
 
-						<p>', $board['description'] , '</p>';
+						<p class="board_description">', $board['description'] , '</p>';
 
 				// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 				if (!empty($board['link_moderators']))
@@ -111,7 +118,7 @@ function template_main()
 				// Show some basic information about the number of posts, etc.
 					echo '
 					</div>
-					<div class="stats">
+					<div class="board_stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], '
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
@@ -168,11 +175,17 @@ function template_main()
 		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
 }
 
+/**
+ * The lower part of the outer layer of the board index
+ */
 function template_boardindex_outer_below()
 {
 	template_info_center();
 }
 
+/**
+ * Displays the info center
+ */
 function template_info_center()
 {
 	global $context, $options, $txt;
@@ -203,7 +216,7 @@ function template_info_center()
 
 	// Info center collapse object.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oInfoCenterToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($options['collapse_header_ic']) ? 'false' : 'true', ',
@@ -235,9 +248,12 @@ function template_info_center()
 				sCookieName: \'upshrinkIC\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * The recent posts section of the info center
+ */
 function template_ic_block_recent()
 {
 	global $context, $scripturl, $settings, $txt;
@@ -290,6 +306,9 @@ function template_ic_block_recent()
 			</div>';
 }
 
+/**
+ * The calendar section of the info center
+ */
 function template_ic_block_calendar()
 {
 	global $context, $scripturl, $txt, $settings;
@@ -338,6 +357,9 @@ function template_ic_block_calendar()
 	}
 }
 
+/**
+ * The stats section of the info center
+ */
 function template_ic_block_stats()
 {
 	global $scripturl, $txt, $context, $settings;
@@ -356,6 +378,9 @@ function template_ic_block_stats()
 			</p>';
 }
 
+/**
+ * The who's online section of the admin center
+ */
 function template_ic_block_online()
 {
 	global $context, $scripturl, $txt, $modSettings, $settings;

@@ -1,11 +1,10 @@
 <?php
-// Version: 2.1 Beta 1; Errors
+// Version: 2.1 Beta 2; Errors
 
 global $scripturl, $modSettings;
 
 $txt['no_access'] = 'You are not allowed to access this section';
 $txt['not_found'] = 'Sorry, this section isn\'t available at this time.';
-$txt['wireless_error_notyet'] = 'Sorry, this section isn\'t available for wireless users at this time.';
 
 $txt['mods_only'] = 'Only Moderators can use the direct remove function, please remove this message through the modify feature.';
 $txt['no_name'] = 'You didn\'t fill the name field out. It is required.';
@@ -192,7 +191,7 @@ $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';
 $txt['impossible_insert_new_bangroup'] = 'An error occurred while inserting the new ban';
 
-$txt['ban_name_exists'] = 'The name of this ban (%1$s) already exists. Please choose a different name.';
+$txt['ban_name_exists'] = 'The name of this ban already exists. Please choose a different name.';
 $txt['ban_trigger_already_exists'] = 'This ban trigger (%1$s) already exists in %2$s.';
 
 $txt['recycle_no_valid_board'] = 'No valid board selected for recycled topics';

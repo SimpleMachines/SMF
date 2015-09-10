@@ -7,10 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// Template for listing all the current categories and boards.
+/**
+ * Template for listing all the current categories and boards.
+ */
 function template_main()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -101,7 +103,9 @@ function template_main()
 	</div>';
 }
 
-// Template for editing/adding a category on the forum.
+/**
+ * Tempalte for editing/adding a category on the forum.
+ */
 function template_modify_category()
 {
 	global $context, $scripturl, $txt;
@@ -186,7 +190,9 @@ function template_modify_category()
 	</div>';
 }
 
-// A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
+/**
+ * A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
+ */
 function template_confirm_category_delete()
 {
 	global $context, $scripturl, $txt;
@@ -237,7 +243,9 @@ function template_confirm_category_delete()
 	</div>';
 }
 
-// Below is the template for adding/editing an board on the forum.
+/**
+ * Below is the template for adding/editing a board on the forum.
+ */
 function template_modify_board()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -432,13 +440,13 @@ function template_modify_board()
 						<div id="moderator_group_container"></div>
 					</dd>
 				</dl>
-				<script><!-- // --><![CDATA[
+				<script>
 					$(document).ready(function () {
 						$(".select_all_box").each(function () {
 							$(this).removeClass(\'select_all_box\');
 						});
 					});
-				// ]]></script>
+				</script>
 				<hr class="hrcolor">';
 
 	if (empty($context['board']['is_recycle']) && empty($context['board']['topics']))
@@ -558,7 +566,7 @@ function template_modify_board()
 		</form>
 	</div>
 
-<script><!-- // --><![CDATA[
+<script>
 	var oModeratorSuggest = new smc_AutoSuggest({
 		sSelf: \'oModeratorSuggest\',
 		sSessionId: smf_session_id,
@@ -608,11 +616,11 @@ function template_modify_board()
 		echo '
 			]
 		});
-// ]]></script>';
+</script>';
 
 	// Javascript for deciding what to show.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		function refreshOptions()
 		{
 			var redirect = document.getElementById("redirect_enable");
@@ -637,10 +645,12 @@ function template_modify_board()
 	echo '
 		}
 		refreshOptions();
-	// ]]></script>';
+	</script>';
 }
 
-// A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
+/**
+ * A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
+ */
 function template_confirm_board_delete()
 {
 	global $context, $scripturl, $txt;

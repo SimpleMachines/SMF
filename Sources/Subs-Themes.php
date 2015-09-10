@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -522,9 +522,9 @@ function remove_theme($themeID)
 /**
  * Generates a file listing for a given directory
  *
- * @param type $path
- * @param type $relative
- * @return type
+ * @param string $path The full path to the directory
+ * @param string $relative The relative path (relative to the Themes directory)
+ * @return array An array of information about the files and directories found
  */
 function get_file_listing($path, $relative)
 {

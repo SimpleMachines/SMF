@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -20,8 +20,8 @@ if (!defined('SMF'))
 /**
  * This function makes sure the requested subaction does exists, if it doesn't, it sets a default action or.
  *
- * @param array $subActions = array() An array containing all possible subactions.
- * @param string $defaultAction = '' the default action to be called if no valid subaction was found.
+ * @param array $subActions An array containing all possible subactions.
+ * @param string $defaultAction The default action to be called if no valid subaction was found.
  */
 function loadGeneralSettingParameters($subActions = array(), $defaultAction = '')
 {
@@ -139,7 +139,8 @@ function ModifyModSettings()
  * Config array for changing the basic forum settings
  * Accessed  from ?action=admin;area=featuresettings;sa=basic;
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyBasicSettings($return_config = false)
 {
@@ -238,7 +239,8 @@ function ModifyBasicSettings($return_config = false)
  * Requires the admin_forum permission.
  * Accessed from ?action=admin;area=featuresettings;sa=bbc.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  * @uses Admin template, edit_bbc_settings sub-template.
  */
 function ModifyBBCSettings($return_config = false)
@@ -305,7 +307,8 @@ function ModifyBBCSettings($return_config = false)
  * Allows modifying the global layout settings in the forum
  * Accessed through ?action=admin;area=featuresettings;sa=layout;
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyLayoutSettings($return_config = false)
 {
@@ -354,7 +357,8 @@ function ModifyLayoutSettings($return_config = false)
  * Config array for changing like settings
  * Accessed  from ?action=admin;area=featuresettings;sa=likes;
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyLikesSettings($return_config = false)
 {
@@ -393,8 +397,8 @@ function ModifyLikesSettings($return_config = false)
  * Config array for changing like settings
  * Accessed  from ?action=admin;area=featuresettings;sa=mentions;
  *
- * @param bool $return_config
- * @return array $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyMentionsSettings($return_config = false)
 {
@@ -431,7 +435,8 @@ function ModifyMentionsSettings($return_config = false)
 /**
  * Moderation type settings - although there are fewer than we have you believe ;)
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyWarningSettings($return_config = false)
 {
@@ -546,7 +551,8 @@ function ModifyWarningSettings($return_config = false)
 
 /**
  * Let's try keep the spam to a minimum ah Thantos?
- * @param bool $return_config = false
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyAntispamSettings($return_config = false)
 {
@@ -856,7 +862,8 @@ function ModifyAntispamSettings($return_config = false)
 /**
  * You'll never guess what this function does...
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifySignatureSettings($return_config = false)
 {
@@ -1423,6 +1430,7 @@ function ShowCustomProfiles()
 						return isset($txt[$textKey]) ? $txt[$textKey] : $textKey;
 					},
 					'style' => 'width: 15%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'field_type',
@@ -1439,6 +1447,7 @@ function ShowCustomProfiles()
 						return $rowData['active'] ? $txt['yes'] : $txt['no'];
 					},
 					'style' => 'width: 8%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'active DESC',
@@ -1457,6 +1466,7 @@ function ShowCustomProfiles()
 						return $txt['custom_profile_placement_' . (empty($rowData['placement']) ? 'standard' : $context['cust_profile_fields_placement'][$rowData['placement']])];
 					},
 					'style' => 'width: 8%;',
+					'class' => 'hidden',
 				),
 				'sort' => array(
 					'default' => 'placement DESC',
@@ -1499,11 +1509,11 @@ function ShowCustomProfiles()
 
 /**
  * Callback for createList().
- *
- * @param $start
- * @param $items_per_page
- * @param $sort
- * @param $standardFields
+ * @param int $start The item to start with (used for pagination purposes)
+ * @param int $items_per_page The number of items to display per page
+ * @param string $sort A string indicating how to sort the results
+ * @param bool $standardFields Whether or not to include standard fields as well
+ * @return array An array of info about the various profile fields
  */
 function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 {
@@ -1551,6 +1561,7 @@ function list_getProfileFields($start, $items_per_page, $sort, $standardFields)
 
 /**
  * Callback for createList().
+ * @return int The total number of custom profile fields
  */
 function list_getProfileFieldSize()
 {
@@ -2022,6 +2033,10 @@ function EditCustomProfiles()
 	createToken('admin-ecp');
 }
 
+/**
+ * Returns the maximum field_order value for the custom fields
+ * @return int The maximum value of field_order from the custom_fields table
+ */
 function custFieldsMaxOrder()
 {
 	global $smcFunc;
@@ -2041,7 +2056,8 @@ function custFieldsMaxOrder()
 
 /**
  * Allow to edit the settings on the pruning screen.
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyLogSettings($return_config = false)
 {
@@ -2158,7 +2174,8 @@ function ModifyLogSettings($return_config = false)
 /**
  * If you have a general mod setting to add stick it here.
  *
- * @param $return_config
+ * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyGeneralModSettings($return_config = false)
 {
@@ -2210,16 +2227,19 @@ function ModifyGeneralModSettings($return_config = false)
 }
 
 /**
+ * Handles modifying the alerts settings
  */
 function ModifyAlertsSettings()
 {
-	global $context, $sourcedir, $txt;
+	global $context, $modSettings, $sourcedir, $txt;
 
 	// Dummy settings for the template...
+	$modSettings['allow_disableAnnounce'] = false;
 	$context['user']['is_owner'] = false;
 	$context['member'] = array();
 	$context['id_member'] = 0;
 	$context['menu_item_selected'] = 'alerts';
+	$context['token_check'] = 'noti-admin';
 
 	// Specify our action since we'll want to post back here instead of the profile
 	$context['action'] = 'action=admin;area=featuresettings;sa=alerts;'. $context['session_var'] .'='. $context['session_id'];

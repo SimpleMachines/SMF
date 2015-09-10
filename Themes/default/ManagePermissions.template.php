@@ -8,9 +8,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main manage permissions page
+ */
 function template_permission_index()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -191,7 +194,7 @@ function template_permission_index()
 
 		// Javascript for the advanced stuff.
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oPermissionsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', empty($context['show_advanced_options']) ? 'true' : 'false', ',
@@ -241,7 +244,7 @@ function template_permission_index()
 
 			return true;
 		}
-	// ]]></script>';
+	</script>';
 
 		if (!empty($context['profile']))
 			echo '
@@ -260,6 +263,9 @@ function template_permission_index()
 	</div>';
 }
 
+/**
+ * THe page that shows which permissions profile applies to each board
+ */
 function template_by_board()
 {
 	global $context, $scripturl, $txt;
@@ -345,7 +351,9 @@ function template_by_board()
 	</div>';
 }
 
-// Edit permission profiles (predefined).
+/**
+ * Edit permission profiles (predefined).
+ */
 function template_edit_profiles()
 {
 	global $context, $scripturl, $txt;
@@ -441,6 +449,9 @@ function template_edit_profiles()
 	</div>';
 }
 
+/**
+ * Modify a group's permissions
+ */
 function template_modify_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -456,7 +467,7 @@ function template_modify_group()
 	else
 	{
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			window.smf_usedDeny = false;
 
 			function warnAboutDeny()
@@ -466,7 +477,7 @@ function template_modify_group()
 				else
 					return true;
 			}
-		// ]]></script>';
+		</script>';
 	}
 
 	echo '
@@ -527,7 +538,11 @@ function template_modify_group()
 	</div>';
 }
 
-// The way of looking at permissions.
+/**
+ * The way of looking at permissions.
+ *
+ * @param string $type The permissions type
+ */
 function template_modify_group_display($type)
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -658,6 +673,9 @@ function template_modify_group_display($type)
 				<br class="clear">';
 }
 
+/**
+ * A form for displaying inline permissions, such as on a settings page.
+ */
 function template_inline_permissions()
 {
 	global $context, $txt, $modSettings;
@@ -726,13 +744,15 @@ function template_inline_permissions()
 
 											<a href="javascript:void(0);" onclick="document.getElementById(\'', $context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', $context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', $context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', $txt['avatar_select_permission'], '</a>
 
-											<script><!-- // --><![CDATA[
+											<script>
 												document.getElementById("', $context['current_permission'], '").style.display = "none";
 												document.getElementById("', $context['current_permission'], '_groups_link").style.display = "";
-											// ]]></script>';
+											</script>';
 }
 
-// Edit post moderation permissions.
+/**
+ * Edit post moderation permissions.
+ */
 function template_postmod_permissions()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;

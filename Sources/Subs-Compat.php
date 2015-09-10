@@ -13,7 +13,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,8 +21,9 @@ if (!defined('SMF'))
 
 
 /**
- * Define the old SMF sha1 function.
- * @param $str the string
+ * Define the old SMF sha1 function. Uses mhash if available
+ * @param string $str The string
+ * @return string The sha1 hashed version of $str
  */
 function sha1_smf($str)
 {
@@ -43,6 +44,9 @@ function sha1_smf($str)
 
 /**
  * This is the core SHA-1 calculation routine, used by sha1().
+ * @param string $x
+ * @param int $len
+ * @return string
  */
 function sha1_core($x, $len)
 {
@@ -89,8 +93,13 @@ function sha1_core($x, $len)
 	return sprintf('%08x%08x%08x%08x%08x', $a, $b, $c, $d, $e);
 }
 
-/*
+/**
  * Helper function for the core SHA-1 calculation
+ * @param int $t
+ * @param int $b
+ * @param int $c
+ * @param int $d
+ * @return int
  */
 function sha1_ft($t, $b, $c, $d)
 {
@@ -104,16 +113,21 @@ function sha1_ft($t, $b, $c, $d)
 	return $b ^ $c ^ $d;
 }
 
-/*
+/**
  * Helper function for the core SHA-1 calculation
+ * @param int $t
+ * @return int 1518500249, 1859775393, -1894007588 or -899497514 depending on the value of $t
  */
 function sha1_kt($t)
 {
 	return $t < 20 ? 1518500249 : ($t < 40 ? 1859775393 : ($t < 60 ? -1894007588 : -899497514));
 }
 
-/*
+/**
  * Helper function for the core SHA-1 calculation
+ * @param int $num
+ * @param int $cnt
+ * @return int
  */
 function sha1_rol($num, $cnt)
 {
@@ -130,6 +144,8 @@ function sha1_rol($num, $cnt)
  * Available since: (PHP 5)
  * If the optional raw_output is set to TRUE, then the sha1 digest is instead returned in raw binary format with a length of 20,
  * otherwise the returned value is a 40-character hexadecimal number.
+ * @param string $text The text to hash
+ * @return string The sha1 hash of $text
  */
 function sha1_raw($text)
 {
@@ -140,7 +156,8 @@ function sha1_raw($text)
  * Compatibility function.
  * crc32 doesn't work as expected on 64-bit functions - make our own.
  * http://www.php.net/crc32#79567
- * @param $number
+ * @param string $number
+ * @return string The crc32 polynomial of $number
  */
 if (!function_exists('smf_crc32'))
 {

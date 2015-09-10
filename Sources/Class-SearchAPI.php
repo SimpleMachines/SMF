@@ -8,9 +8,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * Interface search_api_interface
+ */
 interface search_api_interface
 {
 	/**
@@ -19,9 +22,9 @@ interface search_api_interface
 	 * they need not be declared
 	 *
 	 * @access public
-	 * @param string $methodName
-	 * @param array $query_params
-	 * @return boolean
+	 * @param string $methodName The method
+	 * @param array $query_params Any parameters for the query
+	 * @return boolean Whether or not the specified method is supported
 	 */
 	public function supportsMethod($methodName, $query_params = array());
 
@@ -29,7 +32,7 @@ interface search_api_interface
 	 * Whether this method is valid for implementation or not
 	 *
 	 * @access public
-	 * @return bool
+	 * @return bool Whether or not this method is valid
 	 */
 	public function isValid();
 
@@ -41,7 +44,7 @@ interface search_api_interface
 	 * @access public
 	 * @param string $a Word A
 	 * @param string $b Word B
-	 * @return int
+	 * @return int An integer indicating how the words should be sorted
 	 */
 	public function searchSort($a, $b);
 
@@ -49,10 +52,10 @@ interface search_api_interface
 	 * Callback while preparing indexes for searching
 	 *
 	 * @access public
-	 * @param string $word
-	 * @param array $wordsSearch
-	 * @param array $wordsExclude
-	 * @param bool $isExcluded
+	 * @param string $word A word to index
+	 * @param array $wordsSearch Search words
+	 * @param array $wordsExclude Words to exclude
+	 * @param bool $isExcluded Whether the specfied word should be excluded
 	 */
 	public function prepareIndexes($word, array &$wordsSearch, array &$wordsExclude, $isExcluded);
 
@@ -60,32 +63,32 @@ interface search_api_interface
 	 * Search for indexed words.
 	 *
 	 * @access public
-	 * @param array $words
-	 * @param array $search_data
+	 * @param array $words An array of words
+	 * @param array $search_data An array of search data
 	 * @return mixed
 	 */
 	public function indexedWordQuery(array $words, array $search_data);
 
 	/**
 	 * Callback when a post is created
-	 * {@see createPost()}
+	 * @see createPost()
 	 *
 	 * @access public
-	 * @param array $msgOptions
-	 * @param array $topicOptions
-	 * @param array $posterOptions
+	 * @param array $msgOptions An array of post data
+	 * @param array $topicOptions An array of topic data
+	 * @param array $posterOptions An array of info about the person who made this post
 	 * @return void
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions);
 
 	/**
 	 * Callback when a post is modified
-	 * {@see modifyPost()}
+	 * @see modifyPost()
 	 *
 	 * @access public
-	 * @param array $msgOptions
-	 * @param array $topicOptions
-	 * @param array $posterOptions
+	 * @param array $msgOptions An array of post data
+	 * @param array $topicOptions An array of topic data
+	 * @param array $posterOptions An array of info about the person who made this post
 	 * @return void
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions);
@@ -94,7 +97,7 @@ interface search_api_interface
 	 * Callback when a post is removed
 	 *
 	 * @access public
-	 * @param int $id_msg
+	 * @param int $id_msg The ID of the post that was removed
 	 * @return void
 	 */
 	public function postRemoved($id_msg);
@@ -103,7 +106,7 @@ interface search_api_interface
 	 * Callback when a topic is removed
 	 *
 	 * @access public
-	 * @param array $topics
+	 * @param array $topics The ID(s) of the removed topic(s)
 	 * @return void
 	 */
 	public function topicsRemoved(array $topics);
@@ -112,8 +115,8 @@ interface search_api_interface
 	 * Callback when a topic is moved
 	 *
 	 * @access public
-	 * @param array $topics
-	 * @param int $board_to
+	 * @param array $topics The ID(s) of the moved topic(s)
+	 * @param int $board_to The board that the topics were moved to
 	 * @return void
 	 */
 	public function topicsMoved(array $topics, $board_to);
@@ -122,9 +125,9 @@ interface search_api_interface
 	 * Callback for actually performing the search query
 	 *
 	 * @access public
-	 * @param array $query_params
-	 * @param array $searchWords
-	 * @param array $excludedIndexWords
+	 * @param array $query_params An array of parameters for the query
+	 * @param array $searchWords The words that were searched for
+	 * @param array $excludedIndexWords Indexed words that should be excluded
 	 * @param array $participants
 	 * @param array $searchArray
 	 * @return mixed
@@ -132,23 +135,23 @@ interface search_api_interface
 	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array $participants, array $searchArray);
 }
 
+/**
+ * Class search_api
+ */
 abstract class search_api implements search_api_interface
 {
 	/**
-	 * This is the last version of SMF that this was tested on, to protect against API changes.
-	 * @var type
+	 * @var string The last version of SMF that this was tested on. Helps protect against API changes.
 	 */
-	public $version_compatible = 'SMF 2.1 Beta 1';
+	public $version_compatible = 'SMF 2.1 Beta 2';
 
 	/**
-	 * This won't work with versions of SMF less than this.
-	 * @var type
+	 * @var string The minimum SMF version that this will work with
 	 */
-	public $min_smf_version = 'SMF 2.1 Beta 1';
+	public $min_smf_version = 'SMF 2.1 Beta 2';
 
 	/**
-	 * Is it supported?
-	 * @var type
+	 * @var bool Whether or not it's supported
 	 */
 	public $is_supported = true;
 

@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,8 +21,8 @@ if (!defined('SMF'))
  * general function to modify the settings and position of a category.
  * used by ManageBoards.php to change the settings of a category.
  *
- * @param int $category_id
- * @param array $catOptions
+ * @param int $category_id The ID of the category
+ * @param array $catOptions An array containing data and options related to the category
  */
 function modifyCategory($category_id, $catOptions)
 {
@@ -128,7 +128,7 @@ function modifyCategory($category_id, $catOptions)
  * allows (almost) the same options as the modifyCat() function.
  * returns the ID of the newly created category.
  *
- * @param array $catOptions
+ * @param array $catOptions An array of data and settings related to the new category. Should have at least 'cat_name' and can also have 'cat_desc', 'move_after' and 'is_collapsable'
  */
 function createCategory($catOptions)
 {
@@ -187,8 +187,8 @@ function createCategory($catOptions)
  * deletes all information that's associated with the given categories.
  * updates the statistics to reflect the new situation.
  *
- * @param string $categories
- * @param int $moveBoardsTo = null
+ * @param array $categories The IDs of the categories to delete
+ * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
  */
 function deleteCategories($categories, $moveBoardsTo = null)
 {

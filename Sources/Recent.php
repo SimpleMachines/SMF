@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -22,7 +22,7 @@ if (!defined('SMF'))
  * - respects approved, recycled, and board permissions
  * - @todo is this even used anywhere?
  *
- * @return array
+ * @return array An array of information about the last post that you can see
  */
 function getLastPost()
 {
@@ -478,7 +478,7 @@ function UnreadTopics()
 
 	$context['showing_all_topics'] = isset($_GET['all']);
 	$context['start'] = (int) $_REQUEST['start'];
-	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) && !WIRELESS ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
+	$context['topics_per_page'] = empty($modSettings['disableCustomPerPage']) && !empty($options['topics_per_page']) ? $options['topics_per_page'] : $modSettings['defaultMaxTopics'];
 	if ($_REQUEST['action'] == 'unread')
 		$context['page_title'] = $context['showing_all_topics'] ? $txt['unread_topics_all'] : $txt['unread_topics_visit'];
 	else
@@ -687,14 +687,9 @@ function UnreadTopics()
 	else
 		$txt['unread_topics_visit_none'] = strtr($txt['unread_topics_visit_none'], array('?action=unread;all' => '?action=unread;all' . sprintf($context['querystring_board_limits'], 0) . $context['querystring_sort_limits']));
 
-	if (WIRELESS)
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_recent';
-	else
-	{
-		loadTemplate('Recent');
-		loadTemplate('MessageIndex');
-		$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
-	}
+	loadTemplate('Recent');
+	loadTemplate('MessageIndex');
+	$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
 
 	// Setup the default topic icons... for checking they exist and the like ;)
 	$context['icon_sources'] = array();
@@ -877,7 +872,7 @@ function UnreadTopics()
 			WHERE b.' . $query_this_board . '
 				AND t.id_last_msg >= {int:min_message}
 				AND IFNULL(lt.id_msg, IFNULL(lmr.id_msg, 0)) < t.id_last_msg' . ($modSettings['postmod_active'] ? '
-				AND ms.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
+				AND ms.approved = {int:is_approved}' : '') . '
 			ORDER BY {raw:sort}
 			LIMIT {int:offset}, {int:limit}',
 			array_merge($query_parameters, array(
@@ -1017,7 +1012,7 @@ function UnreadTopics()
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})' . (isset($sortKey_joins[$_REQUEST['sort']]) ? $sortKey_joins[$_REQUEST['sort']] : '') . '
 				WHERE m.id_member = {int:current_member}' . (!empty($board) ? '
 					AND t.id_board = {int:current_board}' : '') . ($modSettings['postmod_active'] ? '
-					AND t.approved = {int:is_approved}' : '') . ' AND lt.unwatched != 1
+					AND t.approved = {int:is_approved}' : '') . '
 				GROUP BY m.id_topic',
 				array(
 					'current_board' => $board,
@@ -1236,7 +1231,7 @@ function UnreadTopics()
 
 		// Decide how many pages the topic should have.
 		$topic_length = $row['num_replies'] + 1;
-		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+		$messages_per_page = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 		if ($topic_length > $messages_per_page)
 		{
 			$tmppages = array();
@@ -1349,46 +1344,12 @@ function UnreadTopics()
 			)
 		);
 		if (!empty($settings['avatars_on_indexes']))
-		{
-			if (!empty($modSettings['gravatarOverride']))
-			{
-				if (!empty($modSettings['gravatarAllowExtraEmail']) && !empty($row['avatar']) && stristr($row['avatar'], 'gravatar://'))
-					$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-				else
-					$image = get_gravatar_url($row['email_address']);
-			}
-			else
-			{
-				// So it's stored in the member table?
-				if (!empty($row['avatar']))
-				{
-					if (stristr($row['avatar'], 'gravatar://'))
-					{
-						if ($row['avatar'] == 'gravatar://')
-							$image = get_gravatar_url($row['email_address']);
-						elseif (!empty($modSettings['gravatarAllowExtraEmail']))
-							$image = get_gravatar_url($smcFunc['substr']($row['avatar'], 11));
-					}
-					else
-						$image = stristr($row['avatar'], 'http://') ? $row['avatar'] : $modSettings['avatar_url'] . '/' . $row['avatar'];
-				}
-				// Right... no avatar...
-				else
-					$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-						'name' => '',
-						'image' => '',
-						'href' => '',
-						'url' => '',
-					);
-			}
-			if (!empty($image))
-				$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = array(
-					'name' => $row['avatar'],
-					'image' => '<img class="avatar" src="' . $image . '" />',
-					'href' => $image,
-					'url' => $image,
-				);
-		}
+			$context['topics'][$row['id_topic']]['last_post']['member']['avatar'] = set_avatar_data(array(
+				'avatar' => $row['avatar'],
+				'email' => $row['email_address'],
+				'filename' => false,
+			));
+
 		$context['topics'][$row['id_topic']]['first_post']['started_by'] = sprintf($txt['topic_started_by'], $context['topics'][$row['id_topic']]['first_post']['member']['link'], $context['topics'][$row['id_topic']]['board']['link']);
 	}
 	$smcFunc['db_free_result']($request);

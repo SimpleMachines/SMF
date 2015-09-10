@@ -1,3 +1,26 @@
+// Traverse the DOM tree in our spinoff of jQuery's closest()
+function getClosest(el, divID)
+{
+	if (typeof divID == 'undefined' || divID == false)
+		return null;
+
+	do
+	{
+		// End the loop if quick edit is detected.
+		if (el.nodeName === 'TEXTAREA' || el.nodeName === 'INPUT' || el.id === 'error_box')
+			break;
+
+		if (el.id === divID)
+		{
+			return el;
+		}
+	}
+	while (el = el.parentNode);
+
+	// not found :(
+	return null;
+}
+
 function getSelectedText(divID)
 {
 	if (typeof divID == 'undefined' || divID == false)
@@ -20,10 +43,10 @@ function getSelectedText(divID)
 
 	// Need to be sure the selected text does belong to the right div.
 	for (var i = 0; i < selection.rangeCount; i++) {
-			s = selection.getRangeAt(i).startContainer.parentNode.id;
-			e = selection.getRangeAt(i).endContainer.parentNode.id;
+			s = getClosest(selection.getRangeAt(i).startContainer, divID);
+			e = getClosest(selection.getRangeAt(i).endContainer, divID);
 
-			if (s == divID || (s != divID && e == 'child'))
+			if (s !== null && e !== null)
 			{
 				found = 1;
 				break;
@@ -56,7 +79,7 @@ function quotedTextClick(oOptions)
 				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
 
 				// Add the whole text to the editor's instance.
-				$('#' + oEditorID).data('sceditor').InsertText(text);
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(text);
 
 				// Move the view to the quick reply box. If available.
 				if (typeof oJumpAnchor != 'undefined'){

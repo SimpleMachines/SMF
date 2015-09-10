@@ -9,7 +9,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -17,9 +17,8 @@ if (!defined('SMF'))
 
 /**
  * Create a new list
- * @param array $listOptions
+ * @param array $listOptions An array of options for the list - 'id', 'columns', 'items_per_page', 'get_count', etc.
  */
-
 function createList($listOptions)
 {
 	global $context, $smcFunc;

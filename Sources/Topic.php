@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -91,7 +91,7 @@ function LockTopic()
 	sendNotifications($topic, empty($locked) ? 'unlock' : 'lock');
 
 	// Back to the topic!
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start'] . (WIRELESS ? ';moderate' : ''));
+	redirectexit('topic=' . $topic . '.' . $_REQUEST['start'] . ';moderate');
 }
 
 /**
@@ -151,7 +151,7 @@ function Sticky()
 		sendNotifications($topic, 'sticky');
 
 	// Take them back to the now stickied topic.
-	redirectexit('topic=' . $topic . '.' . $_REQUEST['start'] . (WIRELESS ? ';moderate' : ''));
+	redirectexit('topic=' . $topic . '.' . $_REQUEST['start'] . ';moderate');
 }
 
 ?>

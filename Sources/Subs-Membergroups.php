@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -23,8 +23,8 @@ if (!defined('SMF'))
  * Has protection against deletion of protected membergroups.
  * Deletes the permissions linked to the membergroup.
  * Takes members out of the deleted membergroups.
- * @param array $groups
- * @return mixed bool true for success, otherwise an identifier as to reason for failure
+ * @param int|array $groups The ID of the group to delete or an array of IDs of groups to delete
+ * @return bool|string True for success, otherwise an identifier as to reason for failure
  */
 function deleteMembergroups($groups)
 {
@@ -239,11 +239,11 @@ function deleteMembergroups($groups)
  * Requires the manage_membergroups permission.
  * Function includes a protection against removing from implicit groups.
  * Non-admins are not able to remove members from the admin group.
- * @param array $members
- * @param array $groups = null if groups is null, the specified members are stripped from all their membergroups.
- * @param bool $permissionCheckDone = false
- * @param bool $ignoreProtected = false
- * @return boolean
+ * @param int|array $members The ID of a member or an array of member IDs
+ * @param null|array The groups to remove the member(s) from. If null, the specified members are stripped from all their membergroups.
+ * @param bool $permissionCheckDone Whether we've already checked permissions prior to calling this function
+ * @param bool $ignoreProtected Whether to ignore protected groups
+ * @return bool Whether the operation was successful
  */
 function removeMembersFromGroups($members, $groups = null, $permissionCheckDone = false, $ignoreProtected = false)
 {
@@ -454,9 +454,9 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  * Function has protection against adding members to implicit groups.
  * Non-admins are not able to add members to the admin group.
  *
- * @param string|array $members
- * @param int $group
- * @param string $type = 'auto' specifies whether the group is added as primary or as additional group.
+ * @param int|array $members A single member or an array containing the IDs of members
+ * @param int $group The group to add them to
+ * @param string $type Specifies whether the group is added as primary or as additional group.
  * Supported types:
  * 	- only_primary      - Assigns a membergroup as primary membergroup, but only
  * 						  if a member has not yet a primary membergroup assigned,
@@ -467,9 +467,9 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
  * 						  what the previous primary membergroup was.
  * 	- auto              - Assigns a membergroup to the primary group if it's still
  * 						  available. If not, assign it to the additional group.
- * @param bool $permissionCheckDone
- * @param bool $ignoreProtected
- * @return boolean success or failure
+ * @param bool $permissionCheckDone Whether we've already done a permission check
+ * @param bool $ignoreProtected Whether to ignore protected groups
+ * @return bool Whether the operation was successful
  */
 function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDone = false, $ignoreProtected = false)
 {
@@ -612,10 +612,10 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
  * Gets the members of a supplied membergroup
  * Returns them as a link for display
  *
- * @param array &$members
- * @param int $membergroup
- * @param int $limit = null
- * @return boolean
+ * @param array &$members The IDs of the members
+ * @param int $membergroup The ID of the group
+ * @param int $limit How many members to show (null for no limit)
+ * @return bool True if there are more members to display, false otherwise
  */
 function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 {
@@ -648,9 +648,7 @@ function listMembergroupMembers_Href(&$members, $membergroup, $limit = null)
 /**
  * Retrieve a list of (visible) membergroups used by the cache.
  *
- * @global type $scripturl
- * @global type $smcFunc
- * @return type
+ * @return array An array of information about the cache
  */
 function cache_getMembergroupList()
 {
@@ -684,11 +682,11 @@ function cache_getMembergroupList()
 /**
  * Helper function to generate a list of membergroups for display
  *
- * @param type $start
- * @param type $items_per_page
- * @param type $sort
- * @param type $membergroup_type
- * @return type
+ * @param int $start What item to start with (not used here)
+ * @param int $items_per_page How many items to show on each page (not used here)
+ * @param string $sort An SQL query indicating how to sort the results
+ * @param string $membergroup_type Should be 'post_count' for post groups or anything else for regular groups
+ * @return array An array of group member info for the list
  */
 function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 {
@@ -728,7 +726,7 @@ function list_getMembergroups($start, $items_per_page, $sort, $membergroup_type)
 			'id_group' => $row['id_group'],
 			'group_name' => $row['group_name'],
 			'min_posts' => $row['min_posts'],
-			'desc' => $row['description'],
+			'desc' => parse_bbc($row['description'], false, '', $context['description_allowed_tags']),
 			'online_color' => $row['online_color'],
 			'type' => $row['group_type'],
 			'num_members' => $row['num_members'],

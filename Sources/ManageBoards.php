@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -371,7 +371,6 @@ function EditCategory2()
  * uses the modify_board sub-template of the ManageBoards template.
  * requires manage_boards permission.
  * also used to show the confirm deletion of category screen (sub-template confirm_board_delete).
-
  */
 function EditBoard()
 {
@@ -816,7 +815,8 @@ function ModifyCat()
  * A screen to set a few general board and category settings.
  *
  * @uses modify_general_settings sub-template.
- * @param $return_config
+ * @param bool $return_config Whether to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or the array of config vars if $return_config is true
  */
 function EditBoardSettings($return_config = false)
 {

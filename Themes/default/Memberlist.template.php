@@ -7,10 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// Displays a sortable listing of all members registered on the forum.
+/**
+ * Displays a sortable listing of all members registered on the forum.
+ */
 function template_main()
 {
 	global $context, $settings, $scripturl, $txt;
@@ -136,7 +138,9 @@ function template_main()
 
 }
 
-// A page allowing people to search the member list.
+/**
+ * A page allowing people to search the member list.
+ */
 function template_search()
 {
 	global $context, $scripturl, $txt;

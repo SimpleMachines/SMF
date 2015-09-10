@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -18,7 +18,8 @@ if (!defined('SMF'))
 
 /**
  * Get a list of versions that are currently installed on the server.
- * @param array $checkFor
+ * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'xcache', 'apc', 'php' or 'server'
+ * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
  */
 function getServerVersions($checkFor)
 {
@@ -101,7 +102,8 @@ function getServerVersions($checkFor)
  * - returns an array containing information on source files, templates and
  *   language files found in the default theme directory (grouped by language).
  *
- * @param array &$versionOptions
+ * @param array &$versionOptions An array of options. Can contain one or more of 'include_ssi', 'include_subscriptions', 'include_tasks' and 'sort_results'
+ * @return array An array of file version info.
  */
 function getFileVersions(&$versionOptions)
 {
@@ -252,6 +254,7 @@ function getFileVersions(&$versionOptions)
 		ksort($version_info['default_template_versions']);
 		ksort($version_info['template_versions']);
 		ksort($version_info['default_language_versions']);
+		ksort($version_info['tasks_versions']);
 
 		// For languages sort each language too.
 		foreach ($version_info['default_language_versions'] as $language => $dummy)
@@ -277,7 +280,7 @@ function getFileVersions(&$versionOptions)
  * - attempts to create a backup file and will use it should the writing of the
  *   new settings file fail
  *
- * @param array $config_vars
+ * @param array $config_vars An array of one or more variables to update
  */
 function updateSettingsFile($config_vars)
 {
@@ -430,7 +433,7 @@ function updateSettingsFile($config_vars)
  *   which can occur during a db error
  * - If it fails Settings.php will assume 0
  *
- * @param type $time
+ * @param int $time The timestamp of the last DB error
  */
 function updateDbLastError($time)
 {
@@ -441,7 +444,7 @@ function updateDbLastError($time)
 	@touch($boarddir . '/' . 'Settings.php');
 }
 /**
- * Saves the admins current preferences to the database.
+ * Saves the admin's current preferences to the database.
  */
 function updateAdminPreferences()
 {
@@ -483,9 +486,9 @@ function updateAdminPreferences()
  * - uses the email template and replacements passed in the parameters.
  * - sends them an email.
  *
- * @param string $template
- * @param array $replacements
- * @param array $additional_recipients
+ * @param string $template Which email template to use
+ * @param array $replacements An array of items to replace the variables in the template
+ * @param array $additional_recipients An array of arrays of info for additional recipients. Should have 'id', 'email' and 'name' for each.
  */
 function emailAdmins($template, $replacements = array(), $additional_recipients = array())
 {
@@ -494,39 +497,28 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 	// We certainly want this.
 	require_once($sourcedir . '/Subs-Post.php');
 
-	// Load all groups which are effectively admins.
-	$request = $smcFunc['db_query']('', '
-		SELECT id_group
-		FROM {db_prefix}permissions
-		WHERE permission = {string:admin_forum}
-			AND add_deny = {int:add_deny}
-			AND id_group != {int:id_group}',
-		array(
-			'add_deny' => 1,
-			'id_group' => 0,
-			'admin_forum' => 'admin_forum',
-		)
-	);
-	$groups = array(1);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$groups[] = $row['id_group'];
-	$smcFunc['db_free_result']($request);
+	// Load all members which are effectively admins.
+	require_once($sourcedir . '/Subs-Members.php');
+	$members = membersAllowedTo('admin_forum');
+
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address
 		FROM {db_prefix}members
-		WHERE (id_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:group_array_implode}, additional_groups) != 0)
-			AND notify_types != {int:notify_types}
-		ORDER BY lngfile',
+		WHERE id_member IN({array_int:members})',
 		array(
-			'group_list' => $groups,
-			'notify_types' => 4,
-			'group_array_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
+			'members' => $members,
 		)
 	);
 	$emails_sent = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		// Stick their particulars in the replacement data.
 		$replacements['IDMEMBER'] = $row['id_member'];
 		$replacements['REALNAME'] = $row['member_name'];

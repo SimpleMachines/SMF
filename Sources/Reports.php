@@ -18,7 +18,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -891,13 +891,13 @@ function StaffReport()
  * Fills the context variable current_table with the ID of the table created.
  * Keeps track of the current table count using context variable table_count.
  *
- * @param string $title = '' Title to be displayed with this data table.
- * @param string $default_value = '' Value to be displayed if a key is missing from a row.
- * @param string $shading = 'all' Should the left, top or both (all) parts of the table beshaded?
- * @param string $width_normal = 'auto' width of an unshaded column (auto means not defined).
- * @param string $align_normal = 'center' alignment of data in an unshaded column.
- * @param string $width_shaded = 'auto' width of a shaded column (auto means not defined).
- * @param string $align_shaded = 'auto' alignment of data in a shaded column.
+ * @param string $title Title to be displayed with this data table.
+ * @param string $default_value Value to be displayed if a key is missing from a row.
+ * @param string $shading Should the left, top or both (all) parts of the table beshaded?
+ * @param string $width_normal The width of an unshaded column (auto means not defined).
+ * @param string $align_normal The alignment of data in an unshaded column.
+ * @param string $width_shaded The width of a shaded column (auto means not defined).
+ * @param string $align_shaded The alignment of data in a shaded column.
  */
 function newTable($title = '', $default_value = '', $shading = 'all', $width_normal = 'auto', $align_normal = 'center', $width_shaded = 'auto', $align_shaded = 'auto')
 {
@@ -945,8 +945,9 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
  * will add a separator across the table at this point.
  * once the incoming data has been sanitized, it is added to the table.
  *
- * @param array $inc_data
- * @param int $custom_table = null
+ * @param array $inc_data The data to include
+ * @param null|string $custom_table = null The ID of a custom table to put the data in
+ * @return void|false Doesn't return anything unless we've specified an invalid custom_table
  */
 function addData($inc_data, $custom_table = null)
 {
@@ -1008,10 +1009,10 @@ function addData($inc_data, $custom_table = null)
 /**
  * Add a separator row, only really used when adding data by rows.
  *
- * @param string $title = ''
- * @param string $custom_table = null
+ * @param string $title The title of the separator
+ * @param null|string $custom_table The ID of the custom table
  *
- * @return boolean returns false if there are no tables
+ * @return void|bool Returns false if there are no tables
  */
 function addSeparator($title = '', $custom_table = null)
 {
@@ -1081,9 +1082,9 @@ function finishTables()
  * if reverse is set to true, then the values of the variable "keys"
  * are used as opposed to the keys(!
  *
- * @param string $method = 'rows' rows or cols
- * @param array $keys = array()
- * @param bool $reverse = false
+ * @param string $method The method. Can be 'rows' or 'columns'
+ * @param array $keys The keys
+ * @param bool $reverse Whether we want to use the values as the keys
  */
 function setKeys($method = 'rows', $keys = array(), $reverse = false)
 {

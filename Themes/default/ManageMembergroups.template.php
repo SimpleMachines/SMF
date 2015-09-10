@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main page listing all the groups.
+ */
 function template_main()
 {
 	template_show_list('regular_membergroups_list');
@@ -17,6 +20,9 @@ function template_main()
 	template_show_list('post_count_membergroups_list');
 }
 
+/**
+ * Add a new membergroup.
+ */
 function template_new_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -127,7 +133,7 @@ function template_new_group()
 	if ($context['undefined_group'])
 	{
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				function swapPostGroup(isChecked)
 				{
 					var min_posts_text = document.getElementById(\'min_posts_text\');
@@ -135,7 +141,7 @@ function template_new_group()
 					min_posts_text.style.color = isChecked ? "" : "#888888";
 				}
 				swapPostGroup(', $context['post_group'] ? 'true' : 'false', ');
-			// ]]></script>';
+			</script>';
 	}
 	echo '
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -144,6 +150,9 @@ function template_new_group()
 	</div>';
 }
 
+/**
+ * Edit an existing membergroup.
+ */
 function template_edit_group()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -340,7 +349,7 @@ function template_edit_group()
 			<input type="hidden" name="', $context['admin-mmg_token_var'], '" value="', $context['admin-mmg_token'], '">
 		</form>
 	</div>
-		<script><!-- // --><![CDATA[
+		<script>
 			var oModeratorSuggest = new smc_AutoSuggest({
 				sSelf: \'oModeratorSuggest\',
 				sSessionId: smf_session_id,
@@ -365,11 +374,11 @@ function template_edit_group()
 			echo '
 				]
 			});
-		// ]]></script>';
+		</script>';
 
 	if ($context['group']['allow_post_group'])
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			function swapPostGroup(isChecked)
 			{
 				var is_moderator_group = ', $context['is_moderator_group'], ';
@@ -415,9 +424,14 @@ function template_edit_group()
 			}
 
 			swapPostGroup(', $context['group']['is_post_group'] ? 'true' : 'false', ');
-		// ]]></script>';
+		</script>';
 }
 
+/**
+ * The template for determining which boards a group has access to.
+ *
+ * @param bool $collapse Whether to collapse the list by default
+ */
 function template_add_edit_group_boards_list($collapse = true)
 {
 	global $context, $txt, $modSettings;
@@ -490,24 +504,26 @@ function template_add_edit_group_boards_list($collapse = true)
 									<input type="radio" name="select_all" id="deny_all" class="input_radio" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', $txt['board_perms_deny'], '</label>
 								</span>
 							</fieldset>
-							<script><!-- // --><![CDATA[
+							<script>
 								$(document).ready(function () {
 									$(".select_all_box").each(function () {
 										$(this).removeClass(\'select_all_box\');
 									});
 								});
-							// ]]></script>';
+							</script>';
 
 	if ($collapse)
 		echo '
 							<a href="javascript:void(0);" onclick="document.getElementById(\'visible_boards\').style.display = \'block\'; document.getElementById(\'visible_boards_link\').style.display = \'none\'; return false;" id="visible_boards_link" style="display: none;">[ ', $txt['membergroups_select_visible_boards'], ' ]</a>
-							<script><!-- // --><![CDATA[
+							<script>
 								document.getElementById("visible_boards_link").style.display = "";
 								document.getElementById("visible_boards").style.display = "none";
-							// ]]></script>';
+							</script>';
 }
 
-// Templating for viewing the members of a group.
+/**
+ * Templatine for viewing the members of a group.
+ */
 function template_group_members()
 {
 	global $context, $scripturl, $txt;
@@ -664,7 +680,7 @@ function template_group_members()
 
 	if (!empty($context['group']['assignable']))
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			var oAddMemberSuggest = new smc_AutoSuggest({
 				sSelf: \'oAddMemberSuggest\',
 				sSessionId: \'', $context['session_id'], '\',
@@ -678,10 +694,12 @@ function template_group_members()
 				bItemList: true,
 				sItemListContainerId: \'toAddItemContainer\'
 			});
-		// ]]></script>';
+		</script>';
 }
 
-// Allow the moderator to enter a reason to each user being rejected.
+/**
+ * Allow the moderator to enter a reason to each user being rejected.
+ */
 function template_group_request_reason()
 {
 	global $context, $txt, $scripturl;

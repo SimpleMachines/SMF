@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -23,7 +23,8 @@ if (!defined('SMF'))
  * Is turned on and off by the securityDisable setting.
  * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
  *
- * @param string $type = admin
+ * @param string $type What type of session this is
+ * @return void|string Returns 'session_verify_fail' if verification failed
  */
 function validateSession($type = 'admin')
 {
@@ -88,7 +89,7 @@ function validateSession($type = 'admin')
  * Checks if the user is currently a guest, and if so asks them to login with a message telling them why.
  * Message is what to tell them when asking them to login.
  *
- * @param string $message = ''
+ * @param string $message The message to display to the guest
  */
 function is_not_guest($message = '')
 {
@@ -108,7 +109,7 @@ function is_not_guest($message = '')
 		obExit(false);
 
 	// Attempt to detect if they came from dlattach.
-	if (!WIRELESS && SMF != 'SSI' && empty($context['theme_loaded']))
+	if (SMF != 'SSI' && empty($context['theme_loaded']))
 		loadTheme();
 
 	// Never redirect to an attachment
@@ -118,14 +119,8 @@ function is_not_guest($message = '')
 	// Load the Login template and language file.
 	loadLanguage('Login');
 
-	// Are we in wireless mode?
-	if (WIRELESS)
-	{
-		$context['login_error'] = $message ? $message : $txt['only_members_can_access'];
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_login';
-	}
 	// Apparently we're not in a position to handle this now. Let's go to a safer location for now.
-	elseif (empty($context['template_layers']))
+	if (empty($context['template_layers']))
 	{
 		$_SESSION['login_url'] = $scripturl . '?' . $_SERVER['QUERY_STRING'];
 		redirectexit('action=login');
@@ -151,9 +146,8 @@ function is_not_guest($message = '')
  * Do banning related stuff.  (ie. disallow access....)
  * Checks if the user is banned, and if so dies with an error.
  * Caches this information for optimization purposes.
- * Forces a recheck if force_check is true.
  *
- * @param bool $forceCheck = false
+ * @param bool $forceCheck Whether to force a recheck
  */
 function is_not_banned($forceCheck = false)
 {
@@ -496,8 +490,8 @@ function banPermissions()
  * Log the current user in the ban logs.
  * Increment the hit counters for the specified ban ID's (if any.)
  *
- * @param array $ban_ids = array()
- * @param string $email = null
+ * @param array $ban_ids The IDs of the bans
+ * @param string $email The email address associated with the user that triggered this hit
  */
 function log_ban($ban_ids = array(), $email = null)
 {
@@ -531,9 +525,9 @@ function log_ban($ban_ids = array(), $email = null)
  * Check if a given email is banned.
  * Performs an immediate ban if the turns turns out positive.
  *
- * @param string $email
- * @param string $restriction
- * @param string $error
+ * @param string $email The email to check
+ * @param string $restriction What type of restriction (cannot_post, cannot_register, etc.)
+ * @param string $error The error message to display if they are indeed banned
  */
 function isBannedEmail($email, $restriction, $error)
 {
@@ -601,10 +595,10 @@ function isBannedEmail($email, $restriction, $error)
  * Will check GET, POST, or REQUEST depending on the passed type.
  * Also optionally checks the referring action if passed. (note that the referring action must be by GET.)
  *
- * @param string $type = 'post' (post, get, request)
- * @param string $from_action = ''
- * @param bool $is_fatal = true
- * @return string the error message if is_fatal is false.
+ * @param string $type The type of check (post, get, request)
+ * @param string $from_action The action this is coming from
+ * @param bool $is_fatal Whether to die with a fatal error if the check fails
+ * @return string The error message if is_fatal is false.
  */
 function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 {
@@ -718,7 +712,8 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 /**
  * Check if a specific confirm parameter was given.
  *
- * @param string $action
+ * @param string $action The action we want to check against
+ * @return bool|string True if the check passed or a token
  */
 function checkConfirm($action)
 {
@@ -739,9 +734,9 @@ function checkConfirm($action)
 /**
  * Lets give you a token of our appreciation.
  *
- * @param string $action
- * @param string $type = 'post'
- * @return array
+ * @param string $action The action to create the token for
+ * @param string $type The type of token ('post', 'get' or 'request')
+ * @return array An array containing the name of the token var and the actual token
  */
 function createToken($action, $type = 'post')
 {
@@ -761,10 +756,10 @@ function createToken($action, $type = 'post')
 /**
  * Only patrons with valid tokens can ride this ride.
  *
- * @param string $action
- * @param string $type = 'post' (get, request, or post)
- * @param bool $reset = true
- * @return boolean
+ * @param string $action The action to validate the token for
+ * @param string $type The type of request (get, request, or post)
+ * @param bool $reset Whether to reset the token and display an error if validation fails
+ * @return bool|string If the action is login, returns the token for the action, otherwise returns whether the validation was successful
  */
 function validateToken($action, $type = 'post', $reset = true)
 {
@@ -826,7 +821,7 @@ function validateToken($action, $type = 'post', $reset = true)
  * defaults to 3 hours before a token is considered expired
  * if $complete = true will remove all tokens
  *
- * @param bool $complete = false
+ * @param bool $complete Whether to remove all tokens or only expired ones
  */
 function cleanTokens($complete = false)
 {
@@ -848,9 +843,9 @@ function cleanTokens($complete = false)
  * Frees a sequence number from the stack after it's been checked.
  * Frees a sequence number without checking if action == 'free'.
  *
- * @param string $action
- * @param bool $is_fatal = true
- * @return boolean
+ * @param string $action The action - can be 'register', 'check' or 'free'
+ * @param bool $is_fatal Whether to die with a fatal error
+ * @return void|bool If the action isn't check, returns nothing, otherwise returns whether the check was successful
  */
 function checkSubmitOnce($action, $is_fatal = true)
 {
@@ -894,9 +889,9 @@ function checkSubmitOnce($action, $is_fatal = true)
  * If boards is specified, checks those boards instead of the current one.
  * Always returns true if the user is an administrator.
  *
- * @param string $permission
- * @param array $boards = null
- * @return boolean if the user can do the permission
+ * @param string|array $permission A single permission to check or an array of permissions to check
+ * @param int|array $boards The ID of a board or an array of board IDs if we want to check board-level permissions
+ * @return bool Whether the user has the specified permission
  */
 function allowedTo($permission, $boards = null)
 {
@@ -969,8 +964,8 @@ function allowedTo($permission, $boards = null)
  * If they are not, it loads the Errors language file and shows an error using $txt['cannot_' . $permission].
  * If they are a guest and cannot do it, this calls is_not_guest().
  *
- * @param string $permission
- * @param array $boards = null
+ * @param string|array $permission A single permission to check or an array of permissions to check
+ * @param int|array $boards The ID of a single board or an array of board IDs if we're checking board-level permissions (null otherwise)
  */
 function isAllowedTo($permission, $boards = null)
 {
@@ -1029,9 +1024,10 @@ function isAllowedTo($permission, $boards = null)
  *  - returns an empty array if he or she cannot do this on any board.
  * If check_access is true will also make sure the group has proper access to that board.
  *
- * @param array $permissions
- * @param bool $check_access = true
- * @param bool $simple = true
+ * @param string|array $permissions A single permission to check or an array of permissions to check
+ * @param bool $check_access Whether to check only the boards the user has access to
+ * @param bool $simple Whether to return a simple array of board IDs or one with permissions as the keys
+ * @return array An array of board IDs or an array containing 'permission' => 'board,board2,...' pairs
  */
 function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 {
@@ -1129,9 +1125,9 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
  * This function attempts to protect from spammed messages and the like.
  * The time taken depends on error_type - generally uses the modSetting.
  *
- * @param string $error_type used also as a $txt index. (not an actual string.)
- * @param boolean $only_return_result True if you don't want the function to die with a fatal_lang_error.
- * @return boolean
+ * @param string $error_type The error type. Also used as a $txt index (not an actual string).
+ * @param boolean $only_return_result Whether you want the function to die with a fatal_lang_error.
+ * @return bool Whether they've posted within the limit
  */
 function spamProtection($error_type, $only_return_result = false)
 {
@@ -1192,9 +1188,9 @@ function spamProtection($error_type, $only_return_result = false)
 /**
  * A generic function to create a pair of index.php and .htaccess files in a directory
  *
- * @param string $path the (absolute) directory path
- * @param boolean $attachments if the directory is an attachments directory or not
- * @return true on success error string if anything fails
+ * @param string $path The (absolute) directory path
+ * @param boolean $attachments Whether this is an attachment directory
+ * @return bool|string True on success error or a string if anything fails
  */
 function secureDirectory($path, $attachments = false)
 {
@@ -1267,8 +1263,8 @@ else
  * Helper function that puts together a ban query for a given ip
  * builds the query for ipv6, ipv4 or 255.255.255.255 depending on whats supplied
  *
- * @param string $fullip An IP address either IPv6 or not
- * @return string A SQL condition
+ * @param string $fullip An IP address (IPv4 or IPv6)
+ * @return string An SQL condition
  */
 function constructBanQueryIP($fullip)
 {
@@ -1305,8 +1301,7 @@ function constructBanQueryIP($fullip)
 /**
 * This sets the X-Frame-Options header.
 *
-* @param string $option the frame option, defaults to deny.
-* @return void.
+* @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
 * @since 2.1
 */
 function frameOptionsHeader($override = null)

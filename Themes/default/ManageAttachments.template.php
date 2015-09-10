@@ -7,18 +7,23 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// Template template wraps around the simple settings page to add javascript functionality.
+/**
+ * This template wraps around the simple settings page to add javascript functionality.
+ */
 function template_avatar_settings_above()
 {
 }
 
+/**
+ * JavaScript to be output below the simple settings page
+ */
 function template_avatar_settings_below()
 {
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 	var fUpdateStatus = function ()
 	{
 		document.getElementById("avatar_max_width_external").disabled = document.getElementById("avatar_download_external").checked;
@@ -27,10 +32,13 @@ function template_avatar_settings_below()
 
 	}
 	addLoadEvent(fUpdateStatus);
-// ]]></script>
+</script>
 ';
 }
 
+/**
+ * The attachment maintenance page
+ */
 function template_maintenance()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -157,7 +165,7 @@ function template_maintenance()
 					<div id="show_progress" class="padding"></div>
 					<br class="clear_right">
 				</form>
-				<script><!-- // --><![CDATA[
+				<script>
 					function start_progress() {
 						setTimeout(\'show_msg()\', 1000);
 					}
@@ -172,11 +180,14 @@ function template_maintenance()
 						setTimeout(\'show_progress()\', 1500);
 					}
 
-				// ]]></script>
+				</script>
 			</div>
 			<br class="clear">';
 }
 
+/**
+ * The file repair page
+ */
 function template_attachment_repair()
 {
 	global $context, $txt, $scripturl;
@@ -241,6 +252,9 @@ function template_attachment_repair()
 	}
 }
 
+/**
+ * The page that handles managing attachment paths.
+ */
 function template_attachment_paths()
 {
 	global $modSettings;

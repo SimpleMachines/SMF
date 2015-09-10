@@ -7,10 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// This is just the basic "login" form.
+/**
+ * This is just the basic "login" form.
+ */
 function template_login()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
@@ -60,7 +62,7 @@ function template_login()
 					<input type="hidden" name="hash_passwrd" value="">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 					<input type="hidden" name="', $context['login_token_var'], '" value="', $context['login_token'], '">
-					<script type="text/javascript">
+					<script>
 						setTimeout(function() {
 							document.getElementById("', !empty($context['from_ajax']) ? 'ajax_' : '', isset($context['default_username']) && $context['default_username'] != '' ? 'loginpass' : 'loginuser', '").focus();
 						}, 150);';
@@ -104,7 +106,9 @@ function template_login()
 		</div>';
 }
 
-// TFA authentication
+/**
+ * TFA authentication form
+ */
 function template_login_tfa()
 {
 	global $context, $scripturl, $modSettings, $txt;
@@ -124,9 +128,12 @@ function template_login_tfa()
 				<form action="', $context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
 						', $txt['tfa_login_desc'], '<br>
-						<strong>', $txt['tfa_code'], ':</strong>
-						<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
-						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
+						<div>
+							<strong>', $txt['tfa_code'], ':</strong>
+							<input type="text" class="input_text" name="tfa_code" style="width: 150px;" value="', !empty($context['tfa_value']) ? $context['tfa_value'] : '', '">
+							<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '" style="float: none; margin: 0;"><br />
+						</div><br />
+						<div><input type="checkbox" value="1" name="tfa_preserve" id="tfa_preserve"/><label for="tfa_preserve">&nbsp;', $txt['tfa_preserve'], '</label></div>
 						<hr />
 						<input type="button" class="button_submit" name="backup" value="', $txt['tfa_backup'], '" style="float: none; margin: 0;">
 					</div>
@@ -137,7 +144,7 @@ function template_login_tfa()
 						<input type="submit" class="button_submit" name="submit" value="', $txt['login'], '">
 					</div>
 				</form>
-				<script type="text/javascript">
+				<script>
 						form = $("#frmTfa");';
 	if (!empty($context['from_ajax']))
 		echo '
@@ -169,7 +176,9 @@ function template_login_tfa()
 		</div>';
 }
 
-// Tell a guest to get lost or login!
+/**
+ * Tell a guest to get lost or login!
+ */
 function template_kick_guest()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
@@ -222,12 +231,14 @@ function template_kick_guest()
 
 	// Do the focus thing...
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			document.forms.frmLogin.user.focus();
-		// ]]></script>';
+		</script>';
 }
 
-// This is for maintenance mode.
+/**
+ * This is for maintenance mode.
+ */
 function template_maintenance()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -267,7 +278,9 @@ function template_maintenance()
 </form>';
 }
 
-// This is for the security stuff - makes administrators login every so often.
+/**
+ * This is for the security stuff - makes administrators login every so often.
+ */
 function template_admin_login()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -304,12 +317,14 @@ function template_admin_login()
 
 	// Focus on the password box.
 	echo '
-<script><!-- // --><![CDATA[
+<script>
 	document.forms.frmLogin.', $context['sessionCheckType'], '_pass.focus();
-// ]]></script>';
+</script>';
 }
 
-// Activate your account manually?
+/**
+ * Activate your account manually?
+ */
 function template_retry_activate()
 {
 	global $context, $txt, $scripturl;
@@ -338,7 +353,9 @@ function template_retry_activate()
 		</form>';
 }
 
-// Activate your account manually?
+/**
+ * The form for resending the activation code.
+ */
 function template_resend()
 {
 	global $context, $txt, $scripturl;

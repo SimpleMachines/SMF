@@ -14,7 +14,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -93,9 +93,9 @@ function loadSession()
  * Implementation of sessionOpen() replacing the standard open handler.
  * It simply returns true.
  *
- * @param string $save_path
- * @param string $session_name
- * @return boolean
+ * @param string $save_path The path to save the session to
+ * @param string $session_name The name of the session
+ * @return boolean Always returns true
  */
 function sessionOpen($save_path, $session_name)
 {
@@ -106,7 +106,7 @@ function sessionOpen($save_path, $session_name)
  * Implementation of sessionClose() replacing the standard close handler.
  * It simply returns true.
  *
- * @return boolean
+ * @return boolean Always returns true
  */
 function sessionClose()
 {
@@ -116,8 +116,8 @@ function sessionClose()
 /**
  * Implementation of sessionRead() replacing the standard read handler.
  *
- * @param string $session_id
- * @return string
+ * @param string $session_id The session ID
+ * @return string The session data
  */
 function sessionRead($session_id)
 {
@@ -145,9 +145,9 @@ function sessionRead($session_id)
 /**
  * Implementation of sessionWrite() replacing the standard write handler.
  *
- * @param string $session_id
- * @param string $data
- * @return boolean
+ * @param string $session_id The session ID
+ * @param string $data The data to write to the session
+ * @return boolean Whether the info was successfully written
  */
 function sessionWrite($session_id, $data)
 {
@@ -183,8 +183,8 @@ function sessionWrite($session_id, $data)
 /**
  * Implementation of sessionDestroy() replacing the standard destroy handler.
  *
- * @param string $session_id
- * @return boolean
+ * @param string $session_id The session ID
+ * @return boolean Whether the session was successfully destroyed
  */
 function sessionDestroy($session_id)
 {
@@ -207,8 +207,8 @@ function sessionDestroy($session_id)
  * Implementation of sessionGC() replacing the standard gc handler.
  * Callback for garbage collection.
  *
- * @param int $max_lifetime
- * @return boolean
+ * @param int $max_lifetime The maximum lifetime (in seconds) - prevents deleting of sessions older than this
+ * @return boolean Whether the option was successful
  */
 function sessionGC($max_lifetime)
 {

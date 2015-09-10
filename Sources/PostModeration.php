@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -539,11 +539,11 @@ function UnapprovedAttachments()
  * Callback function for UnapprovedAttachments
  * retrieve all the attachments waiting for approval the approver can approve
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @param string $approve_query additional restrictions based on the boards the approver can see
- * @return array, an array of unapproved attachments
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show on each page
+ * @param string $sort A string indicating how to sort the results
+ * @param string $approve_query Additional restrictions based on the boards the approver can see
+ * @return array An array of information about the unapproved attachments
  */
 function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_query)
 {
@@ -619,8 +619,8 @@ function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_
  * Callback function for UnapprovedAttachments
  * count all the attachments waiting for approval that this approver can approve
  *
- * @param string $approve_query additional restrictions based on the boards the approver can see
- * @return int the number of unapproved attachments
+ * @param string $approve_query Additional restrictions based on the boards the approver can see
+ * @return int The number of unapproved attachments
  */
 function list_getNumUnapprovedAttachments($approve_query)
 {
@@ -699,9 +699,9 @@ function ApproveMessage()
 /**
  * Approve a batch of posts (or topics in their own right)
  *
- * @param array $messages
- * @param array $messageDetails
- * @param (string) $current_view = replies
+ * @param array $messages The IDs of the messages to approve
+ * @param array $messageDetails An array of information about each message, for the log
+ * @param string $current_view What type of unapproved items we're approving - can be 'topics' or 'replies'
  */
 function approveMessages($messages, $messageDetails, $current_view = 'replies')
 {
@@ -779,9 +779,9 @@ function approveAllData()
 /**
  * Remove a batch of messages (or topics)
  *
- * @param array $messages
- * @param array $messageDetails
- * @param string $current_view = replies
+ * @param array $messages The IDs of the messages to remove
+ * @param array $messageDetails An array of information about the messages for the log
+ * @param string $current_view What type of item we're removing - can be 'topics' or 'replies'
  */
 function removeMessages($messages, $messageDetails, $current_view = 'replies')
 {

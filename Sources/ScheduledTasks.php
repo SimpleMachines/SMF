@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -159,7 +159,7 @@ function AutoTask()
 }
 
 /**
- * Function to sending out approval notices to moderators etc.
+ * Function for sending out approval notices to moderators etc.
  */
 function scheduled_approval_notification()
 {
@@ -491,16 +491,14 @@ function scheduled_daily_digest()
 
 	// Right - get all the notification data FIRST.
 	$request = $smcFunc['db_query']('', '
-		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name, mem.notify_types,
+		SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 			mem.lngfile, mem.id_member
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = ln.id_member)
 			LEFT JOIN {db_prefix}topics AS t ON (ln.id_topic != {int:empty_topic} AND t.id_topic = ln.id_topic)
-		WHERE mem.notify_regularity = {int:notify_regularity}
-			AND mem.is_activated = {int:is_activated}',
+		WHERE mem.is_activated = {int:is_activated}',
 		array(
 			'empty_topic' => 0,
-			'notify_regularity' => $is_weekly ? '3' : '2',
 			'is_activated' => 1,
 		)
 	);
@@ -515,7 +513,6 @@ function scheduled_daily_digest()
 				'email' => $row['email_address'],
 				'name' => $row['member_name'],
 				'id' => $row['id_member'],
-				'notifyMod' => $row['notify_types'] < 3 ? true : false,
 				'lang' => $row['lngfile'],
 			);
 			$langs[$row['lngfile']] = $row['lngfile'];
@@ -643,10 +640,21 @@ function scheduled_daily_digest()
 		);
 	}
 
+	// The preferred way...
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($members), array('msg_notify_type', 'msg_notify_pref'), true);
+
 	// Right - send out the silly things - this will take quite some space!
 	$emails = array();
 	foreach ($members as $mid => $member)
 	{
+		$frequency = !empty($prefs[$mid]['msg_notify_pref']) ? $prefs[$mid]['msg_notify_pref'] : 1;
+		$notify_types = !empty($prefs[$mid]['msg_notify_type']) ? $prefs[$mid]['msg_notify_type'] : 1;
+
+		// Did they not elect to choose this?
+		if ($frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4)
+			continue;
+
 		// Right character set!
 		$context['character_set'] = empty($modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : $modSettings['global_character_set'];
 
@@ -697,24 +705,26 @@ function scheduled_daily_digest()
 		}
 
 		// Finally, moderation actions!
-		$titled = false;
-		foreach ($types as $note_type => $type)
+		if ($notify_types < 3)
 		{
-			if ($note_type == 'topic' || $note_type == 'reply')
-				continue;
+			$titled = false;
+			foreach ($types as $note_type => $type)
+			{
+				if ($note_type == 'topic' || $note_type == 'reply')
+					continue;
 
-			foreach ($type as $id => $board)
-				foreach ($board['lines'] as $topic)
-					if (in_array($mid, $topic['members']))
-					{
-						if (!$titled)
+				foreach ($type as $id => $board)
+					foreach ($board['lines'] as $topic)
+						if (in_array($mid, $topic['members']))
 						{
-							$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
-							$titled = true;
+							if (!$titled)
+							{
+								$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
+								$titled = true;
+							}
+							$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
 						}
-						$email['body'] .= "\n" . sprintf($langtxt[$lang][$note_type], $topic['subject']);
-					}
-
+			}
 		}
 		if ($titled)
 			$email['body'] .= "\n";
@@ -798,10 +808,10 @@ function scheduled_weekly_digest()
 /**
  * Send a group of emails from the mail queue.
  *
- * @param type $number the number to send each loop through
- * @param type $override_limit bypassing our limit flaf
- * @param type $force_send
- * @return boolean
+ * @param bool|int $number The number to send each loop through or false to use the standard limits
+ * @param bool $override_limit Whether to bypass the limit
+ * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
+ * @return bool Whether things were sent
  */
 function ReduceMailQueue($number = false, $override_limit = false, $force_send = false)
 {
@@ -944,7 +954,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 				@apache_reset_timeout();
 		}
 		else
-			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['send_html'] ? $email['headers'] : 'Mime-Version: 1.0' . "\r\n" . $email['headers']);
+			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
 		// Hopefully it sent?
 		if (!$result)
@@ -1002,8 +1012,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 /**
  * Calculate the next time the passed tasks should be triggered.
  *
- * @param type $tasks
- * @param type $forceUpdate
+ * @param string|array $tasks The ID of a single task or an array of tasks
+ * @param bool $forceUpdate Whether to force the tasks to run now
  */
 function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 {
@@ -1071,10 +1081,10 @@ function CalculateNextTrigger($tasks = array(), $forceUpdate = false)
 /**
  * Simply returns a time stamp of the next instance of these time parameters.
  *
- * @param int $regularity
- * @param type $unit
- * @param type $offset
- * @return int
+ * @param int $regularity The regularity
+ * @param string $unit What unit are we using - 'm' for minutes, 'd' for days, 'w' for weeks or anything else for seconds
+ * @param int $offset The offset
+ * @return int The timestamp for the specified time
  */
 function next_time($regularity, $unit, $offset)
 {
@@ -1196,6 +1206,9 @@ function loadEssentialThemeData()
 	$context['character_set'] = empty($modSettings['global_character_set']) ? $txt['lang_character_set'] : $modSettings['global_character_set'];
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['right_to_left'] = !empty($txt['lang_rtl']);
+
+	// Tell fatal_lang_error() to not reload the theme.
+	$context['theme_loaded'] = true;
 }
 
 /**
@@ -1269,78 +1282,12 @@ function scheduled_fetchSMfiles()
  */
 function scheduled_birthdayemails()
 {
-	global $modSettings, $sourcedir, $txt, $smcFunc, $txtBirthdayEmails;
+	global $smcFunc;
 
-	// Need this in order to load the language files.
-	loadEssentialThemeData();
-
-	// Going to need this to send the emails.
-	require_once($sourcedir . '/Subs-Post.php');
-
-	$greeting = isset($modSettings['birthday_email']) ? $modSettings['birthday_email'] : 'happy_birthday';
-
-	// Get the month and day of today.
-	$month = date('n'); // Month without leading zeros.
-	$day = date('j'); // Day without leading zeros.
-
-	// So who are the lucky ones?  Don't include those who are banned and those who don't want them.
-	$result = $smcFunc['db_query']('', '
-		SELECT id_member, real_name, lngfile, email_address
-		FROM {db_prefix}members
-		WHERE is_activated < 10
-			AND MONTH(birthdate) = {int:month}
-			AND DAYOFMONTH(birthdate) = {int:day}
-			AND notify_announcements = {int:notify_announcements}
-			AND YEAR(birthdate) > {int:year}',
-		array(
-			'notify_announcements' => 1,
-			'year' => 1,
-			'month' => $month,
-			'day' => $day,
-		)
+	$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+		array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+		array('$sourcedir/tasks/Birthday-Notify.php', 'Birthday_Notify_Background', '', 0), array()
 	);
-
-	// Group them by languages.
-	$birthdays = array();
-	while ($row = $smcFunc['db_fetch_assoc']($result))
-	{
-		if (!isset($birthdays[$row['lngfile']]))
-			$birthdays[$row['lngfile']] = array();
-		$birthdays[$row['lngfile']][$row['id_member']] = array(
-			'name' => $row['real_name'],
-			'email' => $row['email_address']
-		);
-	}
-	$smcFunc['db_free_result']($result);
-
-	// Send out the greetings!
-	foreach ($birthdays as $lang => $recps)
-	{
-		// We need to do some shuffling to make this work properly.
-		loadLanguage('EmailTemplates', $lang);
-		$txt['emails']['happy_birthday']['subject'] = $txtBirthdayEmails[$greeting . '_subject'];
-		$txt['emails']['happy_birthday']['body'] = $txtBirthdayEmails[$greeting . '_body'];
-
-		foreach ($recps as $recp)
-		{
-			$replacements = array(
-				'REALNAME' => $recp['name'],
-			);
-
-			$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
-
-			sendmail($recp['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
-
-			// Try to stop a timeout, this would be bad...
-			@set_time_limit(300);
-			if (function_exists('apache_reset_timeout'))
-				@apache_reset_timeout();
-
-		}
-	}
-
-	// Flush the mail queue, just in case.
-	AddMailQueue(true);
 
 	return true;
 }

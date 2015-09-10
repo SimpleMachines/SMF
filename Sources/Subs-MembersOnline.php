@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,8 +21,8 @@ if (!defined('SMF'))
  * Used by the board index and SSI.
  * Also returns the membergroups of the users that are currently online.
  * (optionally) hides members that chose to hide their online presence.
- * @param array $membersOnlineOptions
- * @return array
+ * @param array $membersOnlineOptions An array of options for the list
+ * @return array An array of information about the online users
  */
 function getMembersOnlineStats($membersOnlineOptions)
 {
@@ -195,7 +195,7 @@ function getMembersOnlineStats($membersOnlineOptions)
 
 /**
  * Check if the number of users online is a record and store it.
- * @param int $total_users_online
+ * @param int $total_users_online The total number of members online
  */
 function trackStatsUsersOnline($total_users_online)
 {

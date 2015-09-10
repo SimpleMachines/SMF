@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main notification bar.
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl;
@@ -28,6 +31,9 @@ function template_main()
 		</div>';
 }
 
+/**
+ * Board notification bar.
+ */
 function template_notify_board()
 {
 	global $context, $txt, $scripturl;

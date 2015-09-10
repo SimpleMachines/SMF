@@ -12,7 +12,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -199,6 +199,10 @@ function BrowseMailQueue()
 		),
 		'additional_rows' => array(
 			array(
+				'position' => 'top_of_list',
+				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
+			),
+			array(
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="delete_redirects" value="' . $txt['quickmod_delete_selected'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="button_submit you_sure"><a class="button_link you_sure" href="' . $scripturl . '?action=admin;area=mailqueue;sa=clear;' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['mailqueue_clear_list_warning'] . '">' . $txt['mailqueue_clear_list'] . '</a> ',
 			),
@@ -214,11 +218,12 @@ function BrowseMailQueue()
 
 /**
  * This function grabs the mail queue items from the database, according to the params given.
+ * Callback for $listOptions['get_items'] in BrowseMailQueue()
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @return array
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show on each page
+ * @param string $sort A string indicating how to sort the results
+ * @return array An array with info about the mail queue items
  */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
@@ -252,7 +257,8 @@ function list_getMailQueue($start, $items_per_page, $sort)
 
 /**
  * Returns the total count of items in the mail queue.
- * @return int
+ * Callback for $listOptions['get_count'] in BrowseMailQueue
+ * @return int The total number of mail queue items
  */
 function list_getMailQueueSize()
 {
@@ -274,8 +280,8 @@ function list_getMailQueueSize()
 /**
  * Allows to view and modify the mail settings.
  *
- * @param bool $return_config = false
- * @return array
+ * @param bool $return_config Whether to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyMailSettings($return_config = false)
 {
@@ -344,7 +350,7 @@ function ModifyMailSettings($return_config = false)
 	prepareDBSettingContext($config_vars);
 
 	$context['settings_insert_above'] = '
-	<script><!-- // --><![CDATA[
+	<script>
 		var bDay = {';
 
 	$i = 0;
@@ -365,7 +371,7 @@ function ModifyMailSettings($return_config = false)
 			document.getElementById(\'birthday_subject\').innerHTML = bDay[index].subject;
 			document.getElementById(\'birthday_body\').innerHTML = bDay[index].body;
 		}
-	// ]]></script>';
+	</script>';
 }
 
 /**
@@ -446,8 +452,8 @@ function pauseMailQueueClear()
 /**
  * Little utility function to calculate how long ago a time was.
  *
- * @param long $time_diff
- * @return string
+ * @param int $time_diff The time difference, in seconds
+ * @return string A string indicating how many days, hours, minutes or seconds (depending on $time_diff)
  */
 function time_since($time_diff)
 {

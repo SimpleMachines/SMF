@@ -12,16 +12,16 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * Allow the change or view of profiles...
+ * The main designating function for modifying profiles. Loads up info, determins what to do, etc.
  *
- * @param array $post_errors = array()
+ * @param array $post_errors Any errors that occurred
  */
 function ModifyProfile($post_errors = array())
 {
@@ -51,7 +51,7 @@ function ModifyProfile($post_errors = array())
 	}
 
 	// Check if loadMemberData() has returned a valid result.
-	if (!is_array($memberResult))
+	if (!$memberResult)
 		fatal_lang_error('not_a_user', false, 404);
 
 	// If all went well, we have a valid member ID!
@@ -580,12 +580,7 @@ function ModifyProfile($post_errors = array())
 	$check_password = $context['user']['is_owner'] && in_array($profile_include_data['current_area'], $context['password_areas']);
 	$context['require_password'] = $check_password;
 
-	// If we're in wireless then we have a cut down template...
-	if (WIRELESS && $context['sub_template'] == 'summary' && WIRELESS_PROTOCOL != 'wap')
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_profile';
-
-	if (!WIRELESS)
-		loadJavascriptFile('profile.js', array('default_theme' => true, 'defer' => false), 'smf_profile');
+	loadJavascriptFile('profile.js', array('default_theme' => true, 'defer' => false), 'smf_profile');
 
 	// These will get populated soon!
 	$post_errors = array();
@@ -752,7 +747,7 @@ function ModifyProfile($post_errors = array())
 /**
  * Set up the requirements for the profile popup - the area that is shown as the popup menu for the current user.
  *
- * @param int $memID
+ * @param int $memID The ID of the member
  */
 function profile_popup($memID)
 {
@@ -831,7 +826,7 @@ function profile_popup($memID)
 /**
  * Set up the requirements for the alerts popup - the area that shows all the alerts just quickly for the current user.
  *
- * @param int $memID
+ * @param int $memID The ID of the member
  */
 function alerts_popup($memID)
 {
@@ -858,8 +853,8 @@ function alerts_popup($memID)
 /**
  * Load any custom fields for this area... no area means load all, 'summary' loads all public ones.
  *
- * @param int $memID
- * @param string $area = 'summary'
+ * @param int $memID The ID of the member
+ * @param string $area Which area to load fields for
  */
 function loadCustomFields($memID, $area = 'summary')
 {

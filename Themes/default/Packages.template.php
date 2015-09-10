@@ -7,13 +7,19 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main template
+ */
 function template_main()
 {
 }
 
+/**
+ * View package details when installing/uninstalling
+ */
 function template_view_package()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -319,7 +325,7 @@ function template_view_package()
 
 	// Toggle options.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var aOperationElements = new Array();';
 
 		// Operations.
@@ -349,11 +355,11 @@ function template_view_package()
 		}
 
 	echo '
-	// ]]></script>';
+	</script>';
 
 	// Get the currently selected item from a select list
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 	function get_selected(id)
 	{
 		var aSelected = document.getElementById(id);
@@ -364,18 +370,21 @@ function template_view_package()
 		}
 		return aSelected.options[0];
 	}
-	// ]]></script>';
+	</script>';
 
 	// And a bit more for database changes.
 	if (!empty($context['database_changes']))
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var database_changes_area = document.getElementById(\'db_changes_div\');
 		var db_vis = false;
 		database_changes_area.style.display = "none";
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * Extract package contents
+ */
 function template_extract_package()
 {
 	global $context, $txt, $scripturl;
@@ -383,14 +392,14 @@ function template_extract_package()
 	if (!empty($context['redirect_url']))
 	{
 		echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		setTimeout("doRedirect();", ', empty($context['redirect_timeout']) ? '5000' : $context['redirect_timeout'], ');
 
 		function doRedirect()
 		{
 			window.location = "', $context['redirect_url'], '";
 		}
-	// ]]></script>';
+	</script>';
 	}
 
 	echo '
@@ -453,6 +462,9 @@ function template_extract_package()
 	</div>';
 }
 
+/**
+ * List files in a package
+ */
 function template_list()
 {
 	global $context, $txt, $scripturl;
@@ -480,6 +492,9 @@ function template_list()
 	</div>';
 }
 
+/**
+ * Examine a single file within a package
+ */
 function template_examine()
 {
 	global $context, $txt, $scripturl;
@@ -499,6 +514,9 @@ function template_examine()
 	</div>';
 }
 
+/**
+ * List all packages
+ */
 function template_browse()
 {
 	global $context, $txt, $scripturl, $modSettings, $forum_version;
@@ -516,7 +534,7 @@ function template_browse()
 				', $txt['packages_adding'], '
 			</div>
 
-			<script><!-- // --><![CDATA[
+			<script>
 				window.smfForum_scripturl = smf_scripturl;
 				window.smfForum_sessionid = smf_session_id;
 				window.smfForum_sessionvar = smf_session_var;';
@@ -525,7 +543,7 @@ function template_browse()
 	echo '
 				window.smfInstalledPackages = ["', implode('", "', $context['installed_mods']), '"];
 				window.smfVersion = "', $context['forum_version'], '";
-			// ]]></script>
+			</script>
 			<div id="yourVersion" style="display:none">', $context['forum_version'], '</div>';
 
 	if (empty($modSettings['disable_smf_js']))
@@ -534,7 +552,7 @@ function template_browse()
 
 	// This sets the announcements and current versions themselves ;).
 	echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				var oAdminIndex = new smf_AdminIndex({
 					sSelf: \'oAdminCenter\',
 					bLoadAnnouncements: false,
@@ -554,7 +572,7 @@ function template_browse()
 					sUpdateNotificationLink: smf_scripturl + ', JavaScriptEscape('?action=admin;area=packages;pgdownload;auto;package=%package%;' . $context['session_var'] . '=' . $context['session_id']), '
 
 				});
-			// ]]></script>';
+			</script>';
 
 	echo '
 		</div>';
@@ -623,7 +641,7 @@ function template_browse()
 
 	echo '
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: true,
@@ -653,9 +671,12 @@ function template_browse()
 			}).attr("selected", "selected");
 			return false;
 		}
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * List package servers
+ */
 function template_servers()
 {
 	global $context, $txt, $scripturl;
@@ -807,6 +828,9 @@ function template_servers()
 	</div>';
 }
 
+/**
+ * Confirm package operation
+ */
 function template_package_confirm()
 {
 	global $context, $txt;
@@ -823,6 +847,9 @@ function template_package_confirm()
 	</div>';
 }
 
+/**
+ * List packages.
+ */
 function template_package_list()
 {
 	global $context, $txt, $smcFunc;
@@ -939,7 +966,7 @@ function template_package_list()
 		{
 			$section_count = count($context['package_list']);
 			echo '
-			<script><!-- // --><![CDATA[';
+			<script>';
 			foreach ($context['package_list'] as $section => $ps)
 			{
 				echo '
@@ -979,10 +1006,13 @@ function template_package_list()
 				}
 			}
 			echo '
-			// ]]></script>';
+			</script>';
 		}
 }
 
+/**
+ * Confirmation page showing a package was uploaded/downloaded successfully.
+ */
 function template_downloaded()
 {
 	global $context, $txt, $scripturl;
@@ -1006,6 +1036,9 @@ function template_downloaded()
 	</div>';
 }
 
+/**
+ * Installation options - FTP info and backup settings
+ */
 function template_install_options()
 {
 	global $context, $txt, $scripturl;
@@ -1065,6 +1098,11 @@ function template_install_options()
 	</div>';
 }
 
+/**
+ * CHMOD control form
+ *
+ * @return bool False if nothing to do.
+ */
 function template_control_chmod()
 {
 	global $context, $txt;
@@ -1146,13 +1184,13 @@ function template_control_chmod()
 	// Hide the details of the list.
 	if (empty($context['package_ftp']['form_elements_only']))
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			document.getElementById(\'need_writable_list\').style.display = \'none\';
-		// ]]></script>';
+		</script>';
 
 	// Quick generate the test button.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		// Generate a "test ftp" button.
 		var generatedButton = false;
 		function generateFTPTest()
@@ -1204,15 +1242,18 @@ function template_control_chmod()
 			setInnerHTML(document.getElementById("ftp_error_message"), message);
 		}
 		generateFTPTest();
-	// ]]></script>';
+	</script>';
 
 	// Make sure the button gets generated last.
 	$context['insert_after_template'] .= '
-	<script><!-- // --><![CDATA[
+	<script>
 		generateFTPTest();
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * Wrapper for the above template function showing that FTP is required
+ */
 function template_ftp_required()
 {
 	global $txt;
@@ -1228,6 +1269,9 @@ function template_ftp_required()
 		</fieldset>';
 }
 
+/**
+ * View operation details.
+ */
 function template_view_operations()
 {
 	global $context, $txt, $settings, $modSettings;
@@ -1237,8 +1281,8 @@ function template_view_operations()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $txt['operation_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/admin.css', $modSettings['browser_cache'] ,'">
 		<script src="', $settings['default_theme_url'], '/scripts/script.js', $modSettings['browser_cache'] ,'"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/theme.js', $modSettings['browser_cache'] ,'"></script>
 	</head>
@@ -1255,13 +1299,16 @@ function template_view_operations()
 </html>';
 }
 
+/**
+ * The file permissions page.
+ */
 function template_file_permissions()
 {
 	global $txt, $scripturl, $context, $settings;
 
 	// This will handle expanding the selection.
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oRadioValues = {
 			0: "read",
 			1: "writable",
@@ -1455,7 +1502,7 @@ function template_file_permissions()
 
 			curCol.appendChild(curInput);
 		}
-	// ]]></script>';
+	</script>';
 
 		echo '
 	<div class="noticebox">
@@ -1573,6 +1620,14 @@ function template_file_permissions()
 	</form><br>';
 }
 
+/**
+ * Shows permissions for items within a directory (called from template_file_permissions)
+ *
+ * @param string $ident A unique ID - typically the directory name
+ * @param array $contents An array of items within the directory
+ * @param int $level How far to go inside the directory
+ * @param bool $has_more Whether there are more files to display besides what's in $contents
+ */
 function template_permission_show_contents($ident, $contents, $level, $has_more = false)
 {
 	global $settings, $txt, $scripturl, $context;
@@ -1648,12 +1703,15 @@ function template_permission_show_contents($ident, $contents, $level, $has_more 
 
 		if ($level > 1 && !$isFound)
 			echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			expandFolder(\'', $js_ident, '\', \'\');
-		// ]]></script>';
+		</script>';
 	}
 }
 
+/**
+ * A progress page showing what permissions changes are being applied
+ */
 function template_action_permissions()
 {
 	global $txt, $scripturl, $context;
@@ -1744,7 +1802,7 @@ function template_action_permissions()
 
 	// Just the countdown stuff
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var countdown = ', $countDown, ';
 		doAutoSubmit();
 
@@ -1760,7 +1818,7 @@ function template_action_permissions()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	// ]]></script>';
+	</script>';
 
 }
 

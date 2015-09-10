@@ -8,12 +8,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 1');
-define('SMF_LANG_VERSION', '2.1 Beta 1');
+define('SMF_VERSION', '2.1 Beta 2');
+define('SMF_LANG_VERSION', '2.1 Beta 2');
 
 $GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '5.0.3';
@@ -717,7 +717,7 @@ function upgradeExit($fallThrough = false)
 			template_upgrade_above();
 		else
 		{
-			header('Content-Type: text/xml; charset=ISO-8859-1');
+			header('Content-Type: text/xml; charset=UTF-8');
 			// Sadly we need to retain the $_GET data thanks to the old upgrade scripts.
 			$upcontext['get_data'] = array();
 			foreach ($_GET as $k => $v)
@@ -1265,7 +1265,7 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $db_last_error;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
@@ -1456,6 +1456,76 @@ function UpgradeOptions()
 
 	// Update Settings.php with the new settings.
 	changeSettings($changes);
+
+	// Back up again before we do anything else, just in case...
+	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+
+	// Read the contents of the file in as a string
+	$settings_file = file_get_contents($boarddir . '/Settings.php');
+
+	// Look to see if the new error-catching section is there...
+	if (stripos('if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))', $settings_file) === false)
+	{
+		// This is what we want to add...
+		$error_catching_header = '
+########## Error-Catching ##########
+# Note: You shouldn\'t touch these settings.';
+
+		$error_catching = '
+if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))
+	include(dirname(__FILE__) . \'/db_last_error.php\');
+
+if (!isset($db_last_error))
+{
+	// File does not exist so lets try to create it
+	file_put_contents(dirname(__FILE__) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');
+	$db_last_error = 0;
+}
+';
+		// Before we go any further, check to see if the original code is there first...
+		if (stripos('########## Error-Catching ##########', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code - assuming the header is already there
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching, $settings_file);
+		}
+		// What about just the db_last_error line?
+		elseif (stripos('$db_last_error =', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching_header . $error_catching, $settings_file);
+		}
+		else
+		{
+			$found_old = false;
+			// We want the comments as well as the code...
+			$error_catching = $error_catching_header . $error_catching;
+		}
+
+		// Blank out the file - done to fix a oddity with some servers.
+		$fp = fopen($boarddir . '/Settings.php', 'w');
+		fclose($fp);
+
+		// Open the file for writing
+		$file = fopen($boarddir . '/Settings.php', 'r+');
+
+		// Write the original contents...
+		fwrite($file, $settings_file);
+
+		// If we didn't find the old code, add the new code at the end instead...
+		if (!$found_old)
+		{
+			// Go to the position two bytes before the end - in front of the closing PHP tag
+			fseek($file, -2, SEEK_END);
+
+			// Append our new data - the extra line break above will prevent us from breaking things...
+			fwrite($file, $error_catching);
+		}
+
+		// Close the file
+		fclose($file);
+	}
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -3560,20 +3630,20 @@ function template_chmod()
 		<div class="panel">
 			<h2>Your FTP connection information</h2>
 			<h3>The upgrader can fix any issues with file permissions to make upgrading as simple as possible. Simply enter your connection information below or alternatively click <a href="#" onclick="warning_popup();">here</a> for a list of files which need to be changed.</h3>
-			<script><!-- // --><![CDATA[
+			<script>
 				function warning_popup()
 				{
 					popup = window.open(\'\',\'popup\',\'height=150,width=400,scrollbars=yes\');
 					var content = popup.document;
 					content.write(\'<!DOCTYPE html>\n\');
 					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
-					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
+					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
 					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
 					content.write(\'<a href="javascript:self.close();">close</a>\n\t\t</div>\n\t</body>\n</html>\');
 					content.close();
 				}
-		// ]]></script>';
+		</script>';
 
 	if (!empty($upcontext['chmod']['ftp_error']))
 		echo '
@@ -3635,16 +3705,16 @@ function template_upgrade_above()
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/index.css?alp21">
-		<link rel="stylesheet" type="text/css" href="', $settings['default_theme_url'], '/css/install.css?alp21">
-		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" type="text/css" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
+		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
+		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
-		<script><!-- // --><![CDATA[
+		<script>
 			var smf_scripturl = \'', $upgradeurl, '\';
-			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
+			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
 			var startPercent = ', $upcontext['overall_percent'], ';
 
 			// This function dynamically updates the step progress bar - and overall one as required.
@@ -3664,7 +3734,7 @@ function template_upgrade_above()
 					setInnerHTML(document.getElementById(\'overall_text\'), overall_width + "%");
 				}
 			}
-		// ]]></script>
+		</script>
 	</head>
 	<body>
 	<div id="header"><div class="frame">
@@ -3779,7 +3849,7 @@ function template_upgrade_below()
 	if (!empty($upcontext['pause']))
 	{
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			window.onload = doAutoSubmit;
 			var countdown = 3;
 			var dontSubmit = false;
@@ -3796,7 +3866,7 @@ function template_upgrade_below()
 
 				setTimeout("doAutoSubmit();", 1000);
 			}
-		// ]]></script>';
+		</script>';
 	}
 }
 
@@ -3804,7 +3874,7 @@ function template_xml_above()
 {
 	global $upcontext;
 
-	echo '<', '?xml version="1.0" encoding="ISO-8859-1"?', '>
+	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 	<smf>';
 
 	if (!empty($upcontext['get_data']))
@@ -3981,7 +4051,7 @@ function template_welcome_message()
 
 	// This defines whether javascript is going to work elsewhere :D
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			if (\'XMLHttpRequest\' in window && document.getElementById(\'js_works\'))
 				document.getElementById(\'js_works\').value = 1;
 
@@ -4010,7 +4080,7 @@ function template_welcome_message()
 			if (typeof(smfSelectText) == \'undefined\')
 				document.getElementById(\'js_script_missing_error\').style.display = \'\';
 
-		// ]]></script>';
+		</script>';
 }
 
 function template_upgrade_options()
@@ -4149,7 +4219,7 @@ function template_backup_database()
 	if ($support_js)
 	{
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			var lastTable = ', $upcontext['cur_table_num'], ';
 			function getNextTables()
 			{
@@ -4190,7 +4260,7 @@ function template_backup_database()
 					getNextTables();
 			}
 			getNextTables();
-		// ]]></script>';
+		</script>';
 	}
 }
 
@@ -4262,7 +4332,7 @@ function template_database_changes()
 	if ($support_js)
 	{
 		echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			var lastItem = ', $upcontext['current_debug_item_num'], ';
 			var sLastString = "', strtr($upcontext['current_debug_item_name'], array('"' => '&quot;')), '";
 			var iLastSubStepProgress = -1;
@@ -4515,7 +4585,7 @@ function template_database_changes()
 			getNextItem();';
 
 		echo '
-		// ]]></script>';
+		</script>';
 	}
 	return;
 }
@@ -4728,7 +4798,7 @@ function template_upgrade_complete()
 	if (!empty($upcontext['can_delete_script']))
 		echo '
 			<label for="delete_self"><input type="checkbox" id="delete_self" onclick="doTheDelete(this);" class="input_check"> Delete upgrade.php and its data files now</label> <em>(doesn\'t work on all servers).</em>
-			<script><!-- // --><![CDATA[
+			<script>
 				function doTheDelete(theCheck)
 				{
 					var theImage = document.getElementById ? document.getElementById("delete_upgrader") : document.all.delete_upgrader;
@@ -4736,7 +4806,7 @@ function template_upgrade_complete()
 					theImage.src = "', $upgradeurl, '?delete=1&ts_" + (new Date().getTime());
 					theCheck.disabled = true;
 				}
-			// ]]></script>
+			</script>
 			<img src="', $settings['default_theme_url'], '/images/blank.png" alt="" id="delete_upgrader"><br>';
 
 	echo '<br>

@@ -7,10 +7,15 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// Generate a strip of buttons, out of buttons.
+/**
+ * A compatibility function for displaying a strip of buttons
+ * @param string $button_strip
+ * @param string $direction Where it should go - top or bottom
+ * @param array $strip_options Button strip options - id, etc.
+ */
 function template_button_strip($button_strip, $direction = 'top', $strip_options = array())
 {
 	global $context, $txt;

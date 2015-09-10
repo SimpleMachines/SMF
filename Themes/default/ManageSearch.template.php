@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * Modify the search weights.
+ */
 function template_modify_weights()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -86,6 +89,9 @@ function template_modify_weights()
 	</div>';
 }
 
+/**
+ * Select the search method.
+ */
 function template_select_search_method()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -212,6 +218,9 @@ function template_select_search_method()
 	</div>';
 }
 
+/**
+ * Create a search index.
+ */
 function template_create_index()
 {
 	global $context, $scripturl, $txt;
@@ -243,6 +252,9 @@ function template_create_index()
 	</div>';
 }
 
+/**
+ * Display a progress page while creating a search index.
+ */
 function template_create_index_progress()
 {
 	global $context, $scripturl, $txt;
@@ -269,7 +281,7 @@ function template_create_index_progress()
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
 	</div>
-	<script><!-- // --><![CDATA[
+	<script>
 		var countdown = 10;
 		doAutoSubmit();
 
@@ -285,10 +297,13 @@ function template_create_index_progress()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	// ]]></script>';
+	</script>';
 
 }
 
+/**
+ * Done creating a search index.
+ */
 function template_create_index_done()
 {
 	global $scripturl, $txt;
@@ -306,7 +321,9 @@ function template_create_index_done()
 	</div>';
 }
 
-// Add or edit a search engine spider.
+/**
+ * Add or edit a search engine spider.
+ */
 function template_spider_edit()
 {
 	global $context, $scripturl, $txt;
@@ -352,7 +369,9 @@ function template_spider_edit()
 	</div>';
 }
 
-// Show... spider... logs...
+/**
+ * Show... spider... logs...
+ */
 function template_show_spider_logs()
 {
 	global $context, $txt, $scripturl;
@@ -383,7 +402,9 @@ function template_show_spider_logs()
 	</div>';
 }
 
-// Show... spider... stats...
+/**
+ * Show... spider... stats...
+ */
 function template_show_spider_stats()
 {
 	global $context, $txt, $scripturl;

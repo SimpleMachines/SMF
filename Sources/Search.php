@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -19,7 +19,7 @@ if (!defined('SMF'))
 // This defines two version types for checking the API's are compatible with this version of SMF.
 $GLOBALS['search_versions'] = array(
 	// This is the forum version but is repeated due to some people rewriting $forum_version.
-	'forum_version' => 'SMF 2.1 Beta 1',
+	'forum_version' => 'SMF 2.1 Beta 2',
 	// This is the minimum version of SMF that an API could have been written for to work. (strtr to stop accidentally updating version on release)
 	'search_version' => strtr('SMF 2+1=Alpha=1', array('+' => '.', '=' => ' ')),
 );
@@ -1855,8 +1855,8 @@ function PlushSearch2()
  * - callback function for the results sub template.
  * - loads the necessary contextual data to show a search result.
  *
- * @param $reset = false
- * @return array
+ * @param bool $reset Whether to reset the counter
+ * @return array An array of contextual info related to this search
  */
 function prepareSearchContext($reset = false)
 {
@@ -2137,7 +2137,7 @@ function prepareSearchContext($reset = false)
 /**
  * Creates a search API and returns the object.
  *
- * @return search_api_interface
+ * @return search_api_interface An instance of the search API interface
  */
 function findSearchAPI()
 {

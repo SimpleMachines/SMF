@@ -6,7 +6,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 (function ($) {
@@ -151,76 +151,6 @@
 })(jQuery);
 
 $.sceditor.command.set(
-	'ftp', {
-		tooltip: 'Insert FTP Link',
-		txtExec: ["[ftp]", "[/ftp]"],
-		exec: function (caller) {
-			var	editor  = this,
-				content = $(this._('<form><div><label for="link">{0}</label> <input type="text" id="link" value="ftp://"></div>' +
-						'<div><label for="des">{1}</label> <input type="text" id="des" value=""></div></form>',
-					this._("URL:"),
-					this._("Description (optional):")
-				))
-				.submit(function () {return false;});
-
-			content.append($(
-				this._('<div><input type="button" class="button" value="{0}"></div>',
-					this._("Insert")
-				)).click(function (e) {
-				var val = $(this).parent("form").find("#link").val(),
-					description = $(this).parent("form").find("#des").val();
-
-				if (val !== "" && val !== "ftp://") {
-					// needed for IE to reset the last range
-					editor.focus();
-
-					if (!editor.getRangeHelper().selectedHtml() || description)
-					{
-						if (!description)
-							description = val;
-
-						editor.wysiwygEditorInsertHtml('<a href="' + val + '">' + description + '</a>');
-					}
-					else
-						editor.execCommand("createlink", val);
-				}
-
-				editor.closeDropDown(true);
-				e.preventDefault();
-			}));
-
-			editor.createDropDown(caller, "insertlink", content);
-		}
-	}
-);
-$.sceditor.command.set(
-	'glow', {
-		tooltip: 'Glow',
-		txtExec: ["[glow=red,2,300]", "[/glow]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('[glow=red,2,300]', '[/glow]');
-		}
-	}
-);
-$.sceditor.command.set(
-	'shadow', {
-		tooltip: 'Shadow',
-		txtExec: ["[shadow=red,right]", "[/shadow]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('[shadow=red,right]', '[/shadow]');
-		}
-	}
-);
-$.sceditor.command.set(
-	'tt', {
-		tooltip: 'Teletype',
-		txtExec: ["[tt]", "[/tt]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('<tt>', '</tt>');
-		}
-	}
-);
-$.sceditor.command.set(
 	'pre', {
 		tooltip: 'Pre',
 		txtExec: ["[pre]", "[/pre]"],
@@ -229,16 +159,6 @@ $.sceditor.command.set(
 		}
 	}
 );
-$.sceditor.command.set(
-	'move', {
-		tooltip: 'Marquee',
-		txtExec: ["[move]", "[/move]"],
-		exec: function () {
-			this.wysiwygEditorInsertHtml('<marquee>', '</marquee>');
-		}
-	}
-);
-
 $.sceditor.command.set(
 	'email', {
 		txtExec: function (caller, selected) {
@@ -326,76 +246,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
 		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'acronym', {
-		tags: {
-			acronym: {
-				title: null
-			}
-		},
-		format: function (element, content) {
-			return '[abbr=' + element.attr('title') + ']' + content + '[/abbr]';
-		},
-		html: function (element, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				return content;
-
-			return '<abbr title="' + attrs.defaultattr + '">' + content + '</abbr>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'bdo', {
-		tags: {
-			bdo: {
-				dir: null
-			}
-		},
-		format: function (element, content) {
-			return '[bdo=' + element.attr('dir') + ']' + content + '[/bdo]';
-		},
-		html: function (element, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				return content;
-			if (attrs.defaultattr != 'rtl' && attrs.defaultattr != 'ltr')
-				return '[bdo=' + attrs.defaultattr + ']' + content + '[/bdo]';
-
-			return '<bdo dir="' + attrs.defaultattr + '">' + content + '</bdo>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'black', {
-		html: '<font color="black">{0}</font>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'blue', {
-		html: '<font color="blue">{0}</font>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'green', {
-		html: '<font color="green">{0}</font>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'red', {
-		html: '<font color="red">{0}</font>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'white', {
-		html: '<font color="white">{0}</font>'
 	}
 );
 
@@ -536,28 +386,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
-	'ftp', {
-		allowsEmpty: true,
-		html: function (token, attrs, content) {
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				attrs.defaultattr = content;
-
-			return '<a target="_blank" href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
-		}
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'tt', {
-		tags: {
-			tt: null
-		},
-		format: "[tt]{0}[/tt]",
-		html: '<tt>{0}</tt>'
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
 	'pre', {
 		tags: {
 			pre: null
@@ -565,16 +393,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		isBlock: true,
 		format: "[pre]{0}[/pre]",
 		html: "<pre>{0}</pre>\n"
-	}
-);
-
-$.sceditor.plugins.bbcode.bbcode.set(
-	'move', {
-		tags: {
-			marquee: null
-		},
-		format: "[move]{0}[/move]",
-		html: '<marquee>{0}</marquee>'
 	}
 );
 
@@ -650,12 +468,12 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			if (element.attr('author'))
 				author = ' author=' + element.attr('author').php_unhtmlspecialchars();
-			if (element.attr('date'))
-				date = ' date=' + element.attr('date');
 			if (element.attr('link'))
 				link = ' link=' + element.attr('link');
+			if (element.attr('date'))
+				date = ' date=' + element.attr('date');
 
-			return '[quote' + author + date + link + ']' + content + '[/quote]';
+			return '[quote' + author + link + date + ']' + content + '[/quote]';
 		},
 		html: function (element, attrs, content) {
 			var attr_author = '', author = '';

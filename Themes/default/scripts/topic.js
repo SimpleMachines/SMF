@@ -439,7 +439,7 @@ QuickModify.prototype.modifyCancel = function ()
 			{
 				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
 				{
-					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
 				}
 			}
 		}
@@ -469,7 +469,7 @@ QuickModify.prototype.modifySave = function (sSessionId, sSessionVar)
 			{
 				if (typeof(this.aAccessKeys[aInputs[i].name]) != 'undefined')
 				{
-					aInputs[i].name = this.aAccessKeys[aInputs[i].name];
+					aInputs[i].accessKey = this.aAccessKeys[aInputs[i].name];
 				}
 			}
 		}
@@ -769,7 +769,7 @@ $(function() {
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
-		return reqOverlayDiv(url, title);
+		return reqOverlayDiv(url, title, 'post/thumbsup.png');
 	});
 
 	// Message likes.

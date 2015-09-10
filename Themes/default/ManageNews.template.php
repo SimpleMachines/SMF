@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The template for sending newsletters
+ */
 function template_email_members()
 {
 	global $context, $txt, $scripturl;
@@ -121,7 +124,7 @@ function template_email_members()
 
 	// This is some javascript for the simple/advanced toggling and member suggest
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 		var oAdvancedPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: true,
@@ -143,8 +146,8 @@ function template_email_members()
 				}
 			]
 		});
-	// ]]></script>
-	<script><!-- // --><![CDATA[
+	</script>
+	<script>
 		var oMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -173,9 +176,12 @@ function template_email_members()
 			sItemListContainerId: \'exclude_members_container\',
 			aListItems: []
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * The form for composing a newsletter
+ */
 function template_email_members_compose()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -255,21 +261,13 @@ function template_email_members_compose()
 			<input type="hidden" name="', $key, '" value="', implode(($key == 'emails' ? ';' : ','), $values), '">';
 
 	echo '
-		<script><!-- // --><![CDATA[';
+		<script>';
 	// The functions used to preview a posts without loading a new page.
 	echo '
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";
 			function previewPost()
-			{';
-	if (isBrowser('is_firefox'))
-		echo '
-				// Firefox doesn\'t render <marquee> that have been put it using javascript
-				if (document.forms.newsmodify.elements[', JavaScriptEscape($context['post_box_name']), '].value.indexOf(\'[move]\') != -1)
-				{
-					return submitThisOnce(document.forms.newsmodify);
-				}';
-	echo '
+			{
 				if (window.XMLHttpRequest)
 				{
 					// Opera didn\'t support setRequestHeader() before 8.01.
@@ -360,10 +358,10 @@ function template_email_members_compose()
 			}';
 
 	echo '
-		// ]]></script>';
+		</script>';
 
 	echo '
-		<script><!-- // --><![CDATA[
+		<script>
 			function checkboxes_status (item)
 			{
 				if (item.id == \'send_html\')
@@ -377,11 +375,14 @@ function template_email_members_compose()
 					document.getElementById(\'send_html\').disabled = !document.getElementById(\'send_html\').disabled;
 				}
 			}
-		// ]]></script>
+		</script>
 		</form>
 	</div>';
 }
 
+/**
+ * The page shown while the newsletter is being sent
+ */
 function template_email_members_send()
 {
 	global $context, $settings, $txt, $scripturl;
@@ -421,7 +422,7 @@ function template_email_members_send()
 		</form>
 	</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var countdown = 2;
 		doAutoSubmit();
 
@@ -437,9 +438,12 @@ function template_email_members_send()
 
 			setTimeout("doAutoSubmit();", 1000);
 		}
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * The settings page.
+ */
 function template_news_lists()
 {
 	global $context, $txt;

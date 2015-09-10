@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -181,7 +181,7 @@ function countReports($closed = 0)
  */
 function getReports($closed = 0)
 {
-	global $smcFunc, $context, $user_info, $scripturl;
+	global $smcFunc, $context, $user_info, $scripturl, $txt;
 
 	// Lonely, standalone var.
 	$reports = array();
@@ -447,7 +447,7 @@ function getReportDetails($report_id)
  */
 function getReportComments($report_id)
 {
-	global $smcFunc, $scripturl, $user_info;
+	global $smcFunc, $scripturl, $user_info, $txt;
 
 	if (empty($report_id))
 		return false;

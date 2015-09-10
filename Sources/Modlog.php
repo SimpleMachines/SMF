@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -309,10 +309,10 @@ function ViewModlog()
  * Get the number of mod log entries.
  * Callback for createList() in ViewModlog().
  *
- * @param $query_string
- * @param $query_params
- * @param $log_type
- * @param $ignore_boards
+ * @param string $query_string An extra string for the WHERE clause in the query to further filter results
+ * @param array $query_params An array of parameters for the query_string
+ * @param int $log_type The log type (1 for mod log, 3 for admin log)
+ * @param bool $ignore_boards Whether to ignore board restrictions
  */
 function list_getModLogEntryCount($query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {
@@ -347,13 +347,14 @@ function list_getModLogEntryCount($query_string = '', $query_params = array(), $
  * Gets the moderation log entries that match the specified parameters.
  * Callback for createList() in ViewModlog().
  *
- * @param $start
- * @param $items_per_page
- * @param $sort
- * @param $query_string
- * @param $query_params
- * @param $log_type
- * @param $ignore_boards
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page The number of items to show per page
+ * @param string $sort A string indicating how to sort the results
+ * @param string $query_string An extra string for the WHERE clause of the query, to further filter results
+ * @param array $query_params An array of parameters for the query string
+ * @param int $log_type The log type - 1 for mod log or 3 for admin log
+ * @param bool $ignore_boards Whether to ignore board restrictions
+ * @return array An array of info about the mod log entries
  */
 function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = array(), $log_type = 1, $ignore_boards = false)
 {

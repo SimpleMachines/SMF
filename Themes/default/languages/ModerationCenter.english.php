@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; ModerationCenter
+// Version: 2.1 Beta 2; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -12,6 +12,8 @@ $txt['mc_view_groups'] = 'View Membergroups';
 
 $txt['mc_description'] = 'This is your &quot;Moderation Center&quot;. From here you can perform all the moderation actions assigned to yourself by the Administrator. This home page contains a summary of all the latest happenings in your community.';
 $txt['mc_group_requests'] = 'Membergroup Requests';
+$txt['mc_group_requests_active'] = 'Active Requests';
+$txt['mc_group_requests_closed'] = 'Old Requests';
 $txt['mc_unapproved_posts'] = 'Unapproved Posts';
 $txt['mc_watched_users'] = 'Recent Watched Members';
 $txt['mc_watched_topics'] = 'Watched Topics';
@@ -61,7 +63,10 @@ $txt['mc_reportedp_close_selected'] = 'Close Selected';
 $txt['mc_groupr_group'] = 'Membergroups';
 $txt['mc_groupr_member'] = 'Member';
 $txt['mc_groupr_reason'] = 'Reason';
+$txt['mc_groupr_no_reason'] = 'No reason given';
 $txt['mc_groupr_none_found'] = 'There are currently no outstanding membergroup requests.';
+$txt['mc_groupr_approved'] = 'Request approved';
+$txt['mc_groupr_rejected'] = 'Request rejected';
 $txt['mc_groupr_submit'] = 'Submit';
 $txt['mc_groupr_reason_desc'] = 'Reason to reject %1$s\'s request to join &quot;%2$s&quot;';
 $txt['mc_groups_reason_title'] = 'Reasons for rejection';

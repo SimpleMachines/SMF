@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; EmailTemplates
+// Version: 2.1 Beta 2; EmailTemplates
 
 // Since all of these strings are being used in emails, numeric entities should be used.
 
@@ -320,6 +320,21 @@ $txt['alert_unapproved_post_subject'] = 'New Unapproved Post: {SUBJECT}';
 $txt['alert_unapproved_post_body'] = 'A new post, \'{SUBJECT}\', has been made which needs approved.
 
 You can approve or reject this post by clicking the link below:
+
+{LINK}
+
+{REGARDS}';
+
+/**
+	@additional_params: alert_unapproved_topic
+		SUBJECT: The subject of the topic causing the notification
+		LINK: A link to the topic.
+	@description:
+*/
+$txt['alert_unapproved_topic_subject'] = 'New Unapproved Topic: {SUBJECT}';
+$txt['alert_unapproved_topic_body'] = 'A new topic, \'{SUBJECT}\', has been made which needs approved.
+
+You can approve or reject this topic by clicking the link below:
 
 {LINK}
 

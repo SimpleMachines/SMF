@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * Displays all reported posts.
+ */
 function template_reported_posts()
 {
 	global $context, $txt, $scripturl;
@@ -104,7 +107,9 @@ function template_reported_posts()
 }
 
 
-// A block to show the current top reported posts.
+/**
+ * A block to show the current top reported posts.
+ */
 function template_reported_posts_block()
 {
 	global $context, $txt, $scripturl;
@@ -138,7 +143,7 @@ function template_reported_posts_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
@@ -168,10 +173,12 @@ function template_reported_posts_block()
 				sAdditionalVars: \';admin_key=mcrp\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
-
+/**
+ * Handles viewing details of and managing a specific report
+ */
 function template_viewmodreport()
 {
 	global $context, $scripturl, $txt;
@@ -276,6 +283,9 @@ function template_viewmodreport()
 	</div>';
 }
 
+/**
+ * Template for editing a mod comment.
+ */
 function template_edit_comment()
 {
 	global $context, $scripturl, $txt;
@@ -306,7 +316,9 @@ function template_edit_comment()
 	</div>';
 }
 
-// A block to show the current top reported member profiles.
+/**
+ * A block to show the current top reported member profiles.
+ */
 function template_reported_members_block()
 {
 	global $context, $txt, $scripturl;
@@ -340,7 +352,7 @@ function template_reported_members_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oReportedPostsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrm']) ? 'true' : 'false', ',
@@ -370,9 +382,12 @@ function template_reported_members_block()
 				sAdditionalVars: \';admin_key=mcrm\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * Lists all reported members
+ */
 function template_reported_members()
 {
 	global $context, $txt, $scripturl;
@@ -460,6 +475,9 @@ function template_reported_members()
 	</form>';
 }
 
+/**
+ * Template for viewing and managing a specific report about a user's profile
+ */
 function template_viewmemberreport()
 {
 	global $context, $scripturl, $txt;

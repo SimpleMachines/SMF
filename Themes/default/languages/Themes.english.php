@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Themes
+// Version: 2.1 Beta 2; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -73,8 +73,6 @@ $txt['theme_variants_user_disable'] = 'Disable user variant selection';
 
 $txt['site_slogan'] = 'Site slogan';
 $txt['site_slogan_desc'] = 'Add your own text for a slogan here. It will replace the SMF logo.';
-$txt['forum_width'] = 'Forum width';
-$txt['forum_width_desc'] = 'Set the forum width. Examples: 950px, 80%, 1240px.';
 
 $txt['enable_random_news'] = 'Enable random news line in the forum header';
 $txt['show_group_key'] = 'Show group key on board index';

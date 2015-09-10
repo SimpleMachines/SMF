@@ -7,12 +7,24 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main messageindex.
+ */
 function template_main()
 {
 	global $context, $settings, $options, $scripturl, $modSettings, $txt;
+
+	// Let them know why their message became unapproved.
+	if ($context['becomesUnapproved'])
+	{
+		echo '
+			<div class="noticebox">
+				', $txt['post_becomesUnapproved'], '
+			</div>';
+	}
 
 	if (!empty($context['boards']) && (!empty($options['show_children']) || $context['start'] == 0))
 	{
@@ -26,10 +38,8 @@ function template_main()
 		{
 			echo '
 				<div id="board_', $board['id'], '" class="up_contain">
-					<div class="icon">
-						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '">
-							<span class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></span>
-						</a>
+					<div class="board_icon">
+						<a href="', ($board['is_redirect'] || $context['user']['is_guest'] ? $board['href'] : $scripturl . '?action=unread;board=' . $board['id'] . '.0;children'), '" class="board_', $board['board_class'], '"', !empty($board['board_tooltip']) ? ' title="' . $board['board_tooltip'] . '"' : '', '></a>
 					</div>
 					<div class="info">
 						<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">', $board['name'], '</a>';
@@ -40,7 +50,7 @@ function template_main()
 						<a href="', $scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', $context['session_var'], '=', $context['session_id'], '" title="', sprintf($txt['unapproved_posts'], $board['unapproved_topics'], $board['unapproved_posts']), '" class="moderation_link">(!)</a>';
 
 			echo '
-						<p>', $board['description'] , '</p>';
+						<p class="board_description">', $board['description'] , '</p>';
 
 			// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 			if (!empty($board['moderators']) || !empty($board['moderator_groups']))
@@ -50,7 +60,7 @@ function template_main()
 			// Show some basic information about the number of posts, etc.
 			echo '
 					</div>
-					<div class="stats">
+					<div class="board_stats">
 						<p>', comma_format($board['posts']), ' ', $board['is_redirect'] ? $txt['redirects'] : $txt['posts'], ' <br>
 						', $board['is_redirect'] ? '' : comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
@@ -114,7 +124,7 @@ function template_main()
 		{
 		echo '
 	<div id="description_board" class="generic_list_wrapper">
-		<h3 class="floatleft">', $context['name'], '&nbsp;-&nbsp;</h3>
+		<h3>', $context['name'], '</h3>
 		<p>';
 	if ($context['description'] != '')
 	echo '
@@ -156,9 +166,9 @@ function template_main()
 		if (!empty($context['topics']))
 		{
 			echo '
-					<div class="icon">&nbsp;</div>
+					<div class="board_icon">&nbsp;</div>
 					<div class="info">', $context['topics_headers']['subject'], ' / ', $context['topics_headers']['starter'], '</div>
-					<div class="stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
+					<div class="board_stats">', $context['topics_headers']['replies'], ' / ', $context['topics_headers']['views'], '</div>
 					<div class="lastpost">', $context['topics_headers']['last_post'], '</div>';
 
 			// Show a "select all" box for quick moderation?
@@ -196,7 +206,7 @@ function template_main()
 		{
 			echo '
 			<div class="', $topic['css_class'], '">
-				<div class="icon">
+				<div class="board_icon">
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<img class="posted" src="' . $settings['images_url'] . '/icons/profile_sm.png" alt="">' : '', '
 				</div>
@@ -205,22 +215,22 @@ function template_main()
 
 			// Now we handle the icons
 			echo '
-							<div class="icons">';
+							<div class="icons floatright">';
 			if ($topic['is_watched'])
 				echo '
-								<span class="generic_icons watch floatright" title="', $txt['watching_this_topic'], '"></span>';
+								<span class="generic_icons watch" title="', $txt['watching_this_topic'], '"></span>';
 			if ($topic['is_locked'])
 				echo '
-								<span class="generic_icons lock floatright"></span>';
+								<span class="generic_icons lock"></span>';
 			if ($topic['is_sticky'])
 				echo '
-								<span class="generic_icons sticky floatright"></span>';
+								<span class="generic_icons sticky"></span>';
 			if ($topic['is_redirect'])
 				echo '
-								<span class="generic_icons move floatright"></span>';
+								<span class="generic_icons move"></span>';
 			if ($topic['is_poll'])
 				echo '
-								<span class="generic_icons poll floatright"></span>';
+								<span class="generic_icons poll"></span>';
 			echo '
 							</div>';
 
@@ -236,7 +246,7 @@ function template_main()
 							<br class="clear">
 						</div>
 					</div>
-					<div class="stats"><p>', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</p></div>
+					<div class="board_stats"><p>', $topic['replies'], ' ', $txt['replies'], '<br>', $topic['views'], ' ', $txt['views'], '</p></div>
 					<div class="lastpost">
 						<p>', sprintf($txt['last_post_topic'], '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', $topic['last_post']['member']['link']), '</p>
 					</div>';
@@ -323,7 +333,7 @@ function template_main()
 
 	if (!empty($context['can_quick_mod']) && $options['display_quick_mod'] == 1 && !empty($context['topics']) && $context['can_move'])
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "quick_mod_jump_to",
@@ -340,20 +350,23 @@ function template_main()
 						bDisabled: true,
 						sCustomName: "move_to"
 					});
-			// ]]></script>';
+			</script>';
 
 	// Javascript for inline editing.
 	echo '
-<script><!-- // --><![CDATA[
+<script>
 	var oQuickModifyTopic = new QuickModifyTopic({
 		aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
 		bMouseOnDiv: false,
 	});
-// ]]></script>';
+</script>';
 
 	template_topic_legend();
 }
 
+/**
+ * Shows a legend for topic icons.
+ */
 function template_topic_legend()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -377,7 +390,7 @@ function template_topic_legend()
 
 	if (!empty($context['jump_to']))
 		echo '
-			<script><!-- // --><![CDATA[
+			<script>
 				if (typeof(window.XMLHttpRequest) != "undefined")
 					aJumpTo[aJumpTo.length] = new JumpTo({
 						sContainerId: "message_index_jump_to",
@@ -391,7 +404,7 @@ function template_topic_legend()
 						sCatPrefix: "",
 						sGoButtonLabel: "', $txt['quick_mod_go'], '"
 					});
-			// ]]></script>';
+			</script>';
 
 	echo '
 			<br class="clear">

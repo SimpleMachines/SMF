@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 1; Install
+// Version: 2.1 Beta 2; Install
 
 // These should be the same as those in index.language.php.
 $txt['lang_character_set'] = 'ISO-8859-1';

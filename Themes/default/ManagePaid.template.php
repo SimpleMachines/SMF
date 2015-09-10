@@ -7,10 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
-// The template for adding or editing a subscription.
+/**
+ * The template for adding or editing a subscription.
+ */
 function template_modify_subscription()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -192,6 +194,9 @@ function template_modify_subscription()
 
 }
 
+/**
+ * The page for deleting a subscription.
+ */
 function template_delete_subscription()
 {
 	global $context, $scripturl, $txt;
@@ -214,16 +219,18 @@ function template_delete_subscription()
 
 }
 
-// Add or edit an existing subscriber.
+/**
+ * Add or edit an existing subscriber.
+ */
 function template_modify_user_subscription()
 {
 	global $context, $scripturl, $txt;
 
 	// Some quickly stolen javascript from Post, could do with being more efficient :)
 	echo '
-	<script><!-- // --><![CDATA[
+	<script>
 			var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-		// ]]></script>';
+		</script>';
 
 	echo '
 	<div id="admincenter">
@@ -332,7 +339,7 @@ function template_modify_user_subscription()
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 		</form>
-		<script><!-- // --><![CDATA[
+		<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
 			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
@@ -343,7 +350,7 @@ function template_modify_user_subscription()
 			sTextDeleteItem: \'', $txt['autosuggest_delete_item'], '\',
 			bItemList: false
 			});
-		// ]]></script>';
+		</script>';
 
 	if (!empty($context['pending_payments']))
 	{
@@ -383,7 +390,9 @@ function template_modify_user_subscription()
 		</div>';
 }
 
-// Template for a user to edit/pick their subscriptions.
+/**
+ * Template for a user to edit/pick their subscriptions.
+ */
 function template_user_subscription()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -515,7 +524,9 @@ function template_user_subscription()
 	</div>';
 }
 
-// The "choose payment" dialog.
+/**
+ * The "choose payment" dialog.
+ */
 function template_choose_payment()
 {
 	global $context, $txt;
@@ -558,9 +569,9 @@ function template_choose_payment()
 
 		if (!empty($gateway['javascript']))
 			echo '
-					<script><!-- // --><![CDATA[
+					<script>
 						', $gateway['javascript'], '
-					// ]]></script>';
+					</script>';
 
 		foreach ($gateway['hidden'] as $name => $value)
 			echo '
@@ -577,7 +588,9 @@ function template_choose_payment()
 	<br class="clear">';
 }
 
-// The "thank you" bit...
+/**
+ * The "thank you" bit...
+ */
 function template_paid_done()
 {
 	global $context, $txt, $scripturl;

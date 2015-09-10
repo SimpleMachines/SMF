@@ -11,7 +11,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -26,6 +26,7 @@ if (!defined('SMF'))
  * It uses the main sub template in the Calendar template.
  * It goes to the month and year passed in 'month' and 'year' by get or post.
  * It is accessed through ?action=calendar.
+ * @return void
  */
 function CalendarMain()
 {
@@ -46,7 +47,7 @@ function CalendarMain()
 		'post' => 'CalendarPost',
 	);
 
-	if (isset($_GET['sa']) && isset($subActions[$_GET['sa']]) && !WIRELESS)
+	if (isset($_GET['sa']) && isset($subActions[$_GET['sa']]))
 		return call_helper($subActions[$_GET['sa']]);
 
 	// You can't do anything if the calendar is off.
@@ -369,10 +370,10 @@ function CalendarPost()
 /**
  * This function offers up a download of an event in iCal 2.0 format.
  *
- * follows the conventions in RFC5546 http://tools.ietf.org/html/rfc5546
- * sets events as all day events since we don't have hourly events
- * will honor and set multi day events
- * sets a sequence number if the event has been modified
+ * Follows the conventions in {@link http://tools.ietf.org/html/rfc5546 RFC5546}
+ * Sets events as all day events since we don't have hourly events
+ * Will honor and set multi day events
+ * Sets a sequence number if the event has been modified
  *
  * @todo .... allow for week or month export files as well?
  */

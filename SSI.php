@@ -8,7 +8,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // Don't do anything if SMF is already loaded.
@@ -95,9 +95,6 @@ elseif (isset($_REQUEST['ssi_layers'], $ssi_layers) && (@get_magic_quotes_gpc() 
 	die('No direct access...');
 if (isset($_REQUEST['context']))
 	die('No direct access...');
-
-// Make sure wireless is always off.
-define('WIRELESS', false);
 
 // Gzip output? (because it must be boolean and true, this can't be hacked.)
 if (isset($ssi_gzip) && $ssi_gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>='))
@@ -198,14 +195,21 @@ if (function_exists('set_magic_quotes_runtime'))
 
 return true;
 
-// This shuts down the SSI and shows the footer.
+/**
+ * This shuts down the SSI and shows the footer.
+ * @return void
+ */
 function ssi_shutdown()
 {
 	if (!isset($_GET['ssi_function']) || $_GET['ssi_function'] != 'shutdown')
 		template_footer();
 }
 
-// Display a welcome message, like:  Hey, User, you have 0 messages, 0 are new.
+/**
+ * Display a welcome message, like: Hey, User, you have 0 messages, 0 are new.
+ * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
+ * @return void|array Displays a welcome message or returns an array of user data depending on output_method.
+ */
 function ssi_welcome($output_method = 'echo')
 {
 	global $context, $txt, $scripturl;
@@ -222,7 +226,11 @@ function ssi_welcome($output_method = 'echo')
 		return $context['user'];
 }
 
-// Display a menu bar, like is displayed at the top of the forum.
+/**
+ * Display a menu bar, like is displayed at the top of the forum.
+ * @param string $output_method The output method. If 'echo', will display the menu, otherwise returns an array of menu data.
+ * @return void|array Displays the menu or returns an array of menu data depending on output_method.
+ */
 function ssi_menubar($output_method = 'echo')
 {
 	global $context;
@@ -234,7 +242,12 @@ function ssi_menubar($output_method = 'echo')
 		return $context['menu_buttons'];
 }
 
-// Show a logout link.
+/**
+ * Show a logout link.
+ * @param string $redirect_to A URL to redirect the user to after they log out.
+ * @param string $output_method The output method. If 'echo', shows a logout link, otherwise returns the HTML for it.
+ * @return void|string Displays a logout link or returns its HTML depending on output_method.
+ */
 function ssi_logout($redirect_to = '', $output_method = 'echo')
 {
 	global $context, $txt, $scripturl;
@@ -254,10 +267,18 @@ function ssi_logout($redirect_to = '', $output_method = 'echo')
 		return $link;
 }
 
-// Recent post list:   [board] Subject by Poster	Date
+/**
+ * Recent post list:   [board] Subject by Poster    Date
+ * @param int $num_recent How many recent posts to display
+ * @param null|array $exclude_boards If set, doesn't show posts from the specified boards
+ * @param null|array $include_boards If set, only includes posts from the specified boards
+ * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of information about them.
+ * @param bool $limit_body Whether or not to only show the first 384 characters of each post
+ * @return void|array Displays a list of recent posts or returns an array of information about them depending on output_method.
+ */
 function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo', $limit_body = true)
 {
-	global $modSettings;
+	global $modSettings, $context;
 
 	// Excluding certain boards...
 	if ($exclude_boards === null && !empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0)
@@ -289,14 +310,20 @@ function ssi_recentPosts($num_recent = 8, $exclude_boards = null, $include_board
 		'is_approved' => 1,
 		'include_boards' => $include_boards === null ? '' : $include_boards,
 		'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-		'min_message_id' => $modSettings['maxMsgID'] - 25 * min($num_recent, 5),
+		'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_posts']) ? $context['min_message_posts'] : 25) * min($num_recent, 5),
 	);
 
 	// Past to this simpleton of a function...
 	return ssi_queryPosts($query_where, $query_where_params, $num_recent, 'm.id_msg DESC', $output_method, $limit_body);
 }
 
-// Fetch a post with a particular ID. By default will only show if you have permission to the see the board in question - this can be overridden.
+/**
+ * Fetches one or more posts by ID.
+ * @param array $post_ids An array containing the IDs of the posts to show
+ * @param bool $override_permissions Whether to ignore permissions. If true, will show posts even if the user doesn't have permission to see them.
+ * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them
+ * @return void|array Displays the specified posts or returns an array of info about them, depending on output_method.
+ */
 function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $output_method = 'echo')
 {
 	global $modSettings;
@@ -321,7 +348,17 @@ function ssi_fetchPosts($post_ids = array(), $override_permissions = false, $out
 	return ssi_queryPosts($query_where, $query_where_params, '', 'm.id_msg DESC', $output_method, false, $override_permissions);
 }
 
-// This removes code duplication in other queries - don't call it direct unless you really know what you're up to.
+/**
+ * This handles actually pulling post info. Called from other functions to eliminate duplication.
+ * @param string $query_where The WHERE clause for the query
+ * @param array $query_where_params An array of parameters for the WHERE clause
+ * @param int $query_limit The maximum number of rows to return
+ * @param string $query_order The ORDER BY clause for the query
+ * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them.
+ * @param bool $limit_body If true, will only show the first 384 characters of the post rather than all of it
+ * @param bool|false $override_permissions Whether or not to ignore permissions. If true, will show all posts regardless of whether the user can actually see them
+ * @return void|array Displays the posts or returns an array of info about them, depending on output_method
+ */
 function ssi_queryPosts($query_where = '', $query_where_params = array(), $query_limit = 10, $query_order = 'm.id_msg DESC', $output_method = 'echo', $limit_body = false, $override_permissions = false)
 {
 	global $scripturl, $txt, $user_info;
@@ -428,7 +465,14 @@ function ssi_queryPosts($query_where = '', $query_where_params = array(), $query
 		</table>';
 }
 
-// Recent topic list:   [board] Subject by Poster	Date
+/**
+ * Recent topic list:   [board] Subject by Poster   Date
+ * @param int $num_recent How many recent topics to show
+ * @param null|array $exclude_boards If set, exclude topics from the specified board(s)
+ * @param null|array $include_boards If set, only include topics from the specified board(s)
+ * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
+ * @return void|array Either displays a list of topics or returns an array of info about them, depending on output_method.
+ */
 function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boards = null, $output_method = 'echo')
 {
 	global $settings, $scripturl, $txt, $user_info;
@@ -472,7 +516,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		array(
 			'include_boards' => empty($include_boards) ? '' : $include_boards,
 			'exclude_boards' => empty($exclude_boards) ? '' : $exclude_boards,
-			'min_message_id' => $modSettings['maxMsgID'] - 35 * min($num_recent, 5),
+			'min_message_id' => $modSettings['maxMsgID'] - (!empty($context['min_message_topics']) ? $context['min_message_topics'] : 35) * min($num_recent, 5),
 			'is_approved' => 1,
 		)
 	);
@@ -583,7 +627,12 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 		</table>';
 }
 
-// Show the top poster's name and profile link.
+/**
+ * Shows a list of top posters
+ * @param int $topNumber How many top posters to list
+ * @param string $output_method The output method. If 'echo', will display a list of users, otherwise returns an array of info about them.
+ * @return void|array Either displays a list of users or returns an array of info about them, depending on output_method.
+ */
 function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 {
 	global $scripturl, $smcFunc;
@@ -620,7 +669,12 @@ function ssi_topPoster($topNumber = 1, $output_method = 'echo')
 	echo implode(', ', $temp_array);
 }
 
-// Show boards by activity.
+/**
+ * Shows a list of top boards based on activity
+ * @param int $num_top How many boards to display
+ * @param string $output_method The output method. If 'echo', displays a list of boards, otherwise returns an array of info about them.
+ * @return void|array Displays a list of the top boards or returns an array of info about them, depending on output_method.
+ */
 function ssi_topBoards($num_top = 10, $output_method = 'echo')
 {
 	global $txt, $scripturl, $user_info, $modSettings, $smcFunc;
@@ -677,6 +731,13 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 }
 
 // Shows the top topics.
+/**
+ * Shows a list of top topics based on views or replies
+ * @param string $type Can be either replies or views
+ * @param int $num_topics How many topics to display
+ * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them.
+ * @return void|array Either displays a list of topics or returns an array of info about them, depending on output_method.
+ */
 function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'echo')
 {
 	global $txt, $scripturl, $modSettings, $smcFunc;
@@ -761,19 +822,33 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 		</table>';
 }
 
-// Shows the top topics, by replies.
+/**
+ * Top topics based on replies
+ * @param int $num_topics How many topics to show
+ * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
+ * @return void|array Either displays a list of top topics or returns an array of info about them, depending on output_method.
+ */
 function ssi_topTopicsReplies($num_topics = 10, $output_method = 'echo')
 {
 	return ssi_topTopics('replies', $num_topics, $output_method);
 }
 
-// Shows the top topics, by views.
+/**
+ * Top topics based on views
+ * @param int $num_topics How many topics to show
+ * @param string $output_method The output method. If 'echo', displays a list of topics, otherwise returns an array of info about them
+ * @return void|array Either displays a list of top topics or returns an array of info about them, depending on output_method.
+ */
 function ssi_topTopicsViews($num_topics = 10, $output_method = 'echo')
 {
 	return ssi_topTopics('views', $num_topics, $output_method);
 }
 
-// Show a link to the latest member:  Please welcome, Someone, out latest member.
+/**
+ * Show a link to the latest member: Please welcome, Someone, our latest member.
+ * @param string $output_method The output method. If 'echo', returns a string with a link to the latest member's profile, otherwise returns an array of info about them.
+ * @return void|array Displays a "welcome" message for the latest member or returns an array of info about them, depending on output_method.
+ */
 function ssi_latestMember($output_method = 'echo')
 {
 	global $txt, $context;
@@ -785,7 +860,12 @@ function ssi_latestMember($output_method = 'echo')
 		return $context['common_stats']['latest_member'];
 }
 
-// Fetch a random member - if type set to 'day' will only change once a day!
+/**
+ * Fetches a random member.
+ * @param string $random_type If 'day', only fetches a new random member once a day.
+ * @param string $output_method The output method. If 'echo', displays a link to the member's profile, otherwise returns an array of info about them.
+ * @return void|array Displays a link to a random member's profile or returns an array of info about them depending on output_method.
+ */
 function ssi_randomMember($random_type = '', $output_method = 'echo')
 {
 	global $modSettings;
@@ -833,7 +913,12 @@ function ssi_randomMember($random_type = '', $output_method = 'echo')
 	return $result;
 }
 
-// Fetch a specific member.
+/**
+ * Fetch specific members
+ * @param array $member_ids The IDs of the members to fetch
+ * @param string $output_method The output method. If 'echo', displays a list of links to the members' profiles, otherwise returns an array of info about them.
+ * @return void|array Displays links to the specified members' profiles or returns an array of info about them, depending on output_method.
+ */
 function ssi_fetchMember($member_ids = array(), $output_method = 'echo')
 {
 	if (empty($member_ids))
@@ -854,7 +939,12 @@ function ssi_fetchMember($member_ids = array(), $output_method = 'echo')
 	return ssi_queryMembers($query_where, $query_where_params, '', 'id_member', $output_method);
 }
 
-// Get all members of a group.
+/**
+ * Get al members in the specified group
+ * @param int $group_id The ID of the group to get members from
+ * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
+ * @return void|array Displays a list of group members or returns an array of info about them, depending on output_method.
+ */
 function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 {
 	if ($group_id === null)
@@ -872,7 +962,15 @@ function ssi_fetchGroupMembers($group_id = null, $output_method = 'echo')
 	return ssi_queryMembers($query_where, $query_where_params, '', 'real_name', $output_method);
 }
 
-// Fetch some member data!
+/**
+ * Pulls info about members based on the specified parameters. Used by other functions to eliminate duplication.
+ * @param string $query_where The info for the WHERE clause of the query
+ * @param array $query_where_params The parameters for the WHERE clause
+ * @param string|int $query_limit The number of rows to return or an empty string to return all
+ * @param string $query_order The info for the ORDER BY clause of the query
+ * @param string $output_method The output method. If 'echo', displays a list of members, otherwise returns an array of info about them
+ * @return void|array Displays a list of members or returns an array of info about them, depending on output_method.
+ */
 function ssi_queryMembers($query_where = null, $query_where_params = array(), $query_limit = '', $query_order = 'id_member DESC', $output_method = 'echo')
 {
 	global $smcFunc, $memberContext;
@@ -937,7 +1035,11 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 	return $query_members;
 }
 
-// Show some basic stats:  Total This: XXXX, etc.
+/**
+ * Show some basic stats:   Total This: XXXX, etc.
+ * @param string $output_method The output method. If 'echo', displays the stats, otherwise returns an array of info about them
+ * @return void|array Doesn't return anything if the user can't view stats. Otherwise either displays the stats or returns an array of info about them, depending on output_method.
+ */
 function ssi_boardStats($output_method = 'echo')
 {
 	global $txt, $scripturl, $modSettings, $smcFunc;
@@ -980,7 +1082,11 @@ function ssi_boardStats($output_method = 'echo')
 		', $txt['total_boards'], ': ', comma_format($totals['boards']);
 }
 
-// Shows a list of online users:  YY Guests, ZZ Users and then a list...
+/**
+ * Shows a list of online users:  YY Guests, ZZ Users and then a list...
+ * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
+ * @return void|array Either displays a list of online users or returns an array of info about them, depending on output_method.
+ */
 function ssi_whosOnline($output_method = 'echo')
 {
 	global $user_info, $txt, $sourcedir, $settings;
@@ -1025,7 +1131,11 @@ function ssi_whosOnline($output_method = 'echo')
 			[' . implode(']&nbsp;&nbsp;[', $return['membergroups']) . ']';
 }
 
-// Just like whosOnline except it also logs the online presence.
+/**
+ * Just like whosOnline except it also logs the online presence.
+ * @param string $output_method The output method. If 'echo', displays a list, otherwise returns an array of info about the online users.
+ * @return void|array Either displays a list of online users or returns an aray of info about them, depending on output_method.
+ */
 function ssi_logOnline($output_method = 'echo')
 {
 	writeLog();
@@ -1037,6 +1147,12 @@ function ssi_logOnline($output_method = 'echo')
 }
 
 // Shows a login box.
+/**
+ * Shows a login box
+ * @param string $redirect_to The URL to redirect the user to after they login
+ * @param string $output_method The output method. If 'echo' and the user is a guest, displays a login box, otherwise returns whether the user is a guest
+ * @return void|bool Either displays a login box or returns whether the user is a guest, depending on whether the user is logged in and output_method.
+ */
 function ssi_login($redirect_to = '', $output_method = 'echo')
 {
 	global $scripturl, $txt, $user_info, $context, $modSettings;
@@ -1073,7 +1189,11 @@ function ssi_login($redirect_to = '', $output_method = 'echo')
 
 }
 
-// Show the most-voted-in poll.
+/**
+ * Show the top poll based on votes
+ * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it
+ * @return void|array Either shows the top poll or returns an array of info about it, depending on output_method.
+ */
 function ssi_topPoll($output_method = 'echo')
 {
 	// Just use recentPoll, no need to duplicate code...
@@ -1081,6 +1201,12 @@ function ssi_topPoll($output_method = 'echo')
 }
 
 // Show the most recently posted poll.
+/**
+ * Shows the most recent poll
+ * @param bool $topPollInstead Whether to show the top poll (based on votes) instead of the most recent one
+ * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
+ * @return void|array Either shows the poll or returns an array of info about it, depending on output_method.
+ */
 function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 {
 	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
@@ -1211,6 +1337,12 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 		echo $txt['poll_cannot_see'];
 }
 
+/**
+ * Shows the poll from the specified topic
+ * @param null|int $topic The topic to show the poll from. If null, $_REQUEST['ssi_topic'] will be used instead.
+ * @param string $output_method The output method. If 'echo', displays the poll, otherwise returns an array of info about it.
+ * @return void|array Either displays the poll or returns an array of info about it, depending on output_method.
+ */
 function ssi_showPoll($topic = null, $output_method = 'echo')
 {
 	global $txt, $boardurl, $user_info, $context, $smcFunc, $modSettings;
@@ -1251,12 +1383,20 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 	$smcFunc['db_free_result']($request);
 
 	// Check if they can vote.
+	$already_voted = false;
 	if (!empty($row['expire_time']) && $row['expire_time'] < time())
 		$allow_vote = false;
-	elseif ($user_info['is_guest'] && $row['guest_vote'] && (!isset($_COOKIE['guest_poll_vote']) || !in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote']))))
-		$allow_vote = true;
 	elseif ($user_info['is_guest'])
-		$allow_vote = false;
+	{
+		// There's a difference between "allowed to vote" and "already voted"...
+		$allow_vote = $row['guest_vote'];
+
+		// Did you already vote?
+		if (isset($_COOKIE['guest_poll_vote']) && in_array($row['id_poll'], explode(',', $_COOKIE['guest_poll_vote'])))
+		{
+			$already_voted = true;
+		}
+	}
 	elseif (!empty($row['voting_locked']) || !allowedTo('poll_vote', $row['id_board']))
 		$allow_vote = false;
 	else
@@ -1273,12 +1413,13 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			)
 		);
 		$allow_vote = $smcFunc['db_num_rows']($request) == 0;
+		$already_voted = $allow_vote;
 		$smcFunc['db_free_result']($request);
 	}
 
 	// Can they view?
 	$is_expired = !empty($row['expire_time']) && $row['expire_time'] < time();
-	$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && !$allow_vote) || $is_expired;
+	$allow_view_results = allowedTo('moderate_board') || $row['hide_results'] == 0 || ($row['hide_results'] == 1 && $already_voted) || $is_expired;
 
 	$request = $smcFunc['db_query']('', '
 		SELECT COUNT(DISTINCT id_member)
@@ -1357,7 +1498,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</form>';
 	}
-	elseif ($return['allow_view_results'])
+	else
 	{
 		echo '
 			<div class="ssi_poll">
@@ -1365,26 +1506,35 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 				<dl>';
 
 		foreach ($return['options'] as $option)
+		{
 			echo '
 					<dt>', $option['option'], '</dt>
-					<dd>
+					<dd>';
+
+			if ($return['allow_view_results'])
+			{
+				echo '
 						<div class="ssi_poll_bar" style="border: 1px solid #666; height: 1em">
 							<div class="ssi_poll_bar_fill" style="background: #ccf; height: 1em; width: ', $option['percent'], '%;">
 							</div>
 						</div>
-						', $option['votes'], ' (', $option['percent'], '%)
+						', $option['votes'], ' (', $option['percent'], '%)';
+			}
+
+			echo '
 					</dd>';
+		}
+
 		echo '
-				</dl>
-				<strong>', $txt['poll_total_voters'], ': ', $return['total_votes'], '</strong>
+				</dl>', ($return['allow_view_results'] ? '
+				<strong>'. $txt['poll_total_voters'] .': '. $return['total_votes'] .'</strong>' : ''), '
 			</div>';
 	}
-	// Cannot see it I'm afraid!
-	else
-		echo $txt['poll_cannot_see'];
 }
 
-// Takes care of voting - don't worry, this is done automatically.
+/**
+ * Handles voting in a poll (done automatically)
+ */
 function ssi_pollVote()
 {
 	global $context, $db_prefix, $user_info, $sc, $smcFunc, $sourcedir, $modSettings;
@@ -1394,9 +1544,9 @@ function ssi_pollVote()
 		echo '<!DOCTYPE html>
 <html>
 <head>
-	<script><!-- // --><![CDATA[
+	<script>
 		history.go(-1);
-	// ]]></script>
+	</script>
 </head>
 <body>&laquo;</body>
 </html>';
@@ -1493,6 +1643,11 @@ function ssi_pollVote()
 }
 
 // Show a search box.
+/**
+ * Shows a search box
+ * @param string $output_method The output method. If 'echo', displays a search box, otherwise returns the URL of the search page.
+ * @return void|string Displays a search box or returns the URL to the search page depending on output_method. If you don't have permission to search, the function won't return anything.
+ */
 function ssi_quickSearch($output_method = 'echo')
 {
 	global $scripturl, $txt, $context;
@@ -1509,7 +1664,11 @@ function ssi_quickSearch($output_method = 'echo')
 		</form>';
 }
 
-// Show what would be the forum news.
+/**
+ * Show a random forum news item
+ * @param string $output_method The output method. If 'echo', shows the news item, otherwise returns it.
+ * @return void|string Shows or returns a random forum news item, depending on output_method.
+ */
 function ssi_news($output_method = 'echo')
 {
 	global $context;
@@ -1522,7 +1681,11 @@ function ssi_news($output_method = 'echo')
 	echo $context['random_news_line'];
 }
 
-// Show today's birthdays.
+/**
+ * Show today's birthdays.
+ * @param string $output_method The output method. If 'echo', displays a list of users, otherwise returns an array of info about them.
+ * @return void|array Displays a list of users or returns an array of info about them depending on output_method.
+ */
 function ssi_todaysBirthdays($output_method = 'echo')
 {
 	global $scripturl, $modSettings, $user_info;
@@ -1544,7 +1707,11 @@ function ssi_todaysBirthdays($output_method = 'echo')
 			<a href="', $scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
 }
 
-// Show today's holidays.
+/**
+ * Shows today's holidays.
+ * @param string $output_method The output method. If 'echo', displays a list of holidays, otherwise returns an array of info about them.
+ * @return void|array Displays a list of holidays or returns an array of info about them depending on output_method
+ */
 function ssi_todaysHolidays($output_method = 'echo')
 {
 	global $modSettings, $user_info;
@@ -1565,7 +1732,10 @@ function ssi_todaysHolidays($output_method = 'echo')
 		', implode(', ', $return['calendar_holidays']);
 }
 
-// Show today's events.
+/**
+ * @param string $output_method The output method. If 'echo', displays a list of events, otherwise returns an array of info about them.
+ * @return void|array Displays a list of events or returns an array of info about them depending on output_method
+ */
 function ssi_todaysEvents($output_method = 'echo')
 {
 	global $modSettings, $user_info;
@@ -1592,7 +1762,11 @@ function ssi_todaysEvents($output_method = 'echo')
 	}
 }
 
-// Show all calendar entires for today. (birthdays, holidays, and events.)
+/**
+ * Shows today's calendar items (events, birthdays and holidays)
+ * @param string $output_method The output method. If 'echo', displays a list of calendar items, otherwise returns an array of info about them.
+ * @return void|array Displays a list of calendar items or returns an array of info about them depending on output_method
+ */
 function ssi_todaysCalendar($output_method = 'echo')
 {
 	global $modSettings, $txt, $scripturl, $user_info;
@@ -1639,7 +1813,15 @@ function ssi_todaysCalendar($output_method = 'echo')
 	}
 }
 
-// Show the latest news, with a template... by board.
+/**
+ * Show the latest news, with a template... by board.
+ * @param null|int $board The ID of the board to get the info from. Defaults to $board or $_GET['board'] if not set.
+ * @param null|int $limit How many items to show. Defaults to $_GET['limit'] or 5 if not set.
+ * @param null|int $start Start with the specified item. Defaults to $_GET['start'] or 0 if not set.
+ * @param null|int $length How many characters to show from each post. Defaults to $_GET['length'] or 0 (no limit) if not set.
+ * @param string $output_method The output method. If 'echo', displays the news items, otherwise returns an array of info about them.
+ * @return void|array Displays the news items or returns an array of info about them, depending on output_method.
+ */
 function ssi_boardNews($board = null, $limit = null, $start = null, $length = null, $output_method = 'echo')
 {
 	global $scripturl, $txt, $settings, $modSettings, $context;
@@ -1871,7 +2053,12 @@ function ssi_boardNews($board = null, $limit = null, $start = null, $length = nu
 	}
 }
 
-// Show the most recent events.
+/**
+ * Show the most recent events
+ * @param int $max_events The maximum number of events to show
+ * @param string $output_method The output method. If 'echo', displays the events, otherwise returns an array of info about them.
+ * @return void|array Displays the events or returns an array of info about them, depending on output_method.
+ */
 function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 {
 	global $user_info, $scripturl, $modSettings, $txt, $context, $smcFunc;
@@ -1955,7 +2142,13 @@ function ssi_recentEvents($max_events = 7, $output_method = 'echo')
 		}
 }
 
-// Check the passed id_member/password.  If $is_username is true, treats $id as a username.
+/**
+ * Checks whether the specified password is correct for the specified user.
+ * @param int|string $id The ID or username of a user
+ * @param string $password The password to check
+ * @param bool $is_username If true, treats $id as a username rather than a user ID
+ * @return bool Whether or not the password is correct.
+ */
 function ssi_checkPassword($id = null, $password = null, $is_username = false)
 {
 	global $smcFunc;
@@ -1979,8 +2172,14 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
 	return hash_verify_password($user, $password, $pass) && $active == 1;
 }
 
-// We want to show the recent attachments outside of the forum.
-function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
+/**
+ * Shows the most recent attachments that the user can see
+ * @param int $num_attachments How many to show
+ * @param array $attachment_ext Only shows attachments with the specified extensions ('jpg', 'gif', etc.) if set
+ * @param string $output_method The output method. If 'echo', displays a table with links/info, otherwise returns an array with information about the attachments
+ * @return void|array Displays a table of attachment info or returns an array containing info about the attachments, depending on output_method.
+ */
+function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 {
 	global $smcFunc, $modSettings, $scripturl, $txt, $settings;
 

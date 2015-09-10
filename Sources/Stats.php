@@ -10,7 +10,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -703,8 +703,8 @@ function DisplayStats()
 /**
  * Loads the statistics on a daily basis in $context.
  * called by DisplayStats().
- * @param string $condition_string
- * @param array $condition_parameters = array()
+ * @param string $condition_string An SQL condition string
+ * @param array $condition_parameters Parameters for $condition_string
  */
 function getDailyStats($condition_string, $condition_parameters = array())
 {
@@ -740,6 +740,7 @@ function getDailyStats($condition_string, $condition_parameters = array())
  * does not return any data directly to sm.org, instead starts a new request for security.
  *
  * @link http://www.simplemachines.org/about/stats.php for more info.
+ * Note: This functionality is currently broken
  */
 function SMStats()
 {

@@ -25,7 +25,7 @@ var config = {
 
 			return null;
 		},
-		remote_filter: function (query, callback) {
+		remoteFilter: function (query, callback) {
 			if (typeof query == 'undefined' || query.length < 2 || query.length > 60)
 				return;
 
@@ -61,9 +61,8 @@ var config = {
 $(function()
 {
 	$('textarea[name=message]').atwho(config);
-
-	$('#message').parent().find('textarea').atwho(config);
-	var iframe = $('#message').parent().find('iframe')[0];
+	$('.sceditor-container').find('textarea').atwho(config);
+	var iframe = $('.sceditor-container').find('iframe')[0];
 	if (typeof iframe != 'undefined')
 		$(iframe.contentDocument.body).atwho(config);
 });

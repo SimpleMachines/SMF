@@ -9,11 +9,18 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * Class CreatePost_Notify_Background
+ */
 class CreatePost_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+     * This handles notifications when a new post is created - new topic, reply, quotes and mentions.
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $language;
@@ -64,7 +71,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		$watched = array();
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			$groups = array_merge(array($row['id_group'], $row['id_post_group']), explode(',', $row['additional_groups']));
+			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 			if (!in_array(1, $groups) && count(array_intersect($groups, explode(',', $row['member_groups']))) == 0)
 				continue;
 
@@ -78,7 +85,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			return true;
 
 		$members = array_unique($members);
-		$prefs = getNotifyPrefs($members);
+		$prefs = getNotifyPrefs($members, '', true);
 
 		// Do we have anyone to notify via mention? Handle them first and cross them off the list
 		if (!empty($msgOptions['mentioned_members']))
@@ -93,7 +100,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Handle rest of the notifications for watched topics and boards
 		foreach ($watched as $member => $data)
 		{
-			$frequency = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_pref'] : 1;
+			$frequency = !empty($prefs[$member]['msg_notify_pref']) ? $prefs[$member]['msg_notify_pref'] : 1;
 			$notify_types = !empty($prefs[$member]['msg_notify_type']) ? $prefs[$member]['msg_notify_type'] : 1;
 
 			if (!in_array($type, array('reply', 'topic')) && $notify_types == 2 && $member != $data['id_member_started'])
@@ -110,31 +117,35 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				continue;
 
 			// Watched topic?
-			if (!empty($data['id_topic']) && $type != 'topic')
+			if (!empty($data['id_topic']) && $type != 'topic' && !empty($prefs[$member]))
 			{
-				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : $prefs[$member]['topic_notify'];
+				$pref = !empty($prefs[$member]['topic_notify_' . $topicOptions['id']]) ? $prefs[$member]['topic_notify_' . $topicOptions['id']] : (!empty($prefs[$member]['topic_notify']) ? $prefs[$member]['topic_notify'] : 0);
 				$message_type = 'notification_' . $type;
 
-				if (!empty($frequency) && $type == 'reply')
-					$message_type .= '_once';
+				if ($type == 'reply')
+				{
+					if (!empty($prefs[$member]['msg_receive_body']))
+						$message_type .= '_body';
+					if (!empty($frequency))
+						$message_type .= '_once';
+				}
 
 				$content_type = 'topic';
 			}
 			// A new topic in a watched board then?
 			elseif ($type == 'topic')
 			{
-				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : $prefs[$member]['board_notify'];
+				$pref = !empty($prefs[$member]['board_notify_' . $topicOptions['board']]) ? $prefs[$member]['board_notify_' . $topicOptions['board']] : (!empty($prefs[$member]['board_notify']) ? $prefs[$member]['board_notify'] : 0);
 
 				$content_type = 'board';
 
 				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				if (!empty($prefs[$member]['msg_receive_body']))
+					$message_type .= '_body';
 			}
 			// If neither of the above, this might be a redundent row due to the OR clause in our SQL query, skip
 			else
 				continue;
-
-			if (!empty($prefs[$member]['msg_receive_body']) && in_array($type, array('topic', 'reply')))
-				$message_type .= '_body';
 
 			if ($pref & 0x02)
 			{
@@ -215,11 +226,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 		foreach ($quotedMembers as $id => $member)
 		{
-			if (!isset($prefs[$id]) || $id == $posterOptions['id'])
+			if (!isset($prefs[$id]) || $id == $posterOptions['id'] || empty($prefs[$id]['msg_quote']))
 				continue;
 
-			if (!empty($prefs[$id]['msg_quote']))
-				$done_members[] = $id;
+			$done_members[] = $id;
 
 			if ($prefs[$id]['msg_quote'] & 0x02)
 			{

@@ -9,7 +9,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -46,7 +46,9 @@ function RemindMe()
 		createToken('remind');
 }
 
-// Pick a reminder type.
+/**
+ * Allows the user to pick how they wish to be reminded
+ */
 function RemindPick()
 {
 	global $context, $txt, $scripturl, $sourcedir, $user_info, $webmaster_email, $smcFunc, $language, $modSettings;
@@ -85,8 +87,7 @@ function RemindPick()
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		LIMIT 1',
-		array_merge($where_params, array(
-		))
+		$where_params
 	);
 	// Maybe email?
 	if ($smcFunc['db_num_rows']($request) == 0 && empty($_REQUEST['uid']))
@@ -98,8 +99,7 @@ function RemindPick()
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
 			LIMIT 1',
-			array_merge($where_params, array(
-			))
+			$where_params
 		);
 		if ($smcFunc['db_num_rows']($request) == 0)
 			fatal_lang_error('no_user_with_email', false);
@@ -124,7 +124,7 @@ function RemindPick()
 		fatal_error($txt['no_reminder_email'] . '<br>' . $txt['send_email'] . ' <a href="mailto:' . $webmaster_email . '">webmaster</a> ' . $txt['to_ask_password'] . '.');
 
 	// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
-	if (empty($row['secret_question']))
+	if (empty($row['secret_question']) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email'))
 	{
 		// Randomly generate a new password, with only alpha numeric characters that is a max length of 10 chars.
 		require_once($sourcedir . '/Subs-Members.php');
@@ -149,7 +149,7 @@ function RemindPick()
 		// Set up the template.
 		$context['sub_template'] = 'sent';
 
-		// Dont really.
+		// Don't really.
 		return;
 	}
 	// Otherwise are ready to answer the question?
@@ -166,7 +166,9 @@ function RemindPick()
 	);
 }
 
-// Set your new password
+/**
+ * Allows the user to set their new password
+ */
 function setPassword()
 {
 	global $txt, $context;
@@ -191,6 +193,9 @@ function setPassword()
 	createToken('remind-sp');
 }
 
+/**
+ * Actually sets the new password
+ */
 function setPassword2()
 {
 	global $context, $txt, $smcFunc, $sourcedir;
@@ -273,7 +278,9 @@ function setPassword2()
 	createToken('login');
 }
 
-// Get the secret answer.
+/**
+ * Allows the user to enter their secret answer
+ */
 function SecretAnswerInput()
 {
 	global $context, $smcFunc;
@@ -317,6 +324,9 @@ function SecretAnswerInput()
 	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
+/**
+ * Validates the secret answer input by the user
+ */
 function SecretAnswer2()
 {
 	global $txt, $context, $smcFunc, $sourcedir;

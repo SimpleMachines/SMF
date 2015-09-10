@@ -7,9 +7,12 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
+/**
+ * The main moderation center.
+ */
 function template_moderation_center()
 {
 	global $context;
@@ -34,7 +37,9 @@ function template_moderation_center()
 	</div>';
 }
 
-// Show all the group requests the user can see.
+/**
+ * Show all the group requests the user can see.
+ */
 function template_group_requests_block()
 {
 	global $context, $txt, $scripturl;
@@ -68,7 +73,7 @@ function template_group_requests_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oGroupRequestsPanelToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcgr']) ? 'true' : 'false', ',
@@ -98,9 +103,12 @@ function template_group_requests_block()
 				sAdditionalVars: \';admin_key=mcgr\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * A list of watched users
+ */
 function template_watched_users()
 {
 	global $context, $txt, $scripturl;
@@ -134,7 +142,7 @@ function template_watched_users()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcwu']) ? 'true' : 'false', ',
@@ -164,9 +172,12 @@ function template_watched_users()
 				sAdditionalVars: \';admin_key=mcwu\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * A list of reported posts
+ */
 function template_reported_posts_block()
 {
 	global $context, $txt, $scripturl;
@@ -200,7 +211,7 @@ function template_reported_posts_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcrp']) ? 'true' : 'false', ',
@@ -230,9 +241,12 @@ function template_reported_posts_block()
 				sAdditionalVars: \';admin_key=mcrp\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
+/**
+ * A list of reported users
+ */
 function template_reported_users_block()
 {
 	global $context, $txt, $scripturl;
@@ -266,7 +280,7 @@ function template_reported_users_block()
 			</div>
 		</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		var oWatchedUsersToggle = new smc_Toggle({
 			bToggleEnabled: true,
 			bCurrentlyCollapsed: ', !empty($context['admin_prefs']['mcur']) ? 'true' : 'false', ',
@@ -296,10 +310,12 @@ function template_reported_users_block()
 				sAdditionalVars: \';admin_key=mcur\'
 			}
 		});
-	// ]]></script>';
+	</script>';
 }
 
-// Little section for making... notes.
+/**
+ * Little section for making... notes.
+ */
 function template_notes()
 {
 	global $context, $txt, $scripturl;
@@ -352,7 +368,9 @@ function template_notes()
 		</div>';
 }
 
-// Show a list of all the unapproved posts
+/**
+ * Show a list of all the unapproved posts
+ */
 function template_unapproved_posts()
 {
 	global $options, $context, $txt, $scripturl;
@@ -438,7 +456,12 @@ function template_unapproved_posts()
 	</div>';
 }
 
-// Callback function for showing a watched users post in the table.
+/**
+ * Callback function for showing a watched users post in the table.
+ *
+ * @param array $post An array of data about the post.
+ * @return string An array of HTML for showing the post info.
+ */
 function template_user_watch_post_callback($post)
 {
 	global $scripturl, $context, $txt, $delete_button;
@@ -471,7 +494,9 @@ function template_user_watch_post_callback($post)
 	return $output_html;
 }
 
-// Moderation settings
+/**
+ * The moderation settings page.
+ */
 function template_moderation_settings()
 {
 	global $context, $txt, $scripturl;
@@ -508,7 +533,9 @@ function template_moderation_settings()
 	</div>';
 }
 
-// Show a notice sent to a user.
+/**
+ * Show a notice sent to a user.
+ */
 function template_show_notice()
 {
 	global $txt, $settings, $context, $modSettings;
@@ -519,7 +546,7 @@ function template_show_notice()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['page_title'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>
 		<div class="cat_bar">
@@ -543,7 +570,9 @@ function template_show_notice()
 
 }
 
-// Add or edit a warning template.
+/**
+ * Add or edit a warning template.
+ */
 function template_warn_template()
 {
 	global $context, $txt, $scripturl;
@@ -614,7 +643,7 @@ function template_warn_template()
 		</form>
 	</div>
 
-	<script><!-- // --><![CDATA[
+	<script>
 		$(document).ready(function() {
 			$("#preview_button").click(function() {
 				return ajax_getTemplatePreview();
@@ -651,7 +680,7 @@ function template_warn_template()
 			});
 			return false;
 		}
-	// ]]></script>';
+	</script>';
 }
 
 ?>

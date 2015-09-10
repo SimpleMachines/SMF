@@ -12,7 +12,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 if (!defined('SMF'))
@@ -21,7 +21,7 @@ if (!defined('SMF'))
 /**
  * Begin the registration process.
  *
- * @param array $reg_errors = array()
+ * @param array $reg_errors Holds information about any errors that occurred
  */
 function Register($reg_errors = array())
 {
@@ -193,6 +193,7 @@ function Register($reg_errors = array())
 	$context += array(
 		'username' => isset($_POST['user']) ? $smcFunc['htmlspecialchars']($_POST['user']) : '',
 		'email' => isset($_POST['email']) ? $smcFunc['htmlspecialchars']($_POST['email']) : '',
+		'notify_announcements' => !empty($_POST['notify_announcements']) ? 1 : 0,
 	);
 
 	// Were there any errors?
@@ -288,14 +289,12 @@ function Register2()
 		'secret_question', 'secret_answer',
 	);
 	$possible_ints = array(
-		'notify_types',
 		'id_theme',
 	);
 	$possible_floats = array(
 		'time_offset',
 	);
 	$possible_bools = array(
-		'notify_announcements', 'notify_regularity', 'notify_send_body',
 		'show_online',
 	);
 
@@ -461,6 +460,18 @@ function Register2()
 
 	// Do our spam protection now.
 	spamProtection('register');
+
+	// Do they want to recieve announcements?
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs($memberID, 'announcements', true);
+	$var = !empty($_POST['notify_announcements']);
+	$pref = !empty($prefs[$memberID]['announcements']);
+
+	// Don't update if the default is the same.
+	if ($var != $pref)
+	{
+		setNotifyPrefs($memberID, array('announcements' => (int) !empty($_POST['notify_announcements'])));
+	}
 
 	// We'll do custom fields after as then we get to use the helper function!
 	if (!empty($_POST['customfield']))
@@ -738,7 +749,7 @@ function CoppaForm()
 }
 
 /**
- * Show the verification code or let it hear.
+ * Show the verification code or let it be heard.
  */
 function VerificationCode()
 {

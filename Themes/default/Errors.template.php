@@ -7,7 +7,7 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 1
+ * @version 2.1 Beta 2
  */
 
 // @todo
@@ -16,12 +16,14 @@
 	$context['error_message'].
 */
 
-// Show an error message.....
+/**
+ * THis displays a fatal error message
+ */
 function template_fatal_error()
 {
 	global $context, $txt;
 
-	if (SIMPLE_ACTION)
+	if (!empty($context['simple_action']))
 		echo '
 		<strong>
 			', $context['error_title'], '
@@ -49,6 +51,9 @@ function template_fatal_error()
 	}
 }
 
+/**
+ * This template handles the error log in the admin center.
+ */
 function template_error_log()
 {
 	global $context, $settings, $scripturl, $txt;
@@ -198,6 +203,9 @@ function template_error_log()
 		</form>';
 }
 
+/**
+ * This template shows a snippet of code from a file and highlights which line caused the error.
+ */
 function template_show_file()
 {
 	global $context, $settings, $modSettings;
@@ -207,7 +215,7 @@ function template_show_file()
 	<head>
 		<meta charset="', $context['character_set'], '">
 		<title>', $context['file_data']['file'], '</title>
-		<link rel="stylesheet" type="text/css" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
+		<link rel="stylesheet" href="', $settings['theme_url'], '/css/index', $context['theme_variant'], '.css', $modSettings['browser_cache'] ,'">
 	</head>
 	<body>
 		<table class="errorfile_table">';
@@ -227,6 +235,9 @@ function template_show_file()
 </html>';
 }
 
+/**
+ * This template handles showing attachment-related errors
+ */
 function template_attachment_errors()
 {
 	global $context, $scripturl, $txt;
