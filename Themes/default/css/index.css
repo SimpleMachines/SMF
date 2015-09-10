@@ -6,12 +6,9 @@ html {
 body {
 	background: #e9eef2;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	color: #222;
-	margin: 0 auto;
+	color: #4d4d4d;
+	margin: 0;
 	padding: 0;
-	position: relative;
-	float: left;
-	width: 100%;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -3562,7 +3559,6 @@ h3.catbg .icon {
 	background: #fff;
 	color: #666;
 	border-radius: 2px 2px 0 0;
-	text-align: left;
 	margin: 5px 0 0 0;
 }
 .sub_bar {
