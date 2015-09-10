@@ -3644,7 +3644,7 @@ h3.profile_hd {
 	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
 	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
 }
-.progress-bar {
+.bar {
 	color: #111;
 	text-indent: 6px;
 	border-radius: 4px;
@@ -3657,8 +3657,8 @@ h3.profile_hd {
 	background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
 	background-image: linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
 }
-.orange.progress > .progress-bar {
-	background-color: #f27011;
+.bar {
+	background-color: #ed9c63;
 }
 .blue.progress > .progress-bar {
 	background-color: #4072b4;
@@ -3666,11 +3666,14 @@ h3.profile_hd {
 .green.progress > .progress-bar {
 	background-color: #86e01e;
 }
+.bar span,
 .progress-bar .caption {
 	padding-top: 1pt;
 	width: 100%;
 	color: #222;
-	position: absolute;
 	text-align: center;
 	font-weight: bold;
+}
+.progress-bar .caption {
+	position: absolute;
 }
