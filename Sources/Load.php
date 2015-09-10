@@ -2696,20 +2696,28 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 
 				else
 				{
-					// Get the entire file!.
-					$indexFile = file_get_contents($language_dir .'/'. $entry);
+					$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
-					// Get the "Native name" var.
-					if (!empty($indexFile))
+					// Get the line we need.
+					$fp = @fopen($language_dir .'/'. $entry);
+
+					// Yay!
+					if ($fp)
 					{
-						preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $indexFile, $matchNative);
+						while (($line = fgets($fp)) !== false)
+						{
+							preg_match('~\$txt\[\'native_name\'\] = \'(.+)\'\;~', $line, $matchNative);
 
-						// Set the language's name.
-						$langName = !empty($matchNative) && !empty($matchNative[1]) ? un_htmlspecialchars($matchNative[1]): $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
+							// Set the language's name.
+							if (!empty($matchNative) && !empty($matchNative[1]))
+							{
+								$langName = un_htmlspecialchars($matchNative[1]);
+								break;
+							}
+						}
+
+						fclose($fh);
 					}
-
-					else
-						$langName = $smcFunc['ucwords'](strtr($matches[1], array('_' => ' ')));
 
 					// Catch the language name.
 					$catchLang[$matches[1]] = $langName;
