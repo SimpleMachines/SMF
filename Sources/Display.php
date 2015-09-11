@@ -1284,7 +1284,7 @@ function Display()
 	{
 		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
 		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
 	}
 }
 

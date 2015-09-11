@@ -56,7 +56,7 @@ function CalendarMain()
 
 	// This is gonna be needed...
 	loadTemplate('Calendar');
-	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'));
+	loadCSSFile('calendar.css', array('force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'), 'smf_calendar');
 
 	// Did the specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
 	if (isset($_GET['event']))

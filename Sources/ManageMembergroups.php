@@ -1178,7 +1178,7 @@ function EditMembergroup()
 
 	// Insert our JS, if we have possible icons.
 	if (!empty($context['possible_icons']))
-		loadJavascriptFile('icondropdown.js', array('validate' => true));
+		loadJavascriptFile('icondropdown.js', array('validate' => true), 'smf_icondropdown');
 
 		loadJavascriptFile('suggest.js', array('default_theme' => true, 'defer' => false), 'smf_suggest');
 

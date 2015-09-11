@@ -1167,7 +1167,7 @@ function Post($post_errors = array())
 	{
 		loadJavascriptFile('jquery.caret.min.js', array('default_theme' => true, 'defer' => true), 'smf_caret');
 		loadJavascriptFile('jquery.atwho.min.js', array('default_theme' => true, 'defer' => true), 'smf_atwho');
-		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mention');
+		loadJavascriptFile('mentions.js', array('default_theme' => true, 'defer' => true), 'smf_mentions');
 	}
 
 	// quotedText.js
