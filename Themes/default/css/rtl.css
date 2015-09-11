@@ -573,10 +573,6 @@ h3.profile_hd {
 	min-width: 95%;
 	float: right;
 }
-/* Introduce New Title Bar */
-.title_bar {
-	text-align: right;
-}
 
 /* Styles for the statistics center.
 ------------------------------------------------- */

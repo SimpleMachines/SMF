@@ -6,12 +6,9 @@ html {
 body {
 	background: #e9eef2;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	color: #222;
-	margin: 0 auto;
+	color: #4d4d4d;
+	margin: 0;
 	padding: 0;
-	position: relative;
-	float: left;
-	width: 100%;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -3015,6 +3012,7 @@ span.postby {
 	margin-top: 5px;
 	border: none;
 }
+
 /* MessageIndex */
 /* Start with description and other things */
 #description_board {
@@ -3030,12 +3028,34 @@ span.postby {
 	content: ' - ';
 }
 /* Topic list */
+#topic_header {
+	margin: 0;
+}
+#topic_header div {
+	height: 2em;
+	font-weight: bold;
+	padding: 0;
+}
 .moderation {
 	display: table-cell;
 	width: 35px;
 	vertical-align: middle;
 }
-
+#topic_container .windowbg, #topic_container .windowbg2 {
+	height: 4em;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+#topic_container .windowbg>div, #topic_container .windowbg2>div {
+	padding-top: 0;
+}
+#topic_container .board_stats p {
+	margin: .5em 0 -.5em;
+}
 /* Quick moderation selects and submit */
 #quick_actions {
 	padding: 4px 0;
@@ -3073,7 +3093,7 @@ span.postby {
 /* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
 	margin-top: 3px;
-	padding: 0px 6px;
+	padding: 1px 6px;
 }
 
 /* Display */
@@ -3562,7 +3582,6 @@ h3.catbg .icon {
 	background: #fff;
 	color: #666;
 	border-radius: 2px 2px 0 0;
-	text-align: left;
 	margin: 5px 0 0 0;
 }
 .sub_bar {
