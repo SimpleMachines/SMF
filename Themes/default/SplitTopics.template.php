@@ -29,7 +29,7 @@ function template_ask()
 					<strong><label for="subname">', $txt['subject_new_topic'], '</label>:</strong>
 					<input type="text" name="subname" id="subname" value="', $context['message']['subject'], '" size="25" class="input_text">
 				</p>
-				<ul class="reset split_topics">
+				<ul class="split_topics">
 					<li>
 						<input type="radio" id="onlythis" name="step2" value="onlythis" checked class="input_radio"> <label for="onlythis">', $txt['split_this_post'], '</label>
 					</li>
@@ -64,7 +64,7 @@ function template_main()
 		</div>
 		<div class="windowbg">
 			<p>', $txt['split_successful'], '</p>
-			<ul class="reset">
+			<ul>
 				<li>
 					<a href="', $scripturl, '?board=', $context['current_board'], '.0">', $txt['message_index'], '</a>
 				</li>

@@ -3737,10 +3737,10 @@ function template_upgrade_above()
 		</script>
 	</head>
 	<body>
-	<div id="header"><div class="frame">
-				<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
+		<div id="header">
+			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
-	</div></div>
+		</div>
 	<div id="wrapper">
 	<div id="upper_section">
 		<div id="main_content_section">
@@ -3837,11 +3837,11 @@ function template_upgrade_below()
 			</div>
 			</div>
 		</div>
-	<div id="footer_section"><div class="frame" style="height: 40px;">
-	<ul class="reset">
-		<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
-	</ul>
-	</div></div>
+		<div id="footer">
+			<ul>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
+			</ul>
+		</div>
 	</body>
 </html>';
 

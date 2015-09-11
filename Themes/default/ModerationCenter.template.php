@@ -53,7 +53,7 @@ function template_group_requests_block()
 		</div>
 		<div class="windowbg2" id="group_requests_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['group_requests'] as $request)
 			echo '
@@ -122,7 +122,7 @@ function template_watched_users()
 		</div>
 		<div class="windowbg2" id="watched_users_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['watched_users'] as $user)
 			echo '
@@ -191,7 +191,7 @@ function template_reported_posts_block()
 		</div>
 		<div class="windowbg2" id="reported_posts_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['reported_posts'] as $post)
 			echo '
@@ -260,7 +260,7 @@ function template_reported_users_block()
 		</div>
 		<div class="windowbg2" id="reported_users_panel">
 			<div class="modbox">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['reported_users'] as $user)
 			echo '
@@ -341,7 +341,7 @@ function template_notes()
 		if (!empty($context['notes']))
 		{
 			echo '
-						<ul class="reset moderation_notes">';
+						<ul class="moderation_notes">';
 
 			// Cycle through the notes.
 			foreach ($context['notes'] as $note)

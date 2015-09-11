@@ -121,7 +121,7 @@ function template_main()
 							<p class="smallpadding">', $context['poll']['allowed_warning'], '</p>';
 
 			echo '
-							<ul class="reset options">';
+							<ul class="options">';
 
 			// Show each option with its button - a radio likely.
 			foreach ($context['poll']['options'] as $option)
@@ -162,7 +162,7 @@ function template_main()
 				<h3 class="titlebg">', $txt['calendar_linked_events'], '</h3>
 			</div>
 			<div class="information">
-				<ul class="reset">';
+				<ul>';
 
 		foreach ($context['linked_calendar_events'] as $event)
 			echo '
@@ -368,7 +368,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_above_member">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
@@ -801,7 +801,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_above_signature">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['above_signature'] as $custom)
 			echo '
@@ -823,7 +823,7 @@ function template_single_post($message)
 	{
 		echo '
 							<div class="custom_fields_below_signature">
-								<ul class="reset nolist">';
+								<ul class="nolist">';
 
 		foreach ($message['custom_fields']['below_signature'] as $custom)
 			echo '

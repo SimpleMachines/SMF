@@ -92,6 +92,9 @@ function template_print_above()
 			.voted {
 				font-weight: bold;
 			}
+			#footer {
+				font-family: Verdana, sans-serif;
+			}
 			@media print {
 				.print_options {
 					display:none;
@@ -196,9 +199,7 @@ function template_print_below()
 
 	echo '
 		</div>
-		<div id="footer" class="smalltext">
-			', theme_copyright(), '
-		</div>
+		<div id="footer" class="smalltext">', theme_copyright(), '</div>
 	</body>
 </html>';
 }

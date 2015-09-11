@@ -248,7 +248,7 @@ function ModerationHome()
 	global $txt, $context, $options;
 
 	loadTemplate('ModerationCenter');
-	loadJavascriptFile('admin.js', array('default_theme' => true), 'admin.js');
+	loadJavascriptFile('admin.js', array('default_theme' => true), 'smf_admin');
 
 	$context['page_title'] = $txt['moderation_center'];
 	$context['sub_template'] = 'moderation_center';

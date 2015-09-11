@@ -1820,7 +1820,7 @@ function notification($memID)
 	global $txt, $context;
 
 	// Going to want this for consistency.
-	loadCSSFile('admin.css', array(), 'admin');
+	loadCSSFile('admin.css', array(), 'smf_admin');
 
 	// This is just a bootstrap for everything else.
 	$sa = array(
@@ -1863,7 +1863,7 @@ function alert_configuration($memID)
 
 	// What options are set
 	loadThemeOptions($memID);
-	loadJavascriptFile('alertSettings.js', array('default_theme' => true));
+	loadJavascriptFile('alertSettings.js', array('default_theme' => true), 'smf_alertSettings');
 
 	// Now load all the values for this user.
 	require_once($sourcedir . '/Subs-Notify.php');

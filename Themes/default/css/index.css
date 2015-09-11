@@ -6,12 +6,9 @@ html {
 body {
 	background: #e9eef2;
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	color: #222;
-	margin: 0 auto;
+	color: #4d4d4d;
+	margin: 0;
 	padding: 0;
-	position: relative;
-	float: left;
-	width: 100%;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -163,15 +160,6 @@ ul#likes li span.description {
 	opacity: 0.4;
 	padding: 0.4em 0.7em;
 	font-size: 0.9em;
-}
-
-/* I think the reset class can be deprecated. */
-/* Must test inheritance thoroughly to be sure. */
-/* A quick reset list class. */
-ul.reset, ul.reset li {
-	padding: 0;
-	margin: 0;
-	list-style: none;
 }
 
 /* Buttons should be styled a bit differently, in order to make them look more button'ish. */
@@ -1014,20 +1002,16 @@ img.sort, .sort {
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
 /* Do all these here to save repetition. */
-#header, #header .frame, #top_section, #upper_wrap, #upper_section, #upper_section .user,
+#header, #top_section, #upper_wrap, #upper_section, #upper_section .user,
 #upper_section .news, .navigate_section, #content_section, #main_content_section,
-#lower_section, #lower_section .frame, #footer_section, #footer_section div.frame {
+#footer {
 	box-sizing: border-box;
-}
-
-/* These divisions wrap the forum sections when a forum width is set. */
-#wrapper, .frame {
-	margin: 0 auto;
-	width: 90%;
 }
 
 /* Box-shadow only on this one. */
 #wrapper {
+	margin: 0 auto;
+	width: 90%;
 	clear: both;
 	background: #fff;
 	border: 1px solid #b8b8b8;
@@ -1039,15 +1023,13 @@ img.sort, .sort {
 /* The top bar. */
 #top_section {
 	margin: 0;
-	padding: 0 4px;
+	padding: 0 5%;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 0 1px 4px rgba(0,0,0,0.16);
-	background: #FFFFFF;
-}
-#top_section .frame{
+	background: #fff;
 	clear: both;
 }
-#top_section .frame::after {
+#top_section::after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1071,8 +1053,7 @@ img.sort, .sort {
 	display: inline;
 	font-size: 0.9em;
 }*/
-.notice
-{
+.notice {
 	font-weight: bold;
 }
 
@@ -1109,6 +1090,7 @@ img.sort, .sort {
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
+	margin: 0 5%;
 }
 #header::after {
 	content:"";
@@ -1266,30 +1248,24 @@ ul li.greeting {
 	display: block;
 	clear: both;
 }
-/* Footer is now full-width by default. Frame inside it will match theme wrapper width automatically. */
+/* Footer is now full-width by default. */
 /* The footer with copyright links etc. */
-#footer_section {
+#footer {
 	margin: 4em 0 0 0;
-	padding: 0;
+	padding: 10px 5%;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
-
 }
-/* min-width should be equal to #wrapper min-width. */
-#footer_section div.frame {
-	padding: 10px 5px;
-}
-#footer_section ul li, #footer_section p,
-#footer_section ul li a, #footer_section p a {
+#footer li, #footer p, #footer a {
 	font-size: 0.9em;
 	color: #fff;
 }
-#footer_section ul li {
-	display: inline;
-	padding-right: 5px;
+#footer ul {
+	padding: 0 5px;
 }
-#footer_section ul li.copyright {
+#footer li.copyright {
 	display: block;
+	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
 
 /* the posting icons */
@@ -3015,6 +2991,7 @@ span.postby {
 	margin-top: 5px;
 	border: none;
 }
+
 /* MessageIndex */
 /* Start with description and other things */
 #description_board {
@@ -3030,12 +3007,34 @@ span.postby {
 	content: ' - ';
 }
 /* Topic list */
+#topic_header {
+	margin: 0;
+}
+#topic_header div {
+	height: 2em;
+	font-weight: bold;
+	padding: 0;
+}
 .moderation {
 	display: table-cell;
 	width: 35px;
 	vertical-align: middle;
 }
-
+#topic_container .windowbg, #topic_container .windowbg2 {
+	height: 4em;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+#topic_container .windowbg>div, #topic_container .windowbg2>div {
+	padding-top: 0;
+}
+#topic_container .board_stats p {
+	margin: .5em 0 -.5em;
+}
 /* Quick moderation selects and submit */
 #quick_actions {
 	padding: 4px 0;
@@ -3073,7 +3072,7 @@ span.postby {
 /* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
 	margin-top: 3px;
-	padding: 0px 6px;
+	padding: 1px 6px;
 }
 
 /* Display */
@@ -3562,7 +3561,6 @@ h3.catbg .icon {
 	background: #fff;
 	color: #666;
 	border-radius: 2px 2px 0 0;
-	text-align: left;
 	margin: 5px 0 0 0;
 }
 .sub_bar {
