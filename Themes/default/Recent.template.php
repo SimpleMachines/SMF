@@ -10,27 +10,6 @@
  * @version 2.1 Beta 2
  */
 
-function template_Recent_init()
-{
-	global $context, $settings, $txt, $scripturl;
-
-	$context['can_approve_posts'] = false;
-	$context['can_quick_mod'] = $context['showCheckboxes'];
-	$txt['starter'] = $txt['started_by'];
-
-	$sort_methods = array(
-		'subject' => 'ms.subject',
-		'starter' => 'IFNULL(mems.real_name, ms.poster_name)',
-		'replies' => 't.num_replies',
-		'views' => 't.num_views',
-		'first_post' => 't.id_topic',
-		'last_post' => 't.id_last_msg'
-	);
-
-	foreach ($sort_methods as $key => $val)
-		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?action=' . $context['current_action'] . ($context['showing_all_topics'] ? ';all' : '') . $context['querystring_board_limits'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="sort sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
-}
-
 /**
  * Template for showing recent posts
  */

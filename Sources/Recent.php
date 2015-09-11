@@ -691,6 +691,22 @@ function UnreadTopics()
 	loadTemplate('MessageIndex');
 	$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
 
+	$context['can_approve_posts'] = false;
+	$context['can_quick_mod'] = $context['showCheckboxes'];
+	$txt['starter'] = $txt['started_by'];
+
+	$sort_methods = array(
+		'subject' => 'ms.subject',
+		'starter' => 'IFNULL(mems.real_name, ms.poster_name)',
+		'replies' => 't.num_replies',
+		'views' => 't.num_views',
+		'first_post' => 't.id_topic',
+		'last_post' => 't.id_last_msg'
+	);
+
+	foreach ($sort_methods as $key => $val)
+		$context['topics_headers'][$key] = '<a href="' . $scripturl . '?action=' . $context['current_action'] . ($context['showing_all_topics'] ? ';all' : '') . $context['querystring_board_limits'] . ';sort=' . $key . ($context['sort_by'] == $key && $context['sort_direction'] == 'up' ? ';desc' : '') . '">' . $txt[$key] . ($context['sort_by'] == $key ? '<span class="sort sort_' . $context['sort_direction'] . '"></span>' : '') . '</a>';
+
 	// Setup the default topic icons... for checking they exist and the like ;)
 	$context['icon_sources'] = array();
 	foreach ($context['stable_icons'] as $icon)
