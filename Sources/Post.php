@@ -1184,6 +1184,8 @@ function Post($post_errors = array())
 		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true), 'smf_fileUpload');
 		addInlineJavascript('
 	smf_fileUpload({
+		parallelUploads : 1,
+		uploadMultiple : true,
 		dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
 		dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
 		dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
