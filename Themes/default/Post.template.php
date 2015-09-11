@@ -416,45 +416,55 @@ function template_main()
 			echo '
 							<dd class="smalltext">
 								<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
-								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label><p class="attached_BBC">', $txt['attached_file_insert'] ,':<input type="text" name="editedAttachBBC_', $attachment['id'], '" value="[attach]', $attachment['id'], '[/attach]" readonly><a class="button_submit editeIinsertBBC" data-attach="', $attachment['id'], '">', $txt['attached_insertBBC'] ,'</a></p>
+								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
 							</dd>';
-
 		echo '
 						</dl>';
-
 		if (!empty($context['files_in_session_warning']))
 			echo '
 						<div class="smalltext">', $context['files_in_session_warning'], '</div>';
 	}
-
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
-		if (empty($context['current-attachments']))
-			echo '
-						<dl id="postAttachment">
-						</dl>';
-
 		echo '
-						<dl id="postAttachment2">
-							<div class="drop_zone descbox">
-								<input id="fileupload" type="file" name="files[]">
-								<h3>', $txt['attach_drop_zone'] ,'</h3>
-							</div>
-							<div class="errorbox" id="attachGenericErrors">
-								<ul></ul>
-							</div>
-							<div class="attachControl">
-								<div clas="attachProgressAll"></div>
-							</div>
-							<div id="files" class="files"></div>';
-
+						<dl id="postAttachment2">';
+		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
+		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
+		{
+			echo '
+							<dt>
+								', $txt['attach'], ':
+							</dt>
+							<dd class="smalltext">
+								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">'), '
+								<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+			// Show more boxes if they aren't approaching that limit.
+			if ($context['num_allowed_attachments'] > 1)
+				echo '
+								<script>
+									var allowed_attachments = ', $context['num_allowed_attachments'], ';
+									var current_attachment = 1;
+									function addAttachment()
+									{
+										allowed_attachments = allowed_attachments - 1;
+										current_attachment = current_attachment + 1;
+										if (allowed_attachments <= 0)
+											return alert("', $txt['more_attachments_error'], '");
+										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+										return true;
+									}
+								</script>
+							</dd>
+							<dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a></dd>';
+			else
+				echo '
+							</dd>';
+		}
 		// Add any template changes for an alternative upload system here.
 		call_integration_hook('integrate_upload_template');
-
 		echo '
 							<dd class="smalltext">';
-
 		// Show some useful information such as allowed extensions, maximum size and amount of attachments allowed.
 		if (!empty($modSettings['attachmentCheckExtensions']))
 			echo '
