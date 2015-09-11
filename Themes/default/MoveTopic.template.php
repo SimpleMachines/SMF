@@ -80,6 +80,8 @@ function template_move()
 }
 
 /**
+ * Redirection topic options
+ *
  * @var string $type What type of topic this is for - currently 'merge' or 'move'. Used to display appropriate text strings...
  */
 function template_redirect_options($type)
@@ -130,6 +132,9 @@ function template_redirect_options($type)
 					</fieldset>';
 }
 
+/**
+ * Confirmation page shown when finished merging topics.
+ */
 function template_merge_done()
 {
 	global $context, $txt, $scripturl;
@@ -155,6 +160,9 @@ function template_merge_done()
 	<br class="clear">';
 }
 
+/**
+ * Merge topic page.
+ */
 function template_merge()
 {
 	global $context, $txt, $scripturl;
@@ -274,6 +282,9 @@ function template_merge()
 		</div>';
 }
 
+/**
+ * Extra options related to merging topics.
+ */
 function template_merge_extra_options()
 {
 	global $context, $txt, $scripturl;

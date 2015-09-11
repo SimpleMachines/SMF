@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * This displays a help popup thingy
+ */
 function template_popup()
 {
 	global $context, $settings, $txt, $modSettings;
@@ -34,6 +37,9 @@ function template_popup()
 </html>';
 }
 
+/**
+ * The template for the popup for finding members
+ */
 function template_find_members()
 {
 	global $context, $settings, $scripturl, $modSettings, $txt;
@@ -140,7 +146,9 @@ function template_find_members()
 </html>';
 }
 
-// The main help page.
+/**
+ * The main help page
+ */
 function template_manual()
 {
 	global $context, $scripturl, $txt;
@@ -168,6 +176,9 @@ function template_manual()
 			</div>';
 }
 
+/**
+ * The rules page
+ */
 function template_terms()
 {
 	global $txt, $context, $modSettings;

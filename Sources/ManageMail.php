@@ -218,11 +218,12 @@ function BrowseMailQueue()
 
 /**
  * This function grabs the mail queue items from the database, according to the params given.
+ * Callback for $listOptions['get_items'] in BrowseMailQueue()
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
- * @return array
+ * @param int $start The item to start with (for pagination purposes)
+ * @param int $items_per_page How many items to show on each page
+ * @param string $sort A string indicating how to sort the results
+ * @return array An array with info about the mail queue items
  */
 function list_getMailQueue($start, $items_per_page, $sort)
 {
@@ -256,7 +257,8 @@ function list_getMailQueue($start, $items_per_page, $sort)
 
 /**
  * Returns the total count of items in the mail queue.
- * @return int
+ * Callback for $listOptions['get_count'] in BrowseMailQueue
+ * @return int The total number of mail queue items
  */
 function list_getMailQueueSize()
 {
@@ -278,8 +280,8 @@ function list_getMailQueueSize()
 /**
  * Allows to view and modify the mail settings.
  *
- * @param bool $return_config = false
- * @return array
+ * @param bool $return_config Whether to return the $config_vars array (used for admin search)
+ * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
  */
 function ModifyMailSettings($return_config = false)
 {
@@ -450,8 +452,8 @@ function pauseMailQueueClear()
 /**
  * Little utility function to calculate how long ago a time was.
  *
- * @param long $time_diff
- * @return string
+ * @param int $time_diff The time difference, in seconds
+ * @return string A string indicating how many days, hours, minutes or seconds (depending on $time_diff)
  */
 function time_since($time_diff)
 {

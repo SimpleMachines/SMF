@@ -80,7 +80,8 @@ function ManageAttachments()
  * This is the default sub-action of the 'Attachments and Avatars' center.
  * Called by index.php?action=admin;area=manageattachments;sa=attachments.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether to return the array of config variables (used for admin search)
+ * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
  * @uses 'attachments' sub template.
  */
 
@@ -266,7 +267,8 @@ function ManageAttachmentSettings($return_config = false)
  * Show/set permissions for permissions: 'profile_server_avatar',
  * 	'profile_upload_avatar' and 'profile_remote_avatar'.
  *
- * @param bool $return_config = false
+ * @param bool $return_config Whether to return the config_vars array (used for admin search)
+ * @return void|array Returns the config_vars array if $return_config is true, otherwise returns nothing
  * @uses 'avatars' sub template.
  */
 function ManageAvatarSettings($return_config = false)
@@ -604,10 +606,11 @@ function BrowseFiles()
  * Returns the list of attachments files (avatars or not), recorded
  * in the database, per the parameters received.
  *
- * @param int $start
- * @param int $items_per_page
- * @param string $sort
+ * @param int $start The item to start with
+ * @param int $items_per_page How many items to show per page
+ * @param string $sort A string indicating how to sort results
  * @param string $browse_type can be one of 'avatars' or ... not. :P
+ * @return array An array of file info
  */
 function list_getFiles($start, $items_per_page, $sort, $browse_type)
 {
@@ -667,6 +670,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
  * (the specified type being attachments or avatars).
  *
  * @param string $browse_type can be one of 'avatars' or not. (in which case they're attachments)
+ * @return int The number of files
  */
 function list_getNumFiles($browse_type)
 {
@@ -959,10 +963,11 @@ function RemoveAllAttachments()
  * It does no permissions check.
  * @internal
  *
- * @param array $condition
- * @param string $query_type
- * @param bool $return_affected_messages = false
- * @param bool $autoThumbRemoval = true
+ * @param array $condition An array of conditions
+ * @param string $query_type The query type. Can be 'messages' or 'members'
+ * @param bool $return_affected_messages Whether to return an array with the IDs of affected messages
+ * @param bool $autoThumbRemoval Whether to automatically remove any thumbnails associated with the removed files
+ * @return void|int[] Returns an array containing IDs of affected messages if $return_affected_messages is true
  */
 function removeAttachments($condition, $query_type = '', $return_affected_messages = false, $autoThumbRemoval = true)
 {
@@ -1681,8 +1686,8 @@ function RepairAttachments()
  * Called by repairAttachments().
  * If repairAttachments() has more steps added, this function needs updated!
  *
- * @param array $to_fix attachments to fix
- * @param int $max_substep = 0
+ * @param array $to_fix IDs of attachments to fix
+ * @param int The maximum substep to reach before pausing
  */
 function pauseAttachmentMaintenance($to_fix, $max_substep = 0)
 {
@@ -1812,7 +1817,8 @@ function ApproveAttach()
 /**
  * Approve an attachment, or maybe even more - no permission check!
  *
- * @param array $attachments
+ * @param array $attachments The IDs of the attachments to approve
+ * @return void|int Returns 0 if the operation failed, otherwise returns nothing
  */
 function ApproveAttachments($attachments)
 {
@@ -2430,6 +2436,7 @@ function ManageAttachmentPaths()
 
 /**
  * Prepare the actual attachment directories to be displayed in the list.
+ * @return array An array of information about the attachment directories
  */
 function list_getAttachDirs()
 {
@@ -2508,6 +2515,7 @@ function list_getAttachDirs()
 
 /**
  * Prepare the base directories to be displayed in a list.
+ * @return void|array Returns nothing if there are no base directories, otherwise returns an array of info about the directories
  */
 function list_getBaseDirs()
 {
@@ -2559,8 +2567,9 @@ function list_getBaseDirs()
  *  of the status key, if that status key signifies an error, and
  *  the file count.
  *
- * @param string $dir
- * @param int $expected_files
+ * @param string $dir The directory to check
+ * @param int $expected_files How many files should be in that directory
+ * @return array An array containing the status of the directory, whether the number of files was what we expected and how many were in the directory
  */
 function attachDirStatus($dir, $expected_files)
 {

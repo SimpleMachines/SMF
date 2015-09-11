@@ -38,8 +38,8 @@ if (!defined('SMF'))
  *  post-based membergroups in the database (restricted by parameter1).
  *
  * @param string $type Stat type - can be 'member', 'message', 'topic', 'subject' or 'postgroups'
- * @param mixed $parameter1 = null
- * @param mixed $parameter2 = null
+ * @param mixed $parameter1 A parameter for updating the stats
+ * @param mixed $parameter2 A 2nd parameter for updating the stats
  */
 function updateStats($type, $parameter1 = null, $parameter2 = null)
 {
@@ -47,223 +47,223 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
 
 	switch ($type)
 	{
-	case 'member':
-		$changes = array(
-			'memberlist_updated' => time(),
-		);
+		case 'member':
+			$changes = array(
+				'memberlist_updated' => time(),
+			);
 
-		// #1 latest member ID, #2 the real name for a new registration.
-		if (is_numeric($parameter1))
-		{
-			$changes['latestMember'] = $parameter1;
-			$changes['latestRealName'] = $parameter2;
+			// #1 latest member ID, #2 the real name for a new registration.
+			if (is_numeric($parameter1))
+			{
+				$changes['latestMember'] = $parameter1;
+				$changes['latestRealName'] = $parameter2;
 
-			updateSettings(array('totalMembers' => true), true);
-		}
+				updateSettings(array('totalMembers' => true), true);
+			}
 
-		// We need to calculate the totals.
-		else
-		{
-			// Update the latest activated member (highest id_member) and count.
-			$result = $smcFunc['db_query']('', '
+			// We need to calculate the totals.
+			else
+			{
+				// Update the latest activated member (highest id_member) and count.
+				$result = $smcFunc['db_query']('', '
 				SELECT COUNT(*), MAX(id_member)
 				FROM {db_prefix}members
 				WHERE is_activated = {int:is_activated}',
-				array(
-					'is_activated' => 1,
-				)
-			);
-			list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'is_activated' => 1,
+					)
+				);
+				list ($changes['totalMembers'], $changes['latestMember']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 
-			// Get the latest activated member's display name.
-			$result = $smcFunc['db_query']('', '
+				// Get the latest activated member's display name.
+				$result = $smcFunc['db_query']('', '
 				SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
 				LIMIT 1',
-				array(
-					'id_member' => (int) $changes['latestMember'],
-				)
-			);
-			list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'id_member' => (int) $changes['latestMember'],
+					)
+				);
+				list ($changes['latestRealName']) = $smcFunc['db_fetch_row']($result);
+				$smcFunc['db_free_result']($result);
 
-			if (!empty($modSettings['registration_method']))
-			{
-				// Are we using registration approval?
-				if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+				if (!empty($modSettings['registration_method']))
 				{
-					// Update the amount of members awaiting approval
-					$result = $smcFunc['db_query']('', '
+					// Are we using registration approval?
+					if ($modSettings['registration_method'] == 2 || !empty($modSettings['approveAccountDeletion']))
+					{
+						// Update the amount of members awaiting approval
+						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
-						array(
-							'activation_status' => array(3, 4),
-						)
-					);
-					list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
-					$smcFunc['db_free_result']($result);
-				}
+							array(
+								'activation_status' => array(3, 4),
+							)
+						);
+						list ($changes['unapprovedMembers']) = $smcFunc['db_fetch_row']($result);
+						$smcFunc['db_free_result']($result);
+					}
 
-				// What about unapproved COPPA registrations?
-				if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
-				{
-					$result = $smcFunc['db_query']('', '
+					// What about unapproved COPPA registrations?
+					if (!empty($modSettings['coppaType']) && $modSettings['coppaType'] != 1)
+					{
+						$result = $smcFunc['db_query']('', '
 						SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated = {int:coppa_approval}',
-						array(
-							'coppa_approval' => 5,
-						)
-					);
-					list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
-					$smcFunc['db_free_result']($result);
+							array(
+								'coppa_approval' => 5,
+							)
+						);
+						list ($coppa_approvals) = $smcFunc['db_fetch_row']($result);
+						$smcFunc['db_free_result']($result);
 
-					// Add this to the number of unapproved members
-					if (!empty($changes['unapprovedMembers']))
-						$changes['unapprovedMembers'] += $coppa_approvals;
-					else
-						$changes['unapprovedMembers'] = $coppa_approvals;
+						// Add this to the number of unapproved members
+						if (!empty($changes['unapprovedMembers']))
+							$changes['unapprovedMembers'] += $coppa_approvals;
+						else
+							$changes['unapprovedMembers'] = $coppa_approvals;
+					}
 				}
 			}
-		}
-		updateSettings($changes);
-		break;
+			updateSettings($changes);
+			break;
 
-	case 'message':
-		if ($parameter1 === true && $parameter2 !== null)
-			updateSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
-		else
-		{
-			// SUM and MAX on a smaller table is better for InnoDB tables.
-			$result = $smcFunc['db_query']('', '
+		case 'message':
+			if ($parameter1 === true && $parameter2 !== null)
+				updateSettings(array('totalMessages' => true, 'maxMsgID' => $parameter2), true);
+			else
+			{
+				// SUM and MAX on a smaller table is better for InnoDB tables.
+				$result = $smcFunc['db_query']('', '
 				SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
 				FROM {db_prefix}boards
 				WHERE redirect = {string:blank_redirect}' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 					AND id_board != {int:recycle_board}' : ''),
-				array(
-					'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
-					'blank_redirect' => '',
-				)
-			);
-			$row = $smcFunc['db_fetch_assoc']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'recycle_board' => isset($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+						'blank_redirect' => '',
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($result);
+				$smcFunc['db_free_result']($result);
 
-			updateSettings(array(
-				'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
-				'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
-			));
-		}
-		break;
+				updateSettings(array(
+					'totalMessages' => $row['total_messages'] === null ? 0 : $row['total_messages'],
+					'maxMsgID' => $row['max_msg_id'] === null ? 0 : $row['max_msg_id']
+				));
+			}
+			break;
 
-	case 'subject':
-		// Remove the previous subject (if any).
-		$smcFunc['db_query']('', '
+		case 'subject':
+			// Remove the previous subject (if any).
+			$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic = {int:id_topic}',
-			array(
-				'id_topic' => (int) $parameter1,
-			)
-		);
+				array(
+					'id_topic' => (int) $parameter1,
+				)
+			);
 
-		// Insert the new subject.
-		if ($parameter2 !== null)
-		{
-			$parameter1 = (int) $parameter1;
-			$parameter2 = text2words($parameter2);
+			// Insert the new subject.
+			if ($parameter2 !== null)
+			{
+				$parameter1 = (int) $parameter1;
+				$parameter2 = text2words($parameter2);
 
-			$inserts = array();
-			foreach ($parameter2 as $word)
-				$inserts[] = array($word, $parameter1);
+				$inserts = array();
+				foreach ($parameter2 as $word)
+					$inserts[] = array($word, $parameter1);
 
-			if (!empty($inserts))
-				$smcFunc['db_insert']('ignore',
-					'{db_prefix}log_search_subjects',
-					array('word' => 'string', 'id_topic' => 'int'),
-					$inserts,
-					array('word', 'id_topic')
-				);
-		}
-		break;
+				if (!empty($inserts))
+					$smcFunc['db_insert']('ignore',
+						'{db_prefix}log_search_subjects',
+						array('word' => 'string', 'id_topic' => 'int'),
+						$inserts,
+						array('word', 'id_topic')
+					);
+			}
+			break;
 
-	case 'topic':
-		if ($parameter1 === true)
-			updateSettings(array('totalTopics' => true), true);
-		else
-		{
-			// Get the number of topics - a SUM is better for InnoDB tables.
-			// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
-			$result = $smcFunc['db_query']('', '
+		case 'topic':
+			if ($parameter1 === true)
+				updateSettings(array('totalTopics' => true), true);
+			else
+			{
+				// Get the number of topics - a SUM is better for InnoDB tables.
+				// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
+				$result = $smcFunc['db_query']('', '
 				SELECT SUM(num_topics + unapproved_topics) AS total_topics
 				FROM {db_prefix}boards' . (!empty($modSettings['recycle_enable']) && $modSettings['recycle_board'] > 0 ? '
 				WHERE id_board != {int:recycle_board}' : ''),
-				array(
-					'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
-				)
-			);
-			$row = $smcFunc['db_fetch_assoc']($result);
-			$smcFunc['db_free_result']($result);
+					array(
+						'recycle_board' => !empty($modSettings['recycle_board']) ? $modSettings['recycle_board'] : 0,
+					)
+				);
+				$row = $smcFunc['db_fetch_assoc']($result);
+				$smcFunc['db_free_result']($result);
 
-			updateSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
-		}
-		break;
+				updateSettings(array('totalTopics' => $row['total_topics'] === null ? 0 : $row['total_topics']));
+			}
+			break;
 
-	case 'postgroups':
-		// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-		if ($parameter2 !== null && !in_array('posts', $parameter2))
-			return;
+		case 'postgroups':
+			// Parameter two is the updated columns: we should check to see if we base groups off any of these.
+			if ($parameter2 !== null && !in_array('posts', $parameter2))
+				return;
 
-		$postgroups = cache_get_data('updateStats:postgroups', 360);
-		if ($postgroups == null || $parameter1 == null)
-		{
-			// Fetch the postgroups!
-			$request = $smcFunc['db_query']('', '
+			$postgroups = cache_get_data('updateStats:postgroups', 360);
+			if ($postgroups == null || $parameter1 == null)
+			{
+				// Fetch the postgroups!
+				$request = $smcFunc['db_query']('', '
 				SELECT id_group, min_posts
 				FROM {db_prefix}membergroups
 				WHERE min_posts != {int:min_posts}',
-				array(
-					'min_posts' => -1,
-				)
-			);
-			$postgroups = array();
-			while ($row = $smcFunc['db_fetch_assoc']($request))
-				$postgroups[$row['id_group']] = $row['min_posts'];
-			$smcFunc['db_free_result']($request);
+					array(
+						'min_posts' => -1,
+					)
+				);
+				$postgroups = array();
+				while ($row = $smcFunc['db_fetch_assoc']($request))
+					$postgroups[$row['id_group']] = $row['min_posts'];
+				$smcFunc['db_free_result']($request);
 
-			// Sort them this way because if it's done with MySQL it causes a filesort :(.
-			arsort($postgroups);
+				// Sort them this way because if it's done with MySQL it causes a filesort :(.
+				arsort($postgroups);
 
-			cache_put_data('updateStats:postgroups', $postgroups, 360);
-		}
+				cache_put_data('updateStats:postgroups', $postgroups, 360);
+			}
 
-		// Oh great, they've screwed their post groups.
-		if (empty($postgroups))
-			return;
+			// Oh great, they've screwed their post groups.
+			if (empty($postgroups))
+				return;
 
-		// Set all membergroups from most posts to least posts.
-		$conditions = '';
-		$lastMin = 0;
-		foreach ($postgroups as $id => $min_posts)
-		{
-			$conditions .= '
+			// Set all membergroups from most posts to least posts.
+			$conditions = '';
+			$lastMin = 0;
+			foreach ($postgroups as $id => $min_posts)
+			{
+				$conditions .= '
 					WHEN posts >= ' . $min_posts . (!empty($lastMin) ? ' AND posts <= ' . $lastMin : '') . ' THEN ' . $id;
-			$lastMin = $min_posts;
-		}
+				$lastMin = $min_posts;
+			}
 
-		// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
-		$smcFunc['db_query']('', '
+			// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
+			$smcFunc['db_query']('', '
 			UPDATE {db_prefix}members
 			SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
 				END' . ($parameter1 != null ? '
 			WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
-			array(
-				'members' => $parameter1,
-			)
-		);
-		break;
+				array(
+					'members' => $parameter1,
+				)
+			);
+			break;
 
 		default:
 			trigger_error('updateStats(): Invalid statistic type \'' . $type . '\'', E_USER_NOTICE);
@@ -286,8 +286,8 @@ function updateStats($type, $parameter1 = null, $parameter2 = null)
  *
  * if the member's post number is updated, updates their post groups.
  *
- * @param mixed $members An array of integers
- * @param array $data
+ * @param mixed $members An array of member IDs, null to update this for all members or the ID of a single member
+ * @param array $data The info to update for the members
  */
 function updateMemberData($members, $data)
 {
@@ -310,8 +310,7 @@ function updateMemberData($members, $data)
 	// Everything is assumed to be a string unless it's in the below.
 	$knownInts = array(
 		'date_registered', 'posts', 'id_group', 'last_login', 'instant_messages', 'unread_messages',
-		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from',
-		'notify_announcements', 'notify_send_body', 'notify_regularity', 'notify_types', 'alerts',
+		'new_pm', 'pm_prefs', 'gender', 'show_online', 'pm_receive_from', 'alerts',
 		'id_theme', 'is_activated', 'id_msg_last_visit', 'id_post_group', 'total_time_logged_in', 'warning',
 	);
 	$knownFloats = array(
@@ -436,8 +435,8 @@ function updateMemberData($members, $data)
  * - when use_update is true, the value can be true or false to increment
  *  or decrement it, respectively.
  *
- * @param array $changeArray
- * @param bool $update = false
+ * @param array $changeArray An array of info about what we're changing in 'setting' => 'value' format
+ * @param bool $update Whether to use an UPDATE query instead of a REPLACE query
  */
 function updateSettings($changeArray, $update = false)
 {
@@ -524,7 +523,6 @@ function updateSettings($changeArray, $update = false)
  *
  * - builds the page list, e.g. 1 ... 6 7 [8] 9 10 ... 15.
  * - flexible_start causes it to use "url.page" instead of "url;start=page".
- * - handles any wireless settings (adding special things to URLs.)
  * - very importantly, cleans up the start value passed, and forces it to
  *   be a multiple of num_per_page.
  * - checks that start is not more than max_value.
@@ -563,10 +561,6 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 		$start = max(0, (int) $start - ((int) $start % (int) $num_per_page));
 
 	$context['current_page'] = $start / $num_per_page;
-
-	// Wireless will need the protocol on the URL somewhere.
-	if (WIRELESS)
-		$base_url .= ';' . WIRELESS_PROTOCOL;
 
 	// Define some default page index settings if we don't already have it...
 	if (!isset($settings['page_index']))
@@ -677,8 +671,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
  *   for example, it might display "1 234,50".
  * - caches the formatting data from the setting for optimization.
  *
- * @param float $number
- * @param bool $override_decimal_count = false
+ * @param float $number A number
+ * @param bool|int $override_decimal_count If set, will use the specified number of decimal places. Otherwise it's automatically determined
+ * @return string A formatted number
  */
 function comma_format($number, $override_decimal_count = false)
 {
@@ -711,9 +706,10 @@ function comma_format($number, $override_decimal_count = false)
  *   alternate format string is used to show the date with something to show it is "today" or "yesterday".
  * - performs localization (more than just strftime would do alone.)
  *
- * @param int $log_time
- * @param bool $show_today = true
- * @param string $offset_type = false
+ * @param int $log_time A timestamp
+ * @param bool $show_today Whether to show "Today"/"Yesterday" or just a date
+ * @param bool|string $offset_type If false, uses both user time offset and forum offset. If 'forum', uses only the forum offset. Otherwise no offset is applied.
+ * @return string A formatted timestamp
  */
 function timeformat($log_time, $show_today = true, $offset_type = false)
 {
@@ -800,8 +796,8 @@ function timeformat($log_time, $show_today = true, $offset_type = false)
  * - removes the base entities (&lt;, &quot;, etc.) from text.
  * - additionally converts &nbsp; and &#039;.
  *
- * @param string $string
- * @return the string without entities
+ * @param string $string A string
+ * @return string The string without entities
  */
 function un_htmlspecialchars($string)
 {
@@ -831,8 +827,9 @@ function un_htmlspecialchars($string)
  * - avoids trailing entities.
  * - returns the shortened string.
  *
- * @param string $subject
- * @param int $len
+ * @param string $subject The subject
+ * @param int $len How many characters to limit it to
+ * @return string The shortened subject - either the entire subject (if it's <= $len) or the subject shortened to $len characters with "..." appended
  */
 function shorten_subject($subject, $len)
 {
@@ -851,9 +848,9 @@ function shorten_subject($subject, $len)
  *
  * - always applies the offset in the time_offset setting.
  *
- * @param bool $use_user_offset = true if use_user_offset is true, applies the user's offset as well
- * @param int $timestamp = null
- * @return int seconds since the unix epoch
+ * @param bool $use_user_offset Whether to apply the user's offset as well
+ * @param int $timestamp A timestamp (null to use current time)
+ * @return int Seconds since the unix epoch, with forum time offset and (optionally) user time offset applied
  */
 function forum_time($use_user_offset = true, $timestamp = null)
 {
@@ -872,8 +869,9 @@ function forum_time($use_user_offset = true, $timestamp = null)
  * should not be called on huge arrays (bigger than like 10 elements.)
  * returns an array containing each permutation.
  *
- * @param array $array
- * @return array
+ * @deprecated since 2.1
+ * @param array $array An array
+ * @return array An array containing each permutation
  */
 function permute($array)
 {
@@ -899,6 +897,59 @@ function permute($array)
 	return $orders;
 }
 
+ /**
+ * Lexicographic permutation function.
+ *
+ * This is a special type of permutation which involves the order of the set. The next
+ * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
+ * set larger than the current one.
+ *
+ * The benefit of this over a recursive solution is that the whole list does NOT need
+ * to be held in memory. So it's actually possible to run 30! permutations without
+ * causing a memory overflow.
+ *
+ * Source: O'Reilly PHP Cookbook
+ *
+ * @param mixed[] $p An array of permutations
+ * @param int $size The size of our array
+ *
+ * @return mixed[] The next permutation of the passed array $p
+ */
+function pc_next_permutation($p, $size)
+{
+	// Slide down the array looking for where we're smaller than the next guy
+	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
+	{
+	}
+
+	// If this doesn't occur, we've finished our permutations
+	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
+	if ($i === -1)
+	{
+		return false;
+	}
+
+	// Slide down the array looking for a bigger number than what we found before
+	for ($j = $size; $p[$j] <= $p[$i]; --$j)
+	{
+	}
+
+	// Swap them
+	$tmp = $p[$i];
+	$p[$i] = $p[$j];
+	$p[$j] = $tmp;
+
+	// Now reverse the elements in between by swapping the ends
+	for ($i, $j = $size; $i < $j; $i, --$j)
+	{
+		$tmp = $p[$i];
+		$p[$i] = $p[$j];
+		$p[$j] = $tmp;
+	}
+
+	return $p;
+}
+
 /**
  * Parse bulletin board code in a string, as well as smileys optionally.
  *
@@ -910,11 +961,11 @@ function permute($array)
  * - uses the cache_id as a unique identifier to facilitate any caching it may do.
  *  -returns the modified message.
  *
- * @param string $message
- * @param bool $smileys = true
- * @param string $cache_id = ''
- * @param array $parse_tags = null
- * @return string
+ * @param string $message The message
+ * @param bool $smileys Whether to parse smileys as well
+ * @param string $cache_id The cache ID
+ * @param array $parse_tags If set, only parses these tags rather than all of them
+ * @return string The parsed message
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
@@ -940,10 +991,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		return $message;
 	}
 
-	// Never show smileys for wireless clients.  More bytes, can't see it anyway :P.
-	if (WIRELESS)
-		$smileys = false;
-	elseif ($smileys !== null && ($smileys == '1' || $smileys == '0'))
+	if ($smileys !== null && ($smileys == '1' || $smileys == '0'))
 		$smileys = (bool) $smileys;
 
 	if (empty($modSettings['enableBBC']) && $message !== false)
@@ -1074,14 +1122,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => ' ($1)',
 			),
 			array(
-				'tag' => 'acronym',
-				'type' => 'unparsed_equals',
-				'before' => '<abbr title="$1">',
-				'after' => '</abbr>',
-				'quoted' => 'optional',
-				'disabled_after' => ' ($1)',
-			),
-			array(
 				'tag' => 'anchor',
 				'type' => 'unparsed_equals',
 				'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
@@ -1137,31 +1177,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'b',
-				'before' => '<span class="bbc_bold">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'bdo',
-				'type' => 'unparsed_equals',
-				'before' => '<bdo dir="$1">',
-				'after' => '</bdo>',
-				'test' => '(rtl|ltr)\]',
-				'block_level' => true,
-			),
-			array(
-				'tag' => 'black',
-				'before' => '<span style="color: black;" class="bbc_color">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'blue',
-				'before' => '<span class="bbc_color blue">',
-				'after' => '</span>',
-			),
-			array(
-				'tag' => 'br',
-				'type' => 'closed',
-				'content' => '<br>',
+				'before' => '<b>',
+				'after' => '</b>',
 			),
 			array(
 				'tag' => 'center',
@@ -1172,7 +1189,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1209,7 +1226,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'code',
 				'type' => 'unparsed_equals_content',
-				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div>' . (isBrowser('gecko') || isBrowser('opera') ? '<pre style="margin: 0; padding: 0;">' : '') . '<code class="bbc_code">$1</code>' . (isBrowser('gecko') || isBrowser('opera') ? '</pre>' : ''),
+				'content' => '<div class="codeheader"><span class="code floatleft">' . $txt['code'] . '</span> ($2) <a class="codeoperation smf_select_text">' . $txt['code_select'] . '</a></div><code class="bbc_code">$1</code>',
 				// @todo Maybe this can be simplified?
 				'validate' => isset($disabled['code']) ? null : function (&$tag, &$data, $disabled) use ($context)
 				{
@@ -1273,7 +1290,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'flash',
 				'type' => 'unparsed_commas_content',
 				'test' => '\d+,\d+\]',
-				'content' => (isBrowser('ie') ? '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="$2" height="$3"><param name="movie" value="$1"><param name="play" value="true"><param name="loop" value="true"><param name="quality" value="high"><param name="AllowScriptAccess" value="never"><embed src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed></object>' : '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never"><noembed><a href="$1" target="_blank" class="new_win">$1</a></noembed>'),
+				'content' => '<embed type="application/x-shockwave-flash" src="$1" width="$2" height="$3" play="true" loop="true" quality="high" AllowScriptAccess="never">',
 				'validate' => function (&$tag, &$data, $disabled)
 				{
 					if (isset($disabled['url']))
@@ -1291,42 +1308,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'after' => '</span>',
 			),
 			array(
-				'tag' => 'ftp',
-				'type' => 'unparsed_content',
-				'content' => '<a href="$1" class="bbc_ftp new_win" target="_blank">$1</a>',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					$data = strtr($data, array('<br>' => ''));
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
-				},
-			),
-			array(
-				'tag' => 'ftp',
-				'type' => 'unparsed_equals',
-				'before' => '<a href="$1" class="bbc_ftp new_win" target="_blank">',
-				'after' => '</a>',
-				'validate' => function (&$tag, &$data, $disabled)
-				{
-					if (strpos($data, 'ftp://') !== 0 && strpos($data, 'ftps://') !== 0)
-						$data = 'ftp://' . $data;
-				},
-				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
-				'disabled_after' => ' ($1)',
-			),
-			array(
-				'tag' => 'glow',
-				'type' => 'unparsed_commas',
-				'test' => '[#0-9a-zA-Z\-]{3,12},([012]\d{1,2}|\d{1,2})(,[^]]+)?\]',
-				'before' => isBrowser('ie') ? '<table style="border: 0; border-spacing: 0; padding: 0; display: inline; vertical-align: middle; font: inherit;"><tr><td style="filter: Glow(color=$1, strength=$2); font: inherit;">' : '<span style="text-shadow: $1 0 0 3px">',
-				'after' => isBrowser('ie') ? '</td></tr></table> ' : '</span>',
-			),
-			array(
-				'tag' => 'green',
-				'before' => '<span class="bbc_color green">',
-				'after' => '</span>',
-			),
-			array(
 				'tag' => 'html',
 				'type' => 'unparsed_content',
 				'content' => '$1',
@@ -1341,8 +1322,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'i',
-				'before' => '<em>',
-				'after' => '</em>',
+				'before' => '<i>',
+				'after' => '</i>',
 			),
 			array(
 				'tag' => 'img',
@@ -1447,8 +1428,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'ltr',
-				'before' => '<div dir="ltr">',
-				'after' => '</div>',
+				'before' => '<bdo dir="ltr">',
+				'after' => '</bdo>',
 				'block_level' => true,
 			),
 			array(
@@ -1466,13 +1447,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'type' => 'unparsed_equals',
 				'before' => '<a href="' . $scripturl . '?action=profile;u=$1" class="mention">@',
 				'after' => '</a>',
-			),
-			array(
-				'tag' => 'move',
-				'before' => '<marquee>',
-				'after' => '</marquee>',
-				'block_level' => true,
-				'disallow_children' => array('move'),
 			),
 			array(
 				'tag' => 'nobbc',
@@ -1504,7 +1478,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'quote',
 				'before' => '<div class="quoteheader">' . $txt['quote'] . '</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1514,7 +1488,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'author' => array('match' => '(.{1,192}?)', 'quoted' => true),
 				),
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1522,7 +1496,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'quote',
 				'type' => 'parsed_equals',
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': $1</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'quoted' => 'optional',
 				// Don't allow everything to be embedded with the author name.
@@ -1537,7 +1511,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
 				),
 				'before' => '<div class="quoteheader"><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
 			),
@@ -1547,14 +1521,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'author' => array('match' => '(.{1,192}?)'),
 				),
 				'before' => '<div class="quoteheader">' . $txt['quote_from'] . ': {author}</div><blockquote>',
-				'after' => '</blockquote><div class="quotefooter"></div>',
+				'after' => '</blockquote>',
 				'trim' => 'both',
 				'block_level' => true,
-			),
-			array(
-				'tag' => 'red',
-				'before' => '<span class="bbc_color red">',
-				'after' => '</span>',
 			),
 			array(
 				'tag' => 'right',
@@ -1564,46 +1533,14 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'rtl',
-				'before' => '<div dir="rtl">',
-				'after' => '</div>',
+				'before' => '<bdo dir="rtl">',
+				'after' => '</bdo>',
 				'block_level' => true,
 			),
 			array(
 				'tag' => 's',
-				'before' => '<del>',
-				'after' => '</del>',
-			),
-			array(
-				'tag' => 'shadow',
-				'type' => 'unparsed_commas',
-				'test' => '[#0-9a-zA-Z\-]{3,12},(left|right|top|bottom|[0123]\d{0,2})\]',
-				'before' => isBrowser('ie') ? '<span style="display: inline-block; filter: Shadow(color=$1, direction=$2); height: 1.2em;">' : '<span style="text-shadow: $1 $2">',
-				'after' => '</span>',
-				'validate' => isBrowser('ie') ? function (&$tag, &$data, $disabled)
-				{
-					if ($data[1] == 'left')
-						$data[1] = 270;
-					elseif ($data[1] == 'right')
-						$data[1] = 90;
-					elseif ($data[1] == 'top')
-						$data[1] = 0;
-					elseif ($data[1] == 'bottom')
-						$data[1] = 180;
-					else
-						$data[1] = (int) $data[1];
-				} : function (&$tag, &$data, $disabled)
-				{
-					if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50))
-						$data[1] = '0 -2px 1px';
-					elseif ($data[1] == 'right' || (is_numeric($data[1]) && $data[1] < 100))
-						$data[1] = '2px 0 1px';
-					elseif ($data[1] == 'bottom' || (is_numeric($data[1]) && $data[1] < 190))
-						$data[1] = '0 2px 1px';
-					elseif ($data[1] == 'left' || (is_numeric($data[1]) && $data[1] < 280))
-						$data[1] = '-2px 0 1px';
-					else
-						$data[1] = '1px 1px 1px';
-				},
+				'before' => '<s>',
+				'after' => '</s>',
 			),
 			array(
 				'tag' => 'size',
@@ -1676,14 +1613,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disabled_after' => '',
 			),
 			array(
-				'tag' => 'tt',
-				'before' => '<span class="bbc_tt">',
-				'after' => '</span>',
-			),
-			array(
 				'tag' => 'u',
-				'before' => '<span class="bbc_u">',
-				'after' => '</span>',
+				'before' => '<u>',
+				'after' => '</u>',
 			),
 			array(
 				'tag' => 'url',
@@ -1709,18 +1641,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'disallow_children' => array('email', 'ftp', 'url', 'iurl'),
 				'disabled_after' => ' ($1)',
 			),
-			array(
-				'tag' => 'white',
-				'before' => '<span style="color: white;" class="bbc_color">',
-				'after' => '</span>',
-			),
 		);
 
 		// Inside these tags autolink is not recommendable.
 		$no_autolink_tags = array(
 			'url',
 			'iurl',
-			'ftp',
 			'email',
 		);
 
@@ -2148,19 +2074,32 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible['parameters']))
 			{
+				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
 
 				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$match = false;
-				$orders = permute($preg);
-				foreach ($orders as $p)
-					if (preg_match('~^' . implode('', $p) . '\]~i', substr($message, $pos1 - 1), $matches) != 0)
-					{
-						$match = true;
-						break;
-					}
+				$param_size = count($preg) - 1;
+				$preg_keys = range(0, $param_size);
+				$message_stub = substr($message, $pos1 - 1);
+
+				// If sometthhing adds many parameters we can exceed max_execution time; let's prevent that.
+				// 5040 = 7, 40,320 = 8, (N!) etc
+				$max_iterations = 5040;
+
+				// Step, one by one, through all possible permutations of the parameters until we have a match.
+				do
+				{
+					$match_preg = '~^';
+					foreach ($preg_keys as $key)
+						$match_preg .= $preg[$key];
+					$match_preg .= '\]~i';
+
+					// Check if this combination of parameters matches the user input.
+					$match = preg_match($match_preg, $message_stub, $matches) !== 0;
+				}
+				while (!$match && --$max_iterations && ($preg_keys = pc_next_permutation($preg_keys, $param_size)));
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
@@ -2553,6 +2492,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 /**
  * Helper function for usort(), used in parse_bbc().
+ * @param array $a An array containing a tag
+ * @param array $b Another array containing a tag
+ * @return int A number indicating whether $a is bigger than $b
  */
 function sort_bbc_tags($a, $b)
 {
@@ -2568,7 +2510,7 @@ function sort_bbc_tags($a, $b)
  * Caches the smileys from the database or array in memory.
  * Doesn't return anything, but rather modifies message directly.
  *
- * @param string &$message
+ * @param string &$message The message to parse smileys in
  */
 function parsesmileys(&$message)
 {
@@ -2659,8 +2601,8 @@ function parsesmileys(&$message)
  * does special handling to keep the tabs in the code available.
  * used to parse PHP code from inside [code] and [php] tags.
  *
- * @param string $code
- * @return string the code with highlighted HTML.
+ * @param string $code The code
+ * @return string The code with highlighted HTML.
  */
 function highlight_php_code($code)
 {
@@ -2683,8 +2625,9 @@ function highlight_php_code($code)
  * Make sure the browser doesn't come back and repost the form data.
  * Should be used whenever anything is posted.
  *
- * @param string $setLocation = ''
- * @param bool $refresh = false
+ * @param string $setLocation The URL to redirect them to
+ * @param bool $refresh Whether to use a meta refresh instead
+ * @param bool $permanent Whether to send a 301 Moved Permanently instead of a 302 Moved Temporarily
  */
 function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 {
@@ -2697,20 +2640,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 	$add = preg_match('~^(ftp|http)[s]?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
 
-	if (WIRELESS)
-	{
-		// Add the scripturl on if needed.
-		if ($add)
-			$setLocation = $scripturl . '?' . $setLocation;
-
-		$char = strpos($setLocation, '?') === false ? '?' : ';';
-
-		if (strpos($setLocation, '#') !== false)
-			$setLocation = strtr($setLocation, array('#' => $char . WIRELESS_PROTOCOL . '#'));
-		else
-			$setLocation .= $char . WIRELESS_PROTOCOL;
-	}
-	elseif ($add)
+	if ($add)
 		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
 	// Put the session ID in.
@@ -2751,10 +2681,10 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 
 /**
  * Ends execution.  Takes care of template loading and remembering the previous URL.
- * @param bool $header = null
- * @param bool $do_footer = null
- * @param bool $from_index = false
- * @param bool $from_fatal_error = false
+ * @param bool $header Whether to do the header
+ * @param bool $do_footer Whether to do the footer
+ * @param bool $from_index Whether we're coming from the board index
+ * @param bool $from_fatal_error Whether we're coming from a fatal error
  */
 function obExit($header = null, $do_footer = null, $from_index = false, $from_fatal_error = false)
 {
@@ -2816,10 +2746,6 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 	if ($do_footer)
 	{
-		if (WIRELESS && !isset($context['sub_template']))
-			fatal_lang_error('wireless_error_notyet', false);
-
-		// Just show the footer, then.
 		loadSubTemplate(isset($context['sub_template']) ? $context['sub_template'] : 'main');
 
 		// Anything special to put out?
@@ -2846,10 +2772,10 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	$_SESSION['USER_AGENT'] = empty($_SERVER['HTTP_USER_AGENT']) ? '' : $_SERVER['HTTP_USER_AGENT'];
 
 	// Hand off the output to the portal, etc. we're integrated with.
-	call_integration_hook('integrate_exit', array($do_footer && !WIRELESS));
+	call_integration_hook('integrate_exit', array($do_footer));
 
 	// Don't exit if we're coming from index.php; that will pass through normally.
-	if (!$from_index || WIRELESS)
+	if (!$from_index)
 		exit;
 }
 
@@ -2859,8 +2785,8 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
  * Uses getimagesize() to determine the size of a file.
  * Attempts to connect to the server first so it won't time out.
  *
- * @param string $url
- * @return array or false, the image size as array (width, height), or false on failure
+ * @param string $url The URL of the image
+ * @return array|false The image size as array (width, height), or false on failure
  */
 function url_image_size($url)
 {
@@ -2938,7 +2864,7 @@ function url_image_size($url)
 
 /**
  * Sets up the basic theme context stuff.
- * @param bool $forceload = false
+ * @param bool $forceload Whether to load the theme even if it's already loaded
  */
 function setupThemeContext($forceload = false)
 {
@@ -3097,7 +3023,7 @@ img.avatar { max-width: ' . $modSettings['avatar_max_width_external'] . 'px; max
  *
  * @param string $needed The amount of memory to request, if needed, like 256M
  * @param bool $in_use Set to true to account for current memory usage of the script
- * @return boolean, true if we have at least the needed memory
+ * @return boolean True if we have at least the needed memory
  */
 function setMemoryLimit($needed, $in_use = false)
 {
@@ -3168,14 +3094,13 @@ function template_header()
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
 		// Are we debugging the template/html content?
-		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie') && !WIRELESS)
+		if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !isBrowser('ie'))
 			header('Content-Type: application/xhtml+xml');
-		elseif (!isset($_REQUEST['xml']) && !WIRELESS)
+		elseif (!isset($_REQUEST['xml']))
 			header('Content-Type: text/html; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 	}
 
-	if (!WIRELESS || WIRELESS_PROTOCOL != 'wap')
-		header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+	header('Content-Type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
 
 	// We need to splice this in after the body layer, or after the main layer for older stuff.
 	if ($context['in_maintenance'] && $context['user']['is_admin'])
@@ -3329,7 +3254,7 @@ function template_footer()
  * 	- tabbing in this function is to make the HTML source look good proper
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
- * @param bool $do_defered = false
+ * @param bool $do_defered If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
 function template_javascript($do_defered = false)
 {
@@ -3442,11 +3367,12 @@ function template_css()
  * @todo and of course everything relies on this behavior and work around it. :P.
  * Converters included.
  *
- * @param $filename
- * @param $attachment_id
- * @param $dir
- * @param $new
- * @param $file_hash
+ * @param string $filename The name of the file
+ * @param int $attachment_id The ID of the attachment
+ * @param string $dir Which directory it should be in (null to use current one)
+ * @param bool $new Whether this is a new attachment
+ * @param string $file_hash The file hash
+ * @return string The path to the file
  */
 function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
 {
@@ -3466,7 +3392,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 			WHERE id_attach = {int:id_attach}',
 			array(
 				'id_attach' => $attachment_id,
-		));
+			));
 
 		if ($smcFunc['db_num_rows']($request) === 0)
 			return false;
@@ -3496,8 +3422,8 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  * Convert a single IP to a ranged IP.
  * internal function used to convert a user-readable format to a format suitable for the database.
  *
- * @param string $fullip
- * @return array|string 'unknown' if the ip in the input was '255.255.255.255'
+ * @param string $fullip The full IP
+ * @return array An array of IP parts
  */
 function ip2range($fullip)
 {
@@ -3555,7 +3481,8 @@ function ip2range($fullip)
 /**
  * Lookup an IP; try shell_exec first because we can do a timeout on it.
  *
- * @param string $ip
+ * @param string $ip The IP to get the hostname from
+ * @return string The hostname
  */
 function host_from_ip($ip)
 {
@@ -3608,9 +3535,10 @@ function host_from_ip($ip)
 /**
  * Chops a string into words and prepares them to be inserted into (or searched from) the database.
  *
- * @param string $text
- * @param int $max_chars = 20
- * @param bool $encrypt = false
+ * @param string $text The text to split into words
+ * @param int $max_chars The maximum number of characters per word
+ * @param bool $encrypt Whether to encrypt the results
+ * @return array An array of ints or words depending on $encrypt
  */
 function text2words($text, $max_chars = 20, $encrypt = false)
 {
@@ -3658,12 +3586,12 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 /**
  * Creates an image/text button
  *
- * @param string $name
- * @param string $alt
- * @param string $label = ''
- * @param boolean $custom = ''
- * @param boolean $force_use = false
- * @return string
+ * @param string $name The name of the button (should be a generic_icons class or the name of an image)
+ * @param string $alt The alt text
+ * @param string $label The $txt string to use as the label
+ * @param string $custom Custom text/html to add to the img tag (only when using an actual image)
+ * @param boolean $force_use Whether to force use of this when template_create_button is available
+ * @return string The HTML to display the button
  */
 function create_button($name, $alt, $label = '', $custom = '', $force_use = false)
 {
@@ -3691,7 +3619,7 @@ function create_button($name, $alt, $label = '', $custom = '', $force_use = fals
  *  - If no type is specified will perform a complete cache clearing
  * For cache engines that do not distinguish on types, a full cache flush will be done
  *
- * @param string $type = ''
+ * @param string $type The cache type ('memcached', 'apc', 'xcache', 'zend' or something else for SMF's file cache)
  */
 function clean_cache($type = '')
 {
@@ -3765,10 +3693,10 @@ function clean_cache($type = '')
 
 	// Invalidate cache, to be sure!
 	// ... as long as index.php can be modified, anyway.
-	@touch($cachedir . '/' . 'index.php');
-
 	if (empty($type))
-		call_integration_hook('integrate_clean_cache');
+		@touch($cachedir . '/' . 'index.php');
+
+	call_integration_hook('integrate_clean_cache');
 	clearstatcache();
 }
 
@@ -3821,7 +3749,7 @@ function setupMenuContext()
 		{
 			require_once($sourcedir . '/Subs-Notify.php');
 
-			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout');
+			$timeout = getNotifyPrefs($context['user']['id'], 'alert_timeout', true);
 			$timeout = empty($timeout) ? 10000 : $timeout[$context['user']['id']]['alert_timeout'] * 1000;
 
 			addInlineJavascript('
@@ -4010,15 +3938,15 @@ function setupMenuContext()
 						}
 					}
 
-					// Does this button have its own icon?
-					if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
-						$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
-					elseif (isset($button['icon']))
-						$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
-					else
-						$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
+				// Does this button have its own icon?
+				if (isset($button['icon']) && file_exists($settings['theme_dir'] . '/images/' . $button['icon']))
+					$button['icon'] = '<img src="' . $settings['images_url'] . '/' . $button['icon'] . '" alt="">';
+				elseif (isset($button['icon']) && file_exists($settings['default_theme_dir'] . '/images/' . $button['icon']))
+					$button['icon'] = '<img src="' . $settings['default_images_url'] . '/' . $button['icon'] . '" alt="">';
+				elseif (isset($button['icon']))
+					$button['icon'] = '<span class="generic_icons ' . $button['icon'] . '"></span>';
+				else
+					$button['icon'] = '<span class="generic_icons ' . $act . '"></span>';
 
 				$menu_buttons[$act] = $button;
 			}
@@ -4121,7 +4049,7 @@ function smf_seed_generator()
  *
  * @param string $hook The hook name
  * @param array $parameters An array of parameters this hook implements
- * @return array the results of the functions
+ * @return array The results of the functions
  */
 function call_integration_hook($hook, $parameters = array())
 {
@@ -4175,10 +4103,10 @@ function call_integration_hook($hook, $parameters = array())
  * does nothing if the function is already added.
  *
  * @param string $hook The complete hook name.
- * @param string $function Function name, can be a call to a method via Class::method.
- * @param bool $permanent = true if true, updates the value in settings table.
- * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
- * @param bool $object Boolean Indicates if your class will be instantiated when its respective hook is called, your function must be a method.
+ * @param string $function The function name. Can be a call to a method via Class::method.
+ * @param bool $permanent If true, updates the value in settings table.
+ * @param string $file The file. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param bool $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  */
 function add_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
 {
@@ -4240,11 +4168,11 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
  * Does nothing if the function is not available.
  *
  * @param string $hook The complete hook name.
- * @param string $function Function name, can be a call to a method via Class::method.
+ * @param string $function The function name. Can be a call to a method via Class::method.
  * @params boolean $permanent Irrelevant for the function itself but need to declare it to match
- * @param string $file Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
+ * @param string $file The filename. Must include one of the following wildcards: $boarddir, $sourcedir, $themedir, example: $sourcedir/Test.php
 add_integration_function
- * @param boolean $object
+ * @param boolean $object Indicates if your class will be instantiated when its respective hook is called. If true, your function must be a method.
  * @see add_integration_function
  */
 function remove_integration_function($hook, $function, $permanent = true, $file = '', $object = false)
@@ -4450,8 +4378,8 @@ function load_file($string)
 
 /**
  * Prepares an array of "likes" info for the topic specified by $topic
- * @param Integer $topic The topic ID to fetch the info from.
- * @return Array an array of IDs of messages in the specified topic that the current user likes
+ * @param integer $topic The topic ID to fetch the info from.
+ * @return array An array of IDs of messages in the specified topic that the current user likes
  */
 function prepareLikesContext($topic)
 {
@@ -4497,9 +4425,9 @@ function prepareLikesContext($topic)
  * that are not normally displayable.  This converts the popular ones that
  * appear from a cut and paste from windows.
  *
- * @param string $string
- * @return string $string
-*/
+ * @param string $string The string
+ * @return string The sanitized string
+ */
 function sanitizeMSCutPaste($string)
 {
 	global $context;
@@ -4561,9 +4489,9 @@ function sanitizeMSCutPaste($string)
  * Uses capture group 2 in the supplied array
  * Does basic scan to ensure characters are inside a valid range
  *
- * @param array $matches
- * @return string $string
-*/
+ * @param array $matches An array of matches (relevant info should be the 3rd item)
+ * @return string A fixed string
+ */
 function replaceEntities__callback($matches)
 {
 	global $context;
@@ -4621,9 +4549,9 @@ function replaceEntities__callback($matches)
  * Uses capture group 1 in the supplied array
  * Does basic checks to keep characters inside a viewable range.
  *
- * @param array $matches
- * @return string $string
-*/
+ * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
+ * @return string The fixed string
+ */
 function fixchar__callback($matches)
 {
 	if (!isset($matches[1]))
@@ -4655,9 +4583,9 @@ function fixchar__callback($matches)
  * Callback function used of preg_replace_callback in smcFunc $ent_checks, for example
  * strpos, strlen, substr etc
  *
- * @param array $matches
- * @return string $string
-*/
+ * @param array $matches An array of matches (relevant info should be the 3rd item in the array)
+ * @return string The fixed string
+ */
 function entity_fix__callback($matches)
 {
 	if (!isset($matches[2]))
@@ -4681,8 +4609,8 @@ function entity_fix__callback($matches)
  *
  * It is SSL aware, and caches most of the parameters.
  *
- * @param string $email_address
- * @return string
+ * @param string $email_address The user's email address
+ * @return string The gravatar URL
  */
 function get_gravatar_url($email_address)
 {
@@ -4713,10 +4641,10 @@ function get_gravatar_url($email_address)
 }
 
 /**
-* Get a list of timezoned.
-*
-* @return array
-*/
+ * Get a list of timezoned.
+ *
+ * @return array An array of timezone info.
+ */
 function smf_list_timezones()
 {
 	return array(

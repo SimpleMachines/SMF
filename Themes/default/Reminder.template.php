@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The main "Here's how you can reset your password" page
+ */
 function template_main()
 {
 	global $context, $txt, $scripturl;
@@ -36,6 +39,9 @@ function template_main()
 	</form>';
 }
 
+/**
+ * The page to pick an option - secret question/answer (if set) or email
+ */
 function template_reminder_pick()
 {
 	global $context, $txt, $scripturl;
@@ -68,6 +74,9 @@ function template_reminder_pick()
 	</form>';
 }
 
+/**
+ * Just a simple "We sent you an email. Click the link in it to continue." message
+ */
 function template_sent()
 {
 	global $context;
@@ -82,6 +91,9 @@ function template_sent()
 		</div>';
 }
 
+/**
+ * Template for setting the new password
+ */
 function template_set_password()
 {
 	global $context, $txt, $scripturl, $modSettings;
@@ -130,6 +142,9 @@ function template_set_password()
 </script>';
 }
 
+/**
+ * The page that asks a user to answer their secret question
+ */
 function template_ask()
 {
 	global $context, $txt, $scripturl, $modSettings;

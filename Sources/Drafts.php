@@ -25,7 +25,7 @@ loadLanguage('Drafts');
  * Determines if this is a new or an existing draft
  * Returns errors in $post_errors for display in the template
  *
- * @param string $post_errors Any errors encountered trying to save this draft
+ * @param string[] $post_errors Any errors encountered trying to save this draft
  * @return boolean Always returns true
  */
 function SaveDraft(&$post_errors)
@@ -564,7 +564,7 @@ function showProfileDrafts($memID, $draft_type = 0)
 	list ($msgCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.
@@ -722,7 +722,7 @@ function showPMDrafts($memID = -1)
 	list ($msgCount) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
-	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) && !WIRELESS ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
+	$maxPerPage = empty($modSettings['disableCustomPerPage']) && !empty($options['messages_per_page']) ? $options['messages_per_page'] : $modSettings['defaultMaxMessages'];
 	$maxIndex = $maxPerPage;
 
 	// Make sure the starting place makes sense and construct our friend the page index.

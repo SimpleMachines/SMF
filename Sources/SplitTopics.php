@@ -459,7 +459,6 @@ function SplitSelectTopics()
  * is accessed with ?action=splittopics;sa=splitSelection.
  * uses the main SplitTopics template.
  * uses splitTopic function to do the actual splitting.
-
  */
 function SplitSelectionExecute()
 {
@@ -482,7 +481,6 @@ function SplitSelectionExecute()
 }
 
 /**
-	int splitTopic(int topicID, array messagesToBeSplit, string newSubject)
  * general function to split off a topic.
  * creates a new topic and moves the messages with the IDs in
  * array messagesToBeSplit to the new topic.
@@ -491,10 +489,10 @@ function SplitSelectionExecute()
  * updates the statistics to reflect a newly created topic.
  * logs the action in the moderation log.
  * a notification is sent to all users monitoring this topic.
- * @param int $split1_ID_TOPIC
- * @param array $splitMessages
- * @param string $new_subject
- * @return int the topic ID of the new split topic.
+ * @param int $split1_ID_TOPIC The ID of the topic we're splitting
+ * @param array $splitMessages The IDs of the messages being split
+ * @param string $new_subject The subject of the new topic
+ * @return int The ID of the new split topic.
  */
 function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 {
@@ -977,7 +975,7 @@ function MergeIndex()
  * * logs the action in the moderation log.
  * * sends a notification is sent to all users monitoring this topic.
  * * redirects to ?action=mergetopics;sa=done.
- * @param array $topics = array()
+ * @param array $topics The IDs of the topics to merge
  */
 function MergeExecute($topics = array())
 {

@@ -222,7 +222,7 @@ function template_download_language()
 }
 
 /**
- * Edit language entries.
+ * Edit language entries. Note that this doesn't always work because of PHP's max_post_vars setting.
  */
 function template_modify_language_entries()
 {

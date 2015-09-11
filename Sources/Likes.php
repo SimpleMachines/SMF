@@ -16,6 +16,9 @@
 if (!defined('SMF'))
 	die('No direct access...');
 
+/**
+ * Class Likes
+ */
 class Likes
 {
 	/**
@@ -114,8 +117,6 @@ class Likes
 	 *
 	 * The main handler. Verifies permissions (whether the user can see the content in question), dispatch different method for different sub-actions.
 	 * Accessed from index.php?action=likes
-	 * @param
-	 * @return
 	 */
 	public function call()
 	{
@@ -161,7 +162,7 @@ class Likes
 	 * A simple getter for all protected properties.
 	 * Accessed from index.php?action=likes
 	 * @param string $property The name of the property to get.
-	 * @return mixed either return the property or false if there isn't a property with that name.
+	 * @return mixed Either return the property or false if there isn't a property with that name.
 	 */
 	public function get($property = '')
 	{
@@ -598,6 +599,9 @@ class Likes
 		}
 	}
 
+	/**
+	 * Outputs a JSON-encoded response
+	 */
 	protected function jsonResponse()
 	{
 		global $modSettings;

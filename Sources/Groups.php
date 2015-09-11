@@ -32,7 +32,7 @@ function Groups()
 		'requests' => array('GroupRequests', 'group_requests'),
 	);
 
-	// Default to sub action 'index' or 'settings' depending on permissions.
+	// Default to sub action 'index'.
 	$_REQUEST['sa'] = isset($_REQUEST['sa']) && isset($subActions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : 'index';
 
 	// Get the template stuff up and running.
@@ -454,7 +454,13 @@ function GroupRequests()
 		isAllowedTo('manage_membergroups');
 
 	// Normally, we act normally...
-	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . ' AND lgr.status = {int:status_open}';
+	$where = ($user_info['mod_cache']['gq'] == '1=1' || $user_info['mod_cache']['gq'] == '0=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']);
+
+	if (isset($_GET['closed']))
+		$where .= ' AND lgr.status != {int:status_open}';
+	else
+		$where .= ' AND lgr.status = {int:status_open}';
+
 	$where_parameters = array(
 		'status_open' => 0,
 	);
@@ -491,28 +497,19 @@ function GroupRequests()
 		// Otherwise we do something!
 		else
 		{
-			// Get the details of all the members concerned...
 			$request = $smcFunc['db_query']('', '
-				SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address, mem.id_group AS primary_group,
-					mem.additional_groups AS additional_groups, mem.lngfile, mem.member_name, mem.notify_announcements,
-					mg.hidden, mg.group_name
+				SELECT lgr.id_request
 				FROM {db_prefix}log_group_requests AS lgr
-					INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
-					INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = lgr.id_group)
 				WHERE ' . $where . '
-					AND lgr.id_request IN ({array_int:request_list})
-				ORDER BY mem.lngfile',
+					AND lgr.id_request IN ({array_int:request_list})',
 				array(
 					'request_list' => $_POST['groupr'],
 					'status_open' => 0,
 				)
 			);
-			$affected_users = array();
-			$group_changes = array();
+			$request_list = array();
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				$row['lngfile'] = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
-
 				if (!isset($log_changes[$row['id_request']]))
 					$log_changes[$row['id_request']] = array(
 						'id_request' => $row['id_request'],
@@ -522,124 +519,16 @@ function GroupRequests()
 						'time_acted' => time(),
 						'act_reason' => $_POST['req_action'] != 'approve' && !empty($_POST['groupreason']) && !empty($_POST['groupreason'][$row['id_request']]) ? $smcFunc['htmlspecialchars']($_POST['groupreason'][$row['id_request']], ENT_QUOTES) : '',
 					);
-
-				// If we are approving work out what their new group is.
-				if ($_POST['req_action'] == 'approve')
-				{
-					// For people with more than one request at once.
-					if (isset($group_changes[$row['id_member']]))
-					{
-						$row['additional_groups'] = $group_changes[$row['id_member']]['add'];
-						$row['primary_group'] = $group_changes[$row['id_member']]['primary'];
-					}
-					else
-						$row['additional_groups'] = explode(',', $row['additional_groups']);
-
-					// Don't have it already?
-					if ($row['primary_group'] == $row['id_group'] || in_array($row['id_group'], $row['additional_groups']))
-						continue;
-
-					// Should it become their primary?
-					if ($row['primary_group'] == 0 && $row['hidden'] == 0)
-						$row['primary_group'] = $row['id_group'];
-					else
-						$row['additional_groups'][] = $row['id_group'];
-
-					// Add them to the group master list.
-					$group_changes[$row['id_member']] = array(
-						'primary' => $row['primary_group'],
-						'add' => $row['additional_groups'],
-					);
-				}
-
-				// Build the required information array
-				$affected_users[] = array(
-					'rid' => $row['id_request'],
-					'member_id' => $row['id_member'],
-					'member_name' => $row['member_name'],
-					'group_id' => $row['id_group'],
-					'group_name' => $row['group_name'],
-					'email' => $row['email_address'],
-					'language' => $row['lngfile'],
-					'receive_email' => $row['notify_announcements'],
-				);
+				$request_list[] = $row['id_request'];
 			}
 			$smcFunc['db_free_result']($request);
 
-			// Ensure everyone who is online gets their changes right away.
-			updateSettings(array('settings_updated' => time()));
-
-			if (!empty($affected_users))
-			{
-				require_once($sourcedir . '/Subs-Post.php');
-
-				// They are being approved?
-				if ($_POST['req_action'] == 'approve')
-				{
-					// Make the group changes.
-					foreach ($group_changes as $id => $groups)
-					{
-						// Sanity check!
-						foreach ($groups['add'] as $key => $value)
-							if ($value == 0 || trim($value) == '')
-								unset($groups['add'][$key]);
-
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}members
-							SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
-							WHERE id_member = {int:selected_member}',
-							array(
-								'primary_group' => $groups['primary'],
-								'selected_member' => $id,
-								'additional_groups' => implode(',', $groups['add']),
-							)
-						);
-					}
-
-					$lastLng = $user_info['language'];
-					foreach ($affected_users as $user)
-					{
-						//Did the user chose to not receive important notifications via email? If so... no congratulations email
-						if (empty($user['receive_email']))
-							continue;
-
-						$replacements = array(
-							'USERNAME' => $user['member_name'],
-							'GROUPNAME' => $user['group_name'],
-						);
-
-						$emaildata = loadEmailTemplate('mc_group_approve', $replacements, $user['language']);
-
-						sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grpapp' . $user['rid'], false, 2);
-					}
-				}
-				// Otherwise, they are getting rejected (With or without a reason).
-				else
-				{
-					// Same as for approving, kind of.
-					$lastLng = $user_info['language'];
-					foreach ($affected_users as $user)
-					{
-						//Again, did the user chose to not receive important notifications via email?
-						if (empty($user['receive_email']))
-							continue;
-						
-						$custom_reason = isset($_POST['groupreason']) && isset($_POST['groupreason'][$user['rid']]) ? $_POST['groupreason'][$user['rid']] : '';
-
-						$replacements = array(
-							'USERNAME' => $user['member_name'],
-							'GROUPNAME' => $user['group_name'],
-						);
-
-						if (!empty($custom_reason))
-							$replacements['REASON'] = $custom_reason;
-
-						$emaildata = loadEmailTemplate(empty($custom_reason) ? 'mc_group_reject' : 'mc_group_reject_reason', $replacements, $user['language']);
-
-						sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, 'grprej' . $user['rid'], false, 2);
-					}
-				}
-			}
+			// Add a background task to handle notifying people of this request
+			$data = serialize(array('member_id' => $user_info['id'], 'member_ip' => $user_info['ip'], 'request_list' => $request_list, 'status' => $_POST['req_action'], 'reason' => isset($_POST['groupreason']) ? $_POST['groupreason'] : '', 'time' => time()));
+			$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
+				array('task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'),
+				array('$sourcedir/tasks/GroupAct-Notify.php', 'GroupAct_Notify_Background', $data, 0), array()
+			);
 
 			// Some changes to log?
 			if (!empty($log_changes))
@@ -658,9 +547,6 @@ function GroupRequests()
 					);
 				}
 			}
-
-			// Restore the current language.
-			loadLanguage('ModerationCenter');
 		}
 	}
 
@@ -774,6 +660,13 @@ function GroupRequests()
 		),
 	);
 
+	if (isset($_GET['closed']))
+	{
+		// Closed requests don't require interaction.
+		unset($listOptions['columns']['action'], $listOptions['form'], $listOptions['additional_rows'][0]);
+		$listOptions['base_href'] .= 'closed';
+	}
+
 	// Create the request list.
 	createToken('mod-gr');
 	createList($listOptions);
@@ -787,9 +680,9 @@ function GroupRequests()
 /**
  * Callback function for createList().
  *
- * @param $where
- * @param $where_parameters
- * @return int, the count of group requests
+ * @param string $where The WHERE clause for the query
+ * @param array $where_parameters The parameters for the WHERE clause
+ * @return int The number of group requests
  */
 function list_getGroupRequestCount($where, $where_parameters)
 {
@@ -826,10 +719,12 @@ function list_getGroupRequestCount($where, $where_parameters)
  */
 function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_parameters)
 {
-	global $smcFunc, $scripturl;
+	global $smcFunc, $scripturl, $txt;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
+		SELECT
+			lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
+			lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
 			mem.member_name, mg.group_name, mg.online_color, mem.real_name
 		FROM {db_prefix}log_group_requests AS lgr
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -844,11 +739,28 @@ function list_getGroupRequests($start, $items_per_page, $sort, $where, $where_pa
 	$group_requests = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		if (empty($row['reason']))
+			$reason = '<em>(' . $txt['mc_groupr_no_reason'] .  ')</em>';
+		else
+			$reason = censorText($row['reason']);
+
+		if (isset($_GET['closed']))
+		{
+			if ($row['status'] == 1)
+				$reason .= '<br><br><strong>' . $txt['mc_groupr_approved'] . '</strong>';
+			elseif ($row['status'] == 2)
+				$reason .= '<br><br><strong>' . $txt['mc_groupr_rejected'] . '</strong>';
+
+				$reason .= ' (' . timeformat($row['time_acted']) . ')';
+			if (!empty($row['act_reason']))
+				$reason .= '<br><br>' . censorText($row['act_reason']);
+		}
+
 		$group_requests[] = array(
 			'id' => $row['id_request'],
 			'member_link' => '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 			'group_link' => '<span style="color: ' . $row['online_color'] . '">' . $row['group_name'] . '</span>',
-			'reason' => censorText($row['reason']),
+			'reason' => $reason,
 			'time_submitted' => timeformat($row['time_applied']),
 		);
 	}

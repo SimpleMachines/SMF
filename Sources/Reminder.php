@@ -46,7 +46,9 @@ function RemindMe()
 		createToken('remind');
 }
 
-// Pick a reminder type.
+/**
+ * Allows the user to pick how they wish to be reminded
+ */
 function RemindPick()
 {
 	global $context, $txt, $scripturl, $sourcedir, $user_info, $webmaster_email, $smcFunc, $language, $modSettings;
@@ -164,7 +166,9 @@ function RemindPick()
 	);
 }
 
-// Set your new password
+/**
+ * Allows the user to set their new password
+ */
 function setPassword()
 {
 	global $txt, $context;
@@ -189,6 +193,9 @@ function setPassword()
 	createToken('remind-sp');
 }
 
+/**
+ * Actually sets the new password
+ */
 function setPassword2()
 {
 	global $context, $txt, $smcFunc, $sourcedir;
@@ -271,7 +278,9 @@ function setPassword2()
 	createToken('login');
 }
 
-// Get the secret answer.
+/**
+ * Allows the user to enter their secret answer
+ */
 function SecretAnswerInput()
 {
 	global $context, $smcFunc;
@@ -315,6 +324,9 @@ function SecretAnswerInput()
 	loadJavascriptFile('register.js', array('default_theme' => true, 'defer' => false), 'smf_register');
 }
 
+/**
+ * Validates the secret answer input by the user
+ */
 function SecretAnswer2()
 {
 	global $txt, $context, $smcFunc, $sourcedir;

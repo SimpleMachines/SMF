@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// The only template in the file.
+/**
+ * This handles the Who's Online page
+ */
 function template_main()
 {
 	global $context, $settings, $scripturl, $txt;
@@ -116,6 +118,9 @@ function template_main()
 	</div>';
 }
 
+/**
+ * This displays a nice credits page
+ */
 function template_credits()
 {
 	global $context, $txt;

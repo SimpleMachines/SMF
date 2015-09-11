@@ -22,12 +22,11 @@ if (!defined('SMF'))
  *
  * - additionally handles previews of posts.
  * - @uses the Post template and language file, main sub template.
- * - allows wireless access using the protocol_post sub template.
  * - requires different permissions depending on the actions, but most notably post_new, post_reply_own, and post_reply_any.
  * - shows options for the editing and posting of calendar events and attachments, as well as the posting of polls.
  * - accessed from ?action=post.
  *
- *  @param array $post_errors holds any errors found tyring to post
+ *  @param array $post_errors Holds any errors found while tyring to post
  */
 function Post($post_errors = array())
 {
@@ -1052,10 +1051,6 @@ function Post($post_errors = array())
 			'extra_after' => '<span><strong class="nav">)</strong></span>'
 		);
 
-	// Give wireless a linktree url to the post screen, so that they can switch to full version.
-	if (WIRELESS)
-		$context['linktree'][count($context['linktree']) - 1]['url'] = $scripturl . '?action=post;' . (!empty($topic) ? 'topic=' . $topic : 'board=' . $board) . '.' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . (int) $_REQUEST['msg'] . ';' . $context['session_var'] . '=' . $context['session_id'] : '');
-
 	$context['subject'] = addcslashes($form_subject, '"');
 	$context['message'] = str_replace(array('"', '<', '>', '&nbsp;'), array('&quot;', '&lt;', '&gt;', ' '), $form_message);
 
@@ -1225,9 +1220,7 @@ function Post($post_errors = array())
 	}
 
 	// Finally, load the template.
-	if (WIRELESS && WIRELESS_PROTOCOL != 'wap')
-		$context['sub_template'] = WIRELESS_PROTOCOL . '_post';
-	elseif (!isset($_REQUEST['xml']))
+	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
 }
 
@@ -2301,15 +2294,13 @@ function AnnouncementSend()
 	$request = $smcFunc['db_query']('', '
 		SELECT mem.id_member, mem.email_address, mem.lngfile
 		FROM {db_prefix}members AS mem
-		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)' . (!empty($modSettings['allow_disableAnnounce']) ? '
-			AND mem.notify_announcements = {int:notify_announcements}' : '') . '
+		WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)
 			AND mem.is_activated = {int:is_activated}
 			AND mem.id_member > {int:start}
 		ORDER BY mem.id_member
 		LIMIT {int:chunk_size}',
 		array(
 			'group_list' => $_POST['who'],
-			'notify_announcements' => 1,
 			'is_activated' => 1,
 			'start' => $context['start'],
 			'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
@@ -2332,8 +2323,23 @@ function AnnouncementSend()
 
 	$announcements = array();
 	// Loop through all members that'll receive an announcement in this batch.
+	$rows = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$rows[$row['id_member']] = $row;
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Load their alert preferences
+	require_once($sourcedir . '/Subs-Notify.php');
+	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+
+	foreach ($rows as $row)
+	{
+		// Force them to have it?
+		if (empty($prefs[$row['id_member']]['announcements']))
+			continue;
+
 		$cur_language = empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile'];
 
 		// If the language wasn't defined yet, load it and compose a notification message.

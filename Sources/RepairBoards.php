@@ -109,10 +109,10 @@ function RepairBoards()
  * If max_substep is set, $_GET['substep'] / $max_substep is the percent
  * done this step is.
  *
- * @param array $to_fix
- * @param string $current_step_description
- * @param int $max_substep = none
- * @param force $force = false
+ * @param array $to_fix An array of information about what to fix
+ * @param string $current_step_description The description of the current step
+ * @param int $max_substep The maximum substep to reach before pausing
+ * @param bool $force Whether to force pausing even if we don't really need to
  */
 function pauseRepairProcess($to_fix, $current_step_description, $max_substep = 0, $force = false)
 {
@@ -1556,7 +1556,7 @@ function loadForumTests()
  * It keeps track of the errors it did find, so that the actual repair
  * won't have to recheck everything.
  *
- * @param $do_fix
+ * @param bool $do_fix Whether to actually fix the errors or just return the info
  * @return array, the errors found.
  */
 function findForumErrors($do_fix = false)

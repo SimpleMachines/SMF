@@ -18,8 +18,8 @@ if (!defined('SMF'))
  * Generates the query to determine the list of available boards for a user
  * Executes the query and returns the list
  *
- * @param type $boardListOptions
- * @return type
+ * @param array $boardListOptions An array of options for the board list
+ * @return array An array of board info
  */
 function getBoardList($boardListOptions = array())
 {

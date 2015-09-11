@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Editing the smiley sets.
+/**
+ * Shows a list of smiley sets so you can edit them.
+ */
 function template_editsets()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -24,7 +26,9 @@ function template_editsets()
 	</div>';
 }
 
-// Modifying a smiley set.
+/**
+ * Modifying a smiley set.
+ */
 function template_modifyset()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -108,7 +112,9 @@ function template_modifyset()
 	</div>';
 }
 
-// Editing an individual smiley
+/**
+ * Editing an individual smiley
+ */
 function template_modifysmiley()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -191,7 +197,9 @@ function template_modifysmiley()
 	</div>';
 }
 
-// Adding a new smiley.
+/**
+ * Adding a new smiley.
+ */
 function template_addsmiley()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -320,7 +328,9 @@ function template_addsmiley()
 	</div>';
 }
 
-// Ordering smileys.
+/**
+ * Ordering smileys.
+ */
 function template_setorder()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -370,13 +380,17 @@ function template_setorder()
 	</div>';
 }
 
-// Editing Message Icons
+/**
+ * Editing Message Icons
+ */
 function template_editicons()
 {
 	template_show_list('message_icon_list');
 }
 
-// Editing an individual message icon
+/**
+ * Editing an individual message icon
+ */
 function template_editicon()
 {
 	global $context, $scripturl, $txt;

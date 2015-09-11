@@ -12,8 +12,15 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * Class ApprovePost_Notify_Background
+ */
 class ApprovePost_Notify_Background extends SMF_BackgroundTask
 {
+	/**
+     * This executes the task - loads up the info, puts the email in the queue and inserts any alerts as needed.
+	 * @return bool Always returns true
+	 */
 	public function execute()
 	{
 		global $smcFunc, $sourcedir, $scripturl, $modSettings, $language;

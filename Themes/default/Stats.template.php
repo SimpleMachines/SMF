@@ -10,6 +10,9 @@
  * @version 2.1 Beta 2
  */
 
+/**
+ * The stats page.
+ */
 function template_main()
 {
 	global $context, $settings, $txt, $scripturl, $modSettings;

@@ -25,8 +25,8 @@ if (!defined('SMF'))
  * 	- Depending on the include_categories setting returns an associative
  * array with categories->boards->child_boards or an associative array
  * with boards->child_boards.
- * @param array $boardIndexOptions
- * @return array
+ * @param array $boardIndexOptions An array of boardindex options
+ * @return array An array of information for displaying the boardindex
  */
 
 function getBoardIndex($boardIndexOptions)

@@ -10,7 +10,9 @@
  * @version 2.1 Beta 2
  */
 
-// Template for listing all the current categories and boards.
+/**
+ * Template for listing all the current categories and boards.
+ */
 function template_main()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings;
@@ -101,7 +103,9 @@ function template_main()
 	</div>';
 }
 
-// Template for editing/adding a category on the forum.
+/**
+ * Tempalte for editing/adding a category on the forum.
+ */
 function template_modify_category()
 {
 	global $context, $scripturl, $txt;
@@ -186,7 +190,9 @@ function template_modify_category()
 	</div>';
 }
 
-// A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
+/**
+ * A template to confirm if a user wishes to delete a category - and whether they want to save the boards.
+ */
 function template_confirm_category_delete()
 {
 	global $context, $scripturl, $txt;
@@ -237,7 +243,9 @@ function template_confirm_category_delete()
 	</div>';
 }
 
-// Below is the template for adding/editing an board on the forum.
+/**
+ * Below is the template for adding/editing a board on the forum.
+ */
 function template_modify_board()
 {
 	global $context, $scripturl, $txt, $modSettings;
@@ -640,7 +648,9 @@ function template_modify_board()
 	</script>';
 }
 
-// A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
+/**
+ * A template used when a user is deleting a board with child boards in it - to see what they want to do with them.
+ */
 function template_confirm_board_delete()
 {
 	global $context, $scripturl, $txt;

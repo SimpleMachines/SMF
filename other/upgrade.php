@@ -717,7 +717,7 @@ function upgradeExit($fallThrough = false)
 			template_upgrade_above();
 		else
 		{
-			header('Content-Type: text/xml; charset=ISO-8859-1');
+			header('Content-Type: text/xml; charset=UTF-8');
 			// Sadly we need to retain the $_GET data thanks to the old upgrade scripts.
 			$upcontext['get_data'] = array();
 			foreach ($_GET as $k => $v)
@@ -1265,7 +1265,7 @@ function checkLogin()
 function UpgradeOptions()
 {
 	global $db_prefix, $command_line, $modSettings, $is_debug, $smcFunc, $packagesdir, $tasksdir;
-	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server;
+	global $boarddir, $boardurl, $sourcedir, $maintenance, $cachedir, $upcontext, $db_type, $db_server, $db_last_error;
 
 	$upcontext['sub_template'] = 'upgrade_options';
 	$upcontext['page_title'] = 'Upgrade Options';
@@ -1456,6 +1456,76 @@ function UpgradeOptions()
 
 	// Update Settings.php with the new settings.
 	changeSettings($changes);
+
+	// Back up again before we do anything else, just in case...
+	copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
+
+	// Read the contents of the file in as a string
+	$settings_file = file_get_contents($boarddir . '/Settings.php');
+
+	// Look to see if the new error-catching section is there...
+	if (stripos('if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))', $settings_file) === false)
+	{
+		// This is what we want to add...
+		$error_catching_header = '
+########## Error-Catching ##########
+# Note: You shouldn\'t touch these settings.';
+
+		$error_catching = '
+if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))
+	include(dirname(__FILE__) . \'/db_last_error.php\');
+
+if (!isset($db_last_error))
+{
+	// File does not exist so lets try to create it
+	file_put_contents(dirname(__FILE__) . \'/db_last_error.php\', \'<\' . \'?\' . "php\n" . \'$db_last_error = 0;\' . "\n" . \'?\' . \'>\');
+	$db_last_error = 0;
+}
+';
+		// Before we go any further, check to see if the original code is there first...
+		if (stripos('########## Error-Catching ##########', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code - assuming the header is already there
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching, $settings_file);
+		}
+		// What about just the db_last_error line?
+		elseif (stripos('$db_last_error =', $settings_file !== false))
+		{
+			$found_old = true;
+			// Replace the old line with the new code
+			$settings_file = str_replace('$db_last_error = ' . $db_last_error . ';', $error_catching_header . $error_catching, $settings_file);
+		}
+		else
+		{
+			$found_old = false;
+			// We want the comments as well as the code...
+			$error_catching = $error_catching_header . $error_catching;
+		}
+
+		// Blank out the file - done to fix a oddity with some servers.
+		$fp = fopen($boarddir . '/Settings.php', 'w');
+		fclose($fp);
+
+		// Open the file for writing
+		$file = fopen($boarddir . '/Settings.php', 'r+');
+
+		// Write the original contents...
+		fwrite($file, $settings_file);
+
+		// If we didn't find the old code, add the new code at the end instead...
+		if (!$found_old)
+		{
+			// Go to the position two bytes before the end - in front of the closing PHP tag
+			fseek($file, -2, SEEK_END);
+
+			// Append our new data - the extra line break above will prevent us from breaking things...
+			fwrite($file, $error_catching);
+		}
+
+		// Close the file
+		fclose($file);
+	}
 
 	if ($command_line)
 		echo ' Successful.' . "\n";
@@ -3635,7 +3705,7 @@ function template_upgrade_above()
 	echo '<!DOCTYPE html>
 <html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'ISO-8859-1', '">
+		<meta charset="', isset($txt['lang_character_set']) ? $txt['lang_character_set'] : 'UTF-8', '">
 		<meta name="robots" content="noindex">
 		<title>', $txt['upgrade_upgrade_utility'], '</title>
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
@@ -3644,7 +3714,7 @@ function template_upgrade_above()
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script>
 			var smf_scripturl = \'', $upgradeurl, '\';
-			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
+			var smf_charset = \'', (empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'UTF-8' : $txt['lang_character_set']) : $modSettings['global_character_set']), '\';
 			var startPercent = ', $upcontext['overall_percent'], ';
 
 			// This function dynamically updates the step progress bar - and overall one as required.
@@ -3804,7 +3874,7 @@ function template_xml_above()
 {
 	global $upcontext;
 
-	echo '<', '?xml version="1.0" encoding="ISO-8859-1"?', '>
+	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 	<smf>';
 
 	if (!empty($upcontext['get_data']))

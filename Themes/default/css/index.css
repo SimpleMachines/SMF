@@ -341,7 +341,7 @@ h3.largetext {
 .bbc_code {
 	display: block;
 	font-family: "DejaVu Sans Mono", Monaco, Consolas, monospace;
-	font-size: 0.9em;
+	font-size: 0.75em;
 	background: #f3f3f3;
 	border: 1px solid #dfdfdf;
 	border-top: 2px solid #bbb;
@@ -385,9 +385,6 @@ h3.largetext {
 .bbc_color a {
 	color: inherit;
 }
-.bbc_bold {
-	font-weight: bold;
-}
 .bbc_img, .atc_img {
 	border: 0;
 	max-width: 100%;
@@ -401,17 +398,10 @@ h3.largetext {
 	color: inherit;
 	vertical-align: top;
 }
-.bbc_u {
-	text-decoration: underline;
-}
 .bbc_list {
 	text-align: left;
 	padding: 0 0 0 35px;
 	list-style-type: inherit;
-}
-/* Everything is same except HTML5 valid */
-.bbc_tt {
-	font-family: "dejavu sans mono", "monaco", "lucida console", "courier new", monospace;
 }
 /* No image should have a border when linked. */
 a img {
@@ -568,11 +558,6 @@ a.moderation_link, a.moderation_link:visited {
 	color: red;
 	font-weight: bold;
 }
-
-p.para2 {
-	padding: 12px 0 44px 0;
-	margin: 0;
-}
 /* AJAX notification bar
 ------------------------------------------------------- */
 #ajax_in_progress {
@@ -717,28 +702,17 @@ img.sort, .sort {
 
 /* Styles for the standard dropdown menus.
 ------------------------------------------------------- */
-#main_menu {
-	margin: 0;
-	padding: 0;
-	float: left;
-	width: 100%;
-}
 .dropmenu, #top_info {
-	width: 100%;
 	position: relative;
 	box-sizing: border-box;
 }
-#menu_nav {
-	padding: 0 40px 0 0;
-}
 /* Level 1 button background. */
 .dropmenu li, #top_info > li {
+	display: inline-block;
 	margin: 0 2px 0 1px;
 	padding: 0 0 0.3em 0;
-	float: left;
 	font-size: 0.9em;
 	line-height: 1.9em;
-	position: relative;
 }
 /* For cases where we want to spotlight something specific to an item, e.g. an amount */
 .amt {
@@ -759,12 +733,7 @@ img.sort, .sort {
 .dropmenu li strong {
 	color: #333;
 }
-/* For the upshrink button in the main menu bar. */
-#collapse_button {
-	position: absolute;
-	top: 0;
-	right: 0;
-}
+
 .dropmenu li a, #top_info > li > a {
 	padding: 0 7px 0 7px;
 	margin: 0;
@@ -895,18 +864,17 @@ img.sort, .sort {
 	margin: 0;
 	padding: 0;
 	width: 17em;
-	position: relative;
-	float: none;
 	font-size: 1em;
 	border-radius: 3px;
 	border: 1px solid transparent;
 }
-.dropmenu li li a {
-	position: relative;
-	line-height: 2.2em;
-	padding: 0 7px;
-	display: block;
+/* Necessary to allow highlighting of 1st level while hovering over submenu. */
+.dropmenu li:hover li a, .dropmenu li li a {
+	background: none;
+	padding: 0 9px;
 	color: #346;
+	border: none;
+	line-height: 2.2em;
 }
 .dropmenu li li a>img {
 	vertical-align: middle;
@@ -942,13 +910,6 @@ img.sort, .sort {
 	margin-left: 0;
 	width: auto;
 }
-/* Necessary to allow highlighting of 1st level while hovering over submenu. */
-.dropmenu li:hover li a, .dropmenu li li a {
-	padding: 0 9px;
-	background: none;
-	color: #346;
-	border: none;
-}
 /* Level 3 submenu wrapper positioning. */
 .dropmenu li ul ul {
 	margin: -2em 0 0 15.3em;
@@ -968,9 +929,6 @@ img.sort, .sort {
 	border-top: 1px solid #d4dee6;
 }
 /* Reposition Level 2 submenu as visible on hover. */
-.dropmenu li ul {
-	display: none;
-}
 .dropmenu li:hover ul {
 	display: block;
 }
@@ -1048,9 +1006,6 @@ img.sort, .sort {
 .button.active:hover {
 	color: #ffc187;
 	background: #557ea0;
-}
-.align_top a, .align_bottom a {
-	margin: 0 12px 0 0;
 }
 .button.last {
 	margin-top: 9px;
@@ -1793,7 +1748,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	background-position: -135px -5px;
 }
 .generic_icons.watch {
-	background-position: -213px -5px;
+	background-position: -239px -5px;
 }
 /* 2nd row */
 .generic_icons.move, .generic_icons.next_page {
@@ -2874,65 +2829,59 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-div.icon span {
+.board_icon a {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
 	width: 45px;
 	height: 45px;
 }
-div.icon span.board_on {
-	background-position: 0 0;
-}
-div.icon span.board_on2 {
+.board_icon a.board_on2 {
 	background-position: -45px 0;
 }
-div.icon span.board_off {
+.board_icon a.board_off {
 	background-position: 0 -45px;
 }
-div.icon span.board_redirect {
+.board_icon a.board_redirect {
 	background-position: -45px -45px;
 }
-div.icon {
-	float: left;
+.board_icon {
 	width: 5%;
 	text-align: center;
 	padding: 8px 0 0 0;
 	min-width: 60px;
 }
-div.info {
-	float: left;
+.info {
 	width: 50%;
 	margin: 10px 0 5px 0;
 }
-div.info .subject {
+.info .subject {
 	font-weight: 600;
 	font-size: 1.1em;
 	color: #A85400;
 }
-div.stats {
+.board_stats {
 	width: 14%;
-	float: left;
-	padding: 7px;
+	padding: 10px;
 	font-size: 0.9em;
 }
-div.stats p {
+.board_stats p {
 	border-left: 1px solid #DDD;
 	border-right: 1px solid #DDD;
 	text-align: center;
 	min-height: 3em;
 	margin: 3px 0 0;
 }
-div.lastpost {
+.lastpost {
 	width: 25%;
-	float: left;
-	padding-top: 7px;
 	font-size: 0.9em;
 }
-div.lastpost p {
+.lastpost p {
 	margin: 3px 0 0 0;
 }
-#boardindex_table .icon, #boardindex_table .info, #boardindex_table .stats, #boardindex_table .lastpost {
+.board_icon, .info, .board_stats, .lastpost {
 	min-height: 4.5em;
+	display: table-cell;
+	vertical-align: middle;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -2946,8 +2895,6 @@ div.lastpost p {
 }
 /* Child boards */
 .children {
-	width: 100%;
-	float: left;
 	border-top: 1px solid #DDD;
 	padding: 5px;
 }
@@ -2959,8 +2906,7 @@ p.moderators {
 	font-weight: bold;
 }
 span.postby {
-	width: 100%;
-	float: left;
+	display: block;
 }
 /* Info Center */
 #info_center {
@@ -3024,16 +2970,8 @@ span.postby {
 
 /* MessageIndex */
 /* Topic list */
-#topic_container .windowbg, #topic_container .windowbg2 {
-	height: 4em;
-	border: 1px solid #ddd;
-	border-top: none;
-}
-#topic_header {
+#topic_header .board_icon, #topic_header .info, #topic_header .board_stats, #topic_header .lastpost, #topic_header .moderation {
 	height: 2em;
-}
-#topic_header .icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
-	height: 1.5em !important;
 	font-weight: bold;
 	font-size: 1em;
 	margin-top: 3px;
@@ -3044,7 +2982,7 @@ span.postby {
 	margin: 0px;
 	border-radius: 0;
 }
-#messageindex .stats, #recent .stats {
+#messageindex .board_stats, #recent .board_stats {
 	text-align: center;
 }
 #topic_header input {
@@ -3055,13 +2993,17 @@ span.postby {
 	width: 35px;
 	margin: 5px 0 0 0;
 }
-#topic_container .icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .stats, #topic_container .lastpost {
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
 	box-shadow: none;
 	border-radius: 0;
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	height: 3.5em;
+	height: 4em;
+}
+#topic_container .windowbg, #topic_container .windowbg2 {
+	border: 1px solid #ddd;
+	border-top: none;
 }
 #topic_container .icons span {
 	margin: 2px 0 0 5px;
@@ -3069,56 +3011,69 @@ span.postby {
 .icon img, .moderation input {
 	margin-top: 15px;
 }
-.info .icons, #messageindex .stats p, .lastpost p, #unread .stats p, #unreadreplies .stats p {
+.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
 	margin-top: 5px;
 	border: none;
 }
+/* MessageIndex */
 /* Start with description and other things */
 #description_board {
-	padding: 8px 10px 8px 10px;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-	border-bottom: 0;
+	padding: 8px 10px;
+	border-radius: 6px 6px 0 0;
+	border-bottom: none;
 	box-shadow: none;
 }
-.lastpost span.last_post {
-	float: right;
-	margin: 4px;
+#description_board h3, #description_board p {
+	display: inline-block;
 }
-select.qaction {
+#description_board h3:after {
+	content: ' - ';
+}
+/* Topic list */
+.moderation {
+	display: table-cell;
+	width: 35px;
+	vertical-align: middle;
+}
+
+/* Quick moderation selects and submit */
+#quick_actions {
+	padding: 4px 0;
+}
+.qaction {
 	padding: 0;
 }
-#quick_actions {
-	padding-right: 4px;
-	margin-top: 5px;
+/* Investigate default select and button sizing. Something is slightly off there.*/
+.qaction.button_submit {
+	margin: 1px 4px 0 4px;
 }
-.qaction_cell .button_submit {
-	margin: 2px 4px 0 4px;
-}
-#topic_icons {
-	margin-top: 10px;
-	float: left;
-	width: 100%;
+/* Icons and jump to */
+#topic_icons:before {
+	display: block;
+	height: 8px;
+	clear: both;
+	content: '';
 }
 #topic_icons .information {
-	border-radius: 7px;
+	font-size: .9em;
+	border-radius: 4px;
 }
 #topic_icons p {
+	padding: 0 12px 0 4px;
 	line-height: 2em;
 }
-#topic_icons p.floatleft {
-	padding: 0 12px 2px 0;
-}
-/* Just to correct Fred there without requiring an extra image. Should make a new Fred with clear padding. */
-#topic_icons p.floatleft img:first-child {
+/* Should lose this before RC1. It's a kludge. Can be fixed by new image */
+#topic_icons .floatleft img:first-child {
 	padding: 0 2px;
 }
 #message_index_jump_to_select {
 	font-size: 1em;
-	padding: 2px;
+	padding: 0;
 }
+/* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
-	padding: 4px 6px 2px 6px;
+	margin-top: 3px;
+	padding: 0px 6px;
 }
 
 /* Display */
@@ -3362,7 +3317,7 @@ img.smiley {
 .attachments {
 	padding: 12px 0 0 0;
 }
-.attachment {
+.attached {
 	padding: 0 6px 8px 6px;
 	max-width: 100%;
 }
@@ -3654,7 +3609,7 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 p.information img {
 	vertical-align: middle;
 }
-#messageindex .information, #topic_container .info {
+#messageindex .information {
 	border-radius: 0;
 	margin: 0;
 }
@@ -3869,63 +3824,4 @@ h3.profile_hd {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-}
-
-/* Progress bars */
-.progressBar {
-	height: 20px;
-	margin: 1px;
-	background: #F8F8F8;
-	border: 1px solid #C5C5C5;
-	border-radius: 7px;
-	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
-	width:70%;
-}
-
-.progressBar span {
-	display: block;
-	height: 100%;
-	border-radius: 3px;
-	box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
-	transition: width .4s ease-in-out;
-	background-color: #34c2e3;
-	background-size: 30px 30px;
-	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-	width:0px;
-}
-
-@keyframes animate-stripes {
-	0% {background-position: 0 0;} 100% {background-position: 60px 0;}
-}
-
-/* fileUpload css */
-.attach_holder{
-	display:inline-block;
-	overflow: hidden;
-	width:50%;
-}
-.attach_holder div.file_details{
-	display:inline-block;
-	overflow: hidden;
-	width: 60%;
-}
-.attach_holder div.file_preview{
-	float: left;
-	width: 40%;
-	min-height:100px;
-}
-.attach_holder div.file_preview canvas{
-	max-width: 100px;
-}
-.attach_holder div.file_info{
-	float:left;
-}
-.attach_holder div.file_buttons{
-	padding:10px;
-}
-.attach_holder div.file_buttons div.progressBar{
-	float:left;
-}
-#attachGenericErrors{
-	display:none;
 }
