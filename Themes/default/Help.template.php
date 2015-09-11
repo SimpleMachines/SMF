@@ -109,7 +109,7 @@ function template_find_members()
 	else
 	{
 		echo '
-				<ul class="reset padding">';
+				<ul class="padding">';
 
 		foreach ($context['results'] as $result)
 		{

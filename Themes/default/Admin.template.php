@@ -900,7 +900,7 @@ function template_show_settings()
 					echo '
 											<fieldset id="', $config_var['name'], '">
 												<legend>', $txt['bbcTagsToUse_select'], '</legend>
-													<ul class="reset">';
+													<ul>';
 
 					foreach ($context['bbc_columns'] as $bbcColumn)
 					{
