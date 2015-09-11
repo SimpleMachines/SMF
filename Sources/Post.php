@@ -1184,7 +1184,9 @@ function Post($post_errors = array())
 		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true), 'smf_fileUpload');
 		addInlineJavascript('
 	smf_fileUpload({
-		cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
+		dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
+		dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
+		dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
 		cancelAll : '. JavaScriptEscape($txt['modify_cancel_all']) .',
 		upload :'. JavaScriptEscape($txt['upload']) .',
 		uploadAll :'. JavaScriptEscape($txt['upload_all']) .',
@@ -1194,15 +1196,15 @@ function Post($post_errors = array())
 		deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
 		attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
 		insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .'
-		maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
-		acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
-		maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
+		dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) .',
+		dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
+		dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
 		maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .'
-		acceptFileTypes: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
-		maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
-		previewMaxWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
-		previewMaxHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
-		maxNumberOfFiles: '. $context['num_allowed_attachments'] .',
+		acceptedFiles: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
+		maxFilesize: '. ($modSettings['attachmentSizeLimit'] * 0.001) .',
+		thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
+		thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
+		maxFiles: '. $context['num_allowed_attachments'] .',
 		limitMultiFileUploads: '. $context['num_allowed_attachments'] .',
 		limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) .'000
 	});', true);

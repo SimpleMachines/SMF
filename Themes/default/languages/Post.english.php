@@ -45,6 +45,7 @@ $txt['clean_attach'] = 'Clear attachment';
 $txt['attached'] = 'Attached';
 $txt['allowed_types'] = 'Allowed file types';
 $txt['attach_drop_zone'] = 'Or drag and drop your files here';
+$txt['attach_drop_zone_no'] = 'Your browser does not support drag and drop file uploads';
 $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowed extensions are %1$s.';
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
