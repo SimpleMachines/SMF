@@ -130,10 +130,3 @@ function template_unread()
 		template_topic_legend();
 }
 
-/**
- * Template for showing unread replies (eg new replies to topics you've posted in)
- */
-function template_replies()
-{
-	template_unread();
-}

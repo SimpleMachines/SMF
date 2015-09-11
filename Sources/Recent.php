@@ -689,7 +689,7 @@ function UnreadTopics()
 
 	loadTemplate('Recent');
 	loadTemplate('MessageIndex');
-	$context['sub_template'] = $_REQUEST['action'] == 'unread' ? 'unread' : 'replies';
+	$context['sub_template'] = 'unread';
 
 	$context['can_approve_posts'] = false;
 	$context['can_quick_mod'] = $context['showCheckboxes'];
