@@ -130,3 +130,4 @@ function template_unread()
 		template_topic_legend();
 }
 
+?>
