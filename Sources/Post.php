@@ -1180,35 +1180,24 @@ function Post($post_errors = array())
 	// File Upload.
 	if ($context['can_post_attachment'])
 	{
-		loadJavascriptFile('//code.jquery.com/ui/1.11.4/jquery-ui.min.js', array('external' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/image.all.min.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/canvas-to-blob.min.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/jquery.iframe-transport.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/fileupload.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/process.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/image.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('fileUpload/validate.js', array('default_theme' => true, 'defer' => true));
-		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true));
+		loadJavascriptFile('dropzone.min.js', array('external' => true, 'defer' => true), 'smf_dropzone');
+		loadJavascriptFile('smf_fileUpload.js', array('default_theme' => true, 'defer' => true), 'smf_fileUpload');
 		addInlineJavascript('
 	smf_fileUpload({
-		smf_text : {
-			cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
-			cancelAll : '. JavaScriptEscape($txt['modify_cancel_all']) .',
-			upload :'. JavaScriptEscape($txt['upload']) .',
-			uploadAll :'. JavaScriptEscape($txt['upload_all']) .',
-			processing: '. JavaScriptEscape($txt['processing']) .',
-			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
-			insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',
-			deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
-			attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
-			insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .'
-		},
-		messages: {
-			maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
-			acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
-			maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
-			maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .'
-		},
+		cancel : '. JavaScriptEscape($txt['modify_cancel']) .',
+		cancelAll : '. JavaScriptEscape($txt['modify_cancel_all']) .',
+		upload :'. JavaScriptEscape($txt['upload']) .',
+		uploadAll :'. JavaScriptEscape($txt['upload_all']) .',
+		processing: '. JavaScriptEscape($txt['processing']) .',
+		genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
+		insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',
+		deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
+		attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
+		insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .'
+		maxNumberOfFiles: '. JavaScriptEscape($txt['more_attachments_error']) .',
+		acceptFileTypes: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
+		maxFileSize: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',
+		maxTotalSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .'
 		acceptFileTypes: /(\.|\/)('. str_replace(', ', '|', $context['allowed_extensions']) .')$/i,
 		maxFileSize: '. $modSettings['attachmentSizeLimit'] .'000,
 		previewMaxWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
