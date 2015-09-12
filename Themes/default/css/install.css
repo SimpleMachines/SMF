@@ -2,10 +2,6 @@ a:link, a:hover, a:visited {
 	text-decoration: underline;
 }
 /* These divisions wrap the forum sections when a forum width is set. */
-#wrapper, .frame {
-	width: 90%;
-	max-width: 1140px;
-}
 h1.forumtitle {
 	font-size: 2em;
 	font-family: tahoma;

@@ -52,7 +52,7 @@ function template_main()
 		// Boards table header.
 		echo '
 		<form action="', $scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', $context['character_set'], '">
-				<ul id="category_', $category['id'], '" class="reset nolist">';
+				<ul id="category_', $category['id'], '" class="nolist">';
 
 		if (!empty($category['move_link']))
 			echo '

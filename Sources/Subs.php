@@ -3179,11 +3179,7 @@ function theme_copyright()
 		return;
 
 	// Put in the version...
-	$forum_copyright = sprintf($forum_copyright, $forum_version, $software_year);
-
-	echo '
-			<span class="smalltext" style="display: inline; visibility: visible; font-family: Verdana, Arial, sans-serif;">' . $forum_copyright . '
-			</span>';
+	printf($forum_copyright, $forum_version, $software_year);
 }
 
 /**
@@ -3240,9 +3236,13 @@ function template_javascript($do_defered = false)
 	</script>';
 	}
 
-	// While we have Javascript files to place in the template
+	// While we have JavaScript files to place in the template.
 	foreach ($context['javascript_files'] as $id => $js_file)
 	{
+		// Last minute call! allow theme authors to disable single files.
+		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
+			continue;
+
 		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
@@ -3288,8 +3288,14 @@ function template_css()
 	call_integration_hook('integrate_pre_css_output');
 
 	foreach ($context['css_files'] as $id => $file)
+	{
+		// Last minute call! allow theme authors to disable single files.
+		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
+			continue;
+
 		echo '
 	<link rel="stylesheet" href="', $file['filename'], '">';
+	}
 
 	if ($db_show_debug === true)
 	{

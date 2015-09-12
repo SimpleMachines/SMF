@@ -203,7 +203,7 @@ function template_summary()
 	}
 
 		echo '
-			<ul class="reset clear">';
+			<ul class="clear">';
 	// Email is only visible if it's your profile or you have the moderate_forum permission
 	if ($context['member']['show_email'])
 		echo '
@@ -254,7 +254,7 @@ function template_summary()
 	{
 		echo '
 			<div class="custom_fields_bottom">
-				<ul class="reset nolist">';
+				<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['bottom_poster'] as $field)
 			if (!empty($field['output_html']))
@@ -397,7 +397,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_above_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['above_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -422,7 +422,7 @@ function template_summary()
 	{
 		echo '
 				<div class="custom_fields_below_signature">
-					<ul class="reset nolist">';
+					<ul class="nolist">';
 
 		foreach ($context['print_custom_fields']['below_signature'] as $field)
 			if (!empty($field['output_html']))
@@ -2445,7 +2445,7 @@ function template_issueWarning()
 					if ($(request).find("error").text() != \'\')
 					{
 						$("#profile_error").css({display:""});
-						var errors_html = \'<ul class="list_errors" class="reset">\';
+						var errors_html = \'<ul class="list_errors">\';
 						var errors = $(request).find(\'error\').each(function() {
 							errors_html += \'<li>\' + $(this).text() + \'</li>\';
 						});
@@ -2524,6 +2524,7 @@ function template_deleteAccount()
 
 		// Only actually give these options if they are kind of important.
 		if ($context['can_delete_posts'])
+		{
 			echo '
 				<div>
 					<label for="deleteVotes"><input type="checkbox" name="deleteVotes" id="deleteVotes" value="1" class="input_check"> ', $txt['deleteAccount_votes'], ':</label><br>
@@ -2531,8 +2532,15 @@ function template_deleteAccount()
 					<select name="remove_type">
 						<option value="posts">', $txt['deleteAccount_all_posts'], '</option>
 						<option value="topics">', $txt['deleteAccount_topics'], '</option>
-					</select>
+					</select>';
+
+			if ($context['show_perma_delete'])
+				echo '
+					<br><label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1" class="input_check">', $txt['deleteAccount_permanent'], ':</label>';
+
+			echo '
 				</div>';
+		}
 
 		echo '
 				<div>

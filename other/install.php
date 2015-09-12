@@ -2114,11 +2114,9 @@ function template_install_above()
 	</head>
 	<body>
 		<div id="header">
-			<div class="frame">
-				<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
-				<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
-			</div>
-                </div>
+			<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
+			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
+		</div>
 		<div id="wrapper">
 			<div id="upper_section">
 				<div id="inner_section">
@@ -2202,12 +2200,10 @@ function template_install_below()
 				</div>
 			</div>
 		</div>
-		<div id="footer_section">
-			<div class="frame">
-				<ul class="reset">
-					<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
-				</ul>
-			</div>
+		<div id="footer">
+			<ul>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
+			</ul>
 		</div>
 	</body>
 </html>';

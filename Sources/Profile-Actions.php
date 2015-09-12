@@ -515,7 +515,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $modSettings, $cur_profile;
+	global $txt, $context, $modSettings, $cur_profile, $modSettings;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');
@@ -524,6 +524,9 @@ function deleteAccount($memID)
 
 	// Permissions for removing stuff...
 	$context['can_delete_posts'] = !$context['user']['is_owner'] && allowedTo('moderate_forum');
+
+	// Show an extra option if recycling is enabled...
+	$context['show_perma_delete'] = !empty($modSettings['recycle_enable']) && !empty($modSettings['recycle_board']);
 
 	// Can they do this, or will they need approval?
 	$context['needs_approval'] = $context['user']['is_owner'] && !empty($modSettings['approveAccountDeletion']) && !allowedTo('moderate_forum');
@@ -636,6 +639,9 @@ function deleteAccount2($memID)
 			// Include RemoveTopics - essential for this type of work!
 			require_once($sourcedir . '/RemoveTopic.php');
 
+			$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
+			$recycle_board = empty($modSettings['recycle_board']) ? 0 : $modSettings['recycle_board'];
+
 			// First off we delete any topics the member has started - if they wanted topics being done.
 			if ($_POST['remove_type'] == 'topics')
 			{
@@ -643,9 +649,10 @@ function deleteAccount2($memID)
 				$request = $smcFunc['db_query']('', '
 					SELECT t.id_topic
 					FROM {db_prefix}topics AS t
-					WHERE t.id_member_started = {int:selected_member}',
+					WHERE t.id_member_started = {int:selected_member}' . $extra,
 					array(
 						'selected_member' => $memID,
+						'recycle_board' => $recycle_board,
 					)
 				);
 				$topicIDs = array();
@@ -653,9 +660,9 @@ function deleteAccount2($memID)
 					$topicIDs[] = $row['id_topic'];
 				$smcFunc['db_free_result']($request);
 
-				// Actually remove the topics.
+				// Actually remove the topics. Ignore recycling if we want to perma-delete things...
 				// @todo This needs to check permissions, but we'll let it slide for now because of moderate_forum already being had.
-				removeTopics($topicIDs);
+				removeTopics($topicIDs, true, !empty($extra));
 			}
 
 			// Now delete the remaining messages.
@@ -664,9 +671,10 @@ function deleteAccount2($memID)
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic
 						AND t.id_first_msg != m.id_msg)
-				WHERE m.id_member = {int:selected_member}',
+				WHERE m.id_member = {int:selected_member}' . $extra,
 				array(
 					'selected_member' => $memID,
+					'recycle_board' => $recycle_board,
 				)
 			);
 			// This could take a while... but ya know it's gonna be worth it in the end.

@@ -211,7 +211,7 @@ function template_addsmiley()
 				<h3 class="catbg">', $txt['smileys_add_method'], '</h3>
 			</div>
 			<div class="windowbg2">
-				<ul class="reset">
+				<ul>
 					<li>
 						<label for="method-existing"><input type="radio" onclick="switchType();" name="method" id="method-existing" value="existing" checked class="input_radio"> ', $txt['smileys_add_existing'], '</label>
 					</li>

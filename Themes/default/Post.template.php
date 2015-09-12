@@ -1055,7 +1055,7 @@ function template_announce()
 				<p>
 					', $txt['announce_this_topic'], ' <a href="', $scripturl, '?topic=', $context['current_topic'], '.0">', $context['topic_subject'], '</a>
 				</p>
-				<ul class="reset">';
+				<ul>';
 
 	foreach ($context['groups'] as $group)
 		echo '

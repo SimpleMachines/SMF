@@ -573,7 +573,7 @@ function BanEdit()
 		}
 	}
 
-	loadJavascriptFile('suggest.js', array('default_theme' => true), 'suggest.js');
+	loadJavascriptFile('suggest.js', array('default_theme' => true), 'smf_suggest');
 	$context['sub_template'] = 'ban_edit';
 
 }

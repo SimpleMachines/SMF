@@ -74,7 +74,7 @@ function template_registration_form()
 		echo '
 		<div class="errorbox">
 			<span>', $txt['registration_errors_occurred'], '</span>
-			<ul class="reset">';
+			<ul>';
 
 		// Cycle through each error and display an error message.
 		foreach ($context['registration_errors'] as $error)

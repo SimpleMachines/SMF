@@ -1024,8 +1024,8 @@ function template_downloaded()
 		</div>
 		<div class="windowbg">
 			<p>', (empty($context['package_server']) ? $txt['package_uploaded_successfully'] : $txt['package_downloaded_successfully']), '</p>
-			<ul class="reset">
-				<li class="reset"><span class="floatleft"><strong>', $context['package']['name'], '</strong></span>
+			<ul>
+				<li><span class="floatleft"><strong>', $context['package']['name'], '</strong></span>
 					<span class="package_server floatright">', $context['package']['list_files']['link'], '</span>
 					<span class="package_server floatright">', $context['package']['install']['link'], '</span>
 				</li>

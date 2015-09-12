@@ -365,7 +365,7 @@ function template_modify_user_subscription()
 			<h3 class="catbg">', $txt['pending_payments_value'], '</h3>
 		</div>
 		<div class="windowbg">
-			<ul class="reset">';
+			<ul>';
 
 		foreach ($context['pending_payments'] as $id => $payment)
 		{

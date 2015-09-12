@@ -48,7 +48,7 @@
 	.dropmenu ul li a {
 		width: auto !important;
 	}
-	#footer_section ul {
+	#footer ul {
 		width: 100%;
 		margin: 5px;
 		float: none;
@@ -319,8 +319,16 @@
 	.action_home {
 		width: 100% !important;
 	}
-	#wrapper, .frame {
+	#wrapper {
 		min-width: 100% !important;
+	}
+	#top_section, #footer {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	#header {
+		margin-left: 0;
+		margin-right: 0;
 	}
 	#upper_section, #inner_section, #content_section {
 		border-radius: 0;

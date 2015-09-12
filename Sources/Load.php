@@ -1980,13 +1980,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css');
+	loadCSSFile('index.css', array(), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true));
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css');
+		loadCSSFile('rtl.css', array(), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2009,9 +2009,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css');
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css');
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2043,26 +2043,26 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
-		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'jquery');
+		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
-		loadJavascriptFile($modSettings['jquery_custom'], array(), 'jquery');
+		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
-		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'jquery');
+		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true));
+	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
-		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true));
-		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true));
+		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
+		loadCSSFile('jquery.custom-scrollbar.css', array('force_current' => false, 'validate' => true), 'smf_scrollbar');
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_scripts');
-	loadJavascriptFile('theme.js', array(), 'theme_scripts');
+	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_script');
+	loadJavascriptFile('theme.js', array(), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
@@ -2280,9 +2280,9 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
-	// account for shorthand like admin.css?alp21 filenames
+	// Account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	$id = empty($id) ? strtr(basename(str_replace('.css', '', $filename)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
@@ -2354,9 +2354,9 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
-	// account for shorthand like admin.js?alp21 filenames
+	// Account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
-	$id = empty($id) ? strtr(basename($filename), '?', '_') : $id;
+	$id = empty($id) ? strtr(basename(str_replace('.js', '', $filename)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
