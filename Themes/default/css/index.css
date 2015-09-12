@@ -3832,12 +3832,19 @@ h3.profile_hd {
 	text-align:center;
 	margin:auto;
 }
-.au-files, .dz-image-preview, .attach-ui{
-	display:inline-block;
-	width:95%;
+.cu-fileInfo{
+	display:table;
+	width:100%;
 	min-height:30px;
 }
-
+#au-previews{
+	display: flex;
+	flex-wrap: wrap;
+}
+#au-previews div{
+	width: 45%;
+	margin: 5px;
+}
 
 .progressBar {
 	height: 20px;

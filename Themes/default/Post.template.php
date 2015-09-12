@@ -442,21 +442,23 @@ function template_main()
 								<h5>', $txt['attach_drop_zone'] ,'</h5>
 								<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
 								<div id="total-progress" class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
-								<div class="files au-files" id="cu-previews">
-									<div id="template" class="descbox">
-										<div class="cu-fileInfo">
+							</div>
+							<div class="files au-files" id="au-previews">
+								<div id="au-template" class="descbox">
+									<div class="cu-fileInfo">
+										<div class="attach-info">
 											<img data-dz-thumbnail />
 											<p class="name" data-dz-name></p>
 											<p class="error" data-dz-errormessage></p>
 											<p class="size" data-dz-size></p>
-											<p class="attach-ui">
-												<a data-dz-remove class="button_submit attach-ui delete">', $txt['modify_cancel'] ,'</a>
-												<a class="button_submit attach-ui start">
-													', $txt['upload'] ,'
-												</a>
-											</p>
+											<p class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
 										</div>
-										<div class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+										<div class="attach-ui">
+											<a data-dz-remove class="button_submit attach-ui delete">', $txt['modify_cancel'] ,'</a>
+											<a class="button_submit attach-ui start">
+												', $txt['upload'] ,'
+											</a>
+										</div>
 									</div>
 								</div>
 							</div>';
