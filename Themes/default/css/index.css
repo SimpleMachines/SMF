@@ -1218,14 +1218,6 @@ ul li.greeting {
 	padding: 0 0 0 6px;
 }
 
-/* the small stats */
-#index_common_stats {
-	margin: -4px 8px 6px 8px;
-	padding: 4px 0 0 0;
-	font-size: 0.9em;
-	border-top: 1px solid #ddd;
-}
-
 .fix_rtl_names {
 	display: inline-block;
 }
