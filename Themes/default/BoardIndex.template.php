@@ -100,7 +100,7 @@ function template_main()
 	// Show the mark all as read button?
 	if ($context['user']['is_logged'] && !empty($context['categories']))
 		echo '
-		<div class="mark_read">', template_button_strip($context['mark_read_button'], 'right'), '</div>';
+		<div class="righttext">', template_button_strip($context['mark_read_button'], ''), '</div>';
 }
 
 /**

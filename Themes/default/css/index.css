@@ -1217,15 +1217,6 @@ ul li.greeting {
 	line-height: 19px;
 	padding: 0 0 0 6px;
 }
-.mark_read {
-	margin: -5px 0 16px 0;
-	padding: 0;
-	float: right;
-}
-.mark_read .buttonlist {
-	margin: 0;
-	padding: 0;
-}
 
 /* the small stats */
 #index_common_stats {
