@@ -430,69 +430,68 @@ function template_main()
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
+			// Print dropzone UI.
+			echo '
+						<div class="files" id="au-previews">
+							<div id="au-template" class="descbox">
+								<div class="attach-preview">
+									<img data-dz-thumbnail />
+								</div>
+								<div class="attach-info">
+									<p class="name" data-dz-name></p>
+									<p class="error" data-dz-errormessage></p>
+									<p class="size" data-dz-size></p>
+									<p class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
+								</div>
+								<div>
+									<a data-dz-remove class="button_submit attach-ui delete">', $txt['modify_cancel'] ,'</a>
+									<a class="button_submit attach-ui start">', $txt['upload'] ,'</a>
+								</div>
+							</div>
+						</div>';
+
 		echo '
 						<dl id="postAttachment2">';
 
 		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
 		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
 		{
-			// Print dropzone UI.
 			echo '
-							<div id="attachUpload" class="descbox">
-								<h5>', $txt['attach_drop_zone'] ,'</h5>
-								<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
-								<div id="total-progress" class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
-							</div>
-							<div class="files au-files" id="au-previews">
-								<div id="au-template" class="descbox">
-									<div class="cu-fileInfo">
-										<div class="attach-info">
-											<img data-dz-thumbnail />
-											<p class="name" data-dz-name></p>
-											<p class="error" data-dz-errormessage></p>
-											<p class="size" data-dz-size></p>
-											<p class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
-										</div>
-										<div class="attach-ui">
-											<a data-dz-remove class="button_submit attach-ui delete">', $txt['modify_cancel'] ,'</a>
-											<a class="button_submit attach-ui start">
-												', $txt['upload'] ,'
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>';
-
-			// Print the fallback upload system.
-			echo '
-							<dt class="attach_fallback">
+							<dt>
 								', $txt['attach'], ':
 							</dt>
-							<dd class="smalltext" class="attach_fallback">
-								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">'), '
-									<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+							<dd class="smalltext fallback">
+								<div id="attachUpload" class="descbox">
+									<h5>', $txt['attach_drop_zone'] ,'</h5>
+									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
+									<div id="total-progress" class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+									<div class="fallback">
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
+								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">');
 
 			// Show more boxes if they aren't approaching that limit.
 			if ($context['num_allowed_attachments'] > 1)
 				echo '
-								<script>
-									var allowed_attachments = ', $context['num_allowed_attachments'], ';
-									var current_attachment = 1;
+										<script>
+											var allowed_attachments = ', $context['num_allowed_attachments'], ';
+											var current_attachment = 1;
 
-									function addAttachment()
-									{
-										allowed_attachments = allowed_attachments - 1;
-										current_attachment = current_attachment + 1;
-										if (allowed_attachments <= 0)
-											return alert("', $txt['more_attachments_error'], '");
+											function addAttachment()
+											{
+												allowed_attachments = allowed_attachments - 1;
+												current_attachment = current_attachment + 1;
+												if (allowed_attachments <= 0)
+													return alert("', $txt['more_attachments_error'], '");
 
-										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+												setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
 
-										return true;
-									}
-								</script>
-							</dd>
-							<dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a></dd>';
+												return true;
+											}
+										</script>
+										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
+									</div>
+								</div>
+							</dd>';
 			else
 				echo '
 							</dd>';
@@ -922,11 +921,11 @@ function template_main()
 
 				for (var i = 0, n = XMLDoc.getElementsByTagName(\'quote\')[0].childNodes.length; i < n; i++)
 					text += XMLDoc.getElementsByTagName(\'quote\')[0].childNodes[i].nodeValue;
-				$("#', $context['post_box_name'], '").data("sceditor").sourceEditorInsertText(text);
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 			}
 			function onReceiveOpener(text)
 			{
-				$("#', $context['post_box_name'], '").data("sceditor").sourceEditorInsertText(text);
+				$("#', $context['post_box_name'], '").data("sceditor").InsertText(text);
 			}
 		</script>';
 	}
