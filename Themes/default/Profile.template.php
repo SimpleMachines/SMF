@@ -111,11 +111,10 @@ function template_alerts_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}

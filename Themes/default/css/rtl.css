@@ -417,18 +417,6 @@ div#admin_menu {
 	float: right;
 }
 
-/* User information. */
-#profile_menu a.avatar {
-	float: right;
-	margin: 0 10px 0 20px;
-}
-#profile_menu .profile_user_info ol {
-	float: right;
-}
-#profile_menu .profile_user_links li {
-	float: right;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
 #basicinfo ul li {
@@ -664,14 +652,6 @@ span.pages {
 
 #userstatus .smalltext, .pm_icon {
 	margin: 0 20px 0 0 !important;
-}
-
-/* Profile drop it needs reverse on RTL */
-#profile_menu .profile_user_info {
-	margin: 3px 10px 5px 0;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 10px 0 0;
 }
 
 /* Code is a code do it LTR */
