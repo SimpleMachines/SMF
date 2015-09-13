@@ -115,8 +115,8 @@ function template_html_above()
 	!empty($settings['og_image']) ? '<meta property="og:image" content="'. $settings['og_image'].'">' : '','
 	<meta property="og:description" content="',!empty($context['meta_description']) ? $context['meta_description'] : $context['page_title_html_safe'],'">';
 
-	/* What is your Lollipop's color?
-	Theme Authors you can change here to make sure your theme's main color got visible on tab */
+	// Support theme-color for Chrome 39+/Android Lollipop.
+	// Set your theme's custom color for the top toolbar.
 	echo '
 	<meta name="theme-color" content="#557EA0">';
 
