@@ -2716,7 +2716,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 							}
 						}
 
-						fclose($fh);
+						fclose($fp);
 					}
 
 					// Catch the language name.
