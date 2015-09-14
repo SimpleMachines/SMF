@@ -8,26 +8,22 @@ function smf_fileUpload(oOptions)
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
+		parallelUploads : 1,
 		filesizeBase:1000,
 		paramName: 'attachment',
 		uploadMultiple:true,
-		addRemoveLinks:false,
 		previewsContainer: '#au-previews',
+		previewTemplate: previewTemplate,
 		acceptedFiles: '.doc,.gif,.jpg,.pdf,.png,.txt,.zip',
 		thumbnailWidth: 100,
 		thumbnailHeight: null,
-		previewTemplate: previewTemplate,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		autoProcessQueue:true,
 	};
 
 	$.extend(true, dOptions, oOptions);
 
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
-
-	myDropzone.on('thumbnail', function(file) {
-	});
 
 	myDropzone.on('addedfile', function(file) {
 
@@ -40,7 +36,7 @@ function smf_fileUpload(oOptions)
 
 	// Update the total progress bar
 	myDropzone.on('totaluploadprogress', function(progress) {
-		document.querySelector('#total-progress .progress-bar').style.width = progress + '%';
+		$('#total-progress span').width(progress + '%');
 	});
 
 	myDropzone.on('error', function(file, errorMessage, xhr) {
@@ -54,9 +50,6 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('success', function(file, responseText, e) {
 			var _thisElement = $(file.previewElement);
-console.log(file);
-console.log(responseText);
-console.log(e);
 		// The request was complete but the server returned an error.
 		if (typeof(responseText.error) != "undefined"){
 

@@ -1187,15 +1187,12 @@ function Post($post_errors = array())
 		addInlineJavascript('
 	$(function() {
 		smf_fileUpload({
-			parallelUploads : 1,
-			uploadMultiple : true,
 			dictDefaultMessage : '. JavaScriptEscape($txt['attach_drop_zone']) .',
 			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
 			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
 			cancelAll : '. JavaScriptEscape($txt['modify_cancel_all']) .',
 			upload :'. JavaScriptEscape($txt['upload']) .',
 			uploadAll :'. JavaScriptEscape($txt['upload_all']) .',
-			processing: '. JavaScriptEscape($txt['processing']) .',
 			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
 			insertAttach: '. JavaScriptEscape($txt['attached_file_insert']) .',
 			deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
