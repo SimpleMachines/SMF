@@ -3826,13 +3826,15 @@ h3.profile_hd {
 
 #au-previews div.descbox div,
 #au-previews div.errorbox div,
-#au-previews div.successbox div{
+#au-previews div.infobox div{
 	display:inline-block;
 	width:30%;
 	min-height:30px;
 	vertical-align: middle;
 }
-
+.attach-info p.progressBar{
+	display:none;
+}
 #attachUpload{
 	min-height:50px;
 }

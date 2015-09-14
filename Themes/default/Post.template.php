@@ -441,11 +441,12 @@ function template_main()
 									<p class="name" data-dz-name></p>
 									<p class="error" data-dz-errormessage></p>
 									<p class="size" data-dz-size></p>
+									<p class="message" data-dz-message></p>
 									<p class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
 								</div>
 								<div>
-									<a data-dz-remove class="button_submit attach-ui delete">', $txt['modify_cancel'] ,'</a>
-									<a class="button_submit attach-ui start">', $txt['upload'] ,'</a>
+									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
+									<a class="button_submit start">', $txt['upload'] ,'</a>
 								</div>
 							</div>
 						</div>';

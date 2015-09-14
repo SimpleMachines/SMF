@@ -8,7 +8,6 @@ function smf_fileUpload(oOptions)
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
-		parallelUploads:1,
 		filesizeBase:1000,
 		paramName: 'attachment',
 		uploadMultiple:true,
@@ -17,15 +16,10 @@ function smf_fileUpload(oOptions)
 		acceptedFiles: '.doc,.gif,.jpg,.pdf,.png,.txt,.zip',
 		thumbnailWidth: 100,
 		thumbnailHeight: null,
-		parallelUploads: 1,
 		previewTemplate: previewTemplate,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		autoProcessQueue:false,
-		fallback: function(file, done) {
-
-			// @todo show the default file input field
-		}
+		autoProcessQueue:true,
 	};
 
 	$.extend(true, dOptions, oOptions);
@@ -60,7 +54,9 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('success', function(file, responseText, e) {
 			var _thisElement = $(file.previewElement);
-
+console.log(file);
+console.log(responseText);
+console.log(e);
 		// The request was complete but the server returned an error.
 		if (typeof(responseText.error) != "undefined"){
 
@@ -86,18 +82,12 @@ function smf_fileUpload(oOptions)
 	});
 
 	myDropzone.on('sending', function(file) {
-
 		// Hey! we are actually doing something!
 		ajax_indicator(true);
 
 		// Show the total progress bar when upload starts
-		document.querySelector('#total-progress').style.opacity = '1';
+		document.querySelector('.attach-info p.progressBar').style.display = 'block';
 		// And disable the start button
 		file.previewElement.querySelector('.start').setAttribute('disabled', 'disabled');
-	});
-
-	// Hide the total progress bar when nothing's uploading anymore
-	myDropzone.on('queuecomplete', function(progress) {
-		document.querySelector('#total-progress').style.opacity = '0';
 	});
 }
