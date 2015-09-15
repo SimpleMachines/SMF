@@ -3828,12 +3828,15 @@ h3.profile_hd {
 #au-previews div.errorbox div,
 #au-previews div.infobox div{
 	display:inline-block;
-	width:30%;
+	width:32%;
 	min-height:30px;
 	vertical-align: middle;
 }
 .attach-info p.progressBar{
 	display:none;
+}
+.attach-info p, .attach-info field{
+	display:inline-block;
 }
 #attachUpload{
 	min-height:50px;

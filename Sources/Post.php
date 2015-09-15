@@ -1194,6 +1194,7 @@ function Post($post_errors = array())
 			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
 			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
 			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .',
+			text_attachUploaded: '. JavaScriptEscape($txt['attached_file_uploaded']) .',
 			dictMaxFilesExceeded: '. JavaScriptEscape($txt['more_attachments_error']) .',
 			dictInvalidFileType: '. JavaScriptEscape(sprintf($txt['cant_upload_type'], $context['allowed_extensions'])) .',
 			dictFileTooBig: '. JavaScriptEscape(sprintf($txt['file_too_big'], comma_format($modSettings['attachmentSizeLimit'], 0))) .',

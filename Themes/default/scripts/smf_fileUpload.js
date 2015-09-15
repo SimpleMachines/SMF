@@ -88,7 +88,7 @@ function smf_fileUpload(oOptions)
 					e.preventDefault();
 					$('#' + oEditorID).data('sceditor').sourceEditorInsertText(bbcTag);
 				}),
-				fieldTag = $('<p class="attached_BBC" />').append(myDropzone.options.text_insertBBC + '<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>').append(insertBBC);
+				fieldTag = $('<p class="attached_BBC" />').append('<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>').append(insertBBC);
 
 			_thisElement.find('div.attach-info').append(fieldTag);
 		});
