@@ -2829,7 +2829,7 @@ function spell_check($dict, $word)
 		if (!$context['spell_utf8'])
 		{
 			// Convert the word to UTF-8 with iconv
-			$word = iconv($txt['lang_charset'], 'UTF-8', $word);
+			$word = iconv($txt['lang_character_set'], 'UTF-8', $word);
 		}
 		return enchant_dict_check($dict, $word);
 	}
