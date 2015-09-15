@@ -119,7 +119,7 @@ function smf_fileUpload(oOptions)
 
 						// Remove the text field and show a nice confirmation message.
 						_thisElement.find('.attached_BBC').fadeOut();
-						_thisElement.find('p.message').replaceWith(myDropzone.options.text_attachDeleted);
+						_thisElement.find('p.message').text(myDropzone.options.text_attachDeleted);
 
 						// Remove this button and enable the cancel one.
 						$this.remove();
@@ -149,7 +149,7 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Hide the progrss bar.
+		// Hide the progress bar.
 		_thisElement.find('p.progressBar').fadeOut();
 	});
 
