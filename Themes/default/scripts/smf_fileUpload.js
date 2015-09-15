@@ -98,15 +98,15 @@ function smf_fileUpload(oOptions)
 
 			_thisElement.find('div.attach-info').append(fieldTag);
 
-			// Hold the cancel button.
-			_thisElement.find('.delete').prop('disabled', true);
+			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+			_thisElement.find('a.delete').fadeOutAndRemove('slow');
 
 			// Create a delete button.
 			deleteButton = $('<a />')
-			.addClass('button_submit deleteButton you_sure')
+			.addClass('button_submit you_sure')
 			.prop('disabled', false)
 			.text(myDropzone.options.text_deleteAttach)
-			.on('click.deleteAttach', function (e) {
+			.one('click', function (e) {
 
 				$this = $(this);
 
