@@ -433,7 +433,7 @@ function template_main()
 			// Print dropzone UI.
 			echo '
 						<div class="files" id="au-previews">
-							<div id="au-template" class="descbox">
+							<div id="au-template">
 								<div class="attach-preview">
 									<img data-dz-thumbnail />
 								</div>
@@ -444,7 +444,7 @@ function template_main()
 									<p class="message" data-dz-message></p>
 									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
 								</div>
-								<div>
+								<div class="attach-ui">
 									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
 									<a class="button_submit start">', $txt['upload'] ,'</a>
 								</div>

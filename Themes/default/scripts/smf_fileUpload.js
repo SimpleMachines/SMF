@@ -27,11 +27,17 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('addedfile', function(file) {
 
+		_thisElement = $(file.previewElement);
+
+		_thisElement.find('.attach-ui').fadeIn();
+
 		// Hookup the start button
-		file.previewElement.querySelector('.start').onclick = function() { myDropzone.enqueueFile(file); };
+		_thisElement.find('.start').on( "click", function() {
+			myDropzone.enqueueFile(file);
+		});
 
 		// Show the main stuff!
-		file.previewElement.setAttribute("class", "descbox");
+		_thisElement.addClass("descbox");
 	});
 
 	// Update the total progress bar
@@ -41,7 +47,7 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('error', function(file, errorMessage, xhr) {
 
-		var _thisElement = $(file.previewElement);
+		_thisElement = $(file.previewElement);
 
 		// Remove the "start" button.
 		_thisElement.find('p.start').remove();
@@ -52,7 +58,7 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('success', function(file, responseText, e) {
 
-		var _thisElement = $(file.previewElement);
+		_thisElement = $(file.previewElement);
 
 		// Remove the "start" button.
 		_thisElement.find('.start').remove();
@@ -79,7 +85,7 @@ function smf_fileUpload(oOptions)
 			// If there wasn't any error, change the current cover.
 			_thisElement.addClass("infobox").removeClass("descbox");
 
-			var bbcTag = '[attach]' + response.attachID + '[/attach]',
+			bbcTag = '[attach]' + response.attachID + '[/attach]',
 				insertBBC = $('<a />')
 				.addClass('button_submit insertBBC')
 				.prop('disabled', false)
@@ -91,18 +97,57 @@ function smf_fileUpload(oOptions)
 				fieldTag = $('<p class="attached_BBC" />').append('<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>').append(insertBBC);
 
 			_thisElement.find('div.attach-info').append(fieldTag);
+
+			// Hold the cancel button.
+			_thisElement.find('.delete').prop('disabled', true);
+
+			// Create an event for the Cancel button.
+			deleteButton = $('<a />')
+			.addClass('button_submit deleteButton you_sure')
+			.prop('disabled', false)
+			.text(myDropzone.options.text_deleteAttach)
+			.on('click.deleteAttach', function (e) {
+
+				$this = $(this);
+
+				// Let the server know you want to delete the file you just recently uploaded...
+				$.ajax({
+					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ response.attachID +';' + smf_session_var + '=' + smf_session_id,
+					type: 'GET',
+					dataType: 'json',
+					success: function (data, textStatus, xhr) {
+
+						// Remove the text field and show a nice confirmation message.
+						_thisElement.find('.attached_BBC').fadeOut();
+						_thisElement.find('p.message').replaceWith(myDropzone.options.text_attachDeleted);
+
+						// Remove this button and enable the cancel one.
+						$this.remove();
+						_thisElement.find('.delete').prop('disabled', false);
+					},
+					error: function (xhr, textStatus, errorThrown) {
+
+						// Tell the user something horrible happen!
+						// @todo, catch the error and append it to our p.error tag.
+
+						// For dramatic purposes only!
+						node.removeClass('infobox').addClass('errorbox');
+					}
+				});
+			})
+			.appendTo(_thisElement.find('.attach-ui'));
 		});
 	});
 
 	myDropzone.on("uploadprogress", function(file, progress, bytesSent) {
 
-		var _thisElement = $(file.previewElement);
+		_thisElement = $(file.previewElement);
 		_thisElement.find('p.progressBar span').width(progress + "%");
 	});
 
 	myDropzone.on("complete", function(file, progress, bytesSent) {
 
-		var _thisElement = $(file.previewElement);
+		_thisElement = $(file.previewElement);
 
 		// Hide the progrss bar.
 		_thisElement.find('p.progressBar').fadeOut();
@@ -110,7 +155,7 @@ function smf_fileUpload(oOptions)
 
 	myDropzone.on('sending', function(file) {
 
-		var _thisElement = $(file.previewElement);
+		_thisElement = $(file.previewElement);
 
 		// Show the progress bar when upload starts.
 		_thisElement.find('p.progressBar').fadeIn();
