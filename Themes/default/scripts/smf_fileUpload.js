@@ -50,7 +50,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Remove the "start" button.
-		_thisElement.find('p.start').remove();
+		_thisElement.find('p.start').fadeOutAndRemove('slow');
 
 		// Set a nice css class to make it more obvious theres an error.
 		_thisElement.addClass("errorbox").removeClass("descbox");
@@ -61,7 +61,7 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// Remove the "start" button.
-		_thisElement.find('.start').remove();
+		_thisElement.find('.start').fadeOutAndRemove('slow');
 
 		// There is a general error.
 		if (responseText.generalErrors){
@@ -118,11 +118,11 @@ function smf_fileUpload(oOptions)
 					success: function (data, textStatus, xhr) {
 
 						// Remove the text field and show a nice confirmation message.
-						_thisElement.find('.attached_BBC').fadeOut();
+						_thisElement.find('.attached_BBC').fadeOutAndRemove('slow');
 						_thisElement.find('p.message').text(myDropzone.options.text_attachDeleted);
 
 						// Remove this button and enable the cancel one.
-						$this.remove();
+						$this.fadeOutAndRemove('slow');
 						_thisElement.find('.delete').prop('disabled', false);
 					},
 					error: function (xhr, textStatus, errorThrown) {
