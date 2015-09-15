@@ -53,13 +53,6 @@
 		margin: 5px;
 		float: none;
 	}
-	/* BoardIndex */
-	.board_icon {
-		width: 15% !important;
-	}
-	div.lastpost {
-		display: none;
-	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -86,14 +79,6 @@
 	/* Register Page */
 	#registration .button_submit {
 		font-size: 0.67em;
-	}
-	dl.register_form {
-		float: none !important;
-		max-width: 350px !important;
-	}
-	dl.register_form dt, dl.register_form dd {
-		float: none !important;
-		min-width: 250px !important;
 	}
 
 	/* Display (Topic View) */
@@ -146,12 +131,7 @@
 	.move_topic {
 		width: 100%;
 	}
-	/* Stats Center */
-	.half_content {
-		width: 100%;
-		margin: 0;
-		padding: 0;
-	}
+	/* Info Center */
 	#ic_recentposts {
 		margin: 0 !important;
 		width: 100% !important;
@@ -318,7 +298,7 @@
 		float: left;
 		margin: 5px 0 0 3px;
 	}
-	dl.register_form dt span {
+	#registration dt span {
 		display: inline;
 	}
 	.button_submit.qaction {
@@ -356,9 +336,6 @@
 	#boardindex_table .stats {
 		display: none;
 	}
-	.login {
-		width: 100%;
-	}
 	.top_menu {
 		width: 23em !important;
 	}
@@ -370,28 +347,12 @@
 		padding: 5px 0 5px 0 !important;
 		margin-right: 3px;
 	}
-
-	/* BoardIndex */
-	.board_icon {
-		margin-top: 10px;
-	}
-	div.info {
-		width: 75% !important;
-	}
-	.board_stats {
-		display: none;
-	}
-	div.lastpost {
-		width: 100%;
-		margin: 0 0 0 5px;
-		padding: 0;
-	}
 	span.postby {
 		float: none;
 	}
 
 	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost, #messageindex .moderation {
+	#messageindex .icon, #messageindex .lastpost, #messageindex .moderation {
 		display: none;
 	}
 	#messageindex .info {
@@ -426,12 +387,8 @@
 	#creator dd {
 		width: 65%;
 	}
-	#basicinfo, #detailedinfo {
-		width: 100%;
-		box-sizing: border-box;
-	}
 	#basicinfo {
-		margin: 0 0 5px 0; /* For UX */
+		margin: 0 0 15px 0; /* For UX */
 	}
 	/* Post Screen */
 	form#postmodify .roundframe {
@@ -476,23 +433,5 @@
 	}
 	#private, #enclose {
 		width: 95%;
-	}
-}
-/* Still not enough data or people to test this... */
-/* This needs more data and this range is probably for iPad Air (alike) tablets... */
-@media (min-width: 721px) and (max-width: 855px) {
-	div.lastpost {
-		margin: 0 0 0 20px !important;
-	}
-	.board_stats {
-		display: none;
-	}
-}
-
-/* Some very big stuff? Dunno... */
-@media (min-width: 856px) and (max-width: 1024px) {
-	div.lastpost {
-		width: 20% !important;
-		margin: 3px 0 0 5px;
 	}
 }

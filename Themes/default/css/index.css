@@ -74,8 +74,6 @@ input:focus, textarea:focus, button:focus, select:focus, textarea.editor:focus {
 }
 /* Fieldsets are used to group elements. */
 fieldset {
-	padding: 18px;
-	margin: 0 0 6px 0;
 	border: 1px solid #ddd;
 	border-radius: 3px;
 }
@@ -277,20 +275,6 @@ h3.largetext {
 }
 .main_section, .lower_padding {
 	padding-bottom: 6px;
-}
-.half_content {
-	box-sizing: border-box;
-	width: 50%;
-	display: inline-block;
-	vertical-align: top;
-}
-.half_content:nth-of-type(even) {
-	margin-right: -0.25em;
-	padding-right: 0.3%;
-}
-.half_content:nth-of-type(odd) {
-	margin-left: -0.2em;
-	padding-left: 0.3%;
 }
 
 /* BBC */
@@ -572,40 +556,13 @@ a.moderation_link, a.moderation_link:visited {
 
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
-dl.settings {
-	clear: right;
+dl.settings dd {
+	margin: 0 0 10px 0;
 	overflow: auto;
-	margin: 0 0 10px 0;
-	padding: 5px;
-}
-dl.settings dt {
-	width: 40%;
-	float: left;
-	margin: 0 0 10px 0;
 	padding: 0;
-	clear: both;
 }
 dl.settings dt.settings_title {
-	width: 100%;
-	float: none;
-	margin: 0 0 10px 0;
-	padding: 5px 0 0 0;
 	font-weight: bold;
-	clear: both;
-}
-dl.settings dt.windowbg {
-	width: 98%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0 0 5px 0;
-	clear: both;
-}
-dl.settings dd {
-	width: 56%;
-	float: right;
-	overflow: auto;
-	margin: 0 0 3px 0;
-	padding: 0;
 }
 dl.settings img {
 	margin: 0 10px 0 0;
@@ -736,7 +693,6 @@ img.sort, .sort {
 	font-weight: bold;
 	border: 1px solid #f49a3a;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 /* Level 1 hover effects. */
 .dropmenu li a:hover, .dropmenu li:hover a, .dropmenu li a:focus, #top_info > li > a:hover, #top_info > li:hover > a, #top_info > li > a.open {
@@ -746,7 +702,6 @@ img.sort, .sort {
 	cursor: pointer;
 	text-decoration: none;
 	box-shadow: 0 4px 4px rgba(255,255,255,0.1) inset;
-	text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.5);
 }
 /* Level 1 active button. */
 .dropmenu li a.active:hover, .dropmenu li:hover a.active {
@@ -754,82 +709,55 @@ img.sort, .sort {
 	border: 1px solid #f49a3a;
 	color: #444;
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
-	text-shadow: none;
 }
 /* User information. */
-#profile_menu a.avatar {
-	float: left;
-	margin: 0 20px 0 10px;
+#profile_menu_top:after {
+	content: ' \25BC';
 }
-#profile_menu a.avatar img {
-	height: 100%;
-	width: 100%;
-	max-width: 50px;
-	max-height: 50px;
+.profile_user_info, .profile_user_avatar {
+	display: inline-block;
+	margin: 0 9px;
+	vertical-align: middle;
 }
-#profile_menu .profile_user_info {
-	margin: 3px 0 5px 10px;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 0 0 10px;
-}
-#profile_menu .profile_username {
-	overflow: hidden;
+.profile_username {
 	font-size: 150%;
 	display: block;
 }
-#profile_menu .profile_user_links ol {
-	margin: 10px;
+.profile_user_links ol {
+	margin: 0 10px;
 }
-#profile_menu .profile_user_links li {
-	float: left;
-	width: 50%;
+.profile_user_links li {
+	display: inline-block;
+	width: 11em;
+	margin-bottom: 4px;
 }
-#profile_menu .profile_user_links li img {
-	margin-bottom: -1px;
-}
-#pm_menu, #alerts_menu {
+.top_menu.scrollable {
 	max-height: 30em;
 }
-#pm_menu .pm_unread, #alerts_menu .alerts_unread {
-	margin-top: 2px;
-	padding-top: 3px;
+.pm_unread, .alerts_unread {
+	margin-top: 5px;
 	border-top: 1px solid #ddd;
-	clear: both;
 }
-#pm_menu .no_unread, #alerts_menu .no_unread {
-	padding-top: 3px;
-	text-align: center;
-}
-#pm_menu .windowbg, #pm_menu .windowbg2, #alerts_menu .windowbg, #alerts_menu .windowbg2 {
-	clear: both;
-	padding: 2px;
-}
-#pm_menu .pm_unread div > .avatar, #alerts_menu .alerts_unread div > .avatar {
-	width: 40px;
-	height: 40px;
-	margin: 1px 6px 0 1px;
-}
-#pm_menu .pm_unread .avatar img, #alerts_menu .alerts_unread .avatar img {
-	width: 100%;
-	height: 100%;
-	max-width: 40px;
-	max-height: 40px;
-}
-#pm_menu .unread .subject {
-	font-weight: bold;
-}
-#pm_menu .unread, #alerts_menu .unread {
+.top_menu.scrollable .unread:not(:last-of-type) {
 	border-bottom: 1px solid #ddd;
 }
-#pm_menu .unread:hover, #alerts_menu .unread:hover {
-	background: #eee;
+.top_menu.scrollable .no_unread {
+	margin-top: 5px;
+	text-align: center;
 }
-#pm_menu .unread:last-of-type, #alerts_menu .unread:last-of-type {
-	border-bottom: 1px solid transparent;
+.top_menu.scrollable .avatar {
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+	display: inline-block;
 }
-#pm_menu .details, #alerts_menu .details {
+.top_menu.scrollable .details {
 	max-width: 80%;
+	display: inline-block;
+	vertical-align: top;
+}
+#pm_menu .subject {
+	font-weight: bold;
 }
 /* Levels 2 and 3 submenu wrapper. */
 .dropmenu li ul, .top_menu {
@@ -870,19 +798,6 @@ img.sort, .sort {
 /* The profile/pm menus are declared off .dropmenu li ul for consistency but have other characteristics. */
 .top_menu {
 	width: 25em;
-}
-.top_menu .login {
-	width: 100%;
-}
-.top_menu .login dt {
-	text-align: left;
-	width: 55%;
-}
-.top_menu .login dd {
-	width: 43%;
-}
-.top_menu .login input {
-	width: 90%;
 }
 /* Note: The next declarations are for keyboard access with js disabled. */
 .dropmenu ul a:focus, .dropmenu ul ul a:focus {
@@ -1273,23 +1188,6 @@ ul li.greeting {
 	line-height: 19px;
 	padding: 0 0 0 6px;
 }
-.mark_read {
-	margin: -5px 0 16px 0;
-	padding: 0;
-	float: right;
-}
-.mark_read .buttonlist {
-	margin: 0;
-	padding: 0;
-}
-
-/* the small stats */
-#index_common_stats {
-	margin: -4px 8px 6px 8px;
-	padding: 4px 0 0 0;
-	font-size: 0.9em;
-	border-top: 1px solid #ddd;
-}
 
 .fix_rtl_names {
 	display: inline-block;
@@ -1538,32 +1436,17 @@ fieldset.merge_options {
 
 /* Styles for the login areas.
 ------------------------------------------------------- */
-.login {
-	width: 540px;
-	margin: 0 auto;
-}
-.popup_content .login {
-	width: 100%;
-}
-.login dl {
-	overflow: auto;
-	clear: right;
-}
-.login dt, .login dd {
-	margin: 0 0 5px 0;
-	width: 44%;
-	padding: 1px;
+@media screen and (min-width: 720px) {
+	.login {
+		width: 540px;
+		margin: 0 auto;
+	}
+	.login dt {
+		text-align: right;
+	}
 }
 .login dt {
-	float: left;
-	clear: both;
-	text-align: right;
 	font-weight: bold;
-}
-.login dd {
-	width: 54%;
-	float: right;
-	text-align: left;
 }
 .login p {
 	text-align: center;
@@ -1572,30 +1455,12 @@ fieldset.merge_options {
 /* Additional register fields */
 #registration fieldset {
 	border: none;
-	padding: 0;
-	margin: 0;
 }
 #registration .roundframe {
 	border-top: none;
 }
-dl.register_form {
-	margin: 0;
-	clear: right;
-}
-dl.register_form dt {
-	font-weight: normal;
-	float: left;
-	clear: both;
-	width: 50%;
-	margin: 6px 0 0 0;
-}
-dl.register_form dt span {
+#registration dt span {
 	display: block;
-}
-dl.register_form dd {
-	float: left;
-	width: 49%;
-	margin: 6px 0 0 0;
 }
 #confirm_buttons {
 	text-align: center;
@@ -2086,24 +1951,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	margin: 6px 0;
 }
 
-/* Styles for the profile section.
-------------------------------------------------- */
-
-dl {
-	overflow: auto;
-	margin: 0;
-	padding: 0;
-}
-
 /* The basic user info on the left */
-#basicinfo {
-	width: 20%;
-	float: left;
-}
-#detailedinfo {
-	width: 79.5%;
-	float: right;
-}
 #basicinfo h4 {
 	font-size: 1.4em;
 	font-weight: 100;
@@ -2137,30 +1985,8 @@ dl {
 #basicinfo #userstatus img {
 	vertical-align: middle;
 }
-#detailedinfo dl, #tracking dl {
-	clear: right;
-	overflow: auto;
-	margin: 0 0 18px 0;
-	padding: 0 0 15px 0;
-	border-bottom: 1px #ccc solid;
-}
 #detailedinfo dt, #tracking dt {
-	width: 35%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
 	font-weight: bold;
-	color: #444;
-	clear: both;
-}
-#detailedinfo dd, #tracking dd {
-	width: 65%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-}
-#detailedinfo .noborder {
-	border-bottom: 0;
 }
 #detailedinfo dt.clear {
 	width: 100%;
@@ -2286,37 +2112,20 @@ dl {
 	width: 16px;
 	height: 16px;
 }
-.ignoreboards {
-	margin: 0 2%;
-	padding: 0;
-	width: 45%;
-}
-.ignoreboards a {
+.selectboards a {
 	font-weight: bold;
 	border-bottom: 1px solid #c4c4c4;
 	padding: 1px 0;
 }
-.ignoreboards a:hover {
+.selectboards a:hover {
 	text-decoration: none;
 	border-bottom: 1px solid #334466;
 }
-.ignoreboards ul {
-	margin: 0;
-	padding: 0;
-}
-.ignoreboards li {
-	float: left;
-	clear: both;
-}
-.ignoreboards li.category {
+.selectboards li.category {
 	margin: 8px 0 0 0;
-	width: 100%;
 }
-.ignoreboards li ul {
+.selectboards li ul {
 	margin: 2px 0 0 0;
-}
-.ignoreboards li.category ul li.board {
-	width: 93%;
 }
 
 #theme_settings {
@@ -2357,58 +2166,9 @@ dl {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-dl.stats dt {
-	width: 50%;
-	float: left;
-	margin: 0 0 4px 0;
-	padding: 0;
-	line-height: 1.5em;
-	clear: both;
-	font-size: 1em;
+.title_bar.cell16 {
+	padding: 0 !important;
 }
-dl.stats dd {
-	width: 50%;
-	font-size: 1em;
-	float: left;
-	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 2px;
-	position: relative;
-}
-.statsbar div.bar {
-	float: left;
-	background: orange;
-	border-right: 1px solid #999;
-	border-radius: 1px 0 0 1px;
-	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
-	display: block;
-	margin: 0 4px 0 0;
-	height: 1.4em;
-}
-.statsbar div.bar.empty {
-	width: 0;
-	border-right: none;
-}
-#profileview dd, .nobb, .nobb dd {
-	background: none !important;
-	border: none !important;
-}
-dl.stats {
-	padding: 5px;
-}
-/* Absolute positioning stops these breaking the bars on narrow screens. */
-dl.stats dd span {
-	padding: 0 5px;
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 2;
-	white-space: pre;
-}
-
 /* Forum history table. */
 #stats td, #stats th {
 	width: 15%;
@@ -2616,36 +2376,23 @@ dl.addrules dt.floatleft {
 	z-index: 3;
 }
 .popup_window {
-	position: relative;
 	width: 480px;
-	z-index: 99;
 	padding: 0 6px 6px 6px;
 	box-shadow: 0 3px 6px rgba(0,0,0,0.5);
 	border: 1px solid #777;
 	border-radius: 7px 7px 3px 3px;
-	max-height: none!important; /* Is this declaration necessary? None is the default anyway. */
-	overflow: visible!important;
-	background: #FFFFFF;
-	top: 15%;
-	margin: 0 auto;
 }
 .popup_heading {
-	margin: 0;
 	padding: 10px 4px;
 	color: #bf6900;
 	background: none;
 }
 .popup_content {
-	color: #222;
 	line-height: 1.6em;
 	max-height: 30em;
 	overflow: auto;
-	margin: 0;
 	padding: 10px 8px;
-	border: 1px solid #bbb;
-	border-bottom: 1px solid #ddd;
-	border-radius: 6px 6px 2px 2px;
-	box-shadow: 0 -2px 3px rgba(0,0,0,0.15), 0 1px 1px rgba(255,255,255,0.2);
+	border-top: 1px solid #ddd;
 }
 .generic_icons.hide_popup {
 	float: right;
@@ -2655,58 +2402,27 @@ dl.addrules dt.floatleft {
 	margin: -4px 4px 0 0;
 }
 
-/* Styles for the progress bar */
-.progress_bar {
-	height: 15pt;
-	border: 1px solid #DDD;
-	background-color: #FFF;
-	width: 80%;
-	margin: 20px auto 0 auto; /* Top padding should get rid of the <br /> tags in admin for these bars. */
-	position: relative;
-	border-radius: 2px;
-	box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-}
-.progress_bar .full_bar {
-	padding-top: 1pt;
-	width: 100%;
-	color: #222;
-	position: absolute;
-	text-align: center;
-	font-weight: bold;
-	border-radius: 2px;
-	z-index: 2;
-}
-.progress_bar .green_percent {
-	height: 15pt;
-	background-color: #c1ffc1;
-	background-image: linear-gradient(to bottom, #c1ffc1, green);
-	border-radius: 2px;
-	z-index: 1;
-}
-.progress_bar .blue_percent {
-	height: 15pt;
-	background-color: #98b8f4;
-	background-image: linear-gradient(to bottom, #98b8f4, blue);
-	border-radius: 2px;
-	z-index: 1;
-}
-
 .generic_list_wrapper, .windowbg, .windowbg2, #forumposts .approvebg, #forumposts .approvebg2 {
-	background: #f0f4f7;
+	background: #f2f7f9;
 	margin: 12px 0 0 0;
 	padding: 12px 16px;
 	border: 1px solid #ddd;
 	border-radius: 6px;
-	box-shadow: 0 -2px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 	overflow: auto;
 	box-sizing: border-box;
 }
-/* Here comes the glory... */
+
+/* Alternating colors */
+.stripes:nth-of-type(even),
+.alternative,
 .windowbg:nth-of-type(even) {
-	background: #f0f4f7;
+	background: #f2f7f9;
 }
+.stripes:nth-of-type(odd),
+.alternative2,
 .windowbg:nth-of-type(odd) {
-	background: #fdfdfd;
+	background: #E8EDF0;
 }
 
 /* Special treatment for #forumposts area */
@@ -2714,23 +2430,23 @@ dl.addrules dt.floatleft {
 	overflow: visible;
 }
 /* Nobody wants locked topics to stand out much. */
-.windowbg.locked, .windowbg2.locked {
+.stripes.locked {
 	background: #e7eaef;
 }
 /* Sticky topics get a different background */
-.windowbg.sticky, .windowbg2.sticky {
+.stripes.sticky {
 	background: #cfdce8;
 }
 /* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked, .windowbg2.sticky.locked {
+.stripes.sticky.locked {
 	background: #e8d8cf;
 }
 /* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic, .windowbg2.approvetopic {
+.stripes.approvetopic {
 	background: #e4a17c;
 }
 /* Unapproved posts in approved topics */
-.windowbg.approvepost, .windowbg2.approvepost {
+.stripes.approvepost {
 	background: #ffeaea;
 }
 .generic_list_wrapper .additional_row {
@@ -2805,59 +2521,27 @@ h3 .collapse {
 	float: right;
 	margin: 4px 4px 0 0;
 }
-.board_icon a {
+.board_on, .board_on2, .board_off, .board_redirect {
 	background: url(../images/boardicons.png) no-repeat 0 0;
 	display: inline-block;
 	width: 45px;
 	height: 45px;
 }
-.board_icon a.board_on2 {
+.board_on {
+	background-position: 0 0;
+}
+.board_on2 {
 	background-position: -45px 0;
 }
-.board_icon a.board_off {
+.board_off {
 	background-position: 0 -45px;
 }
-.board_icon a.board_redirect {
+.board_redirect {
 	background-position: -45px -45px;
 }
-.board_icon {
-	width: 5%;
-	text-align: center;
-	padding: 8px 0 0 0;
-	min-width: 60px;
-}
-.info {
-	width: 50%;
-	margin: 10px 0 5px 0;
-}
-.info .subject {
-	font-weight: 600;
+h4 .subject {
 	font-size: 1.1em;
 	color: #A85400;
-}
-.board_stats {
-	width: 14%;
-	padding: 10px;
-	font-size: 0.9em;
-}
-.board_stats p {
-	border-left: 1px solid #DDD;
-	border-right: 1px solid #DDD;
-	text-align: center;
-	min-height: 3em;
-	margin: 3px 0 0;
-}
-.lastpost {
-	width: 25%;
-	font-size: 0.9em;
-}
-.lastpost p {
-	margin: 3px 0 0 0;
-}
-.board_icon, .info, .board_stats, .lastpost {
-	min-height: 4.5em;
-	display: table-cell;
-	vertical-align: middle;
 }
 .main_container {
 	margin-bottom: 20px;
@@ -2869,30 +2553,17 @@ h3 .collapse {
 	margin-bottom: 3px;
 	margin-top: -1px;
 }
-/* Child boards */
-.children {
-	border-top: 1px solid #DDD;
-	padding: 5px;
-}
-.children p {
-	font-size: 0.9em;
-}
 p.moderators {
 	font-size: 0.9em;
 	font-weight: bold;
 }
 span.postby {
-	display: block;
+	width: 100%;
+	float: left;
 }
 /* Info Center */
-#info_center {
-	clear: both;
-}
-#info_center .sub_bar {
+#info_center .sub_bar:not(:first-child) {
 	border-top: 1px solid #ddd;
-}
-#info_center .sub_bar:first-child {
-	border-top: none;
 }
 #upshrinkHeaderIC {
 	margin-top: 4px;
@@ -2946,133 +2617,58 @@ span.postby {
 
 /* MessageIndex */
 /* Topic list */
-#topic_header .board_icon, #topic_header .info, #topic_header .board_stats, #topic_header .lastpost, #topic_header .moderation {
-	height: 2em;
-	font-weight: bold;
-	font-size: 1em;
-	margin-top: 3px;
-	margin-bottom: 0;
-	padding: 0;
+#messageindex .stripes {
+	border: 1px solid #ddd;
+	border-top: none;
 }
-#topic_header.title_bar {
+#messageindex .title_bar {
 	margin: 0px;
-	border-radius: 0;
-}
-#messageindex .board_stats, #recent .board_stats {
-	text-align: center;
-}
-#topic_header input {
-	margin-top: 5px !important;
 }
 .moderation {
 	float: right;
 	width: 35px;
 	margin: 5px 0 0 0;
 }
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
-	box-shadow: none;
-	border-radius: 0;
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	height: 4em;
-}
-#topic_container .windowbg, #topic_container .windowbg2 {
-	border: 1px solid #ddd;
-	border-top: none;
-}
-#topic_container .icons span {
-	margin: 2px 0 0 5px;
-}
-.icon img, .moderation input {
-	margin-top: 15px;
-}
-.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
-	margin-top: 5px;
-	border: none;
-}
-
-/* MessageIndex */
 /* Start with description and other things */
 #description_board {
-	padding: 8px 10px;
-	border-radius: 6px 6px 0 0;
-	border-bottom: none;
+	padding: 8px 10px 8px 10px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-bottom: 0;
 	box-shadow: none;
 }
-#description_board h3, #description_board p {
-	display: inline-block;
-}
-#description_board h3:after {
-	content: ' - ';
-}
-/* Topic list */
-#topic_header {
-	margin: 0;
-}
-#topic_header div {
-	height: 2em;
-	font-weight: bold;
+select.qaction {
 	padding: 0;
 }
-.moderation {
-	display: table-cell;
-	width: 35px;
-	vertical-align: middle;
-}
-#topic_container .windowbg, #topic_container .windowbg2 {
-	height: 4em;
-	margin: 0;
-	padding: 0;
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0;
-	box-shadow: none;
-}
-#topic_container .windowbg>div, #topic_container .windowbg2>div {
-	padding-top: 0;
-}
-#topic_container .board_stats p {
-	margin: .5em 0 -.5em;
-}
-/* Quick moderation selects and submit */
 #quick_actions {
-	padding: 4px 0;
+	padding-right: 4px;
+	margin-top: 5px;
 }
-.qaction {
-	padding: 0;
+.qaction_cell .button_submit {
+	margin: 2px 4px 0 4px;
 }
-/* Investigate default select and button sizing. Something is slightly off there.*/
-.qaction.button_submit {
-	margin: 1px 4px 0 4px;
-}
-/* Icons and jump to */
-#topic_icons:before {
-	display: block;
-	height: 8px;
-	clear: both;
-	content: '';
+#topic_icons {
+	margin-top: 10px;
 }
 #topic_icons .information {
-	font-size: .9em;
-	border-radius: 4px;
+	border-radius: 7px;
 }
 #topic_icons p {
-	padding: 0 12px 0 4px;
 	line-height: 2em;
 }
-/* Should lose this before RC1. It's a kludge. Can be fixed by new image */
-#topic_icons .floatleft img:first-child {
+#topic_icons p.floatleft {
+	padding: 0 12px 2px 0;
+}
+/* Just to correct Fred there without requiring an extra image. Should make a new Fred with clear padding. */
+#topic_icons p.floatleft img:first-child {
 	padding: 0 2px;
 }
 #message_index_jump_to_select {
 	font-size: 1em;
-	padding: 0;
+	padding: 2px;
 }
-/* This is a bit of a kludge too */
 #message_index_jump_to .button_submit {
-	margin-top: 3px;
-	padding: 1px 6px;
+	padding: 4px 6px 2px 6px;
 }
 
 /* Display */
@@ -3091,33 +2687,8 @@ span.postby {
 }
 
 /* Poll results */
-#poll_options dl.options {
-	padding: 12px 0 12px 25px;
-	line-height: 1.4em;
-}
-#poll_options dl.options dt {
-	padding: 4px 0;
-	width: 30%;
-	max-width: 30em;
-	float: left;
-	margin: 0;
-	clear: left;
-}
 #poll_options dl.options .voted {
 	font-weight: bold;
-}
-#poll_options dl.options dd {
-	width: 60%;
-	max-width: 45em;
-	float: left;
-	margin: 0 0 4px 0;
-	padding: 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 2px;
-	position: relative;
 }
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 #poll_options dl.options .percentage {
@@ -3505,7 +3076,6 @@ div.cat_bar {
 	padding: 0;
 	border-radius: 6px 6px 0 0;
 	box-shadow: 0 16px 20px rgba(255,255,255,0.15) inset;
-	text-shadow: -1px -1px 1px rgba(0,0,0,0.2);
 	box-sizing: border-box;
 	margin-bottom: 1px;
 }
@@ -3522,20 +3092,12 @@ div.cat_bar {
 	margin: -8px 0 4px 8px;
 }
 h3.catbg {
-	overflow: hidden;
-	font-size: 1.1em;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
 	line-height: 1.5em;
 	padding: 8px;
-	background: none;
 }
 h3.catbg, h3.catbg a:link, h3.catbg a:visited, h3.catbg a:hover {
 	color: #fff;
-}
-h3.catbg a:hover {
-	text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4);
-	text-decoration: none;
 }
 h3.catbg .icon {
 	vertical-align: middle;
@@ -3565,19 +3127,12 @@ h3.catbg .icon {
 }
 .sub_bar {
 	border-bottom: 1px solid #ddd;
-	text-shadow: none;
-	background: none;
 	box-shadow: 0 -1px 0 #999 inset;
-	clear: both;
 }
 h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
-	background: none;
 	color: #555;
 	font-family: "Tahoma", sans-serif;
-	font-weight: bold;
-	overflow: hidden;
 	padding: 6px 12px 5px 12px;
-	text-shadow: none;
 }
 .titlebg a, .subbg a {
 	background: none;
@@ -3693,11 +3248,6 @@ p.information img {
 	{
 		display: none;
 	}
-
-	.tborder
-	{
-		border: none;
-	}
 }
 /* Who */
 .action_who #upper_show {
@@ -3807,12 +3357,6 @@ h3.profile_hd {
 	margin: 0 0 5px 0;
 }
 
-/* Alternating colors */
-.stripes:nth-of-type(even) { background-color:#F2F2F2; }
-.stripes:nth-of-type(odd) { background-color:#f0f4f7; }
-.alternative { background-color:#F2F2F2; }
-.alternative2{ background-color:#E8EDF0; }
-
 #alerts tr.windowbg td,
 #alerts tr.windowbg2 td {
 	border-right: 1px solid #DDD;
@@ -3821,5 +3365,190 @@ h3.profile_hd {
 .centerbox {
 	top: 50%;
 	left: 50%;
+	position: absolute;
 	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50);  /* Chrome, Opera 15+, Safari 3.1+  */
+	-ms-transform: translate(-50%, -50);  /* IE 9  */
+}
+
+/*
+ * Grid container
+ * Must only contain `.cell` components as children.
+ */
+.grid, dl.settings, dl.grid, #poll_options dl {
+	display: block;
+	letter-spacing: -0.31em;
+}
+
+/*
+ * Grid units
+ */
+.grid [class*='cell'], dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd, #poll_options dt, #poll_options dd {
+	box-sizing: border-box;
+	display: inline-block;
+	padding: 3px 8px;
+	vertical-align: top;
+	letter-spacing: normal;
+	word-spacing: normal;
+}
+
+.cell1, .w1 {
+	width: 6.25%;
+}
+.cell2, .w2 {
+	width: 12.5%;
+}
+.cell3, .w3 {
+	width: 18.75%;
+}
+.cell4, .w4 {
+	width: 25%;
+}
+.cell5, .w5 {
+	width: 31.25%;
+}
+.cell6, .w6 {
+	width: 37.5%;
+}
+.cell7, .w7 {
+	width: 43.75%;
+}
+.cell8, .w8, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
+	width: 50%;
+}
+.cell9, .w9 {
+	width: 56.25%;
+}
+.cell10, .w10 {
+	width: 62.5%;
+}
+.cell11, .w11 {
+	width: 68.75%;
+}
+.cell12, .w12 {
+	width: 75%;
+}
+.cell13, .w13 {
+	width: 81.25%;
+}
+.cell14, .w14 {
+	width: 87.5%;
+}
+.cell15, .w15 {
+	width: 93.75%;
+}
+.cell16, .w16, dl.settings dt.settings_title {
+	width: 100%;
+}
+.w33 {
+	width: 33%;
+}
+
+/*
+ * Generic classes for mobile
+ */
+@media screen and (max-width: 720px) {
+	.mhide {
+		display: none !important;
+	}
+	.mcell1 {
+		width: 6.25%;
+	}
+	.mcell2 {
+		width: 12.5%;
+	}
+	.mcell3 {
+		width: 18.75%;
+	}
+	.mcell4 {
+		width: 25%;
+	}
+	.mcell5 {
+		width: 31.25%;
+	}
+	.mcell6 {
+		width: 37.5%;
+	}
+	.mcell7 {
+		width: 43.75%;
+	}
+	.mcell8 {
+		width: 50%;
+	}
+	.mcell9 {
+		width: 56.25%;
+	}
+	.mcell10 {
+		width: 62.5%;
+	}
+	.mcell11 {
+		width: 68.75%;
+	}
+	.mcell12 {
+		width: 75%;
+	}
+	.mcell13 {
+		width: 81.25%;
+	}
+	.mcell14 {
+		width: 87.5%;
+	}
+	.mcell15 {
+		width: 93.75%;
+	}
+	.mcell16, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
+		width: 100%;
+	}
+	.mcell16, dl.settings dt, dl.settings dd, dl.grid dt, dl.grid dd {
+		width: 100%;
+	}
+	#detailedinfo dl.settings dt, #detailedinfo dl.settings dd, .login dl.grid dt,.login  dl.grid dd {
+		width: 50%;
+	}
+}
+
+/*
+ * Progress bars
+ */
+.progress {
+	padding: 4px;
+	margin-bottom: 25px;
+	background: rgba(0, 0, 0, 0.05);
+	position: relative;
+	border-radius: 6px;
+	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+}
+.bar {
+	color: #111;
+	text-indent: 6px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
+	box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 0.3)), color-stop(100%, rgba(255, 255, 255, 0.05)));
+	background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+}
+.bar {
+	background-color: #ed9c63;
+}
+.blue.progress > .progress-bar {
+	background-color: #4072b4;
+}
+.green.progress > .progress-bar {
+	background-color: #86e01e;
+}
+.bar span,
+.progress-bar .caption {
+	padding-top: 1pt;
+	width: 100%;
+	color: #222;
+	text-align: center;
+	font-weight: bold;
+}
+.progress-bar .caption {
+	position: absolute;
 }

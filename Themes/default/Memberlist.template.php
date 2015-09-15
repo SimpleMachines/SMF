@@ -25,7 +25,7 @@ function template_main()
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', $txt['members_list'], '</span>';
+				', $txt['members_list'];
 		if (!isset($context['old_search']))
 				echo '
 				<span class="floatright">', $context['letter_links'], '</span>';
@@ -91,9 +91,7 @@ function template_main()
 
 			if (!empty($member['post_percent']))
 				echo '
-						<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">
-							<div style="width: ', $member['post_percent'], 'px;"></div>
-						</div>';
+						<div class="bar" style="width: ', $member['post_percent'] + 4, 'px;">&nbsp;</div>';
 
 			echo '
 					</td>';
@@ -132,6 +130,7 @@ function template_main()
 	if (isset($context['old_search']))
 		echo '
 			<a class="button_link" href="', $scripturl, '?action=mlist;sa=search;search=', $context['old_search_value'], '">', $txt['mlist_search_again'], '</a>';
+
 	echo '
 		</div>
 	</div>';
@@ -168,17 +167,17 @@ function template_search()
 						</dd>
 						<dt>
 							<label><strong>', $txt['mlist_search_filter'], ':</strong></label>
-						</dt>';
+						</dt>
+						<dd>';
 
 	foreach ($context['search_fields'] as $id => $title)
 	{
 		echo '
-						<dd>
-							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check floatright">', $title, '</label>
-						</dd>';
+							<label for="fields-', $id, '"><input type="checkbox" name="fields[]" id="fields-', $id, '" value="', $id, '"', in_array($id, $context['search_defaults']) ? ' checked' : '', ' class="input_check floatright">', $title, '</label><br>';
 	}
 
 	echo '
+						</dd>
 					</dl>
 					<div class="flow_auto">
 						<input type="submit" name="submit" value="' . $txt['search'] . '" class="button_submit">

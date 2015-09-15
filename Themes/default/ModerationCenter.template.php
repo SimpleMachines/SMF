@@ -22,7 +22,7 @@ function template_moderation_center()
 
 	// Show a welcome message to the user.
 	echo '
-	<div id="modcenter">';
+	<div id="modcenter" class="grid">';
 
 	// Show all the blocks they want to see.
 	foreach ($context['mod_blocks'] as $block)
@@ -30,7 +30,7 @@ function template_moderation_center()
 		$block_function = 'template_' . $block;
 
 		echo '
-		<div class="half_content">', function_exists($block_function) ? $block_function() : '', '</div>';
+		<div class="cell8 mcell16">', function_exists($block_function) ? $block_function() : '', '</div>';
 	}
 
 	echo '

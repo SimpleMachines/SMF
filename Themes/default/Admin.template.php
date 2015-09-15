@@ -30,7 +30,8 @@ function template_admin()
 
 	// Display the "live news" from simplemachines.org.
 	echo '
-							<div id="live_news" class="floatleft">
+							<div class="grid">
+							<div id="live_news" class="cell11 mcell16">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="generic_icons help" title="', $txt['help'],'"></span></a> ', $txt['live'], '
@@ -43,7 +44,7 @@ function template_admin()
 
 	// Show the user version information from their server.
 	echo '
-							<div id="supportVersionsTable" class="floatright">
+							<div id="supportVersionsTable" class="cell5 mhide">
 								<div class="cat_bar">
 									<h3 class="catbg">
 										<a href="', $scripturl, '?action=admin;area=credits">', $txt['support_title'], '</a>
@@ -71,6 +72,7 @@ function template_admin()
 	echo '
 									</div>
 								</div>
+							</div>
 							</div>
 						</div>';
 
@@ -672,16 +674,16 @@ function template_not_done()
 
 	if (!empty($context['continue_percent']))
 		echo '
-							<div class="progress_bar">
-								<div class="full_bar">', $context['continue_percent'], '%</div>
-								<div class="green_percent" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
+							<div class="green progress">
+								<div class="caption">', $context['continue_percent'], '%</div>
+								<div class="progress-bar" style="width: ', $context['continue_percent'], '%;">&nbsp;</div>
 							</div>';
 
 	if (!empty($context['substep_enabled']))
 		echo '
-							<div class="progress_bar">
-								<div class="full_bar">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
-								<div class="blue_percent" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
+							<div class="blue progress">
+								<div class="caption">', $context['substep_title'], ' (', $context['substep_continue_percent'], '%)</div>
+								<div class="progress-bar" style="width: ', $context['substep_continue_percent'], '%;">&nbsp;</div>
 							</div>';
 
 	echo '

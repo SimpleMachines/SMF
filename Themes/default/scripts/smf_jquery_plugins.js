@@ -3,7 +3,7 @@
  *
  * - will use the hoverintent plugin if available
  * - shows the tooltip in a div with the class defined in tooltipClass
- * - moves all selector titles to a hidden div and removes the title attribute to 
+ * - moves all selector titles to a hidden div and removes the title attribute to
  *   prevent any default browser actions
  * - attempts to keep the tooltip on screen
  *
@@ -17,7 +17,7 @@
  * @version 2.1 Beta 2
  *
  */
- 
+
 (function($) {
 	$.fn.SMFtooltip = function(oInstanceSettings) {
 		$.fn.SMFtooltip.oDefaultsSettings = {
@@ -41,16 +41,16 @@
 			var sTitle = $('<span class="' + oSettings.tooltipSwapClass + '">' + htmlspecialchars(this.title) + '</span>').hide();
 			$(this).append(sTitle).attr('title', '');
 		});
-		
+
 		// determine where we are going to place the tooltip, while trying to keep it on screen
 		var positionTooltip = function(event)
 		{
 			var iPosx = 0;
 			var iPosy = 0;
-			
+
 			if (!event)
 				var event = window.event;
-				
+
 			if (event.pageX || event.pageY)
 			{
 				iPosx = event.pageX;
@@ -61,7 +61,7 @@
 				iPosx = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
 				iPosy = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
 			}
-			
+
 			// Position of the tooltip top left corner and its size
 			var oPosition = {
 				x: iPosx + oSettings.positionLeft,
@@ -92,27 +92,27 @@
 			{
 				oPosition.y = oPosition.y - (((oPosition.y + oPosition.h) - (oLimits.y + oLimits.h)) + 24);
 			}
-			
+
 			// finally set the position we determined
 			$('#' + oSettings.tooltipID).css({'left': oPosition.x + 'px', 'top': oPosition.y + 'px'});
 		}
-		
+
 		// used to show a tooltip
 		var showTooltip = function(){
 			$('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID).show();
 		}
-		
+
 		// used to hide a tooltip
 		var hideTooltip = function(valueOfThis){
 			$('#' + oSettings.tooltipID).fadeOut('slow').trigger("unload").remove();
 		}
-		
+
 		// used to keep html encoded
 		function htmlspecialchars(string)
 		{
 			return $('<span>').text(string).html();
 		}
-		
+
 		// for all of the elements that match the selector on the page, lets set up some actions
 		return this.each(function(index)
 		{
@@ -132,7 +132,7 @@
 				// plain old hover it is
 				$(this).hover(smf_tooltip_on, smf_tooltip_off);
 			}
-			
+
 			// create the on tip action
 			function smf_tooltip_on(event)
 			{
@@ -141,34 +141,34 @@
 				{
 					// create a ID'ed div with our style class that holds the tooltip info, hidden for now
 					$('body').append('<div id="' + oSettings.tooltipID + '" class="' + oSettings.tooltipClass + '"><div id="' + oSettings.tooltipTextID + '" style="display:none;"></div></div>');
-					
+
 					// load information in to our newly created div
 					var tt = $('#' + oSettings.tooltipID);
 					var ttContent = $('#' + oSettings.tooltipID + ' #' + oSettings.tooltipTextID);
-					
+
 					if (oSettings.tooltipContent == 'html')
 						ttContent.html($(this).children('.' + oSettings.tooltipSwapClass).html());
 					else
 						ttContent.text($(this).children('.' + oSettings.tooltipSwapClass).text());
-					
+
 					oSettings.tooltipContent
-					
+
 					// show then position or it may postion off screen
 					tt.show();
 					showTooltip();
 					positionTooltip(event);
 				}
-			
+
 				return false;
 			};
-			
+
 			// create the Bye bye tip
 			function smf_tooltip_off(event)
 			{
 				hideTooltip(this);
 				return false;
 			};
-			
+
 			// create the tip move with the cursor
 			if (oSettings.followMouse)
 			{
@@ -177,7 +177,7 @@
 					return false;
 				});
 			}
-			
+
 			// clear the tip on a click
 			$(this).bind("click", function(event){
 				hideTooltip(this);
@@ -186,7 +186,7 @@
 
 		});
 	};
-	
+
 })(jQuery);
 
 /**
@@ -578,19 +578,20 @@
 
 })(jQuery, window);
 
-/**
- * hoverIntent is similar to jQuery's built-in "hover" method except that
- * instead of firing the handlerIn function immediately, hoverIntent checks
- * to see if the user's mouse has slowed down (beneath the sensitivity
- * threshold) before firing the event. The handlerOut function is only
- * called after a matching handlerIn.
- *
- * hoverIntent r7 // 2013.03.11 // jQuery 1.9.1+
+/*!
+ * hoverIntent v1.8.1 // 2014.08.11 // jQuery v1.9.1+
  * http://cherne.net/brian/resources/jquery.hoverIntent.html
  *
  * You may use hoverIntent under the terms of the MIT license. Basically that
  * means you are free to use hoverIntent as long as this header is left intact.
- * Copyright 2007, 2013 Brian Cherne
+ * Copyright 2007, 2014 Brian Cherne
+ */
+
+/* hoverIntent is similar to jQuery's built-in "hover" method except that
+ * instead of firing the handlerIn function immediately, hoverIntent checks
+ * to see if the user's mouse has slowed down (beneath the sensitivity
+ * threshold) before firing the event. The handlerOut function is only
+ * called after a matching handlerIn.
  *
  * // basic usage ... just like .hover()
  * .hoverIntent( handlerIn, handlerOut )
@@ -607,14 +608,14 @@
  * @param  handlerOut  function OR selector for delegation OR undefined
  * @param  selector    selector OR undefined
  * @author Brian Cherne <brian(at)cherne(dot)net>
- **/
+ */
 (function($) {
     $.fn.hoverIntent = function(handlerIn,handlerOut,selector) {
 
         // default configuration values
         var cfg = {
             interval: 100,
-            sensitivity: 7,
+            sensitivity: 6,
             timeout: 0
         };
 
@@ -641,10 +642,10 @@
         var compare = function(ev,ob) {
             ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
             // compare mouse positions to see if they've crossed the threshold
-            if ( ( Math.abs(pX-cX) + Math.abs(pY-cY) ) < cfg.sensitivity ) {
+            if ( Math.sqrt( (pX-cX)*(pX-cX) + (pY-cY)*(pY-cY) ) < cfg.sensitivity ) {
                 $(ob).off("mousemove.hoverIntent",track);
                 // set hoverIntent state to true (so mouseOut can be called)
-                ob.hoverIntent_s = 1;
+                ob.hoverIntent_s = true;
                 return cfg.over.apply(ob,[ev]);
             } else {
                 // set previous coordinates for next time
@@ -657,34 +658,34 @@
         // A private function for delaying the mouseOut function
         var delay = function(ev,ob) {
             ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t);
-            ob.hoverIntent_s = 0;
+            ob.hoverIntent_s = false;
             return cfg.out.apply(ob,[ev]);
         };
 
         // A private function for handling mouse 'hovering'
         var handleHover = function(e) {
             // copy objects to be passed into t (required for event object to be passed in IE)
-            var ev = jQuery.extend({},e);
+            var ev = $.extend({},e);
             var ob = this;
 
             // cancel hoverIntent timer if it exists
             if (ob.hoverIntent_t) { ob.hoverIntent_t = clearTimeout(ob.hoverIntent_t); }
 
-            // if e.type == "mouseenter"
-            if (e.type == "mouseenter") {
+            // if e.type === "mouseenter"
+            if (e.type === "mouseenter") {
                 // set "previous" X and Y position based on initial entry point
                 pX = ev.pageX; pY = ev.pageY;
                 // update "current" X and Y position based on mousemove
                 $(ob).on("mousemove.hoverIntent",track);
                 // start polling interval (self-calling timeout) to compare mouse coordinates over time
-                if (ob.hoverIntent_s != 1) { ob.hoverIntent_t = setTimeout( function(){compare(ev,ob);} , cfg.interval );}
+                if (!ob.hoverIntent_s) { ob.hoverIntent_t = setTimeout( function(){compare(ev,ob);} , cfg.interval );}
 
                 // else e.type == "mouseleave"
             } else {
                 // unbind expensive mousemove event
                 $(ob).off("mousemove.hoverIntent",track);
                 // if hoverIntent state is true, then call the mouseOut function after the specified delay
-                if (ob.hoverIntent_s == 1) { ob.hoverIntent_t = setTimeout( function(){delay(ev,ob);} , cfg.timeout );}
+                if (ob.hoverIntent_s) { ob.hoverIntent_t = setTimeout( function(){delay(ev,ob);} , cfg.timeout );}
             }
         };
 

@@ -111,11 +111,10 @@ function template_alerts_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}
@@ -157,8 +156,8 @@ function template_summary()
 
 	// Display the basic information about the user
 	echo '
-	<div id="profileview" class="roundframe flow_auto">
-		<div id="basicinfo">';
+	<div id="profileview" class="roundframe grid">
+		<div id="basicinfo" class="cell4 mcell16">';
 
 	// Are there any custom profile fields for above the name?
 	if (!empty($context['print_custom_fields']['above_member']))
@@ -270,8 +269,8 @@ function template_summary()
 		</div>';
 
 	echo '
-		<div id="detailedinfo">
-			<dl>';
+		<div id="detailedinfo" class="cell12 mcell16">
+			<dl class="grid">';
 
 	if ($context['user']['is_owner'] || $context['user']['is_admin'])
 		echo '
@@ -304,27 +303,15 @@ function template_summary()
 				<dt>', $txt['age'], ':</dt>
 				<dd>', $context['member']['age'] . ($context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . $settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
-	echo '
-			</dl>';
-
 	// Any custom fields for standard placement?
 	if (!empty($context['print_custom_fields']['standard']))
 	{
-		echo '
-				<dl>';
-
 		foreach ($context['print_custom_fields']['standard'] as $field)
 			if (!empty($field['output_html']))
 				echo '
 					<dt>', $field['name'], ':</dt>
 					<dd>', $field['output_html'], '</dd>';
-
-		echo '
-				</dl>';
 	}
-
-	echo '
-				<dl class="noborder">';
 
 	// Can they view/issue a warning?
 	if ($context['can_view_warning'] && $context['member']['warning'])
@@ -633,7 +620,7 @@ function template_showDrafts()
 	// No drafts? Just show an informative message.
 	if (empty($context['drafts']))
 		echo '
-		<div class="tborder windowbg2 padding centertext">
+		<div class="windowbg2 padding centertext">
 			', $txt['draft_none'], '
 		</div>';
 	else
@@ -903,7 +890,7 @@ function template_trackActivity()
 	// The last IP the user used.
 	echo '
 		<div id="tracking" class="windowbg2">
-			<dl class="noborder">
+			<dl class="grid">
 				<dt>', $txt['most_recent_ip'], ':
 					', (empty($context['last_ip2']) ? '' : '<br>
 					<span class="smalltext">(<a href="' . $scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . $txt['why_two_ip_address'] . '</a>)</span>'), '
@@ -954,7 +941,7 @@ function template_trackIP()
 	// This function always defaults to the last IP used by a member but can be set to track any IP.
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
 	echo '
-	<div class="tborder">
+	<div>
 		<div class="cat_bar">
 			<h3 class="catbg">', $txt['trackIP'], '</h3>
 		</div>
@@ -1075,7 +1062,7 @@ function template_showPermissions()
 
 		// General Permissions section.
 		echo '
-				<div class="tborder">
+				<div>
 					<div class="cat_bar">
 						<h3 class="catbg">', $txt['showPermissions_general'], '</h3>
 					</div>';
@@ -1122,7 +1109,7 @@ function template_showPermissions()
 
 		// Board permission section.
 		echo '
-			<div class="tborder">
+			<div>
 				<form action="' . $scripturl . '?action=profile;u=', $context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', $context['character_set'], '">
 					<div class="cat_bar">
 						<h3 class="catbg">
@@ -1201,7 +1188,7 @@ function template_statPanel()
 	echo '
 	<div id="profileview" class="roundframe">
 		<div id="generalstats">
-			<dl class="stats">
+			<dl class="grid">
 				<dt>', $txt['statPanel_total_time_online'], ':</dt>
 				<dd>', $context['time_logged_in'], '</dd>
 				<dt>', $txt['statPanel_total_posts'], ':</dt>
@@ -1254,13 +1241,12 @@ function template_statPanel()
 	}
 
 	echo '
-			<span class="clear">
 		</div>';
 
 	// Two columns with the most popular boards by posts and activity (activity = users posts / total posts).
 	echo '
-		<div class="flow_hidden">
-			<div class="half_content">
+		<div class="grid">
+			<div class="cell8 mcell16">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoards'], '
@@ -1293,9 +1279,8 @@ function template_statPanel()
 				</dl>';
 	}
 	echo '
-			</div>';
-	echo '
-			<div class="half_content">
+			</div>
+			<div class="cell8 mcell16">
 				<div class="title_bar">
 					<h3 class="titlebg">
 						<span class="generic_icons replies"></span> ', $txt['statPanel_topBoardsActivity'], '
@@ -2134,8 +2119,8 @@ function template_ignoreboards()
 		</div>
 		<p class="information">', $txt['ignoreboards_info'], '</p>
 		<div class="windowbg2">
-			<div class="flow_hidden">
-				<ul class="ignoreboards floatleft">';
+			<div class="selectboards grid">
+				<ul class="cell8 mcell16">';
 
 	$i = 0;
 	$limit = ceil($context['num_boards'] / 2);
@@ -2145,7 +2130,7 @@ function template_ignoreboards()
 		{
 			echo '
 				</ul>
-				<ul class="ignoreboards floatright">';
+				<ul class="cell8 mcell16">';
 
 			$i++;
 		}
@@ -2162,7 +2147,7 @@ function template_ignoreboards()
 						</ul>
 					</li>
 				</ul>
-				<ul class="ignoreboards floatright">
+				<ul class="cell8 mcell16">
 					<li class="category">
 						<ul>';
 

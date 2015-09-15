@@ -438,14 +438,14 @@ function template_add_edit_group_boards_list($collapse = true)
 	echo '
 							<fieldset id="visible_boards">
 								<legend>', $txt['membergroups_new_board_desc'], '</legend>
-								<ul class="padding floatleft">';
+								<ul class="padding selectboards">';
 
 	foreach ($context['categories'] as $category)
 	{
 		if (empty($modSettings['deny_boards_access']))
 			echo '
 									<li class="category">
-										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;"><strong>', $category['name'], '</strong></a>
+										<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'new_group\'); return false;">', $category['name'], '</a>
 									<ul style="width:100%">';
 		else
 			echo '

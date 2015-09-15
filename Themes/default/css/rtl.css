@@ -197,28 +197,6 @@ img#smflogo {
 	padding: 0 6px 0 0;
 }
 
-.mark_read {
-	float: left;
-}
-
-/* the small stats */
-#index_common_stats {
-	text-align: left;
-}
-
-/* Poll results */
-#poll_options dl.options {
-	padding: 1em 2em 1em 2.5em;
-	margin: 0 0 1em 1em;
-}
-#poll_options dl.options dt {
-	float: right;
-	clear: right;
-}
-#poll_options dl.options dd {
-	float: right;
-}
-
 /* poster and postarea + moderation area underneath */
 .poster {
 	float: right;
@@ -386,28 +364,6 @@ ul.post_options li {
 	text-align: right;
 }
 
-/* Styles for the login areas.
-------------------------------------------------------- */
-.login dt {
-	float: right;
-}
-.login dd {
-	float: right;
-	text-align: right;
-}
-.login h3 img {
-	margin: 0 0 0.5em;
-}
-
-/* Additional profile fields */
-dl.register_form {
-	clear: left;
-}
-
-dl.register_form dt {
-	float: right;
-}
-
 /* Styles for maintenance mode.
 ------------------------------------------------------- */
 #maintenance_mode {
@@ -461,35 +417,14 @@ div#admin_menu {
 	float: right;
 }
 
-/* User information. */
-#profile_menu a.avatar {
-	float: right;
-	margin: 0 10px 0 20px;
-}
-#profile_menu .profile_user_info ol {
-	float: right;
-}
-#profile_menu .profile_user_links li {
-	float: right;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
-#basicinfo {
-	float: right;
-}
-#detailedinfo {
-	float: left;
-}
 #basicinfo ul li {
 	float: right;
 	margin-right: 0;
 	margin-left: 5px;
 }
 #avatar_server_stored div {
-	float: right;
-}
-#detailedinfo dt, #tracking dt {
 	float: right;
 }
 
@@ -654,9 +589,6 @@ tr.windowbg2 th.stats_month, tr.windowbg2 td.stats_day {
 
 /* Styles for the package manager.
 ------------------------------------------------- */
-#package_list .tborder {
-	margin: .25em 26px .25em 0;
-}
 #package_list ol, #package_list ol li {
 	margin-left: 0;
 	margin-right: 50px;
@@ -720,14 +652,6 @@ span.pages {
 
 #userstatus .smalltext, .pm_icon {
 	margin: 0 20px 0 0 !important;
-}
-
-/* Profile drop it needs reverse on RTL */
-#profile_menu .profile_user_info {
-	margin: 3px 10px 5px 0;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 10px 0 0;
 }
 
 /* Code is a code do it LTR */

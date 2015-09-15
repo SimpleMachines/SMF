@@ -18,7 +18,7 @@ function template_login()
 	global $context, $settings, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
@@ -39,13 +39,11 @@ function template_login()
 
 	// Now just get the basic information - username, password, etc.
 	echo '
-					<dl>
+					<dl class="grid">
 						<dt>', $txt['username'], ':</dt>
 						<dd><input type="text" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', $context['default_username'], '" class="input_text"></dd>
 						<dt>', $txt['password'], ':</dt>
 						<dd><input type="password" id="', !empty($context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', $context['default_password'], '" size="20" class="input_password"></dd>
-					</dl>
-					<dl>
 						<dt>', $txt['mins_logged_in'], ':</dt>
 						<dd><input type="number" name="cookielength" size="4" maxlength="4" value="', $modSettings['cookieTime'], '"', $context['never_expire'] ? ' disabled' : '', ' class="input_text" min="1" max="525600"></dd>
 						<dt>', $txt['always_logged_in'], ':</dt>
@@ -114,7 +112,7 @@ function template_login_tfa()
 	global $context, $scripturl, $modSettings, $txt;
 
 	echo '
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', $txt['tfa_profile_label'] ,'
@@ -186,7 +184,7 @@ function template_kick_guest()
 	// This isn't that much... just like normal login but with a message at the top.
 	echo '
 	<form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['warning'], '</h3>
 			</div>';
@@ -210,7 +208,7 @@ function template_kick_guest()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['username'], ':</dt>
 					<dd><input type="text" name="user" size="20" class="input_text"></dd>
 					<dt>', $txt['password'], ':</dt>
@@ -246,7 +244,7 @@ function template_maintenance()
 	// Display the administrator's message at the top.
 	echo '
 <form action="', $context['login_url'], '" method="post" accept-charset="', $context['character_set'], '">
-	<div class="tborder login" id="maintenance_mode">
+	<div class="login" id="maintenance_mode">
 		<div class="cat_bar">
 			<h3 class="catbg">', $context['title'], '</h3>
 		</div>
@@ -258,7 +256,7 @@ function template_maintenance()
 			<h4 class="titlebg">', $txt['admin_login'], '</h4>
 		</div>
 		<div class="roundframe">
-			<dl>
+			<dl class="grid">
 				<dt>', $txt['username'], ':</dt>
 				<dd><input type="text" name="user" size="20" class="input_text"></dd>
 				<dt>', $txt['password'], ':</dt>
@@ -288,7 +286,7 @@ function template_admin_login()
 	// Since this should redirect to whatever they were doing, send all the get data.
 	echo '
 <form action="', !empty($modSettings['force_ssl']) && $modSettings['force_ssl'] < 2 ? strtr($scripturl, array('http://' => 'https://')) : $scripturl, $context['get_data'], '" method="post" accept-charset="', $context['character_set'], '" name="frmLogin" id="frmLogin">
-	<div class="tborder login" id="admin_login">
+	<div class="login" id="admin_login">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<img src="', $settings['images_url'], '/icons/login_hd.png" alt="" class="icon"> ', $txt['login'], '
@@ -340,7 +338,7 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty($context['member_id']))
 		echo '
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="30" class="input_text"></dd>';
 
@@ -367,12 +365,12 @@ function template_resend()
 				<h3 class="titlebg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_username'], ':</dt>
 					<dd><input type="text" name="user" size="40" value="', $context['default_username'], '" class="input_text"></dd>
 				</dl>
 				<p>', $txt['invalid_activation_new'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_new_email'], ':</dt>
 					<dd><input type="text" name="new_email" size="40" class="input_text"></dd>
 					<dt>', $txt['invalid_activation_password'], ':</dt>
@@ -382,7 +380,7 @@ function template_resend()
 	if ($context['can_activate'])
 		echo '
 				<p>', $txt['invalid_activation_known'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['invalid_activation_retry'], ':</dt>
 					<dd><input type="text" name="code" size="30" class="input_text"></dd>
 				</dl>';

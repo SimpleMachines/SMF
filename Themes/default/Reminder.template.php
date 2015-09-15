@@ -20,13 +20,13 @@ function template_main()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
 			<div class="roundframe">
 				<p class="smalltext centertext">', $txt['password_reminder_desc'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['user_email'], ':</dt>
 					<dd><input type="text" name="user" size="30" class="input_text"></dd>
 				</dl>
@@ -49,7 +49,7 @@ function template_reminder_pick()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
@@ -83,7 +83,7 @@ function template_sent()
 
 	echo '
 		<br>
-		<div class="tborder login" id="reminder_sent">
+		<div class="login" id="reminder_sent">
 			<div class="cat_bar">
 				<h3 class="catbg">' . $context['page_title'] . '</h3>
 			</div>
@@ -101,12 +101,12 @@ function template_set_password()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', $context['character_set'], '">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['choose_pass'], ': </dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22" class="input_password">
@@ -152,13 +152,13 @@ function template_ask()
 	echo '
 	<br>
 	<form action="', $scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', $context['character_set'], '" name="creator" id="creator">
-		<div class="tborder login">
+		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">', $txt['authentication_reminder'], '</h3>
 			</div>
 			<div class="roundframe">
 				<p class="smalltext">', $txt['enter_new_password'], '</p>
-				<dl>
+				<dl class="grid">
 					<dt>', $txt['secret_question'], ':</dt>
 					<dd>', $context['secret_question'], '</dd>
 					<dt>', $txt['secret_answer'], ':</dt>
