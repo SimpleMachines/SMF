@@ -31,7 +31,7 @@ function smf_fileUpload(oOptions)
 
 		_thisElement.find('.attach-ui').fadeIn();
 
-		// Hookup the start button
+		// Hookup the start button.
 		_thisElement.find('.start').on( "click", function() {
 			myDropzone.enqueueFile(file);
 		});
@@ -40,7 +40,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass("descbox");
 	});
 
-	// Update the total progress bar
+	// Update the total progress bar.
 	myDropzone.on('totaluploadprogress', function(progress) {
 		$('#total-progress span').width(progress + '%');
 	});
@@ -101,7 +101,7 @@ function smf_fileUpload(oOptions)
 			// Hold the cancel button.
 			_thisElement.find('.delete').prop('disabled', true);
 
-			// Create an event for the Cancel button.
+			// Create a delete button.
 			deleteButton = $('<a />')
 			.addClass('button_submit deleteButton you_sure')
 			.prop('disabled', false)
@@ -142,6 +142,8 @@ function smf_fileUpload(oOptions)
 	myDropzone.on("uploadprogress", function(file, progress, bytesSent) {
 
 		_thisElement = $(file.previewElement);
+
+		// Get the current file box progress bar, set its inner span's width accordingly.
 		_thisElement.find('p.progressBar span').width(progress + "%");
 	});
 
