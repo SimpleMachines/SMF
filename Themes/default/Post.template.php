@@ -442,7 +442,7 @@ function template_main()
 									<p class="error" data-dz-errormessage></p>
 									<p class="size" data-dz-size></p>
 									<p class="message" data-dz-message></p>
-									<p class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
+									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
 								</div>
 								<div>
 									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
@@ -465,7 +465,7 @@ function template_main()
 								<div id="attachUpload" class="descbox">
 									<h5>', $txt['attach_drop_zone'] ,'</h5>
 									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
-									<div id="total-progress" class="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="fallback">
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
 								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">');
