@@ -115,6 +115,12 @@ function smf_fileUpload(oOptions)
 					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ response.attachID +';' + smf_session_var + '=' + smf_session_id,
 					type: 'GET',
 					dataType: 'json',
+					beforeSend: function(){
+						ajax_indicator(true);
+					},
+					complete: function(jqXHR, textStatus){
+						ajax_indicator(false);
+					},
 					success: function (data, textStatus, xhr) {
 
 						// Remove the text field and show a nice confirmation message.
