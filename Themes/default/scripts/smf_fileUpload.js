@@ -180,15 +180,29 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('p.progressBar').fadeOut();
 	});
 
+	// Show each individual's progress bar.
 	myDropzone.on('sending', function(file) {
 
 		_thisElement = $(file.previewElement);
 
 		// Show the progress bar when upload starts.
 		_thisElement.find('p.progressBar').fadeIn();
+
+		// Show the total progress bar when upload starts.
+		$("#total-progress").fadeIn();
 	});
 
-	// Add an event for uploading and canceling all files.
+	// Update the total progress bar.
+	myDropzone.on("totaluploadprogress", function(progress) {
+		$("#total-progress span").width(progress + '%');
+	});
+
+	// Hide the total progress bar when nothing's uploading anymore.
+	myDropzone.on("queuecomplete", function(progress) {
+		$("#total-progress").fadeOut();
+	});
+
+	// Add an event for uploading and cancelling all files.
 	$('a#attach-cancelAll' ).on('click', function() {
 		myDropzone.removeAllFiles(true);
 	});
