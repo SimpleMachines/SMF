@@ -19,6 +19,19 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
+		accept: function(file, done) {
+
+			// Need to check if the added file doesn't surpass the total max size setting.
+			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
+
+			if (myDropzone.options.totalMaxSize > myDropzone.options.limitMultiFileUploadSize){
+				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.limitMultiFileUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+			}
+			else{
+				done();
+			}
+		},
+		totalMaxSize: 0,
 	};
 
 	$.extend(true, dOptions, oOptions);
@@ -46,7 +59,10 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Stuff to do when a file gets cancel.
-	myDropzone.on('removedfile', function(progress) {
+	myDropzone.on('removedfile', function(file) {
+
+		// Need to remove the file size to make sure theres plenty of room for another one.
+		myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
 
 		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0){

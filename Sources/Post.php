@@ -1204,8 +1204,8 @@ function Post($post_errors = array())
 			thumbnailWidth: '.(!empty($modSettings['attachmentThumbWidth']) ? $modSettings['attachmentThumbWidth'] : 'undefined') .',
 			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
 			maxFiles: '. $context['num_allowed_attachments'] .',
-			limitMultiFileUploads: '. $context['num_allowed_attachments'] .',
-			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) .'000
+			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
+			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1000 .',
 		});
 	});', true);
 	}
