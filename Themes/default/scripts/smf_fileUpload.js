@@ -32,12 +32,26 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.attach-ui').fadeIn();
 
 		// Hookup the start button.
-		_thisElement.find('.start').on( "click", function() {
+		_thisElement.find('.start').on( 'click', function() {
 			myDropzone.enqueueFile(file);
 		});
 
 		// Show the main stuff!
-		_thisElement.addClass("descbox");
+		_thisElement.addClass('descbox');
+
+		// Show the upload and cancel all buttons only if there is something to cancel/upload.
+		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length > 0){
+			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn();
+		}
+	});
+
+	// Stuff to do when a file gets cancel.
+	myDropzone.on('removedfile', function(progress) {
+
+		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
+		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0){
+			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeOut();
+		}
 	});
 
 	// Update the total progress bar.
@@ -49,18 +63,18 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the "start" button.
-		_thisElement.find('p.start').fadeOutAndRemove('slow');
+		// Remove the 'start' button.
+		_thisElement.find('.start').fadeOutAndRemove('slow');
 
 		// Set a nice css class to make it more obvious theres an error.
-		_thisElement.addClass("errorbox").removeClass("descbox");
+		_thisElement.addClass('errorbox').removeClass('descbox');
 	});
 
 	myDropzone.on('success', function(file, responseText, e) {
 
 		_thisElement = $(file.previewElement);
 
-		// Remove the "start" button.
+		// Remove the 'start' button.
 		_thisElement.find('.start').fadeOutAndRemove('slow');
 
 		// There is a general error.
@@ -75,7 +89,7 @@ function smf_fileUpload(oOptions)
 			// The request was complete but the server returned an error.
 			if (typeof response.errors !== 'undefined' && response.errors.length > 0){
 
-				_thisElement.addClass("errorbox").removeClass("descbox");
+				_thisElement.addClass('errorbox').removeClass('descbox');
 
 				// Show the server error.
 				_thisElement.find('p.error').append(response.errors.join('<br>'));
@@ -83,7 +97,7 @@ function smf_fileUpload(oOptions)
 			}
 
 			// If there wasn't any error, change the current cover.
-			_thisElement.addClass("infobox").removeClass("descbox");
+			_thisElement.addClass('infobox').removeClass('descbox');
 
 			bbcTag = '[attach]' + response.attachID + '[/attach]',
 				insertBBC = $('<a />')
@@ -150,15 +164,15 @@ function smf_fileUpload(oOptions)
 		});
 	});
 
-	myDropzone.on("uploadprogress", function(file, progress, bytesSent) {
+	myDropzone.on('uploadprogress', function(file, progress, bytesSent) {
 
 		_thisElement = $(file.previewElement);
 
 		// Get the current file box progress bar, set its inner span's width accordingly.
-		_thisElement.find('p.progressBar span').width(progress + "%");
+		_thisElement.find('p.progressBar span').width(progress + '%');
 	});
 
-	myDropzone.on("complete", function(file, progress, bytesSent) {
+	myDropzone.on('complete', function(file, progress, bytesSent) {
 
 		_thisElement = $(file.previewElement);
 
@@ -172,5 +186,13 @@ function smf_fileUpload(oOptions)
 
 		// Show the progress bar when upload starts.
 		_thisElement.find('p.progressBar').fadeIn();
+	});
+
+	// Add an event for uploading and canceling all files.
+	$('a#attach-cancelAll' ).on('click', function() {
+		myDropzone.removeAllFiles(true);
+	});
+	$('a#attach-uploadAll' ).on('click', function() {
+		myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
 	});
 }

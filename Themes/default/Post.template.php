@@ -464,6 +464,8 @@ function template_main()
 							<dd class="smalltext fallback">
 								<div id="attachUpload" class="descbox">
 									<h5>', $txt['attach_drop_zone'] ,'</h5>
+									<a class="button_submit" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
+									<a class="button_submit" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
 									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
 									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
 									<div class="fallback">
