@@ -100,15 +100,17 @@ function smf_fileUpload(oOptions)
 			_thisElement.addClass('infobox').removeClass('descbox');
 
 			bbcTag = '[attach]' + response.attachID + '[/attach]',
-				insertBBC = $('<a />')
-				.addClass('button_submit insertBBC')
-				.prop('disabled', false)
-				.text(myDropzone.options.text_insertBBC)
-				.on('click', function (e) {
-					e.preventDefault();
-					$('#' + oEditorID).data('sceditor').sourceEditorInsertText(bbcTag);
-				}),
-				fieldTag = $('<p class="attached_BBC" />').append('<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>').append(insertBBC);
+			inputField = $('<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>'),
+			insertBBC = $('<a />')
+			.addClass('button_submit insertBBC')
+			.prop('disabled', false)
+			.text(myDropzone.options.text_insertBBC)
+			.on('click', function (e) {
+				e.preventDefault();
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(_thisElement.find('input[name=attachBBC]').val());
+			}),
+			fieldTag = $('<p class="attached_BBC" />').append(insertBBC)
+			.append(inputField);
 
 			_thisElement.find('div.attach-info').append(fieldTag);
 
