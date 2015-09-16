@@ -222,9 +222,19 @@ function smf_fileUpload(oOptions)
 
 	// Add an event for uploading and cancelling all files.
 	$('a#attach-cancelAll' ).on('click', function() {
+
+		if (!confirm(smf_you_sure)){
+			return;
+		}
+
 		myDropzone.removeAllFiles(true);
 	});
 	$('a#attach-uploadAll' ).on('click', function() {
+
+		if (!confirm(smf_you_sure)){
+			return;
+		}
+
 		myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
 	});
 }
