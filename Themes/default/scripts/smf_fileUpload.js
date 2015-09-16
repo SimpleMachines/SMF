@@ -103,12 +103,17 @@ function smf_fileUpload(oOptions)
 
 			// Create a delete button.
 			deleteButton = $('<a />')
-			.addClass('button_submit you_sure')
+			.addClass('button_submit')
 			.prop('disabled', false)
 			.text(myDropzone.options.text_deleteAttach)
 			.one('click', function (e) {
 
 				$this = $(this);
+
+				// Perform the action only after receiving the confirmation.
+				if (!confirm(smf_you_sure)){
+					return;
+				}
 
 				// Let the server know you want to delete the file you just recently uploaded...
 				$.ajax({
