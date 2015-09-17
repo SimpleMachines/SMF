@@ -42,7 +42,65 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
+		// Show the file info.
 		_thisElement.find('.attach-ui').fadeIn();
+
+		// Create a function to delete the uploaded attachment.
+		file.insertAttachment = function (_innerElement, attachmentId){
+
+			_innerElement.find('.insertBBC').on('click', function (e) {
+				e.preventDefault();
+				$('#' + oEditorID).data('sceditor').sourceEditorInsertText('[attach]' + attachmentId + '[/attach]');
+			});
+		};
+
+		// Replace the field with a message when the attachment is deleted.
+		file.deleteAttachment = function (_innerElement){
+
+			deleteButton = $('<a />')
+			.addClass('button_submit')
+			.prop('disabled', false)
+			.text(myDropzone.options.text_deleteAttach)
+			.one('click', function (e) {
+
+				$this = $(this);
+
+				// Perform the action only after receiving the confirmation.
+				if (!confirm(smf_you_sure)){
+					return;
+				}
+
+				// Let the server know you want to delete the file you just recently uploaded...
+				$.ajax({
+					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ response.attachID +';' + smf_session_var + '=' + smf_session_id,
+					type: 'GET',
+					dataType: 'json',
+					beforeSend: function(){
+						ajax_indicator(true);
+					},
+					complete: function(jqXHR, textStatus){
+						ajax_indicator(false);
+
+						// Delete the button.
+						$this.fadeOutAndRemove('slow');
+					},
+					success: function (data, textStatus, xhr) {
+
+						// Remove the text field and show a nice confirmation message.
+						_innerElement.find('.attached_BBC').text(myDropzone.options.text_attachDeleted);
+					},
+					error: function (xhr, textStatus, errorThrown) {
+
+						// Tell the user something horrible happen!
+						// @todo, catch the error and append it to our p.error tag.
+
+						// For dramatic purposes only!
+						node.removeClass('infobox').addClass('errorbox');
+					}
+				});
+			})
+			.appendTo(_innerElement.find('.attach-ui'));
+		};
 
 		// Hookup the start button.
 		_thisElement.find('.start').on( 'click', function() {
@@ -100,86 +158,34 @@ function smf_fileUpload(oOptions)
 		}
 
 		// Server returns an array.
-		$.each(responseText.files, function( key, response ) {
+		response = responseText.files[0];
 
-			// The request was complete but the server returned an error.
-			if (typeof response.errors !== 'undefined' && response.errors.length > 0){
+		// Show the input field.
+		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
-				_thisElement.addClass('errorbox').removeClass('descbox');
+		// The request was complete but the server returned an error.
+		if (typeof response.errors !== 'undefined' && response.errors.length > 0){
 
-				// Show the server error.
-				_thisElement.find('p.error').append(response.errors.join('<br>'));
-				return;
-			}
+			_thisElement.addClass('errorbox').removeClass('descbox');
 
-			// If there wasn't any error, change the current cover.
-			_thisElement.addClass('infobox').removeClass('descbox');
+			// Show the server error.
+			_thisElement.find('p.error').append(response.errors.join('<br>'));
+			return;
+		}
 
-			bbcTag = '[attach]' + response.attachID + '[/attach]',
-			inputField = $('<input type="text" name="attachBBC" value="'+ bbcTag +'" readonly>'),
-			insertBBC = $('<a />')
-			.addClass('button_submit insertBBC')
-			.prop('disabled', false)
-			.text(myDropzone.options.text_insertBBC)
-			.on('click', function (e) {
-				e.preventDefault();
-				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(_thisElement.find('input[name=attachBBC]').val());
-			}),
-			fieldTag = $('<p class="attached_BBC" />').append(insertBBC)
-			.append(inputField);
+		// If there wasn't any error, change the current cover.
+		_thisElement.addClass('infobox').removeClass('descbox');
 
-			_thisElement.find('div.attach-info').append(fieldTag);
+		// Append the BBC.
+		_thisElement.find('input[name="attachBBC"]').val('[attach]' + response.attachID + '[/attach]');
 
-			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
-			_thisElement.find('a.delete').fadeOutAndRemove('slow');
+		file.insertAttachment(_thisElement, response.attachID);
 
-			// Create a delete button.
-			deleteButton = $('<a />')
-			.addClass('button_submit')
-			.prop('disabled', false)
-			.text(myDropzone.options.text_deleteAttach)
-			.one('click', function (e) {
+		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+		_thisElement.find('a.delete').fadeOutAndRemove('slow');
 
-				$this = $(this);
-
-				// Perform the action only after receiving the confirmation.
-				if (!confirm(smf_you_sure)){
-					return;
-				}
-
-				// Let the server know you want to delete the file you just recently uploaded...
-				$.ajax({
-					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ response.attachID +';' + smf_session_var + '=' + smf_session_id,
-					type: 'GET',
-					dataType: 'json',
-					beforeSend: function(){
-						ajax_indicator(true);
-					},
-					complete: function(jqXHR, textStatus){
-						ajax_indicator(false);
-					},
-					success: function (data, textStatus, xhr) {
-
-						// Remove the text field and show a nice confirmation message.
-						_thisElement.find('.attached_BBC').fadeOutAndRemove('slow');
-						_thisElement.find('p.message').text(myDropzone.options.text_attachDeleted);
-
-						// Remove this button and enable the cancel one.
-						$this.fadeOutAndRemove('slow');
-						_thisElement.find('.delete').prop('disabled', false);
-					},
-					error: function (xhr, textStatus, errorThrown) {
-
-						// Tell the user something horrible happen!
-						// @todo, catch the error and append it to our p.error tag.
-
-						// For dramatic purposes only!
-						node.removeClass('infobox').addClass('errorbox');
-					}
-				});
-			})
-			.appendTo(_thisElement.find('.attach-ui'));
-		});
+		// Fire up the delete button.
+		file.deleteAttachment(_thisElement);
 	});
 
 	myDropzone.on('uploadprogress', function(file, progress, bytesSent) {

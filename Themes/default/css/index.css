@@ -3832,7 +3832,7 @@ h3.profile_hd {
 	min-height:30px;
 	vertical-align: middle;
 }
-.attach-info p.progressBar, a#attach-cancelAll, a#attach-uploadAll{
+.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
 	display:none;
 }
 .attach-info p, .attach-info field{

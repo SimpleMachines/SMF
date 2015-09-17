@@ -442,6 +442,10 @@ function template_main()
 									<p class="error" data-dz-errormessage></p>
 									<p class="size" data-dz-size></p>
 									<p class="message" data-dz-message></p>
+									<p class="attached_BBC">
+										<input type="text" name="attachBBC" value="" readonly>
+										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
+									</p>
 									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
 								</div>
 								<div class="attach-ui">
