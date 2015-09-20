@@ -1155,7 +1155,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return;
 					}
 
-					if ($currentAttachment['is_image'])
+					if (!empty($currentAttachment['is_image']))
 					{
 						$returnContext .= '
 												<div class="lol">';

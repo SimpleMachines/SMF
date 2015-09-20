@@ -111,7 +111,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('descbox');
 
 		// Show the upload and cancel all buttons only if there is something to cancel/upload.
-		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length > 0){
+		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 1){
 			$('div#attachUpload').find('#attach-cancelAll, #attach-uploadAll').fadeIn();
 		}
 	});
