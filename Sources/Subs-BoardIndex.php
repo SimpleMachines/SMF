@@ -99,7 +99,7 @@ function getBoardIndex($boardIndexOptions)
 				$categories[$row_board['id_cat']] = array(
 					'id' => $row_board['id_cat'],
 					'name' => $row_board['cat_name'],
-					'description' => parse_bbc($row_board['cat_desc'], false, '', $context['description_allowed_tags']),
+					'description' => $row_board['cat_desc'],
 					'is_collapsed' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1 && !empty($options['collapse_category_' . $row_board['id_cat']]),
 					'can_collapse' => isset($row_board['can_collapse']) && $row_board['can_collapse'] == 1,
 					'href' => $scripturl . '#c' . $row_board['id_cat'],
@@ -134,7 +134,7 @@ function getBoardIndex($boardIndexOptions)
 					'new' => empty($row_board['is_read']),
 					'id' => $row_board['id_board'],
 					'name' => $row_board['board_name'],
-					'description' => parse_bbc($row_board['description'], false, '', $context['description_allowed_tags']),
+					'description' => $row_board['description'],
 					'moderators' => array(),
 					'moderator_groups' => array(),
 					'link_moderators' => array(),
