@@ -1464,7 +1464,7 @@ function UpgradeOptions()
 	$settings_file = file_get_contents($boarddir . '/Settings.php');
 
 	// Look to see if the new error-catching section is there...
-	if (stripos('if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))', $settings_file) === false)
+	if (stripos($settings_file, 'if (file_exists(dirname(__FILE__) . \'/db_last_error.php\'))') === false)
 	{
 		// This is what we want to add...
 		$error_catching_header = '

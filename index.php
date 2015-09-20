@@ -179,17 +179,17 @@ function smf_main()
 	if (!empty($maintenance) && !allowedTo('admin_forum'))
 	{
 		// You can only login.... otherwise, you're getting the "maintenance mode" display.
-		if (isset($_REQUEST['action']) && ($_REQUEST['action'] == 'login2' || $_REQUEST['action'] == 'logout'))
+		if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], array('login2', 'logintfa', 'logout'))))
 		{
 			require_once($sourcedir . '/LogInOut.php');
-			return $_REQUEST['action'] == 'login2' ? 'Login2' : 'Logout';
+			return ($_REQUEST['action'] == 'login2' ? 'Login2' : ($_REQUEST['action'] == 'logintfa' ? 'LoginTFA' : 'Logout'));
 		}
 		// Don't even try it, sonny.
 		else
 			return 'InMaintenance';
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
 		return 'KickGuest';
 	elseif (empty($_REQUEST['action']))
 	{

@@ -1552,7 +1552,7 @@ function WrapAction()
 		if (!isset($settings['catch_action']['filename']))
 			$settings['catch_action']['filename'] = '';
 
-		add_integration_function('integrate_wrap_action', $hook, $settings['catch_action']['filename'], false, false);
+		add_integration_function('integrate_wrap_action', $hook, false, $settings['catch_action']['filename'], false);
 		call_integration_hook('integrate_wrap_action');
 	}
 	// And finally, the main sub template ;).
