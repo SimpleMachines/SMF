@@ -903,7 +903,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
 
 function parseAttachBBC($attachID = false)
 {
-	global $board, $modSettings, $sourcedir, $context;
+	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
 
 	$attachContext = array();
 	$allAttachments = array();
@@ -915,6 +915,29 @@ function parseAttachBBC($attachID = false)
 	//Are attachments enable?
 	if (empty($modSettings['attachmentEnable']))
 		return 'attachments_not_enable';
+
+	// Previewing much? no msg ID has been set yet.
+	if (!empty($context['preview_message']))
+	{
+		$allAttachments = getAttachsByMsg(0);
+		$attachContext = $allAttachments['0'][$attachID];
+
+		if (!empty($attachContext))
+			$attachLoaded = loadAttachmentContext('0', $allAttachments);
+
+		$attachContext = $attachLoaded[$attachID];
+
+		// Fix the url to point out to showAvatar().
+		$attachContext['href'] = $scripturl . '?action=dlattach;attach=' . $attachID .';type=preview';
+
+		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID .';type=preview'. (empty($attachContext['is_image']) ? ';file' : '') .'">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
+
+		// Fix the thumbnail too.
+		if (!empty($attachContext['thumbnail']))
+			$attachContext['thumbnail']['href'] = $scripturl . '?action=dlattach;attach=' . $attachContext['thumbnail']['id'] . ';image;type=preview';
+
+		return $attachContext;
+	}
 
 	// Make it easy.
 	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
@@ -1013,10 +1036,6 @@ function getAttachsByMsg($msgID = 0)
 	global $modSettings, $smcFunc;
 	static $attached = array();
 
-	// The usual checks.
-	if (empty($msgID))
-		return array();
-
 	if (!isset($attached[$msgID]))
 	{
 		$request = $smcFunc['db_query']('', '
@@ -1027,8 +1046,8 @@ function getAttachsByMsg($msgID = 0)
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
-			WHERE a.id_msg = {int:message_id}
-				AND a.attachment_type = {int:attachment_type}',
+			WHERE a.attachment_type = {int:attachment_type}
+				'. (!empty($msgID) ? 'AND a.id_msg = {int:message_id}' : '') .'',
 			array(
 				'message_id' => $msgID,
 				'attachment_type' => 0,

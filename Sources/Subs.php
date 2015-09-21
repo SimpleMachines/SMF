@@ -1157,19 +1157,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					if (!empty($currentAttachment['is_image']))
 					{
-						$returnContext .= '
-												<div class="lol">';
-
 						if ($currentAttachment['thumbnail']['has_thumb'])
 							$returnContext .= '
 													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
 						else
 							$returnContext .= '
 													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
-
-						$returnContext .= '
-												</div>';
 					}
+
+					// No image. Show a link.
+					else
+						$returnContext .= $currentAttachment['link'];
 
 					// Gotta append what we just did.
 					$data = $returnContext;

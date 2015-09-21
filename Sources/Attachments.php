@@ -315,7 +315,7 @@ class Attachments
 		foreach ($_SESSION['temp_attachments'] as  $attachID => $attachment)
 		{
 			$attachmentOptions = array(
-				'post' => isset($this->_msg) ? $this->_msg : 0,
+				'post' => $this->_msg,
 				'poster' => $user_info['id'],
 				'name' => $attachment['name'],
 				'tmp_name' => $attachment['tmp_name'],
