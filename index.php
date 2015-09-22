@@ -79,11 +79,11 @@ if (isset($_GET['scheduled']))
 	AutoTask();
 }
 
-// Displaying attached avatars, legacy.
+// Displaying attachments.
 elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
 {
 	require_once($sourcedir. '/Avatar.php');
-	showAvatar();
+	showAttachment();
 }
 
 // And important includes.

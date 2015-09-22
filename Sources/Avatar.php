@@ -19,7 +19,7 @@ if (!defined('SMF'))
 /**
  * Shows an avatar based on $_GET['attach']
  */
-function showAvatar()
+function showAttachment()
 {
 	global $smcFunc, $modSettings, $maintenance, $context;
 
@@ -30,9 +30,6 @@ function showAvatar()
 	// No access in strict maintenance mode.
 	if(!empty($maintenance) && $maintenance == 2)
 		die;
-
-	// Are we handling an attachment preview?
-	$attachPreview = isset($_GET['type']);
 
 	// This is done to clear any output that was made before now.
 	if(!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
@@ -53,7 +50,7 @@ function showAvatar()
 	$id_attach = (int) $_GET['attach'];
 
 	// Use cache when possible.
-	if(!$attachPreview && ($cache = cache_get_data('avatar_lookup_id-'. $id_attach)) != null)
+	if(($cache = cache_get_data('attachment_lookup_id-'. $id_attach)) != null)
 		$file = $cache;
 
 	// Get the info from the DB.
@@ -63,7 +60,6 @@ function showAvatar()
 			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
 			FROM {db_prefix}attachments
 			WHERE id_attach = {int:id_attach}
-				'. (!$attachPreview ? 'AND id_member > {int:blank_id_member}' : '') .'
 			LIMIT 1',
 			array(
 				'id_attach' => $id_attach,
@@ -89,8 +85,8 @@ function showAvatar()
 		// ETag time.
 		$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
 
-		// Cache it... (Why do I randomly select a length at which to expire? Search around for RIP_JITTER :P).
-		cache_put_data('avatar_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
+		// Cache it.
+		cache_put_data('attachment_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
 	}
 
 	// The file does not exists
