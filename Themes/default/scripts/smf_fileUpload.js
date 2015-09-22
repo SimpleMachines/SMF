@@ -42,6 +42,11 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
+		// Create a generic thumb for non image files.
+		if (!file.type.match(/image.*/)) {
+			myDropzone.emit('thumbnail', file, smf_images_url +'/generic_attach.png');
+		}
+
 		// Show the file info.
 		_thisElement.find('.attach-ui').fadeIn();
 
