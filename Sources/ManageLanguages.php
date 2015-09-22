@@ -358,16 +358,15 @@ function DownloadLanguage()
 			// Add the context data to the main set.
 			$context['files']['lang'][] = $context_data;
 		}
+		elseif ($extension == '.txt' && stripos($filename, 'agreement') !== false)
+		{
+			// Registration agreement is a primary file
+			$context['files']['lang'][] = $context_data;
+		}
 		else
 		{
-			// If we think it's a theme thing, work out what the theme is.
-			if (strpos($dirname, 'Themes') === 0 && preg_match('~Themes[\\/]([^\\/]+)[\\/]~', $dirname, $match))
-				$theme_name = $match[1];
-			else
-				$theme_name = 'misc';
-
-			// Assume it's an image, could be an acceptance note etc but rare.
-			$context['files']['images'][$theme_name][] = $context_data;
+			// There shouldn't be anything else, but load this into "other" in case we decide to handle it in the future
+			$context['files']['other'][] = $context_data;
 		}
 
 		// Collect together all non-writable areas.
