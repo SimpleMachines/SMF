@@ -177,7 +177,7 @@ function template_control_richedit_buttons($editor_id)
 
 
 	echo '
-		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">';
+		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : $txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">';
 
 	// Load in the PM autosaver if it's enabled
 	if (!empty($context['drafts_pm_save']) && !empty($context['drafts_autosave']))

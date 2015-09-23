@@ -156,6 +156,11 @@ function smf_fileUpload(oOptions)
 		// Remove the 'start' button.
 		_thisElement.find('.start').fadeOutAndRemove('slow');
 
+		// Don't do anything if there is no response from server.
+		if (!responseText){
+			return;
+		}
+
 		// There is a general error.
 		if (responseText.generalErrors){
 			_thisElement.find('p.error').append(responseText.generalErrors.join('<br>'));
@@ -247,5 +252,19 @@ function smf_fileUpload(oOptions)
 		}
 
 		myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+	});
+
+	// Need to tell the user they cannot post until all files are either uploaded or canceled.
+	$("input[name ='post']").on('click', function(e) {
+
+		attachAdded = myDropzone.getFilesWithStatus(Dropzone.ADDED).length;
+		attachQueued = myDropzone.getFilesWithStatus(Dropzone.QUEUED).length;
+
+		if (attachAdded > 0 || attachQueued){
+			alert(myDropzone.options.text_attachLeft);
+			e.preventDefault();
+			e.preventDefault();
+			return false;
+		}
 	});
 }

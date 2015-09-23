@@ -180,6 +180,7 @@ $txt['attached_file_deleted_error'] = 'There was an error while performing the d
 $txt['attached_insertBBC'] = 'Insert';
 $txt['attached_cancelAll'] = 'Cancel all';
 $txt['attached_uploadAll'] = 'Upload all';
+$txt['attached_attachedLeft'] = 'There are a few attachments left, please upload them or cancel them before posting.';
 
 
 $txt['attach_php_error'] = 'Due to an error, your attachment could not be uploaded. Please contact the forum administrator if this problem continues.';

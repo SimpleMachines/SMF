@@ -1191,6 +1191,7 @@ function Post($post_errors = array())
 			dictFallbackMessage : '. JavaScriptEscape($txt['attach_drop_zone_no']) .',
 			dictCancelUpload : '. JavaScriptEscape($txt['modify_cancel']) .',
 			genericError: '. JavaScriptEscape($txt['attach_php_error']) .',
+			text_attachLeft: '. JavaScriptEscape($txt['attached_attachedLeft']) .',
 			text_deleteAttach: '. JavaScriptEscape($txt['attached_file_delete']) .',
 			text_attachDeleted: '. JavaScriptEscape($txt['attached_file_deleted']) .',
 			text_insertBBC: '. JavaScriptEscape($txt['attached_insertBBC']) .',
