@@ -687,21 +687,32 @@ function SpiderLogs()
 	loadTemplate('ManageSearch');
 
 	// Did they want to delete some entries?
-	if (!empty($_POST['delete_entries']) && isset($_POST['older']))
+	if ((!empty($_POST['delete_entries']) && isset($_POST['older'])) || !empty($_POST['removeAll']))
 	{
 		checkSession();
 		validateToken('admin-sl');
 
-		$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
+		if (!empty($_POST['delete_entries']) && isset($_POST['older']))
+		{
+			$deleteTime = time() - (((int)$_POST['older']) * 24 * 60 * 60);
 
-		// Delete the entires.
-		$smcFunc['db_query']('', '
+			// Delete the entires.
+			$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}log_spider_hits
 			WHERE log_time < {int:delete_period}',
-			array(
-				'delete_period' => $deleteTime,
-			)
-		);
+				array(
+					'delete_period' => $deleteTime,
+				)
+			);
+		}
+		else
+		{
+			// Deleting all of them
+			$smcFunc['db_query']('', '
+			TRUNCATE TABLE {db_prefix}log_spider_hits',
+				array()
+			);
+		}
 	}
 
 	$listOptions = array(
