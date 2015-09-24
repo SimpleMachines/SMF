@@ -225,7 +225,7 @@ function template_body_above()
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
 	{
 		echo '
-		<form id="languages_form" action="" method="get" class="floatright">
+		<form id="languages_form" method="get" class="floatright">
 			<select id="language_select" name="language" onchange="this.form.submit()">';
 
 		foreach ($context['languages'] as $language)
