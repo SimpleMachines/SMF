@@ -31,7 +31,7 @@ function smf_fileUpload(oOptions)
 				done();
 			}
 		},
-		totalMaxSize: 0,
+		totalMaxSize: 0
 	};
 
 	$.extend(true, dOptions, oOptions);
@@ -100,7 +100,7 @@ function smf_fileUpload(oOptions)
 						// @todo, catch the error and append it to our p.error tag.
 
 						// For dramatic purposes only!
-						node.removeClass('infobox').addClass('errorbox');
+						_thisElement.removeClass('infobox').addClass('errorbox');
 					}
 				});
 			})
