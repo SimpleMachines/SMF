@@ -50,7 +50,7 @@ function smf_fileUpload(oOptions)
 		// Show the file info.
 		_thisElement.find('.attach-ui').fadeIn();
 
-		// Create a function to delete the uploaded attachment.
+		// Create a function to insert the BBC attach tag.
 		file.insertAttachment = function (_innerElement, attachmentId){
 
 			_innerElement.find('.insertBBC').on('click', function (e) {
@@ -97,7 +97,7 @@ function smf_fileUpload(oOptions)
 					error: function (xhr, textStatus, errorThrown) {
 
 						// Tell the user something horrible happen!
-						// @todo, catch the error and append it to our p.error tag.
+						_thisElement.find('p.error').append(textStatus.error.join('<br>'));
 
 						// For dramatic purposes only!
 						_thisElement.removeClass('infobox').addClass('errorbox');
@@ -260,7 +260,7 @@ function smf_fileUpload(oOptions)
 		attachAdded = myDropzone.getFilesWithStatus(Dropzone.ADDED).length;
 		attachQueued = myDropzone.getFilesWithStatus(Dropzone.QUEUED).length;
 
-		if (attachAdded > 0 || attachQueued){
+		if (attachAdded > 0 || attachQueued > 0 ){
 			alert(myDropzone.options.text_attachLeft);
 			e.preventDefault();
 			e.preventDefault();
