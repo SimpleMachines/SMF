@@ -3615,6 +3615,17 @@ p.information img {
 	border-top: 1px solid #ddd;
 }
 /* Mentions */
+a.mention {
+	background: #557EA0;
+	border-radius: 3px;
+	color: #FFF;
+	padding: 2px 3px;
+	font-weight: bold;
+}
+a.mention:hover {
+	color: #DDD;
+	text-decoration: none;
+}
 .atwho-view {
 	position:absolute;
 	top: 0;
