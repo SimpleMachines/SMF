@@ -267,4 +267,15 @@ function smf_fileUpload(oOptions)
 			return false;
 		}
 	});
+
+	// Hide the default way to show already atachments.
+	$('#postAttachment').fadeOutAndRemove('slow');
+
+	// Show any attachments already uploaded.
+	if (current_attachments){
+		$.each(current_attachments, function( key, value ) {
+
+		});
+	}
+
 }
