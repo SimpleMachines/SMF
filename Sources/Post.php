@@ -568,7 +568,7 @@ function Post($post_errors = array())
 			if (!empty($modSettings['attachmentEnable']))
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT IFNULL(size, -1) AS filesize, filename, id_attach, approved
+					SELECT IFNULL(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
 						AND attachment_type = {int:attachment_type}
@@ -586,8 +586,10 @@ function Post($post_errors = array())
 					$context['current_attachments'][] = array(
 						'name' => $smcFunc['htmlspecialchars']($row['filename']),
 						'size' => $row['filesize'],
-						'id' => $row['id_attach'],
+						'attachID' => $row['id_attach'],
 						'approved' => $row['approved'],
+						'mime_type' => $row['mime_type'],
+						'id_thumb' => $row['id_thumb'],
 					);
 				}
 				$smcFunc['db_free_result']($request);
@@ -633,7 +635,7 @@ function Post($post_errors = array())
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
+				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
@@ -718,8 +720,10 @@ function Post($post_errors = array())
 			$context['current_attachments'][] = array(
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
-				'id' => $attachment['id_attach'],
+				'attachID' => $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
+				'mime_type' => $attachment['mime_type'],
+				'id_thumb' => $row['id_thumb'],
 			);
 		}
 
@@ -965,9 +969,11 @@ function Post($post_errors = array())
 				$context['current_attachments'][] = array(
 					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
 					'size' => $attachment['size'],
-					'id' => $attachID,
+					'attachID' => $attachID,
 					'unchecked' => false,
 					'approved' => 1,
+					'mime_type' => '',
+					'id_thumb' => 0,
 				);
 			}
 		}
@@ -1176,6 +1182,25 @@ function Post($post_errors = array())
 
 	// quotedText.js
 	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
+
+
+	// Mock files to show already attached files.
+	addInlineJavascript('
+	var current_attachments = [];', true);
+
+	if (!empty($context['current_attachments']))
+	{
+		foreach ($context['current_attachments'] as $key => $mock)
+			addInlineJavascript('
+	current_attachments.push({
+		name: '. JavaScriptEscape($mock['name']) .',
+		size: '. $mock['size'] .',
+		attachID: '. $mock['attachID'] .',
+		approved: '. $mock['approved'] .',
+		type: '. JavaScriptEscape($mock['mime_type']) .',
+		thumbID: '. $mock['id_thumb'] .'
+	});', true);
+	}
 
 	// File Upload.
 	if ($context['can_post_attachment'])

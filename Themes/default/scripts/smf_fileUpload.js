@@ -212,6 +212,8 @@ function smf_fileUpload(oOptions)
 
 		// Hide the progress bar.
 		_thisElement.find('p.progressBar').fadeOut();
+
+		// @todo prepare the "already uploaded" template.
 	});
 
 	// Show each individual's progress bar.
@@ -272,9 +274,23 @@ function smf_fileUpload(oOptions)
 	$('#postAttachment').fadeOutAndRemove('slow');
 
 	// Show any attachments already uploaded.
-	if (current_attachments){
-		$.each(current_attachments, function( key, value ) {
+	if (typeof current_attachments !== "undefined"){
+		$.each(current_attachments, function(key, mock) {
 
+			myDropzone.emit("addedfile", mock);
+
+			// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
+			if (!mock.type.match(/image.*/)) {
+				myDropzone.emit('thumbnail', mock, smf_images_url +'/generic_attach.png');
+			}
+
+			// Build a preview image.
+			else if (typeof mock.thumbID !== "undefined"){
+				myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ mock.thumbID + ';type=preview');
+			}
+
+			// This file is "completed".
+			myDropzone.emit("complete", mock);
 		});
 	}
 
