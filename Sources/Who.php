@@ -764,7 +764,7 @@ function Credits($in_admin = false)
 			'<a href="https://github.com/ichord/At.js">At.js</a> | &copy; chord.luo@gmail.com | Licensed under <a href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT">The MIT License (MIT)</a>',
 			'<a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications">HTML5 Desktop Notifications</a> | &copy; Tsvetan Tsvetkov | Licensed under <a href="https://github.com/ttsvetko/HTML5-Desktop-Notifications/blob/master/License.txt">The Apache License Version 2.0</a>',
 			'<a href="https://github.com/enygma/gauth">GAuth Code Generator/Validator</a> | &copy; Chris Cornutt | Licensed under <a href="https://github.com/enygma/gauth/blob/master/LICENSE">The MIT License (MIT)</a>',
-			'<a href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload Plugin</a> | &copy; Sebastian Tschan | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
+			'<a href="https://github.com/enyo/dropzone">Dropzone.js</a> | &copy; Matias Meno | Licensed under <a href="http://en.wikipedia.org/wiki/MIT_License">The MIT License (MIT)</a>',
 		),
 		'fonts' => array(
 			'<a href="http://openfontlibrary.org/en/font/anonymous-pro"> Anonymous Pro</a> | &copy; 2009 | This font is licensed under the SIL Open Font License, Version 1.1',
