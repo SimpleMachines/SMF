@@ -60,7 +60,7 @@ function smf_fileUpload(oOptions)
 		};
 
 		// Replace the field with a message when the attachment is deleted.
-		file.deleteAttachment = function (_innerElement){
+		file.deleteAttachment = function (_innerElement, attachmentId){
 
 			deleteButton = $('<a />')
 			.addClass('button_submit')
@@ -77,7 +77,7 @@ function smf_fileUpload(oOptions)
 
 				// Let the server know you want to delete the file you just recently uploaded...
 				$.ajax({
-					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ response.attachID +';' + smf_session_var + '=' + smf_session_id,
+					url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=delete;attach='+ attachmentId +';' + smf_session_var + '=' + smf_session_id,
 					type: 'GET',
 					dataType: 'json',
 					beforeSend: function(){
@@ -195,7 +195,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('a.delete').fadeOutAndRemove('slow');
 
 		// Fire up the delete button.
-		file.deleteAttachment(_thisElement);
+		file.deleteAttachment(_thisElement, response.attachID);
 	});
 
 	myDropzone.on('uploadprogress', function(file, progress, bytesSent) {
@@ -213,7 +213,28 @@ function smf_fileUpload(oOptions)
 		// Hide the progress bar.
 		_thisElement.find('p.progressBar').fadeOut();
 
-		// @todo prepare the "already uploaded" template.
+		// Finishing up mocking!
+		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
+			// Show the input field.
+			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+
+			// If there wasn't any error, change the current cover.
+			_thisElement.addClass('infobox').removeClass('descbox');
+
+			// Remove the 'start' button.
+			_thisElement.find('.start').fadeOutAndRemove('slow');
+
+			// Append the BBC.
+			_thisElement.find('input[name="attachBBC"]').val('[attach]' + file.attachID + '[/attach]');
+
+			file.insertAttachment(_thisElement, file.attachID);
+
+			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
+			_thisElement.find('a.delete').fadeOutAndRemove('slow');
+
+			// Fire up the delete button.
+			file.deleteAttachment(_thisElement, file.attachID);
+		}
 	});
 
 	// Show each individual's progress bar.
@@ -265,7 +286,7 @@ function smf_fileUpload(oOptions)
 		if (attachAdded > 0 || attachQueued > 0 ){
 			alert(myDropzone.options.text_attachLeft);
 			e.preventDefault();
-			e.preventDefault();
+			e.stopPropagation();
 			return false;
 		}
 	});
@@ -276,6 +297,9 @@ function smf_fileUpload(oOptions)
 	// Show any attachments already uploaded.
 	if (typeof current_attachments !== "undefined"){
 		$.each(current_attachments, function(key, mock) {
+
+			// Tell the world this is a mock file!
+			mock.isMock = true;
 
 			myDropzone.emit("addedfile", mock);
 
