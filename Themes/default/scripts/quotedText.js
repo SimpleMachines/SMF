@@ -78,8 +78,17 @@ function quotedTextClick(oOptions)
 				// Insert the selected text between the quotes BBC tags.
 				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
 
-				// Add the whole text to the editor's instance.
-				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(text);
+				// Get the editor stuff.
+				var oEditor = $('#' + oEditorID).data('sceditor');
+
+				// Detect the mode.
+				if (oEditor.inSourceMode()){
+					oEditor.sourceEditorInsertText(text);
+				}
+
+				else{
+					oEditor.wysiwygEditorInsertHtml(oEditor.fromBBCode(text));
+				}
 
 				// Move the view to the quick reply box. If available.
 				if (typeof oJumpAnchor != 'undefined'){
