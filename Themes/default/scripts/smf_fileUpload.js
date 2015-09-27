@@ -268,6 +268,7 @@ function smf_fileUpload(oOptions)
 
 		myDropzone.removeAllFiles(true);
 	});
+
 	$('a#attach-uploadAll' ).on('click', function() {
 
 		if (!confirm(smf_you_sure)){

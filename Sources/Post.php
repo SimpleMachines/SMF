@@ -723,7 +723,7 @@ function Post($post_errors = array())
 				'attachID' => $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
 				'mime_type' => $attachment['mime_type'],
-				'id_thumb' => $row['id_thumb'],
+				'id_thumb' => $attachment['id_thumb'],
 			);
 		}
 
@@ -1182,7 +1182,6 @@ function Post($post_errors = array())
 
 	// quotedText.js
 	loadJavascriptFile('quotedText.js', array('default_theme' => true, 'defer' => true), 'smf_quotedText');
-
 
 	// Mock files to show already attached files.
 	addInlineJavascript('
