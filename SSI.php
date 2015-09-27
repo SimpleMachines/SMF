@@ -2179,7 +2179,7 @@ function ssi_checkPassword($id = null, $password = null, $is_username = false)
  * @param string $output_method The output method. If 'echo', displays a table with links/info, otherwise returns an array with information about the attachments
  * @return void|array Displays a table of attachment info or returns an array containing info about the attachments, depending on output_method.
  */
-function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
+function ssi_recentAttachments($num_attachments = 10, $attachment_ext = array(), $output_method = 'echo')
 {
 	global $smcFunc, $modSettings, $scripturl, $txt, $settings;
 
@@ -2191,8 +2191,7 @@ function ssi_recentAttachmenets($num_attachments = 10, $attachment_ext = array()
 		return array();
 
 	// Is it an array?
-	if (!is_array($attachment_ext))
-		$attachment_ext = array($attachment_ext);
+	$attachment_ext = (array) $attachment_ext;
 
 	// Lets build the query.
 	$request = $smcFunc['db_query']('', '
