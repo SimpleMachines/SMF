@@ -292,7 +292,7 @@ function smf_fileUpload(oOptions)
 		}
 	});
 
-	// Hide the default way to show already atachments.
+	// Hide the default way to show already atached files.
 	$('#postAttachment').fadeOutAndRemove('slow');
 
 	// Show any attachments already uploaded.

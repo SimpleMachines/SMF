@@ -932,8 +932,8 @@ function parseAttachBBC($attachID = false)
 
 		$attachContext['link'] = '<a href="' . $scripturl . '?action=dlattach;attach=' . $attachID .';type=preview'. (empty($attachContext['is_image']) ? ';file' : '') .'">' . $smcFunc['htmlspecialchars']($attachContext['name']) . '</a>';
 
-		// Fix the thumbnail too.
-		if (!empty($attachContext['thumbnail']))
+		// Fix the thumbnail too, if the image has one.
+		if (!empty($attachContext['thumbnail']) && !empty($attachContext['thumbnail']['has_thumb']))
 			$attachContext['thumbnail']['href'] = $scripturl . '?action=dlattach;attach=' . $attachContext['thumbnail']['id'] . ';image;type=preview';
 
 		return $attachContext;
