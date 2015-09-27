@@ -74,6 +74,9 @@ function quotedTextClick(oOptions)
 			beforeSend: function () {
 				ajax_indicator(true);
 			},
+			complete: function(jqXHR, textStatus){
+				ajax_indicator(false);
+			},
 			success: function (data, textStatus, xhr) {
 				// Search the xml data to get the quote tag.
 				text = $(data).find('quote').text();
@@ -97,11 +100,9 @@ function quotedTextClick(oOptions)
 					else
 						window.location.hash = '#' + oJumpAnchor;
 				}
-
-				ajax_indicator(false);
 			},
 			error: function (xhr, textStatus, errorThrown) {
-				ajax_indicator(false);
+				// @todo Show some error.
 			}
 		});
 }
