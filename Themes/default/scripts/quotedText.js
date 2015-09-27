@@ -28,7 +28,8 @@ function getSelectedText(divID)
 
 	var text = '',
 	selection,
-	found = 0;
+	found = 0,
+	container = document.createElement("div");
 
 	if (window.getSelection)
 	{
@@ -49,6 +50,8 @@ function getSelectedText(divID)
 			if (s !== null && e !== null)
 			{
 				found = 1;
+				container.appendChild(selection.getRangeAt(i).cloneContents());
+				text = container.innerHTML;
 				break;
 			}
 		}
@@ -81,14 +84,11 @@ function quotedTextClick(oOptions)
 				// Get the editor stuff.
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
-				// Detect the mode.
-				if (oEditor.inSourceMode()){
-					oEditor.sourceEditorInsertText(text);
-				}
+				// Convert any HTML into BBC tags.
+				text = oEditor.toBBCode(text);
 
-				else{
-					oEditor.wysiwygEditorInsertHtml(oEditor.fromBBCode(text));
-				}
+				// Push the text to the editor.
+				oEditor.insert(text);
 
 				// Move the view to the quick reply box. If available.
 				if (typeof oJumpAnchor != 'undefined'){
