@@ -311,7 +311,9 @@ function smf_fileUpload(oOptions)
 
 			// Build a preview image.
 			else if (typeof mock.thumbID !== "undefined"){
-				myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ mock.thumbID + ';type=preview');
+
+				// If the file is too small, it won't have a thumbnail, show the regular file.
+				myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (mock.thumbID > 0 ? mock.thumbID : mock.attachID) + ';type=preview');
 			}
 
 			// This file is "completed".
