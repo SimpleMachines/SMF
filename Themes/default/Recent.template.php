@@ -109,7 +109,7 @@ function template_unread()
 					<div class="info">
 						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] == 'subject' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] == 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
-					<div class="board_stats">
+					<div class="board_stats centertext">
 						<a href="', $scripturl, '?action=unread', $context['showing_all_topics'] ? ';all' : '', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] == 'replies' && $context['sort_direction'] == 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] == 'replies' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
@@ -162,7 +162,7 @@ function template_unread()
 							</p>
 							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
 						</div>
-						<div class="board_stats">
+						<div class="board_stats centertext">
 							<p>
 								', $topic['replies'], ' ', $txt['replies'], '
 								<br>
@@ -250,7 +250,7 @@ function template_replies()
 					<div class="info">
 						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=subject', $context['sort_by'] === 'subject' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['subject'], $context['sort_by'] === 'subject' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
-					<div class="board_stats">
+					<div class="board_stats centertext">
 						<a href="', $scripturl, '?action=unreadreplies', $context['querystring_board_limits'], ';sort=replies', $context['sort_by'] === 'replies' && $context['sort_direction'] === 'up' ? ';desc' : '', '">', $txt['replies'], $context['sort_by'] === 'replies' ? ' <span class="generic_icons sort_' . $context['sort_direction'] . '"></span>' : '', '</a>
 					</div>
 					<div class="lastpost">
@@ -303,7 +303,7 @@ function template_replies()
 								</p>
 								<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
 							</div>
-							<div class="board_stats">
+							<div class="board_stats centertext">
 								<p>
 									', $topic['replies'], ' ', $txt['replies'], '
 									<br>
