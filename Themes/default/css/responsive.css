@@ -53,13 +53,6 @@
 		margin: 5px;
 		float: none;
 	}
-	/* BoardIndex */
-	.board_icon {
-		width: 15% !important;
-	}
-	div.lastpost {
-		display: none;
-	}
 	/* MessageIndex */
 	#main_content_section .pagelinks {
 		display: block;
@@ -375,28 +368,38 @@
 	.board_icon {
 		margin-top: 10px;
 	}
-	div.info {
-		width: 75% !important;
-	}
 	.board_stats {
 		display: none;
 	}
 	div.lastpost {
 		width: 100%;
-		margin: 0 0 0 5px;
 		padding: 0;
+		display: block;
+		min-height: 2em !important;
+	}
+	.lpr_border {
+		border-top: 1px solid #DDD;
+	}
+	div.lastpost p {
+		margin: 5px;
 	}
 	span.postby {
-		float: none;
+		display: inline-block;
 	}
 
 	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost, #messageindex .moderation {
+	#messageindex .board_icon, #messageindex .lastpost {
 		display: none;
 	}
 	#messageindex .info {
-		width: 95% !important;
-		margin: 0 5px 0 5px;
+		padding: 0 5px 0 5px;
+	}
+	.info_block {
+		display: block;
+		width: 95%;
+	}
+	.moderation a {
+		padding: 3px;
 	}
 
 	/* Display (Topics) */

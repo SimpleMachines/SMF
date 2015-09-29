@@ -2982,7 +2982,7 @@ span.postby {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	height: 4em;
+	min-height: 4em;
 }
 .icon img, .moderation input {
 	margin-top: 15px;
@@ -2992,8 +2992,11 @@ span.postby {
 }
 .moderation {
 	display: table-cell;
+	min-width: 35px;
 	width: 3%;
 	vertical-align: middle;
+	text-align: right;
+	padding: 0 5px 0 0;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
@@ -3621,12 +3624,12 @@ p.information img {
 }
 /* On/Off Icons (User) */
 .on, .off {
+	display: inline-block;
 	width: 14px;
 	height: 14px;
 	border-radius: 12px;
 	border: 1px solid none;
-	position: absolute;
-	margin: 4px 0 0 0;
+	vertical-align: middle;
 }
 .on {
 	background: #99FF66;
@@ -3634,16 +3637,7 @@ p.information img {
 .off {
 	background: grey;
 }
-#whoFilter span.on, #whoFilter span.off {
-	margin: 3px 0 0 -5px !important;
-}
-#mlist span.on, #mlist span.off, #edit_buddies .on, #edit_buddies .off {
-	margin: -5px 0 0 10px;
-}
-#mlist .pm_icon, #edit_buddies .pm_icon {
-	margin: 0 !important;
-}
-#userstatus .smalltext, .pm_icon {
+#userstatus .smalltext {
 	margin: 0 0 0 20px !important;
 }
 
