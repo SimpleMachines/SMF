@@ -3282,7 +3282,7 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context, $db_show_debug, $boardurl;
+	global $context, $db_show_debug, $boardurl, $settings;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');

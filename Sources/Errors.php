@@ -206,7 +206,7 @@ function fatal_lang_error($error, $log = 'general', $sprintf = array(), $status 
  * @param string $file The file where the error occurred
  * @param int $line The line where the error occurred
  */
-function error_handler($error_level, $error_string, $file, $line)
+function smf_error_handler($error_level, $error_string, $file, $line)
 {
 	global $settings, $modSettings, $db_show_debug;
 

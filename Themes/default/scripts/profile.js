@@ -239,3 +239,46 @@ function previewExternalAvatar(src)
 	}
 	document.getElementById("avatar").src = src;
 }
+
+function readfromUpload(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+
+		reader.onload = function (e) {
+
+			// If there is an image already, hide it...
+			if ($('#attached_image').length){
+				$('#attached_image').remove();
+			}
+
+			if ($('#attached_image_new').length){
+				$('#attached_image_new').remove();
+			}
+
+			var tempImage = new Image();
+				tempImage.src = e.target.result;
+
+			var uploadedImage = $('<img />', {
+				id: 'attached_image_new',
+				src: e.target.result,
+				image: tempImage.width,
+				height: tempImage.height,
+			});
+
+			if (maxWidth != 0 && uploadedImage.width() > maxWidth)
+			{
+				uploadedImage.height(parseInt((maxWidth * uploadedImage.height()) / uploadedImage.width()) + "px");
+				uploadedImage.width(maxWidth + "px");
+			}
+			else if (maxHeight != 0 && uploadedImage.height() > maxHeight)
+			{
+				uploadedImage.width(parseInt((maxHeight * uploadedImage.width) / uploadedImage.height) + "px");
+				uploadedImage.height(maxHeight + "px");
+			}
+
+			uploadedImage.appendTo($('#avatar_upload'));
+		}
+
+		reader.readAsDataURL(input.files[0]);
+	}
+}
