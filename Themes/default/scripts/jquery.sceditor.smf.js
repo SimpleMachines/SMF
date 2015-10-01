@@ -310,6 +310,12 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					return element.style ? element.style[name] : null;
 				};
 
+			// Is this an attachment?
+			if (element.data('attachment'))
+			{
+				return '[attach]' + element.data('attachment') + '[/attach]';
+			}
+
 			// check if this is an emoticon image
 			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
 				return content;
@@ -377,7 +383,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
-			return '<img' + attribs + ' src="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb' + '">';
+			return '<img' + attribs + ' src="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb' + '" data-attachment="'+ content +'">';
 		}
 	}
 );
