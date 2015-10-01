@@ -589,7 +589,7 @@ function Post($post_errors = array())
 						'attachID' => $row['id_attach'],
 						'approved' => $row['approved'],
 						'mime_type' => $row['mime_type'],
-						'id_thumb' => $row['id_thumb'],
+						'thumb' => $row['id_thumb'],
 					);
 				}
 				$smcFunc['db_free_result']($request);
@@ -723,7 +723,7 @@ function Post($post_errors = array())
 				'attachID' => $attachment['id_attach'],
 				'approved' => $attachment['attachment_approved'],
 				'mime_type' => $attachment['mime_type'],
-				'id_thumb' => $attachment['id_thumb'],
+				'thumb' => $attachment['id_thumb'],
 			);
 		}
 
@@ -973,7 +973,7 @@ function Post($post_errors = array())
 					'unchecked' => false,
 					'approved' => 1,
 					'mime_type' => '',
-					'id_thumb' => 0,
+					'thumb' => 0,
 				);
 			}
 		}
@@ -1196,8 +1196,8 @@ function Post($post_errors = array())
 		size: '. $mock['size'] .',
 		attachID: '. $mock['attachID'] .',
 		approved: '. $mock['approved'] .',
-		type: '. JavaScriptEscape($mock['mime_type']) .',
-		thumbID: '. $mock['id_thumb'] .'
+		type: '. JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') .',
+		thumbID: '. (!empty($mock['thumb']) ? $mock['thumb'] : 0) .'
 	});', true);
 	}
 
