@@ -225,7 +225,7 @@ function template_body_above()
 	if (!empty($modSettings['userLanguage']) && !empty($context['languages']) && count($context['languages']) > 1)
 	{
 		echo '
-		<form id="languages_form" action="" method="get" class="floatright">
+		<form id="languages_form" method="get" class="floatright">
 			<select id="language_select" name="language" onchange="this.form.submit()">';
 
 		foreach ($context['languages'] as $language)
@@ -581,7 +581,7 @@ function template_maint_warning_above()
 	<div class="errorbox" id="errors">
 		<dl>
 			<dt>
-				<strong id="error_serious">', $txt['forum_in_maintainence'], '</strong>
+				<strong id="error_serious">', $txt['forum_in_maintenance'], '</strong>
 			</dt>
 			<dd class="error" id="error_list">
 				', sprintf($txt['maintenance_page'], $scripturl . '?action=admin;area=serversettings;' . $context['session_var'] . '=' . $context['session_id']), '

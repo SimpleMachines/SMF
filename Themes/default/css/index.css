@@ -835,7 +835,6 @@ img.sort, .sort {
 .dropmenu li ul, .top_menu {
 	z-index: 90;
 	position: absolute;
-	top: 2.25em;
 	display: none;
 	width: 18.2em;
 	padding: 0.5em;
@@ -930,8 +929,8 @@ img.sort, .sort {
 }
 .dropmenu li li.subsections > a::after {
 	position: absolute;
-	top: 0.7em;
-	right: 2px;
+	padding: 5px 0;
+	right: 10px;
 	font: 83.33%/150% Arial, sans-serif;
 	content: '\25ba';
 }
@@ -2945,54 +2944,6 @@ span.postby {
 }
 
 /* MessageIndex */
-/* Topic list */
-#topic_header .board_icon, #topic_header .info, #topic_header .board_stats, #topic_header .lastpost, #topic_header .moderation {
-	height: 2em;
-	font-weight: bold;
-	font-size: 1em;
-	margin-top: 3px;
-	margin-bottom: 0;
-	padding: 0;
-}
-#topic_header.title_bar {
-	margin: 0px;
-	border-radius: 0;
-}
-#messageindex .board_stats, #recent .board_stats {
-	text-align: center;
-}
-#topic_header input {
-	margin-top: 5px !important;
-}
-.moderation {
-	float: right;
-	width: 35px;
-	margin: 5px 0 0 0;
-}
-#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
-	box-shadow: none;
-	border-radius: 0;
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	height: 4em;
-}
-#topic_container .windowbg, #topic_container .windowbg2 {
-	border: 1px solid #ddd;
-	border-top: none;
-}
-#topic_container .icons span {
-	margin: 2px 0 0 5px;
-}
-.icon img, .moderation input {
-	margin-top: 15px;
-}
-.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
-	margin-top: 5px;
-	border: none;
-}
-
-/* MessageIndex */
 /* Start with description and other things */
 #description_board {
 	padding: 8px 10px;
@@ -3009,31 +2960,40 @@ span.postby {
 /* Topic list */
 #topic_header {
 	margin: 0;
+	border-radius: 0;
 }
 #topic_header div {
 	height: 2em;
 	font-weight: bold;
+	font-size: 1em;
+	margin: 0;
 	padding: 0;
+}
+#topic_header input {
+	margin-top: 5px !important;
+}
+#topic_container .windowbg, #topic_container .windowbg2 {
+	border: 1px solid #ddd;
+	border-top: none;
+}
+#topic_container .board_icon, #topic_container .info, #topic_container .windowbg2, #topic_container .windowbg, #topic_container .board_stats, #topic_container .lastpost {
+	box-shadow: none;
+	border-radius: 0;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	height: 4em;
+}
+.icon img, .moderation input {
+	margin-top: 15px;
+}
+.info .icons, #messageindex .board_stats p, .lastpost p, #unread .board_stats p, #unreadreplies .board_stats p {
+	border: none;
 }
 .moderation {
 	display: table-cell;
-	width: 35px;
+	width: 3%;
 	vertical-align: middle;
-}
-#topic_container .windowbg, #topic_container .windowbg2 {
-	height: 4em;
-	margin: 0;
-	padding: 0;
-	border: 1px solid #ddd;
-	border-top: none;
-	border-radius: 0;
-	box-shadow: none;
-}
-#topic_container .windowbg>div, #topic_container .windowbg2>div {
-	padding-top: 0;
-}
-#topic_container .board_stats p {
-	margin: .5em 0 -.5em;
 }
 /* Quick moderation selects and submit */
 #quick_actions {

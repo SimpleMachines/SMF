@@ -28,7 +28,8 @@ function getSelectedText(divID)
 
 	var text = '',
 	selection,
-	found = 0;
+	found = 0,
+	container = document.createElement("div");
 
 	if (window.getSelection)
 	{
@@ -49,6 +50,8 @@ function getSelectedText(divID)
 			if (s !== null && e !== null)
 			{
 				found = 1;
+				container.appendChild(selection.getRangeAt(i).cloneContents());
+				text = container.innerHTML;
 				break;
 			}
 		}
@@ -71,6 +74,9 @@ function quotedTextClick(oOptions)
 			beforeSend: function () {
 				ajax_indicator(true);
 			},
+			complete: function(jqXHR, textStatus){
+				ajax_indicator(false);
+			},
 			success: function (data, textStatus, xhr) {
 				// Search the xml data to get the quote tag.
 				text = $(data).find('quote').text();
@@ -78,8 +84,14 @@ function quotedTextClick(oOptions)
 				// Insert the selected text between the quotes BBC tags.
 				text = text.match(/^\[quote(.*)]/ig) + oOptions.text + '[/quote]' + '\n\n';
 
-				// Add the whole text to the editor's instance.
-				$('#' + oEditorID).data('sceditor').sourceEditorInsertText(text);
+				// Get the editor stuff.
+				var oEditor = $('#' + oEditorID).data('sceditor');
+
+				// Convert any HTML into BBC tags.
+				text = oEditor.toBBCode(text);
+
+				// Push the text to the editor.
+				oEditor.insert(text);
 
 				// Move the view to the quick reply box. If available.
 				if (typeof oJumpAnchor != 'undefined'){
@@ -88,11 +100,9 @@ function quotedTextClick(oOptions)
 					else
 						window.location.hash = '#' + oJumpAnchor;
 				}
-
-				ajax_indicator(false);
 			},
 			error: function (xhr, textStatus, errorThrown) {
-				ajax_indicator(false);
+				// @todo Show some error.
 			}
 		});
 }

@@ -1560,7 +1560,7 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_unapproved_replies';
 		$hiddenPermissions[] = 'post_unapproved_attachments';
 	}
-	// If we show them on classic view we change the name.
+	// If post moderation is enabled, these are named differently...
 	else
 	{
 		// Relabel the topics permissions
