@@ -477,6 +477,15 @@
 	#private, #enclose {
 		width: 95%;
 	}
+
+	/* Attachment uploading. */
+	#au-previews div.descbox div,
+	#au-previews div.errorbox div,
+	#au-previews div.infobox div{
+		display:block;
+		width:auto;
+		padding-bottom: 3px;
+	}
 }
 /* Still not enough data or people to test this... */
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
