@@ -27,6 +27,9 @@ function showAttachment()
 	if(empty($_GET['attach']) || (string)$_GET['attach'] != (string)(int)$_GET['attach'])
 		die;
 
+	// A thumbnail has been requested? madness! madness I say!
+	$showThumb = isset($_GET['thumb']);
+
 	// No access in strict maintenance mode.
 	if(!empty($maintenance) && $maintenance == 2)
 		die;
@@ -57,7 +60,7 @@ function showAttachment()
 	else
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
+			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
 			FROM {db_prefix}attachments
 			WHERE id_attach = {int:id_attach}
 			LIMIT 1',
@@ -68,6 +71,7 @@ function showAttachment()
 		);
 
 		$file = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
 
 		// Update the download counter (unless it's a thumbnail).
 		if ($file['attachment_type'] != 3)
@@ -87,6 +91,36 @@ function showAttachment()
 
 		// Cache it.
 		cache_put_data('attachment_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
+	}
+
+	// Replace the normal file with its thumbnail if it has one!
+	if ($showThumb && $file['id_thumb'])
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
+			FROM {db_prefix}attachments
+			WHERE id_attach = {int:id_attach}
+			LIMIT 1',
+			array(
+				'id_attach' => $file['id_thumb'],
+				'blank_id_member' => 0,
+				'attachment_type' => 3,
+			)
+		);
+
+		$thumbFile = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Got something! replace the $file var with the thumbnail info.
+		if ($thumbFile)
+		{
+			$id_attach = $file['id_thumb'];
+			$file = $thumbFile;
+			$file['filename'] = getAttachmentFilename($file['real_filename'], $id_attach, $file['id_folder'], false, $file['file_hash']);
+
+			// ETag time.
+			$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
+		}
 	}
 
 	// The file does not exists

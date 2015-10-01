@@ -55,7 +55,11 @@ function smf_fileUpload(oOptions)
 
 			_innerElement.find('.insertBBC').on('click', function (e) {
 				e.preventDefault();
-				$('#' + oEditorID).data('sceditor').sourceEditorInsertText('[attach]' + attachmentId + '[/attach]');
+
+				// Get the editor stuff.
+				var oEditor = $('#' + oEditorID).data('sceditor');
+
+				oEditor.insert('[attach]' + attachmentId + '[/attach]');
 			});
 		};
 

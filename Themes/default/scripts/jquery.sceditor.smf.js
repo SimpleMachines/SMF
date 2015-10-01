@@ -342,6 +342,47 @@ $.sceditor.plugins.bbcode.bbcode.set(
 );
 
 $.sceditor.plugins.bbcode.bbcode.set(
+	'attach', {
+		tags: {
+			attach: {
+				src: null
+			}
+		},
+		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
+		format: function (element, content) {
+			var	attribs = '',
+				style = function (name) {
+					return element.style ? element.style[name] : null;
+				};
+
+			// only add width and height if one is specified
+			if (element.attr('width') || style('width'))
+				attribs += " width=" + $(element).width();
+			if (element.attr('height') || style('height'))
+				attribs += " height=" + $(element).height();
+			if (element.attr('alt'))
+				attribs += " alt=" + element.attr('alt');
+
+			return '[attach' + attribs + ']' + content + '[/attach]';
+		},
+		html: function (token, attrs, content) {
+			var	parts,
+				attribs = '';
+
+			if (typeof attrs.width !== "undefined")
+				attribs += ' width="' + attrs.width + '"';
+			if (typeof attrs.height !== "undefined")
+				attribs += ' height="' + attrs.height + '"';
+			if (typeof attrs.alt !== "undefined")
+				attribs += ' alt="' + attrs.alt + '"';
+
+			return '<img' + attribs + ' src="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb' + '">';
+		}
+	}
+);
+
+$.sceditor.plugins.bbcode.bbcode.set(
 	'url', {
 		allowsEmpty: true,
 		tags: {
