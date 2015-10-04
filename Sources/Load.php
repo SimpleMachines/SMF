@@ -434,7 +434,7 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					list ($tfamember, $tfasecret) = @unserialize($_COOKIE[$tfacookie]);
+					list ($tfamember, $tfasecret) = safe_unserialize($_COOKIE[$tfacookie]);
 
 					if ((int) $tfamember != $id_member)
 						$tfasecret = null;
@@ -586,7 +586,7 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			list ($id, $user, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			list ($id, $user, $exp, $state, $preserve) = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			if (!$preserve || time() > $exp)
 			{

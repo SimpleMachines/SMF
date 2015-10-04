@@ -110,7 +110,7 @@ function Login2()
 		// Preserve the 2FA cookie?
 		if (!empty($modSettings['tfa_mode']) && !empty($_COOKIE[$cookiename . '_tfa']))
 		{
-			list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			list ($tfamember, $tfasecret, $exp, $state, $preserve) = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 			// If we're preserving the cookie, reset it with updated salt
 			if ($preserve && time() < $exp)
@@ -667,7 +667,7 @@ function Logout($internal = false, $redirect = true)
 
 	if (!empty($modSettings['tfa_mode']) && !empty($user_info['id']) && !empty($_COOKIE[$cookiename . '_tfa']))
 	{
-		list ($tfamember, $tfasecret, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+		list ($tfamember, $tfasecret, $exp, $state, $preserve) = safe_unserialize($_COOKIE[$cookiename . '_tfa']);
 
 		// If we're preserving the cookie, reset it with updated salt
 		if ($preserve && time() < $exp)
