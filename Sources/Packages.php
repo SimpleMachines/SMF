@@ -873,7 +873,7 @@ function PackageInstall()
 		{
 			if (empty($change))
 				continue;
-			$theme_data = unserialize(base64_decode($change));
+			$theme_data = @safe_unserialize(base64_decode($change));
 			if (empty($theme_data['type']))
 				continue;
 

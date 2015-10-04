@@ -4697,11 +4697,26 @@ function smf_list_timezones()
 	);
 }
 
-function safe_unserialize($data)
+/**
+ * Safely unserialize, that is only unserialize string, numbers and arrays, not objects
+ *
+ * Based on some of the work from dcz (at) phpbb-seo (dot) com
+ *
+ * @param string $serialized
+ * @return mixed
+ */
+function safe_unserialize($serialized)
 {
-	// There's no reason input should contain an object,
-	// user is up to no good...
-	if (preg_match('/(^|;|{|})O:([0-9]|\+|\-)+/', $data) === 0)
-		return @unserialize($data);
+	// Must be a string and not contain null bytes.
+	if (is_string($serialized) && strpos( $serialized, "\0" ) === false)
+	{
+		// unserialize will only accept objects declared with O rather than o and is strict on whitespace.
+		// If not found, or we found something that smelled odd but wasn't actually an object, we're good.
+		if (strpos($serialized, 'O:') === false || !preg_match('~(^|;|{|})O:[+\-0-9]+:"~', $serialized))
+			return @unserialize($serialized);
+	}
+
+	return false;
 }
+
 ?>
