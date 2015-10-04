@@ -362,13 +362,13 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
+		list ($id_member, $password) = safe_unserialize($_COOKIE[$cookiename]);
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
+		list ($id_member, $password, $login_span) = safe_unserialize($_SESSION['login_' . $cookiename]);
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 

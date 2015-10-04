@@ -2308,7 +2308,7 @@ function AutoSuggestHandler($checkRegistered = null)
 	loadTemplate('Xml');
 
 	// Any parameters?
-	$context['search_param'] = isset($_REQUEST['search_param']) ? unserialize(base64_decode($_REQUEST['search_param'])) : array();
+	$context['search_param'] = isset($_REQUEST['search_param']) ? safe_unserialize(base64_decode($_REQUEST['search_param'])) : array();
 
 	if (isset($_REQUEST['suggest_type'], $_REQUEST['search']) && isset($searchTypes[$_REQUEST['suggest_type']]))
 	{

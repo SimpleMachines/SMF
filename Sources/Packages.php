@@ -2176,7 +2176,7 @@ function PackagePermissions()
 	// Have we got a load of back-catalogue trees to expand from a submit etc?
 	if (!empty($_GET['back_look']))
 	{
-		$potententialTrees = unserialize(base64_decode($_GET['back_look']));
+		$potententialTrees = safe_unserialize(base64_decode($_GET['back_look']));
 		foreach ($potententialTrees as $tree)
 			$context['look_for'][] = $tree;
 	}
@@ -2434,7 +2434,7 @@ function PackagePermissionsAction()
 
 		// Continuing?
 		if (isset($_POST['toProcess']))
-			$_POST['permStatus'] = unserialize(base64_decode($_POST['toProcess']));
+			$_POST['permStatus'] = safe_unserialize(base64_decode($_POST['toProcess']));
 
 		if (isset($_POST['permStatus']))
 		{
@@ -2514,7 +2514,7 @@ function PackagePermissionsAction()
 		$context['predefined_type'] = isset($_POST['predefined']) ? $_POST['predefined'] : 'restricted';
 
 		$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : 0;
-		$context['directory_list'] = isset($_POST['dirList']) ? unserialize(base64_decode($_POST['dirList'])) : array();
+		$context['directory_list'] = isset($_POST['dirList']) ? safe_unserialize(base64_decode($_POST['dirList'])) : array();
 
 		$context['file_offset'] = isset($_POST['fileOffset']) ? (int) $_POST['fileOffset'] : 0;
 
@@ -2589,7 +2589,7 @@ function PackagePermissionsAction()
 		elseif ($context['predefined_type'] == 'free')
 			$context['special_files'] = array();
 		else
-			$context['special_files'] = unserialize(base64_decode($_POST['specialFiles']));
+			$context['special_files'] = safe_unserialize(base64_decode($_POST['specialFiles']));
 
 		// Now we definitely know where we are, we need to go through again doing the chmod!
 		foreach ($context['directory_list'] as $path => $dummy)

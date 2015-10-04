@@ -4697,4 +4697,11 @@ function smf_list_timezones()
 	);
 }
 
+function safe_unserialize($data)
+{
+	// There's no reason input should contain an object,
+	// user is up to no good...
+	if (preg_match('/(^|;|{|})O:([0-9]|\+|\-)+/', $data) === 0)
+		return @unserialize($data);
+}
 ?>
