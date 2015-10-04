@@ -1097,7 +1097,7 @@ function template_send()
 
 	// Send, Preview, spellcheck buttons.
 	echo '
-				<hr class="hrcolor">
+				<hr>
 				<span id="post_confirm_strip" class="righttext">
 					', template_control_richedit_buttons($context['post_box_name']), '
 				</span>

@@ -608,7 +608,7 @@ function template_edit_censored()
 								<script>
 									document.getElementById("moreCensoredWords_link").style.display = "";
 								</script>
-								<hr width="100%" size="1" class="hrcolor clear">
+								<hr>
 								<dl class="settings">
 									<dt>
 										<strong><label for="allow_no_censored">', $txt['allow_no_censored'], ':</label></strong>
@@ -950,7 +950,7 @@ function template_show_settings()
 			if ($config_var == '')
 				echo '
 								</dl>
-								<hr class="hrcolor clear">
+								<hr>
 								<dl class="settings">';
 			else
 				echo '

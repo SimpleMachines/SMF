@@ -634,7 +634,7 @@ function template_warn_template()
 					<br>';
 
 	echo '
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="preview" id="preview_button" value="', $txt['preview'], '" class="button_submit">
 				<input type="submit" name="save" value="', $context['page_title'], '" class="button_submit">
 			</div>

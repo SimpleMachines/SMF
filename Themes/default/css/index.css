@@ -117,7 +117,7 @@ input[disabled].input_text {
 	background: #eee;
 }
 /* Standard horizontal rule.. ([hr], etc.) */
-hr, hr.hrcolor {
+hr {
 	border: none;
 	margin: 12px 0;
 	height: 2px;
@@ -579,18 +579,9 @@ dl.settings {
 	padding: 5px;
 }
 dl.settings dt {
-	width: 40%;
+	width: 56%;
 	float: left;
 	margin: 0 0 10px 0;
-	padding: 0;
-	clear: both;
-}
-dl.settings dt.settings_title {
-	width: 100%;
-	float: none;
-	margin: 0 0 10px 0;
-	padding: 5px 0 0 0;
-	font-weight: bold;
 	clear: both;
 }
 dl.settings dt.windowbg {
@@ -601,19 +592,17 @@ dl.settings dt.windowbg {
 	clear: both;
 }
 dl.settings dd {
-	width: 56%;
+	width: 42%;
 	float: right;
 	overflow: auto;
 	margin: 0 0 3px 0;
-	padding: 0;
 }
 dl.settings img {
 	margin: 0 10px 0 0;
 	vertical-align: middle;
 }
 /* help icons */
-dl.settings dt a img {
-	position: relative;
+dl.settings dt a span {
 	vertical-align: top;
 }
 
@@ -1650,11 +1639,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 }
 #credits p {
 	font-style: italic;
-	margin: 0;
-	padding: 0;
 }
+
 #credits .windowbg, #credits .windowbg2, #preview_section .windowbg, #poll .windowbg,
-#registration .roundframe,
+#registration .roundframe, #report_form .windowbg,
 #admin_login .roundframe, #frmLogin .roundframe, #post_area .roundframe, #memberlist_search .roundframe,
 #profileview, #coppa, #fatal_error .windowbg {
 	margin: 0 0 10px 0 !important;
@@ -2090,8 +2078,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 
 dl {
 	overflow: auto;
-	margin: 0;
-	padding: 0;
 }
 
 /* The basic user info on the left */

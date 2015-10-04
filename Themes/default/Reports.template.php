@@ -20,30 +20,28 @@ function template_report_type()
 	echo '
 	<div id="admincenter">
 		<form action="', $scripturl, '?action=admin;area=reports" method="post" accept-charset="', $context['character_set'], '">
-			<div id="generate_reports_type">
-				<div class="cat_bar">
-					<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
-				</div>
-				<div class="windowbg2">
-					<dl class="generate_report">';
+			<div class="cat_bar">
+				<h3 class="catbg">', $txt['generate_reports_type'], '</h3>
+			</div>
+			<div class="windowbg2">
+				<dl class="settings">';
 
 	// Go through each type of report they can run.
 	foreach ($context['report_types'] as $type)
 	{
-		echo '
-						<dt>
-							<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
-							<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-						</dt>';
 		if (isset($type['description']))
 			echo '
-						<dd>', $type['description'], '</dd>';
+					<dt>', $type['description'], '</dt>';
+		echo '
+					<dd>
+						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', ' class="input_radio">
+						<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
+					</dd>';
 	}
 		echo '
-					</dl>
-					<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
-				</div>
+				</dl>
+				<input type="submit" name="continue" value="', $txt['generate_reports_continue'], '" class="button_submit">
+				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 			</div>
 		</form>
 	</div>';
@@ -132,8 +130,7 @@ function template_main()
 		}
 		echo '
 			</tbody>
-		</table>
-		<br>';
+		</table>';
 	}
 	echo '
 	</div>';
