@@ -58,7 +58,7 @@ function template_modify_subscription()
 						<input type="checkbox" name="active" id="activated_check"', empty($context['sub']['active']) ? '' : ' checked', ' class="input_check">
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<dl class="settings">
 					<dt>
 						', $txt['paid_mod_prim_group'], ':<br><span class="smalltext">', $txt['paid_mod_prim_group_desc'], '</span>
@@ -100,7 +100,7 @@ function template_modify_subscription()
 						<textarea name="emailcomplete" rows="6" cols="40">', $context['sub']['email_complete'], '</textarea>
 					</dd>
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="radio" name="duration_type" id="duration_type_fixed" value="fixed"', empty($context['sub']['duration']) || $context['sub']['duration'] == 'fixed' ? ' checked' : '', ' class="input_radio" onclick="toggleDuration(\'fixed\');">
 				<strong><label for="duration_type_fixed">', $txt['paid_mod_fixed_price'], '</label></strong>
 				<br>
@@ -461,7 +461,7 @@ function template_user_subscription()
 					', sprintf($modSettings['paid_currency_symbol'], $subscription['costs']['fixed']);
 
 				echo '
-					<hr class="hrcolor">
+					<hr>
 					<input type="submit" name="sub_id[', $subscription['id'], ']" value="', $txt['paid_order'], '" class="button_submit">';
 			}
 			else

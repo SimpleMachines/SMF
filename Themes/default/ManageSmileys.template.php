@@ -102,7 +102,7 @@ function template_modifyset()
 
 		echo '
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="smiley_save" value="', $txt['smiley_sets_save'], '" class="button_submit">
 			</div>
 			<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

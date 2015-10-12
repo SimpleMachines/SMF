@@ -1068,7 +1068,7 @@ function template_announce()
 						<label for="checkall"><input type="checkbox" id="checkall" class="input_check" onclick="invertAll(this, this.form);" checked> <em>', $txt['check_all'], '</em></label>
 					</li>
 				</ul>
-				<hr class="hrcolor">
+				<hr>
 				<div id="confirm_buttons">
 					<input type="submit" value="', $txt['post'], '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
@@ -1099,7 +1099,7 @@ function template_announcement_send()
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['announce_done'], '</div>
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
 				</div>
-				<hr class="hrcolor">
+				<hr>
 				<div id="confirm_buttons">
 					<input type="submit" name="b" value="', $txt['announce_continue'], '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

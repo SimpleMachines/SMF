@@ -1394,7 +1394,7 @@ function template_edit_options()
 		{
 			echo '
 				</dl>
-				<hr width="100%" size="1" class="hrcolor clear">
+				<hr>
 				<dl>';
 		}
 		elseif ($field['type'] == 'callback')
@@ -1490,7 +1490,7 @@ function template_edit_options()
 	{
 		if ($lastItem != 'hr')
 			echo '
-				<hr width="100%" size="1" class="hrcolor clear">';
+				<hr>';
 
 		echo '
 				<dl>';
@@ -2588,7 +2588,7 @@ function template_profile_save()
 
 	echo '
 
-					<hr width="100%" size="1" class="hrcolor clear">';
+					<hr>';
 
 	// Only show the password box if it's actually needed.
 	if ($context['require_password'])

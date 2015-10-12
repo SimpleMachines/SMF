@@ -123,7 +123,7 @@ function template_main()
 						', $board['is_redirect'] ? '' : '<br> ' . comma_format($board['topics']) . ' ' . $txt['board_topics'], '
 						</p>
 					</div>
-					<div class="lastpost">';
+					<div class="lastpost ',!empty($board['last_post']['id']) ? 'lpr_border' : 'hidden','">';
 
 				if (!empty($board['last_post']['id']))
 					echo '

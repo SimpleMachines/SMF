@@ -575,7 +575,7 @@ function template_set_settings()
 		{
 			echo '
 				</dl>
-				<hr class="hrcolor">
+				<hr>
 				<dl class="settings flow_auto">';
 		}
 		// A checkbox?

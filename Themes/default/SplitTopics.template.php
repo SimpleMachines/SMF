@@ -40,7 +40,7 @@ function template_ask()
 						<input type="radio" id="selective" name="step2" value="selective" class="input_radio"> <label for="selective">', $txt['select_split_posts'], '</label>
 					</li>
 				</ul>
-				<hr class="hrcolor">
+				<hr>
 				<div class="auto_flow">
 					<input type="submit" value="', $txt['split'], '" class="button_submit">
 					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">

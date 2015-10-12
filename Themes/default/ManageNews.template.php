@@ -400,7 +400,7 @@ function template_email_members_send()
 					<div class="full_bar">', $context['percentage_done'], '% ', $txt['email_done'], '</div>
 					<div class="green_percent" style="width: ', $context['percentage_done'], '%;">&nbsp;</div>
 				</div>
-				<hr class="hrcolor">
+				<hr>
 				<input type="submit" name="b" value="', $txt['email_continue'], '" class="button_submit">
 				<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '">
 				<input type="hidden" name="subject" value="', $context['subject'], '">

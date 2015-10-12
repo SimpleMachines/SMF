@@ -898,7 +898,7 @@ function template_package_list()
 				// This is supposed to be a rule..
 				elseif ($package['is_line'])
 					echo '
-						<hr class="hrcolor">';
+						<hr>';
 				// A remote link.
 				elseif ($package['is_remote'])
 				{
