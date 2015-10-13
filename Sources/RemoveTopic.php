@@ -1301,7 +1301,7 @@ function mergePosts($msgs, $from_topic, $target_topic)
 		UPDATE {db_prefix}messages
 		SET
 			id_topic = {int:target_topic},
-			id_board = {int:target_board},
+			id_board = {int:target_board}
 		WHERE id_msg IN({array_int:msgs})',
 		array(
 			'target_topic' => $target_topic,
