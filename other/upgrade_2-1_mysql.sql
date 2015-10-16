@@ -1849,8 +1849,3 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]',
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 ---#
-
----# Converting database to UTF-8. This may take a while...
----{
----}
----#
