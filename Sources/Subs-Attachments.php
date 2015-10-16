@@ -1087,7 +1087,7 @@ function loadAttachmentContext($id_msg, $attachments)
 {
 	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
 
-	if (empty($attachments))
+	if (empty($id_msg) || empty($attachments) || empty($attachments[$id_msg]))
 		return array();
 
 	// Set up the attachment info - based on code by Meriadoc.

@@ -26,6 +26,8 @@ class Attachments
 	protected $_generalErrors = array();
 	protected $_initialError;
 	protected $_attachments = array();
+	protected $_attachResults = array();
+	protected $_attachSuccess = array();
 	protected $_response = array(
 		'error' => true,
 		'data' => array(),
@@ -306,8 +308,6 @@ class Attachments
 		global $context, $txt, $user_info, $modSettings;
 
 		$attachIDs = array();
-		$this->_attachResults = array();
-		$this->_attachSuccess = array();
 
 		// Create an empty session var to keep track of all the files we attached.
 		$SESSION['already_attached'] = array();
