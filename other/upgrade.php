@@ -62,8 +62,8 @@ $upcontext['steps'] = array(
 	0 => array(1, 'Login', 'WelcomeLogin', 2),
 	1 => array(2, 'Upgrade Options', 'UpgradeOptions', 2),
 	2 => array(3, 'Backup', 'BackupDatabase', 10),
-	3 => array(4, 'Convert to UTF-8', 'ConvertUtf8', 20),
-	4 => array(5, 'Database Changes', 'DatabaseChanges', 50),
+	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
+	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
 	5 => array(6, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
