@@ -1105,7 +1105,7 @@ function ssi_whosOnline($output_method = 'echo')
 			'hidden' => $return['num_users_hidden'],
 			'buddies' => $return['num_buddies'],
 			'num_users' => $return['num_users_online'],
-			'total_users' => $return['num_users_online'] + $return['num_guests'] + $return['num_spiders'],
+			'total_users' => $return['num_users_online'] + $return['num_guests'],
 		);
 
 	echo '
