@@ -307,7 +307,7 @@ function reloadSettings()
 	);
 
 	// Define a list of allowed tags for descriptions.
-	$context['description_allowed_tags'] = array('abbr', 'anchor', 'center', 'color', 'font', 'hr', 'i', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
+	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 
 	// Get an error count, if necessary
 	if (!isset($context['num_errors']))
