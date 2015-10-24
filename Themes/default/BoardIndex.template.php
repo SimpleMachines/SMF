@@ -153,7 +153,7 @@ function template_main()
 
 				echo '
 					<div id="board_', $board['id'], '_children" class="children">
-						<p><strong>', $txt['sub_boards'], '</strong>: ', implode(', ', $children), '</p>
+						<p><strong>', $txt['sub_boards'], '</strong>: ', implode($children), '</p>
 					</div>';
 				}
 

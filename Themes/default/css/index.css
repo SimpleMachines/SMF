@@ -2862,6 +2862,12 @@ h3 .collapse {
 .children p {
 	font-size: 0.9em;
 }
+.children a:after {
+	content: ", ";
+}
+.children a:last-of-type:after {
+	content: "";
+}
 p.moderators {
 	font-size: 0.9em;
 	font-weight: bold;
