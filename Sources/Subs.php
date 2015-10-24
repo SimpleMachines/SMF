@@ -4231,7 +4231,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
  *
- * @param string $string The string containing a function name or a static call.
+ * @param mixed $string The string containing a function name or a static call. The function can also accept a closure, object or a callable array (object/class, valid_callable)
  * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
  * @return string|array|boolean Either a string or an array that contains a callable function name or an array with a class and method to call. Boolean false if the given string cannot produce a callable var.
  */
@@ -4243,9 +4243,13 @@ function call_helper($string, $return = false)
 	if (empty($string))
 		return false;
 
-	// Is this a closure?
-	if ($string instanceof Closure)
+	// Is this an object or a closure? either way, return it, we don't have enough details about it anyway.
+	if ($string instanceof Closure || is_object($string))
 		return $string;
+
+	// An array? should be a "callable" array IE array(object/class, valid_callable).
+	if (is_array($string))
+		return is_callable($string) ? call_user_func($string) : false;
 
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
