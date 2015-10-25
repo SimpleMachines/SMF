@@ -901,6 +901,13 @@ function assignAttachments($attachments = array(), $msgID = 0)
 	return true;
 }
 
+/**
+ * Gets an attach ID and tries to load all its info.
+ *
+ * @param int $attachID the attachment ID to load info from.
+ *
+ * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
+ */
 function parseAttachBBC($attachID = false)
 {
 	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
@@ -1013,6 +1020,13 @@ function parseAttachBBC($attachID = false)
 	return $attachContext;
 }
 
+/**
+ * Gets all needed message data associated with an attach ID
+ *
+ * @param int $attachID the attachment ID to load info from.
+ *
+ * @return array.
+ */
 function getAttachMsgInfo($attachID)
 {
 	global $smcFunc;
@@ -1040,6 +1054,13 @@ function getAttachMsgInfo($attachID)
 	return $row;
 }
 
+/**
+ * Gets attachment info associated with a message ID
+ *
+ * @param int $msgID the message ID to load info from.
+ *
+ * @return array.
+ */
 function getAttachsByMsg($msgID = 0)
 {
 	global $modSettings, $smcFunc;
