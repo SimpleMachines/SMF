@@ -907,10 +907,21 @@ function parseAttachBBC($attachID = false)
 
 	$attachContext = array();
 	$allAttachments = array();
+	$externalParse = false;
 
 	// Meh...
 	if (empty($attachID))
 		return 'attachments_no_data_loaded';
+
+	// Make it easy.
+	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
+
+	// Perhaps someone else wants to do the honors? Yes, this also includes dealing with previews ;)
+	$externalParse = call_integration_hook('integrate_pre_parseAttachBBC', array($attachID, $msgID));
+
+	// "I am innocent of the blood of this just person: see ye to it."
+	if (!empty($externalParse) && (is_string($externalParse) || is_array($externalParse)))
+		return $externalParse;
 
 	//Are attachments enable?
 	if (empty($modSettings['attachmentEnable']))
@@ -939,15 +950,10 @@ function parseAttachBBC($attachID = false)
 		return $attachContext;
 	}
 
-	// Make it easy.
-	$msgID = !empty($_REQUEST['msg']) ? (int) $_REQUEST['msg'] : 0;
-
 	// There is always the chance someone else has already done our dirty work...
+	// If so, all pertinent checks were already done. Hopefully...
 	if (!empty($context['current_attachments']) && !empty($context['current_attachments'][$attachID]))
-	{
-		// If so, all pertinent checks were already done...
 		return $context['current_attachments'][$attachID];
-	}
 
 	// If we are lucky enough to be in $board's scope then check it!
 	if (!empty($board) && !allowedTo('view_attachments', $board))
@@ -967,7 +973,7 @@ function parseAttachBBC($attachID = false)
 
 		// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
 		if (empty($attachInfo) || empty($attachInfo['msg']))
-			return 'no_msg_associated';
+			return 'attachments_no_msg_associated';
 
 		// Hold it! got the info now check if you can see this attachment.
 		if (!allowedTo('view_attachments', $attachInfo['board']))
@@ -999,6 +1005,9 @@ function parseAttachBBC($attachID = false)
 	// You may or may not want to show this under the post.
 	if (!empty($modSettings['dont_show_attach_under_post']) && !isset($context['show_attach_under_post'][$attachID]))
 		$context['show_attach_under_post'][$attachID] = $attachID;
+
+	// Last minute changes?
+	call_integration_hook('integrate_post_parseAttachBBC', array(&$attachContext));
 
 	// Don't do any logic with the loaded data, leave it to whoever called this function.
 	return $attachContext;

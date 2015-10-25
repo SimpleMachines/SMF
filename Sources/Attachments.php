@@ -102,7 +102,7 @@ class Attachments
 		// Lets pass some params and see what happens :P
 		$affectedMessage = removeAttachments(array('id_attach' => $attachID), '', true, true);
 
-		// Gotta also remove the attachment form the session var.
+		// Gotta also remove the attachment from the session var.
 		unset($_SESSION['already_attached'][$attachID]);
 
 		// $affectedMessage returns an empty array array(0) which php treats as non empty... awesome...
