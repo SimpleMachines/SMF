@@ -920,10 +920,10 @@ function parseAttachBBC($attachID = false)
 	if (!empty($context['preview_message']))
 	{
 		$allAttachments = getAttachsByMsg(0);
-		$attachContext = $allAttachments['0'][$attachID];
+		$attachContext = $allAttachments[0][$attachID];
 
 		if (!empty($attachContext))
-			$attachLoaded = loadAttachmentContext('0', $allAttachments);
+			$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
 
@@ -1087,7 +1087,7 @@ function loadAttachmentContext($id_msg, $attachments)
 {
 	global $modSettings, $txt, $scripturl, $sourcedir, $smcFunc;
 
-	if (empty($id_msg) || empty($attachments) || empty($attachments[$id_msg]))
+	if (empty($attachments) || empty($attachments[$id_msg]))
 		return array();
 
 	// Set up the attachment info - based on code by Meriadoc.
