@@ -512,19 +512,6 @@ function attachmentChecks($attachID)
 	if (!empty($error))
 		fatal_lang_error('attach_check_nag', 'debug', array($error));
 
-	// These are the only valid image types for SMF.
-	$validImageTypes = array(
-		1 => 'gif',
-		2 => 'jpeg',
-		3 => 'png',
-		5 => 'psd',
-		6 => 'bmp',
-		7 => 'tiff',
-		8 => 'tiff',
-		9 => 'jpeg',
-		14 => 'iff'
-	);
-
 	// Just in case this slipped by the first checks, we stop it here and now
 	if ($_SESSION['temp_attachments'][$attachID]['size'] == 0)
 	{
@@ -534,7 +521,7 @@ function attachmentChecks($attachID)
 
 	// First, the dreaded security check. Sorry folks, but this shouldn't be avoided.
 	$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
-	if (isset($validImageTypes[$size[2]]))
+	if (isset($context['validImageTypes'][$size[2]]))
 	{
 		require_once($sourcedir . '/Subs-Graphics.php');
 		if (!checkImageContents($_SESSION['temp_attachments'][$attachID]['tmp_name'], !empty($modSettings['attachment_image_paranoid'])))
@@ -552,8 +539,8 @@ function attachmentChecks($attachID)
 			$size = @getimagesize($_SESSION['temp_attachments'][$attachID]['tmp_name']);
 			if (!(empty($size)) && ($size[2] != $old_format))
 			{
-				if (isset($validImageTypes[$size[2]]))
-					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $validImageTypes[$size[2]];
+				if (isset($context['validImageTypes'][$size[2]]))
+					$_SESSION['temp_attachments'][$attachID]['type'] = 'image/' . $context['validImageTypes'][$size[2]];
 			}
 		}
 	}
@@ -677,22 +664,9 @@ function attachmentChecks($attachID)
  */
 function createAttachment(&$attachmentOptions)
 {
-	global $modSettings, $sourcedir, $smcFunc, $context;
+	global $modSettings, $sourcedir, $smcFunc, $context, $txt;
 
 	require_once($sourcedir . '/Subs-Graphics.php');
-
-	// These are the only valid image types for SMF.
-	$validImageTypes = array(
-		1 => 'gif',
-		2 => 'jpeg',
-		3 => 'png',
-		5 => 'psd',
-		6 => 'bmp',
-		7 => 'tiff',
-		8 => 'tiff',
-		9 => 'jpeg',
-		14 => 'iff'
-	);
 
 	// If this is an image we need to set a few additional parameters.
 	$size = @getimagesize($attachmentOptions['tmp_name']);
@@ -704,9 +678,10 @@ function createAttachment(&$attachmentOptions)
 		// Got a proper mime type?
 		if (!empty($size['mime']))
 			$attachmentOptions['mime_type'] = $size['mime'];
+
 		// Otherwise a valid one?
-		elseif (isset($validImageTypes[$size[2]]))
-			$attachmentOptions['mime_type'] = 'image/' . $validImageTypes[$size[2]];
+		elseif (isset($context['validImageTypes'][$size[2]]))
+			$attachmentOptions['mime_type'] = 'image/' . $context['validImageTypes'][$size[2]];
 	}
 
 	// It is possible we might have a MIME type that isn't actually an image but still have a size.
@@ -729,6 +704,9 @@ function createAttachment(&$attachmentOptions)
 			$attachmentOptions['fileext'] = '';
 	}
 
+	// Last chance to change stuff!
+	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
+
 	$smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
@@ -745,9 +723,13 @@ function createAttachment(&$attachmentOptions)
 	);
 	$attachmentOptions['id'] = $smcFunc['db_insert_id']('{db_prefix}attachments', 'id_attach');
 
-	// @todo Add an error here maybe?
+	// Attachment couldn't be created.
 	if (empty($attachmentOptions['id']))
+	{
+		loadLanguage('Errors');
+		log_error($txt['attachment_not_created'], 'general');
 		return false;
+	}
 
 	// Now that we have the attach id, let's rename this sucker and finish up.
 	$attachmentOptions['destination'] = getAttachmentFilename(basename($attachmentOptions['name']), $attachmentOptions['id'], $attachmentOptions['id_folder'], false, $attachmentOptions['file_hash']);
@@ -780,8 +762,8 @@ function createAttachment(&$attachmentOptions)
 
 			if (!empty($size['mime']))
 				$thumb_mime = $size['mime'];
-			elseif (isset($validImageTypes[$size[2]]))
-				$thumb_mime = 'image/' . $validImageTypes[$size[2]];
+			elseif (isset($context['validImageTypes'][$size[2]]))
+				$thumb_mime = 'image/' . $context['validImageTypes'][$size[2]];
 			// Lord only knows how this happened...
 			else
 				$thumb_mime = '';
@@ -847,6 +829,7 @@ function createAttachment(&$attachmentOptions)
 			}
 		}
 	}
+
 	return true;
 }
 
@@ -1183,11 +1166,8 @@ function loadAttachmentContext($id_msg, $attachments)
 						list ($attachment['thumb_width'], $attachment['thumb_height']) = $size;
 						$thumb_size = filesize($filename . '_thumb');
 
-						// These are the only valid image types for SMF.
-						$validImageTypes = array(1 => 'gif', 2 => 'jpeg', 3 => 'png', 5 => 'psd', 6 => 'bmp', 7 => 'tiff', 8 => 'tiff', 9 => 'jpeg', 14 => 'iff');
-
 						// What about the extension?
-						$thumb_ext = isset($validImageTypes[$size[2]]) ? $validImageTypes[$size[2]] : '';
+						$thumb_ext = isset($context['validImageTypes'][$size[2]]) ? $context['validImageTypes'][$size[2]] : '';
 
 						// Figure out the mime type.
 						if (!empty($size['mime']))
