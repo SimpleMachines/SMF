@@ -1132,7 +1132,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
 				'content' => '$1',
-				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir)
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
 				{
 					$returnContext = '';
 
@@ -1148,12 +1148,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 					$currentAttachment = parseAttachBBC($attachID);
 
-					// Do we have an error?
+					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
 					if (is_string($currentAttachment))
-					{
-						$data = $currentAttachment;
-						return;
-					}
+						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
 
 					if (!empty($currentAttachment['is_image']))
 					{

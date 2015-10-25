@@ -910,7 +910,7 @@ function parseAttachBBC($attachID = false)
 
 	// Meh...
 	if (empty($attachID))
-		return 'no_data_loaded';
+		return 'attachments_no_data_loaded';
 
 	//Are attachments enable?
 	if (empty($modSettings['attachmentEnable']))
@@ -951,7 +951,7 @@ function parseAttachBBC($attachID = false)
 
 	// If we are lucky enough to be in $board's scope then check it!
 	if (!empty($board) && !allowedTo('view_attachments', $board))
-		return 'not_allowed_to_see';
+		return 'attachments_not_allowed_to_see';
 
 	// Do we have a msg ID? if so save some precious cpu cycles.
 	if (empty($attachContext) && !empty($msgID))
@@ -971,7 +971,7 @@ function parseAttachBBC($attachID = false)
 
 		// Hold it! got the info now check if you can see this attachment.
 		if (!allowedTo('view_attachments', $attachInfo['board']))
-			return 'not_allowed_to_see';
+			return 'attachments_not_allowed_to_see';
 
 		$allAttachments = getAttachsByMsg($attachInfo['msg']);
 		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
@@ -979,7 +979,7 @@ function parseAttachBBC($attachID = false)
 
 	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachContext['board']))
-		return 'not_allowed_to_see';
+		return 'attachments_not_allowed_to_see';
 
 	// Load this particular attach's context.
 	if (!empty($attachContext))
@@ -987,11 +987,11 @@ function parseAttachBBC($attachID = false)
 
 	// One last check, you know, gotta be paranoid...
 	else
-		return 'no_data_loaded';
+		return 'attachments_no_data_loaded';
 
 	// This is the last "if" I promise!
 	if (empty($attachLoaded))
-		return 'no_data_loaded';
+		return 'attachments_no_data_loaded';
 
 	else
 		$attachContext = $attachLoaded[$attachID];
