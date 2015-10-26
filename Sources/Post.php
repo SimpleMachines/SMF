@@ -583,7 +583,7 @@ function Post($post_errors = array())
 				{
 					if ($row['filesize'] <= 0)
 						continue;
-					$context['current_attachments'][] = array(
+					$context['current_attachments'][$row['id_attach']] = array(
 						'name' => $smcFunc['htmlspecialchars']($row['filename']),
 						'size' => $row['filesize'],
 						'attachID' => $row['id_attach'],
@@ -717,7 +717,7 @@ function Post($post_errors = array())
 		// Load up 'em attachments!
 		foreach ($temp as $attachment)
 		{
-			$context['current_attachments'][] = array(
+			$context['current_attachments'][$attachment['id_attach']] = array(
 				'name' => $smcFunc['htmlspecialchars']($attachment['filename']),
 				'size' => $attachment['filesize'],
 				'attachID' => $attachment['id_attach'],
@@ -966,7 +966,7 @@ function Post($post_errors = array())
 				if (!isset($context['files_in_session_warning']))
 					$context['files_in_session_warning'] = $txt['attached_files_in_session'];
 
-				$context['current_attachments'][] = array(
+				$context['current_attachments'][$attachID] = array(
 					'name' => '<u>' . $smcFunc['htmlspecialchars']($attachment['name']) . '</u>',
 					'size' => $attachment['size'],
 					'attachID' => $attachID,
