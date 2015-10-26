@@ -891,7 +891,7 @@ function assignAttachments($attachments = array(), $msgID = 0)
  *
  * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
  */
-function parseAttachBBC($attachID = false)
+function parseAttachBBC($attachID = 0)
 {
 	global $board, $modSettings, $sourcedir, $context, $scripturl, $smcFunc;
 
@@ -923,8 +923,10 @@ function parseAttachBBC($attachID = false)
 		$allAttachments = getAttachsByMsg(0);
 		$attachContext = $allAttachments[0][$attachID];
 
-		if (!empty($attachContext))
-			$attachLoaded = loadAttachmentContext(0, $allAttachments);
+		if (empty($attachContext))
+			return 'attachments_no_data_loaded';
+
+		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
 
@@ -949,29 +951,19 @@ function parseAttachBBC($attachID = false)
 	if (!empty($board) && !allowedTo('view_attachments', $board))
 		return 'attachments_not_allowed_to_see';
 
-	// Do we have a msg ID? if so save some precious cpu cycles.
-	if (empty($attachContext) && !empty($msgID))
-	{
-		$allAttachments = getAttachsByMsg($msgID);
-		$attachContext = $allAttachments[$msgID][$attachID];
-	}
+	// Get the message info associated with this particular attach ID.
+	$attachInfo = getAttachMsgInfo($attachID);
 
-	// No? bummer...
-	elseif (empty($attachContext))
-	{
-		$attachInfo = getAttachMsgInfo($attachID);
+	// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
+	if (empty($attachInfo) || empty($attachInfo['msg']))
+		return 'attachments_no_msg_associated';
 
-		// There is always the chance this attachment no longer exists or isn't associated to a message anymore...
-		if (empty($attachInfo) || empty($attachInfo['msg']))
-			return 'attachments_no_msg_associated';
+	// Hold it! got the info now check if you can see this attachment.
+	if (!allowedTo('view_attachments', $attachInfo['board']))
+		return 'attachments_not_allowed_to_see';
 
-		// Hold it! got the info now check if you can see this attachment.
-		if (!allowedTo('view_attachments', $attachInfo['board']))
-			return 'attachments_not_allowed_to_see';
-
-		$allAttachments = getAttachsByMsg($attachInfo['msg']);
-		$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
-	}
+	$allAttachments = getAttachsByMsg($attachInfo['msg']);
+	$attachContext = $allAttachments[$attachInfo['msg']][$attachID];
 
 	// No point in keep going further.
 	if (!allowedTo('view_attachments', $attachContext['board']))
