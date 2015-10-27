@@ -119,7 +119,11 @@ class Attachments
 
 		// You gotta be able to post attachments.
 		if (!$this->_canPostAttachment)
-			return $this->_response = 'some error indicating you cannot upload attachments';
+			return $this->setResponse(array(
+				'text' => 'attached_file_cannot',
+				'type' => 'error',
+				'data' => false,
+			));
 
 		// Process them at once!
 		$this->processAttachments();
