@@ -4246,7 +4246,7 @@ function call_helper($string, $return = false)
 
 	// An array? should be a "callable" array IE array(object/class, valid_callable).
 	if (is_array($string))
-		return is_callable($string) ? call_user_func($string) : false;
+		return $return ? $string : (is_callable($string) ? call_user_func($string) : false);
 
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));
