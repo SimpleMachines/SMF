@@ -19,6 +19,34 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
+		createMaxSizeBar: function(){
+
+				// Update the MaxSize bar to reflect the new size percentage.
+				var range_maxFile = Math.round(percentToRange(rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.limitMultiFileUploadSize), 0, 100));
+
+				// 3 basic colors.
+				if (range_maxFile <= 33)
+					range_maxFile_class = 'green';
+
+				else if (range_maxFile >= 34 && range_maxFile <= 66)
+					range_maxFile_class = 'yellow';
+
+				else
+					range_maxFile_class = 'red';
+
+				$('#maxFiles_progress').show();
+				$('#maxFiles_progress_text').show();
+				$('#maxFiles_progress').removeClass().addClass('progressBar progress_'+ range_maxFile_class);
+				$('#maxFiles_progress span').width(range_maxFile + '%');
+
+				// Show or udate the text.
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.limitMultiFileUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+
+				if (myDropzone.options.totalMaxSize == 0){
+					$('#maxFiles_progress').hide();
+					$('#maxFiles_progress_text').hide();
+				}
+		},
 		accept: function(file, done) {
 
 			// Need to check if the added file doesn't surpass the total max size setting.
@@ -28,6 +56,9 @@ function smf_fileUpload(oOptions)
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.limitMultiFileUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
 			}
 			else{
+
+				myDropzone.options.createMaxSizeBar();
+				// All done!
 				done();
 			}
 		},
@@ -131,8 +162,15 @@ function smf_fileUpload(oOptions)
 	// Stuff to do when a file gets cancel.
 	myDropzone.on('removedfile', function(file) {
 
-		// Need to remove the file size to make sure theres plenty of room for another one.
-		myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+		// Do stuff only if the file was actually accepted.
+		if (file.accepted) {
+
+			// Need to remove the file size to make sure theres plenty of room for another one.
+			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+
+			// Re-count!
+			myDropzone.options.createMaxSizeBar();
+		}
 
 		// Hide the cancel and upload all buttons if there is nothing to cancel/upload anymore.
 		if (myDropzone.getFilesWithStatus(Dropzone.ADDED).length == 0){
@@ -241,6 +279,9 @@ function smf_fileUpload(oOptions)
 
 			// Fire up the delete button.
 			file.deleteAttachment(_thisElement, file.attachID);
+
+			// Need to count this towards the max limit.
+			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
 		}
 	});
 
@@ -274,6 +315,7 @@ function smf_fileUpload(oOptions)
 		}
 
 		myDropzone.removeAllFiles(true);
+		myDropzone.options.createMaxSizeBar();
 	});
 
 	$('a#attach-uploadAll' ).on('click', function() {
@@ -283,6 +325,7 @@ function smf_fileUpload(oOptions)
 		}
 
 		myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+		myDropzone.options.createMaxSizeBar();
 	});
 
 	// Need to tell the user they cannot post until all files are either uploaded or canceled.
@@ -324,5 +367,12 @@ function smf_fileUpload(oOptions)
 			myDropzone.emit("complete", mock);
 		});
 	}
+}
 
+function rangeToPercent(number, min, max){
+   return ((number - min) / (max - min));
+}
+
+function percentToRange(percent, min, max) {
+   return((max - min) * percent + min);
 }

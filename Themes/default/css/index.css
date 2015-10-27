@@ -3828,6 +3828,20 @@ h3.profile_hd {
 	width:0px;
 }
 
-@keyframes animate-stripes {
-	0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+#maxFiles_progress, #maxFiles_progress_text {
+	display:none;
+}
+.progress_yellow span {
+	background-color: #fecf23;
+	background-image: linear-gradient(top, #fecf23, #fd9215);
+}
+
+.progress_green span {
+	background-color: #a5df41;
+	background-image: linear-gradient(top, #a5df41, #4ca916);
+}
+
+.progress_red span {
+	background-color: #F45D4C;
+	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
 }

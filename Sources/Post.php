@@ -1230,6 +1230,7 @@ function Post($post_errors = array())
 			thumbnailHeight: '.(!empty($modSettings['attachmentThumbHeight']) ? $modSettings['attachmentThumbHeight'] : 'undefined') .',
 			maxFiles: '. $context['num_allowed_attachments'] .',
 			text_totalMaxSize: '. JavaScriptEscape($txt['attach_max_total_file_size_current']) .',
+			text_max_size_progress: '. JavaScriptEscape($txt['attach_max_size_progress']) .',
 			limitMultiFileUploadSize:'. round(max($modSettings['attachmentPostLimit'] - ($context['attachments']['total_size'] / 1024), 0)) * 1000 .',
 		});
 	});', true);

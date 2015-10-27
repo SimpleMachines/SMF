@@ -453,7 +453,9 @@ function template_main()
 									<a class="button_submit start">', $txt['upload'] ,'</a>
 								</div>
 							</div>
-						</div>';
+						</div>
+						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
+						<div id ="maxFiles_progress_text"></div>';
 
 		echo '
 						<dl id="postAttachment2">';
