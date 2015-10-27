@@ -95,8 +95,11 @@ function smf_fileUpload(oOptions)
 					},
 					success: function (data, textStatus, xhr) {
 
+						// For dramatic purposes only!
+						_thisElement.removeClass('infobox').addClass(data.type +'box');
+
 						// Remove the text field and show a nice confirmation message.
-						_innerElement.find('.attached_BBC').text(myDropzone.options.text_attachDeleted);
+						_innerElement.find('.attached_BBC').text(data.text);
 					},
 					error: function (xhr, textStatus, errorThrown) {
 
