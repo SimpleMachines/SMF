@@ -92,7 +92,7 @@ class Attachments
 		$attachID = !empty($_REQUEST['attach']) && is_numeric($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 
 		// Need something to work with.
-		if (!$attachID || !is_int($attachID) || !isset($_SESSION['already_attached'][$attachID]))
+		if (!$attachID || !is_int($attachID) || (!empty($_SESSION['already_attached']) && !isset($_SESSION['already_attached'][$attachID])))
 			return $this->setResponse(array(
 				'text' => 'attached_file_deleted_error',
 				'type' => 'error',
@@ -107,9 +107,9 @@ class Attachments
 
 		// $affectedMessage returns an empty array array(0) which php treats as non empty... awesome...
 		$this->setResponse(array(
-			'text' => 'attached_file_deleted',
-			'type' => !empty($affectedMessage) ? 'error' : 'info',
-			'data' => false,
+			'text' => !empty($affectedMessage) ? 'attached_file_deleted' : 'attached_file_deleted_error',
+			'type' => !empty($affectedMessage) ? 'info' : 'warning',
+			'data' => $affectedMessage,
 		));
 	}
 

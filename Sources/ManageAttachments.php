@@ -1059,6 +1059,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 		// Make a list.
 		if ($return_affected_messages && empty($row['attachment_type']))
 			$msgs[] = $row['id_msg'];
+
 		$attach[] = $row['id_attach'];
 	}
 	$smcFunc['db_free_result']($request);
