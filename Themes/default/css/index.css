@@ -2716,7 +2716,7 @@ dl.addrules dt.floatleft {
 }
 /* Unapproved posts in approved topics */
 .windowbg.approvepost, .windowbg2.approvepost {
-	background: #ffeaea;
+	background: #ffcbcb;
 }
 .generic_list_wrapper .additional_row {
 	margin: 0;
@@ -2861,6 +2861,12 @@ h3 .collapse {
 }
 .children p {
 	font-size: 0.9em;
+}
+.children a:after {
+	content: ", ";
+}
+.children a:last-of-type:after {
+	content: "";
 }
 p.moderators {
 	font-size: 0.9em;
