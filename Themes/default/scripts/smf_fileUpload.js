@@ -22,7 +22,7 @@ function smf_fileUpload(oOptions)
 		createMaxSizeBar: function(){
 
 				// Update the MaxSize bar to reflect the new size percentage.
-				var range_maxFile = Math.round(percentToRange(rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.limitMultiFileUploadSize), 0, 100));
+				var range_maxFile = Math.round(percentToRange(rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.maxLimitReferenceUploadSize), 0, 100));
 
 				// 3 basic colors.
 				if (range_maxFile <= 33)
@@ -40,7 +40,7 @@ function smf_fileUpload(oOptions)
 				$('#maxFiles_progress span').width(range_maxFile + '%');
 
 				// Show or udate the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.limitMultiFileUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
 
 				if (myDropzone.options.totalMaxSize == 0){
 					$('#maxFiles_progress').hide();
@@ -52,8 +52,8 @@ function smf_fileUpload(oOptions)
 			// Need to check if the added file doesn't surpass the total max size setting.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
 
-			if (myDropzone.options.totalMaxSize > myDropzone.options.limitMultiFileUploadSize){
-				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.limitMultiFileUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+			if (myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
+				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
 			}
 			else{
 
@@ -74,13 +74,13 @@ function smf_fileUpload(oOptions)
 		_thisElement = $(file.previewElement);
 
 		// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
-		if (!mock.type.match(/image.*/)) {
-			myDropzone.emit('thumbnail', mock, smf_images_url +'/generic_attach.png');
+		if (!file.type.match(/image.*/)) {
+			myDropzone.emit('thumbnail', file, smf_images_url +'/generic_attach.png');
 		}
 
 		// If the file is too small, it won't have a thumbnail, show the regular file.
-		else {
-			myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (mock.thumbID > 0 ? mock.thumbID : mock.attachID) + ';type=preview');
+		else if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
+			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
 		}
 
 		// Show the file info.
