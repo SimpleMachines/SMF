@@ -73,9 +73,14 @@ function smf_fileUpload(oOptions)
 
 		_thisElement = $(file.previewElement);
 
-		// Create a generic thumb for non image files.
-		if (!file.type.match(/image.*/)) {
-			myDropzone.emit('thumbnail', file, smf_images_url +'/generic_attach.png');
+		// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
+		if (!mock.type.match(/image.*/)) {
+			myDropzone.emit('thumbnail', mock, smf_images_url +'/generic_attach.png');
+		}
+
+		// If the file is too small, it won't have a thumbnail, show the regular file.
+		else {
+			myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (mock.thumbID > 0 ? mock.thumbID : mock.attachID) + ';type=preview');
 		}
 
 		// Show the file info.
@@ -163,7 +168,7 @@ function smf_fileUpload(oOptions)
 	myDropzone.on('removedfile', function(file) {
 
 		// Do stuff only if the file was actually accepted and it doesn't have an error status.
-		if (file.accepted && file.status != 'error') {
+		if (file.accepted && file.status != Dropzone.ERROR) {
 
 			// Need to remove the file size to make sure theres plenty of room for another one.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
@@ -282,6 +287,9 @@ function smf_fileUpload(oOptions)
 
 			// Need to count this towards the max limit.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
+
+			// Re-count and display the bar.
+			myDropzone.options.createMaxSizeBar();
 		}
 	});
 
@@ -353,15 +361,6 @@ function smf_fileUpload(oOptions)
 			mock.isMock = true;
 
 			myDropzone.emit("addedfile", mock);
-
-			// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
-			if (!mock.type.match(/image.*/)) {
-				myDropzone.emit('thumbnail', mock, smf_images_url +'/generic_attach.png');
-			}
-
-
-			// If the file is too small, it won't have a thumbnail, show the regular file.
-			myDropzone.emit('thumbnail', mock, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (mock.thumbID > 0 ? mock.thumbID : mock.attachID) + ';type=preview');
 
 			// This file is "completed".
 			myDropzone.emit("complete", mock);
