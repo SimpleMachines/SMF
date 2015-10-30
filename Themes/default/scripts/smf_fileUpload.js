@@ -162,8 +162,8 @@ function smf_fileUpload(oOptions)
 	// Stuff to do when a file gets cancel.
 	myDropzone.on('removedfile', function(file) {
 
-		// Do stuff only if the file was actually accepted.
-		if (file.accepted) {
+		// Do stuff only if the file was actually accepted and it doesn't have an error status.
+		if (file.accepted && file.status != 'error') {
 
 			// Need to remove the file size to make sure theres plenty of room for another one.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
