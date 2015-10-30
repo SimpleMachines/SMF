@@ -126,27 +126,37 @@ function smf_fileUpload(oOptions)
 					complete: function(jqXHR, textStatus){
 						ajax_indicator(false);
 
-						// Delete the button. @todo wait a few seconds.
+						// Delete the button.
 						$this.fadeOutAndRemove('slow');
 					},
 					success: function (data, textStatus, xhr) {
 
 						// For dramatic purposes only!
-						_thisElement.removeClass('infobox').addClass(data.type +'box');
+						_innerElement.removeClass('infobox').addClass(data.type +'box');
 
 						// Remove the text field and show a nice confirmation message.
 						_innerElement.find('.attached_BBC').text(data.text);
 
-						// Tell dropzone this file has been deleted.
-						myDropzone.emit("removedfile", file);
+						// Update the maxfiles var.
+						myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
+
+						// Do stuff only if the file was actually accepted and it doesn't have an error status.
+						if (file.accepted && file.status != Dropzone.ERROR) {
+
+							// Need to remove the file size to make sure theres plenty of room for another one.
+							myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+
+							// Re-count!
+							myDropzone.options.createMaxSizeBar();
+						}
 					},
 					error: function (xhr, textStatus, errorThrown) {
 
 						// Tell the user something horrible happen!
-						_thisElement.find('p.error').append(textStatus.error.join('<br>'));
+						_innerElement.find('p.error').append(textStatus.error.join('<br>'));
 
 						// For dramatic purposes only!
-						_thisElement.removeClass('infobox').addClass('errorbox');
+						_innerElement.removeClass('infobox').addClass('errorbox');
 					}
 				});
 			})
@@ -286,7 +296,7 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('a.delete').fadeOutAndRemove('slow');
 
 			// Fire up the delete button.
-			file.deleteAttachment(_thisElement, file.attachID);
+			file.deleteAttachment(_thisElement, file.attachID, file);
 
 			// Need to count this towards the max limit.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
