@@ -460,10 +460,8 @@ function template_main()
 		echo '
 						<dl id="postAttachment2">';
 
-		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
-		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
-		{
-			echo '
+
+		echo '
 							<dt>
 								', $txt['attach'], ':
 							</dt>
@@ -478,9 +476,9 @@ function template_main()
 										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
 								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">');
 
-			// Show more boxes if they aren't approaching that limit.
-			if ($context['num_allowed_attachments'] > 1)
-				echo '
+		// Show more boxes if they aren't approaching that limit.
+		if ($context['num_allowed_attachments'] > 1)
+			echo '
 										<script>
 											var allowed_attachments = ', $context['num_allowed_attachments'], ';
 											var current_attachment = 1;
@@ -501,10 +499,9 @@ function template_main()
 									</div>
 								</div>
 							</dd>';
-			else
-				echo '
+		else
+			echo '
 							</dd>';
-		}
 
 		// Add any template changes for an alternative upload system here.
 		call_integration_hook('integrate_upload_template');

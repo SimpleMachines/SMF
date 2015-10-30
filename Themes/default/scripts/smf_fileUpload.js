@@ -99,8 +99,8 @@ function smf_fileUpload(oOptions)
 			});
 		};
 
-		// Replace the field with a message when the attachment is deleted.
-		file.deleteAttachment = function (_innerElement, attachmentId){
+		// Replace the filled with a message when the attachment is deleted.
+		file.deleteAttachment = function (_innerElement, attachmentId, file){
 
 			deleteButton = $('<a />')
 			.addClass('button_submit')
@@ -126,7 +126,7 @@ function smf_fileUpload(oOptions)
 					complete: function(jqXHR, textStatus){
 						ajax_indicator(false);
 
-						// Delete the button.
+						// Delete the button. @todo wait a few seconds.
 						$this.fadeOutAndRemove('slow');
 					},
 					success: function (data, textStatus, xhr) {
@@ -136,6 +136,9 @@ function smf_fileUpload(oOptions)
 
 						// Remove the text field and show a nice confirmation message.
 						_innerElement.find('.attached_BBC').text(data.text);
+
+						// Tell dropzone this file has been deleted.
+						myDropzone.emit("removedfile", file);
 					},
 					error: function (xhr, textStatus, errorThrown) {
 
@@ -245,7 +248,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('a.delete').fadeOutAndRemove('slow');
 
 		// Fire up the delete button.
-		file.deleteAttachment(_thisElement, response.attachID);
+		file.deleteAttachment(_thisElement, response.attachID, file);
 	});
 
 	myDropzone.on('uploadprogress', function(file, progress, bytesSent) {
