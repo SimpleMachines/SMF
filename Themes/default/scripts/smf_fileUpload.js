@@ -373,6 +373,10 @@ function smf_fileUpload(oOptions)
 			// Tell the world this is a mock file!
 			mock.isMock = true;
 
+			// Tell eveyone this file was accepted.
+			mock.status = Dropzone.ADDED;
+			mock.accepted = true;
+
 			myDropzone.emit("addedfile", mock);
 
 			// This file is "completed".
