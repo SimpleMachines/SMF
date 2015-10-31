@@ -383,7 +383,21 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
 
-			return '<img' + attribs + ' src="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb' + '" data-attachment="'+ content +'">';
+			// Is this an image?
+			contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
+			contentIMG = $('<img>', {
+				src: contentUrl
+			});
+
+			if (contentIMG.width() === 0){
+
+				// @todo build an ajax call to get the attach filename
+				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ content +'</a>';
+			}
+
+			else{
+				return '<img' + attribs + ' src="' + contentUrl +'">';
+			}
 		}
 	}
 );
