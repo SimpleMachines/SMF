@@ -22,7 +22,7 @@ function smf_fileUpload(oOptions)
 		createMaxSizeBar: function(){
 
 				// Update the MaxSize bar to reflect the new size percentage.
-				var range_maxFile = Math.round(percentToRange(rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.maxLimitReferenceUploadSize), 0, 100));
+				var range_maxFile = Math.round($.fn.percentToRange($.fn.rangeToPercent(myDropzone.options.totalMaxSize, 0, myDropzone.options.maxLimitReferenceUploadSize), 0, 100));
 
 				// 3 basic colors.
 				if (range_maxFile <= 33)
@@ -379,12 +379,4 @@ function smf_fileUpload(oOptions)
 			myDropzone.emit("complete", mock);
 		});
 	}
-}
-
-function rangeToPercent(number, min, max){
-   return ((number - min) / (max - min));
-}
-
-function percentToRange(percent, min, max) {
-   return((max - min) * percent + min);
 }

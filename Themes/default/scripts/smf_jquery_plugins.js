@@ -187,15 +187,23 @@
 		});
 	};
 
-})(jQuery);
-
-// A simple plugin for deleting an element from the DOM.
-(function($){
+	// A simple plugin for deleting an element from the DOM.
 	$.fn.fadeOutAndRemove = function(speed){
 		$(this).fadeOut(speed,function(){
 			$(this).remove();
-		})
-	}
+		});
+	};
+
+	// Range to percent.
+	$.fn.rangeToPercent = function(number, min, max){
+		return ((number - min) / (max - min));
+	};
+
+	// Percent to range.
+	$.fn.percentToRange = function(percent, min, max){
+		return((max - min) * percent + min);
+	};
+
 })(jQuery);
 
 /**

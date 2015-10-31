@@ -385,11 +385,10 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			// Is this an image?
 			contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
-			contentIMG = $('<img>', {
-				src: contentUrl
-			});
+			contentIMG = new Image();
+			contentIMG.src = contentUrl;
 
-			if (contentIMG.width() === 0){
+			if (contentIMG.width == 0){
 
 				// @todo build an ajax call to get the attach filename
 				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ content +'</a>';
