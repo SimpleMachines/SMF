@@ -369,6 +369,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
+			if (element.attr('name'))
+				attribs += " name=" + element.attr('name');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
@@ -384,14 +386,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' alt="' + attrs.alt + '"';
 
 			// Is this an image?
-			contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
-			contentIMG = new Image();
-			contentIMG.src = contentUrl;
+			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
+				contentIMG = new Image();
+				contentIMG.src = contentUrl;
 
+			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
 			if (contentIMG.width == 0){
-
-				// @todo build an ajax call to get the attach filename
-				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ content +'</a>';
+				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
 			}
 
 			else{

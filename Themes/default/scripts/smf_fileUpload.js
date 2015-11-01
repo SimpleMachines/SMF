@@ -87,7 +87,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.find('.attach-ui').fadeIn();
 
 		// Create a function to insert the BBC attach tag.
-		file.insertAttachment = function (_innerElement, attachmentId){
+		file.insertAttachment = function (_innerElement, response){
 
 			_innerElement.find('.insertBBC').on('click', function (e) {
 				e.preventDefault();
@@ -95,7 +95,7 @@ function smf_fileUpload(oOptions)
 				// Get the editor stuff.
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
-				oEditor.insert('[attach]' + attachmentId + '[/attach]');
+				oEditor.insert('[attach name='+ response.name +']' + response.attachID + '[/attach]');
 			});
 		};
 
@@ -250,9 +250,9 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// Append the BBC.
-		_thisElement.find('input[name="attachBBC"]').val('[attach]' + response.attachID + '[/attach]');
+		_thisElement.find('input[name="attachBBC"]').val('[attach name='+ response.name +']' + response.attachID + '[/attach]');
 
-		file.insertAttachment(_thisElement, response.attachID);
+		file.insertAttachment(_thisElement, response);
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
 		_thisElement.find('a.delete').fadeOutAndRemove('slow');
@@ -288,9 +288,9 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('.start').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			_thisElement.find('input[name="attachBBC"]').val('[attach]' + file.attachID + '[/attach]');
+			_thisElement.find('input[name="attachBBC"]').val('[attach name=' + file.name + ']' + file.attachID + '[/attach]');
 
-			file.insertAttachment(_thisElement, file.attachID);
+			file.insertAttachment(_thisElement, file);
 
 			// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
 			_thisElement.find('a.delete').fadeOutAndRemove('slow');

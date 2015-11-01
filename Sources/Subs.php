@@ -1131,6 +1131,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			array(
 				'tag' => 'attach',
 				'type' => 'unparsed_content',
+				'parameters' => array(
+					'name' => array('optional' => true),
+				),
 				'content' => '$1',
 				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
 				{
