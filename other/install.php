@@ -517,6 +517,8 @@ function CheckFilesWritable()
 	// On linux, it's easy - just use is_writable!
 	if (substr(__FILE__, 1, 2) != ':\\')
 	{
+		$incontext['systemos'] = 'linux';
+
 		foreach ($writable_files as $file)
 		{
 			if (!is_writable(dirname(__FILE__) . '/' . $file))
@@ -534,6 +536,8 @@ function CheckFilesWritable()
 	// Windows is trickier.  Let's try opening for r+...
 	else
 	{
+		$incontext['systemos'] = 'windows';
+
 		foreach ($writable_files as $file)
 		{
 			// Folders can't be opened for write... but the index.php in them can ;)
@@ -2110,6 +2114,8 @@ function template_install_above()
 		<link rel="stylesheet" href="Themes/default/css/index.css?alp21">
 		<link rel="stylesheet" href="Themes/default/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="Themes/default/css/rtl.css?alp21">' : '' , '
+
+		<script src="Themes/default/scripts/jquery-2.1.3.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
 	<body>
@@ -2300,6 +2306,12 @@ function template_chmod_files()
 			<li>', implode('</li>
 			<li>', $incontext['failed_files']), '</li>
 		</ul>';
+
+	if (isset($incontext['systemos'], $incontext['detected_path']) && $incontext['systemos'] == 'linux')
+		echo '
+		<hr />
+		<p>', $txt['chmod_linux_info'], '</p>
+		<tt># chmod a+w ', implode(' ' . $incontext['detected_path'] . '/', $incontext['failed_files']), '</tt>';
 
 	// This is serious!
 	if (!template_warning_divs())

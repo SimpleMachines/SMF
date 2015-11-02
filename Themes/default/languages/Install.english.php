@@ -260,4 +260,7 @@ $txt['ftp_connect'] = 'Connect';
 $txt['force_ssl'] = 'Enable SSL';
 $txt['force_ssl_label'] = 'Force SSL throughout the forum';
 $txt['force_ssl_info'] = '<b>Make sure SSL and HTTPS are supported throughout the forum, otherwise your forum may become inaccessible</b>';
+
+$txt['chmod_linux_info'] = 'If you have a shell account, the convient below command can automatically correct permissions on these files';
+
 ?>
