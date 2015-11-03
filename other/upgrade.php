@@ -3387,6 +3387,8 @@ function makeFilesWritable(&$files)
 	// On linux, it's easy - just use is_writable!
 	if (substr(__FILE__, 1, 2) != ':\\')
 	{
+		$upcontext['systemos'] = 'linux';
+
 		foreach ($files as $k => $file)
 		{
 			if (!is_writable($file))
@@ -3407,6 +3409,8 @@ function makeFilesWritable(&$files)
 	// Windows is trickier.  Let's try opening for r+...
 	else
 	{
+		$upcontext['systemos'] = 'windows';
+
 		foreach ($files as $k => $file)
 		{
 			// Folders can't be opened for write... but the index.php in them can ;).
@@ -3639,7 +3643,15 @@ function template_chmod()
 					content.write(\'<html', $txt['lang_rtl'] == true ? ' dir="rtl"' : '', '>\n\t<head>\n\t\t<meta name="robots" content="noindex">\n\t\t\');
 					content.write(\'<title>Warning</title>\n\t\t<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">\n\t</head>\n\t<body id="popup">\n\t\t\');
 					content.write(\'<div class="windowbg description">\n\t\t\t<h4>The following files needs to be made writable to continue:</h4>\n\t\t\t\');
-					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');
+					content.write(\'<p>', implode('<br>\n\t\t\t', $upcontext['chmod']['files']), '</p>\n\t\t\t\');';
+
+	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
+		echo '
+					content.write(\'<hr />\n\t\t\t\');
+					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
+					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
+
+	echo '
 					content.write(\'<a href="javascript:self.close();">close</a>\n\t\t</div>\n\t</body>\n</html>\');
 					content.close();
 				}

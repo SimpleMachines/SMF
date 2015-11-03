@@ -275,4 +275,6 @@ $txt['package_available_readme_language'] = 'Available Readme Languages:';
 $txt['package_license_default'] = 'Default';
 $txt['package_available_license_language'] = 'Available License Languages:';
 
+$txt['package_chmod_linux'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
+
 ?>

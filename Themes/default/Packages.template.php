@@ -1124,7 +1124,15 @@ function template_control_chmod()
 						<li>', $file, '</li>';
 
 		echo '
-					</ul>
+					</ul>';
+
+		if (!$context['server']['is_windows'])
+			echo '
+				<hr />
+				', $txt['package_chmod_linux'], '<br />
+				<tt># chmod a+w ', implode(' ', $context['notwritable_files']), '</tt>';
+
+		echo '
 				</div>';
 	}
 
