@@ -3648,7 +3648,7 @@ function template_chmod()
 	if (isset($upcontext['systemos']) && $upcontext['systemos'] == 'linux')
 		echo '
 					content.write(\'<hr />\n\t\t\t\');
-					content.write(\'<p>If you have a shell account, the convient below command can automatically correct permissions on these files</p>\n\t\t\t\');
+					content.write(\'<p>If you have a shell account, the convenient below command can automatically correct permissions on these files</p>\n\t\t\t\');
 					content.write(\'<tt># chmod a+w ', implode(' ', $upcontext['chmod']['files']), '</tt>\n\t\t\t\');';
 
 	echo '
