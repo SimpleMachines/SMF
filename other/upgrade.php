@@ -3885,7 +3885,7 @@ function convertUtf8()
 			$replace = '%field%';
 
 			// Build a huge REPLACE statement...
-			foreach ($translation_tables[$_POST['src_charset']] as $from => $to)
+			foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to)
 				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 		}
 
@@ -3943,20 +3943,20 @@ function convertUtf8()
 			$smcFunc['db_free_result']($queryColumns);
 
 			// Only change the column if the data doesn't match the current charset.
-			if ((count($table_charsets) === 1 && key($table_charsets) !== $charsets[$_POST['src_charset']]) || count($table_charsets) > 1)
+			if ((count($table_charsets) === 1 && key($table_charsets) !== $charsets[$upcontext['charset_detected']]) || count($table_charsets) > 1)
 			{
 				$updates_blob = '';
 				$updates_text = '';
 				foreach ($table_charsets as $charset => $columns)
 				{
-					if ($charset !== $charsets[$_POST['src_charset']])
+					if ($charset !== $charsets[$upcontext['charset_detected']])
 					{
 						foreach ($columns as $column)
 						{
 							$updates_blob .= '
 								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], array('text' => 'blob', 'char' => 'binary')) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 							$updates_text .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$_POST['src_charset']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
 						}
 					}
 				}
@@ -3971,7 +3971,7 @@ function convertUtf8()
 				);
 
 				// Convert the character set if MySQL has no native support for it.
-				if (isset($translation_tables[$_POST['src_charset']]))
+				if (isset($translation_tables[$upcontext['charset_detected']]))
 				{
 					$update = '';
 					foreach ($table_charsets as $charset => $columns)
@@ -4000,7 +4000,7 @@ function convertUtf8()
 			}
 
 			// Now do the actual conversion (if still needed).
-			if ($charsets[$_POST['src_charset']] !== 'utf8')
+			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
 					CONVERT TO CHARACTER SET utf8',
