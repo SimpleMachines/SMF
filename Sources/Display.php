@@ -1023,7 +1023,7 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
+				' . (!empty($msg_selects) ? (', '. implode(', ', $msg_selects)) : '') . '
 			FROM {db_prefix}messages
 				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
