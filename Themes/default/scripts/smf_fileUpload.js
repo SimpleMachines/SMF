@@ -19,6 +19,14 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
+		smf_insertBBC: function(file){console.log(file);
+			var bbcOptionalParams = {
+				name: typeof file.name !== "undefined" ? ('name='+ file.name) : '',
+				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
+			};
+
+			return '[attach '+ bbcOptionalParams.name +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+		},
 		createMaxSizeBar: function(){
 
 				// Update the MaxSize bar to reflect the new size percentage.
@@ -100,7 +108,7 @@ function smf_fileUpload(oOptions)
 				// Get the editor stuff.
 				var oEditor = $('#' + oEditorID).data('sceditor');
 
-				oEditor.insert('[attach name='+ response.name +']' + response.attachID + '[/attach]');
+				oEditor.insert(myDropzone.options.smf_insertBBC(response));
 			});
 		};
 
@@ -255,7 +263,7 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// Append the BBC.
-		_thisElement.find('input[name="attachBBC"]').val('[attach name='+ response.name +']' + response.attachID + '[/attach]');
+		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
 
 		file.insertAttachment(_thisElement, response);
 
@@ -293,7 +301,7 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('.start').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			_thisElement.find('input[name="attachBBC"]').val('[attach name=' + file.name + ']' + file.attachID + '[/attach]');
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
 
 			file.insertAttachment(_thisElement, file);
 
