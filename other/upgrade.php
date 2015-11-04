@@ -3692,7 +3692,7 @@ function convertUtf8()
 					$upcontext['fulltext_index'][] = $row['Key_name'];
 			$smcFunc['db_free_result']($request);
 
-			if (is_array($upcontext['fulltext_index']))
+			if (isset($upcontext['fulltext_index']))
 				$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
 		}
 
@@ -3880,7 +3880,7 @@ function convertUtf8()
 		);
 
 		// Make some preparations.
-		if (isset($translation_tables[$upcontext['detected_charset']]))
+		if (isset($translation_tables[$upcontext['charset_detected']]))
 		{
 			$replace = '%field%';
 
