@@ -1479,23 +1479,31 @@ function Download()
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	// This checks only the current board for $board/$topic's permissions.
-	isAllowedTo('view_attachments');
+	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
+	$attachRequest = null;
+    call_integration_hook('integrate_download_request', array(&$attachRequest));
+	if (!is_null($attachRequest) && is_resource($attachRequest))
+		$request = $attachRequest;
+	else
+	{
+		// This checks only the current board for $board/$topic's permissions.
+		isAllowedTo('view_attachments');
 
-	// Make sure this attachment is on this board.
-	// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-	$request = $smcFunc['db_query']('', '
-		SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-		WHERE a.id_attach = {int:attach}
-		LIMIT 1',
-		array(
-			'attach' => $_REQUEST['attach'],
-			'current_topic' => $topic,
-		)
-	);
+		// Make sure this attachment is on this board.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		$request = $smcFunc['db_query']('', '
+			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			WHERE a.id_attach = {int:attach}
+			LIMIT 1',
+			array(
+				'attach' => $_REQUEST['attach'],
+				'current_topic' => $topic,
+			)
+		);
+	}
 
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);

@@ -2086,6 +2086,10 @@ function TrackIP($memID = 0)
 	// Create the error list.
 	createList($listOptions);
 
+	// Allow 3rd party integrations to add in their own lists or whatever.
+	$context['additional_track_lists'] = array();
+    call_integration_hook('integrate_profile_trackip');	
+
 	$context['single_ip'] = strpos($context['ip'], '*') === false;
 	if ($context['single_ip'])
 	{
