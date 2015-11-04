@@ -54,10 +54,15 @@ function smf_fileUpload(oOptions)
 
 			if (myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+
+				// File wasn't accepted so remove its size.
+				myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
+				console.log(myDropzone.options.totalMaxSize);
 			}
 			else{
 
 				myDropzone.options.createMaxSizeBar();
+
 				// All done!
 				done();
 			}
