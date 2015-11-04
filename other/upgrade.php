@@ -3598,7 +3598,7 @@ function smf_strtolower($string)
  */
 function convertUtf8()
 {
-	global $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
@@ -3608,6 +3608,9 @@ function convertUtf8()
 	}
 	else
 	{
+		$upcontext['page_title'] = 'Converting to UTF8';
+		$upcontext['sub_template'] = 'convertutf8';
+
 		// The character sets used in SMF's language files with their db equivalent.
 		$charsets = array(
 			// Armenian
@@ -5062,6 +5065,12 @@ function template_database_xml()
 	if (!empty($upcontext['error_message']))
 		echo '
 	<error>', $upcontext['error_message'], '</error>';
+}
+
+function template_convertutf8()
+{
+	echo '
+		<h3>SMF is converting your database to UTF-8...</h3>';
 }
 
 function template_clean_mods()
