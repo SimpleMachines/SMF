@@ -391,7 +391,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
-			if (contentIMG.width == 0){
+			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.width == 0){
 				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
 			}
 

@@ -19,7 +19,7 @@ function smf_fileUpload(oOptions)
 		thumbnailHeight: null,
 		autoQueue: false,
 		clickable: '.fileinput-button',
-		smf_insertBBC: function(file){console.log(file);
+		smf_insertBBC: function(file){
 			var bbcOptionalParams = {
 				name: typeof file.name !== "undefined" ? ('name='+ file.name) : '',
 				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
@@ -65,7 +65,6 @@ function smf_fileUpload(oOptions)
 
 				// File wasn't accepted so remove its size.
 				myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
-				console.log(myDropzone.options.totalMaxSize);
 			}
 			else{
 
