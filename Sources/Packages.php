@@ -1587,7 +1587,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'language' => 1,
 			'unknown' => 1,
 		);
-    	call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
+		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
 
 		while ($package = readdir($dir))
 		{

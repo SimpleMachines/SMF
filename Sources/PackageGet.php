@@ -622,7 +622,7 @@ function PackageDownload()
 		$context['package']['install']['link'] = '';
 
 	// Does a 3rd party hook want to do some additional changes?
-    call_integration_hook('integrate_package_download');
+	call_integration_hook('integrate_package_download');
 
 	$context['package']['list_files']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
 
@@ -713,7 +713,7 @@ function PackageUpload()
 		$context['package']['install']['link'] = '';
 
 	// Does a 3rd party hook want to do some additional changes?
-    call_integration_hook('integrate_package_upload');
+	call_integration_hook('integrate_package_upload');
 
 	$context['package']['list_files']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
 

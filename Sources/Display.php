@@ -1481,7 +1481,7 @@ function Download()
 
 	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 	$attachRequest = null;
-    call_integration_hook('integrate_download_request', array(&$attachRequest));
+	call_integration_hook('integrate_download_request', array(&$attachRequest));
 	if (!is_null($attachRequest) && is_resource($attachRequest))
 		$request = $attachRequest;
 	else

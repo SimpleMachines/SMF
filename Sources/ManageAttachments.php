@@ -594,7 +594,7 @@ function BrowseFiles()
 	);
 
 	// Does a hook want to display their attachments better?
-   call_integration_hook('integrate_attachments_browse', array(&$listOptions, &titles, &$list_title));
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &titles, &$list_title));
 	
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
@@ -899,7 +899,7 @@ function RemoveAttachment()
 
 		// If the attachments are from a 3rd party, let them remove it. Hooks should remove their ids from the array.
 		$filesRemoved = false;
-	    call_integration_hook('integrate_attachment_remove', array(&$filesRemoved, $attachments));
+		call_integration_hook('integrate_attachment_remove', array(&$filesRemoved, $attachments));
 
 		if ($_REQUEST['type'] == 'avatars' && !empty($attachments))
 			removeAttachments(array('id_attach' => $attachments));
@@ -1538,7 +1538,7 @@ function RepairAttachments()
 		{
 			$to_remove = array();
 			$ignore_ids = array(0);
-		    call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] += 500));
+			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] += 500));
 
 			$result = $smcFunc['db_query']('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
