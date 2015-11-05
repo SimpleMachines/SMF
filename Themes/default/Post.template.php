@@ -641,7 +641,8 @@ function template_main()
 
 				var bodyText = \'\';
 				for (var i = 0, n = preview.getElementsByTagName(\'body\')[0].childNodes.length; i < n; i++)
-					bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
+					if (preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue != null)
+						bodyText += preview.getElementsByTagName(\'body\')[0].childNodes[i].nodeValue;
 
 				setInnerHTML(document.getElementById(\'preview_body\'), bodyText);
 				document.getElementById(\'preview_body\').className = \'windowbg\';
