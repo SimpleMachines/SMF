@@ -1253,7 +1253,7 @@ function Post($post_errors = array())
 function Post2()
 {
 	global $board, $topic, $txt, $modSettings, $sourcedir, $context;
-	global $user_info, $board_info, $smcFunc;
+	global $user_info, $board_info, $smcFunc, $settings;
 
 	// Sneaking off, are we?
 	if (empty($_POST) && empty($topic))
@@ -1923,6 +1923,20 @@ function Post2()
 	// Creating a new topic?
 	$newTopic = empty($_REQUEST['msg']) && empty($topic);
 
+	// Check the icon.
+	if (!isset($_POST['icon']))
+		$_POST['icon'] = 'xx';
+
+	else
+	{
+		$_POST['icon'] = $smcFunc['htmlspecialchars']($_POST['icon']);
+
+		// Need to figure it out if this is a valid icon name.
+		if ((!file_exists($settings['theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')) && (!file_exists($settings['default_theme_dir'] . '/images/post/' . $_POST['icon'] . '.png')))
+			$_POST['icon'] = 'xx';
+	}
+
+	// Give an attach clip if the message contains attachments.
 	$_POST['icon'] = !empty($attachIDs) && $_POST['icon'] == 'xx' ? 'clip' : $_POST['icon'];
 
 	// Collect all parameters for the creation or modification of a post.
