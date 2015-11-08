@@ -159,7 +159,7 @@ function Display()
 			IFNULL(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
 			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
-			' . (!empty($topic_selects) ? (', '. implode(', ', $topic_selects)) : '') . '
+			' . (!empty($topic_selects) ? (', ' . implode(', ', $topic_selects)) : '') . '
 			' . (!$user_info['is_guest'] ? ', IFNULL(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
@@ -1021,7 +1021,7 @@ function Display()
 				id_msg, icon, subject, poster_time, poster_ip, id_member, modified_time, modified_name, modified_reason, body,
 				smileys_enabled, poster_name, poster_email, approved, likes,
 				id_msg_modified < {int:new_from} AS is_read
-				' . (!empty($msg_selects) ? implode(',', $msg_selects) : '') . '
+				' . (!empty($msg_selects) ? ', ' . implode(', ', $msg_selects) : '') . '
 			FROM {db_prefix}messages
 				' . (!empty($msg_tables) ? implode("\n\t", $msg_tables) : '') . '
 			WHERE id_msg IN ({array_int:message_list})
