@@ -58,7 +58,7 @@
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(1n){-webkit-animation-name:left-right;-webkit-animation-fill-mode:forwards;-moz-animation-name:left-right;-moz-animation-fill-mode:forwards;-o-animation-name:left-right;-o-animation-fill-mode:forwards;animation-name:left-right;animation-fill-mode:forwards}
 .sy-slide.kenburns.useCSS.sy-ken:nth-child(2n){-webkit-animation-name:right-left;-webkit-animation-fill-mode:forwards;-moz-animation-name:right-left;-moz-animation-fill-mode:forwards;-o-animation-name:right-left;-o-animation-fill-mode:forwards;animation-name:right-left;animation-fill-mode:forwards}
 .sy-slide.sy-active{z-index:3}
-.sy-slide > img{margin:0;padding:0;display:block;width:100%;border:0}
+.sy-slide > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-slide > a{margin:0;padding:0;display:block;width:100%}
 .sy-slide > a > img{margin:0;padding:0;display:block;max-width:100%;border:0}
 .sy-pager{overflow:hidden;*zoom:1;display:block;width:100%;margin:1em 0 0;padding:0;list-style:none;text-align:center}
@@ -73,3 +73,4 @@
 #smf_slider li{padding:5px 10px}
 .sy-slides-wrap{padding:0 0 15px}
 .sy-box{margin:0 0 10px}
+.sy-slide > img.smiley {display: inline-block;}
