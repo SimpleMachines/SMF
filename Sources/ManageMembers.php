@@ -269,7 +269,7 @@ function ViewMemberlist()
 
 		$search_params = array();
 		if ($context['sub_action'] == 'query' && !empty($_REQUEST['params']) && empty($_POST['types']))
-			$search_params = @unserialize(base64_decode($_REQUEST['params']));
+			$search_params = safe_unserialize(base64_decode($_REQUEST['params']));
 		elseif (!empty($_POST))
 		{
 			$search_params['types'] = $_POST['types'];

@@ -40,7 +40,7 @@ function setLoginCookie($cookie_length, $id, $password = '')
 	$cookie_state = (empty($modSettings['localCookies']) ? 0 : 1) | (empty($modSettings['globalCookies']) ? 0 : 2);
 	if (isset($_COOKIE[$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d{1,7};i:1;s:(0|128):"([a-fA-F0-9]{128})?";i:2;[id]:\d{1,14};(i:3;i:\d;)?\}$~', $_COOKIE[$cookiename]) === 1)
 	{
-		$array = @unserialize($_COOKIE[$cookiename]);
+		$array = safe_unserialize($_COOKIE[$cookiename]);
 
 		// Out with the old, in with the new!
 		if (isset($array[3]) && $array[3] != $cookie_state)

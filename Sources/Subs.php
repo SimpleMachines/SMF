@@ -4600,7 +4600,7 @@ function get_gravatar_url($email_address)
 }
 
 /**
- * Get a list of timezoned.
+ * Get a list of timezones.
  *
  * @return array An array of timezone info.
  */
@@ -4695,6 +4695,28 @@ function smf_list_timezones()
 		'Pacific/Tongatapu' => '[UTC+13:00] Nuku\'alofa',
 		'Pacific/Kiritimati' => '[UTC+14:00] Kiritimati',
 	);
+}
+
+/**
+ * Safely unserialize, that is only unserialize string, numbers and arrays, not objects
+ *
+ * Based on some of the work from dcz (at) phpbb-seo (dot) com
+ *
+ * @param string $serialized
+ * @return mixed
+ */
+function safe_unserialize($serialized)
+{
+	// Must be a string and not contain null bytes.
+	if (is_string($serialized) && strpos( $serialized, "\0" ) === false)
+	{
+		// unserialize will only accept objects declared with O rather than o and is strict on whitespace.
+		// If not found, or we found something that smelled odd but wasn't actually an object, we're good.
+		if (strpos($serialized, 'O:') === false || !preg_match('~(^|;|{|})O:[+\-0-9]+:"~', $serialized))
+			return @unserialize($serialized);
+	}
+
+	return false;
 }
 
 ?>
