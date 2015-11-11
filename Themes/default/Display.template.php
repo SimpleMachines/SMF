@@ -600,6 +600,10 @@ function template_single_post($message)
 
 		foreach ($message['attachment'] as $attachment)
 		{
+			// Do we want this attachment to not be showed here?
+			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
+				continue;
+
 			// Show a special box for unapproved attachments...
 			if ($attachment['is_approved'] != $last_approved_state)
 			{

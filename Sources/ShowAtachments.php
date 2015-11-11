@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file handles the avatar requests. The whole point of this file is to reduce the loaded stuff to show an image
+ * This file handles avatar and attachment preview requests. The whole point of this file is to reduce the loaded stuff to show an image.
  *
  * Simple Machines Forum (SMF)
  *
@@ -19,15 +19,18 @@ if (!defined('SMF'))
 /**
  * Shows an avatar based on $_GET['attach']
  */
-function showAvatar()
+function showAttachment()
 {
-	global $smcFunc, $modSettings, $maintenance;
+	global $smcFunc, $modSettings, $maintenance, $context;
 
-	// We need a valid ID
+	// We need a valid ID.
 	if(empty($_GET['attach']) || (string)$_GET['attach'] != (string)(int)$_GET['attach'])
 		die;
 
-	// No access in strict maintenance mode
+	// A thumbnail has been requested? madness! madness I say!
+	$showThumb = isset($_GET['thumb']);
+
+	// No access in strict maintenance mode.
 	if(!empty($maintenance) && $maintenance == 2)
 		die;
 
@@ -46,21 +49,20 @@ function showAvatar()
 		header('Content-Encoding: none');
 	}
 
-	// Better handling
+	// Better handling.
 	$id_attach = (int) $_GET['attach'];
 
-	// Use cache when possible
-	if(($cache = cache_get_data('avatar_lookup_id-'. $id_attach)) != null)
+	// Use cache when possible.
+	if(($cache = cache_get_data('attachment_lookup_id-'. $id_attach)) != null)
 		$file = $cache;
 
-	// Get the info from the DB
+	// Get the info from the DB.
 	else
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
+			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
 			FROM {db_prefix}attachments
 			WHERE id_attach = {int:id_attach}
-				AND id_member > {int:blank_id_member}
 			LIMIT 1',
 			array(
 				'id_attach' => $id_attach,
@@ -69,6 +71,7 @@ function showAvatar()
 		);
 
 		$file = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
 
 		// Update the download counter (unless it's a thumbnail).
 		if ($file['attachment_type'] != 3)
@@ -83,11 +86,41 @@ function showAvatar()
 
 		$file['filename'] = getAttachmentFilename($file['real_filename'], $id_attach, $file['id_folder'], false, $file['file_hash']);
 
-		// ETag time
+		// ETag time.
 		$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
 
-		// Cache it... (Why do I randomly select a length at which to expire? Search around for RIP_JITTER :P)
-		cache_put_data('avatar_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
+		// Cache it.
+		cache_put_data('attachment_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
+	}
+
+	// Replace the normal file with its thumbnail if it has one!
+	if ($showThumb && $file['id_thumb'])
+	{
+		$request = $smcFunc['db_query']('', '
+			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
+			FROM {db_prefix}attachments
+			WHERE id_attach = {int:id_attach}
+			LIMIT 1',
+			array(
+				'id_attach' => $file['id_thumb'],
+				'blank_id_member' => 0,
+				'attachment_type' => 3,
+			)
+		);
+
+		$thumbFile = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// Got something! replace the $file var with the thumbnail info.
+		if ($thumbFile)
+		{
+			$id_attach = $file['id_thumb'];
+			$file = $thumbFile;
+			$file['filename'] = getAttachmentFilename($file['real_filename'], $id_attach, $file['id_folder'], false, $file['file_hash']);
+
+			// ETag time.
+			$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
+		}
 	}
 
 	// The file does not exists
@@ -117,6 +150,19 @@ function showAvatar()
 	header('Accept-Ranges: bytes');
 	header('Connection: close');
 	header('ETag: '. $file['etag']);
+
+	// Are we handling a file? This is just a quick way to force downloading, its not really designed to actually download an attachment properly. Doens't take into consideration which browser the user is using.
+	if (isset($_GET['file']))
+	{
+		header('Content-Type: application/octet-stream');
+
+		// Convert the file to UTF-8, cuz most browsers dig that.
+		$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['real_filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['real_filename'], 'UTF-8', $context['character_set']) : $file['real_filename']);
+
+		header('Content-Disposition: attachment; filename="' . $utf8name . '"');
+		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
+	}
+
 	header('Content-Type: '. $file['mime_type']);
 
 	// Since we don't do output compression for files this large...

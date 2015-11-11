@@ -415,7 +415,7 @@ function template_main()
 		foreach ($context['current_attachments'] as $attachment)
 			echo '
 							<dd class="smalltext">
-								<label for="attachment_', $attachment['id'], '"><input type="checkbox" id="attachment_', $attachment['id'], '" name="attach_del[]" value="', $attachment['id'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
+								<label for="attachment_', $attachment['attachID'], '"><input type="checkbox" id="attachment_', $attachment['attachID'], '" name="attach_del[]" value="', $attachment['attachID'], '"', empty($attachment['unchecked']) ? ' checked' : '', ' class="input_check"> ', $attachment['name'], (empty($attachment['approved']) ? ' (' . $txt['awaiting_approval'] . ')' : ''),
 								!empty($modSettings['attachmentPostLimit']) || !empty($modSettings['attachmentSizeLimit']) ? sprintf($txt['attach_kb'], comma_format(round(max($attachment['size'], 1028) / 1028), 0)) : '', '</label>
 							</dd>';
 
@@ -430,45 +430,78 @@ function template_main()
 	// Is the user allowed to post any additional ones? If so give them the boxes to do it!
 	if ($context['can_post_attachment'])
 	{
+			// Print dropzone UI.
+			echo '
+						<div class="files" id="au-previews">
+							<div id="au-template">
+								<div class="attach-preview">
+									<img data-dz-thumbnail />
+								</div>
+								<div class="attach-info">
+									<p class="name" data-dz-name></p>
+									<p class="error" data-dz-errormessage></p>
+									<p class="size" data-dz-size></p>
+									<p class="message" data-dz-message></p>
+									<p class="attached_BBC">
+										<input type="text" name="attachBBC" value="" readonly>
+										<a class="button_submit insertBBC">', $txt['attached_insertBBC'] ,'</a>
+									</p>
+									<p class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></p>
+								</div>
+								<div class="attach-ui">
+									<a data-dz-remove class="button_submit delete">', $txt['modify_cancel'] ,'</a>
+									<a class="button_submit start">', $txt['upload'] ,'</a>
+								</div>
+							</div>
+						</div>
+						<div id ="maxFiles_progress" class="maxFiles_progress progressBar"><span></span></div>
+						<div id ="maxFiles_progress_text"></div>';
+
 		echo '
 						<dl id="postAttachment2">';
 
-		// But, only show them if they haven't reached a limit. Or a mod author hasn't hidden them.
-		if ($context['num_allowed_attachments'] > 0 || !empty($context['dont_show_them']))
-		{
-			echo '
+
+		echo '
 							<dt>
 								', $txt['attach'], ':
 							</dt>
-							<dd class="smalltext">
-								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">'), '
-								<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)';
+							<dd class="smalltext fallback">
+								<div id="attachUpload" class="descbox">
+									<h5>', $txt['attach_drop_zone'] ,'</h5>
+									<a class="button_submit" id="attach-cancelAll">', $txt['attached_cancelAll'] ,'</a>
+									<a class="button_submit" id="attach-uploadAll">', $txt['attached_uploadAll'] ,'</a>
+									<a class="button_submit fileinput-button">', $txt['attach_add'] ,'</a>
+									<div id="total-progress" class="progressBar" role="progressBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+									<div class="fallback">
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="input_file fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', $txt['clean_attach'], '</a>)
+								', empty($modSettings['attachmentSizeLimit']) ? '' : ('<input type="hidden" name="MAX_FILE_SIZE" value="' . $modSettings['attachmentSizeLimit'] * 1028 . '">');
 
-			// Show more boxes if they aren't approaching that limit.
-			if ($context['num_allowed_attachments'] > 1)
-				echo '
-								<script>
-									var allowed_attachments = ', $context['num_allowed_attachments'], ';
-									var current_attachment = 1;
+		// Show more boxes if they aren't approaching that limit.
+		if ($context['num_allowed_attachments'] > 1)
+			echo '
+										<script>
+											var allowed_attachments = ', $context['num_allowed_attachments'], ';
+											var current_attachment = 1;
 
-									function addAttachment()
-									{
-										allowed_attachments = allowed_attachments - 1;
-										current_attachment = current_attachment + 1;
-										if (allowed_attachments <= 0)
-											return alert("', $txt['more_attachments_error'], '");
+											function addAttachment()
+											{
+												allowed_attachments = allowed_attachments - 1;
+												current_attachment = current_attachment + 1;
+												if (allowed_attachments <= 0)
+													return alert("', $txt['more_attachments_error'], '");
 
-										setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
+												setOuterHTML(document.getElementById("moreAttachments"), \'<dd class="smalltext"><input type="file" name="attachment[]" id="attachment\' + current_attachment + \'" class="input_file"> (<a href="javascript:void(0);" onclick="cleanFileInput(\\\'attachment\' + current_attachment + \'\\\');">', $txt['clean_attach'], '<\/a>)\' + \'<\/dd><dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')<\' + \'/a><\' + \'/dd>\');
 
-										return true;
-									}
-								</script>
-							</dd>
-							<dd class="smalltext" id="moreAttachments"><a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a></dd>';
-			else
-				echo '
+												return true;
+											}
+										</script>
+										<a href="#" onclick="addAttachment(); return false;">(', $txt['more_attachments'], ')</a>
+									</div>
+								</div>
 							</dd>';
-		}
+		else
+			echo '
+							</dd>';
 
 		// Add any template changes for an alternative upload system here.
 		call_integration_hook('integrate_upload_template');

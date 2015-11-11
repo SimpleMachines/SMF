@@ -1,6 +1,6 @@
 var fails = [];
 
-var config = {
+var atwhoConfig = {
 	at: '@',
 	data: [],
 	show_the_at: true,
@@ -60,9 +60,9 @@ var config = {
 };
 $(function()
 {
-	$('textarea[name=message]').atwho(config);
-	$('.sceditor-container').find('textarea').atwho(config);
+	$('textarea[name=message]').atwho(atwhoConfig);
+	$('.sceditor-container').find('textarea').atwho(atwhoConfig);
 	var iframe = $('.sceditor-container').find('iframe')[0];
 	if (typeof iframe != 'undefined')
-		$(iframe.contentDocument.body).atwho(config);
+		$(iframe.contentDocument.body).atwho(atwhoConfig);
 });

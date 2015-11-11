@@ -306,6 +306,19 @@ function reloadSettings()
 		'<div>',
 	);
 
+	// These are the only valid image types for SMF, by default anyway.
+	$context['validImageTypes'] = array(
+		1 => 'gif',
+		2 => 'jpeg',
+		3 => 'png',
+		5 => 'psd',
+		6 => 'bmp',
+		7 => 'tiff',
+		8 => 'tiff',
+		9 => 'jpeg',
+		14 => 'iff'
+	);
+
 	// Define a list of allowed tags for descriptions.
 	$context['description_allowed_tags'] = array('abbr', 'anchor', 'b', 'center', 'color', 'font', 'hr', 'i', 'img', 'iurl', 'left', 'li', 'list', 'ltr', 'pre', 'right', 's', 'sub', 'sup', 'table', 'td', 'tr', 'u', 'url',);
 

@@ -62,6 +62,8 @@ $txt['admin_fader_delay'] = 'Fading delay between items for the news fader';
 $txt['additional_options_collapsable'] = 'Enable collapsible additional post options';
 $txt['zero_for_no_limit'] = '(0 for no limit)';
 $txt['zero_to_disable'] = '(Set to 0 to disable.)';
+$txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if they are already embedded on it.';
+$txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attachments to appear twice, attachments embedded on the post still counts towards attachment limits and can still be trated like normal attachments';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
 $txt['registration_agreement'] = 'Registration Agreement';

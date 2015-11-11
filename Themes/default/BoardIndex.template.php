@@ -206,7 +206,7 @@ function template_info_center()
 
 	foreach ($context['info_center'] as $block)
 	{
-		$func = 'template_ic_block_' . $block;
+		$func = 'template_ic_block_' . $block['tpl'];
 		$func();
 	}
 

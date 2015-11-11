@@ -969,7 +969,7 @@ function pc_next_permutation($p, $size)
  */
 function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = array())
 {
-	global $txt, $scripturl, $context, $modSettings, $user_info;
+	global $txt, $scripturl, $context, $modSettings, $user_info, $sourcedir;
 	static $bbc_codes = array(), $itemcodes = array(), $no_autolink_tags = array();
 	static $disabled;
 
@@ -1127,6 +1127,51 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'test' => '[#]?([A-Za-z][A-Za-z0-9_\-]*)\]',
 				'before' => '<span id="post_$1">',
 				'after' => '</span>',
+			),
+			array(
+				'tag' => 'attach',
+				'type' => 'unparsed_content',
+				'parameters' => array(
+					'name' => array('optional' => true),
+				),
+				'content' => '$1',
+				'validate' => function (&$tag, &$data, $disabled) use ($modSettings, $context, $sourcedir, $txt)
+				{
+					$returnContext = '';
+
+					// BBC or the entire attachments feature is disabled
+					if (empty($modSettings['attachmentEnable']) || !empty($disabled['attach']))
+						return $data;
+
+					// Save the attach ID.
+					$attachID = $data;
+
+					// Kinda need this.
+					require_once($sourcedir . '/Subs-Attachments.php');
+
+					$currentAttachment = parseAttachBBC($attachID);
+
+					// parseAttachBBC will return a string ($txt key) rather than diying with a fatal_error. Up to you to decide what to do.
+					if (is_string($currentAttachment))
+						return $data = !empty($txt[$currentAttachment]) ? $txt[$currentAttachment] : $currentAttachment;
+
+					if (!empty($currentAttachment['is_image']))
+					{
+						if ($currentAttachment['thumbnail']['has_thumb'])
+							$returnContext .= '
+													<a href="'. $currentAttachment['href']. ';image" id="link_'. $currentAttachment['id']. '" onclick="'. $currentAttachment['thumbnail']['javascript']. '"><img src="'. $currentAttachment['thumbnail']['href']. '" alt="" id="thumb_'. $currentAttachment['id']. '"></a>';
+						else
+							$returnContext .= '
+													<img src="' . $currentAttachment['href'] . ';image" alt="" width="' . $currentAttachment['width'] . '" height="' . $currentAttachment['height'] . '"/>';
+					}
+
+					// No image. Show a link.
+					else
+						$returnContext .= $currentAttachment['link'];
+
+					// Gotta append what we just did.
+					$data = $returnContext;
+				},
 			),
 			array(
 				'tag' => 'b',
@@ -4186,7 +4231,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
  *
- * @param string $string The string containing a function name or a static call.
+ * @param mixed $string The string containing a function name or a static call. The function can also accept a closure, object or a callable array (object/class, valid_callable)
  * @param boolean $return If true, the function will not call the function/method but instead will return the formatted string.
  * @return string|array|boolean Either a string or an array that contains a callable function name or an array with a class and method to call. Boolean false if the given string cannot produce a callable var.
  */
@@ -4198,9 +4243,13 @@ function call_helper($string, $return = false)
 	if (empty($string))
 		return false;
 
-	// Is this a closure?
-	if ($string instanceof Closure)
+	// Is this an object or a closure? either way, return it, we don't have enough details about it anyway.
+	if ($string instanceof Closure || is_object($string))
 		return $string;
+
+	// An array? should be a "callable" array IE array(object/class, valid_callable).
+	if (is_array($string))
+		return $return ? $string : (is_callable($string) ? call_user_func($string) : false);
 
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));

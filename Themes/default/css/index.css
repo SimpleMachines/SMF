@@ -3769,3 +3769,65 @@ h3.profile_hd {
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
+
+#au-previews div.descbox div,
+#au-previews div.errorbox div,
+#au-previews div.infobox div{
+	display:inline-block;
+	width:32%;
+	min-height:30px;
+	vertical-align: middle;
+}
+.attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
+	display:none;
+}
+.attach-info p, .attach-info field{
+	display:inline-block;
+}
+#attachUpload{
+	min-height:50px;
+}
+#total-progress{
+	width:50%;
+	display:none;
+}
+
+.progressBar {
+	height: 20px;
+	margin: 1px;
+	background: #F8F8F8;
+	border: 1px solid #C5C5C5;
+	border-radius: 7px;
+	box-shadow: 0px -2px 2px rgba(0, 0, 0, 0.102);
+	vertical-align: middle;
+}
+
+.progressBar span {
+	display: block;
+	height: 100%;
+	border-radius: 3px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
+	transition: width .4s ease-in-out;
+	background-color: #34c2e3;
+	background-size: 30px 30px;
+	background-image: linear-gradient(135deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+	width:0px;
+}
+
+#maxFiles_progress, #maxFiles_progress_text {
+	display:none;
+}
+.progress_yellow span {
+	background-color: #fecf23;
+	background-image: linear-gradient(top, #fecf23, #fd9215);
+}
+
+.progress_green span {
+	background-color: #a5df41;
+	background-image: linear-gradient(top, #a5df41, #4ca916);
+}
+
+.progress_red span {
+	background-color: #F45D4C;
+	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
+}

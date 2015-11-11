@@ -79,11 +79,11 @@ if (isset($_GET['scheduled']))
 	AutoTask();
 }
 
-// Displaying attached avatars, legacy.
-elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && $_GET['type'] == 'avatar')
+// Displaying attachments.
+elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
 {
-	require_once($sourcedir. '/Avatar.php');
-	showAvatar();
+	require_once($sourcedir. '/ShowAtachments.php');
+	showAttachment();
 }
 
 // And important includes.
@@ -305,6 +305,7 @@ function smf_main()
 		'about:unknown' => array('Likes.php', 'BookOfUnknown'),
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
+		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),

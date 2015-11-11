@@ -310,6 +310,12 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					return element.style ? element.style[name] : null;
 				};
 
+			// Is this an attachment?
+			if (element.data('attachment'))
+			{
+				return '[attach]' + element.data('attachment') + '[/attach]';
+			}
+
 			// check if this is an emoticon image
 			if (typeof element.attr('data-sceditor-emoticon') !== "undefined")
 				return content;
@@ -337,6 +343,61 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' alt="' + attrs.alt + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
+		}
+	}
+);
+
+$.sceditor.plugins.bbcode.bbcode.set(
+	'attach', {
+		tags: {
+			attach: {
+				src: null
+			}
+		},
+		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
+		format: function (element, content) {
+			var	attribs = '',
+				style = function (name) {
+					return element.style ? element.style[name] : null;
+				};
+
+			// only add width and height if one is specified
+			if (element.attr('width') || style('width'))
+				attribs += " width=" + $(element).width();
+			if (element.attr('height') || style('height'))
+				attribs += " height=" + $(element).height();
+			if (element.attr('alt'))
+				attribs += " alt=" + element.attr('alt');
+			if (element.attr('name'))
+				attribs += " name=" + element.attr('name');
+
+			return '[attach' + attribs + ']' + content + '[/attach]';
+		},
+		html: function (token, attrs, content) {
+			var	parts,
+				attribs = '';
+
+			if (typeof attrs.width !== "undefined")
+				attribs += ' width="' + attrs.width + '"';
+			if (typeof attrs.height !== "undefined")
+				attribs += ' height="' + attrs.height + '"';
+			if (typeof attrs.alt !== "undefined")
+				attribs += ' alt="' + attrs.alt + '"';
+
+			// Is this an image?
+			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
+				contentIMG = new Image();
+				contentIMG.src = contentUrl;
+
+			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
+			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.width == 0){
+				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
+			}
+
+			else{
+				return '<img' + attribs + ' src="' + contentUrl +'">';
+			}
 		}
 	}
 );
