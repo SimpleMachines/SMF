@@ -1734,10 +1734,6 @@ function DatabaseChanges()
 	{
 		$upcontext['changes_complete'] = true;
 
-		// If this is the command line we can't do any more.
-		if ($command_line)
-			return DeleteUpgrade();
-
 		return true;
 	}
 	return false;
@@ -3598,13 +3594,12 @@ function smf_strtolower($string)
  */
 function convertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
 		echo 'Database already UTF-8. Skipping.';
-		upgradeExit();
 	}
 	else
 	{
@@ -4001,13 +3996,19 @@ function convertUtf8()
 
 			// Now do the actual conversion (if still needed).
 			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
+			{
+				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
 					CONVERT TO CHARACTER SET utf8',
-					array(
-						'table_name' => $table_info['Name'],
-					)
+						array(
+								'table_name' => $table_info['Name'],
+						)
 				);
+
+				echo " done.\n";
+			}
 		}
 		$smcFunc['db_free_result']($queryTables);
 
@@ -4053,6 +4054,13 @@ function convertUtf8()
 		if ($upcontext['dropping_index'])
 			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
 	}
+
+	if ($command_line)
+	{
+		return DeleteUpgrade();
+	}
+
+	return true;
 }
 
 /******************************************************************************
