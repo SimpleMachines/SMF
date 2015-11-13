@@ -325,7 +325,7 @@ class Likes
 			$smcFunc['db_insert']('insert',
 				'{db_prefix}background_tasks',
 				array('task_file' => 'string', 'task_class' => 'string', 'task_data' => 'string', 'claimed_time' => 'int'),
-				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', serialize(array(
+				array('$sourcedir/tasks/Likes-Notify.php', 'Likes_Notify_Background', json_encode(array(
 					'content_id' => $content,
 					'content_type' => $type,
 					'sender_id' => $user['id'],

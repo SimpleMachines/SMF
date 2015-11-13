@@ -3426,7 +3426,7 @@ function ManageLabels()
 						array(
 							'current_member' => $user_info['id'],
 							'id_rule' => $id,
-							'actions' => serialize($context['rules'][$id]['actions']),
+							'actions' => json_encode($context['rules'][$id]['actions']),
 						)
 					);
 					unset($rule_changes[$k]);
@@ -3869,8 +3869,8 @@ function ManageRules()
 			fatal_lang_error('pm_rule_no_criteria', false);
 
 		// What are we storing?
-		$criteria = serialize($criteria);
-		$actions = serialize($actions);
+		$criteria = json_encode($criteria);
+		$actions = json_encode($actions);
 
 		// Create the rule?
 		if (empty($context['rid']))
@@ -4085,8 +4085,8 @@ function LoadRules($reload = false)
 		$context['rules'][$row['id_rule']] = array(
 			'id' => $row['id_rule'],
 			'name' => $row['rule_name'],
-			'criteria' => unserialize($row['criteria']),
-			'actions' => unserialize($row['actions']),
+			'criteria' => json_decode($row['criteria']),
+			'actions' => json_decode($row['actions']),
 			'delete' => $row['delete_pm'],
 			'logic' => $row['is_or'] ? 'or' : 'and',
 		);

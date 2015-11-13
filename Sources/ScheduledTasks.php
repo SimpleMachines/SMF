@@ -1571,7 +1571,7 @@ function scheduled_paid_subscriptions()
 				'content_id' => $row['id_sublog'],
 				'content_action' => 'expiring',
 				'is_read' => 0,
-				'extra' => serialize(array(
+				'extra' => json_encode(array(
 					'subscription_name' => $row['name'],
 					'end_time' => strip_tags(timeformat($row['end_time'])),
 				)),
@@ -1617,7 +1617,7 @@ function scheduled_remove_temp_attachments()
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir']);
 
 		// Just use the current path for temp files.
 		$attach_dirs = $modSettings['attachmentUploadDir'];

@@ -247,7 +247,7 @@ function reloadSettings()
 	if (empty($modSettings['currentAttachmentUploadDir']))
 	{
 		updateSettings(array(
-			'attachmentUploadDir' => serialize(array(1 => $modSettings['attachmentUploadDir'])),
+			'attachmentUploadDir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
 			'currentAttachmentUploadDir' => 1,
 		));
 	}
@@ -255,7 +255,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = unserialize(SMF_INTEGRATION_SETTINGS);
+		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -1469,7 +1469,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	{
 		$memberContext[$user]['custom_fields'] = array();
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = unserialize($modSettings['displayFields']);
+			$context['display_fields'] = json_decode($modSettings['displayFields']);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -3090,12 +3090,12 @@ function cache_put_data($key, $value, $ttl = 120)
 	$cache_count = isset($cache_count) ? $cache_count + 1 : 1;
 	if (isset($db_show_debug) && $db_show_debug === true)
 	{
-		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(serialize($value)));
+		$cache_hits[$cache_count] = array('k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(json_encode($value)));
 		$st = microtime();
 	}
 
 	$key = md5($boardurl . filemtime($cachedir . '/' . 'index.php')) . '-SMF-' . strtr($key, ':/', '-_');
-	$value = $value === null ? null : serialize($value);
+	$value = $value === null ? null : json_encode($value);
 
 	switch ($cache_accelerator)
 	{
@@ -3256,7 +3256,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @unserialize($value);
+	return empty($value) ? null : @json_decode($value);
 }
 
 /**

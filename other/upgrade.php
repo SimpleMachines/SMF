@@ -4410,6 +4410,7 @@ function serialize_to_json()
 			'cal_today_holiday',
 			'displayFields',
 			'last_attachments_directory',
+			'memberlist_cache',
 			'search_index_custom_config',
 			'spider_name_cache'
 		);

@@ -501,7 +501,7 @@ function log_error_online($error, $sprintf = array())
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = unserialize($url);
+		$url = json_decode($url);
 		$url['error'] = $error;
 
 		if (!empty($sprintf))
@@ -512,7 +512,7 @@ function log_error_online($error, $sprintf = array())
 			SET url = {string:url}
 			WHERE session = {string:session}',
 			array(
-				'url' => serialize($url),
+				'url' => json_encode($url),
 				'session' => $session_id,
 			)
 		);

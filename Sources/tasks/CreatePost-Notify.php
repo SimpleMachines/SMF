@@ -173,7 +173,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => $type,
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],
@@ -255,7 +255,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'quote',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),
@@ -367,7 +367,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $msgOptions['id'],
 					'content_action' => 'mention',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'content_subject' => $msgOptions['subject'],
 						'content_link' => $scripturl . '?msg=' . $msgOptions['id'],
 					)),

@@ -485,7 +485,7 @@ function CreateMessageIndex()
 
 	if (isset($_REQUEST['resume']) && !empty($modSettings['search_custom_index_resume']))
 	{
-		$context['index_settings'] = unserialize($modSettings['search_custom_index_resume']);
+		$context['index_settings'] = json_decode($modSettings['search_custom_index_resume']);
 		$context['start'] = (int) $context['index_settings']['resume_at'];
 		unset($context['index_settings']['resume_at']);
 		$context['step'] = 1;
@@ -618,7 +618,7 @@ function CreateMessageIndex()
 					break;
 				}
 				else
-					updateSettings(array('search_custom_index_resume' => serialize(array_merge($context['index_settings'], array('resume_at' => $context['start'])))));
+					updateSettings(array('search_custom_index_resume' => json_encode(array_merge($context['index_settings'], array('resume_at' => $context['start'])))));
 			}
 
 			// Since there are still two steps to go, 80% is the maximum here.
@@ -683,7 +683,7 @@ function CreateMessageIndex()
 	{
 		$context['sub_template'] = 'create_index_done';
 
-		updateSettings(array('search_index' => 'custom', 'search_custom_index_config' => serialize($context['index_settings'])));
+		updateSettings(array('search_index' => 'custom', 'search_custom_index_config' => json_encode($context['index_settings'])));
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}settings
 			WHERE variable = {string:search_custom_index_resume}',
