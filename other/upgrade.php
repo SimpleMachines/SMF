@@ -4228,7 +4228,7 @@ function serialize_to_json()
 
 		// And the pm_rules table...
 		$query = $smcFunc['db_query']('', '
-			SELECT id_rules, criteria, actions
+			SELECT id_rule, criteria, actions
 			FROM {db_prefix}pm_rules',
 			array()
 		);
@@ -4248,7 +4248,7 @@ function serialize_to_json()
 					array(
 						'criteria' => $row['criteria'],
 						'actions' => $row['actions'],
-						'id' => $row['id_rules']
+						'id' => $row['id_rule']
 					)
 				);
 			}
