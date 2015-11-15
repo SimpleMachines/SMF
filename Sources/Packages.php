@@ -1051,6 +1051,13 @@ function PackageInstall()
 				$context['redirect_url'] = $action['redirect_url'];
 				$context['redirect_text'] = !empty($action['filename']) && file_exists($packagesdir . '/temp/' . $context['base_path'] . $action['filename']) ? $smcFunc['htmlspecialchars'](file_get_contents($packagesdir . '/temp/' . $context['base_path'] . $action['filename'])) : ($context['uninstalling'] ? $txt['package_uninstall_done'] : $txt['package_installed_done']);
 				$context['redirect_timeout'] = $action['redirect_timeout'];
+				if (!empty($action['parse_bbc']))
+				{
+					require_once($sourcedir . '/Subs-Post.php');
+					$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', $context['redirect_text']);
+					preparsecode($context['redirect_text']);
+					$context['redirect_text'] = parse_bbc($context['redirect_text']);
+				}
 
 				// Parse out a couple of common urls.
 				$urls = array(
