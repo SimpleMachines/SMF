@@ -3141,7 +3141,7 @@ function template_header()
 			if (!empty($modSettings['currentAttachmentUploadDir']))
 			{
 				if (!is_array($modSettings['attachmentUploadDir']))
-					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir']);
+					$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 				$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 			}
 			else
@@ -3413,7 +3413,7 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
 	if (!empty($modSettings['currentAttachmentUploadDir']))
 	{
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 		$path = $modSettings['attachmentUploadDir'][$dir];
 	}
 	else

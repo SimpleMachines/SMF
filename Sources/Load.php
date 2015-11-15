@@ -255,7 +255,7 @@ function reloadSettings()
 	// Integration is cool.
 	if (defined('SMF_INTEGRATION_SETTINGS'))
 	{
-		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS);
+		$integration_settings = json_decode(SMF_INTEGRATION_SETTINGS, true);
 		foreach ($integration_settings as $hook => $function)
 			add_integration_function($hook, $function, '', false);
 	}
@@ -1469,7 +1469,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 	{
 		$memberContext[$user]['custom_fields'] = array();
 		if (!isset($context['display_fields']))
-			$context['display_fields'] = json_decode($modSettings['displayFields']);
+			$context['display_fields'] = json_decode($modSettings['displayFields'], true);
 
 		foreach ($context['display_fields'] as $custom)
 		{
@@ -3256,7 +3256,7 @@ function cache_get_data($key, $ttl = 120)
 	if (function_exists('call_integration_hook') && isset($value))
 		call_integration_hook('cache_get_data', array(&$key, &$ttl, &$value));
 
-	return empty($value) ? null : @json_decode($value);
+	return empty($value) ? null : @json_decode($value, true);
 }
 
 /**

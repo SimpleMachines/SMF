@@ -501,7 +501,7 @@ function log_error_online($error, $sprintf = array())
 	if ($smcFunc['db_num_rows']($request) != 0)
 	{
 		list ($url) = $smcFunc['db_fetch_row']($request);
-		$url = json_decode($url);
+		$url = json_decode($url, true);
 		$url['error'] = $error;
 
 		if (!empty($sprintf))

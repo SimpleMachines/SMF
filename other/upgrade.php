@@ -4180,7 +4180,7 @@ function serialize_to_json()
 			{
 				$row['failed_steps'] = json_encode(@unserialize($row['failed_steps']));
 				$row['db_changes'] = empty($row['db_changes']) ? '' : json_encode(@unserialize($row['db_changes']));
-				$row['credits'] = empty($row['credits']) ? '' : json_decode(@unserialize($row['credits']));
+				$row['credits'] = empty($row['credits']) ? '' : json_encode(@unserialize($row['credits']));
 
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_packages

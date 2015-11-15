@@ -884,7 +884,7 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 	// Check whether we have to apply anything...
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$criteria = json_decode($row['criteria']);
+		$criteria = json_decode($row['criteria'], true);
 		// Note we don't check the buddy status, cause deletion from buddy = madness!
 		$delete = false;
 		foreach ($criteria as $criterium)

@@ -222,7 +222,7 @@ function PackageInstallTest()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes']);
+		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -873,7 +873,7 @@ function PackageInstall()
 		{
 			if (empty($change))
 				continue;
-			$theme_data = json_decode(base64_decode($change));
+			$theme_data = json_decode(base64_decode($change), true);
 			if (empty($theme_data['type']))
 				continue;
 
@@ -921,7 +921,7 @@ function PackageInstall()
 	{
 		$old_themes = explode(',', $row['themes_installed']);
 		$old_version = $row['version'];
-		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes']);
+		$db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1107,7 +1107,7 @@ function PackageInstall()
 			else
 			{
 				$is_upgrade = true;
-				$old_db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes']);
+				$old_db_changes = empty($row['db_changes']) ? array() : json_decode($row['db_changes'], true);
 			}
 		}
 
@@ -1500,7 +1500,7 @@ function PackageBrowse()
 	$smcFunc['db_free_result']($get_versions);
 
 	// Decode the data.
-	$items = json_decode($data['data']);
+	$items = json_decode($data['data'], true);
 
 	$context['emulation_versions'] = preg_replace('~^SMF ~', '', $items);
 
@@ -2073,7 +2073,7 @@ function PackagePermissions()
 		unset($context['file_tree'][strtr($boarddir, array('\\' => '/'))]['contents']['attachments']);
 
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir']);
+			$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 
 		// @todo Should we suggest non-current directories be read only?
 		foreach ($modSettings['attachmentUploadDir'] as $dir)
@@ -2176,7 +2176,7 @@ function PackagePermissions()
 	// Have we got a load of back-catalogue trees to expand from a submit etc?
 	if (!empty($_GET['back_look']))
 	{
-		$potententialTrees = json_decode(base64_decode($_GET['back_look']));
+		$potententialTrees = json_decode(base64_decode($_GET['back_look']), true);
 		foreach ($potententialTrees as $tree)
 			$context['look_for'][] = $tree;
 	}
@@ -2434,7 +2434,7 @@ function PackagePermissionsAction()
 
 		// Continuing?
 		if (isset($_POST['toProcess']))
-			$_POST['permStatus'] = json_decode(base64_decode($_POST['toProcess']));
+			$_POST['permStatus'] = json_decode(base64_decode($_POST['toProcess']), true);
 
 		if (isset($_POST['permStatus']))
 		{
@@ -2514,7 +2514,7 @@ function PackagePermissionsAction()
 		$context['predefined_type'] = isset($_POST['predefined']) ? $_POST['predefined'] : 'restricted';
 
 		$context['total_items'] = isset($_POST['totalItems']) ? (int) $_POST['totalItems'] : 0;
-		$context['directory_list'] = isset($_POST['dirList']) ? json_decode(base64_decode($_POST['dirList'])) : array();
+		$context['directory_list'] = isset($_POST['dirList']) ? json_decode(base64_decode($_POST['dirList']), true) : array();
 
 		$context['file_offset'] = isset($_POST['fileOffset']) ? (int) $_POST['fileOffset'] : 0;
 
@@ -2589,7 +2589,7 @@ function PackagePermissionsAction()
 		elseif ($context['predefined_type'] == 'free')
 			$context['special_files'] = array();
 		else
-			$context['special_files'] = json_decode(base64_decode($_POST['specialFiles']));
+			$context['special_files'] = json_decode(base64_decode($_POST['specialFiles']), true);
 
 		// Now we definitely know where we are, we need to go through again doing the chmod!
 		foreach ($context['directory_list'] as $path => $dummy)

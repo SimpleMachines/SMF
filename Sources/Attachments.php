@@ -49,7 +49,7 @@ class Attachments
 		$this->_currentAttachmentUploadDir = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : '';
 
 		if (!is_array($modSettings['attachmentUploadDir']))
-			$this->_attachmentUploadDir = json_decode($modSettings['attachmentUploadDir']);
+			$this->_attachmentUploadDir = json_decode($modSettings['attachmentUploadDir'], true);
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
