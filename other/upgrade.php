@@ -4066,7 +4066,7 @@ function convertUtf8()
 // Change serialized stuff to JSON...
 function serialize_to_json()
 {
-	global $command_line, $smcFunc, $modSettings;
+	global $command_line, $smcFunc, $modSettings, $sourcedir;
 
 	// This is set when we're done so we don't do it again
 	if (!empty($modSettings['json_done']))
@@ -4464,6 +4464,8 @@ function serialize_to_json()
 		}
 
 		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+		if (!function_exists('cache_put_data'))
+			require_once($sourcedir . '/Load.php');
 		updateSettings(array('json_done' => true));
 	}
 
