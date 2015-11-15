@@ -64,9 +64,10 @@ $upcontext['steps'] = array(
 	2 => array(3, 'Backup', 'BackupDatabase', 10),
 	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
 	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
+	5 => array(6, 'Convert serialized strings to JSON', 'serialize_to_json', 10),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
-	5 => array(6, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
+	6 => array(7, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
