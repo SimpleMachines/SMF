@@ -4428,6 +4428,8 @@ function serialize_to_json()
 		}
 
 		// Update everything at once
+		if (!function_exists('cache_put_data'))
+			require_once($sourcedir . '/Load.php');
 		updateSettings($new_settings, true);
 		echo " done.\n";
 
@@ -4462,10 +4464,7 @@ function serialize_to_json()
 			echo " done.\n";
 			$smcFunc['db_free_result']($query);
 		}
-
 		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
-		if (!function_exists('cache_put_data'))
-			require_once($sourcedir . '/Load.php');
 		updateSettings(array('json_done' => true));
 	}
 
