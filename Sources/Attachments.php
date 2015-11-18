@@ -19,6 +19,7 @@ if (!defined('SMF'))
 class Attachments
 {
 	protected $_msg = 0;
+	protected $_board = null;
 	protected $_attachmentUploadDir = false;
 	protected $_attchDir = '';
 	protected $_currentAttachmentUploadDir;
@@ -38,13 +39,13 @@ class Attachments
 		'delete',
 	);
 	protected $_sa = false;
-	public static $inlineAttachments = array();
 
 	public function __construct()
 	{
 		global $modSettings, $context;
 
 		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
+		$this->_board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
 
 		$this->_currentAttachmentUploadDir = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : '';
 
@@ -53,7 +54,7 @@ class Attachments
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
-		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
+		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
 	}
 
 	public function call()
