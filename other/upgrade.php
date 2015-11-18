@@ -4190,7 +4190,7 @@ function serialize_to_json()
 
 							while($row = $smcFunc['db_fetch_assoc']($query))
 							{
-								$row['admin_preferences'] = json_encode((@unserialize($row['admin_preferences'])));
+								$row['admin_preferences'] = json_encode(@unserialize($row['admin_preferences']));
 
 								// Even though we have all values from the table, UPDATE is still faster than REPLACE
 								$smcFunc['db_query']('', '
@@ -4199,6 +4199,7 @@ function serialize_to_json()
 									WHERE id_theme = {int:theme}
 										AND id_member = {int:member}',
 									array(
+										'prefs' => $row['admin_preferences'],
 										'theme' => $row['id_theme'],
 										'member' => $row['id_member']
 									)
