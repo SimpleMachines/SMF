@@ -4079,14 +4079,14 @@ function serialize_to_json()
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
-		'background_tasks' => array('id_task', 'task_data', true),
+		'background_tasks' => array('id_task', 'task_data'),
 		'log_actions' => array('id_action', 'extra'),
 		'log_online' => array('session', 'url'),
 		'log_packages' => array('id_install', 'db_changes', 'failed_steps', 'credits'),
 		'log_spider_hits' => array('id_hit', 'url'),
 		'log_subscribed' => array('id_sublog', 'pending_details'),
 		'pm_rules' => array('id_rule', 'criteria', 'actions'),
-		'qanda' => array('id_question', 'answer'),
+		'qanda' => array('id_question', 'answers'),
 		'subscriptions' => array('id_subscribe', 'cost'),
 		'user_alerts' => array('id_alert', 'extra', true),
 		'user_drafts' => array('id_draft', 'to_list', true),
@@ -4157,7 +4157,7 @@ function serialize_to_json()
 				{
 					if (isset($modSettings[$var]))
 					{
-						$new_settings[$var] = json_encode(@unserialize($modSettings[$var]));
+						$new_settings[$var] = json_encode(unserialize($modSettings[$var]));
 					}
 				}
 
@@ -4187,7 +4187,7 @@ function serialize_to_json()
 
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$row['admin_preferences'] = json_encode(@unserialize($row['admin_preferences']));
+						$row['admin_preferences'] = json_encode(unserialize($row['admin_preferences']));
 
 						// Even though we have all values from the table, UPDATE is still faster than REPLACE
 						$smcFunc['db_query']('', '
@@ -4219,7 +4219,7 @@ function serialize_to_json()
 				if (count($info) == 2 && $info[2] === true)
 				{
 					$col_select = $info[1];
-					$where = ' WHERE ' . $info[1] . ' != {string:empty}';
+					$where = ' WHERE ' . $info[1] . ' != {empty}';
 				}
 				else
 				{
@@ -4249,7 +4249,7 @@ function serialize_to_json()
 						{
 							if ($col !== true && $row[$col] != '')
 							{
-								$row[$col] = json_encode(@unserialize($row[$col]));
+								$row[$col] = json_encode(unserialize($row[$col]));
 
 								// Build our SET string and variables array
 								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
@@ -4261,12 +4261,14 @@ function serialize_to_json()
 
 						// In a few cases, we might have empty data, so don't try to update in those situations...
 						if (!empty($update))
+						{
 							$smcFunc['db_query']('', '
 								UPDATE {db_prefix}' . $table . '
 								SET ' . $update . '
 								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
 								$vars
 							);
+						}
 					}
 
 					if ($is_debug || $command_line)
