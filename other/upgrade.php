@@ -4079,7 +4079,7 @@ function serialize_to_json()
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
-		'background_tasks' => array('id_task', 'task_data'),
+		'background_tasks' => array('id_task', 'task_data', true),
 		'log_actions' => array('id_action', 'extra'),
 		'log_online' => array('session', 'url'),
 		'log_packages' => array('id_install', 'db_changes', 'failed_steps', 'credits'),
@@ -4127,7 +4127,6 @@ function serialize_to_json()
 
 			// Initialize a few things...
 			$where = '';
-			$update = '';
 			$vars = array();
 			$table = $keys[$substep];
 			$info = $tables[$table];
@@ -4215,7 +4214,6 @@ function serialize_to_json()
 				// First item is always the key...
 				$key = $info[0];
 				unset($info[0]);
-				$row_info = array();
 
 				// Now we know what columns we have and such...
 				if (count($info) == 2 && $info[2] === true)
@@ -4236,12 +4234,20 @@ function serialize_to_json()
 
 				if ($smcFunc['db_num_rows']($query) != 0)
 				{
+					if ($is_debug || $command_line)
+					{
+						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+						flush();
+					}
+
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
+						$update = '';
+
 						// We already know what our key is...
 						foreach ($info as $col)
 						{
-							if ($info !== true && $row[$col] != '')
+							if ($col !== true && $row[$col] != '')
 							{
 								$row[$col] = json_encode(@unserialize($row[$col]));
 
@@ -4253,22 +4259,18 @@ function serialize_to_json()
 
 						$vars[$key] = $row[$key];
 
-						if ($is_debug || $command_line)
-						{
-							echo "\n" . ' +++ Fixing the "' . $table . '" table...';
-							flush();
-						}
-
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}' . $table . '
-							SET ' . $update . '
-							WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+						// In a few cases, we might have empty data, so don't try to update in those situations...
+						if (!empty($update))
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}' . $table . '
+								SET ' . $update . '
+								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
 								$vars
-						);
-
-						if ($is_debug || $command_line)
-							echo ' done.';
+							);
 					}
+
+					if ($is_debug || $command_line)
+						echo ' done.';
 
 					// Free up some memory...
 					$smcFunc['db_free_result']($query);
