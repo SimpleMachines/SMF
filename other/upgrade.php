@@ -4063,418 +4063,231 @@ function convertUtf8()
 	return true;
 }
 
-// Change serialized stuff to JSON...
 function serialize_to_json()
 {
-	global $command_line, $smcFunc, $modSettings, $sourcedir;
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
 
-	// This is set when we're done so we don't do it again
-	if (!empty($modSettings['json_done']))
+	// name => array('key', col1[,col2|true[,col3]])
+	// If 3rd item in array is true, it indicates that col1 could be empty...
+	$tables = array(
+		'background_tasks' => array('id_task', 'task_data'),
+		'log_actions' => array('id_action', 'extra'),
+		'log_online' => array('session', 'url'),
+		'log_packages' => array('id_install', 'db_changes', 'failed_steps', 'credits'),
+		'log_spider_hits' => array('id_hit', 'url'),
+		'log_subscribed' => array('id_sublog', 'pending_details'),
+		'pm_rules' => array('id_rule', 'criteria', 'actions'),
+		'qanda' => array('id_question', 'answer'),
+		'subscriptions' => array('id_subscribe', 'cost'),
+		'user_alerts' => array('id_alert', 'extra', true),
+		'user_drafts' => array('id_draft', 'to_list', true),
+		// These last two are a bit different - we'll handle those separately
+		'settings' => array(),
+		'themes' => array()
+	);
+
+	// Set up some context stuff...
+	// Because we're not using numeric indices, we need this to figure out the current table name...
+	$keys = array_keys($tables);
+
+	$upcontext['table_count'] = 12;
+	$upcontext['cur_table_num'] = $_GET['substep'];
+	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+	$file_steps = $upcontext['table_count'];
+
+	foreach($keys as $id => $table)
+		if ($id < $_GET['substep'])
+			$upcontext['previous_tables'][] = $table;
+
+	if ($command_line)
+		echo 'Converting data from serialize() to json_encode().';
+
+	if (!$support_js || isset($_GET['xml']))
 	{
-		echo 'JSON conversion already done. Skipping...';
-	}
-	else
-	{
-		// Try to buy some time here...
-		@set_time_limit(300);
-		if (function_exists('apache_reset_timeout'))
-			@apache_reset_timeout();
-
-		// First up, the background tasks...
-		$query = $smcFunc['db_query']('', '
-			SELECT id_task, task_data
-			FROM {db_prefix}background_tasks',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
+		// Fix the data in each table
+		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
 		{
-			echo 'Fixing background task data...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['task_data'] = json_encode(@unserialize($row['task_data']));
+			$upcontext['cur_table_name'] = isset($keys[$substep + 1]) ? $keys[$substep + 1] : $keys[$substep];
+			$upcontext['cur_table_num'] = $substep + 1;
 
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}background_tasks
-					SET task_data = {string:task_data}
-					WHERE id_task = {int:id}',
-					array(
-						'task_data' => $row['task_data'],
-						'id' => $row['id_task']
-					)
-				);
+			$upcontext['step_progress'] = (int)(($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			// Initialize a few things...
+			$where = '';
+			$update = '';
+			$vars = array();
+
+			// Now the fun - build our queries and all that fun stuff
+			foreach ($tables as $table => $info)
+			{
+				if ($table == 'settings' || $table == 'themes')
+				{
+					if ($table == 'settings')
+					{
+						// Now a few settings...
+						$serialized_settings = array(
+								'attachment_basedirectories',
+								'attachmentUploadDir',
+								'cal_today_birthday',
+								'cal_today_event',
+								'cal_today_holiday',
+								'displayFields',
+								'last_attachments_directory',
+								'memberlist_cache',
+								'search_index_custom_config',
+								'spider_name_cache'
+						);
+
+						// Loop through and fix these...
+						$new_settings = array();
+						if ($is_debug && $command_line)
+							echo "\n" . 'Fixing some settings...';
+
+						foreach ($serialized_settings as $var)
+						{
+							if (isset($modSettings[$var]))
+							{
+								$new_settings[$var] = json_encode(@unserialize($modSettings[$var]));
+							}
+						}
+
+						// Update everything at once
+						if (!function_exists('cache_put_data'))
+							require_once($sourcedir . '/Load.php');
+						updateSettings($new_settings, true);
+
+						echo "\n done.";
+					}
+					elseif ($table == 'themes')
+					{
+						// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+						$query = $smcFunc['db_query']('', '
+							SELECT * FROM {db_prefix}themes
+							WHERE variable = {string:admin_prefs}',
+							array(
+								'admin_prefs' => 'admin_preferences'
+							)
+						);
+
+						if ($smcFunc['db_num_rows']($query) != 0)
+						{
+							if ($is_debug && $command_line)
+								echo "\n" . 'Fixing admin preferences...';
+
+							while($row = $smcFunc['db_fetch_assoc']($query))
+							{
+								$row['admin_preferences'] = json_encode((@unserialize($row['admin_preferences'])));
+
+								// Even though we have all values from the table, UPDATE is still faster than REPLACE
+								$smcFunc['db_query']('', '
+									UPDATE {db_prefix}themes
+									SET value = {string:prefs}
+									WHERE id_theme = {int:theme}
+										AND id_member = {int:member}',
+									array(
+										'theme' => $row['id_theme'],
+										'member' => $row['id_member']
+									)
+								);
+							}
+
+							if ($is_debug && $command_line)
+								echo "\n done.";
+
+							$smcFunc['db_free_result']($query);
+						}
+					}
+					else
+					{
+						// First item is always the key...
+						$key = $info[0];
+						unset($info[0]);
+
+						// Now we know what columns we have and such...
+						if (count($info) == 2 && $info[2] === true)
+						{
+							$col_select = $info[1];
+							$where = ' WHERE {str:' . $info[1] . ' != {empty}';
+						}
+						else
+						{
+							$col_select = implode(', ', $info);
+						}
+
+						$query = $smcFunc['db_query']('', '
+							SELECT ' . $key . ', ' . $col_select . '
+							FROM {db_prefix}' . $table . $where,
+								array()
+						);
+
+						if ($smcFunc['db_num_rows']($query) != 0)
+						{
+							while ($row = $smcFunc['db_fetch_assoc']($query))
+							{
+								// We already know what our key is...
+								foreach ($info as $col)
+								{
+									if ($info !== true && $row[$col] != '')
+									{
+										$row[$col] = json_encode(@unserialize($row[$col]));
+
+										// Build our SET string and variables array
+										$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+										$vars[$col] = $row[$col];
+									}
+								}
+
+								if ($is_debug && $command_line)
+								{
+									echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+									flush();
+								}
+
+								// Now we run our update query...
+								$smcFunc['db_query']('', '
+									UPDATE {db_prefix}' . $table . '
+									SET ' . $update . '
+									WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key,
+										$vars
+								);
+							}
+						}
+						if ($is_debug && $command_line)
+							echo ' done.';
+					}
+				}
 			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
+
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
 		}
 
-		// Next, the log_actions table
-		$query = $smcFunc['db_query']('', '
-			SELECT id_action, extra
-			FROM {db_prefix}log_actions
-			WHERE extra != {string:empty}',
-			array(
-				'empty' => ''
-			)
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
+		if ($is_debug && $command_line)
 		{
-			echo 'Fixing the \'extra\' column in the log_actions table...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['extra'] = json_encode(@unserialize($row['extra']));
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_actions
-					SET extra = {string:extra}
-					WHERE id_action = {int:id}',
-					array(
-						'extra' => $row['extra'],
-						'id' => $row['id_action']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
+			echo "\n" . ' Successful.' . "\n";
+			flush();
 		}
+		$upcontext['step_progress'] = 100;
 
-		// Now the log_online table...
-		$query = $smcFunc['db_query']('', '
-			SELECT session, url
-			FROM {db_prefix}log_online',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the log_online table...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['url'] = json_encode(@unserialize($row['url']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_online
-					SET url = {string:url}
-					WHERE session = {string:session}',
-					array(
-						'url' => $row['url'],
-						'session' => $row['session']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// And the log_packages table...
-		$query = $smcFunc['db_query']('', '
-			SELECT id_install, failed_steps, db_changes, credits
-			FROM {db_prefix}log_packages',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the log_packages table...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['failed_steps'] = json_encode(@unserialize($row['failed_steps']));
-				$row['db_changes'] = empty($row['db_changes']) ? '' : json_encode(@unserialize($row['db_changes']));
-				$row['credits'] = empty($row['credits']) ? '' : json_encode(@unserialize($row['credits']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_packages
-					SET failed_steps = {string:failed}, db_changes = {string:changes}, credits = {string:credits}
-					WHERE id_install = {int:id}',
-					array(
-						'failed' => $row['failed_steps'],
-						'changes' => $row['db_changes'],
-						'credits' => $row['credits'],
-						'id' => $row['id_install']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// Spider hits...
-		$query = $smcFunc['db_query']('', '
-			SELECT id_hit, url
-			FROM {db_prefix}log_spider_hits',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the log_spider_hits table...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['url'] = json_encode(@unserialize($row['url']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_spider_hits
-					SET url = {string:url}
-					WHERE id_hit = {int:id}',
-					array(
-						'url' => $row['url'],
-						'id' => $row['id_hit']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// And the pm_rules table...
-		$query = $smcFunc['db_query']('', '
-			SELECT id_rule, criteria, actions
-			FROM {db_prefix}pm_rules',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the pm_rules table...';
-			while ($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['criteria'] = json_encode(@unserialize($row['criteria']));
-				$row['actions'] = json_encode(@unserialize($row['actions']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}pm_rules
-					SET criteria = {string:criteria}, actions = {string:actions}
-					WHERE id_rule = {int:id}',
-					array(
-						'criteria' => $row['criteria'],
-						'actions' => $row['actions'],
-						'id' => $row['id_rule']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// The qanda table...
-		$query = $smcFunc['db_query']('', '
-			SELECT id_question, answers
-			FROM {db_prefix}qanda',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows'] != 0)
-		{
-			echo 'Fixing the qanda table...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['answers'] = json_encode(@unserialize($row['answers']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}qanda
-					SET answers = {string:answers}
-					WHERE id_question = {int:id}',
-					array(
-						'answers' => $row['answers'],
-						'id' => $row['id']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// Paid subscription data
-		$query = $smcFunc['db_query']('', '
-			SELECT id_sublog, pending_details
-			FROM {db_prefix}log_subscribed',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the log_subscribed table...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['pending_details'] = json_encode(@unserialize($row['pending_details']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}log_subscribed
-					SET pending_details = {string:details}
-					WHERE id_sublog = {int:ind}',
-					array(
-						'details' => $row['pending_details'],
-						'id' => $row['id_sublog']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// More paid subs stuff
-		$query = $smcFunc['db_query']('', '
-			SELECT id_subscribe, cost
-			FROM {db_prefix}subscriptions',
-			array()
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the subscriptions table...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['cost'] = json_encode($row['cost']);
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}subscriptions
-					SET cost = {string:cost}
-					WHERE id-subscribe = {int:id}',
-					array(
-						'cost' => $row['cost'],
-						'id' => $row['id_subscribe']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// Alerts
-		$query = $smcFunc['db_query']('', '
-			SELECT id_alert, extra
-			FROM {db_prefix}user_alerts
-			WHERE extra != {string:empty}',
-				array(
-						'empty' => ''
-				)
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the user_alerts table...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['extra'] = json_encode(@unserialize($row['extra']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}user_alerts
-					SET extra = {string:extra}
-					WHERE id_alert = {int:id}',
-						array(
-								'extra' => $row['extra'],
-								'id' => $row['id_alert']
-						)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// Drafts
-		$query = $smcFunc['db_query']('', '
-			SELECT id_draft, to_list
-			FROM {db_prefix}user_drafts
-			WHERE to_list != {string:empty}',
-			array(
-				'empty' => ''
-			)
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing the user_drafts table...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['to_list'] = json_encode(@unserialize($row['to_list']));
-
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}user_drafts
-					SET to_list = {string:to}
-					WHERE id_draft = {int:id}',
-					array(
-						'to' => $row['to_list'],
-						'id' => $row['id_draft']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
-
-		// Now a few settings...
-		$serialized_settings = array(
-			'attachment_basedirectories',
-			'attachmentUploadDir',
-			'cal_today_birthday',
-			'cal_today_event',
-			'cal_today_holiday',
-			'displayFields',
-			'last_attachments_directory',
-			'memberlist_cache',
-			'search_index_custom_config',
-			'spider_name_cache'
-		);
-
-		// Loop through and fix these...
-		$new_settings = array();
-		echo 'Fixing the settings...';
-		foreach($serialized_settings as $var)
-		{
-			if (isset($modSettings[$var]))
-			{
-				$new_settings[$var] = json_encode(@unserialize($modSettings[$var]));
-			}
-		}
-
-		// Update everything at once
-		if (!function_exists('cache_put_data'))
-			require_once($sourcedir . '/Load.php');
-		updateSettings($new_settings, true);
-		echo " done.\n";
-
-		// Last but not least, a few theme settings...
-		$query = $smcFunc['db_query']('', '
-			SELECT * FROM {db_prefix}themes
-			WHERE variable = {string:admin_prefs}',
-			array(
-				'admin_prefs' => 'admin_preferences'
-			)
-		);
-
-		if ($smcFunc['db_num_rows']($query) != 0)
-		{
-			echo 'Fixing admin preferences...';
-			while($row = $smcFunc['db_fetch_assoc']($query))
-			{
-				$row['admin_preferences'] = json_encode((@unserialize($row['admin_preferences'])));
-
-				// Even though we have all values from the table, UPDATE is still faster than REPLACE
-				$smcFunc['db_query']('', '
-					UPDATE {db_prefix}themes
-					SET value = {string:prefs}
-					WHERE id_theme = {int:theme}
-						AND id_member = {int:member}',
-					array(
-						'theme' => $row['id_theme'],
-						'member' => $row['id_member']
-					)
-				);
-			}
-			echo " done.\n";
-			$smcFunc['db_free_result']($query);
-		}
 		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
 		updateSettings(array('json_done' => true));
+
+		$_GET['substep'] = 0;
+		// Make sure we move on!
+		if ($command_line)
+			return DeleteUpgrade();
+
+		return true;
 	}
 
-	// If we're running from command line, we're done here...
-	if ($command_line)
-	{
-		return DeleteUpgrade();
-	}
-
-	return true;
+	// If this fails we just move on to deleting the database anyway...
+	$_GET['substep'] = 0;
+	return false;
 }
 
 /******************************************************************************
