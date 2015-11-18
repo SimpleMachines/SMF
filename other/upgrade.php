@@ -4067,6 +4067,15 @@ function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
 
+	// First thing's first - did we already do this?
+	if (!empty($modSettings['json_done']))
+	{
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
+	}
+
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
@@ -4160,7 +4169,8 @@ function serialize_to_json()
 							require_once($sourcedir . '/Load.php');
 						updateSettings($new_settings, true);
 
-						echo "\n done.";
+						if ($is_debug && $command_line)
+							echo "\n done.";
 					}
 					elseif ($table == 'themes')
 					{
