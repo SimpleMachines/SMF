@@ -4099,7 +4099,7 @@ function serialize_to_json()
 	// Because we're not using numeric indices, we need this to figure out the current table name...
 	$keys = array_keys($tables);
 
-	$upcontext['table_count'] = 12;
+	$upcontext['table_count'] = 13;
 	$upcontext['cur_table_num'] = $_GET['substep'];
 	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
@@ -4129,154 +4129,155 @@ function serialize_to_json()
 			$where = '';
 			$update = '';
 			$vars = array();
+			$table = $keys[$substep];
+			$info = $tables[$table];
 
 			// Now the fun - build our queries and all that fun stuff
-			foreach ($tables as $table => $info)
+			if ($table == 'settings' || $table == 'themes')
 			{
-				if ($table == 'settings' || $table == 'themes')
+				if ($table == 'settings')
 				{
-					if ($table == 'settings')
+					// Now a few settings...
+					$serialized_settings = array(
+							'attachment_basedirectories',
+							'attachmentUploadDir',
+							'cal_today_birthday',
+							'cal_today_event',
+							'cal_today_holiday',
+							'displayFields',
+							'last_attachments_directory',
+							'memberlist_cache',
+							'search_index_custom_config',
+							'spider_name_cache'
+					);
+
+					// Loop through and fix these...
+					$new_settings = array();
+					if ($is_debug && $command_line)
+						echo "\n" . 'Fixing some settings...';
+
+					foreach ($serialized_settings as $var)
 					{
-						// Now a few settings...
-						$serialized_settings = array(
-								'attachment_basedirectories',
-								'attachmentUploadDir',
-								'cal_today_birthday',
-								'cal_today_event',
-								'cal_today_holiday',
-								'displayFields',
-								'last_attachments_directory',
-								'memberlist_cache',
-								'search_index_custom_config',
-								'spider_name_cache'
-						);
-
-						// Loop through and fix these...
-						$new_settings = array();
-						if ($is_debug && $command_line)
-							echo "\n" . 'Fixing some settings...';
-
-						foreach ($serialized_settings as $var)
+						if (isset($modSettings[$var]))
 						{
-							if (isset($modSettings[$var]))
-							{
-								$new_settings[$var] = json_encode(@unserialize($modSettings[$var]));
-							}
+							$new_settings[$var] = json_encode(@unserialize($modSettings[$var]));
 						}
+					}
 
-						// Update everything at once
-						if (!function_exists('cache_put_data'))
-							require_once($sourcedir . '/Load.php');
-						updateSettings($new_settings, true);
+					// Update everything at once
+					if (!function_exists('cache_put_data'))
+						require_once($sourcedir . '/Load.php');
+					updateSettings($new_settings, true);
+
+					if ($is_debug && $command_line)
+						echo "\n done.";
+				}
+				elseif ($table == 'themes')
+				{
+					// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+					$query = $smcFunc['db_query']('', '
+						SELECT * FROM {db_prefix}themes
+						WHERE variable = {string:admin_prefs}',
+						array(
+							'admin_prefs' => 'admin_preferences'
+						)
+					);
+
+					if ($smcFunc['db_num_rows']($query) != 0)
+					{
+						if ($is_debug && $command_line)
+							echo "\n" . 'Fixing admin preferences...';
+
+						while($row = $smcFunc['db_fetch_assoc']($query))
+						{
+							$row['admin_preferences'] = json_encode(@unserialize($row['admin_preferences']));
+
+							// Even though we have all values from the table, UPDATE is still faster than REPLACE
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:prefs}
+								WHERE id_theme = {int:theme}
+									AND id_member = {int:member}',
+								array(
+									'prefs' => $row['admin_preferences'],
+									'theme' => $row['id_theme'],
+									'member' => $row['id_member']
+								)
+							);
+						}
 
 						if ($is_debug && $command_line)
 							echo "\n done.";
+
+						$smcFunc['db_free_result']($query);
 					}
-					elseif ($table == 'themes')
+				}
+				else
+				{
+					// First item is always the key...
+					$key = $info[0];
+					unset($info[0]);
+
+					// Now we know what columns we have and such...
+					if (count($info) == 2 && $info[2] === true)
 					{
-						// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
-						$query = $smcFunc['db_query']('', '
-							SELECT * FROM {db_prefix}themes
-							WHERE variable = {string:admin_prefs}',
-							array(
-								'admin_prefs' => 'admin_preferences'
-							)
-						);
-
-						if ($smcFunc['db_num_rows']($query) != 0)
-						{
-							if ($is_debug && $command_line)
-								echo "\n" . 'Fixing admin preferences...';
-
-							while($row = $smcFunc['db_fetch_assoc']($query))
-							{
-								$row['admin_preferences'] = json_encode(@unserialize($row['admin_preferences']));
-
-								// Even though we have all values from the table, UPDATE is still faster than REPLACE
-								$smcFunc['db_query']('', '
-									UPDATE {db_prefix}themes
-									SET value = {string:prefs}
-									WHERE id_theme = {int:theme}
-										AND id_member = {int:member}',
-									array(
-										'prefs' => $row['admin_preferences'],
-										'theme' => $row['id_theme'],
-										'member' => $row['id_member']
-									)
-								);
-							}
-
-							if ($is_debug && $command_line)
-								echo "\n done.";
-
-							$smcFunc['db_free_result']($query);
-						}
+						$col_select = $info[1];
+						$where = ' WHERE ' . $info[1] . ' != {string:empty}';
 					}
 					else
 					{
-						// First item is always the key...
-						$key = $info[0];
-						unset($info[0]);
-
-						// Now we know what columns we have and such...
-						if (count($info) == 2 && $info[2] === true)
-						{
-							$col_select = $info[1];
-							$where = ' WHERE {str:' . $info[1] . ' != {empty}';
-						}
-						else
-						{
-							$col_select = implode(', ', $info);
-						}
-
-						$query = $smcFunc['db_query']('', '
-							SELECT ' . $key . ', ' . $col_select . '
-							FROM {db_prefix}' . $table . $where,
-								array()
-						);
-
-						if ($smcFunc['db_num_rows']($query) != 0)
-						{
-							while ($row = $smcFunc['db_fetch_assoc']($query))
-							{
-								// We already know what our key is...
-								foreach ($info as $col)
-								{
-									if ($info !== true && $row[$col] != '')
-									{
-										$row[$col] = json_encode(@unserialize($row[$col]));
-
-										// Build our SET string and variables array
-										$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-										$vars[$col] = $row[$col];
-									}
-								}
-
-								if ($is_debug && $command_line)
-								{
-									echo "\n" . ' +++ Fixing the "' . $table . '" table...';
-									flush();
-								}
-
-								// Now we run our update query...
-								$smcFunc['db_query']('', '
-									UPDATE {db_prefix}' . $table . '
-									SET ' . $update . '
-									WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key,
-										$vars
-								);
-							}
-						}
-						if ($is_debug && $command_line)
-							echo ' done.';
+						$col_select = implode(', ', $info);
 					}
+
+					$query = $smcFunc['db_query']('', '
+						SELECT ' . $key . ', ' . $col_select . '
+						FROM {db_prefix}' . $table . $where,
+							array()
+					);
+
+					if ($smcFunc['db_num_rows']($query) != 0)
+					{
+						while ($row = $smcFunc['db_fetch_assoc']($query))
+						{
+							// We already know what our key is...
+							foreach ($info as $col)
+							{
+								if ($info !== true && $row[$col] != '')
+								{
+									$row[$col] = json_encode(@unserialize($row[$col]));
+
+									// Build our SET string and variables array
+									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+									$vars[$col] = $row[$col];
+								}
+							}
+
+							if ($is_debug && $command_line)
+							{
+								echo "\n" . ' +++ Fixing the \"' . $table . '" table...';
+								flush();
+							}
+
+							$vars[$key] = $row[$key];
+
+							// Now we run our update query...
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}' . $table . '
+								SET ' . $update . '
+								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+									$vars
+							);
+						}
+					}
+					if ($is_debug && $command_line)
+						echo ' done.';
 				}
 			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml']))
-				return upgradeExit();
 		}
+
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml']))
+			return upgradeExit();
 
 		if ($is_debug && $command_line)
 		{
@@ -4296,7 +4297,7 @@ function serialize_to_json()
 		return true;
 	}
 
-	// If this fails we just move on to deleting the database anyway...
+	// If this fails we just move on to deleting the upgrade anyway...
 	$_GET['substep'] = 0;
 	return false;
 }
