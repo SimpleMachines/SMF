@@ -4194,7 +4194,7 @@ function serialize_to_json()
 						if ($is_debug || $command_line)
 						{
 							if (!$temp)
-								echo "\n" . 'unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.'
+								echo "\n" . 'unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
 							else
 								echo "\n" . 'Fixing admin preferences...';
 						}
