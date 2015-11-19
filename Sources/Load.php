@@ -375,13 +375,23 @@ function loadUserSettings()
 
 	if (empty($id_member) && isset($_COOKIE[$cookiename]))
 	{
-		list ($id_member, $password) = @unserialize($_COOKIE[$cookiename]);
+		$cookie_data = json_decode($_COOKIE[$cookiename], true);
+
+		if (is_null($cookie_data))
+			$cookie_data = @unserialize($_COOKIE[$cookiename]);
+
+		list ($id_member, $password) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) > 0 ? (int) $id_member : 0;
 	}
 	elseif (empty($id_member) && isset($_SESSION['login_' . $cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty($modSettings['disableCheckUA'])))
 	{
 		// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
-		list ($id_member, $password, $login_span) = @unserialize($_SESSION['login_' . $cookiename]);
+		$cookie_data = json_decode($_SESSION['login_' . $cookiename]);
+
+		if (is_null($cookie_data))
+			$cookie_data = @unserialize($_SESSION['login_' . $cookiename]);
+
+		list ($id_member, $password, $login_span) = $cookie_data;
 		$id_member = !empty($id_member) && strlen($password) == 128 && $login_span > time() ? (int) $id_member : 0;
 	}
 
@@ -447,7 +457,12 @@ function loadUserSettings()
 			{
 				if (!empty($_COOKIE[$tfacookie]))
 				{
-					list ($tfamember, $tfasecret) = @unserialize($_COOKIE[$tfacookie]);
+					$tfa_data = json_decode($_COOKIE[$tfacookie]);
+
+					if (is_null($tfa_data))
+						$tfa_data = @unserialize($_COOKIE[$tfacookie]);
+
+					list ($tfamember, $tfasecret) = $tfa_data;
 
 					if ((int) $tfamember != $id_member)
 						$tfasecret = null;
@@ -599,7 +614,12 @@ function loadUserSettings()
 		// Expire the 2FA cookie
 		if (isset($_COOKIE[$cookiename . '_tfa']) && empty($context['tfa_member']))
 		{
-			list ($id, $user, $exp, $state, $preserve) = @unserialize($_COOKIE[$cookiename . '_tfa']);
+			$tfa_data = json_decode($_COOKIE[$cookiename . '_tfa'], true);
+
+			if (is_null($tfa_data))
+				$tfa_data = @unserialize($_COOKIE[$cookiename . '_tfa']);
+
+			list ($id, $user, $exp, $state, $preserve) = $tfa_data;
 
 			if (!$preserve || time() > $exp)
 			{

@@ -3664,7 +3664,7 @@ function profileSendActivation()
 		)
 	);
 	$_SESSION['log_time'] = 0;
-	$_SESSION['login_' . $cookiename] = serialize(array(0, '', 0));
+	$_SESSION['login_' . $cookiename] = json_encode(array(0, '', 0));
 
 	if (isset($_COOKIE[$cookiename]))
 		$_COOKIE[$cookiename] = '';
