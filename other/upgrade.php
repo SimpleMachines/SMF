@@ -4157,7 +4157,12 @@ function serialize_to_json()
 				{
 					if (isset($modSettings[$var]))
 					{
-						$new_settings[$var] = json_encode(unserialize($modSettings[$var]));
+						// Attempt to unserialize the setting
+						$temp = @unserialize($modSettings[$var]);
+						if (!$temp && ($is_debug || $command_line))
+							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+						elseif ($temp !== false)
+							$new_settings[$var] = json_encode($temp);
 					}
 				}
 
@@ -4182,29 +4187,39 @@ function serialize_to_json()
 
 				if ($smcFunc['db_num_rows']($query) != 0)
 				{
-					if ($is_debug || $command_line)
-						echo "\n" . 'Fixing admin preferences...';
-
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$row['admin_preferences'] = json_encode(unserialize($row['admin_preferences']));
+						$temp = @unserialize($row['admin_preferences']);
 
-						// Even though we have all values from the table, UPDATE is still faster than REPLACE
-						$smcFunc['db_query']('', '
-							UPDATE {db_prefix}themes
-							SET value = {string:prefs}
-							WHERE id_theme = {int:theme}
-								AND id_member = {int:member}',
+						if ($is_debug || $command_line)
+						{
+							if (!$temp)
+								echo "\n" . 'unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.'
+							else
+								echo "\n" . 'Fixing admin preferences...';
+						}
+
+						if ($temp !== false)
+						{
+							$row['admin_preferences'] = json_encode($temp);
+
+							// Even though we have all values from the table, UPDATE is still faster than REPLACE
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:prefs}
+								WHERE id_theme = {int:theme}
+									AND id_member = {int:member}',
 								array(
 									'prefs' => $row['admin_preferences'],
 									'theme' => $row['id_theme'],
 									'member' => $row['id_member']
 								)
-						);
-					}
+							);
+						}
 
-					if ($is_debug || $command_line)
-						echo ' done.';
+						if ($is_debug || $command_line)
+							echo ' done.';
+					}
 
 					$smcFunc['db_free_result']($query);
 				}
@@ -4249,11 +4264,20 @@ function serialize_to_json()
 						{
 							if ($col !== true && $row[$col] != '')
 							{
-								$row[$col] = json_encode(unserialize($row[$col]));
+								$temp = @unserialize($row[$col]);
 
-								// Build our SET string and variables array
-								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-								$vars[$col] = $row[$col];
+								if (!$temp && ($is_debug || $command_line))
+								{
+									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
+								}
+								else
+								{
+									$row[$col] = json_encode($temp);
+
+									// Build our SET string and variables array
+									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+									$vars[$col] = $row[$col];
+								}
 							}
 						}
 
