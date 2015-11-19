@@ -59,7 +59,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 			);
 		}
 		$smcFunc['db_free_result']($result);
-		
+
 		if (!empty($birthdays))
 		{
 			require_once($sourcedir . '/ScheduledTasks.php');
