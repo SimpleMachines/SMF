@@ -244,7 +244,7 @@ function get_theme_info($path)
 	}
 
 	if (!empty($theme_info_xml['extra']))
-		$xml_data += unserialize($theme_info_xml['extra']);
+		$xml_data += json_decode($theme_info_xml['extra'], true);
 
 	return $xml_data;
 }

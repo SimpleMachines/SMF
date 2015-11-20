@@ -84,7 +84,7 @@ class ApproveReply_Notify_Background extends SMF_BackgroundTask
 					'content_id' => $topicOptions['id'],
 					'content_action' => 'reply',
 					'is_read' => 0,
-					'extra' => serialize(array(
+					'extra' => json_encode(array(
 						'topic' => $topicOptions['id'],
 						'board' => $topicOptions['board'],
 						'content_subject' => $msgOptions['subject'],

@@ -816,7 +816,7 @@ function prepareDBSettingContext(&$config_vars)
 						$value = 0;
 						break;
 					case 'select':
-						$value = !empty($config_var['multiple']) ? serialize(array()) : '';
+						$value = !empty($config_var['multiple']) ? json_encode(array()) : '';
 						break;
 					case 'boards':
 						$value = array();
@@ -865,7 +865,7 @@ function prepareDBSettingContext(&$config_vars)
 				if ($config_var[0] == 'select' && !empty($config_var['multiple']))
 				{
 					$context['config_vars'][$config_var[1]]['name'] .= '[]';
-					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? unserialize($context['config_vars'][$config_var[1]]['value']) : array();
+					$context['config_vars'][$config_var[1]]['value'] = !empty($context['config_vars'][$config_var[1]]['value']) ? json_decode($context['config_vars'][$config_var[1]]['value'], true) : array();
 				}
 
 				// If it's associative
@@ -1139,7 +1139,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$options[] = $invar;
 
-			$setArray[$var[1]] = serialize($options);
+			$setArray[$var[1]] = json_encode($options);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')

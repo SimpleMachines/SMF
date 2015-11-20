@@ -202,7 +202,7 @@ function perform_task($task_details)
 	// All background tasks need to be classes.
 	elseif (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF_BackgroundTask'))
 	{
-		$details = empty($task_details['task_data']) ? array() : unserialize($task_details['task_data']);
+		$details = empty($task_details['task_data']) ? array() : json_decode($task_details['task_data'], true);
 		$bgtask = new $task_details['task_class']($details);
 		return $bgtask->execute();
 	}

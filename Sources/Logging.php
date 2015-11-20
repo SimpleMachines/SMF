@@ -59,7 +59,7 @@ function writeLog($force = false)
 			$context['session_var'] = $_SESSION['session_var'];
 
 		unset($serialized['sesc'], $serialized[$context['session_var']]);
-		$serialized = serialize($serialized);
+		$serialized = json_encode($serialized);
 	}
 	else
 		$serialized = '';
@@ -513,7 +513,7 @@ function logActions($logs)
 
 		$inserts[] = array(
 			time(), $log_types[$log['log_type']], $memID, $user_info['ip'], $log['action'],
-			$board_id, $topic_id, $msg_id, serialize($log['extra']),
+			$board_id, $topic_id, $msg_id, json_encode($log['extra']),
 		);
 	}
 

@@ -594,7 +594,7 @@ function logSpider()
 		{
 			$url = $_GET + array('USER_AGENT' => $_SERVER['HTTP_USER_AGENT']);
 			unset($url['sesc'], $url[$context['session_var']]);
-			$url = serialize($url);
+			$url = json_encode($url);
 		}
 		else
 			$url = '';
@@ -1109,7 +1109,7 @@ function recacheSpiderNames()
 		$spiders[$row['id_spider']] = $row['spider_name'];
 	$smcFunc['db_free_result']($request);
 
-	updateSettings(array('spider_name_cache' => serialize($spiders)));
+	updateSettings(array('spider_name_cache' => json_encode($spiders)));
 }
 
 ?>

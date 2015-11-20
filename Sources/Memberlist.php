@@ -177,7 +177,7 @@ function MLAll()
 	{
 		// Maybe there's something cached already.
 		if (!empty($modSettings['memberlist_cache']))
-			$memberlist_cache = @unserialize($modSettings['memberlist_cache']);
+			$memberlist_cache = @json_decode($modSettings['memberlist_cache'], true);
 
 		// The chunk size for the cached index.
 		$cache_step_size = 500;
@@ -211,7 +211,7 @@ function MLAll()
 			$smcFunc['db_free_result']($request);
 
 			// Now we've got the cache...store it.
-			updateSettings(array('memberlist_cache' => serialize($memberlist_cache)));
+			updateSettings(array('memberlist_cache' => json_encode($memberlist_cache)));
 		}
 
 		$context['num_members'] = $memberlist_cache['num_members'];

@@ -56,7 +56,7 @@ function automanage_attachments_check_directory()
 	if (!empty($modSettings['attachment_basedirectories']) && !empty($modSettings['use_subdirectories_for_attachments']))
 	{
 			if (!is_array($modSettings['attachment_basedirectories']))
-				$modSettings['attachment_basedirectories'] = unserialize($modSettings['attachment_basedirectories']);
+				$modSettings['attachment_basedirectories'] = json_decode($modSettings['attachment_basedirectories'], true);
 			$base_dir = array_search($modSettings['basedirectory_for_attachments'], $modSettings['attachment_basedirectories']);
 	}
 	else
@@ -67,7 +67,7 @@ function automanage_attachments_check_directory()
 		if (!isset($modSettings['last_attachments_directory']))
 			$modSettings['last_attachments_directory'] = array();
 		if (!is_array($modSettings['last_attachments_directory']))
-			$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
+			$modSettings['last_attachments_directory'] = json_decode($modSettings['last_attachments_directory'], true);
 		if (!isset($modSettings['last_attachments_directory'][$base_dir]))
 			$modSettings['last_attachments_directory'][$base_dir] = 0;
 	}
@@ -99,7 +99,7 @@ function automanage_attachments_check_directory()
 	}
 
 	if (!is_array($modSettings['attachmentUploadDir']))
-		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+		$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 	if (!in_array($updir, $modSettings['attachmentUploadDir']) && !empty($updir))
 		$outputCreation = automanage_attachments_create_directory($updir);
 	elseif (in_array($updir, $modSettings['attachmentUploadDir']))
@@ -194,10 +194,10 @@ function automanage_attachments_create_directory($updir)
 		$modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']] = $updir;
 
 		updateSettings(array(
-			'attachmentUploadDir' => serialize($modSettings['attachmentUploadDir']),
+			'attachmentUploadDir' => json_encode($modSettings['attachmentUploadDir']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
 		), true);
-		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+		$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 	}
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
@@ -242,10 +242,10 @@ function automanage_attachments_by_space()
 	{
 		$modSettings['currentAttachmentUploadDir'] = array_search($updir, $modSettings['attachmentUploadDir']);
 		updateSettings(array(
-			'last_attachments_directory' => serialize($modSettings['last_attachments_directory']),
+			'last_attachments_directory' => json_encode($modSettings['last_attachments_directory']),
 			'currentAttachmentUploadDir' => $modSettings['currentAttachmentUploadDir'],
 		));
-		$modSettings['last_attachments_directory'] = unserialize($modSettings['last_attachments_directory']);
+		$modSettings['last_attachments_directory'] = json_decode($modSettings['last_attachments_directory'], true);
 
 		return true;
 	}
@@ -320,7 +320,7 @@ function processAttachments()
 		automanage_attachments_check_directory();
 
 	if (!is_array($modSettings['attachmentUploadDir']))
-		$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+		$modSettings['attachmentUploadDir'] = json_decode($modSettings['attachmentUploadDir'], true);
 
 	$context['attach_dir'] = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 
@@ -1143,7 +1143,7 @@ function loadAttachmentContext($id_msg, $attachments)
 						if (!empty($modSettings['currentAttachmentUploadDir']))
 						{
 							if (!is_array($modSettings['attachmentUploadDir']))
-								$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
+								$modSettings['attachmentUploadDir'] = @json_decode($modSettings['attachmentUploadDir'], true);
 							$path = $modSettings['attachmentUploadDir'][$modSettings['currentAttachmentUploadDir']];
 							$id_folder_thumb = $modSettings['currentAttachmentUploadDir'];
 						}

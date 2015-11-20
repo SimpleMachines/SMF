@@ -3664,7 +3664,7 @@ function profileSendActivation()
 		)
 	);
 	$_SESSION['log_time'] = 0;
-	$_SESSION['login_' . $cookiename] = serialize(array(0, '', 0));
+	$_SESSION['login_' . $cookiename] = json_encode(array(0, '', 0));
 
 	if (isset($_COOKIE[$cookiename]))
 		$_COOKIE[$cookiename] = '';
@@ -3939,7 +3939,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		);
 
 		// Set up some data for our background task...
-		$data = serialize(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
+		$data = json_encode(array('id_member' => $memID, 'member_name' => $user_info['name'], 'id_group' => $group_id, 'group_name' => $group_name, 'reason' => $_POST['reason'], 'time' => time()));
 
 		// Add a background task to handle notifying people of this request
 		$smcFunc['db_insert']('insert', '{db_prefix}background_tasks',
