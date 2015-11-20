@@ -64,6 +64,8 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 		{
 			require_once($sourcedir . '/ScheduledTasks.php');
 			loadEssentialThemeData();
+			// We need this for sendmail and AddMailQueue
+			require_once($sourcedir . '/Subs-Post.php');
 
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members)
@@ -96,14 +98,11 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 
 					if ($pref & 0x02)
 					{
-						require_once($sourcedir . '/Subs-Post.php');
-
 						$replacements = array(
 							'REALNAME' => $member['name'],
 						);
 
 						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
-
 						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
 					}
 				}
