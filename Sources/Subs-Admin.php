@@ -503,7 +503,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+	$prefs = getNotifyPrefs($members, 'announcements', true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address
