@@ -159,6 +159,7 @@ body#chrome #quick_search form input {
 #smfAnnouncements dt {
 	padding: 4px 6px 2px 6px;
 	border-top: 1px solid #bf6900;
+	width: 100%;
 }
 #smfAnnouncements dt a {
 	color: #bf6900;
@@ -169,6 +170,7 @@ body#chrome #quick_search form input {
 	margin: 0;
 	padding: 6px 12px;
 	border-top: double #ddd;
+	width: 100%;
 }
 
 fieldset.admin_group legend {
@@ -562,15 +564,8 @@ ul.theme_options li {
 	white-space: pre;
 }
 
-dl.themes_list {
-	margin: 0;
-}
-dl.themes_list dt {
-	margin-bottom: 3px;
-}
 dl.themes_list dd {
 	font-style: italic;
-	white-space: nowrap;
 }
 
 /* Styles for the registration center. */

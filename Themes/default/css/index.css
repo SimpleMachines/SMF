@@ -573,16 +573,7 @@ a.moderation_link, a.moderation_link:visited {
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
 dl.settings {
-	clear: right;
-	overflow: auto;
-	margin: 0 0 10px 0;
 	padding: 5px;
-}
-dl.settings dt {
-	width: 56%;
-	float: left;
-	margin: 0 0 10px 0;
-	clear: both;
 }
 dl.settings dt.windowbg {
 	width: 98%;
@@ -590,16 +581,6 @@ dl.settings dt.windowbg {
 	margin: 0 0 3px 0;
 	padding: 0 0 5px 0;
 	clear: both;
-}
-dl.settings dd {
-	width: 42%;
-	float: right;
-	overflow: auto;
-	margin: 0 0 3px 0;
-}
-dl.settings img {
-	margin: 0 10px 0 0;
-	vertical-align: middle;
 }
 /* help icons */
 dl.settings dt a span {
@@ -861,13 +842,6 @@ img.sort, .sort {
 }
 .top_menu .login {
 	width: 100%;
-}
-.top_menu .login dt {
-	text-align: left;
-	width: 55%;
-}
-.top_menu .login dd {
-	width: 43%;
 }
 .top_menu .login input {
 	width: 90%;
@@ -1533,27 +1507,10 @@ fieldset.merge_options {
 .popup_content .login {
 	width: 100%;
 }
-.login dl {
-	overflow: auto;
-	clear: right;
-}
-.login dt, .login dd {
-	margin: 0 0 5px 0;
-	width: 44%;
-	padding: 1px;
-}
-.login dt {
-	float: left;
-	clear: both;
+#frmLogin dt {
 	text-align: right;
-	font-weight: bold;
 }
-.login dd {
-	width: 54%;
-	float: right;
-	text-align: left;
-}
-.login p {
+#frmLogin p {
 	text-align: center;
 }
 
@@ -1566,24 +1523,11 @@ fieldset.merge_options {
 #registration .roundframe {
 	border-top: none;
 }
-dl.register_form {
-	margin: 0;
-	clear: right;
-}
 dl.register_form dt {
 	font-weight: normal;
-	float: left;
-	clear: both;
-	width: 50%;
-	margin: 6px 0 0 0;
 }
 dl.register_form dt span {
 	display: block;
-}
-dl.register_form dd {
-	float: left;
-	width: 49%;
-	margin: 6px 0 0 0;
 }
 #confirm_buttons {
 	text-align: center;
@@ -2075,11 +2019,6 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 
 /* Styles for the profile section.
 ------------------------------------------------- */
-
-dl {
-	overflow: auto;
-}
-
 /* The basic user info on the left */
 #basicinfo {
 	width: 20%;
@@ -2123,26 +2062,9 @@ dl {
 	vertical-align: middle;
 }
 #detailedinfo dl, #tracking dl {
-	clear: right;
-	overflow: auto;
 	margin: 0 0 18px 0;
 	padding: 0 0 15px 0;
 	border-bottom: 1px #ccc solid;
-}
-#detailedinfo dt, #tracking dt {
-	width: 35%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
-	font-weight: bold;
-	color: #444;
-	clear: both;
-}
-#detailedinfo dd, #tracking dd {
-	width: 65%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0;
 }
 #detailedinfo .noborder {
 	border-bottom: 0;
@@ -2318,12 +2240,6 @@ dl {
 #paid_subscription {
 	width: 100%;
 }
-#paid_subscription dl.settings {
-	margin-bottom: 0;
-}
-#paid_subscription dl.settings dd, #paid_subscription dl.settings dt {
-	margin-bottom: 4px;
-}
 /* Pick theme */
 #pick_theme {
 	width: 100%;
@@ -2342,32 +2258,8 @@ dl {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
-dl.stats dt {
-	width: 50%;
-	float: left;
-	margin: 0 0 4px 0;
-	padding: 0;
-	line-height: 1.5em;
-	clear: both;
-	font-size: 1em;
-}
-dl.stats dd {
-	width: 50%;
-	font-size: 1em;
-	float: left;
-	margin: 0 0 4px 0;
-	line-height: 1.4em;
-	min-height: 1.4em;
-	background: #fff;
-	border: 1px solid #aaa;
-	border-radius: 2px;
-	position: relative;
-}
 .statsbar div.bar {
-	float: left;
 	background: orange;
-	border-right: 1px solid #999;
-	border-radius: 1px 0 0 1px;
 	box-shadow: 4px -4px 8px rgba(0,0,0,0.1) inset, 4px 4px 8px rgba(255,255,255,0.3) inset;
 	display: block;
 	margin: 0 4px 0 0;
@@ -2387,11 +2279,7 @@ dl.stats {
 /* Absolute positioning stops these breaking the bars on narrow screens. */
 dl.stats dd span {
 	padding: 0 5px;
-	position: absolute;
-	right: 0;
-	top: 0;
 	z-index: 2;
-	white-space: pre;
 }
 
 /* Forum history table. */
@@ -3629,9 +3517,6 @@ p.information img {
 .off {
 	background: grey;
 }
-#userstatus .smalltext {
-	margin: 0 0 0 20px !important;
-}
 
 /* Styles for print media. */
 @media print {
@@ -3830,4 +3715,30 @@ h3.profile_hd {
 .progress_red span {
 	background-color: #F45D4C;
 	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
+}
+
+/* Reconstruct dl dt dd */
+dl {
+	overflow: auto;
+}
+/* Note to newbies: this element shows on left side */
+dt {
+	width: 50%;
+	display: inline-block;
+	font-weight: bold;
+	margin: 0 0 5px 0;
+}
+/* Note to newbies: this element shows on the right side */
+dd {
+	width: 49%;
+	display: inline-block;
+	margin: 0 0 5px 0;
+	vertical-align: top;
+}
+.statsbar {
+	background: #FFF;
+	border: 1px solid #AAA;
+	border-radius: 2px;
+	position: relative;
+	text-align: right;
 }
