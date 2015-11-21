@@ -4193,8 +4193,8 @@ function serialize_to_json()
 
 						if ($is_debug || $command_line)
 						{
-							if (!$temp)
-								echo "\n" . 'unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+							if ($temp === false)
+								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
 							else
 								echo "\n" . 'Fixing admin preferences...';
 						}
@@ -4215,10 +4215,10 @@ function serialize_to_json()
 									'member' => $row['id_member']
 								)
 							);
-						}
 
-						if ($is_debug || $command_line)
-							echo ' done.';
+							if ($is_debug || $command_line)
+								echo ' done.';
+						}
 					}
 
 					$smcFunc['db_free_result']($query);
@@ -4266,7 +4266,7 @@ function serialize_to_json()
 							{
 								$temp = @unserialize($row[$col]);
 
-								if (!$temp && ($is_debug || $command_line))
+								if ($temp === false && ($is_debug || $command_line))
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
