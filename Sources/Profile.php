@@ -425,7 +425,7 @@ function ModifyProfile($post_errors = array())
 	);
 
 	// Let them modify profile areas easily.
-	call_integration_hook('integrate_profile_areas', array(&$profile_areas));
+	call_integration_hook('integrate_pre_profile_areas', array(&$profile_areas));
 
 	// Do some cleaning ready for the menu function.
 	$context['password_areas'] = array();
