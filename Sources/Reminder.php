@@ -72,7 +72,7 @@ function RemindPick()
 
 	// You must enter a username/email address.
 	if (empty($where))
-		fatal_lang_error('username_no_exist', false);
+		fatal_lang_error('no_user_with_email', false);
 
 	// Make sure we are not being slammed
 	// Don't call this if you're coming from the "Choose a reminder type" page - otherwise you'll likely get an error
@@ -292,7 +292,7 @@ function SecretAnswerInput()
 
 	// Check they entered something...
 	if (empty($_REQUEST['uid']))
-		fatal_lang_error('username_no_exist', false);
+		fatal_lang_error('no_user_with_email', false);
 
 	// Get the stuff....
 	$request = $smcFunc['db_query']('', '
@@ -305,7 +305,7 @@ function SecretAnswerInput()
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('username_no_exist', false);
+		fatal_lang_error('no_user_with_email', false);
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
@@ -336,7 +336,7 @@ function SecretAnswer2()
 
 	// Hacker?  How did you get this far without an email or username?
 	if (empty($_REQUEST['uid']))
-		fatal_lang_error('username_no_exist', false);
+		fatal_lang_error('no_user_with_email', false);
 
 	loadLanguage('Login');
 
@@ -351,7 +351,7 @@ function SecretAnswer2()
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) == 0)
-		fatal_lang_error('username_no_exist', false);
+		fatal_lang_error('no_user_with_email', false);
 
 	$row = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
