@@ -25,7 +25,7 @@ if (!defined('SMF'))
 function AdminMain()
 {
 	global $txt, $context, $scripturl, $modSettings, $settings;
-	global $sourcedir, $options, $boarddir, $db_show_debug;
+	global $sourcedir, $options, $boarddir;
 
 	// Load the language and templates....
 	loadLanguage('Admin');

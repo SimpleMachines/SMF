@@ -719,12 +719,12 @@ function ssi_topBoards($num_top = 10, $output_method = 'echo')
 				<th style="text-align: left">', $txt['board_topics'], '</th>
 				<th style="text-align: left">', $txt['posts'], '</th>
 			</tr>';
-	foreach ($boards as $board)
+	foreach ($boards as $sBoard)
 		echo '
 			<tr>
-				<td>', $board['link'], $board['new'] ? ' <a href="' . $board['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
-				<td style="text-align: right">', comma_format($board['num_topics']), '</td>
-				<td style="text-align: right">', comma_format($board['num_posts']), '</td>
+				<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '"><span class="new_posts">' . $txt['new'] . '</span></a>' : '', '</td>
+				<td style="text-align: right">', comma_format($sBoard['num_topics']), '</td>
+				<td style="text-align: right">', comma_format($sBoard['num_posts']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -809,14 +809,14 @@ function ssi_topTopics($type = 'replies', $num_topics = 10, $output_method = 'ec
 				<th style="text-align: left">', $txt['views'], '</th>
 				<th style="text-align: left">', $txt['replies'], '</th>
 			</tr>';
-	foreach ($topics as $topic)
+	foreach ($topics as $sTopic)
 		echo '
 			<tr>
 				<td style="text-align: left">
-					', $topic['link'], '
+					', $sTopic['link'], '
 				</td>
-				<td style="text-align: right">', comma_format($topic['num_views']), '</td>
-				<td style="text-align: right">', comma_format($topic['num_replies']), '</td>
+				<td style="text-align: right">', comma_format($sTopic['num_views']), '</td>
+				<td style="text-align: right">', comma_format($sTopic['num_replies']), '</td>
 			</tr>';
 	echo '
 		</table>';
@@ -1155,7 +1155,7 @@ function ssi_logOnline($output_method = 'echo')
  */
 function ssi_login($redirect_to = '', $output_method = 'echo')
 {
-	global $scripturl, $txt, $user_info, $context, $modSettings;
+	global $scripturl, $txt, $user_info, $context;
 
 	if ($redirect_to != '')
 		$_SESSION['login_url'] = $redirect_to;
@@ -1273,12 +1273,12 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	$options = array();
+	$sOptions = array();
 	while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
 	{
 		censorText($rowChoice['label']);
 
-		$options[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
+		$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1299,7 +1299,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 
 	// Calculate the percentages and bar lengths...
 	$divisor = $return['total_votes'] == 0 ? 1 : $return['total_votes'];
-	foreach ($options as $i => $option)
+	foreach ($sOptions as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
 		$return['options'][$i] = array(
@@ -1311,7 +1311,7 @@ function ssi_recentPoll($topPollInstead = false, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($options), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
 
 	if ($output_method != 'echo')
 		return $return;
@@ -1440,13 +1440,13 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 			'current_poll' => $row['id_poll'],
 		)
 	);
-	$options = array();
+	$sOptions = array();
 	$total_votes = 0;
 	while ($rowChoice = $smcFunc['db_fetch_assoc']($request))
 	{
 		censorText($rowChoice['label']);
 
-		$options[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
+		$sOptions[$rowChoice['id_choice']] = array($rowChoice['label'], $rowChoice['votes']);
 		$total_votes += $rowChoice['votes'];
 	}
 	$smcFunc['db_free_result']($request);
@@ -1464,7 +1464,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 
 	// Calculate the percentages and bar lengths...
 	$divisor = $total_votes == 0 ? 1 : $total_votes;
-	foreach ($options as $i => $option)
+	foreach ($sOptions as $i => $option)
 	{
 		$bar = floor(($option[1] * 100) / $divisor);
 		$return['options'][$i] = array(
@@ -1476,7 +1476,7 @@ function ssi_showPoll($topic = null, $output_method = 'echo')
 		);
 	}
 
-	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($options), $row['max_votes'])) : '';
+	$return['allowed_warning'] = $row['max_votes'] > 1 ? sprintf($txt['poll_options6'], min(count($sOptions), $row['max_votes'])) : '';
 
 	if ($output_method != 'echo')
 		return $return;
@@ -1601,13 +1601,13 @@ function ssi_pollVote()
 			redirectexit('topic=' . $row['id_topic'] . '.0');
 	}
 
-	$options = array();
+	$sOptions = array();
 	$inserts = array();
 	foreach ($_REQUEST['options'] as $id)
 	{
 		$id = (int) $id;
 
-		$options[] = $id;
+		$sOptions[] = $id;
 		$inserts[] = array($_POST['poll'], $user_info['id'], $id);
 	}
 
@@ -1624,7 +1624,7 @@ function ssi_pollVote()
 		WHERE id_poll = {int:current_poll}
 			AND id_choice IN ({array_int:option_list})',
 		array(
-			'option_list' => $options,
+			'option_list' => $sOptions,
 			'current_poll' => $_POST['poll'],
 		)
 	);

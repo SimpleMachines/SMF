@@ -514,7 +514,7 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $txt, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// Some initial context.
 	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -665,7 +665,7 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// init
 	$draft_type = 1;

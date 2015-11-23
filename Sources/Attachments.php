@@ -142,7 +142,7 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $context, $modSettings, $smcFunc, $user_info;
+		global $context, $modSettings, $smcFunc, $user_info, $txt;
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
@@ -310,7 +310,7 @@ class Attachments
 
 	protected function createAtttach()
 	{
-		global $context, $txt, $user_info, $modSettings;
+		global $txt, $user_info, $modSettings;
 
 		$attachIDs = array();
 
