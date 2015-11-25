@@ -3902,13 +3902,18 @@ function convertUtf8()
 			// Do we need to pause?
 			nextSubstep($substep);
 
-			$table_info = $smcFunc['db_query']('', '
+			$getTableStatus = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS
 				LIKE {string:table_name}',
 				array(
 					'table_name' => str_replace('_', '\_', $table)
 				)
 			);
+
+			// Only one row so we can just fetch_assoc and free the result...
+			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
+			$smcFunc['db_free_result']($getTableStatus);
+
 			$upcontext['cur_table_num'] = $_GET['substep'];
 			$upcontext['cur_table_name'] = $table_info['Name'];
 			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
@@ -4020,7 +4025,6 @@ function convertUtf8()
 					echo " done.\n";
 			}
 		}
-		$smcFunc['db_free_result']($queryTables);
 
 		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
 
