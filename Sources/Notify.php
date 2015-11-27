@@ -28,7 +28,7 @@ if (!defined('SMF'))
  */
 function BoardNotify()
 {
-	global $scripturl, $txt, $board, $user_info, $context, $smcFunc, $sourcedir;
+	global $board, $user_info, $context, $smcFunc, $sourcedir;
 
 	// Permissions are an important part of anything ;).
 	is_not_guest();
@@ -96,7 +96,7 @@ function BoardNotify()
  */
 function TopicNotify()
 {
-	global $smcFunc, $user_info, $topic, $modSettings, $sourcedir, $context;
+	global $smcFunc, $user_info, $topic, $sourcedir, $context;
 
 	// Let's do something only if the function is enabled
 	if (!$user_info['is_guest'])

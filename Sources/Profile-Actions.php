@@ -515,7 +515,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
  */
 function deleteAccount($memID)
 {
-	global $txt, $context, $modSettings, $cur_profile, $modSettings;
+	global $txt, $context, $modSettings, $cur_profile;
 
 	if (!$context['user']['is_owner'])
 		isAllowedTo('profile_remove_any');

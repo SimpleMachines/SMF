@@ -971,7 +971,7 @@ function isAllowedTo($permission, $boards = null)
 {
 	global $user_info, $txt;
 
-	static $heavy_permissions = array(
+	$heavy_permissions = array(
 		'admin_forum',
 		'manage_attachments',
 		'manage_smileys',
@@ -984,7 +984,9 @@ function isAllowedTo($permission, $boards = null)
 	);
 
 	// Make it an array, even if a string was passed.
-	$permission = is_array($permission) ? $permission : array($permission);
+	$permission = (array) $permission;
+
+	call_integration_hook('integrate_heavy_permissions_session', array(&$heavy_permissions));
 
 	// Check the permission and return an error...
 	if (!allowedTo($permission, $boards))

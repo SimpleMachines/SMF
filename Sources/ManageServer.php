@@ -981,7 +981,7 @@ function prepareDBSettingContext(&$config_vars)
  */
 function saveSettings(&$config_vars)
 {
-	global $smcFunc, $sourcedir, $context, $cachedir;
+	global $sourcedir, $context;
 
 	validateToken('admin-ssc');
 
@@ -1134,10 +1134,10 @@ function saveDBSettings(&$config_vars)
 		elseif ($var[0] == 'select' && !empty($var['multiple']) && array_intersect($_POST[$var[1]], array_keys($var[2])) != array())
 		{
 			// For security purposes we validate this line by line.
-			$options = array();
+			$lOptions = array();
 			foreach ($_POST[$var[1]] as $invar)
 				if (in_array($invar, array_keys($var[2])))
-					$options[] = $invar;
+					$lOptions[] = $invar;
 
 			$setArray[$var[1]] = json_encode($options);
 		}
@@ -1156,12 +1156,12 @@ function saveDBSettings(&$config_vars)
 				$smcFunc['db_free_result']($request);
 			}
 
-			$options = array();
+			$lOptions = array();
 			foreach ($_POST[$var[1]] as $invar => $dummy)
 				if (isset($board_list[$invar]))
-					$options[] = $invar;
+					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = implode(',', $options);
+			$setArray[$var[1]] = implode(',', $lOptions);
 		}
 		// Integers!
 		elseif ($var[0] == 'int')

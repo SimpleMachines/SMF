@@ -359,9 +359,9 @@ function PermissionByBoard()
 		validateToken('admin-mpb');
 
 		$changes = array();
-		foreach ($_POST['boardprofile'] as $board => $profile)
+		foreach ($_POST['boardprofile'] as $pBoard => $profile)
 		{
-			$changes[(int) $profile][] = (int) $board;
+			$changes[(int) $profile][] = (int) $pBoard;
 		}
 
 		if (!empty($changes))
@@ -685,7 +685,7 @@ function SetQuickGroups()
  */
 function ModifyMembergroup()
 {
-	global $context, $txt, $smcFunc;
+	global $context, $txt, $smcFunc, $modSettings;
 
 	if (!isset($_GET['group']))
 		fatal_lang_error('no_access', false);

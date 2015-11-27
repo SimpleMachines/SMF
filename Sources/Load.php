@@ -2311,7 +2311,7 @@ function loadCSSFile($filename, $params = array(), $id = '')
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// Account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($filename, '.css?');
@@ -2321,16 +2321,16 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/css/' . $filename))
 		{
 			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
 				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
 			else
 				$filename = false;
 		}
 		else
-			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+			$filename = $settings[$themeRef . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
 	}
 
 	// Add it to the array for use in the template
@@ -2385,7 +2385,7 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// Account for shorthand like admin.js?alp21 filenames
 	$has_seed = strpos($filename, '.js?');
@@ -2395,16 +2395,16 @@ function loadJavascriptFile($filename, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $filename))
 		{
 			// can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
 				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
 			else
 				$filename = false;
 		}
 		else
-			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+			$filename = $settings[$themeRef . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
 	}
 
 	// Add it to the array for use in the template
@@ -3100,7 +3100,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 
@@ -3200,7 +3200,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 

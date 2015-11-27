@@ -1237,6 +1237,10 @@ function Post($post_errors = array())
 	});', true);
 	}
 
+	// Knowing the current board ID might be handy.
+	addInlineJavascript('
+	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');

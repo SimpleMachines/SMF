@@ -601,7 +601,6 @@ function template_main()
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
-			var current_board = ', empty($context['current_board']) ? 'null' : $context['current_board'], ';
 			var make_poll = ', $context['make_poll'] ? 'true' : 'false', ';
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";
