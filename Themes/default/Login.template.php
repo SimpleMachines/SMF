@@ -25,7 +25,7 @@ function template_login()
 				</h3>
 			</div>
 			<div class="roundframe">
-				<form class="login" action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
+				<form action="', $context['login_url'], '" name="frmLogin" id="frmLogin" method="post" accept-charset="', $context['character_set'], '">';
 
 	// Did they make a mistake last time?
 	if (!empty($context['login_errors']))
