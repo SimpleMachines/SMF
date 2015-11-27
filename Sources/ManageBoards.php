@@ -524,8 +524,9 @@ function EditBoard()
 	{
 		$context['can_move_children'] = false;
 		$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
-		foreach ($context['board_order'] as $board)
-			if ($board['is_child'] == false && $board['selected'] == false)
+
+		foreach ($context['board_order'] as $lBoard)
+			if ($board['is_child'] == false && $lBoard['selected'] == false)
 				$context['can_move_children'] = true;
 	}
 

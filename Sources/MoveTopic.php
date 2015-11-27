@@ -386,7 +386,7 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc, $sourcedir;
+	global $sourcedir, $user_info, $modSettings, $smcFunc;
 
 	// Empty array?
 	if (empty($topics))

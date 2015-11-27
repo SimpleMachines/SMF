@@ -74,8 +74,6 @@ function ManageScheduledTasks()
 function ScheduledTasks()
 {
 	global $context, $txt, $sourcedir, $smcFunc, $scripturl;
-	global $modSettings;
-
 
 	// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 	// ... ironically I don't like pickle. </grudge>
@@ -114,7 +112,7 @@ function ScheduledTasks()
 				'remove_redirect' => 'remove_topic_redirect'
 			)
 		);
-		
+
 		$temp = $smcFunc['db_fetch_assoc']($get_info);
 		$task_disabled = !empty($temp['disabled']) ? 0 : 1;
 		$smcFunc['db_free_result']($get_info);

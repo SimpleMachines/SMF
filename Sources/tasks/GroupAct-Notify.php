@@ -24,8 +24,8 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
      * @return bool Always returns true
      */
 	public function execute()
- 	{
- 		global $sourcedir, $smcFunc, $language, $modSettings, $scripturl;
+	{
+		global $sourcedir, $smcFunc, $language, $modSettings;
 
 		// Get the details of all the members concerned...
 		$request = $smcFunc['db_query']('', '
