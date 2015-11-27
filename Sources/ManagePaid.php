@@ -564,7 +564,7 @@ function ModifySubscription()
 			if (empty($_POST['cost_day']) && empty($_POST['cost_week']) && empty($_POST['cost_month']) && empty($_POST['cost_year']))
 				fatal_lang_error('paid_all_freq_blank');
 		}
-		$cost = serialize($cost);
+		$cost = json_encode($cost);
 
 		// Having now validated everything that might throw an error, let's also now deal with the token.
 		validateToken('admin-pms');
@@ -698,7 +698,7 @@ function ModifySubscription()
 			$context['sub'] = array(
 				'name' => $row['name'],
 				'desc' => $row['description'],
-				'cost' => @unserialize($row['cost']),
+				'cost' => @json_decode($row['cost'], true),
 				'span' => array(
 					'value' => $span_value,
 					'unit' => $span_unit,
@@ -1271,14 +1271,14 @@ function ModifyUserSubscription()
 		$context['pending_payments'] = array();
 		if (!empty($row['pending_details']))
 		{
-			$pending_details = @unserialize($row['pending_details']);
+			$pending_details = @json_decode($row['pending_details'], true);
 			foreach ($pending_details as $id => $pending)
 			{
 				// Only this type need be displayed.
 				if ($pending[3] == 'payback')
 				{
 					// Work out what the options were.
-					$costs = @unserialize($context['current_subscription']['real_cost']);
+					$costs = @json_decode($context['current_subscription']['real_cost'], true);
 
 					if ($context['current_subscription']['real_length'] == 'F')
 					{
@@ -1312,7 +1312,7 @@ function ModifyUserSubscription()
 							addSubscription($context['current_subscription']['id'], $row['id_member'], $context['current_subscription']['real_length'] == 'F' ? strtoupper(substr($pending[2], 0, 1)) : 0);
 						unset($pending_details[$id]);
 
-						$new_details = serialize($pending_details);
+						$new_details = json_encode($pending_details);
 
 						// Update the entry.
 						$smcFunc['db_query']('', '
@@ -1840,7 +1840,7 @@ function loadSubscriptions()
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// Pick a cost.
-		$costs = @unserialize($row['cost']);
+		$costs = @json_decode($row['cost'], true);
 
 		if ($row['length'] != 'F' && !empty($modSettings['paid_currency_symbol']) && !empty($costs['fixed']))
 			$cost = sprintf($modSettings['paid_currency_symbol'], $costs['fixed']);

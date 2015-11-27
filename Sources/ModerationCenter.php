@@ -45,7 +45,7 @@ function ModerationMain($dont_call = false)
 	loadLanguage('ModerationCenter');
 	loadTemplate(false, 'admin');
 
-	$context['admin_preferences'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+	$context['admin_preferences'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
 	$context['robot_no_index'] = true;
 
 	// This is the menu structure - refer to Subs-Menu.php for the details.
@@ -285,7 +285,7 @@ function ModerationHome()
 			$context['mod_blocks'][] = $block();
 	}
 
-	$context['admin_prefs'] = !empty($options['admin_preferences']) ? unserialize($options['admin_preferences']) : array();
+	$context['admin_prefs'] = !empty($options['admin_preferences']) ? json_decode($options['admin_preferences'], true) : array();
 }
 
 /**
@@ -500,7 +500,7 @@ function ModBlockReportedPosts()
 	global $context, $user_info, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(serialize($user_info['mod_cache']['bq']));
+	$cachekey = md5(json_encode($user_info['mod_cache']['bq']));
 	$context['reported_posts'] = array();
 	if ($user_info['mod_cache']['bq'] == '0=1')
 		return 'reported_posts_block';
@@ -614,7 +614,7 @@ function ModBlockReportedMembers()
 	global $context, $scripturl, $smcFunc;
 
 	// Got the info already?
-	$cachekey = md5(serialize((int) allowedTo('moderate_forum')));
+	$cachekey = md5(json_encode((int) allowedTo('moderate_forum')));
 	$context['reported_users'] = array();
 	if (!allowedTo('moderate_forum'))
 		return 'reported_users_block';
@@ -1417,7 +1417,7 @@ function ViewWarningLog()
 	if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search']))
 	{
 		$search_params = base64_decode(strtr($_REQUEST['params'], array(' ' => '+')));
-		$search_params = @unserialize($search_params);
+		$search_params = @json_decode($search_params, true);
 	}
 
 	// This array houses all the valid search types.
@@ -1454,7 +1454,7 @@ function ViewWarningLog()
 	$context['url_start'] = '?action=moderate;area=warnings;sa=log;sort='.  $context['order'];
 
 	// Setup the search context.
-	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(serialize($search_params));
+	$context['search_params'] = empty($search_params['string']) ? '' : base64_encode(json_encode($search_params));
 	$context['search'] = array(
 		'string' => $search_params['string'],
 		'type' => $search_params['type'],

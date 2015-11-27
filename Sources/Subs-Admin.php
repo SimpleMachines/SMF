@@ -455,7 +455,7 @@ function updateAdminPreferences()
 		return false;
 
 	// This is what we'll be saving.
-	$options['admin_preferences'] = serialize($context['admin_preferences']);
+	$options['admin_preferences'] = json_encode($context['admin_preferences']);
 
 	// Just check we haven't ended up with something theme exclusive somehow.
 	$smcFunc['db_query']('', '
@@ -503,7 +503,7 @@ function emailAdmins($template, $replacements = array(), $additional_recipients 
 
 	// Load their alert preferences
 	require_once($sourcedir . '/Subs-Notify.php');
-	$prefs = getNotifyPrefs(array_keys($rows), 'announcements', true);
+	$prefs = getNotifyPrefs($members, 'announcements', true);
 
 	$request = $smcFunc['db_query']('', '
 		SELECT id_member, member_name, real_name, lngfile, email_address

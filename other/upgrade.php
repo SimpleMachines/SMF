@@ -64,9 +64,10 @@ $upcontext['steps'] = array(
 	2 => array(3, 'Backup', 'BackupDatabase', 10),
 	3 => array(4, 'Database Changes', 'DatabaseChanges', 50),
 	4 => array(5, 'Convert to UTF-8', 'ConvertUtf8', 20),
+	5 => array(6, 'Convert serialized strings to JSON', 'serialize_to_json', 10),
 	// This is removed as it doesn't really work right at the moment.
 	//4 => array(5, 'Cleanup Mods', 'CleanupMods', 10),
-	5 => array(6, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
+	6 => array(7, 'Delete Upgrade.php', 'DeleteUpgrade', 1),
 );
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -4059,12 +4060,275 @@ function convertUtf8()
 			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
 	}
 
-	if ($command_line)
+	return true;
+}
+
+function serialize_to_json()
+{
+	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
+
+	// First thing's first - did we already do this?
+	if (!empty($modSettings['json_done']))
 	{
-		return DeleteUpgrade();
+		if ($command_line)
+			return DeleteUpgrade();
+		else
+			return true;
 	}
 
-	return true;
+	// name => array('key', col1[,col2|true[,col3]])
+	// If 3rd item in array is true, it indicates that col1 could be empty...
+	$tables = array(
+		'background_tasks' => array('id_task', 'task_data'),
+		'log_actions' => array('id_action', 'extra'),
+		'log_online' => array('session', 'url'),
+		'log_packages' => array('id_install', 'db_changes', 'failed_steps', 'credits'),
+		'log_spider_hits' => array('id_hit', 'url'),
+		'log_subscribed' => array('id_sublog', 'pending_details'),
+		'pm_rules' => array('id_rule', 'criteria', 'actions'),
+		'qanda' => array('id_question', 'answers'),
+		'subscriptions' => array('id_subscribe', 'cost'),
+		'user_alerts' => array('id_alert', 'extra', true),
+		'user_drafts' => array('id_draft', 'to_list', true),
+		// These last two are a bit different - we'll handle those separately
+		'settings' => array(),
+		'themes' => array()
+	);
+
+	// Set up some context stuff...
+	// Because we're not using numeric indices, we need this to figure out the current table name...
+	$keys = array_keys($tables);
+
+	$upcontext['table_count'] = 13;
+	$upcontext['cur_table_num'] = $_GET['substep'];
+	$upcontext['cur_table_name'] = isset($keys[$_GET['substep']]) ? $keys[$_GET['substep']] : $keys[0];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+	$file_steps = $upcontext['table_count'];
+
+	foreach($keys as $id => $table)
+		if ($id < $_GET['substep'])
+			$upcontext['previous_tables'][] = $table;
+
+	if ($command_line)
+		echo 'Converting data from serialize() to json_encode().';
+
+	if (!$support_js || isset($_GET['xml']))
+	{
+		// Fix the data in each table
+		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		{
+			$upcontext['cur_table_name'] = isset($keys[$substep + 1]) ? $keys[$substep + 1] : $keys[$substep];
+			$upcontext['cur_table_num'] = $substep + 1;
+
+			$upcontext['step_progress'] = (int)(($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			// Initialize a few things...
+			$where = '';
+			$vars = array();
+			$table = $keys[$substep];
+			$info = $tables[$table];
+
+			// Now the fun - build our queries and all that fun stuff
+			if ($table == 'settings')
+			{
+				// Now a few settings...
+				$serialized_settings = array(
+					'attachment_basedirectories',
+					'attachmentUploadDir',
+					'cal_today_birthday',
+					'cal_today_event',
+					'cal_today_holiday',
+					'displayFields',
+					'last_attachments_directory',
+					'memberlist_cache',
+					'search_index_custom_config',
+					'spider_name_cache'
+				);
+
+				// Loop through and fix these...
+				$new_settings = array();
+				if ($is_debug || $command_line)
+					echo "\n" . 'Fixing some settings...';
+
+				foreach ($serialized_settings as $var)
+				{
+					if (isset($modSettings[$var]))
+					{
+						// Attempt to unserialize the setting
+						$temp = @unserialize($modSettings[$var]);
+						if (!$temp && ($is_debug || $command_line))
+							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+						elseif ($temp !== false)
+							$new_settings[$var] = json_encode($temp);
+					}
+				}
+
+				// Update everything at once
+				if (!function_exists('cache_put_data'))
+					require_once($sourcedir . '/Load.php');
+				updateSettings($new_settings, true);
+
+				if ($is_debug || $command_line)
+					echo ' done.';
+			}
+			elseif ($table == 'themes')
+			{
+				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+				$query = $smcFunc['db_query']('', '
+					SELECT * FROM {db_prefix}themes
+					WHERE variable = {string:admin_prefs}',
+						array(
+							'admin_prefs' => 'admin_preferences'
+						)
+				);
+
+				if ($smcFunc['db_num_rows']($query) != 0)
+				{
+					while ($row = $smcFunc['db_fetch_assoc']($query))
+					{
+						$temp = @unserialize($row['admin_preferences']);
+
+						if ($is_debug || $command_line)
+						{
+							if ($temp === false)
+								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+							else
+								echo "\n" . 'Fixing admin preferences...';
+						}
+
+						if ($temp !== false)
+						{
+							$row['admin_preferences'] = json_encode($temp);
+
+							// Even though we have all values from the table, UPDATE is still faster than REPLACE
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}themes
+								SET value = {string:prefs}
+								WHERE id_theme = {int:theme}
+									AND id_member = {int:member}',
+								array(
+									'prefs' => $row['admin_preferences'],
+									'theme' => $row['id_theme'],
+									'member' => $row['id_member']
+								)
+							);
+
+							if ($is_debug || $command_line)
+								echo ' done.';
+						}
+					}
+
+					$smcFunc['db_free_result']($query);
+				}
+			}
+			else
+			{
+				// First item is always the key...
+				$key = $info[0];
+				unset($info[0]);
+
+				// Now we know what columns we have and such...
+				if (count($info) == 2 && $info[2] === true)
+				{
+					$col_select = $info[1];
+					$where = ' WHERE ' . $info[1] . ' != {empty}';
+				}
+				else
+				{
+					$col_select = implode(', ', $info);
+				}
+
+				$query = $smcFunc['db_query']('', '
+					SELECT ' . $key . ', ' . $col_select . '
+					FROM {db_prefix}' . $table . $where,
+					array()
+				);
+
+				if ($smcFunc['db_num_rows']($query) != 0)
+				{
+					if ($is_debug || $command_line)
+					{
+						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+						flush();
+					}
+
+					while ($row = $smcFunc['db_fetch_assoc']($query))
+					{
+						$update = '';
+
+						// We already know what our key is...
+						foreach ($info as $col)
+						{
+							if ($col !== true && $row[$col] != '')
+							{
+								$temp = @unserialize($row[$col]);
+
+								if ($temp === false && ($is_debug || $command_line))
+								{
+									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
+								}
+								else
+								{
+									$row[$col] = json_encode($temp);
+
+									// Build our SET string and variables array
+									$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+									$vars[$col] = $row[$col];
+								}
+							}
+						}
+
+						$vars[$key] = $row[$key];
+
+						// In a few cases, we might have empty data, so don't try to update in those situations...
+						if (!empty($update))
+						{
+							$smcFunc['db_query']('', '
+								UPDATE {db_prefix}' . $table . '
+								SET ' . $update . '
+								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+								$vars
+							);
+						}
+					}
+
+					if ($is_debug || $command_line)
+						echo ' done.';
+
+					// Free up some memory...
+					$smcFunc['db_free_result']($query);
+				}
+			}
+		}
+
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml']))
+			return upgradeExit();
+
+		if ($is_debug || $command_line)
+		{
+			echo "\n" . 'Successful.' . "\n";
+			flush();
+		}
+		$upcontext['step_progress'] = 100;
+
+		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+		updateSettings(array('json_done' => true));
+
+		$_GET['substep'] = 0;
+		// Make sure we move on!
+		if ($command_line)
+			return DeleteUpgrade();
+
+		return true;
+	}
+
+	// If this fails we just move on to deleting the upgrade anyway...
+	$_GET['substep'] = 0;
+	return false;
 }
 
 /******************************************************************************

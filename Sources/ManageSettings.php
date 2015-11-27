@@ -617,7 +617,7 @@ function ModifyAntispamSettings($return_config = false)
 		$context['question_answers'][$row['id_question']] = array(
 			'lngfile' => $lang,
 			'question' => $row['question'],
-			'answers' => unserialize($row['answers']),
+			'answers' => json_decode($row['answers'], true),
 		);
 		$context['qa_by_lang'][$lang][] = $row['id_question'];
 	}
@@ -732,7 +732,7 @@ function ModifyAntispamSettings($return_config = false)
 							$changes['delete'][] = $q_id;
 						continue;
 					}
-					$answers = serialize($answers);
+					$answers = json_encode($answers);
 
 					// At this point we know we have a question and some answers. What are we doing with it?
 					if (!isset($context['question_answers'][$q_id]))
@@ -2025,7 +2025,7 @@ function EditCustomProfiles()
 		}
 		$smcFunc['db_free_result']($request);
 
-		updateSettings(array('displayFields' => serialize($fields)));
+		updateSettings(array('displayFields' => json_encode($fields)));
 		$_SESSION['adm-save'] = true;
 		redirectexit('action=admin;area=featuresettings;sa=profile');
 	}
