@@ -1594,6 +1594,8 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'language' => 1,
 			'unknown' => 1,
 		);
+		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
+
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
@@ -1742,6 +1744,13 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					$sort_id[$packageInfo['type']]++;
 					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_language'][md5($package)] = $packageInfo;
+				}
+				// This might be a 3rd party section.
+				elseif (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]))
+				{
+					$sort_id[$packageInfo['type']]++;
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
+					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;					
 				}
 				// Other stuff.
 				else

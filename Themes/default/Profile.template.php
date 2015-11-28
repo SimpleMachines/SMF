@@ -1031,6 +1031,17 @@ function template_trackIP()
 	echo '<br>';
 
 	template_show_list('track_user_list');
+
+	// 3rd party integrations may have added additional tracking.
+	if (!empty($context['additional_track_lists']))
+	{
+		foreach ($context['additional_track_lists'] as $list)
+		{
+			echo '<br>';
+
+			template_show_list($list);
+		}
+	}
 }
 
 /**

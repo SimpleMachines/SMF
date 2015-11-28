@@ -621,6 +621,9 @@ function PackageDownload()
 	else
 		$context['package']['install']['link'] = '';
 
+	// Does a 3rd party hook want to do some additional changes?
+	call_integration_hook('integrate_package_download');
+
 	$context['package']['list_files']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
 
 	// Free a little bit of memory...
@@ -708,6 +711,9 @@ function PackageUpload()
 		$context['package']['install']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=install;package=' . $context['package']['filename'] . '">[ ' . $txt['add_languages'] . ' ]</a>';
 	else
 		$context['package']['install']['link'] = '';
+
+	// Does a 3rd party hook want to do some additional changes?
+	call_integration_hook('integrate_package_upload');
 
 	$context['package']['list_files']['link'] = '<a href="' . $scripturl . '?action=admin;area=packages;sa=list;package=' . $context['package']['filename'] . '">[ ' . $txt['list_files'] . ' ]</a>';
 
