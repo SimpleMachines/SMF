@@ -595,7 +595,7 @@ function BrowseFiles()
 	);
 
 	// Does a hook want to display their attachments better?
-	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &titles, &$list_title));
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles, &$list_title));
 	
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
