@@ -56,6 +56,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_sybase'                 => false,
 			'db_case_sensitive'         => false,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
+			'db_is_resource'            => 'smf_is_resource',
 		);
 
 	if (!empty($db_options['persist']))
@@ -844,6 +845,21 @@ function smf_db_escape_wildcard_string($string, $translate_human_wildcards=false
 		);
 
 	return strtr($string, $replacements);
+}
+
+/**
+ * Validates whether the resource is a valid mysqli instance.
+ * Mysqli uses objects rather than resource. https://bugs.php.net/bug.php?id=42797
+ *
+ * @param mixed $result The string to test
+ * @return bool True if it is, false otherwise
+ */
+function smf_is_resource($result)
+{
+	if ($result instanceof mysqli_result)
+		return true;
+
+	return false;
 }
 
 ?>
