@@ -187,7 +187,7 @@ function template_main()
 
 	// Mobile action - moderation buttons (top)
 	echo '
-			<div class="mobile_buttons">
+			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', $txt['mobile_action'],'</a>
 				', !empty($context['can_moderate_forum']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
 			</div>';
@@ -210,6 +210,13 @@ function template_main()
 				</form>
 			</div>';
 
+	// Mobile action - moderation buttons (bottom)
+	echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'],'</a>
+				', !empty($context['can_moderate_forum']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+			</div>';
+
 	// Show the page index... "Pages: [1]".
 	echo '
 			<div class="pagesection">
@@ -222,13 +229,6 @@ function template_main()
 
 	// Show the lower breadcrumbs.
 	theme_linktree();
-
-	// Mobile action - moderation buttons (bottom)
-	echo '
-			<div class="mobile_buttons">
-				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', !empty($context['can_moderate_forum']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
-			</div>';
 
 	// Moderation buttons
 	echo '

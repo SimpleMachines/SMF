@@ -113,6 +113,12 @@ function template_main()
 
 	if (!$context['no_topic_listing'])
 	{
+	// Mobile action buttons (top)
+	echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+		</div>';
+
 		echo '
 	<div class="pagesection">
 		', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
@@ -320,6 +326,12 @@ function template_main()
 	<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
 
+	// Mobile action buttons (bottom)
+	echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+		</div>';
+
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
@@ -362,6 +374,24 @@ function template_main()
 </script>';
 
 	template_topic_legend();
+
+	// Lets pop the...
+	echo '
+			<div id="mobile_action" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_action'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['normal_buttons']), '
+				</div>
+			</div>
+			<script>
+				$( ".mobile_act" ).click(function() {
+					$( "#mobile_action" ).show();
+				});
+				$( ".hide_popup" ).click(function() {
+					$( "#mobile_action" ).hide();
+				});
+			</script>';
 }
 
 /**
