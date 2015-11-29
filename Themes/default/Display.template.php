@@ -353,15 +353,7 @@ function template_main()
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					', template_button_strip($context['normal_buttons']), '
 				</div>
-			</div>
-			<script>
-				$( ".mobile_act" ).click(function() {
-					$( "#mobile_action" ).show();
-				});
-				$( ".hide_popup" ).click(function() {
-					$( "#mobile_action" ).hide();
-				});
-			</script>';
+			</div>';
 
 	// Show the moderation button & pop only if user can moderate
 	if (!empty($context['can_moderate_forum']))
@@ -372,15 +364,7 @@ function template_main()
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					', template_button_strip($context['mod_buttons']), '
 				</div>
-			</div>
-			<script>
-				$( ".mobile_mod" ).click(function() {
-					$( "#mobile_moderation" ).show();
-				});
-				$( ".hide_popup").click(function() {
-					$( "#mobile_moderation" ).hide();
-				});
-			</script>';
+			</div>';
 }
 
 /**

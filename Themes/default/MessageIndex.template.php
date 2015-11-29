@@ -383,15 +383,7 @@ function template_main()
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
 					', template_button_strip($context['normal_buttons']), '
 				</div>
-			</div>
-			<script>
-				$( ".mobile_act" ).click(function() {
-					$( "#mobile_action" ).show();
-				});
-				$( ".hide_popup" ).click(function() {
-					$( "#mobile_action" ).hide();
-				});
-			</script>';
+			</div>';
 }
 
 /**
