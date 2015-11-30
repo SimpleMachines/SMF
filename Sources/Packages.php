@@ -531,7 +531,7 @@ function PackageInstallTest()
 
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
-				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+				'action' => sprintf($txt['execute_hook_action'. ($action['reverse'] ? '_inverse' : '')],  $smcFunc['htmlspecialchars']($action['hook'])),
 			);
 		}
 		elseif ($action['type'] == 'credits')
