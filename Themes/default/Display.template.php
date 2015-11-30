@@ -189,7 +189,7 @@ function template_main()
 	echo '
 			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', !empty($context['can_moderate_forum']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				', (!empty($context['can_moderate_forum'] || $context['user']['is_mod'])) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
 			</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -214,7 +214,7 @@ function template_main()
 	echo '
 			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', !empty($context['can_moderate_forum']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				', (!empty($context['can_moderate_forum'] || $context['user']['is_mod'])) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
 			</div>';
 
 	// Show the page index... "Pages: [1]".
@@ -356,7 +356,7 @@ function template_main()
 			</div>';
 
 	// Show the moderation button & pop only if user can moderate
-	if (!empty($context['can_moderate_forum']))
+	if (!empty($context['can_moderate_forum'] || $context['user']['is_mod']))
 		echo '
 			<div id="mobile_moderation" class="popup_container">
 				<div class="popup_window description">
