@@ -663,7 +663,7 @@ function PackageInstallTest()
 			$context['has_failure'] = true;
 
 			$thisAction += array(
-				'description' => $txt['package_action_error'],
+				'description' => $txt['package_action_missing'],
 				'failed' => true,
 			);
 		}

@@ -1017,6 +1017,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	{
 		if (!empty($modSettings['disabledBBC']))
 		{
+			$disabled = array();
+
 			$temp = explode(',', strtolower($modSettings['disabledBBC']));
 
 			foreach ($temp as $tag)
