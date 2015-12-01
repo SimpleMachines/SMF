@@ -82,8 +82,14 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 				{
 					$pref = !empty($prefs[$member_id]['birthday']) ? $prefs[$member_id]['birthday'] : 0;
 
+					// Let's load replacements ahead
+					$replacements = array(
+						'REALNAME' => $member['name'],
+					);
+
 					if ($pref & 0x01)
 					{
+						$alertdata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						$alert_rows[] = array(
 							'alert_time' => time(),
 							'id_member' => $member_id,
@@ -91,17 +97,13 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 							'content_id' => 0,
 							'content_action' => 'msg',
 							'is_read' => 0,
-							'extra' => json_encode(array('happy_birthday' => $txt['happy_birthday_body'])),
+							'extra' => json_encode(array('happy_birthday' => $alertdata['body'])),
 						);
 						updateMemberData($member_id, array('alerts' => '+'));
 					}
 
 					if ($pref & 0x02)
 					{
-						$replacements = array(
-							'REALNAME' => $member['name'],
-						);
-
 						$emaildata = loadEmailTemplate('happy_birthday', $replacements, $lang, false);
 						sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'birthday', false, 4);
 					}
