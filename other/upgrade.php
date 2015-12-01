@@ -3609,7 +3609,7 @@ function convertUtf8()
 	else
 	{
 		$upcontext['page_title'] = 'Converting to UTF8';
-		$upcontext['sub_template'] = 'convertutf8';
+		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convertutf8';
 
 		// The character sets used in SMF's language files with their db equivalent.
 		$charsets = array(
@@ -4010,7 +4010,7 @@ function convertUtf8()
 			// Now do the actual conversion (if still needed).
 			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
 			{
-				if ($command_line || $is_debug)
+				if ($command_line)
 					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
 
 				$smcFunc['db_query']('', '
@@ -4021,7 +4021,7 @@ function convertUtf8()
 						)
 				);
 
-				if ($command_line || $is_debug)
+				if ($command_line)
 					echo " done.\n";
 			}
 		}
@@ -4065,7 +4065,7 @@ function convertUtf8()
 		}
 		$smcFunc['db_free_result']($request);
 
-		if ($upcontext['dropping_index'])
+		if ($upcontext['dropping_index'] && $command_line)
 		{
 			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
 			flush();
@@ -4087,6 +4087,8 @@ function serialize_to_json()
 		else
 			return true;
 	}
+
+	$context['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
@@ -4162,7 +4164,7 @@ function serialize_to_json()
 
 				// Loop through and fix these...
 				$new_settings = array();
-				if ($is_debug || $command_line)
+				if ($command_line)
 					echo "\n" . 'Fixing some settings...';
 
 				foreach ($serialized_settings as $var)
@@ -4183,7 +4185,7 @@ function serialize_to_json()
 					require_once($sourcedir . '/Load.php');
 				updateSettings($new_settings, true);
 
-				if ($is_debug || $command_line)
+				if ($command_line)
 					echo ' done.';
 			}
 			elseif ($table == 'themes')
@@ -4203,7 +4205,7 @@ function serialize_to_json()
 					{
 						$temp = @unserialize($row['admin_preferences']);
 
-						if ($is_debug || $command_line)
+						if ($command_line)
 						{
 							if ($temp === false)
 								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
@@ -4320,7 +4322,7 @@ function serialize_to_json()
 		if (isset($_GET['xml']))
 			return upgradeExit();
 
-		if ($is_debug || $command_line)
+		if ($command_line)
 		{
 			echo "\n" . 'Successful.' . "\n";
 			flush();
@@ -5369,6 +5371,97 @@ function template_convertutf8()
 		<h3>SMF is converting your database to UTF-8...</h3>';
 }
 
+// Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
+function template_convert_utf8()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+			<h3>Please wait while your database is converted to UTF-8. For large forums this may take some time!</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
+
+	// If we dropped their index, let's let them know
+	if ($upcontext['cur_table_num'] == $upcontext['table_count'] && $upcontext['dropping_index'])
+		echo '
+			<br><span style="display:inline;">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated.</span>';
+
+	echo '
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Conversion Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'utf8_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_utf8_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
+}
+
 function template_clean_mods()
 {
 	global $upcontext;
@@ -5550,6 +5643,90 @@ function template_upgrade_templates()
 	// We'll want a continue button... assuming chmod is OK (Otherwise let them use connect!)
 	if (empty($upcontext['chmod']['files']) || $upcontext['is_test'])
 		$upcontext['continue'] = 1;
+}
+
+// Template for the database backup tool/
+function template_serialize_json()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+			<h3>Converting data from serialize to JSON...</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="json_done" id="json_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'json_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_serialize_json_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
 
 function template_upgrade_complete()
