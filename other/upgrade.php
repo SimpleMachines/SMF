@@ -3599,12 +3599,12 @@ function smf_strtolower($string)
  */
 function convertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js, $is_debug;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
-		echo 'Database already UTF-8. Skipping.';
+		return true;
 	}
 	else
 	{
@@ -3889,27 +3889,35 @@ function convertUtf8()
 				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 		}
 
-		// Grab a list of tables.
-		if (preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) === 1)
-			$queryTables = $smcFunc['db_query']('', '
+		// Get a list of table names ahead of time... This makes it easier to set our substep and such
+		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix);
+
+		$upcontext['table_count'] = count($queryTables);
+		$file_steps = $upcontext['table_count'];
+
+		for($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		{
+			$table = $queryTables[$_GET['substep']];
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			$getTableStatus = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS
-				FROM `' . strtr($match[1], array('`' => '')) . '`
 				LIKE {string:table_name}',
 				array(
-					'table_name' => str_replace('_', '\_', $match[2]) . '%',
-				)
-			);
-		else
-			$queryTables = $smcFunc['db_query']('', '
-				SHOW TABLE STATUS
-				LIKE {string:table_name}',
-				array(
-					'table_name' => str_replace('_', '\_', $db_prefix) . '%',
+					'table_name' => str_replace('_', '\_', $table)
 				)
 			);
 
-		while ($table_info = $smcFunc['db_fetch_assoc']($queryTables))
-		{
+			// Only one row so we can just fetch_assoc and free the result...
+			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
+			$smcFunc['db_free_result']($getTableStatus);
+
+			$upcontext['cur_table_num'] = $_GET['substep'];
+			$upcontext['cur_table_name'] = $table_info['Name'];
+			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
 			// Just to make sure it doesn't time out.
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
@@ -4002,7 +4010,8 @@ function convertUtf8()
 			// Now do the actual conversion (if still needed).
 			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
 			{
-				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+				if ($command_line || $is_debug)
+					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
 
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
@@ -4012,10 +4021,10 @@ function convertUtf8()
 						)
 				);
 
-				echo " done.\n";
+				if ($command_line || $is_debug)
+					echo " done.\n";
 			}
 		}
-		$smcFunc['db_free_result']($queryTables);
 
 		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
 
@@ -4057,7 +4066,10 @@ function convertUtf8()
 		$smcFunc['db_free_result']($request);
 
 		if ($upcontext['dropping_index'])
+		{
 			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
+			flush();
+		}
 	}
 
 	return true;
