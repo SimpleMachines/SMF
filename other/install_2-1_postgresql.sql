@@ -2431,7 +2431,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentPostLimit'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentNumPerPostLimit', '4');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentDirSizeLimit', '10240');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentDirFileLimit', '1000');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentUploadDir', '{$boarddir}/attachments');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentUploadDir', '{"1":"{$boarddir}\/attachments"}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentExtensions', 'doc,gif,jpg,mpg,pdf,png,txt,zip');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentCheckExtensions', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentShowImages', '1');
@@ -2440,6 +2440,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbnails
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbWidth', '150');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentThumbHeight', '150');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('use_subdirectories_for_attachments', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('currentAttachmentUploadDir', 1);
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('censorIgnoreCase', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mostOnline', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('mostOnlineToday', '1');

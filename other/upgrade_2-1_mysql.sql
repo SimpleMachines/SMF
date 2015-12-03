@@ -232,7 +232,7 @@ $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
 if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
-	$modSettings['attachmentUploadDir'] = unserialize($modSettings['attachmentUploadDir']);
+	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
 $is_done = false;
 while (!$is_done)
@@ -381,6 +381,48 @@ if (!empty($attachs))
 			'attachs' => $attachs,
 		)
 	);
+---}
+---#
+
+---# Fixing attachment directory setting...
+---{
+if (is_dir($modSettings['attachmentUploadDir']))
+{
+  $smcFunc['db_query']('', '
+    UPDATE {$db_prefix}settings
+    SET value = {string:attach_dir}
+    WHERE variable = {string:uploadDir)',
+    array(
+      'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+      'uploadDir' => 'attachmentUploadDir'
+    )
+  );
+	$smcFunc['db_insert']('replace',
+		'{db_prefix}settings',
+		array('variable' => 'string', 'value' => 'string'),
+		array('currentAttachmentUploadDir', '1'),
+		array('variable')
+	);
+}
+else
+{
+  // Serialized maybe?
+  $array = @unserialize($modSettings['attachmentUploadDir']);
+  if ($array !== false)
+  {
+    $smcFunc['db_query']('', '
+      UPDATE {$db_prefix}settings
+      SET value = {string:attach_dir}
+      WHERE variable = {string:uploadDir)',
+      array(
+        'attach_dir' => json_encode($array),
+        'uploadDir' => 'attachmentUploadDir'
+      )
+    );
+
+    // Assume currentAttachmentUploadDir is already set
+  }
+}
 ---}
 ---#
 
