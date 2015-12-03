@@ -724,10 +724,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-		$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
-	else
-		$attach_dirs = array($modSettings['attachmentUploadDir']);
+	$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
