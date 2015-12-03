@@ -2171,21 +2171,22 @@ function ManageAttachmentPaths()
 		checkSession();
 
 		// Changing the current base directory?
-		$_POST['current_base_dir'] = (int) $_POST['current_base_dir'];
+		$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 0;
 		if (empty($_POST['new_base_dir']) && !empty($_POST['current_base_dir']))
 		{
 			if ($modSettings['basedirectory_for_attachments'] != $modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
 				$update = (array(
 					'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 				));
-
-			//$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
 		}
 
-		If (isset($_POST['base_dir']))
+		if (isset($_POST['base_dir']))
 		{
 			foreach ($_POST['base_dir'] as $id => $dir)
 			{
+				// Since $_POST['base_dir'] will start at 0 and $modSettings['attachmentUploadDir'] starts at 1, we need to increment $id
+				$id++;
+
 				if (!empty($dir) && $dir != $modSettings['attachmentUploadDir'][$id])
 				{
 					if (@rename($modSettings['attachmentUploadDir'][$id], $dir))
