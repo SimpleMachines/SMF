@@ -707,6 +707,11 @@ function createAttachment(&$attachmentOptions)
 	// Last chance to change stuff!
 	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
 
+	// Make sure the folder is valid...
+	$folders = array_keys(json_decode($modSettings['attachmentUploadDir'], true));
+	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
+		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
+
 	$smcFunc['db_insert']('',
 		'{db_prefix}attachments',
 		array(
