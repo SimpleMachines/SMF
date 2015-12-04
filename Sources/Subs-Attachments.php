@@ -708,7 +708,8 @@ function createAttachment(&$attachmentOptions)
 	call_integration_hook('integrate_createAttachment', array(&$attachmentOptions));
 
 	// Make sure the folder is valid...
-	$folders = array_keys(json_decode($modSettings['attachmentUploadDir'], true));
+	$tmp = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : json_decode($modSettings['attachmentUploadDir'], true);
+	$folders = array_keys($tmp);
 	if (empty($attachmentOptions['id_folder']) || !in_array($attachmentOptions['id_folder'], $folders))
 		$attachmentOptions['id_folder'] = $modSettings['currentAttachmentUploadDir'];
 
