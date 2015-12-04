@@ -401,7 +401,12 @@ class Attachments
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
 				foreach ($this->_generalErrors as $k => $v)
-					$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+
+			// Gotta urlencode the filename.
+			if ($this->_attachResults)
+				foreach ($this->_attachResults as $k => $v)
+					$this->_attachResults[$k]['name'] =  urlencode($this->_attachResults[$k]['name']);
 
 			$this->_response = array(
 				'files' => $this->_attachResults ? $this->_attachResults : false,
