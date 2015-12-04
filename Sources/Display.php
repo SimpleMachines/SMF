@@ -1450,12 +1450,13 @@ function prepareDisplayContext($reset = false)
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
-
 	if (empty($options['view_newest_first']))
 		$counter++;
+
 	else
 		$counter--;
+
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
