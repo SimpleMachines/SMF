@@ -388,15 +388,15 @@ if (!empty($attachs))
 ---{
 if (is_dir($modSettings['attachmentUploadDir']))
 {
-  $smcFunc['db_query']('', '
-    UPDATE {$db_prefix}settings
-    SET value = {string:attach_dir}
-    WHERE variable = {string:uploadDir)',
-    array(
-      'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
-      'uploadDir' => 'attachmentUploadDir'
-    )
-  );
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}settings
+		SET value = {string:attach_dir}
+		WHERE variable = {string:uploadDir)',
+		array(
+			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
+			'uploadDir' => 'attachmentUploadDir'
+		)
+	);
 	$smcFunc['db_insert']('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
@@ -406,22 +406,22 @@ if (is_dir($modSettings['attachmentUploadDir']))
 }
 else
 {
-  // Serialized maybe?
-  $array = @unserialize($modSettings['attachmentUploadDir']);
-  if ($array !== false)
-  {
-    $smcFunc['db_query']('', '
-      UPDATE {$db_prefix}settings
-      SET value = {string:attach_dir}
-      WHERE variable = {string:uploadDir)',
-      array(
-        'attach_dir' => json_encode($array),
-        'uploadDir' => 'attachmentUploadDir'
-      )
-    );
+	// Serialized maybe?
+	$array = @unserialize($modSettings['attachmentUploadDir']);
+	if ($array !== false)
+	{
+		$smcFunc['db_query']('', '
+			UPDATE {db_prefix}settings
+			SET value = {string:attach_dir}
+			WHERE variable = {string:uploadDir)',
+			array(
+				'attach_dir' => json_encode($array),
+				'uploadDir' => 'attachmentUploadDir'
+			)
+		);
 
-    // Assume currentAttachmentUploadDir is already set
-  }
+		// Assume currentAttachmentUploadDir is already set
+	}
 }
 ---}
 ---#
