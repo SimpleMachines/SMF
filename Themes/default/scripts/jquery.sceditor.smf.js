@@ -405,6 +405,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'url', {
 		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.quoteType.never,
 		tags: {
 			a: {
 				href: null
@@ -437,6 +438,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.quoteType.never,
 		html: function (token, attrs, content) {
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
