@@ -2431,7 +2431,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentPostLimit'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentNumPerPostLimit', '4');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentDirSizeLimit', '10240');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentDirFileLimit', '1000');
-INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentUploadDir', '{"1":"{$boarddir}\/attachments"}');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentUploadDir', '{$attachdir}');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentExtensions', 'doc,gif,jpg,mpg,pdf,png,txt,zip');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentCheckExtensions', '0');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('attachmentShowImages', '1');
