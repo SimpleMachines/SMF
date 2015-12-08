@@ -591,18 +591,24 @@ function template_single_post($message)
 	// Assuming there are attachments...
 	if (!empty($message['attachment']))
 	{
-		echo '
-							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
-
 		$last_approved_state = 1;
 		$attachments_per_line = 5;
 		$i = 0;
+		// Don't output the div unless we actually have something to show...
+		$div_output = false;
 
 		foreach ($message['attachment'] as $attachment)
 		{
 			// Do we want this attachment to not be showed here?
 			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
 				continue;
+			elseif (!$div_output)
+			{
+				$div_output = true;
+
+				echo '
+							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
+			}
 
 			// Show a special box for unapproved attachments...
 			if ($attachment['is_approved'] != $last_approved_state)
@@ -664,7 +670,9 @@ function template_single_post($message)
 			echo '
 								</fieldset>';
 
-		echo '
+		// Only do this if we output a div above - otherwise it'll break things
+		if ($div_output)
+			echo '
 							</div>';
 	}
 
