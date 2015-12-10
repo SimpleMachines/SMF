@@ -4499,6 +4499,7 @@ function template_upgrade_above()
 		</script>
 	</head>
 	<body>
+	<div id="footerfix">
 		<div id="header">
 			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
@@ -4598,6 +4599,7 @@ function template_upgrade_below()
 				</div>
 			</div>
 			</div>
+		</div>
 		</div>
 		<div id="footer">
 			<ul>

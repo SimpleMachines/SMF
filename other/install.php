@@ -2119,7 +2119,7 @@ function template_install_above()
 		<script src="Themes/default/scripts/jquery-2.1.3.min.js"></script>
 		<script src="Themes/default/scripts/script.js"></script>
 	</head>
-	<body>
+	<body><div id="footerfix">
 		<div id="header">
 			<h1 class="forumtitle">', $txt['smf_installer'], '</h1>
 			<img id="smflogo" src="Themes/default/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
@@ -2206,7 +2206,7 @@ function template_install_below()
 					</div>
 				</div>
 			</div>
-		</div>
+		</div></div>
 		<div id="footer">
 			<ul>
 				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
