@@ -4089,7 +4089,7 @@ function serialize_to_json()
 			return true;
 	}
 
-	$context['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
