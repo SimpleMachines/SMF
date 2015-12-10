@@ -391,7 +391,7 @@ if (is_dir($modSettings['attachmentUploadDir']))
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}settings
 		SET value = {string:attach_dir}
-		WHERE variable = {string:uploadDir)',
+		WHERE variable = {string:uploadDir}',
 		array(
 			'attach_dir' => json_encode(array(1 => $modSettings['attachmentUploadDir'])),
 			'uploadDir' => 'attachmentUploadDir'
@@ -413,7 +413,7 @@ else
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
-			WHERE variable = {string:uploadDir)',
+			WHERE variable = {string:uploadDir}',
 			array(
 				'attach_dir' => json_encode($array),
 				'uploadDir' => 'attachmentUploadDir'
