@@ -696,7 +696,7 @@ function OptimizeTables()
 
 	isAllowedTo('admin_forum');
 
-	checkSession('maint');
+	checkSession('request');
 
 	if (!isset($_SESSION['optimized_tables']))
 		validateToken('admin-maint');
@@ -754,6 +754,7 @@ function OptimizeTables()
 
 			if (function_exists('apache_reset_timeout'))
 				apache_reset_timeout();
+
 			return;
 		}
 
