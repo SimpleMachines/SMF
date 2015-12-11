@@ -2125,7 +2125,7 @@ function prepareSearchContext($reset = false)
 	);
 	$counter++;
 
-	call_integration_hook('integrate_search_message_context', array($counter, &$output));
+	call_integration_hook('integrate_search_message_context', array(&$output, &$message, $counter));
 
 	return $output;
 }

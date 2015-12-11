@@ -4080,24 +4080,28 @@ function call_integration_hook($hook, $parameters = array())
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
-		$function = trim($function);
-		$call = '';
-
-		// Did we find a file to load?
-		$function = load_file($function);
-
-		if (!empty($function))
-			$call = call_helper($function, true);
+		$call = call_helper($function, true);
 
 		// Is it valid?
 		if (!empty($call))
 			$results[$function] = call_user_func_array($call, $parameters);
 
 		// Whatever it was suppose to call, it failed :(
-		elseif (!empty($function) && !empty($absPath))
+		elseif (!empty($function))
 		{
 			loadLanguage('Errors');
-			log_error(sprintf($txt['hook_fail_call_to'], $function, $absPath), 'general');
+
+			// Get a full path to show on error.
+			if (strpos($function, '|') !== false)
+			{
+				list ($file, $string) = explode('|', $function);
+				$absPath = empty($settings['theme_dir']) ? (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir))) : (strtr(trim($file), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
+				log_error(sprintf($txt['hook_fail_call_to'], $string, $absPath), 'general');
+			}
+
+			// "Assume" the file resides on $boarddir somewhere...
+			else
+				log_error(sprintf($txt['hook_fail_call_to'], $function, $boarddir), 'general');
 		}
 	}
 
@@ -4245,13 +4249,14 @@ function call_helper($string, $return = false)
 	if (empty($string))
 		return false;
 
-	// Is this an object or a closure? either way, return it, we don't have enough details about it anyway.
-	if ($string instanceof Closure || is_object($string))
-		return $string;
-
 	// An array? should be a "callable" array IE array(object/class, valid_callable).
-	if (is_array($string))
+	// A closure? should be a callable one.
+	if (is_array($string) || $string instanceof Closure)
 		return $return ? $string : (is_callable($string) ? call_user_func($string) : false);
+
+	// No full objects, sorry! pass a method or a property instead!
+	if (is_object($string))
+		return false;
 
 	// Stay vitaminized my friends...
 	$string = $smcFunc['htmlspecialchars']($smcFunc['htmltrim']($string));

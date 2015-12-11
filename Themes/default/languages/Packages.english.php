@@ -99,6 +99,7 @@ $txt['execute_database_changes'] = 'Execute file';
 $txt['execute_hook_add'] = 'Add Hook';
 $txt['execute_hook_remove'] = 'Remove Hook';
 $txt['execute_hook_action'] = 'Adapting hook %1$s';
+$txt['execute_hook_action_inverse'] = 'Removing hook %1$s';
 $txt['package_requires'] = 'Requires Modification';
 $txt['package_check_for'] = 'Check for installation:';
 $txt['execute_credits_add'] = 'Add Credits';

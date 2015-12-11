@@ -25,7 +25,7 @@ function smf_fileUpload(oOptions)
 				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
 			};
 
-			return '[attach '+ bbcOptionalParams.name +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach '+ decodeURIComponent(bbcOptionalParams.name) +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 
