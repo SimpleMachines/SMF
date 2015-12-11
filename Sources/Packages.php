@@ -1359,6 +1359,8 @@ function PackageBrowse()
 	$context['forum_version'] = $forum_version;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
 
+	call_integration_hook('integrate_modification_types');
+
 	require_once($sourcedir . '/Subs-List.php');
 
 	foreach ($context['modification_types'] as $type)
