@@ -189,7 +189,7 @@ function template_main()
 	echo '
 			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', (!empty($context['can_moderate_forum'] || $context['user']['is_mod'])) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
 			</div>';
 
 	// Show the topic information - icon, subject, etc.
@@ -214,7 +214,7 @@ function template_main()
 	echo '
 			<div class="mobile_buttons floatright">
 				<a class="button mobile_act">', $txt['mobile_action'],'</a>
-				', (!empty($context['can_moderate_forum'] || $context['user']['is_mod'])) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
 			</div>';
 
 	// Show the page index... "Pages: [1]".
@@ -243,6 +243,27 @@ function template_main()
 	// Show quickreply
 	if ($context['can_reply'])
 	template_quickreply();
+
+	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
+	echo '
+			<div id="mobile_action" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_action'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['normal_buttons']), '
+				</div>
+			</div>';
+
+	// Show the moderation button & pop only if user can moderate
+	if ($context['can_moderate_forum'] || $context['user']['is_mod'])
+		echo '
+			<div id="mobile_moderation" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_moderation'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['mod_buttons']), '
+				</div>
+			</div>';
 
 		echo '
 				<script>';
@@ -344,27 +365,6 @@ function template_main()
 
 	echo '
 				</script>';
-
-	// Lets pop the...
-	echo '
-			<div id="mobile_action" class="popup_container">
-				<div class="popup_window description">
-					<div class="popup_heading">', $txt['mobile_action'],'
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-					', template_button_strip($context['normal_buttons']), '
-				</div>
-			</div>';
-
-	// Show the moderation button & pop only if user can moderate
-	if (!empty($context['can_moderate_forum'] || $context['user']['is_mod']))
-		echo '
-			<div id="mobile_moderation" class="popup_container">
-				<div class="popup_window description">
-					<div class="popup_heading">', $txt['mobile_moderation'],'
-					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-					', template_button_strip($context['mod_buttons']), '
-				</div>
-			</div>';
 }
 
 /**
