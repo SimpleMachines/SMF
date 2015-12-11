@@ -1633,7 +1633,7 @@ function backupTable($table)
 {
 	global $is_debug, $command_line, $db_prefix, $smcFunc;
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 	{
 		echo "\n" . ' +++ Backing up \"' . str_replace($db_prefix, '', $table) . '"...';
 		flush();
@@ -1641,7 +1641,7 @@ function backupTable($table)
 
 	$smcFunc['db_backup_table']($table, 'backup_' . $table);
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 		echo ' done.';
 }
 
@@ -4174,7 +4174,7 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @unserialize($modSettings[$var]);
-						if (!$temp && ($is_debug || $command_line))
+						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
 							$new_settings[$var] = json_encode($temp);
@@ -4264,7 +4264,7 @@ function serialize_to_json()
 
 				if ($smcFunc['db_num_rows']($query) != 0)
 				{
-					if ($is_debug || $command_line)
+					if ($command_line)
 					{
 						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
 						flush();
@@ -4281,7 +4281,7 @@ function serialize_to_json()
 							{
 								$temp = @unserialize($row[$col]);
 
-								if ($temp === false && ($is_debug || $command_line))
+								if ($temp === false && $command_line)
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
@@ -4310,7 +4310,7 @@ function serialize_to_json()
 						}
 					}
 
-					if ($is_debug || $command_line)
+					if ($command_line)
 						echo ' done.';
 
 					// Free up some memory...
@@ -5668,7 +5668,7 @@ function template_serialize_json()
 
 	echo '
 			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
