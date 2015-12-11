@@ -736,3 +736,19 @@ $(function() {
 			});
 		});
 });
+
+/* Mobile Pop */
+$(function() {
+	$( '.mobile_act' ).click(function() {
+		$( '#mobile_action' ).show();
+		});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_action' ).hide();
+	});
+	$( '.mobile_mod' ).click(function() {
+		$( '#mobile_moderation' ).show();
+	});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_moderation' ).hide();
+	});
+});
