@@ -1633,7 +1633,7 @@ function backupTable($table)
 {
 	global $is_debug, $command_line, $db_prefix, $smcFunc;
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 	{
 		echo "\n" . ' +++ Backing up \"' . str_replace($db_prefix, '', $table) . '"...';
 		flush();
@@ -1641,7 +1641,7 @@ function backupTable($table)
 
 	$smcFunc['db_backup_table']($table, 'backup_' . $table);
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 		echo ' done.';
 }
 
@@ -4080,6 +4080,7 @@ function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
 
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
 	if (!empty($modSettings['json_done']))
 	{
@@ -4089,8 +4090,11 @@ function serialize_to_json()
 			return true;
 	}
 
-	$context['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
+	// Done it already - js wise?
+	if (!empty($_POST['json_done']))
+		return true;
 
+	// List of tables affected by this function
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
@@ -4174,7 +4178,7 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @unserialize($modSettings[$var]);
-						if (!$temp && ($is_debug || $command_line))
+						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
 							$new_settings[$var] = json_encode($temp);
@@ -4264,7 +4268,7 @@ function serialize_to_json()
 
 				if ($smcFunc['db_num_rows']($query) != 0)
 				{
-					if ($is_debug || $command_line)
+					if ($command_line)
 					{
 						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
 						flush();
@@ -4281,7 +4285,7 @@ function serialize_to_json()
 							{
 								$temp = @unserialize($row[$col]);
 
-								if ($temp === false && ($is_debug || $command_line))
+								if ($temp === false && $command_line)
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
@@ -4310,18 +4314,17 @@ function serialize_to_json()
 						}
 					}
 
-					if ($is_debug || $command_line)
+					if ($command_line)
 						echo ' done.';
 
 					// Free up some memory...
 					$smcFunc['db_free_result']($query);
 				}
 			}
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
 		}
-
-		// If this is XML to keep it nice for the user do one table at a time anyway!
-		if (isset($_GET['xml']))
-			return upgradeExit();
 
 		if ($command_line)
 		{
@@ -5670,7 +5673,7 @@ function template_serialize_json()
 
 	echo '
 			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
-			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Backup Complete! Click Continue to Proceed.</span>';
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
 
 	// Continue please!
 	$upcontext['continue'] = $support_js ? 2 : 1;
