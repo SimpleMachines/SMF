@@ -724,10 +724,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-		$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
-	else
-		$attach_dirs = array($modSettings['attachmentUploadDir']);
+	$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
@@ -2174,18 +2171,16 @@ function ManageAttachmentPaths()
 		checkSession();
 
 		// Changing the current base directory?
-		$_POST['current_base_dir'] = (int) $_POST['current_base_dir'];
+		$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 1;
 		if (empty($_POST['new_base_dir']) && !empty($_POST['current_base_dir']))
 		{
 			if ($modSettings['basedirectory_for_attachments'] != $modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
 				$update = (array(
 					'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 				));
-
-			//$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
 		}
 
-		If (isset($_POST['base_dir']))
+		if (isset($_POST['base_dir']))
 		{
 			foreach ($_POST['base_dir'] as $id => $dir)
 			{

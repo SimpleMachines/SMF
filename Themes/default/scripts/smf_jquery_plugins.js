@@ -320,7 +320,7 @@
 })(jQuery);
 
 /*
- * jQuery Superfish Menu Plugin - v1.7.6
+ * jQuery Superfish Menu Plugin - v1.7.7
  * Copyright (c) 2015
  *
  * Dual licensed under the MIT and GPL licenses:
@@ -340,12 +340,10 @@
 				menuArrowClass: 'sf-arrows'
 			},
 			ios = (function () {
-				var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+				var ios = /^(?![\w\W]*Windows Phone)[\w\W]*(iPhone|iPad|iPod)/i.test(navigator.userAgent);
 				if (ios) {
-					// iOS clicks only bubble as far as body children
-					$(w).load(function () {
-						$('body').children().on('click', $.noop);
-					});
+					// tap anywhere on iOS to unfocus a submenu
+					$('html').css('cursor', 'pointer').on('click', $.noop);
 				}
 				return ios;
 			})(),
@@ -737,4 +735,20 @@ $(function() {
 				}
 			});
 		});
+});
+
+/* Mobile Pop */
+$(function() {
+	$( '.mobile_act' ).click(function() {
+		$( '#mobile_action' ).show();
+		});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_action' ).hide();
+	});
+	$( '.mobile_mod' ).click(function() {
+		$( '#mobile_moderation' ).show();
+	});
+	$( '.hide_popup' ).click(function() {
+		$( '#mobile_moderation' ).hide();
+	});
 });

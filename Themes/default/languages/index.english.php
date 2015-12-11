@@ -866,4 +866,8 @@ $txt['notify_board_3'] = 'Receive Emails and Alerts';
 $txt['notify_board_1_desc'] = 'You will not receive any emails or alerts for new topics';
 $txt['notify_board_2_desc'] = 'You will receive alerts for this board.';
 $txt['notify_board_3_desc'] = 'You will receive both alerts and e-mails for this board.';
+
+// Mobile Actions
+$txt['mobile_action'] = 'User actions';
+$txt['mobile_moderation'] = 'Moderation';
 ?>

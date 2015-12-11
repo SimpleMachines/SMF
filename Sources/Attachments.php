@@ -47,7 +47,7 @@ class Attachments
 		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
 		$this->_board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
 
-		$this->_currentAttachmentUploadDir = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : '';
+		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$this->_attachmentUploadDir = json_decode($modSettings['attachmentUploadDir'], true);

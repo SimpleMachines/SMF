@@ -663,7 +663,7 @@ function PackageInstallTest()
 			$context['has_failure'] = true;
 
 			$thisAction += array(
-				'description' => $txt['package_action_error'],
+				'description' => $txt['package_action_missing'],
 				'failed' => true,
 			);
 		}
@@ -1358,6 +1358,8 @@ function PackageBrowse()
 
 	$context['forum_version'] = $forum_version;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+
+	call_integration_hook('integrate_modification_types');
 
 	require_once($sourcedir . '/Subs-List.php');
 
