@@ -4080,6 +4080,7 @@ function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
 
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
 	if (!empty($modSettings['json_done']))
 	{
@@ -4089,8 +4090,11 @@ function serialize_to_json()
 			return true;
 	}
 
-	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
+	// Done it already - js wise?
+	if (!empty($_POST['json_done']))
+		return true;
 
+	// List of tables affected by this function
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
@@ -4317,11 +4321,10 @@ function serialize_to_json()
 					$smcFunc['db_free_result']($query);
 				}
 			}
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
 		}
-
-		// If this is XML to keep it nice for the user do one table at a time anyway!
-		if (isset($_GET['xml']))
-			return upgradeExit();
 
 		if ($command_line)
 		{
