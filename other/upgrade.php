@@ -3609,7 +3609,7 @@ function convertUtf8()
 	else
 	{
 		$upcontext['page_title'] = 'Converting to UTF8';
-		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convertutf8';
+		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
 		// The character sets used in SMF's language files with their db equivalent.
 		$charsets = array(
@@ -5371,12 +5371,6 @@ function template_database_xml()
 	<error>', $upcontext['error_message'], '</error>';
 }
 
-function template_convertutf8()
-{
-	echo '
-		<h3>SMF is converting your database to UTF-8...</h3>';
-}
-
 // Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
 function template_convert_utf8()
 {
@@ -5391,7 +5385,7 @@ function template_convert_utf8()
 			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
 			<span id="debuginfo"></span>';
 
-	// Dont any tables so far?
+	// Done any tables so far?
 	if (!empty($upcontext['previous_tables']))
 		foreach ($upcontext['previous_tables'] as $table)
 			echo '
