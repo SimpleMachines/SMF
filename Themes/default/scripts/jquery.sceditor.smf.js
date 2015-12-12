@@ -419,7 +419,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'url', {
 		allowsEmpty: true,
-		quoteType: $.sceditor.BBCodeParser.quoteType.never,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		tags: {
 			a: {
 				href: null
@@ -452,7 +452,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
-		quoteType: $.sceditor.BBCodeParser.quoteType.never,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
 
 			// Attachment?
