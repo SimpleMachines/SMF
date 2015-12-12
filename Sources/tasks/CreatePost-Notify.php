@@ -23,7 +23,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $language;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');

@@ -443,7 +443,7 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings, $language;
+	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings;
 
 	// Set up the template stuff...
 	$context['page_title'] = $txt['mc_group_requests'];

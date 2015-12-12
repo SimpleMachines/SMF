@@ -594,6 +594,9 @@ function BrowseFiles()
 		),
 	);
 
+	// Does a hook want to display their attachments better?
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles, &$list_title));
+	
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
@@ -721,10 +724,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-		$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
-	else
-		$attach_dirs = array($modSettings['attachmentUploadDir']);
+	$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
@@ -894,6 +894,10 @@ function RemoveAttachment()
 		// There must be a quicker way to pass this safety test??
 		foreach ($_POST['remove'] as $removeID => $dummy)
 			$attachments[] = (int) $removeID;
+
+		// If the attachments are from a 3rd party, let them remove it. Hooks should remove their ids from the array.
+		$filesRemoved = false;
+		call_integration_hook('integrate_attachment_remove', array(&$filesRemoved, $attachments));
 
 		if ($_REQUEST['type'] == 'avatars' && !empty($attachments))
 			removeAttachments(array('id_attach' => $attachments));
@@ -1532,6 +1536,8 @@ function RepairAttachments()
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
 			$to_remove = array();
+			$ignore_ids = array(0);
+			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] += 500));
 
 			$result = $smcFunc['db_query']('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
@@ -1540,11 +1546,13 @@ function RepairAttachments()
 				WHERE a.id_attach BETWEEN {int:substep} AND {int:substep} + 499
 					AND a.id_member = {int:no_member}
 					AND a.id_msg != {int:no_msg}
+					AND NOT FIND_IN_SET(a.id_msg, {array_int:ignore_ids})
 					AND m.id_msg IS NULL',
 				array(
 					'no_member' => 0,
 					'no_msg' => 0,
 					'substep' => $_GET['substep'],
+					'ignore_ids' => $ignore_ids,
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -2163,18 +2171,16 @@ function ManageAttachmentPaths()
 		checkSession();
 
 		// Changing the current base directory?
-		$_POST['current_base_dir'] = (int) $_POST['current_base_dir'];
+		$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 1;
 		if (empty($_POST['new_base_dir']) && !empty($_POST['current_base_dir']))
 		{
 			if ($modSettings['basedirectory_for_attachments'] != $modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
 				$update = (array(
 					'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 				));
-
-			//$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
 		}
 
-		If (isset($_POST['base_dir']))
+		if (isset($_POST['base_dir']))
 		{
 			foreach ($_POST['base_dir'] as $id => $dir)
 			{

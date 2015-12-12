@@ -19,6 +19,7 @@ if (!defined('SMF'))
 class Attachments
 {
 	protected $_msg = 0;
+	protected $_board = null;
 	protected $_attachmentUploadDir = false;
 	protected $_attchDir = '';
 	protected $_currentAttachmentUploadDir;
@@ -38,22 +39,22 @@ class Attachments
 		'delete',
 	);
 	protected $_sa = false;
-	public static $inlineAttachments = array();
 
 	public function __construct()
 	{
 		global $modSettings, $context;
 
 		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
+		$this->_board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
 
-		$this->_currentAttachmentUploadDir = !empty($modSettings['currentAttachmentUploadDir']) ? $modSettings['currentAttachmentUploadDir'] : '';
+		$this->_currentAttachmentUploadDir = $modSettings['currentAttachmentUploadDir'];
 
 		if (!is_array($modSettings['attachmentUploadDir']))
 			$this->_attachmentUploadDir = json_decode($modSettings['attachmentUploadDir'], true);
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
-		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment') || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments')));
+		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
 	}
 
 	public function call()
@@ -141,7 +142,7 @@ class Attachments
 	 */
 	protected function processAttachments()
 	{
-		global $context, $modSettings, $smcFunc, $user_info;
+		global $context, $modSettings, $smcFunc, $user_info, $txt;
 
 		if (!isset($_FILES['attachment']['name']))
 			$_FILES['attachment']['tmp_name'] = array();
@@ -309,7 +310,7 @@ class Attachments
 
 	protected function createAtttach()
 	{
-		global $context, $txt, $user_info, $modSettings;
+		global $txt, $user_info, $modSettings;
 
 		$attachIDs = array();
 
@@ -400,7 +401,12 @@ class Attachments
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
 				foreach ($this->_generalErrors as $k => $v)
-					$this->_generalErrors[$v] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? vsprintf($txt[$v[0]], $v[1]) : $txt[$v]);
+
+			// Gotta urlencode the filename.
+			if ($this->_attachResults)
+				foreach ($this->_attachResults as $k => $v)
+					$this->_attachResults[$k]['name'] =  urlencode($this->_attachResults[$k]['name']);
 
 			$this->_response = array(
 				'files' => $this->_attachResults ? $this->_attachResults : false,

@@ -886,6 +886,10 @@ function ModifyLanguage()
 
 	// This will be where we look
 	$lang_dirs = array();
+
+	// Does a hook need to add in some additional places to look for languages?
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs));
+
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
 	{

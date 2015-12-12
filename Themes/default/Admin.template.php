@@ -1280,9 +1280,9 @@ function template_admin_search_results()
 
 	echo '
 						<div id="section_header" class="cat_bar">
-							<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '" class="floatright">
+							<form action="', $scripturl, '?action=admin;area=search" method="post" accept-charset="', $context['character_set'], '">
 								<h3 class="catbg">
-									<span id="quick_search">
+									<span id="quick_search" class="floatright">
 										<input type="search" name="search_term" value="', $context['search_term'], '" class="input_text">
 										<input type="hidden" name="search_type" value="', $context['search_type'], '">
 										<input type="submit" name="search_go" value="', $txt['admin_search_results_again'], '" class="button_submit">
@@ -1608,16 +1608,14 @@ function template_admin_quick_search()
 	if ($context['user']['is_admin'])
 		echo '
 								<span class="floatright">
-									<object id="quick_search" type="text/html">
-										<span class="generic_icons filter centericon"></span>
-										<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text">
-										<select name="search_type">
-											<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>
-											<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', $txt['admin_search_type_member'], '</option>
-											<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', $txt['admin_search_type_online'], '</option>
-										</select>
-										<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit">
-									</object>
+									<span class="generic_icons filter centericon"></span>
+									<input type="text" name="search_term" value="', $txt['admin_search'], '" onclick="if (this.value == \'', $txt['admin_search'], '\') this.value = \'\';" class="input_text">
+									<select name="search_type">
+										<option value="internal"', (empty($context['admin_preferences']['sb']) || $context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', $txt['admin_search_type_internal'], '</option>
+										<option value="member"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', $txt['admin_search_type_member'], '</option>
+										<option value="online"', (!empty($context['admin_preferences']['sb']) && $context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', $txt['admin_search_type_online'], '</option>
+									</select>
+									<input type="submit" name="search_go" id="search_go" value="', $txt['admin_search_go'], '" class="button_submit">
 								</span>';
 }
 

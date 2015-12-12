@@ -185,6 +185,13 @@ function template_main()
 				</div>
 			</div>';
 
+	// Mobile action - moderation buttons (top)
+	echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'],'</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+			</div>';
+
 	// Show the topic information - icon, subject, etc.
 	echo '
 			<div id="forumposts">';
@@ -203,6 +210,13 @@ function template_main()
 				</form>
 			</div>';
 
+	// Mobile action - moderation buttons (bottom)
+	echo '
+			<div class="mobile_buttons floatright">
+				<a class="button mobile_act">', $txt['mobile_action'],'</a>
+				', ($context['can_moderate_forum'] || $context['user']['is_mod']) ? '<a class="button mobile_mod">'. $txt['mobile_moderation'].'</a>' : '','
+			</div>';
+
 	// Show the page index... "Pages: [1]".
 	echo '
 			<div class="pagesection">
@@ -216,6 +230,7 @@ function template_main()
 	// Show the lower breadcrumbs.
 	theme_linktree();
 
+	// Moderation buttons
 	echo '
 			<div id="moderationbuttons">
 				', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip')), '
@@ -228,6 +243,27 @@ function template_main()
 	// Show quickreply
 	if ($context['can_reply'])
 	template_quickreply();
+
+	// User action pop on mobile screen (or actually small screen), this uses responsive css does not check mobile device.
+	echo '
+			<div id="mobile_action" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_action'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['normal_buttons']), '
+				</div>
+			</div>';
+
+	// Show the moderation button & pop only if user can moderate
+	if ($context['can_moderate_forum'] || $context['user']['is_mod'])
+		echo '
+			<div id="mobile_moderation" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_moderation'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['mod_buttons']), '
+				</div>
+			</div>';
 
 		echo '
 				<script>';
@@ -329,7 +365,6 @@ function template_main()
 
 	echo '
 				</script>';
-
 }
 
 /**
@@ -591,18 +626,24 @@ function template_single_post($message)
 	// Assuming there are attachments...
 	if (!empty($message['attachment']))
 	{
-		echo '
-							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
-
 		$last_approved_state = 1;
 		$attachments_per_line = 5;
 		$i = 0;
+		// Don't output the div unless we actually have something to show...
+		$div_output = false;
 
 		foreach ($message['attachment'] as $attachment)
 		{
 			// Do we want this attachment to not be showed here?
 			if (!empty($modSettings['dont_show_attach_under_post']) && !empty($context['show_attach_under_post'][$attachment['id']]))
 				continue;
+			elseif (!$div_output)
+			{
+				$div_output = true;
+
+				echo '
+							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
+			}
 
 			// Show a special box for unapproved attachments...
 			if ($attachment['is_approved'] != $last_approved_state)
@@ -664,7 +705,9 @@ function template_single_post($message)
 			echo '
 								</fieldset>';
 
-		echo '
+		// Only do this if we output a div above - otherwise it'll break things
+		if ($div_output)
+			echo '
 							</div>';
 	}
 

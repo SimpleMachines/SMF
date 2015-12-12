@@ -3124,6 +3124,9 @@ function profileSaveGroups(&$value)
 			updateSettings(array('settings_updated' => time()));
 	}
 
+	// Announce to any hooks that we have changed groups, but don't allow them to change it.
+	call_integration_hook('integrate_profile_profileSaveGroups', array($value, $additional_groups));
+	
 	return true;
 }
 

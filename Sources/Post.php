@@ -1237,6 +1237,10 @@ function Post($post_errors = array())
 	});', true);
 	}
 
+	// Knowing the current board ID might be handy.
+	addInlineJavascript('
+	var current_board = '. (empty($context['current_board']) ? 'null' : $context['current_board']) .';', false);
+
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
@@ -2395,7 +2399,6 @@ function AnnouncementSend()
 		$announcements[$cur_language]['recipients'][$row['id_member']] = $row['email_address'];
 		$context['start'] = $row['id_member'];
 	}
-	$smcFunc['db_free_result']($request);
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)

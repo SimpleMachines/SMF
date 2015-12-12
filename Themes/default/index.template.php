@@ -166,7 +166,8 @@ function template_html_above()
 	echo '
 </head>
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
-		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">';
+		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">
+<div id="footerfix">';
 }
 
 /**
@@ -339,7 +340,8 @@ function template_body_below()
 	echo '
 			</div>
 		</div>
-	</div>';
+	</div>
+</div>';
 
 	// Show the XHTML, RSS and WAP2 links, as well as the copyright.
 	// Footer is now full-width by default.

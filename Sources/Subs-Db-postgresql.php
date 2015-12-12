@@ -57,6 +57,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_sybase' => true,
 			'db_case_sensitive' => true,
 			'db_escape_wildcard_string' => 'smf_db_escape_wildcard_string',
+			'db_is_resource' => 'is_resource',
 		);
 
 	if (!empty($db_options['persist']))

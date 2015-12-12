@@ -7,7 +7,7 @@ function smf_fileUpload(oOptions)
 
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
-		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
+		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
 		parallelUploads : 1,
 		filesizeBase:1000,
 		paramName: 'attachment',
@@ -25,7 +25,7 @@ function smf_fileUpload(oOptions)
 				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
 			};
 
-			return '[attach '+ bbcOptionalParams.name +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach '+ decodeURIComponent(bbcOptionalParams.name) +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 

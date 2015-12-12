@@ -2,6 +2,7 @@
 /* Index */
 html {
 	background: #3e5a78;
+	height: 100%;
 }
 body {
 	background: #e9eef2;
@@ -9,6 +10,8 @@ body {
 	color: #4d4d4d;
 	margin: 0;
 	padding: 0;
+	min-height: 100%;
+	position: relative;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -1243,6 +1246,9 @@ ul li.greeting {
 	padding: 10px 5%;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
+	position:absolute; 
+	bottom: 0;
+	width: 100%;
 }
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
@@ -1256,6 +1262,9 @@ ul li.greeting {
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
 
+#footerfix{
+	padding-bottom: 75px;
+}
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
@@ -2598,7 +2607,7 @@ dl.addrules dt.floatleft {
 	width: 100%;
 	height: 100%;
 	background: rgba(40,64,80,0.5);
-	z-index: 3;
+	z-index: 5;
 }
 .popup_window {
 	position: relative;
@@ -3830,4 +3839,8 @@ h3.profile_hd {
 .progress_red span {
 	background-color: #F45D4C;
 	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
+}
+/* Hide this from desktop users sshh... our little sekrit */
+.mobile_buttons {
+	display: none;
 }

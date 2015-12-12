@@ -885,6 +885,8 @@ function banEdit2()
  */
 function saveTriggers($suggestions = array(), $ban_group, $member = 0, $ban_id = 0)
 {
+	global $context;
+
 	$triggers = array(
 		'main_ip' => '',
 		'hostname' => '',
@@ -1297,7 +1299,7 @@ function validateTriggers(&$triggers)
  */
 function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 {
-	global $smcFunc;
+	global $smcFunc, $context;
 
 	if (empty($group_id))
 		$context['ban_errors'][] = 'ban_id_empty';

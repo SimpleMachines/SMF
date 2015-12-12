@@ -1633,7 +1633,7 @@ function backupTable($table)
 {
 	global $is_debug, $command_line, $db_prefix, $smcFunc;
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 	{
 		echo "\n" . ' +++ Backing up \"' . str_replace($db_prefix, '', $table) . '"...';
 		flush();
@@ -1641,7 +1641,7 @@ function backupTable($table)
 
 	$smcFunc['db_backup_table']($table, 'backup_' . $table);
 
-	if ($is_debug && $command_line)
+	if ($command_line)
 		echo ' done.';
 }
 
@@ -3599,17 +3599,17 @@ function smf_strtolower($string)
  */
 function convertUtf8()
 {
-	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line;
+	global $upcontext, $db_character_set, $sourcedir, $smcFunc, $modSettings, $language, $db_prefix, $db_type, $command_line, $support_js, $is_debug;
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
 	if ($db_type == 'postgresql' || ($db_character_set === 'utf8' && !empty($modSettings['global_character_set']) && $modSettings['global_character_set'] === 'UTF-8'))
 	{
-		echo 'Database already UTF-8. Skipping.';
+		return true;
 	}
 	else
 	{
 		$upcontext['page_title'] = 'Converting to UTF8';
-		$upcontext['sub_template'] = 'convertutf8';
+		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
 		// The character sets used in SMF's language files with their db equivalent.
 		$charsets = array(
@@ -3889,27 +3889,36 @@ function convertUtf8()
 				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 		}
 
-		// Grab a list of tables.
-		if (preg_match('~^`(.+?)`\.(.+?)$~', $db_prefix, $match) === 1)
-			$queryTables = $smcFunc['db_query']('', '
+		// Get a list of table names ahead of time... This makes it easier to set our substep and such
+		db_extend();
+		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix);
+
+		$upcontext['table_count'] = count($queryTables);
+		$file_steps = $upcontext['table_count'];
+
+		for($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++)
+		{
+			$table = $queryTables[$_GET['substep']];
+
+			// Do we need to pause?
+			nextSubstep($substep);
+
+			$getTableStatus = $smcFunc['db_query']('', '
 				SHOW TABLE STATUS
-				FROM `' . strtr($match[1], array('`' => '')) . '`
 				LIKE {string:table_name}',
 				array(
-					'table_name' => str_replace('_', '\_', $match[2]) . '%',
-				)
-			);
-		else
-			$queryTables = $smcFunc['db_query']('', '
-				SHOW TABLE STATUS
-				LIKE {string:table_name}',
-				array(
-					'table_name' => str_replace('_', '\_', $db_prefix) . '%',
+					'table_name' => str_replace('_', '\_', $table)
 				)
 			);
 
-		while ($table_info = $smcFunc['db_fetch_assoc']($queryTables))
-		{
+			// Only one row so we can just fetch_assoc and free the result...
+			$table_info = $smcFunc['db_fetch_assoc']($getTableStatus);
+			$smcFunc['db_free_result']($getTableStatus);
+
+			$upcontext['cur_table_num'] = $_GET['substep'];
+			$upcontext['cur_table_name'] = $table_info['Name'];
+			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
 			// Just to make sure it doesn't time out.
 			if (function_exists('apache_reset_timeout'))
 				@apache_reset_timeout();
@@ -4002,7 +4011,8 @@ function convertUtf8()
 			// Now do the actual conversion (if still needed).
 			if ($charsets[$upcontext['charset_detected']] !== 'utf8')
 			{
-				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+				if ($command_line)
+					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
 
 				$smcFunc['db_query']('', '
 					ALTER TABLE {raw:table_name}
@@ -4012,10 +4022,10 @@ function convertUtf8()
 						)
 				);
 
-				echo " done.\n";
+				if ($command_line)
+					echo " done.\n";
 			}
 		}
-		$smcFunc['db_free_result']($queryTables);
 
 		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
 
@@ -4056,8 +4066,11 @@ function convertUtf8()
 		}
 		$smcFunc['db_free_result']($request);
 
-		if ($upcontext['dropping_index'])
+		if ($upcontext['dropping_index'] && $command_line)
+		{
 			echo "\nYour fulltext search index was dropped to facilitate the conversion. You will need to recreate it.";
+			flush();
+		}
 	}
 
 	return true;
@@ -4067,6 +4080,7 @@ function serialize_to_json()
 {
 	global $command_line, $smcFunc, $modSettings, $sourcedir, $upcontext, $support_js, $is_debug;
 
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'serialize_json_xml' : 'serialize_json';
 	// First thing's first - did we already do this?
 	if (!empty($modSettings['json_done']))
 	{
@@ -4076,6 +4090,11 @@ function serialize_to_json()
 			return true;
 	}
 
+	// Done it already - js wise?
+	if (!empty($_POST['json_done']))
+		return true;
+
+	// List of tables affected by this function
 	// name => array('key', col1[,col2|true[,col3]])
 	// If 3rd item in array is true, it indicates that col1 could be empty...
 	$tables = array(
@@ -4150,7 +4169,7 @@ function serialize_to_json()
 
 				// Loop through and fix these...
 				$new_settings = array();
-				if ($is_debug || $command_line)
+				if ($command_line)
 					echo "\n" . 'Fixing some settings...';
 
 				foreach ($serialized_settings as $var)
@@ -4159,7 +4178,7 @@ function serialize_to_json()
 					{
 						// Attempt to unserialize the setting
 						$temp = @unserialize($modSettings[$var]);
-						if (!$temp && ($is_debug || $command_line))
+						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
 							$new_settings[$var] = json_encode($temp);
@@ -4171,7 +4190,7 @@ function serialize_to_json()
 					require_once($sourcedir . '/Load.php');
 				updateSettings($new_settings, true);
 
-				if ($is_debug || $command_line)
+				if ($command_line)
 					echo ' done.';
 			}
 			elseif ($table == 'themes')
@@ -4191,7 +4210,7 @@ function serialize_to_json()
 					{
 						$temp = @unserialize($row['admin_preferences']);
 
-						if ($is_debug || $command_line)
+						if ($command_line)
 						{
 							if ($temp === false)
 								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
@@ -4249,7 +4268,7 @@ function serialize_to_json()
 
 				if ($smcFunc['db_num_rows']($query) != 0)
 				{
-					if ($is_debug || $command_line)
+					if ($command_line)
 					{
 						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
 						flush();
@@ -4266,7 +4285,7 @@ function serialize_to_json()
 							{
 								$temp = @unserialize($row[$col]);
 
-								if ($temp === false && ($is_debug || $command_line))
+								if ($temp === false && $command_line)
 								{
 									echo "\nFailed to unserialize " . $row[$col] . "... Skipping\n";
 								}
@@ -4295,20 +4314,19 @@ function serialize_to_json()
 						}
 					}
 
-					if ($is_debug || $command_line)
+					if ($command_line)
 						echo ' done.';
 
 					// Free up some memory...
 					$smcFunc['db_free_result']($query);
 				}
 			}
+			// If this is XML to keep it nice for the user do one table at a time anyway!
+			if (isset($_GET['xml']))
+				return upgradeExit();
 		}
 
-		// If this is XML to keep it nice for the user do one table at a time anyway!
-		if (isset($_GET['xml']))
-			return upgradeExit();
-
-		if ($is_debug || $command_line)
+		if ($command_line)
 		{
 			echo "\n" . 'Successful.' . "\n";
 			flush();
@@ -4484,6 +4502,7 @@ function template_upgrade_above()
 		</script>
 	</head>
 	<body>
+	<div id="footerfix">
 		<div id="header">
 			<h1 class="forumtitle">', $txt['upgrade_upgrade_utility'], '</h1>
 			<img id="smflogo" src="', $settings['default_theme_url'], '/images/smflogo.png" alt="Simple Machines Forum" title="Simple Machines Forum">
@@ -4583,6 +4602,7 @@ function template_upgrade_below()
 				</div>
 			</div>
 			</div>
+		</div>
 		</div>
 		<div id="footer">
 			<ul>
@@ -5351,10 +5371,95 @@ function template_database_xml()
 	<error>', $upcontext['error_message'], '</error>';
 }
 
-function template_convertutf8()
+// Template for the UTF-8 conversion step. Basically a copy of the backup stuff with slight modifications....
+function template_convert_utf8()
 {
+	global $upcontext, $support_js, $is_debug;
+
 	echo '
-		<h3>SMF is converting your database to UTF-8...</h3>';
+			<h3>Please wait while your database is converted to UTF-8. For large forums this may take some time!</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Done any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>';
+
+	// If we dropped their index, let's let them know
+	if ($upcontext['cur_table_num'] == $upcontext['table_count'] && $upcontext['dropping_index'])
+		echo '
+			<br><span style="display:inline;">Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated.</span>';
+
+	echo '
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Conversion Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'utf8_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_utf8_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
 
 function template_clean_mods()
@@ -5538,6 +5643,90 @@ function template_upgrade_templates()
 	// We'll want a continue button... assuming chmod is OK (Otherwise let them use connect!)
 	if (empty($upcontext['chmod']['files']) || $upcontext['is_test'])
 		$upcontext['continue'] = 1;
+}
+
+// Template for the database backup tool/
+function template_serialize_json()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+			<h3>Converting data from serialize to JSON...</h3>';
+
+	echo '
+			<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+			<input type="hidden" name="json_done" id="json_done" value="0">
+			<strong>Completed <span id="tab_done">', $upcontext['cur_table_num'], '</span> out of ', $upcontext['table_count'], ' tables.</strong>
+			<span id="debuginfo"></span>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_tables']))
+		foreach ($upcontext['previous_tables'] as $table)
+			echo '
+			<br>Completed Table: &quot;', $table, '&quot;.';
+
+	echo '
+			<h3 id="current_tab_div">Current Table: &quot;<span id="current_table">', $upcontext['cur_table_name'], '</span>&quot;</h3>
+			<br><span id="commess" style="font-weight: bold; display: ', $upcontext['cur_table_num'] == $upcontext['table_count'] ? 'inline' : 'none', ';">Convert to JSON Complete! Click Continue to Proceed.</span>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js)
+	{
+		echo '
+		<script>
+			var lastTable = ', $upcontext['cur_table_num'], ';
+			function getNextTables()
+			{
+				getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastTable, onBackupUpdate);
+			}
+
+			// Got an update!
+			function onBackupUpdate(oXMLDoc)
+			{
+				var sCurrentTableName = "";
+				var iTableNum = 0;
+				var sCompletedTableName = getInnerHTML(document.getElementById(\'current_table\'));
+				for (var i = 0; i < oXMLDoc.getElementsByTagName("table")[0].childNodes.length; i++)
+					sCurrentTableName += oXMLDoc.getElementsByTagName("table")[0].childNodes[i].nodeValue;
+				iTableNum = oXMLDoc.getElementsByTagName("table")[0].getAttribute("num");
+
+				// Update the page.
+				setInnerHTML(document.getElementById(\'tab_done\'), iTableNum);
+				setInnerHTML(document.getElementById(\'current_table\'), sCurrentTableName);
+				lastTable = iTableNum;
+				updateStepProgress(iTableNum, ', $upcontext['table_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug)
+			echo '
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+
+		echo '
+				// Get the next update...
+				if (iTableNum == ', $upcontext['table_count'], ')
+				{
+					document.getElementById(\'commess\').style.display = "";
+					document.getElementById(\'current_tab_div\').style.display = "none";
+					document.getElementById(\'contbutt\').disabled = 0;
+					document.getElementById(\'json_done\').value = 1;
+				}
+				else
+					getNextTables();
+			}
+			getNextTables();
+		</script>';
+	}
+}
+
+function template_serialize_json_xml()
+{
+	global $upcontext;
+
+	echo '
+	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
 
 function template_upgrade_complete()

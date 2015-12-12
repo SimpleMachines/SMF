@@ -31,7 +31,7 @@ function Display()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings;
 	global $options, $sourcedir, $user_info, $board_info, $topic, $board;
-	global $attachments, $messages_request, $topicinfo, $language, $smcFunc;
+	global $attachments, $messages_request, $language, $smcFunc;
 
 	// What are you gonna display if these are empty?!
 	if (empty($topic))
@@ -1450,12 +1450,13 @@ function prepareDisplayContext($reset = false)
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
-
 	if (empty($options['view_newest_first']))
 		$counter++;
+
 	else
 		$counter--;
+
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1483,26 +1484,35 @@ function Download()
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	// This checks only the current board for $board/$topic's permissions.
-	isAllowedTo('view_attachments');
+	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
+	$attachRequest = null;
+	call_integration_hook('integrate_download_request', array(&$attachRequest));
+	if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
+		$request = $attachRequest;
+	else
+	{
+		// This checks only the current board for $board/$topic's permissions.
+		isAllowedTo('view_attachments');
 
-	// Make sure this attachment is on this board.
-	// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-	$request = $smcFunc['db_query']('', '
-		SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-		WHERE a.id_attach = {int:attach}
-		LIMIT 1',
-		array(
-			'attach' => $_REQUEST['attach'],
-			'current_topic' => $topic,
-		)
-	);
+		// Make sure this attachment is on this board.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		$request = $smcFunc['db_query']('', '
+			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			WHERE a.id_attach = {int:attach}
+			LIMIT 1',
+			array(
+				'attach' => $_REQUEST['attach'],
+				'current_topic' => $topic,
+			)
+		);
+	}
 
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);
+
 	list ($id_folder, $real_filename, $file_hash, $file_ext, $id_attach, $attachment_type, $mime_type, $is_approved, $id_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -1527,6 +1537,7 @@ function Download()
 	ob_end_clean();
 	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
 		@ob_start('ob_gzhandler');
+
 	else
 	{
 		ob_start();
@@ -1569,8 +1580,10 @@ function Download()
 
 	// Send the attachment headers.
 	header('Pragma: ');
+
 	if (!isBrowser('gecko'))
 		header('Content-Transfer-Encoding: binary');
+
 	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT');
 	header('Accept-Ranges: bytes');
