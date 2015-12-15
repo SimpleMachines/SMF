@@ -1640,7 +1640,11 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
 				$packageInfo['time_installed'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['time_installed'] : 0;
 
-				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+				if (!isset($sort_id[$packageInfo['type']]))
+					$packageInfo['sort_id'] = 'unknown';
+				else				
+					$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
 				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
 				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
