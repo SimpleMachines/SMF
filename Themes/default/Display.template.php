@@ -261,7 +261,7 @@ function template_main()
 				<div class="popup_window description">
 					<div class="popup_heading">', $txt['mobile_moderation'],'
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-					', template_button_strip($context['mod_buttons']), '
+					', template_button_strip($context['mod_buttons'], array('id' => 'moderationbuttons_strip_mobile')), '
 				</div>
 			</div>';
 
@@ -269,6 +269,7 @@ function template_main()
 				<script>';
 
 	if (!empty($options['display_quick_mod']) && $options['display_quick_mod'] == 1 && $context['can_remove_post'])
+	{
 		echo '
 					var oInTopicModeration = new InTopicModeration({
 						sSelf: \'oInTopicModeration\',
@@ -293,6 +294,33 @@ function template_main()
 						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
 						sFormId: \'quickModForm\'
 					});';
+
+		// Add it to the mobile button strip as well
+		echo '
+					var oInTopicModerationMobile = new InTopicModeration({
+						sSelf: \'oInTopicModerationMobile\',
+						sCheckboxContainerMask: \'in_topic_mod_check_\',
+						aMessageIds: [\'', implode('\', \'', $context['removableMessageIDs']), '\'],
+						sSessionId: smf_session_id,
+						sSessionVar: smf_session_var,
+						sButtonStrip: \'mobile_moderation\',
+						sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
+						bUseImageButton: false,
+						bCanRemove: ', $context['can_remove_post'] ? 'true' : 'false', ',
+						sRemoveButtonLabel: \'', $txt['quickmod_delete_selected'], '\',
+						sRemoveButtonImage: \'delete_selected.png\',
+						sRemoveButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanRestore: ', $context['can_restore_msg'] ? 'true' : 'false', ',
+						sRestoreButtonLabel: \'', $txt['quick_mod_restore'], '\',
+						sRestoreButtonImage: \'restore_selected.png\',
+						sRestoreButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						bCanSplit: ', $context['can_split'] ? 'true' : 'false', ',
+						sSplitButtonLabel: \'', $txt['quickmod_split_selected'], '\',
+						sSplitButtonImage: \'split_selected.png\',
+						sSplitButtonConfirm: \'', $txt['quickmod_confirm'], '\',
+						sFormId: \'quickModForm\'
+					});';
+	}
 
 	echo '
 					if (\'XMLHttpRequest\' in window)
