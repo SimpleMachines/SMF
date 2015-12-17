@@ -556,6 +556,7 @@ function InTopicModeration(oOptions)
 	this.init();
 }
 
+
 InTopicModeration.prototype.init = function()
 {
 	// Add checkboxes to all the messages.
@@ -568,14 +569,18 @@ InTopicModeration.prototype.init = function()
 		oCheckbox.name = 'msgs[]';
 		oCheckbox.value = this.opt.aMessageIds[i];
 		oCheckbox.instanceRef = this;
+		oCheckbox.id = 'msgs_check_' + i;
 		oCheckbox.onclick = function () {
 			this.instanceRef.handleClick(this);
 		}
 
-		// Append it to the container
-		var oCheckboxContainer = document.getElementById(this.opt.sCheckboxContainerMask + this.opt.aMessageIds[i]);
-		oCheckboxContainer.appendChild(oCheckbox);
-		oCheckboxContainer.style.display = '';
+		// Append it to the container - but only if it isn't already there
+		if (document.getElementById(oCheckbox.id) == null)
+		{
+			var oCheckboxContainer = document.getElementById(this.opt.sCheckboxContainerMask + this.opt.aMessageIds[i]);
+			oCheckboxContainer.appendChild(oCheckbox);
+			oCheckboxContainer.style.display = '';
+		}
 	}
 }
 
