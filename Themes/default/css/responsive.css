@@ -292,6 +292,12 @@
 /* We have shared things... */
 @media screen and (max-width: 720px) {
 	/* New Mobile Action/Mod Pop (Test) */
+	.moderationbuttons_check {
+		display: none;
+	}
+	.moderationbuttons_mobile_check {
+		display: inline-block;
+	}
 	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
 		width: 95% !important;
 		padding: 5px;

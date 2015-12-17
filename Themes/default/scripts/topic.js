@@ -564,7 +564,7 @@ InTopicModeration.prototype.init = function()
 		// Create the checkbox.
 		var oCheckbox = document.createElement('input');
 		oCheckbox.type = 'checkbox';
-		oCheckbox.className = 'input_check';
+		oCheckbox.className = this.opt.sButtonStrip + '_check input_check';
 		oCheckbox.name = 'msgs[]';
 		oCheckbox.value = this.opt.aMessageIds[i];
 		oCheckbox.instanceRef = this;

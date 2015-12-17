@@ -115,6 +115,9 @@ input.input_check, input.input_radio {
 	background: none;
 	vertical-align: top;
 }
+.moderationbuttons_mobile_check {
+	display: none;
+}
 /* Give disabled text input elements a different background color. */
 input[disabled].input_text {
 	background: #eee;
