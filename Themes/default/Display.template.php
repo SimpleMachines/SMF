@@ -261,7 +261,9 @@ function template_main()
 				<div class="popup_window description">
 					<div class="popup_heading">', $txt['mobile_moderation'],'
 					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
-					', template_button_strip($context['mod_buttons'], array('id' => 'moderationbuttons_strip_mobile')), '
+					<div id="moderationbuttons_mobile">
+						', template_button_strip($context['mod_buttons'], 'bottom', array('id' => 'moderationbuttons_strip_mobile')), '
+					</div>
 				</div>
 			</div>';
 
@@ -303,7 +305,7 @@ function template_main()
 						aMessageIds: [\'', implode('\', \'', $context['removableMessageIDs']), '\'],
 						sSessionId: smf_session_id,
 						sSessionVar: smf_session_var,
-						sButtonStrip: \'mobile_moderation\',
+						sButtonStrip: \'moderationbuttons_mobile\',
 						sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
 						bUseImageButton: false,
 						bCanRemove: ', $context['can_remove_post'] ? 'true' : 'false', ',
