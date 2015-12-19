@@ -4,7 +4,6 @@
 // profile
 $txt['drafts_show'] = 'Show Drafts';
 $txt['drafts_show_desc'] = 'This area shows you all the drafts you currently have saved. From here you can edit them before posting, or you can remove them';
-$txt['drafts_show_saved_enabled'] = 'Enable selection of drafts from posting screens.';
 
 // misc
 $txt['drafts'] = 'Drafts';
