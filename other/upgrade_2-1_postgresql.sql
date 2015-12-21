@@ -1996,3 +1996,16 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]',
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 ---#
+
+/******************************************************************************/
+--- remove redundant index
+/******************************************************************************/
+
+---# duplicate to messages_current_topic
+DROP INDEX IF EXISTS {$db_prefix}messages_id_topic;
+DROP INDEX IF EXISTS {$db_prefix}messages_topic;
+---#
+ 
+---# duplicate to topics_last_message_sticky and topics_board_news
+DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
+---#
