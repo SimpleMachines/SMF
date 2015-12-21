@@ -235,6 +235,9 @@ function smf_db_table_sql($tableName)
 	// This will be needed...
 	$crlf = "\r\n";
 
+	// Drop it if it exists.
+	$schema_create = 'DROP TABLE IF EXISTS ' . $tableName . ';' . $crlf . $crlf;
+	
 	// Start the create table...
 	$schema_create = 'CREATE TABLE ' . $tableName . ' (' . $crlf;
 	$index_create = '';
