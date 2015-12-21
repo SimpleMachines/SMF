@@ -30,6 +30,10 @@ function db_search_init()
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => false,
 		);
+		
+		//pg 9.5 got ignore support
+	if (version_compare($smcFunc['db_get_version'],'9.5.0','>=')
+		$smcFunc['db_support_ignore'] = true;
 }
 
 /**
@@ -94,8 +98,13 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 	elseif (preg_match('~^\s*INSERT\sIGNORE~i', $db_string) != 0)
 	{
 		$db_string = preg_replace('~^\s*INSERT\sIGNORE~i', 'INSERT', $db_string);
-		// Don't error on multi-insert.
-		$db_values['db_error_skip'] = true;
+		if ($smcFunc['db_support_ignore']){
+			//pg style "INSERT INTO.... DO NOTHING"
+			$db_string = db_string.' DO NOTHING';
+		} else {
+			// Don't error on multi-insert.
+			$db_values['db_error_skip'] = true;
+		}
 	}
 
 	$return = $smcFunc['db_query']('', $db_string,
