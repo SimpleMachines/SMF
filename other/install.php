@@ -1081,6 +1081,8 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
+	} else {
+		$has_innodb = false;
 	}
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1259,7 +1261,10 @@ function DatabasePopulation()
 			}
 		}
 	}
-
+	
+	// MySQL specific stuff 
+	IF (substr($db_type, 0, 5) != 'mysql') return false;
+	
 	// Find database user privileges.
 	$privs = array();
 	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
