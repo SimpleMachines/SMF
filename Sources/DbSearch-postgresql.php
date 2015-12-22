@@ -40,7 +40,12 @@ function db_search_init()
  */
 function smf_db_search_support($search_type)
 {
-	$supported_types = array('custom');
+        global $smcFunc;
+        
+        if (version_compare($smcFunc['db_get_version'],'8.3.0','>='))
+            $supported_types = array('fulltext');
+        else
+            $supported_types = array('custom');
 
 	return in_array($search_type, $supported_types);
 }

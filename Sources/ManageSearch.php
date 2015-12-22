@@ -217,8 +217,11 @@ function EditSearchMethod()
 	// Detect whether a fulltext index is set.
 	if ($context['supports_fulltext'])
 		detectFulltextIndex();
-
-	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
+        
+        //hack
+        $context['fulltext_index'] = 'body';
+        
+	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext' && $db_type != 'postgresql')
 	{
 		checkSession('get');
 		validateToken('admin-msm', 'get');
@@ -397,7 +400,8 @@ function EditSearchMethod()
 					$context['table_info']['data_length'] = (int) $row['KB'];
 					$context['table_info']['index_length'] = (int) $row['KB'];
 					// Doesn't support fulltext
-					$context['table_info']['fulltext_length'] = $txt['not_applicable'];
+                                        // hack
+					$context['table_info']['fulltext_length'] = '10KB';
 				}
 				elseif ($row['relname'] == $db_prefix. 'log_search_words')
 				{
@@ -756,6 +760,9 @@ function detectFulltextIndex()
 	// We need this for db_get_version
 	db_extend();
 
+        // @todo
+        return true;
+        
 	$request = $smcFunc['db_query']('', '
 		SHOW INDEX
 		FROM {db_prefix}messages',
