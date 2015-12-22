@@ -32,7 +32,7 @@ function db_search_init()
 		);
 		
 		//pg 9.5 got ignore support
-	if (version_compare($smcFunc['db_get_version'],'9.5.0','>=')
+	if (version_compare($smcFunc['db_get_version'],'9.5.0','>='))
 		$smcFunc['db_support_ignore'] = true;
 }
 
@@ -99,8 +99,8 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 	{
 		$db_string = preg_replace('~^\s*INSERT\sIGNORE~i', 'INSERT', $db_string);
 		if ($smcFunc['db_support_ignore']){
-			//pg style "INSERT INTO.... DO NOTHING"
-			$db_string = db_string.' DO NOTHING';
+			//pg style "INSERT INTO.... ON CONFLICT DO NOTHING"
+			$db_string = db_string.' ON CONFLICT DO NOTHING';
 		} else {
 			// Don't error on multi-insert.
 			$db_values['db_error_skip'] = true;
