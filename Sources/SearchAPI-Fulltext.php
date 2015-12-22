@@ -218,10 +218,19 @@ class fulltext_search extends search_api
 
 			// remove any indexed words that are used in the complex body search terms
 			$words['indexed_words'] = array_diff($words['indexed_words'], $words['complex_words']);
-
-			foreach ($words['indexed_words'] as $fulltextWord)
+                        
+                        if($smcFunc['db_title'] == "PostgreSQL"){
+                            $row = 0;
+                            foreach ($words['indexed_words'] as $fulltextWord) {
+                                $query_params['boolean_match'] .= ($row <> 0 ? '&' : '');
+                                $query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
+                                $row++;
+                            } 
+                        }else
+                            foreach ($words['indexed_words'] as $fulltextWord)
 				$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
-			$query_params['boolean_match'] = substr($query_params['boolean_match'], 0, -1);
+			
+                        $query_params['boolean_match'] = substr($query_params['boolean_match'], 0, -1);
 
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match'])
