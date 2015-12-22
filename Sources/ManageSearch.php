@@ -217,30 +217,44 @@ function EditSearchMethod()
 	// Detect whether a fulltext index is set.
 	if ($context['supports_fulltext'])
 		detectFulltextIndex();
-        
-        //hack
-        $context['fulltext_index'] = 'body';
-        
-	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext' && $db_type != 'postgresql')
+       
+	if (!empty($_REQUEST['sa']) && $_REQUEST['sa'] == 'createfulltext')
 	{
 		checkSession('get');
 		validateToken('admin-msm', 'get');
+                
+                if ($db_type == 'postgresql') {
+                    $smcFunc['db_query']('', '
+                            DROP INDEX IF EXISTS {db_prefix}messages_ftx',
+                            array(
+                                'db_error_skip' => true,
+                            )
+                    );
+                    $smcFunc['db_query']('', '
+                            CREATE INDEX smf_messages_ftx ON smf_messages 
+                            USING gin(to_tsvector({string:language},body))',
+                            array(
+                                'language' => 'english' 
+                            )
+                    );
+                } else {
 
-		// Make sure it's gone before creating it.
-		$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}messages
-			DROP INDEX body',
-			array(
-				'db_error_skip' => true,
-			)
-		);
+                    // Make sure it's gone before creating it.
+                    $smcFunc['db_query']('', '
+                            ALTER TABLE {db_prefix}messages
+                            DROP INDEX body',
+                            array(
+                                    'db_error_skip' => true,
+                            )
+                    );
 
-		$smcFunc['db_query']('', '
-			ALTER TABLE {db_prefix}messages
-			ADD FULLTEXT body (body)',
-			array(
-			)
-		);
+                    $smcFunc['db_query']('', '
+                            ALTER TABLE {db_prefix}messages
+                            ADD FULLTEXT body (body)',
+                            array(
+                            )
+                    );
+                }
 
 		$context['fulltext_index'] = 'body';
 	}
@@ -382,12 +396,25 @@ function EditSearchMethod()
 
 		// PostGreSql has some hidden sizes.
 		$request = $smcFunc['db_query']('', '
-			SELECT relname, relpages * 8 *1024 AS "KB" FROM pg_class
-			WHERE relname = {string:messages} OR relname = {string:log_search_words}
-			ORDER BY relpages DESC',
+                        SELECT
+                            indexname,
+                            pg_relation_size(quote_ident(t.tablename)::text) AS table_size,
+                            pg_relation_size(quote_ident(indexrelname)::text) AS index_size
+                        FROM pg_tables t
+                        LEFT OUTER JOIN pg_class c ON t.tablename=c.relname
+                        LEFT OUTER JOIN
+                            ( SELECT c.relname AS ctablename, ipg.relname AS indexname,   indexrelname FROM pg_index x
+                                   JOIN pg_class c ON c.oid = x.indrelid
+                                   JOIN pg_class ipg ON ipg.oid = x.indexrelid
+                                   JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid )
+                            AS foo
+                            ON t.tablename = foo.ctablename
+                        WHERE t.schemaname= {string:schema} and ( 
+                            indexname = {string:messages_ftx} OR indexname = {string:log_search_words} )',
 			array(
-				'messages' => $db_prefix. 'messages',
+				'messages_ftx' => $db_prefix. 'messages_ftx',
 				'log_search_words' => $db_prefix. 'log_search_words',
+                                'schema' => 'public',
 			)
 		);
 
@@ -395,13 +422,11 @@ function EditSearchMethod()
 		{
 			while ($row = $smcFunc['db_fetch_assoc']($request))
 			{
-				if ($row['relname'] == $db_prefix . 'messages')
+				if ($row['relname'] == $db_prefix . 'messages_ftx')
 				{
-					$context['table_info']['data_length'] = (int) $row['KB'];
-					$context['table_info']['index_length'] = (int) $row['KB'];
-					// Doesn't support fulltext
-                                        // hack
-					$context['table_info']['fulltext_length'] = '10KB';
+					$context['table_info']['data_length'] = (int) $row['table_size'];
+					$context['table_info']['index_length'] = (int) $row['index_size'];
+					$context['table_info']['fulltext_length'] = (int) $row['index_size'];
 				}
 				elseif ($row['relname'] == $db_prefix. 'log_search_words')
 				{
