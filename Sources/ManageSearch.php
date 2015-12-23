@@ -234,7 +234,7 @@ function EditSearchMethod()
                             CREATE INDEX smf_messages_ftx ON smf_messages 
                             USING gin(to_tsvector({string:language},body))',
                             array(
-                                'language' => 'english' 
+                                'language' => 'simple'
                             )
                     );
                 } else {

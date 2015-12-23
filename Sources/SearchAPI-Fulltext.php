@@ -207,7 +207,7 @@ class fulltext_search extends search_api
 		if (!empty($modSettings['search_simple_fulltext']))
 		{
                         if($smcFunc['db_title'] == "PostgreSQL") 
-                            $query_where[] = 'to_tsvector(body) @@ to_tsquery({string:body_match})';
+                            $query_where[] = 'to_tsvector(\'simple\',body) @@ to_tsquery(\'simple\',{string:body_match})';
                         else
                             $query_where[] = 'MATCH (body) AGAINST ({string:body_match})';
 			$query_params['body_match'] = implode(' ', array_diff($words['indexed_words'], $query_params['excluded_index_words']));
@@ -235,7 +235,7 @@ class fulltext_search extends search_api
 			// if we have bool terms to search, add them in
 			if ($query_params['boolean_match'])
                                 if($smcFunc['db_title'] == "PostgreSQL") 
-                                    $query_where[] = 'to_tsvector(body) @@ to_tsquery({string:boolean_match})';
+                                    $query_where[] = 'to_tsvector(\'simple\',body) @@ to_tsquery(\'simple\',{string:boolean_match})';
                                 else 
                                     $query_where[] = 'MATCH (body) AGAINST ({string:boolean_match} IN BOOLEAN MODE)';
 		}
