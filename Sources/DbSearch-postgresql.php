@@ -65,7 +65,7 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 			'~ENGINE=MEMORY~i' => '',
 		),
 		'create_tmp_log_search_messages' => array(
-			'~mediumint\(\d\)' => 'int',
+			'~mediumint\(\d\)~i' => 'int',
 			'~unsigned~i' => '',
 			'~ENGINE=MEMORY~i' => '',
 		),
