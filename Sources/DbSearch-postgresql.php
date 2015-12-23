@@ -30,9 +30,19 @@ function db_search_init()
 			'db_create_word_search' => 'smf_db_create_word_search',
 			'db_support_ignore' => false,
 		);
-		
-		//pg 9.5 got ignore support
-	if (version_compare($smcFunc['db_get_version'],'9.5.0','>='))
+        
+	db_extend();
+	
+	//pg 9.5 got ignore support
+	$version = $smcFunc['db_get_version']();
+	// if we got a Beta Version
+	if (stripos($version, 'beta') !== false)
+	    $version = substr($version, 0, stripos($version, 'beta')).'.0';
+	// or RC
+	if (stripos($version, 'rc') !== false)
+	    $version = substr($version, 0, stripos($version, 'rc')).'.0';
+	
+	if (version_compare($version,'9.5.0','>='))
 		$smcFunc['db_support_ignore'] = true;
 }
 
@@ -95,12 +105,12 @@ function smf_db_search_query($identifier, $db_string, $db_values = array(), $con
 
 	if (isset($replacements[$identifier]))
 		$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
-	elseif (preg_match('~^\s*INSERT\sIGNORE~i', $db_string) != 0)
+	if (preg_match('~^\s*INSERT\sIGNORE~i', $db_string) != 0)
 	{
 		$db_string = preg_replace('~^\s*INSERT\sIGNORE~i', 'INSERT', $db_string);
 		if ($smcFunc['db_support_ignore']){
 			//pg style "INSERT INTO.... ON CONFLICT DO NOTHING"
-			$db_string = db_string.' ON CONFLICT DO NOTHING';
+			$db_string = $db_string.' ON CONFLICT DO NOTHING';
 		} else {
 			// Don't error on multi-insert.
 			$db_values['db_error_skip'] = true;
