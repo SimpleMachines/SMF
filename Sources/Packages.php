@@ -1534,7 +1534,7 @@ function PackageBrowse()
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
 	global $scripturl, $packagesdir, $context, $forum_version;
-	static $instmods, $packages;
+	static $packages, $installed_mods;
 
 	// Start things up
 	if (!isset($packages[$params]))
@@ -1566,7 +1566,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (isset($_SESSION['single_version_emulate']))
 		unset($_SESSION['single_version_emulate']);
 
-	if (empty($instmods))
+	if (empty($installed_mods))
 	{
 		$instmods = loadInstalledPackages();
 		$installed_mods = array();
