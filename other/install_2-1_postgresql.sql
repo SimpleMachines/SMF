@@ -1161,6 +1161,8 @@ CREATE INDEX {$db_prefix}members_id_post_group ON {$db_prefix}members (id_post_g
 CREATE INDEX {$db_prefix}members_warning ON {$db_prefix}members (warning);
 CREATE INDEX {$db_prefix}members_total_time_logged_in ON {$db_prefix}members (total_time_logged_in);
 CREATE INDEX {$db_prefix}members_id_theme ON {$db_prefix}members (id_theme);
+CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name));
+CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name));
 
 
 #
