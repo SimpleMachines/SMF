@@ -1083,6 +1083,25 @@ function DatabasePopulation()
 		}
 	}
 
+	// PostgreSQL-specific stuff - unlogged table
+	if ($db_type == 'postgresql')
+	{
+		$result = $smcFunc['db_query']('', '
+			SHOW server_version_num'
+		);
+		if ($result !== false)
+		{
+			while ($row = $smcFunc['db_fetch_assoc']($result))
+				$pg_version = $row['server_version_num'];
+			$smcFunc['db_free_result']($result);
+		}
+		
+		if(isset($pg_version) && $pg_version >= 90100)
+			$replaces['{$unlogged}'] = 'UNLOGGED';
+		else
+			$replaces['{$unlogged}'] = '';
+	}
+
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
 	$type = ($db_type == 'mysqli' ? 'mysql' : $db_type);
 	$sql_lines = explode("\n", strtr(implode(' ', file(dirname(__FILE__) . '/install_' . $GLOBALS['db_script_version'] . '_' . $type . '.sql')), $replaces));
