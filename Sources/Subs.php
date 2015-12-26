@@ -3444,12 +3444,20 @@ function ip2range($fullip)
 
 		for ($i = 0; $i < 8; $i++)
 		{
-			if ($ip_parts[$i] == '*')
-				$ip_array[$i] = array('low' => '0', 'high' => hexdec('ffff'));
+			if ($ip_parts[$i] == '*') {
+				$ip_array['low'] .= '0';
+				$ip_array['high'] .= hexdec('ffff');
+			}
 			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
-				$ip_array[$i] = array('low' => hexdec($range[1]), 'high' => hexdec($range[2]));
+			{
+				$ip_array['low'] .= hexdec($range[1]);
+				$ip_array['high'] .= hexdec($range[2]);
+			}
 			elseif (is_numeric(hexdec($ip_parts[$i])))
-				$ip_array[$i] = array('low' => hexdec($ip_parts[$i]), 'high' => hexdec($ip_parts[$i]));
+			{
+				$ip_array['low'] .= hexdec($ip_parts[$i]);
+				$ip_array['high'] .= hexdec($ip_parts[$i]);
+			}
 		}
 
 		return $ip_array;
@@ -3462,24 +3470,33 @@ function ip2range($fullip)
 	$ip_parts = explode('.', $fullip);
 	$ip_array = array();
 
-	if (count($ip_parts) != 4)
-		return array();
+	// @todo check
+//	if (count($ip_parts) != 4)
+//		return array();
 
-	for ($i = 0; $i < 4; $i++)
+	for ($i = 0; $i < count($ip_parts); $i++)
 	{
+		if($i > 0) {
+		    $ip_array['low'] .=  '.';
+		    $ip_array['high'] .= '.';
+		}
+		
 		if ($ip_parts[$i] == '*')
-			$ip_array[$i] = array('low' => '0', 'high' => '255');
+		{
+		    $ip_array['low'] .=  '0';
+		    $ip_array['high'] .= '255';
+		}			
 		elseif (preg_match('/^(\d{1,3})\-(\d{1,3})$/', $ip_parts[$i], $range) == 1)
-			$ip_array[$i] = array('low' => $range[1], 'high' => $range[2]);
+		{
+		    $ip_array['low'] .=  $range[1];
+		    $ip_array['high'] .= $range[2];
+		}
 		elseif (is_numeric($ip_parts[$i]))
-			$ip_array[$i] = array('low' => $ip_parts[$i], 'high' => $ip_parts[$i]);
+		{
+		    $ip_array['low'] .=  $ip_parts[$i];
+		    $ip_array['high'] .= $ip_parts[$i];
+		}
 	}
-
-	// Makes it simpiler to work with.
-	$ip_array[4] = array('low' => 0, 'high' => 0);
-	$ip_array[5] = array('low' => 0, 'high' => 0);
-	$ip_array[6] = array('low' => 0, 'high' => 0);
-	$ip_array[7] = array('low' => 0, 'high' => 0);
 
 	return $ip_array;
 }

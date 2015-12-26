@@ -324,6 +324,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'case_insensitive' => array(
 			'~LIKE~' => 'ILIKE',
 		),
+		'ip_address' => array(
+			'~int:~' => 'string:',
+		),
 	);
 
 	if (isset($replacements[$identifier]))

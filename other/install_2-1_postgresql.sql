@@ -284,6 +284,8 @@ CREATE TABLE {$db_prefix}ban_items (
   ip_high7 smallint NOT NULL default '0',
   ip_low8 smallint NOT NULL default '0',
   ip_high8 smallint NOT NULL default '0',
+  ip_low inet,
+  ip_high inet,
   hostname varchar(255) NOT NULL,
   email_address varchar(255) NOT NULL,
   id_member int NOT NULL default '0',

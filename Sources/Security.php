@@ -1270,32 +1270,15 @@ else
  */
 function constructBanQueryIP($fullip)
 {
-	// First attempt a IPv6 address.
-	if (isValidIPv6($fullip))
-	{
-		$ip_parts = convertIPv6toInts($fullip);
-
-		$ban_query = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
-			AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
-			AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
-			AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
-	}
-	// Check if we have a valid IPv4 address.
-	elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $fullip, $ip_parts) == 1)
-		$ban_query = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
-	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
-	else
-		$ban_query = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
-			AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
-			AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
-			AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
+	//check for valid address
+	if (inet_pton($fullip) == false ) return;
+	
+	global $smcFunc;
+	
+	// PostgreSQL got native support
+	$ban_query =($smcFunc['db_title'] == 'PostgreSQL' ? $fullip : inet_ptod($fullip)); 
+	
+	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
 
 	return $ban_query;
 }
@@ -1326,6 +1309,90 @@ function frameOptionsHeader($override = null)
 	// And some other useful ones.
 	header('X-XSS-Protection: 1');
 	header('X-Content-Type-Options: nosniff');
+}
+
+/**
+ * Convert an IP address from presentation to decimal(39,0) format suitable for storage in MySQL
+ * got from http://stackoverflow.com/questions/1120371/how-to-convert-ipv6-from-binary-for-storage-in-mysql
+ *
+ * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
+ * @return string The IP address in decimal notation
+ */
+function inet_ptod($ip_address)
+{
+    // IPv4 address
+    if (strpos($ip_address, ':') === false && strpos($ip_address, '.') !== false) {
+    	$ip_address = '::' . $ip_address;
+    }
+
+    // IPv6 address
+    if (strpos($ip_address, ':') !== false) {
+    	$network = inet_pton($ip_address);
+    	$parts = unpack('N*', $network);
+
+    	foreach ($parts as &$part) {
+    		if ($part < 0) {
+    			$part = bcadd((string) $part, '4294967296');
+    		}
+
+    		if (!is_string($part)) {
+    			$part = (string) $part;
+    		}
+    	}
+
+    	$decimal = $parts[4];
+    	$decimal = bcadd($decimal, bcmul($parts[3], '4294967296'));
+    	$decimal = bcadd($decimal, bcmul($parts[2], '18446744073709551616'));
+    	$decimal = bcadd($decimal, bcmul($parts[1], '79228162514264337593543950336'));
+
+    	return $decimal;
+    }
+
+    // Decimal address
+    return $ip_address;
+}
+
+/**
+ * Convert an IP address from decimal format to presentation format
+ * got from http://stackoverflow.com/questions/1120371/how-to-convert-ipv6-from-binary-for-storage-in-mysql
+ *
+ * @param string $decimal An IP address in IPv4, IPv6 or decimal notation
+ * @return string The IP address in presentation format
+ */
+function inet_dtop($decimal)
+{
+    // IPv4 or IPv6 format
+    if (strpos($decimal, ':') !== false || strpos($decimal, '.') !== false) {
+    	return $decimal;
+    }
+
+    // Decimal format
+    $parts = array();
+    $parts[1] = bcdiv($decimal, '79228162514264337593543950336', 0);
+    $decimal = bcsub($decimal, bcmul($parts[1], '79228162514264337593543950336'));
+    $parts[2] = bcdiv($decimal, '18446744073709551616', 0);
+    $decimal = bcsub($decimal, bcmul($parts[2], '18446744073709551616'));
+    $parts[3] = bcdiv($decimal, '4294967296', 0);
+    $decimal = bcsub($decimal, bcmul($parts[3], '4294967296'));
+    $parts[4] = $decimal;
+
+    foreach ($parts as &$part) {
+    	if (bccomp($part, '2147483647') == 1) {
+    		$part = bcsub($part, '4294967296');
+    	}
+
+    	$part = (int) $part;
+    }
+
+    $network = pack('N4', $parts[1], $parts[2], $parts[3], $parts[4]);
+    $ip_address = inet_ntop($network);
+
+    // Turn IPv6 to IPv4 if it's IPv4
+    if (preg_match('/^::\d+.\d+.\d+.\d+$/', $ip_address)) {
+    	return substr($ip_address, 2);
+    }
+
+    return $ip_address;
 }
 
 ?>
