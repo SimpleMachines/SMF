@@ -298,6 +298,7 @@ CREATE TABLE {$db_prefix}ban_items (
 #
 
 CREATE INDEX {$db_prefix}ban_items_id_ban_group ON {$db_prefix}ban_items (id_ban_group);
+CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 
 #
 # Table structure for table `board_permissions`

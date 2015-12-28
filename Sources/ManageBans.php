@@ -1289,8 +1289,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'hostname' => 'string',
 		'email_address' => 'string',
 		'id_member' => 'int',
-		'ip_low' =>  'int',
-		'ip_high' => 'int',
+		'ip_low' =>  ($smcFunc['db_title'] == 'PostgreSQL'? 'string' : 'int'),
+		'ip_high' => ($smcFunc['db_title'] == 'PostgreSQL'? 'string' : 'int'),
 	);
 
 	$insertTriggers = array();
@@ -2146,46 +2146,14 @@ function list_getNumBanLogEntries()
  */
 function range2ip($low, $high)
 {
-	// IPv6 check.
-	if (!empty($high[4]) || !empty($high[5]) || !empty($high[6]) || !empty($high[7]))
-	{
-		if (count($low) != 8 || count($high) != 8)
-			return '';
-
-		$ip = array();
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($low[$i] == $high[$i])
-				$ip[$i] = dechex($low[$i]);
-			elseif ($low[$i] == '0' && $high[$i] == '255')
-				$ip[$i] = '*';
-			else
-				$ip[$i] = dechex($low[$i]) . '-' . dechex($high[$i]);
-		}
-
-		return implode(':', $ip);
-	}
-
-	// Legacy IPv4 stuff.
-	// (count($low) != 4 || count($high) != 4) would not work because $low and $high always contain 8 elements!
-	if ((count($low) != 4 || count($high) != 4) && (count($low) != 8 || count($high) != 8))
-			return '';
-
-	for ($i = 0; $i < 4; $i++)
-	{
-		if ($low[$i] == $high[$i])
-			$ip[$i] = $low[$i];
-		elseif ($low[$i] == '0' && $high[$i] == '255')
-			$ip[$i] = '*';
-		else
-			$ip[$i] = $low[$i] . '-' . $high[$i];
-	}
-
-	// Pretending is fun... the IP can't be this, so use it for 'unknown'.
-	if ($ip == array(255, 255, 255, 255))
-		return 'unknown';
-
-	return implode('.', $ip);
+	$low = inet_dtop($low);
+	$high = inet_dtop($high);
+	
+	if ($low == '255.255.255.255') return 'unkown';
+	if ($low == $high) 
+	    return $low;
+	else
+	    return $low . '-'.$high;
 }
 
 /**

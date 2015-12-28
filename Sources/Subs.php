@@ -3433,69 +3433,72 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  */
 function ip2range($fullip)
 {
-	// If its IPv6, validate it first.
-	if (isValidIPv6($fullip) !== false)
-	{
-		$ip_parts = explode(':', expandIPv6($fullip, false));
-		$ip_array = array();
-
-		if (count($ip_parts) != 8)
-			return array();
-
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($ip_parts[$i] == '*') {
-				$ip_array['low'] .= '0';
-				$ip_array['high'] .= hexdec('ffff');
-			}
-			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
-			{
-				$ip_array['low'] .= hexdec($range[1]);
-				$ip_array['high'] .= hexdec($range[2]);
-			}
-			elseif (is_numeric(hexdec($ip_parts[$i])))
-			{
-				$ip_array['low'] .= hexdec($ip_parts[$i]);
-				$ip_array['high'] .= hexdec($ip_parts[$i]);
-			}
-		}
-
-		return $ip_array;
-	}
-
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
-
-	$ip_parts = explode('.', $fullip);
-	$ip_array = array();
-
-	// @todo check
-//	if (count($ip_parts) != 4)
-//		return array();
-
-	for ($i = 0; $i < count($ip_parts); $i++)
+	
+	$ip_parts = explode('-', $fullip);
+	
+	// if ip 22.12.31.21
+	if (count($ip_parts) == 1 && inet_pton($fullip))
 	{
-		if($i > 0) {
-		    $ip_array['low'] .=  '.';
-		    $ip_array['high'] .= '.';
+	    $ip_array['low'] = $fullip;
+	    $ip_array['high'] = $fullip;
+	    return $ip_array;
+	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	elseif (count($ip_parts) == 1)
+	{
+	    $ip_parts[0] = $fullip;
+	    $ip_parts[1] = $fullip;
+	}
+	
+	// if ip 22.12.31.21-12.21.31.21
+	if (count($ip_parts) == 2 && inet_pton($ip_parts[0]) && inet_pton($ip_parts[1]))
+	{
+	    $ip_array['low'] = $ip_parts[0];
+	    $ip_array['high'] = $ip_parts[1];
+	    return $ip_array;
+	}
+	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
+	{
+	    $valid_low = (inet_pton($ip_parts[0])? true:false);
+	    $valid_high = (inet_pton($ip_parts[1])? true:false);
+	    $count = 0;
+	    $mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+	    $max = ($mode == ':' ? 'ffff' : '255');
+	    if(!$valid_low)
+	    {
+			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
+			$valid_low = inet_pton($ip_parts[0]);
+			while (!$valid_low)
+			{
+				$ip_parts[0] .= $mode . $min;
+				$valid_low = inet_pton($ip_parts[0]);
+				$count++;
+				if ($count > 9) break;
+			}
+	    }
+	    
+	    $count = 0;
+	    if(!$valid_high)
+	    {
+			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
+			$valid_high = inet_pton($ip_parts[1]);
+			while (!$valid_high)
+			{
+				$ip_parts[1] .= $mode . $max;
+				$valid_high = inet_pton($ip_parts[1]);
+				$count++;
+				if ($count > 9) break;
+			}
 		}
-		
-		if ($ip_parts[$i] == '*')
-		{
-		    $ip_array['low'] .=  '0';
-		    $ip_array['high'] .= '255';
-		}			
-		elseif (preg_match('/^(\d{1,3})\-(\d{1,3})$/', $ip_parts[$i], $range) == 1)
-		{
-		    $ip_array['low'] .=  $range[1];
-		    $ip_array['high'] .= $range[2];
-		}
-		elseif (is_numeric($ip_parts[$i]))
-		{
-		    $ip_array['low'] .=  $ip_parts[$i];
-		    $ip_array['high'] .= $ip_parts[$i];
-		}
+	    
+	    if($valid_high && $valid_low)
+	    {
+			$ip_array['low'] = $ip_parts[0];
+			$ip_array['high'] = $ip_parts[1];
+	    }
+	    
 	}
 
 	return $ip_array;

@@ -113,7 +113,8 @@ CREATE TABLE {$db_prefix}ban_items (
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   hits MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban),
-  INDEX idx_id_ban_group (id_ban_group)
+  INDEX idx_id_ban_group (id_ban_group),
+  INDEX idx_id_ban_ip (ip_low,ip_high)
 ) ENGINE={$engine};
 
 #
