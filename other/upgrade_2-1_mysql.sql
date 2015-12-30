@@ -231,10 +231,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done]))
 	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
-$is_done = false;
+// No need to do this if we already did it previously...
+if (empty($modSettings['json_done']))
+  $is_done = false;
+else
+  $is_done = true;
+
 while (!$is_done)
 {
 	nextSubStep($substep);
@@ -386,7 +391,7 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-if (is_dir($modSettings['attachmentUploadDir']))
+if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
 {
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}settings
@@ -407,7 +412,7 @@ if (is_dir($modSettings['attachmentUploadDir']))
 else
 {
 	// Serialized maybe?
-	$array = @unserialize($modSettings['attachmentUploadDir']);
+	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
 	if ($array !== false)
 	{
 		$smcFunc['db_query']('', '
