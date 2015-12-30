@@ -1639,6 +1639,16 @@ function MergeExecute($topics = array())
 		}
 	}
 
+	// Ensure we don't accidentally delete the poll we want to keep...
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}topics
+		SET id_poll = 0
+		WHERE id_topic IN ({array_int:deleted_topics})',
+		array(
+			'deleted_topics' => $deleted_topics
+		)
+	);
+
 	// Delete any remaining data regarding these topics, this is done before changing the properties of the merged topic (else we get duplicate keys)...
 	if (!isset($_POST['postRedirect']))
 	{
