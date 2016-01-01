@@ -177,7 +177,7 @@ function sessionWrite($session_id, $data)
 			array('session_id')
 		);
 
-	return $result;
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 /**
@@ -194,13 +194,15 @@ function sessionDestroy($session_id)
 		return false;
 
 	// Just delete the row...
-	return $smcFunc['db_query']('', '
+	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE session_id = {string:session_id}',
 		array(
 			'session_id' => $session_id,
 		)
 	);
+	
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 /**
@@ -219,13 +221,15 @@ function sessionGC($max_lifetime)
 		$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
 
 	// Clean up after yerself ;).
-	return $smcFunc['db_query']('', '
+	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE last_update < {int:last_update}',
 		array(
 			'last_update' => time() - $max_lifetime,
 		)
 	);
+	
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 ?>
