@@ -202,7 +202,7 @@ function sessionDestroy($session_id)
 		)
 	);
 	
-	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
+	return true;
 }
 
 /**
