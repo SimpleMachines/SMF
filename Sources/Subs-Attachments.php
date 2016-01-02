@@ -161,23 +161,11 @@ function automanage_attachments_create_directory($updir)
 		$count--;
 	}
 
-	// @todo: chmod (especially with some servers) is usually bad
-	if (!is_writable($directory))
+	// Check if the dir is writable.
+	if (!smf_chmod($directory))
 	{
-		chmod($directory, 0755);
-		if (!is_writable($directory))
-		{
-			chmod($directory, 0775);
-			if (!is_writable($directory))
-			{
-				chmod($directory, 0777);
-				if (!is_writable($directory))
-				{
-					$context['dir_creation_error'] = 'attachments_no_write';
-					return false;
-				}
-			}
-		}
+		$context['dir_creation_error'] = 'attachments_no_write';
+		return false;
 	}
 
 	// Everything seems fine...let's create the .htaccess

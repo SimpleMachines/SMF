@@ -4787,7 +4787,7 @@ function smf_chmod($file, $value = 0)
 		}
 
 		else
-			smf_chmod($file, $val);
+			@chmod($file, $val);
 	}
 
 	return $isWritable;
