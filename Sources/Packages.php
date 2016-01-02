@@ -1339,7 +1339,7 @@ function PackageRemove()
 			deltree($packagesdir . '/' . $_GET['package']);
 		else
 		{
-			@chmod($packagesdir . '/' . $_GET['package'], 0777);
+			smf_chmod($packagesdir . '/' . $_GET['package'], 0777);
 			unlink($packagesdir . '/' . $_GET['package']);
 		}
 	}
@@ -2519,7 +2519,7 @@ function PackagePermissionsAction()
 					$package_ftp->chmod($ftp_file, $custom_value);
 				}
 				else
-					@chmod($path, $custom_value);
+					smf_chmod($path, $custom_value);
 			}
 
 			// This fish is fried...
