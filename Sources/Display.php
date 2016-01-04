@@ -388,7 +388,7 @@ function Display()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_id_group' => 0,
-				'in_url_string' => 's:5:"topic";i:' . $topic . ';',
+				'in_url_string' => '"topic":'.$topic,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);

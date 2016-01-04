@@ -185,7 +185,7 @@ function MessageIndex()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_member_group' => 0,
-				'in_url_string' => 's:5:"board";i:' . $board . ';',
+				'in_url_string' => '"board":' . $board,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
