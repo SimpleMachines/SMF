@@ -331,7 +331,7 @@ function cleanRequest()
 function isValidIPv6($ip)
 {
 	//looking for :
-	if (preg_match('~:~', $ip) === 0 ) return false;
+	if (strpos($ip , ':') === false ) return false;
 	
 	//check valid address
 	return inet_pton($ip);
