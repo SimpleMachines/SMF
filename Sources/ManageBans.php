@@ -1289,8 +1289,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'hostname' => 'string',
 		'email_address' => 'string',
 		'id_member' => 'int',
-		'ip_low' =>  ($smcFunc['db_title'] == 'PostgreSQL'? 'string' : 'int'),
-		'ip_high' => ($smcFunc['db_title'] == 'PostgreSQL'? 'string' : 'int'),
+		'ip_low' => 'inet',
+		'ip_high' => 'inet',
 	);
 
 	$insertTriggers = array();
@@ -1310,7 +1310,7 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 	if (!empty($context['ban_errors']))
 		return false;
 
-	$smcFunc['db_insert']('ip_address',
+	$smcFunc['db_insert']('',
 		'{db_prefix}ban_items',
 		$insertKeys,
 		$insertTriggers,
@@ -1358,11 +1358,11 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 
 	$trigger = array_merge($values, $trigger);
 
-	$smcFunc['db_query']('ip_address', '
+	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}ban_items
 		SET
 			hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
-			ip_low = {int:ip_low}, ip_high = {int:ip_high}
+			ip_low = {inet:ip_low}, ip_high = {inet:ip_high}
 		WHERE id_ban = {int:ban_item}
 			AND id_ban_group = {int:id_ban_group}',
 		array_merge($trigger, array(
@@ -2171,17 +2171,17 @@ function checkExistingTriggerIP($ip_array, $fullip = '')
 
 
 	$values = array(
-		'ip_low' => ($smcFunc['db_title'] == 'PostgreSQL'? $ip_array['low'] : inet_ptod($ip_array['low'])),
-		'ip_high' => ($smcFunc['db_title'] == 'PostgreSQL'? $ip_array['high'] : inet_ptod($ip_array['high']))
+		'ip_low' => $ip_array['low'],
+		'ip_high' => $ip_array['high']
 	);
 
 
-	$request = $smcFunc['db_query']('ip_address', '
+	$request = $smcFunc['db_query']('', '
 		SELECT bg.id_ban_group, bg.name
 		FROM {db_prefix}ban_groups AS bg
 		INNER JOIN {db_prefix}ban_items AS bi ON
 			(bi.id_ban_group = bg.id_ban_group)
-			AND ip_low = {int:ip_low} AND ip_high = {int:ip_high}
+			AND ip_low = {inet:ip_low} AND ip_high = {inet:ip_high}
 		LIMIT 1',
 		$values
 	);
