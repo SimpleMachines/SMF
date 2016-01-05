@@ -425,7 +425,7 @@ function expandIPv6($addr, $strict_check = true)
 */
 function matchIPtoCIDR($ip_address, $cidr_address)
 {
-    list ($cidr_network, $cidr_subnetmask) = split('/', $cidr_address);
+    list ($cidr_network, $cidr_subnetmask) = preg_split('/', $cidr_address);
     return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
 }
 
