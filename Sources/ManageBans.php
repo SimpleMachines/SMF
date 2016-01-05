@@ -1280,8 +1280,8 @@ function addTriggers($group_id = 0, $triggers = array(), $logs = array())
 		'hostname' => '',
 		'email_address' => '',
 		'id_member' => 0,
-		'ip_low' => 0,
-		'ip_high' => 0,
+		'ip_low' => new nullClass(),
+		'ip_high' => new nullClass(),
 	);
 
 	$insertKeys = array(
@@ -1352,8 +1352,8 @@ function updateTriggers($ban_item = 0, $group_id = 0, $trigger = array(), $logs 
 		'hostname' => '',
 		'email_address' => '',
 		'id_member' => 0,
-		'ip_low' => 0,
-		'ip_high' => 0,
+		'ip_low' => new nullClass(),
+		'ip_high' => new nullClass(),
 	);
 
 	$trigger = array_merge($values, $trigger);
