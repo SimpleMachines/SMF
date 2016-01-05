@@ -389,7 +389,7 @@ if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attac
 		array('variable')
 	);
 }
-else
+elseif (empty($modSettings['json_done']))
 {
 	// Serialized maybe?
 	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
