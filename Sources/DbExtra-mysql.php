@@ -469,6 +469,7 @@ function smf_db_get_engine()
 
 	$request = $smcFunc['db_query']('', 'SELECT @@version_comment');
 	list ($comment) = $smcFunc['db_fetch_row']($request);
+	$smcFunc['db_free_result']($request);
 
 	// Skip these if we don't have a comment.
 	if (!empty($comment))
