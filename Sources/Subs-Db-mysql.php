@@ -153,8 +153,9 @@ function smf_db_replacement__callback($matches)
 	if ($matches[1] === 'literal')
 		return '\'' . mysql_real_escape_string($matches[2], $connection) . '\'';
 
-	if (!isset($values[$matches[2]]))
-		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
+	//deactivate to allow null values
+//	if (!isset($values[$matches[2]]))
+//		smf_db_error_backtrace('The database value you\'re trying to insert does not exist: ' . (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($matches[2]) : htmlspecialchars($matches[2])), '', E_USER_ERROR, __FILE__, __LINE__);
 
 	$replacement = $values[$matches[2]];
 
