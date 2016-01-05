@@ -48,7 +48,9 @@ function Post($post_errors = array())
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
-	$context['notify_prefs'] = (array) array_pop(getNotifyPrefs($user_info['id']));
+	// use $temp to get around "Only variables should be passed by reference"
+	$temp = getNotifyPrefs($user_info['id']);
+	$context['notify_prefs'] = (array) array_pop($temp);
 	$context['auto_notify'] = !empty($context['notify_prefs']['msg_auto_notify']);
 
 	// You must be posting to *some* board.
