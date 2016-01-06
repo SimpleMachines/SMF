@@ -461,18 +461,6 @@ div#admin_menu {
 	float: right;
 }
 
-/* User information. */
-#profile_menu a.avatar {
-	float: right;
-	margin: 0 10px 0 20px;
-}
-#profile_menu .profile_user_info ol {
-	float: right;
-}
-#profile_menu .profile_user_links li {
-	float: right;
-}
-
 /* Styles for the profile section.
 ------------------------------------------------- */
 #basicinfo {

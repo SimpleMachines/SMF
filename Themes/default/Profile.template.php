@@ -60,7 +60,6 @@ function template_profile_popup()
 			<span class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></span>
 			<span class="profile_group">', $context['member']['group'], '</span>
 		</div>
-		<br class="clear">
 		<div class="profile_user_links">
 			<ol>';
 
@@ -77,7 +76,6 @@ function template_profile_popup()
 
 	echo '
 			</ol>
-			<br class="clear">
 		</div>';
 }
 
@@ -111,11 +109,10 @@ function template_alerts_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}

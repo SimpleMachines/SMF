@@ -191,7 +191,7 @@ function template_body_above()
 				<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
 					if (!empty($context['user']['avatar']))
 						echo $context['user']['avatar']['image'];
-					echo $context['user']['name'], ' &#9660;</a>
+					echo $context['user']['name'], '</a>
 				<div id="profile_menu" class="top_menu"></div>
 			</li>';
 
