@@ -148,23 +148,21 @@ body#help_popup {
 	box-sizing: border-box;
 }
 
-ul#likes li {
+#likes li {
 	clear: both;
 }
-
-ul#likes span.avatar {
-	max-width: 100px;
-	max-height: 100px;
-	padding: 0 10px 0 0;
-}
-ul#likes span.avatar img {
+#likes .avatar {
 	max-height: 90px;
 	max-width: 90px;
+	padding: 0 10px 0 0;
 }
-ul#likes li span.description {
+#likes span {
+	display: inline-block;
+	vertical-align: top;
+}
+#likes .description {
 	font-style: italic;
 	opacity: 0.4;
-	padding: 0.4em 0.7em;
 	font-size: 0.9em;
 }
 
