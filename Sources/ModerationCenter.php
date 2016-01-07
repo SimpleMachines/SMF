@@ -397,7 +397,7 @@ function ModBlockNotes()
 				)
 			);
 
-			list ($note_owner) = $smcFunc['db_fetch_assoc']($get_owner);
+			$note_owner = $smcFunc['db_fetch_assoc']($get_owner)['id_member'];
 			$smcFunc['db_free_result']($get_owner);
 
 			if ($note_owner != $user_info['id'])
