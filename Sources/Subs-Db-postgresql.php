@@ -217,7 +217,7 @@ function smf_db_replacement__callback($matches)
 		break;
 		
 		case 'inet':
-			if (is_a($replacement,'nullClass')) return 'null';
+			if ($replacement == '{nullVar}') return 'null';
 			if (inet_pton($replacement) === false)
 				smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 			return sprintf('\'%1$s\'', pg_escape_string($replacement));
