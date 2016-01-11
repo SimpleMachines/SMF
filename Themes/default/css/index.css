@@ -148,23 +148,21 @@ body#help_popup {
 	box-sizing: border-box;
 }
 
-ul#likes li {
+#likes li {
 	clear: both;
 }
-
-ul#likes span.avatar {
-	max-width: 100px;
-	max-height: 100px;
-	padding: 0 10px 0 0;
-}
-ul#likes span.avatar img {
+#likes .avatar {
 	max-height: 90px;
 	max-width: 90px;
+	padding: 0 10px 0 0;
 }
-ul#likes li span.description {
+#likes span {
+	display: inline-block;
+	vertical-align: top;
+}
+#likes .description {
 	font-style: italic;
 	opacity: 0.4;
-	padding: 0.4em 0.7em;
 	font-size: 0.9em;
 }
 
@@ -751,80 +749,62 @@ img.sort, .sort {
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
 	text-shadow: none;
 }
+
 /* User information. */
-#profile_menu a.avatar {
-	float: left;
-	margin: 0 20px 0 10px;
+#profile_menu_top:after {
+	content: ' \25BC';
 }
-#profile_menu a.avatar img {
-	height: 100%;
-	width: 100%;
-	max-width: 50px;
-	max-height: 50px;
+.profile_user_info, .profile_user_avatar {
+	display: inline-block;
+	margin: 0 9px;
+	vertical-align: middle;
 }
-#profile_menu .profile_user_info {
-	margin: 3px 0 5px 10px;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 0 0 10px;
-}
-#profile_menu .profile_username {
-	overflow: hidden;
+.profile_username {
 	font-size: 150%;
 	display: block;
 }
-#profile_menu .profile_user_links ol {
-	margin: 10px;
+.profile_user_links ol {
+	margin: 0 10px;
+	clear: both;
 }
-#profile_menu .profile_user_links li {
-	float: left;
-	width: 50%;
+.profile_user_links li {
+	display: inline-block;
+	width: 11em;
+	margin-bottom: 4px;
 }
-#profile_menu .profile_user_links li img {
-	margin-bottom: -1px;
-}
-#pm_menu, #alerts_menu {
+.top_menu.scrollable {
 	max-height: 30em;
 }
-#pm_menu .pm_unread, #alerts_menu .alerts_unread {
-	margin-top: 2px;
-	padding-top: 3px;
+.pm_unread, .alerts_unread {
+	margin-top: 5px;
 	border-top: 1px solid #ddd;
-	clear: both;
 }
-#pm_menu .no_unread, #alerts_menu .no_unread {
-	padding-top: 3px;
-	text-align: center;
-}
-#pm_menu .windowbg, #pm_menu .windowbg2, #alerts_menu .windowbg, #alerts_menu .windowbg2 {
-	clear: both;
-	padding: 2px;
-}
-#pm_menu .pm_unread div > .avatar, #alerts_menu .alerts_unread div > .avatar {
-	width: 40px;
-	height: 40px;
-	margin: 1px 6px 0 1px;
-}
-#pm_menu .pm_unread .avatar img, #alerts_menu .alerts_unread .avatar img {
-	width: 100%;
-	height: 100%;
-	max-width: 40px;
-	max-height: 40px;
-}
-#pm_menu .unread .subject {
-	font-weight: bold;
-}
-#pm_menu .unread, #alerts_menu .unread {
+.top_menu.scrollable .unread {
 	border-bottom: 1px solid #ddd;
 }
-#pm_menu .unread:hover, #alerts_menu .unread:hover {
+.top_menu.scrollable .no_unread {
+	margin-top: 5px;
+	text-align: center;
+}
+.top_menu.scrollable .unread:hover {
 	background: #eee;
 }
-#pm_menu .unread:last-of-type, #alerts_menu .unread:last-of-type {
-	border-bottom: 1px solid transparent;
+.top_menu.scrollable .unread:last-of-type {
+	border-bottom: none;
 }
-#pm_menu .details, #alerts_menu .details {
+.top_menu.scrollable .avatar {
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+	display: inline-block;
+}
+.top_menu.scrollable .details {
 	max-width: 80%;
+	display: inline-block;
+	vertical-align: top;
+}
+#pm_menu .subject {
+	font-weight: bold;
 }
 /* Levels 2 and 3 submenu wrapper. */
 .dropmenu li ul, .top_menu {
