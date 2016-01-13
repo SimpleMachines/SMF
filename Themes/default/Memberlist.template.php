@@ -86,7 +86,7 @@ function template_main()
 		if (!isset($context['disabled_fields']['posts']))
 		{
 			echo '
-					<td style="white-space: nowrap; width: 15px">', $member['posts'], '</td>
+					<td class="windowbg2" style="white-space: nowrap" width="15"> <a href="'.$scripturl.'?action=profile;area=showposts;u='.$member['id'].'">', $member['posts'], '</a> </td>
 					<td class="statsbar" style="width: 120px">';
 
 			if (!empty($member['post_percent']))
