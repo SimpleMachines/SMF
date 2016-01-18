@@ -1824,22 +1824,11 @@ function list_integration_hooks()
 
 		else
 		{
-			if ($_REQUEST['do'] == 'disable')
-			{
-				// It's a hack I know...but I'm way too lazy!!!
-				$function_remove = $_REQUEST['function'];
-				$function_add = $_REQUEST['function'] . ']';
-			}
-			else
-			{
-				$function_remove = $_REQUEST['function'] . ']';
-				$function_add = $_REQUEST['function'];
-			}
+			$function_remove = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '' : '!');
+			$function_add = urldecode($_REQUEST['function']) . (($_REQUEST['do'] == 'disable') ? '!' : '');
 
-			$file = !empty($_REQUEST['includedfile']) ? urldecode($_REQUEST['includedfile']) : '';
-
-			remove_integration_function($_REQUEST['hook'], $function_remove, $file);
-			add_integration_function($_REQUEST['hook'], $function_add, $file);
+			remove_integration_function($_REQUEST['hook'], $function_remove);
+			add_integration_function($_REQUEST['hook'], $function_add);
 
 			redirectexit('action=admin;area=maintain;sa=hooks' . $context['filter_url']);
 		}
@@ -1916,11 +1905,10 @@ function list_integration_hooks()
 					'function' => function ($data) use ($txt, $scripturl, $context)
 					{
 						$change_status = array('before' => '', 'after' => '');
-						if ($data['can_be_disabled'] && $data['status'] != 'deny')
-						{
-							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . $data['real_function'] . (!empty($data['included_file']) ? ';includedfile=' . urlencode($data['included_file']) : '') . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
+
+							$change_status['before'] = '<a href="' . $scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $context['filter_url'] . ';' . $context['admin-hook_token_var'] . '=' . $context['admin-hook_token'] . ';' . $context['session_var'] . '=' . $context['session_id'] . '" data-confirm="' . $txt['quickmod_confirm'] . '" class="you_sure">';
 							$change_status['after'] = '</a>';
-						}
+
 						return $change_status['before'] . '<span class="generic_icons post_moderation_' . $data['status'] . '" title="' . $data['img_text'] . '"></span>';
 					},
 					'class' => 'centertext',
@@ -2042,7 +2030,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 						{
 							$hook_status[$hook][$hookParsedData['pureFunc']]['exists'] = file_exists(strtr(trim($rawFunc), array('$boarddir' => $boarddir, '$sourcedir' => $sourcedir, '$themedir' => $settings['theme_dir'])));
 							// I need to know if there is at least one function called in this file.
-							$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $rawFunc);
+							$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
 							unset($temp_hooks[$hook][$rawFunc]);
 						}
 						elseif (strpos(str_replace(' (', '(', $fc), 'function ' . trim($hookParsedData['pureFunc']) . '(') !== false)
@@ -2053,10 +2041,10 @@ function get_integration_hooks_data($start, $per_page, $sort)
 
 							// Does the hook has its own file?
 							if (!empty($hookParsedData['hookFile']))
-								$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $rawFunc);
+								$temp_data['include'][$hookParsedData['pureFunc']] = array('hook' => $hook, 'function' => $hookParsedData['pureFunc']);
 
 							// I want to remember all the functions called within this file (to check later if they are enabled or disabled and decide if the integrare_*_include of that file can be disabled too)
-							$temp_data['function'][$file['name']][$hookParsedData['pureFunc']] = $hookParsedData['enable'];
+							$temp_data['function'][$file['name']][$hookParsedData['pureFunc']] = $hookParsedData['enabled'];
 							unset($temp_hooks[$hook][$rawFunc]);
 						}
 					}
@@ -2081,30 +2069,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 	$hooks_filters = array();
 
 	foreach ($hooks as $hook => $functions)
-	{
 		$hooks_filters[] = '<option' . ($context['current_filter'] == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
-		foreach ($functions as $function)
-		{
-			// Get the hook info.
-			$hookParsedData = get_hook_info_from_raw($function);
-			$enabled = $hookParsedData['enable'];
-
-			// This isn't an include and the function is included in a certain file (if not it doesn't exists so don't care)
-			if (substr($hook, -8) !== '_include' && isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']))
-			{
-				$current_file = isset($temp_data['include'][$hook_status[$hook][$hookParsedData['pureFunc']]['in_file']]) ? $temp_data['include'][$hook_status[$hook][$hookParsedData['pureFunc']]['in_file']] : array();
-				$enabled = false;
-
-				// Checking all the functions within this particular file
-				// if any of them is enable then the file *must* be included and the integrate_*_include hook cannot be disabled
-				foreach ($temp_data['function'][$hook_status[$hook][$hookParsedData['pureFunc']]['in_file']] as $func => $hookEnabled)
-					$enabled = $enabled || $hookEnabled;
-
-				if (!$enabled &&  !empty($current_hook))
-					$hook_status[$current_hook['hook']][$current_hook['function']]['enabled'] = true;
-			}
-		}
-	}
 
 	if (!empty($hooks_filters))
 		$context['insert_after_template'] .= '
@@ -2138,10 +2103,10 @@ function get_integration_hooks_data($start, $per_page, $sort)
 					'file_name' => (isset($hook_status[$hook][$hookParsedData['pureFunc']]['in_file']) ? $hook_status[$hook][$hookParsedData['pureFunc']]['in_file'] : (!empty($hookParsedData['hookFile']) ? $hookParsedData['hookFile'] : '')),
 					'instance' => $hookParsedData['object'],
 					'hook_exists' => $hook_exists,
-					'status' => $hook_exists ? ($enabled ? 'allow' : 'moderate') : 'deny',
-					'img_text' => $txt['hooks_' . ($hook_exists ? ($enabled ? 'active' : 'disabled') : 'missing')],
-					'enabled' => $enabled,
-					'can_be_disabled' => !isset($hook_status[$hook][$function]['enabled']),
+					'status' => $hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny',
+					'img_text' => $txt['hooks_' . ($hook_exists ? ($hookParsedData['enabled'] ? 'active' : 'disabled') : 'missing')],
+					'enabled' => $hookParsedData['enabled'],
+					'can_be_disabled' => !isset($hook_status[$hook][$hookParsedData['pureFunc']]['enabled']),
 				);
 			}
 		}
@@ -2227,7 +2192,7 @@ function get_hook_info_from_raw($rawData)
 	// A single string can hold tons of info!
 	$hookData = array(
 		'object' => false,
-		'enable' => true,
+		'enabled' => true,
 		'fileExists' => false,
 		'absPath' => '',
 		'hookFile' => '',
