@@ -4080,6 +4080,10 @@ function call_integration_hook($hook, $parameters = array())
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
+		// Hook has been marked as "disabled". Skip it!
+		if (strpos($function, '!') !== false)
+			continue;
+
 		$call = call_helper($function, true);
 
 		// Is it valid?
