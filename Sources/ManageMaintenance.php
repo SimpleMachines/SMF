@@ -2105,7 +2105,7 @@ function get_integration_hooks_data($start, $per_page, $sort)
 			}
 		}
 	}
-var_dump($temp_data['include']);
+
 	if (!empty($hooks_filters))
 		$context['insert_after_template'] .= '
 		<script>
