@@ -467,9 +467,9 @@ function scheduled_daily_maintenance()
 	// Clean up some old login history information.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}member_logins
-		WHERE time > {int:oldLogins}',
+		WHERE time < {int:oldLogins}',
 		array(
-			'oldLogins' => !empty($modSettings['loginHistoryDays']) ? 60 * 60 * $modSettings['loginHistoryDays'] : 108000,
+			'oldLogins' => time() - (!empty($modSettings['loginHistoryDays']) ? 60 * 60 * 24 * $modSettings['loginHistoryDays'] : 2592000),
 	));
 
 	// Log we've done it...
