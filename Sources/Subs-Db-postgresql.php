@@ -321,9 +321,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
-		'case_insensitive' => array(
-			'~LIKE~' => 'ILIKE',
-		),
 	);
 
 	if (isset($replacements[$identifier]))
