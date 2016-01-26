@@ -422,7 +422,7 @@ class Attachments
 
 	protected function sendResponse()
 	{
-		global $modSettings;
+		global $modSettings, $context;
 
 		ob_end_clean();
 
@@ -433,7 +433,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('Content-Type: application/json');
+		header('Content-Type: application/json; charset='. $context['character_set'] .'');
 
 		echo json_encode($this->_response ? $this->_response : array());
 
