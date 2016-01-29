@@ -1158,9 +1158,11 @@ function saveDBSettings(&$config_vars)
 			}
 
 			$lOptions = array();
-			foreach ($_POST[$var[1]] as $invar => $dummy)
-				if (isset($board_list[$invar]))
-					$lOptions[] = $invar;
+
+			if (!empty($_POST[$var[1]]))
+				foreach ($_POST[$var[1]] as $invar => $dummy)
+					if (isset($board_list[$invar]))
+						$lOptions[] = $invar;
 
 			$setArray[$var[1]] = !empty($lOptions) ? implode(',', $lOptions) : '';
 		}
