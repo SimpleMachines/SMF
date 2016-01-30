@@ -134,6 +134,18 @@ function template_main()
 	echo '
 					<dl id="post_header">';
 
+	// Custom posting fields.
+	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
+		foreach ($context['posting_fields'] as $pf)
+			echo '
+						<dt>
+							', $pf['dt'] ,'
+						</dt>
+						<dd>
+							', $pf['dd'] ,'
+						</dd>';
+
+
 	// Guests have to put in their name and email...
 	if (isset($context['name']) && isset($context['email']))
 	{
