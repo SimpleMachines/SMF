@@ -1139,7 +1139,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = json_encode($options);
+			$setArray[$var[1]] = json_encode($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')
