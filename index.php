@@ -17,10 +17,10 @@
  * @copyright 2015 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
-$forum_version = 'SMF 2.1 Beta 2';
+$forum_version = 'SMF 2.1 Beta 3';
 $software_year = '2015';
 
 // Get everything started up...
