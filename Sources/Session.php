@@ -124,7 +124,7 @@ function sessionRead($session_id)
 	global $smcFunc;
 
 	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return false;
+		return '';
 
 	// Look for it in the database.
 	$result = $smcFunc['db_query']('', '
@@ -139,7 +139,7 @@ function sessionRead($session_id)
 	list ($sess_data) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
-	return $sess_data;
+	return $sess_data != null ? $sess_data : '';
 }
 
 /**
