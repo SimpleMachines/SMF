@@ -485,7 +485,7 @@ function smf_db_get_engine()
 	}
 	else
 		return 'fail';
-	
+
 	return 'MySQLi';
 }
 

@@ -201,7 +201,7 @@ function sessionDestroy($session_id)
 			'session_id' => $session_id,
 		)
 	);
-	
+
 	return true;
 }
 
@@ -228,7 +228,7 @@ function sessionGC($max_lifetime)
 			'last_update' => time() - $max_lifetime,
 		)
 	);
-	
+
 	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 

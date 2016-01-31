@@ -626,10 +626,10 @@ function template_set_settings()
 			echo '
 					<dt>
 						<label for="', $setting['id'], '">', $setting['label'], '</label>:';
-			
+
 			if (isset($setting['description']))
 				echo '<br>
-						<span class="smalltext">', $setting['description'], '</span>';	
+						<span class="smalltext">', $setting['description'], '</span>';
 			echo '
 					</dt>
 					<dd>

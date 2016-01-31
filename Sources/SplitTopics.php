@@ -1061,7 +1061,7 @@ function MergeExecute($topics = array())
 
 		$boardTotals[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
 		$boardTotals[$row['id_board']]['posts'] += $row['num_replies'] + ($row['approved'] ? 1 : 0);
-		
+
 		// In the case of making a redirect, the topic count goes up by one due to the redirect topic.
 		if (isset($_POST['postRedirect']))
 			$boardTotals[$row['id_board']]['topics']--;
@@ -1391,7 +1391,7 @@ function MergeExecute($topics = array())
 				'board' => $topic_data[$this_old_topic]['board'],
 				'mark_as_read' => true,
 			);
-	
+
 			// So we have to make the post. We need to do *this* here so we don't foul up indexes later
 			// and we have to fix them up later once everything else has happened.
 			if (createPost($msgOptions, $topicOptions, $posterOptions))
@@ -1689,7 +1689,7 @@ function MergeExecute($topics = array())
 			'num_views' => $num_views,
 		)
 	);
-	
+
 	// Update all the statistics.
 	updateStats('topic');
 	updateStats('subject', $id_topic, $target_subject);

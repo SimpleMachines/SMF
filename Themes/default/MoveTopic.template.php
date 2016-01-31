@@ -62,7 +62,7 @@ function template_move()
 
 	// Stick our "create a redirection topic" template in here...
 	template_redirect_options('move');
-    
+
     echo '
 					<input type="submit" value="', $txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button_submit">
 				</div>

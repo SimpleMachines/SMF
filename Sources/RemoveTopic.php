@@ -396,7 +396,7 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			$adjustBoards[$row['id_board']]['unapproved_topics'] += $row['num_topics'];
 	}
 	$smcFunc['db_free_result']($request);
-	
+
 	if($updateBoardCount)
 	{
 		// Decrease the posts/topics...

@@ -60,12 +60,12 @@ function DisplayStats()
 			obExit(false);
 
 		$context['sub_template'] = 'stats';
-		
+
 		if (!isset($month, $year))
 		{
 		    return;
 		}
-		
+
 		getDailyStats('YEAR(date) = {int:year} AND MONTH(date) = {int:month}', array('year' => $year, 'month' => $month));
 		$context['yearly'][$year]['months'][$month]['date'] = array(
 			'month' => sprintf('%02d', $month),
