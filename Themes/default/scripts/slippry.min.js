@@ -6,7 +6,7 @@
  * Authors: Lukas Jakob Hafner - @saftsaak
  *          Thomas Hurd - @SeenNotHurd
  *
- * Copyright 2016, booncon oy - http://booncon.com
+ * Copyright 2015, booncon oy - http://booncon.com
  *
  *
  * Released under the MIT license - http://opensource.org/licenses/MIT

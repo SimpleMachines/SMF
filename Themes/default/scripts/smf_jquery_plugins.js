@@ -321,7 +321,7 @@
 
 /*
  * jQuery Superfish Menu Plugin - v1.7.7
- * Copyright (c) 2016
+ * Copyright (c) 2015
  *
  * Dual licensed under the MIT and GPL licenses:
  *	http://www.opensource.org/licenses/mit-license.php
