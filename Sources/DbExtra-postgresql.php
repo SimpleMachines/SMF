@@ -335,7 +335,8 @@ function smf_db_get_version()
 {
 	static $ver;
 
-	if(!empty($ver)) return $ver;
+	if(!empty($ver))
+		return $ver;
 
 	global $smcFunc;
 
