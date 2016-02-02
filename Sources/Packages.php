@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -1642,7 +1642,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 
 				if (!isset($sort_id[$packageInfo['type']]))
 					$packageInfo['sort_id'] = $sort_id['unknown'];
-				else				
+				else
 					$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
 
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
@@ -1756,7 +1756,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				{
 					$sort_id[$packageInfo['type']]++;
 					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
-					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;					
+					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else

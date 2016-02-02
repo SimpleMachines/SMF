@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -2088,7 +2088,7 @@ function TrackIP($memID = 0)
 
 	// Allow 3rd party integrations to add in their own lists or whatever.
 	$context['additional_track_lists'] = array();
-	call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));	
+	call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));
 
 	$context['single_ip'] = strpos($context['ip'], '*') === false;
 	if ($context['single_ip'])
