@@ -299,18 +299,18 @@ h3.largetext {
 
 /* BBC */
 /* A quote, perhaps from another post. */
-.bbc_standard_quote::before, .bbc_alternate_quote::before {
+.bbc_standard_quote:before, .bbc_alternate_quote:before {
 	color: #aaa;
 	font-size: 22px;
 	content: '\275D';
 	margin: -5px 5px 0 -5px;
 }
 /* Remove the difference IE/Opera/Chrome/Firefox etc... */
-#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before {
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
 	font-size: 30px;
 }
-#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before,
-#chrome .bbc_standard_quote::before, #chrome .bbc_alternate_quote::before {
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
+#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -401,7 +401,7 @@ a img {
 }
 
 /* Those collapse and expand icons are wonderful. */
-.toggle_up::before, .toggle_down::before {
+.toggle_up:before, .toggle_down:before {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
@@ -411,7 +411,7 @@ a img {
 	vertical-align: middle;
 	margin: -5px 5px 0 5px;
 }
-.toggle_down::before {
+.toggle_down:before {
 	background-position: 0 -17px;
 }
 
@@ -447,7 +447,7 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after, .code::after {
+.pages:after, .jump_to:after, .code:after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -475,10 +475,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-.current_page::before, .codeoperation::before {
+.current_page:before, .codeoperation:before {
 	content: "[";
 }
-.current_page::after, .codeoperation::after {
+.current_page:after, .codeoperation:after {
 	content: "]";
 }
 /* Go up and go down links. */
@@ -902,7 +902,7 @@ img.sort, .sort {
 .dropmenu li li:hover ul, .dropmenu li li ul {
 	left: -14px;
 }
-.dropmenu li li.subsections > a::after {
+.dropmenu li li.subsections > a:after {
 	position: absolute;
 	padding: 5px 0;
 	right: 10px;
@@ -1003,7 +1003,7 @@ img.sort, .sort {
 	background: #fff;
 	clear: both;
 }
-#top_section::after {
+#top_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1061,12 +1061,16 @@ img.sort, .sort {
 	color: #a85400;
 	text-decoration: none;
 }
+/* Limit input to avoid weird overflows */
+.input_text {
+	max-width: 150px;
+}
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
 	margin: 0 5%;
 }
-#header::after {
+#header:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1116,7 +1120,7 @@ img#smflogo {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
 }
-#inner_section::after {
+#inner_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1217,7 +1221,7 @@ ul li.greeting {
 #main_content_section {
 	padding: 5px 12px 16px 12px;
 }
-#main_content_section::after {
+#main_content_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1998,7 +2002,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 80%;
 	margin: auto;
 }
-.errorbox::before, .noticebox::before, .infobox::before {
+.errorbox:before, .noticebox:before, .infobox:before {
 	width: 16px;
 	height: 16px;
 	background: url(../images/generic_icons.png) no-repeat -57px -83px;
@@ -2041,10 +2045,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* Styles for info boxes
 ------------------------------------------------- */
 
-.noticebox::before {
+.noticebox:before {
 	background-position: -83px -83px;
 }
-.infobox::before {
+.infobox:before {
 	background-position: -161px -83px;
 }
 .noticebox {
@@ -2980,14 +2984,11 @@ span.postby {
 	width: 3%;
 	vertical-align: middle;
 	text-align: right;
-	padding: 0 5px 0 0;
+	padding: 0 5px 0 0 !important;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
 	padding: 4px 0;
-}
-.qaction {
-	padding: 0;
 }
 /* Investigate default select and button sizing. Something is slightly off there.*/
 .qaction.button_submit {
@@ -3151,8 +3152,8 @@ div#pollmoderation {
 	padding: 2px 0;
 }
 /* poster and postarea + moderation area underneath */
-.post_wrapper::after {
-	content:"";
+.post_wrapper:after {
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -3421,7 +3422,7 @@ ul.post_options li {
 .under_message {
 	overflow: visible;
 }
-.under_message::after {
+.under_message:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -3561,6 +3562,16 @@ p.information img {
 #topic_icons .information,
 #messageindex .information {
 	border-top: 1px solid #ddd;
+}
+.topic_pages {
+	font-size: 0.75em;
+	margin: 0 0 0 5px;
+}
+.topic_pages:before {
+	content: " «";
+}
+.topic_pages:after {
+	content: " »"
 }
 /* Mentions */
 .atwho-view {
