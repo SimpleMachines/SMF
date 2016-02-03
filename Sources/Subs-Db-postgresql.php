@@ -282,8 +282,8 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
-		'cron_find_task' => array(
-			'~ORDER BY null~' => 'ORDER BY null::int'
+		'display_get_post_poster' => array(
+			'~GROUP BY id_msg\s+HAVING~' => 'AND',
 		),
 		'attach_download_increase' => array(
 			'~LOW_PRIORITY~' => '',
