@@ -1081,7 +1081,9 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
-	} else {
+	} 
+	else 
+	{
 		$has_innodb = false;
 	}
 
@@ -1263,7 +1265,8 @@ function DatabasePopulation()
 	}
 	
 	// MySQL specific stuff 
-	IF (substr($db_type, 0, 5) != 'mysql') return false;
+	IF (substr($db_type, 0, 5) != 'mysql')
+		return false;
 	
 	// Find database user privileges.
 	$privs = array();
