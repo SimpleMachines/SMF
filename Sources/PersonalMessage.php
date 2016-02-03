@@ -668,81 +668,26 @@ function MessageFolder()
 		if ($context['folder'] != 'sent' && $context['folder'] != 'inbox')
 		{
 			$labelJoin = '
-					INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
+				INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
 
 			$labelQuery = '';
 			$labelQuery2 = '
-						AND pl.id_label = ' . $context['current_label_id'];
+				AND pl.id_label = ' . $context['current_label_id'];
 		}
 
-		// On a non-default sort due to PostgreSQL we have to do a harder sort.
-		if ($smcFunc['db_title'] == 'PostgreSQL' && $_GET['sort'] != 'pm.id_pm')
-		{
-			$sub_request = $smcFunc['db_query']('', '
-				SELECT MAX({raw:sort}) AS sort_param, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:not_deleted}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})') : '') . '
-				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
-					AND pm.deleted_by_sender = {int:not_deleted}' : '1=1') . (empty($pmsg) ? '' : '
-					AND pm.id_pm = {int:id_pm}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head
-				ORDER BY sort_param' . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'not_deleted' => 0,
-					'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-					'id_pm' => isset($pmsg) ? $pmsg : '0',
-					'sort' => $_GET['sort'],
-				)
-			);
-			$sub_pms = array();
-			while ($row = $smcFunc['db_fetch_assoc']($sub_request))
-				$sub_pms[$row['id_pm_head']] = $row['sort_param'];
-
-			$smcFunc['db_free_result']($sub_request);
-
-			$request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm AS id_pm, pm.id_pm_head
-				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:not_deleted}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:id_member})') : '') . '
-				WHERE ' . (empty($sub_pms) ? '0=1' : 'pm.id_pm IN ({array_int:pm_list})') . $labelQuery2 . '
-				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($pmsg) ? '
-				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-				array(
-					'current_member' => $user_info['id'],
-					'pm_list' => array_keys($sub_pms),
-					'not_deleted' => 0,
-					'sort' => $_GET['sort'],
-					'id_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-				)
-			);
-		}
-		else
-		{
-			$request = $smcFunc['db_query']('pm_conversation_list', '
+		$request = $smcFunc['db_query']('pm_conversation_list', '
 				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
 				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-					LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-					INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-						AND pmr.id_member = {int:current_member}
-						AND pmr.deleted = {int:deleted_by}
-						' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
+				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
+					AND pmr.id_member = {int:current_member}
+					AND pmr.deleted = {int:deleted_by}
+					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
 				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
 					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
 					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-				GROUP BY pm.id_pm_head
+				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ','.$_GET['sort'] : '').'
 				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
 				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
 				array(
@@ -752,8 +697,8 @@ function MessageFolder()
 					'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
 					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
 				)
-			);
-		}
+		);
+		
 	}
 	// This is kinda simple!
 	else
@@ -3007,7 +2952,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		$get_labels = $smcFunc['db_query']('', '
 			SELECT pml.id_label
 			FROM {db_prefix}pm_labels AS l
-  				INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+			INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 			WHERE l.id_member IN ({array_int:member_list})' . $where,
 			array(
 				'member_list' => $owner,
@@ -3155,7 +3100,8 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 			FROM {db_prefix}pm_recipients
 			WHERE id_member = {int:id_member}
 				AND NOT (is_read & 1 >= 1)
-				AND deleted = {int:is_not_deleted}',
+				AND deleted = {int:is_not_deleted}
+			GROUP BY id_pm, in_inbox',
 			array(
 				'id_member' => $owner,
 				'is_not_deleted' => 0,
