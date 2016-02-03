@@ -802,14 +802,12 @@ CREATE TABLE {$db_prefix}messages (
   approved TINYINT(3) NOT NULL DEFAULT '1',
   likes SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_msg),
-  UNIQUE idx_topic (id_topic, id_msg),
   UNIQUE idx_id_board (id_board, id_msg),
   UNIQUE idx_id_member (id_member, id_msg),
   INDEX idx_approved (approved),
   INDEX idx_ip_index (poster_ip(15), id_topic),
   INDEX idx_participation (id_member, id_topic),
   INDEX idx_show_posts (id_member, id_board),
-  INDEX idx_id_topic (id_topic),
   INDEX idx_id_member_msg (id_member, approved, id_msg),
   INDEX idx_current_topic (id_topic, id_msg, id_member, approved),
   INDEX idx_related_ip (id_member, poster_ip, id_msg)
@@ -1112,7 +1110,6 @@ CREATE TABLE {$db_prefix}topics (
   UNIQUE idx_poll (id_poll, id_topic),
   INDEX idx_is_sticky (is_sticky),
   INDEX idx_approved (approved),
-  INDEX idx_id_board (id_board),
   INDEX idx_member_started (id_member_started, id_board),
   INDEX idx_last_message_sticky (id_board, is_sticky, id_last_msg),
   INDEX idx_board_news (id_board, id_first_msg)
