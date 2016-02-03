@@ -334,6 +334,10 @@ function smf_db_table_sql($tableName)
  */
 function smf_db_get_version()
 {
+	static $ver;
+
+	if(!empty($ver)) return $ver;
+
 	global $smcFunc;
 
 	$request = $smcFunc['db_query']('', '
