@@ -1271,7 +1271,8 @@ else
 function constructBanQueryIP($fullip)
 {
 	//check for valid address
-	if (inet_pton($fullip) == false ) return;
+	if (inet_pton($fullip) == false )
+		return;
 	
 	global $smcFunc;
 	
