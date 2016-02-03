@@ -668,36 +668,36 @@ function MessageFolder()
 		if ($context['folder'] != 'sent' && $context['folder'] != 'inbox')
 		{
 			$labelJoin = '
-					INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
+				INNER JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_pm = pm.id_pm)';
 
 			$labelQuery = '';
 			$labelQuery2 = '
-						AND pl.id_label = ' . $context['current_label_id'];
+				AND pl.id_label = ' . $context['current_label_id'];
 		}
 
-                $request = $smcFunc['db_query']('pm_conversation_list', '
-                        SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
-                        FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
-                                LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
-                                INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
-                                        AND pmr.id_member = {int:current_member}
-                                        AND pmr.deleted = {int:deleted_by}
-                                        ' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
-                                LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
-                        WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
-                                AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
-                                AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
-                        GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ','.$_GET['sort'] : '').'
-                        ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
-                        LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
-                        array(
-                                'current_member' => $user_info['id'],
-                                'deleted_by' => 0,
-                                'sort' => $_GET['sort'],
-                                'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
-                                'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
-                        )
-                );
+		$request = $smcFunc['db_query']('pm_conversation_list', '
+				SELECT MAX(pm.id_pm) AS id_pm, pm.id_pm_head
+				FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? ($context['sort_by'] == 'name' ? '
+				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)' : '') : '
+				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm
+					AND pmr.id_member = {int:current_member}
+					AND pmr.deleted = {int:deleted_by}
+					' . $labelQuery . ')') . $labelJoin . ($context['sort_by'] == 'name' ? ( '
+				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = {raw:pm_member})') : '') . '
+				WHERE ' . ($context['folder'] == 'sent' ? 'pm.id_member_from = {int:current_member}
+					AND pm.deleted_by_sender = {int:deleted_by}' : '1=1') . (empty($pmsg) ? '' : '
+					AND pm.id_pm = {int:pmsg}') . $labelQuery2 . '
+				GROUP BY pm.id_pm_head'.($_GET['sort'] != 'pm.id_pm' ? ','.$_GET['sort'] : '').'
+				ORDER BY ' . ($_GET['sort'] == 'pm.id_pm' && $context['folder'] != 'sent' ? 'id_pm' : '{raw:sort}') . ($descending ? ' DESC' : ' ASC') . (empty($_GET['pmsg']) ? '
+				LIMIT ' . $_GET['start'] . ', ' . $maxPerPage : ''),
+				array(
+					'current_member' => $user_info['id'],
+					'deleted_by' => 0,
+					'sort' => $_GET['sort'],
+					'pm_member' => $context['folder'] == 'sent' ? 'pmr.id_member' : 'pm.id_member_from',
+					'pmsg' => isset($pmsg) ? (int) $pmsg : 0,
+				)
+		);
 		
 	}
 	// This is kinda simple!
@@ -2952,7 +2952,7 @@ function deleteMessages($personal_messages, $folder = null, $owner = null)
 		$get_labels = $smcFunc['db_query']('', '
 			SELECT pml.id_label
 			FROM {db_prefix}pm_labels AS l
-  				INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
+			INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
 			WHERE l.id_member IN ({array_int:member_list})' . $where,
 			array(
 				'member_list' => $owner,
@@ -3103,7 +3103,7 @@ function markMessages($personal_messages = null, $label = null, $owner = null)
 			WHERE id_member = {int:id_member}
 				AND NOT (is_read & 1 >= 1)
 				AND deleted = {int:is_not_deleted}
-                        GROUP BY id_pm, in_inbox',
+			GROUP BY id_pm, in_inbox',
 			array(
 				'id_member' => $owner,
 				'is_not_deleted' => 0,
