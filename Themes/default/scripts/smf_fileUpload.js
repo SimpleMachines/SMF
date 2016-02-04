@@ -95,6 +95,8 @@ function smf_fileUpload(oOptions)
 			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
 		}
 
+		file.name = file.name.php_to8bit().php_urlencode();
+
 		// Show the file info.
 		_thisElement.find('.attach-ui').fadeIn();
 

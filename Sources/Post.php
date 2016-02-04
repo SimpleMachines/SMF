@@ -189,7 +189,10 @@ function Post($post_errors = array())
 
 	// If there are attachments already uploaded, pass them to the current attachments array.
 	if (!empty($_SESSION['already_attached']))
-		$context['current_attachments'] = $_SESSION['already_attached'];
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		$context['current_attachments'] = getRawAttachInfo($_SESSION['already_attached']);
+	}
 
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))

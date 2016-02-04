@@ -337,16 +337,14 @@ class Attachments
 					// Avoid JS getting confused.
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
 					unset($attachmentOptions['id']);
-					$attachIDs[] = $attachmentOptions['attachID'];
+
+					$_SESSION['already_attached'][] = $attachmentOptions['attachID'];
+
 					if (!empty($attachmentOptions['thumb']))
-						$attachIDs[] = $attachmentOptions['thumb'];
+						$_SESSION['already_attached'][] = $attachmentOptions['thumb'];
 
-					// Super duper important! pass the already attached files if this was a newly created message.
-					if (!$this->_msg)
-						$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions;
-
-					else
-						assignAttachments($attachmentOptions, $this->_msg);
+					if ($this->_msg)
+						assignAttachments($_SESSION['already_attached'], $this->_msg);
 				}
 
 			elseif (!empty($attachmentOptions['errors']))

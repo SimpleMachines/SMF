@@ -3784,6 +3784,11 @@ h3.profile_hd {
 .attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
 	display:none;
 }
+p.attached_BBC a.insertBBC
+{
+	margin:0;
+}
+
 .attach-info p, .attach-info field{
 	display:inline-block;
 }
