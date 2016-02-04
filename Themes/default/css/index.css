@@ -3822,18 +3822,20 @@ h3.profile_hd {
 }
 .progress_yellow span {
 	background-color: #fecf23;
-	background-image: linear-gradient(top, #fecf23, #fd9215);
 }
 
 .progress_green span {
 	background-color: #a5df41;
-	background-image: linear-gradient(top, #a5df41, #4ca916);
 }
 
 .progress_red span {
 	background-color: #F45D4C;
-	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
 }
+
+.progress_blue span {
+	background-color: #34c2e3;
+}
+
 /* Hide this from desktop users sshh... our little sekrit */
 .mobile_buttons {
 	display: none;
