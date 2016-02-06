@@ -476,7 +476,7 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 	global $smcFunc, $scripturl;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, lc.member_name) AS member_name,
+		SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 			lc.log_time, lc.body, lc.counter, lc.id_notice
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)

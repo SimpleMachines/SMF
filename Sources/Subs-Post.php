@@ -1527,7 +1527,7 @@ function sendNotifications($topics, $type, $exclude = array(), $members_only = a
 	// Get the subject and body...
 	$result = $smcFunc['db_query']('', '
 		SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
-			IFNULL(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
+			COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -2189,7 +2189,7 @@ function approvePosts($msgs, $approve = true, $notify = true)
 	// May as well start at the beginning, working out *what* we need to change.
 	$request = $smcFunc['db_query']('', '
 		SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
-			m.body, m.subject, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.id_member,
+			m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 			t.approved AS topic_approved, b.count_posts
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)

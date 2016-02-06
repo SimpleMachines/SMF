@@ -121,7 +121,7 @@ function MessageMain()
 
 		// Now load info about all the other labels
 		$result = $smcFunc['db_query']('', '
-			SELECT l.id_label, l.name, IFNULL(SUM(pr.is_read & 1), 0) AS num_read, IFNULL(COUNT(pr.id_pm), 0) AS total
+			SELECT l.id_label, l.name, COALESCE(SUM(pr.is_read & 1), 0) AS num_read, COALESCE(COUNT(pr.id_pm), 0) AS total
 			FROM {db_prefix}pm_labels AS l
 				LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
 				LEFT JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pl.id_pm)
@@ -420,8 +420,8 @@ function MessagePopup()
 		$senders = array();
 
 		$request = $smcFunc['db_query']('', '
-			SELECT pm.id_pm, pm.id_pm_head, IFNULL(mem.id_member, pm.id_member_from) AS id_member_from,
-				IFNULL(mem.real_name, pm.from_name) AS member_from, pm.msgtime AS timestamp, pm.subject
+			SELECT pm.id_pm, pm.id_pm_head, COALESCE(mem.id_member, pm.id_member_from) AS id_member_from,
+				COALESCE(mem.real_name, pm.from_name) AS member_from, pm.msgtime AS timestamp, pm.subject
 			FROM {db_prefix}personal_messages AS pm
 				LEFT JOIN {db_prefix}members AS mem ON (pm.id_member_from = mem.id_member)
 			WHERE pm.id_pm IN ({array_int:id_pms})',
@@ -506,7 +506,7 @@ function MessageFolder()
 	// Sorting the folder.
 	$sort_methods = array(
 		'date' => 'pm.id_pm',
-		'name' => 'IFNULL(mem.real_name, \'\')',
+		'name' => 'COALESCE(mem.real_name, \'\')',
 		'subject' => 'pm.subject',
 	);
 
@@ -883,7 +883,7 @@ function MessageFolder()
 
 			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
-				SELECT pm.id_pm, pm.subject, IFNULL(pm.id_member_from, 0) AS id_member_from, pm.msgtime, IFNULL(mem.real_name, pm.from_name) AS from_name,
+				SELECT pm.id_pm, pm.subject, COALESCE(pm.id_member_from, 0) AS id_member_from, pm.msgtime, COALESCE(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member
 				FROM {db_prefix}personal_messages AS pm
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -1776,8 +1776,8 @@ function MessagePost()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				pm.id_pm, CASE WHEN pm.id_pm_head = {int:id_pm_head_empty} THEN pm.id_pm ELSE pm.id_pm_head END AS pm_head,
-				pm.body, pm.subject, pm.msgtime, mem.member_name, IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.real_name, pm.from_name) AS real_name
+				pm.body, pm.subject, pm.msgtime, mem.member_name, COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.real_name, pm.from_name) AS real_name
 			FROM {db_prefix}personal_messages AS pm' . (!$isReceived ? '' : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = {int:id_pm})') . '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -2069,8 +2069,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				pm.id_pm, CASE WHEN pm.id_pm_head = {int:no_id_pm_head} THEN pm.id_pm ELSE pm.id_pm_head END AS pm_head,
-				pm.body, pm.subject, pm.msgtime, mem.member_name, IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.real_name, pm.from_name) AS real_name
+				pm.body, pm.subject, pm.msgtime, mem.member_name, COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.real_name, pm.from_name) AS real_name
 			FROM {db_prefix}personal_messages AS pm' . ($context['folder'] == 'sent' ? '' : '
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = {int:replied_to})') . '
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = pm.id_member_from)
@@ -3525,7 +3525,7 @@ function ReportMessage()
 
 		// First, pull out the message contents, and verify it actually went to them!
 		$request = $smcFunc['db_query']('', '
-			SELECT pm.subject, pm.body, pm.msgtime, pm.id_member_from, IFNULL(m.real_name, pm.from_name) AS sender_name
+			SELECT pm.subject, pm.body, pm.msgtime, pm.id_member_from, COALESCE(m.real_name, pm.from_name) AS sender_name
 			FROM {db_prefix}personal_messages AS pm
 				INNER JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm)
 				LEFT JOIN {db_prefix}members AS m ON (m.id_member = pm.id_member_from)
@@ -3663,7 +3663,7 @@ function ManageRules()
 
 	// Likely to need all the groups!
 	$request = $smcFunc['db_query']('', '
-		SELECT mg.id_group, mg.group_name, IFNULL(gm.id_member, 0) AS can_moderate, mg.hidden
+		SELECT mg.id_group, mg.group_name, COALESCE(gm.id_member, 0) AS can_moderate, mg.hidden
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}group_moderators AS gm ON (gm.id_group = mg.id_group AND gm.id_member = {int:current_member})
 		WHERE mg.min_posts = {int:min_posts}

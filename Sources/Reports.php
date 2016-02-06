@@ -204,7 +204,7 @@ function BoardReport()
 	// Go through each board!
 	$request = $smcFunc['db_query']('order_by_board_order', '
 		SELECT b.id_board, b.name, b.num_posts, b.num_topics, b.count_posts, b.member_groups, b.override_theme, b.id_profile, b.deny_member_groups,
-			b.redirect, c.name AS cat_name, IFNULL(par.name, {string:text_none}) AS parent_name, IFNULL(th.value, {string:text_none}) AS theme_name
+			b.redirect, c.name AS cat_name, COALESCE(par.name, {string:text_none}) AS parent_name, COALESCE(th.value, {string:text_none}) AS theme_name
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
 			LEFT JOIN {db_prefix}boards AS par ON (par.id_board = b.id_parent)
