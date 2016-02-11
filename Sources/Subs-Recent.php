@@ -31,7 +31,7 @@ function getLastPosts($latestPostOptions)
 	$request = $smcFunc['db_query']('substring', '
 		SELECT
 			m.poster_time, m.subject, m.id_topic, m.id_member, m.id_msg,
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, t.id_board, b.name AS board_name,
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_board, b.name AS board_name,
 			SUBSTRING(m.body, 1, 385) AS body, m.smileys_enabled
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)

@@ -1444,7 +1444,7 @@ function MaintainPurgeInactiveMembers()
 
 		// Select all the members we're about to murder/remove...
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, IFNULL(m.id_member, 0) AS is_mod
+			SELECT mem.id_member, COALESCE(m.id_member, 0) AS is_mod
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}moderators AS m ON (m.id_member = mem.id_member)
 			WHERE ' . $where,
