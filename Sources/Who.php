@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -98,7 +98,7 @@ function Who()
 
 	$conditions = array();
 	if (!allowedTo('moderate_forum'))
-		$conditions[] = '(IFNULL(mem.show_online, 1) = 1)';
+		$conditions[] = '(COALESCE(mem.show_online, 1) = 1)';
 
 	// Fallback to top filter?
 	if (isset($_REQUEST['submit_top']) && isset($_REQUEST['show_top']))
@@ -134,7 +134,7 @@ function Who()
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			lo.log_time, lo.id_member, lo.url, INET_NTOA(lo.ip) AS ip, mem.real_name,
-			lo.session, mg.online_color, IFNULL(mem.show_online, 1) AS show_online,
+			lo.session, mg.online_color, COALESCE(mem.show_online, 1) AS show_online,
 			lo.id_spider
 		FROM {db_prefix}log_online AS lo
 			LEFT JOIN {db_prefix}members AS mem ON (lo.id_member = mem.id_member)

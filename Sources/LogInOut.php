@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -153,7 +153,7 @@ function Login2()
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url']))
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
-		elseif (!empty($_SESSION['login_url']) && (strpos('http://', $_SESSION['login_url']) === false && strpos('https://', $_SESSION['login_url']) === false))
+		elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false))
 		{
 			unset ($_SESSION['login_url']);
 			redirectexit(empty($user_settings['tfa_secret']) ? '' : 'action=logintfa');
@@ -707,7 +707,7 @@ function Logout($internal = false, $redirect = true)
 	{
 		if (empty($_SESSION['logout_url']))
 			redirectexit('', $context['server']['needs_login_fix']);
-		elseif (!empty($_SESSION['logout_url']) && (strpos('http://', $_SESSION['logout_url']) === false && strpos('https://', $_SESSION['logout_url']) === false))
+		elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false))
 		{
 			unset ($_SESSION['logout_url']);
 			redirectexit();

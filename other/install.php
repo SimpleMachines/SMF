@@ -5,13 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
-$GLOBALS['current_smf_version'] = '2.1 Beta 2';
+$GLOBALS['current_smf_version'] = '2.1 Beta 3';
 $GLOBALS['db_script_version'] = '2-1';
 
 $GLOBALS['required_php_version'] = '5.3.8';
@@ -1081,6 +1081,10 @@ function DatabasePopulation()
 			$replaces['START TRANSACTION;'] = '';
 			$replaces['COMMIT;'] = '';
 		}
+	} 
+	else 
+	{
+		$has_innodb = false;
 	}
 
 	// Read in the SQL.  Turn this on and that off... internationalize... etc.
@@ -1259,7 +1263,11 @@ function DatabasePopulation()
 			}
 		}
 	}
-
+	
+	// MySQL specific stuff 
+	IF (substr($db_type, 0, 5) != 'mysql')
+		return false;
+	
 	// Find database user privileges.
 	$privs = array();
 	$get_privs = $smcFunc['db_query']('', 'SHOW PRIVILEGES', array());
@@ -2209,7 +2217,7 @@ function template_install_below()
 		</div></div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2016, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>

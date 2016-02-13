@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -567,9 +567,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	{
 		// This defines the formatting for the page indexes used throughout the forum.
 		$settings['page_index'] = array(
-			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
 			'previous_page' => '<span class="generic_icons previous_page"></span>',
-			'current_page' => '<span class="current_page">[%1$d]</span> ',
+			'current_page' => '<span class="current_page">%1$d</span> ',
 			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 			'next_page' => '<span class="generic_icons next_page"></span>',

@@ -769,7 +769,7 @@ $(function() {
 		e.preventDefault();
 		var title = $(this).parent().text(),
 			url = $(this).attr('href') + ';js=1';
-		return reqOverlayDiv(url, title, 'post/thumbsup.png');
+		return reqOverlayDiv(url, title, 'post/thumbup.png');
 	});
 
 	// Message likes.

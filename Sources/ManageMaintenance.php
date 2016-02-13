@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -377,7 +377,7 @@ function ConvertMsgBody()
 
 		// 3rd party integrations may be interested in knowning about this.
 		call_integration_hook('integrate_convert_msgbody', array($body_type));
-		
+
 		$colData = $smcFunc['db_list_columns']('{db_prefix}messages', true);
 		foreach ($colData as $column)
 			if ($column['name'] == 'body')
@@ -695,12 +695,16 @@ function ConvertEntities()
  */
 function OptimizeTables()
 {
-	global $db_prefix, $txt, $context, $smcFunc;
+	global $db_prefix, $txt, $context, $smcFunc, $time_start;
 
 	isAllowedTo('admin_forum');
 
-	checkSession();
-	validateToken('admin-maint');
+	checkSession('request');
+
+	if (!isset($_SESSION['optimized_tables']))
+		validateToken('admin-maint');
+	else
+		validateToken('admin-optimize', 'post', false);
 
 	ignore_user_abort(true);
 	db_extend();
@@ -710,6 +714,8 @@ function OptimizeTables()
 
 	$context['page_title'] = $txt['database_optimize'];
 	$context['sub_template'] = 'optimize';
+	$context['continue_post_data'] = '';
+	$context['continue_countdown'] = 3;
 
 	// Only optimize the tables related to this smf install, not all the tables in the db
 	$real_prefix = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $db_prefix, $match) === 1 ? $match[3] : $db_prefix;
@@ -725,23 +731,51 @@ function OptimizeTables()
 	if ($context['num_tables'] == 0)
 		fatal_error('You appear to be running SMF in a flat file mode... fantastic!', false);
 
+	$_REQUEST['start'] = empty($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
+
+	// Try for extra time due to large tables.
+	@set_time_limit(100);
+
 	// For each table....
-	$context['optimized_tables'] = array();
-	foreach ($tables as $table)
+	$_SESSION['optimized_tables'] = !empty($_SESSION['optimized_tables']) ? $_SESSION['optimized_tables'] : array();
+	for ($key=$_REQUEST['start']; $context['num_tables']-1; $key++)
 	{
+		if (empty($tables[$key]))
+			break;
+
+		// Continue?
+		if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 10)
+		{
+			$_REQUEST['start'] = $key - 1;
+			$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . $context['session_var'] . '=' . $context['session_id'];
+			$context['continue_percent'] = round(100 * $_REQUEST['start'] / $context['num_tables']);
+			$context['sub_template'] = 'not_done';
+			$context['page_title'] = $txt['not_done_title'];
+
+			createToken('admin-optimize');
+			$context['continue_post_data'] = '<input type="hidden" name="' . $context['admin-optimize_token_var'] . '" value="' . $context['admin-optimize_token'] . '">';
+
+			if (function_exists('apache_reset_timeout'))
+				apache_reset_timeout();
+
+			return;
+		}
+
 		// Optimize the table!  We use backticks here because it might be a custom table.
-		$data_freed = $smcFunc['db_optimize_table']($table['table_name']);
+		$data_freed = $smcFunc['db_optimize_table']($tables[$key]['table_name']);
 
 		if ($data_freed > 0)
-			$context['optimized_tables'][] = array(
-				'name' => $table['table_name'],
+			$_SESSION['optimized_tables'][] = array(
+				'name' => $tables[$key]['table_name'],
 				'data_freed' => $data_freed,
 			);
 	}
 
-	// Number of tables, etc....
+	// Number of tables, etc...
 	$txt['database_numb_tables'] = sprintf($txt['database_numb_tables'], $context['num_tables']);
-	$context['num_tables_optimized'] = count($context['optimized_tables']);
+	$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
+	$context['optimized_tables'] = $_SESSION['optimized_tables'];
+	unset($_SESSION['optimized_tables']);
 }
 
 /**
@@ -1410,7 +1444,7 @@ function MaintainPurgeInactiveMembers()
 
 		// Select all the members we're about to murder/remove...
 		$request = $smcFunc['db_query']('', '
-			SELECT mem.id_member, IFNULL(m.id_member, 0) AS is_mod
+			SELECT mem.id_member, COALESCE(m.id_member, 0) AS is_mod
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}moderators AS m ON (m.id_member = mem.id_member)
 			WHERE ' . $where,

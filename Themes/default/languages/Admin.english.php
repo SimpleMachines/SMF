@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; Admin
+// Version: 2.1 Beta 3; Admin
 
 global $settings, $scripturl;
 
@@ -299,6 +299,7 @@ $txt['support_versions_current'] = 'Current SMF version';
 $txt['support_versions_forum'] = 'Forum version';
 $txt['support_versions_php'] = 'PHP version';
 $txt['support_versions_db'] = '%1$s version';
+$txt['support_versions_db_engine'] = '%1$s engine';
 $txt['support_versions_server'] = 'Server version';
 $txt['support_versions_gd'] = 'GD version';
 $txt['support_versions_imagemagick'] = 'ImageMagick version';

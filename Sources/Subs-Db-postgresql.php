@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -290,17 +290,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
-		'cron_find_task' => array(
-			'~ORDER BY null~' => 'ORDER BY null::int'
-		),
-		'display_get_post_poster' => array(
-			'~GROUP BY id_msg\s+HAVING~' => 'AND',
-		),
 		'attach_download_increase' => array(
 			'~LOW_PRIORITY~' => '',
 		),
 		'boardindex_fetch_boards' => array(
-			'~IFNULL\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN IFNULL(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
+			'~COALESCE\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
 		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
@@ -322,9 +316,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'top_topic_starters' => array(
 			'~ORDER BY FIND_IN_SET\(id_member,(.+?)\)~' => 'ORDER BY STRPOS(\',\' || $1 || \',\', \',\' || id_member|| \',\')',
-		),
-		'unread_replies' => array(
-			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',
 		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
