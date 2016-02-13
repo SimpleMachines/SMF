@@ -699,7 +699,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 		
 		$count = 0;
 		$where = '';
-		$count_pk =  0;
+		$count_pk = 0;
 		
 		If($replace_support)
 		{
@@ -721,7 +721,8 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			}
 			$replace = ' ON CONFLICT ('.$key_str.') DO UPDATE SET '.$col_str;
 		} 
-		else {
+		else
+		{
 			foreach ($columns as $columnName => $type)
 			{
 				// Are we restricting the length?
