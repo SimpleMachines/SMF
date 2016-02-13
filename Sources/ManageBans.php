@@ -1869,7 +1869,7 @@ function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type)
 	global $smcFunc;
 
 	$where = array(
-		'ip' => 'bi.ip_low > 0',
+		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
@@ -1908,7 +1908,7 @@ function list_getNumBanTriggers($trigger_type)
 	global $smcFunc;
 
 	$where = array(
-		'ip' => 'bi.ip_low > 0',
+		'ip' => 'bi.ip_low is not null',
 		'hostname' => 'bi.hostname != {string:blank_string}',
 		'email' => 'bi.email_address != {string:blank_string}',
 	);
