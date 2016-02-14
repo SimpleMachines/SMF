@@ -53,10 +53,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -348,7 +348,7 @@ function ModifyCookieSettings($return_config = false)
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
-		
+
 		//If we disabled 2FA, reset all members and membergroups settings.
 		if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode']))
 		{
@@ -544,13 +544,13 @@ function ModifyLoadBalancingSettings($return_config = false)
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
 	}
-	elseif (stripos(PHP_OS, 'darwin') === 0) 
+	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
 		$context['settings_message'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
-	}	
-	else 
+	}
+	else
 	{
 		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 		if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) !== 0)

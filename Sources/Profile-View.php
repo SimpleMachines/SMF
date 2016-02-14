@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -216,7 +216,7 @@ function fetch_alerts($memID, $all = false, $counter = 0, $pagination = array())
 
 	$alerts = array();
 	$request = $smcFunc['db_query']('', '
-		SELECT id_alert, alert_time, mem.id_member AS sender_id, IFNULL(mem.real_name, ua.member_name) AS sender_name,
+		SELECT id_alert, alert_time, mem.id_member AS sender_id, COALESCE(mem.real_name, ua.member_name) AS sender_name,
 			content_type, content_id, content_action, is_read, extra
 		FROM {db_prefix}user_alerts AS ua
 			LEFT JOIN {db_prefix}members AS mem ON (ua.id_member_started = mem.id_member)
@@ -1177,7 +1177,7 @@ function list_getUnwatched($start, $items_per_page, $sort, $memID)
 	if (!empty($topics))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT mf.subject, mf.poster_time as started_on, IFNULL(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, IFNULL(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
+			SELECT mf.subject, mf.poster_time as started_on, COALESCE(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, COALESCE(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
 				INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
@@ -1661,8 +1661,7 @@ function trackActivity($memID)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.poster_ip IN ({array_string:ip_list})
-			GROUP BY mem.id_member
-			HAVING mem.id_member != {int:current_member}',
+				AND mem.id_member != {int:current_member}',
 			array(
 				'current_member' => $memID,
 				'ip_list' => $ips,
@@ -1746,8 +1745,8 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 	// Get a list of error messages from this ip (range).
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			le.log_time, le.ip, le.url, le.message, IFNULL(mem.id_member, 0) AS id_member,
-			IFNULL(mem.real_name, {string:guest_title}) AS display_name, mem.member_name
+			le.log_time, le.ip, le.url, le.message, COALESCE(mem.id_member, 0) AS id_member,
+			COALESCE(mem.real_name, {string:guest_title}) AS display_name, mem.member_name
 		FROM {db_prefix}log_errors AS le
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = le.id_member)
 		WHERE ' . $where . '
@@ -1814,7 +1813,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 	// @todo SLOW This query is using a filesort.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			m.id_msg, m.poster_ip, IFNULL(mem.real_name, m.poster_name) AS display_name, mem.id_member,
+			m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 			m.subject, m.poster_time, m.id_topic, m.id_board
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -2088,7 +2087,7 @@ function TrackIP($memID = 0)
 
 	// Allow 3rd party integrations to add in their own lists or whatever.
 	$context['additional_track_lists'] = array();
-	call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));	
+	call_integration_hook('integrate_profile_trackip', array($ip_string, $ip_var));
 
 	$context['single_ip'] = strpos($context['ip'], '*') === false;
 	if ($context['single_ip'])
@@ -2610,7 +2609,7 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			lgr.id_group, mg.group_name, mg.online_color, lgr.time_applied, lgr.reason, lgr.status,
-			ma.id_member AS id_member_acted, IFNULL(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
+			ma.id_member AS id_member_acted, COALESCE(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
 		FROM {db_prefix}log_group_requests AS lgr
 			LEFT JOIN {db_prefix}members AS ma ON (lgr.id_member_acted = ma.id_member)
 			INNER JOIN {db_prefix}membergroups AS mg ON (lgr.id_group = mg.id_group)
@@ -2689,7 +2688,7 @@ function showPermissions($memID)
 
 	// Load a list of boards for the jump box - except the defaults.
 	$request = $smcFunc['db_query']('order_by_board_order', '
-		SELECT b.id_board, b.name, b.id_profile, b.member_groups, IFNULL(mods.id_member, IFNULL(modgs.id_group, 0)) AS is_mod
+		SELECT b.id_board, b.name, b.id_profile, b.member_groups, COALESCE(mods.id_member, modgs.id_group, 0) AS is_mod
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 			LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:current_groups}))

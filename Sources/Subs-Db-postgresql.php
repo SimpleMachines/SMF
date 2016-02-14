@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -282,17 +282,11 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'consolidate_spider_stats' => array(
 			'~MONTH\(log_time\), DAYOFMONTH\(log_time\)~' => 'MONTH(CAST(CAST(log_time AS abstime) AS timestamp)), DAYOFMONTH(CAST(CAST(log_time AS abstime) AS timestamp))',
 		),
-		'cron_find_task' => array(
-			'~ORDER BY null~' => 'ORDER BY null::int'
-		),
-		'display_get_post_poster' => array(
-			'~GROUP BY id_msg\s+HAVING~' => 'AND',
-		),
 		'attach_download_increase' => array(
 			'~LOW_PRIORITY~' => '',
 		),
 		'boardindex_fetch_boards' => array(
-			'~IFNULL\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN IFNULL(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
+			'~COALESCE\(lb.id_msg, 0\) >= b.id_msg_updated~' => 'CASE WHEN COALESCE(lb.id_msg, 0) >= b.id_msg_updated THEN 1 ELSE 0 END',
 		),
 		'get_random_number' => array(
 			'~RAND~' => 'RANDOM',
@@ -314,9 +308,6 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		),
 		'top_topic_starters' => array(
 			'~ORDER BY FIND_IN_SET\(id_member,(.+?)\)~' => 'ORDER BY STRPOS(\',\' || $1 || \',\', \',\' || id_member|| \',\')',
-		),
-		'unread_replies' => array(
-			'~SELECT\\s+DISTINCT\\s+t.id_topic~' => 'SELECT t.id_topic, {raw:sort}',
 		),
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
@@ -655,6 +646,8 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 	global $db_replace_result, $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
+	
+	$replace = '';
 
 	if (empty($data))
 		return;
@@ -675,32 +668,77 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 	// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
 	if ($method == 'replace')
 	{
+		$key_str = '';
+		$col_str = '';
+		static $pg_version;
+		static $replace_support;
+		
+		if(empty($pg_version))
+		{
+			db_extend();
+			//pg 9.5 got replace support
+			$pg_version = $smcFunc['db_get_version']();
+			// if we got a Beta Version
+			if (stripos($pg_version, 'beta') !== false)
+				$pg_version = substr($pg_version, 0, stripos($pg_version, 'beta')).'.0';
+			// or RC
+			if (stripos($pg_version, 'rc') !== false)
+				$pg_version = substr($pg_version, 0, stripos($pg_version, 'rc')).'.0';
+
+			$replace_support = (version_compare($pg_version,'9.5.0','>=') ? true : false);
+		}
+		
 		$count = 0;
 		$where = '';
-		foreach ($columns as $columnName => $type)
+		$count_pk = 0;
+		
+		If($replace_support)
 		{
-			// Are we restricting the length?
-			if (strpos($type, 'string-') !== false)
-				$actualType = sprintf($columnName . ' = SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $count);
-			else
-				$actualType = sprintf($columnName . ' = {%1$s:%2$s}, ', $type, $count);
-
-			// A key? That's what we were looking for.
-			if (in_array($columnName, $keys))
-				$where .= (empty($where) ? '' : ' AND ') . substr($actualType, 0, -2);
-			$count++;
-		}
-
-		// Make it so.
-		if (!empty($where) && !empty($data))
-		{
-			foreach ($data as $k => $entry)
+			foreach ($columns as $columnName => $type)
 			{
-				$smcFunc['db_query']('', '
-					DELETE FROM ' . $table .
-					' WHERE ' . $where,
-					$entry, $connection
-				);
+				//check pk fiel
+				IF(in_array($columnName, $keys))
+				{
+					$key_str .= ($count_pk > 0 ? ',' : '');
+					$key_str .= $columnName;
+					$count_pk++;
+				}
+				else //normal field
+				{					
+					$col_str .= ($count > 0 ? ',' : '');
+					$col_str .= $columnName.' = EXCLUDED.'.$columnName;
+					$count++;
+				}
+			}
+			$replace = ' ON CONFLICT ('.$key_str.') DO UPDATE SET '.$col_str;
+		} 
+		else
+		{
+			foreach ($columns as $columnName => $type)
+			{
+				// Are we restricting the length?
+				if (strpos($type, 'string-') !== false)
+					$actualType = sprintf($columnName . ' = SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $count);
+				else
+					$actualType = sprintf($columnName . ' = {%1$s:%2$s}, ', $type, $count);
+
+				// A key? That's what we were looking for.
+				if (in_array($columnName, $keys))
+					$where .= (empty($where) ? '' : ' AND ') . substr($actualType, 0, -2);
+				$count++;
+			}
+
+			// Make it so.
+			if (!empty($where) && !empty($data))
+			{
+				foreach ($data as $k => $entry)
+				{
+					$smcFunc['db_query']('', '
+						DELETE FROM ' . $table .
+						' WHERE ' . $where,
+						$entry, $connection
+					);
+				}
 			}
 		}
 	}
@@ -732,7 +770,7 @@ function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $dis
 			$smcFunc['db_query']('', '
 				INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
 				VALUES
-					' . $entry,
+					' . $entry.$replace,
 				array(
 					'security_override' => true,
 					'db_error_skip' => $method == 'ignore' || $table === $db_prefix . 'log_errors',

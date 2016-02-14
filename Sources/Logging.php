@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -91,7 +91,7 @@ function writeLog($force = false)
 
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_online
-			SET log_time = {int:log_time}, ip = IFNULL(INET_ATON({string:ip}), 0), url = {string:url}
+			SET log_time = {int:log_time}, ip = COALESCE(INET_ATON({string:ip}), 0), url = {string:url}
 			WHERE session = {string:session}',
 			array(
 				'log_time' => time(),
@@ -124,7 +124,7 @@ function writeLog($force = false)
 		$smcFunc['db_insert']($do_delete ? 'ignore' : 'replace',
 			'{db_prefix}log_online',
 			array('session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'raw', 'url' => 'string'),
-			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), 'IFNULL(INET_ATON(\'' . $user_info['ip'] . '\'), 0)', $serialized),
+			array($session_id, $user_info['id'], empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), 'COALESCE(INET_ATON(\'' . $user_info['ip'] . '\'), 0)', $serialized),
 			array('session')
 		);
 	}
