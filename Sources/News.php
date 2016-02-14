@@ -581,9 +581,9 @@ function getXmlNews($xml_format)
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 				m.icon, t.id_topic, t.id_board, t.num_replies,
 				b.name AS bname,
-				IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.email_address, m.poster_email) AS poster_email,
-				IFNULL(mem.real_name, m.poster_name) AS poster_name
+				COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.email_address, m.poster_email) AS poster_email,
+				COALESCE(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -748,9 +748,9 @@ function getXmlRecent($xml_format)
 		SELECT
 			m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 			b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
-			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name,
-			IFNULL(mem.email_address, m.poster_email) AS poster_email, m.modified_time
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
+			COALESCE(memf.real_name, mf.poster_name) AS first_poster_name,
+			COALESCE(mem.email_address, m.poster_email) AS poster_email, m.modified_time
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)

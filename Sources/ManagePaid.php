@@ -790,7 +790,7 @@ function ViewSubscribedUsers()
 	$smcFunc['db_free_result']($request);
 
 	// Are we searching for people?
-	$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND IFNULL(mem.real_name, {string:guest}) LIKE {string:search}' : '';
+	$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND COALESCE(mem.real_name, {string:guest}) LIKE {string:search}' : '';
 	$search_vars = empty($_POST['sub_search']) ? array() : array('search' => '%' . $_POST['sub_search'] . '%', 'guest' => $txt['guest']);
 
 	$listOptions = array(
@@ -994,7 +994,7 @@ function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $searc
 	global $smcFunc, $txt;
 
 	$request = $smcFunc['db_query']('', '
-		SELECT ls.id_sublog, IFNULL(mem.id_member, 0) AS id_member, IFNULL(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
+		SELECT ls.id_sublog, COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
 			ls.status, ls.payments_pending
 		FROM {db_prefix}log_subscribed AS ls
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
@@ -1252,7 +1252,7 @@ function ModifyUserSubscription()
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT ls.id_sublog, ls.id_subscribe, ls.id_member, start_time, end_time, status, payments_pending, pending_details,
-				IFNULL(mem.real_name, {string:blank_string}) AS username
+				COALESCE(mem.real_name, {string:blank_string}) AS username
 			FROM {db_prefix}log_subscribed AS ls
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
 			WHERE ls.id_sublog = {int:current_subscription_item}
