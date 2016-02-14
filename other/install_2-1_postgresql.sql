@@ -10,30 +10,6 @@ CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
   'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION IFNULL (text, text) RETURNS text AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int4, int4) RETURNS int4 AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int8, int8) RETURNS int8 AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (character varying, character varying) RETURNS character varying AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (character varying, boolean) RETURNS character varying AS
-  'SELECT COALESCE($1, CAST(CAST($2 AS int) AS varchar)) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int, boolean) RETURNS int AS
-  'SELECT COALESCE($1, CAST($2 AS int)) AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS '
 	SELECT
 	CASE WHEN
@@ -1287,14 +1263,12 @@ CREATE TABLE {$db_prefix}messages (
 # Indexes for table `messages`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}messages_topic ON {$db_prefix}messages (id_topic, id_msg);
 CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg);
 CREATE UNIQUE INDEX {$db_prefix}messages_id_member ON {$db_prefix}messages (id_member, id_msg);
 CREATE INDEX {$db_prefix}messages_approved ON {$db_prefix}messages (approved);
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 CREATE INDEX {$db_prefix}messages_participation ON {$db_prefix}messages (id_member, id_topic);
 CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member, id_board);
-CREATE INDEX {$db_prefix}messages_id_topic ON {$db_prefix}messages (id_topic);
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
@@ -1675,7 +1649,6 @@ CREATE UNIQUE INDEX {$db_prefix}topics_first_message ON {$db_prefix}topics (id_f
 CREATE UNIQUE INDEX {$db_prefix}topics_poll ON {$db_prefix}topics (id_poll, id_topic);
 CREATE INDEX {$db_prefix}topics_is_sticky ON {$db_prefix}topics (is_sticky);
 CREATE INDEX {$db_prefix}topics_approved ON {$db_prefix}topics (approved);
-CREATE INDEX {$db_prefix}topics_id_board ON {$db_prefix}topics (id_board);
 CREATE INDEX {$db_prefix}topics_member_started ON {$db_prefix}topics (id_member_started, id_board);
 CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_board, is_sticky, id_last_msg);
 CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);

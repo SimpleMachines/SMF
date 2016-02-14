@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -248,7 +248,7 @@ function template_main()
 								</span>
 							</div>
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
-							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+							', !empty($topic['pages']) ? '<span id="pages'. $topic['first_post']['id']. '" class="topic_pages">&nbsp;'. $topic['pages']. '</span>' : '','
 							<br class="clear">
 						</div>
 					</div>

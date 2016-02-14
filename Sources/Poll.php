@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -38,7 +38,7 @@ function Vote()
 
 	// Check if they have already voted, or voting is locked.
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(lp.id_choice, -1) AS selected, p.voting_locked, p.id_poll, p.expire_time, p.max_votes, p.change_vote,
+		SELECT COALESCE(lp.id_choice, -1) AS selected, p.voting_locked, p.id_poll, p.expire_time, p.max_votes, p.change_vote,
 			p.guest_vote, p.reset_poll, p.num_guest_voters
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}polls AS p ON (p.id_poll = t.id_poll)

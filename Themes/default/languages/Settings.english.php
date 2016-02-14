@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; Settings
+// Version: 2.1 Beta 3; Settings
 
 global $settings;
 

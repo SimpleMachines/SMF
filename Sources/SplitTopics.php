@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -343,7 +343,7 @@ function SplitSelectTopics()
 
 	// Get the messages and stick them into an array.
 	$request = $smcFunc['db_query']('', '
-		SELECT m.subject, IFNULL(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
+		SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][$topic]) ? '' : '
@@ -383,7 +383,7 @@ function SplitSelectTopics()
 	{
 		// Get the messages and stick them into an array.
 		$request = $smcFunc['db_query']('', '
-			SELECT m.subject, IFNULL(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
+			SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_topic = {int:current_topic}
@@ -916,7 +916,7 @@ function MergeIndex()
 
 	// Get some topics to merge it with.
 	$request = $smcFunc['db_query']('', '
-		SELECT t.id_topic, m.subject, m.id_member, IFNULL(mem.real_name, m.poster_name) AS poster_name
+		SELECT t.id_topic, m.subject, m.id_member, COALESCE(mem.real_name, m.poster_name) AS poster_name
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -1009,8 +1009,8 @@ function MergeExecute($topics = array())
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic,
-			m1.subject, m1.poster_time AS time_started, IFNULL(mem1.id_member, 0) AS id_member_started, IFNULL(mem1.real_name, m1.poster_name) AS name_started,
-			m2.poster_time AS time_updated, IFNULL(mem2.id_member, 0) AS id_member_updated, IFNULL(mem2.real_name, m2.poster_name) AS name_updated
+			m1.subject, m1.poster_time AS time_started, COALESCE(mem1.id_member, 0) AS id_member_started, COALESCE(mem1.real_name, m1.poster_name) AS name_started,
+			m2.poster_time AS time_updated, COALESCE(mem2.id_member, 0) AS id_member_updated, COALESCE(mem2.real_name, m2.poster_name) AS name_updated
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS m1 ON (m1.id_msg = t.id_first_msg)
 			INNER JOIN {db_prefix}messages AS m2 ON (m2.id_msg = t.id_last_msg)
@@ -1061,7 +1061,7 @@ function MergeExecute($topics = array())
 
 		$boardTotals[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
 		$boardTotals[$row['id_board']]['posts'] += $row['num_replies'] + ($row['approved'] ? 1 : 0);
-		
+
 		// In the case of making a redirect, the topic count goes up by one due to the redirect topic.
 		if (isset($_POST['postRedirect']))
 			$boardTotals[$row['id_board']]['topics']--;
@@ -1391,7 +1391,7 @@ function MergeExecute($topics = array())
 				'board' => $topic_data[$this_old_topic]['board'],
 				'mark_as_read' => true,
 			);
-	
+
 			// So we have to make the post. We need to do *this* here so we don't foul up indexes later
 			// and we have to fix them up later once everything else has happened.
 			if (createPost($msgOptions, $topicOptions, $posterOptions))
@@ -1689,7 +1689,7 @@ function MergeExecute($topics = array())
 			'num_views' => $num_views,
 		)
 	);
-	
+
 	// Update all the statistics.
 	updateStats('topic');
 	updateStats('subject', $id_topic, $target_subject);

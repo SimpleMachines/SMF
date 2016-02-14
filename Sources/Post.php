@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -91,7 +91,7 @@ function Post($post_errors = array())
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				t.locked, IFNULL(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
+				t.locked, COALESCE(ln.id_topic, 0) AS notify, t.is_sticky, t.id_poll, t.id_last_msg, mf.id_member,
 				t.id_first_msg, mf.subject, ml.modified_reason,
 				CASE WHEN ml.poster_time > ml.modified_time THEN ml.poster_time ELSE ml.modified_time END AS last_post_time
 			FROM {db_prefix}topics AS t
@@ -520,7 +520,7 @@ function Post($post_errors = array())
 				SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-					IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach,
+					COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach,
 					a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 					m.poster_time, log.id_action
 				FROM {db_prefix}messages AS m
@@ -571,7 +571,7 @@ function Post($post_errors = array())
 			if (!empty($modSettings['attachmentEnable']))
 			{
 				$request = $smcFunc['db_query']('', '
-					SELECT IFNULL(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
+					SELECT COALESCE(size, -1) AS filesize, filename, id_attach, approved, mime_type, id_thumb
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
 						AND attachment_type = {int:attachment_type}
@@ -638,7 +638,7 @@ function Post($post_errors = array())
 			SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
-				IFNULL(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
+				COALESCE(a.size, -1) AS filesize, a.filename, a.id_attach, a.mime_type, a.id_thumb,
 				a.approved AS attachment_approved, t.id_member_started AS id_member_poster,
 				m.poster_time, log.id_action
 			FROM {db_prefix}messages AS m
@@ -762,7 +762,7 @@ function Post($post_errors = array())
 		{
 			// Make sure they _can_ quote this post, and if so get it.
 			$request = $smcFunc['db_query']('', '
-				SELECT m.subject, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
+				SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -2444,7 +2444,7 @@ function getTopic()
 	// If you're modifying, get only those posts before the current one. (otherwise get all.)
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 			m.body, m.smileys_enabled, m.id_msg, m.id_member
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -2506,7 +2506,7 @@ function QuoteFast()
 	$context['post_box_name'] = isset($_GET['pb']) ? $_GET['pb'] : '';
 
 	$request = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
+		SELECT COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body, m.id_topic, m.subject,
 			m.id_board, m.id_member, m.approved
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)

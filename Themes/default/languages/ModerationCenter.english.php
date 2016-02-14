@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; ModerationCenter
+// Version: 2.1 Beta 3; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
