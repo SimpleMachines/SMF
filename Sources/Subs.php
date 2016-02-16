@@ -3442,32 +3442,32 @@ function ip2range($fullip)
 	// if ip 22.12.31.21
 	if (count($ip_parts) == 1 && inet_pton($fullip))
 	{
-	    $ip_array['low'] = $fullip;
-	    $ip_array['high'] = $fullip;
-	    return $ip_array;
+		$ip_array['low'] = $fullip;
+		$ip_array['high'] = $fullip;
+		return $ip_array;
 	} // if ip 22.12.* -> 22.12.* - 22.12.*
 	elseif (count($ip_parts) == 1)
 	{
-	    $ip_parts[0] = $fullip;
-	    $ip_parts[1] = $fullip;
+		$ip_parts[0] = $fullip;
+		$ip_parts[1] = $fullip;
 	}
 	
 	// if ip 22.12.31.21-12.21.31.21
 	if (count($ip_parts) == 2 && inet_pton($ip_parts[0]) && inet_pton($ip_parts[1]))
 	{
-	    $ip_array['low'] = $ip_parts[0];
-	    $ip_array['high'] = $ip_parts[1];
-	    return $ip_array;
+		$ip_array['low'] = $ip_parts[0];
+		$ip_array['high'] = $ip_parts[1];
+		return $ip_array;
 	}
 	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
 	{
-	    $valid_low = (inet_pton($ip_parts[0])? true:false);
-	    $valid_high = (inet_pton($ip_parts[1])? true:false);
-	    $count = 0;
-	    $mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
-	    $max = ($mode == ':' ? 'ffff' : '255');
-	    if(!$valid_low)
-	    {
+		$valid_low = (inet_pton($ip_parts[0])? true:false);
+		$valid_high = (inet_pton($ip_parts[1])? true:false);
+		$count = 0;
+		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$max = ($mode == ':' ? 'ffff' : '255');
+		if(!$valid_low)
+		{
 			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
 			$valid_low = inet_pton($ip_parts[0]);
 			while (!$valid_low)
@@ -3477,11 +3477,11 @@ function ip2range($fullip)
 				$count++;
 				if ($count > 9) break;
 			}
-	    }
+		}
 	    
-	    $count = 0;
-	    if(!$valid_high)
-	    {
+		$count = 0;
+		if(!$valid_high)
+		{
 			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
 			$valid_high = inet_pton($ip_parts[1]);
 			while (!$valid_high)
@@ -3492,13 +3492,13 @@ function ip2range($fullip)
 				if ($count > 9) break;
 			}
 		}
-	    
-	    if($valid_high && $valid_low)
-	    {
+	
+		if($valid_high && $valid_low)
+		{
 			$ip_array['low'] = $ip_parts[0];
 			$ip_array['high'] = $ip_parts[1];
-	    }
-	    
+		}
+	
 	}
 
 	return $ip_array;
@@ -4783,7 +4783,7 @@ function inet_ptod($ip_address)
 		return $ip_address;
 	
 	$bin = inet_pton($ip_address);
-    return $bin;
+	return $bin;
 }
 
 /**
@@ -4795,9 +4795,9 @@ function inet_dtop($bin)
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
 	
-    $ip_address = inet_ntop($bin);
+	$ip_address = inet_ntop($bin);
 
-    return $ip_address;
+	return $ip_address;
 }
 
 ?>
