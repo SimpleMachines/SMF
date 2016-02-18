@@ -2003,6 +2003,53 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 ---#
 
 /******************************************************************************/
+---UNLOGGED Table PG 9.1+
+/******************************************************************************/
+$result = $smcFunc['db_query']('', '
+	SHOW server_version_num'
+);
+if ($result !== false)
+{
+	while ($row = $smcFunc['db_fetch_assoc']($result))
+		$pg_version = $row['server_version_num'];
+	$smcFunc['db_free_result']($result);
+}
+		
+if(isset($pg_version) && $pg_version >= 90100)
+{
+	$tables = array('log_online','log_floodcontrol','sessions');
+	foreach($tables as $tab)
+	{
+		if($pg_version >= 90500)
+			upgrade_query("ALTER TABLE {$db_prefix}".$tab." SET UNLOGGED;");
+		ELSE
+			upgrade_query("
+			alter table {$db_prefix}".$tab." rename to old_{$db_prefix}".$tab.";
+
+			do 
+			$$ 
+			declare r record; 
+			begin 
+				for r in select * from pg_constraint where conrelid='old_{$db_prefix}".$tab."'::regclass loop 
+					execute format('alter table old_{$db_prefix}".$tab." rename constraint %I to %I', r.conname, 'old_' || r.conname); 
+				end loop; 
+				for r in select * from pg_indexes where tablename='old_{$db_prefix}".$tab."' and indexname !~ '^old_' loop
+					execute format('alter index %I rename to %I', r.indexname, 'old_' || r.indexname); 
+				end loop; 
+			end; 
+			$$;
+
+			create unlogged table {$db_prefix}".$tab." (like old_{$db_prefix}".$tab." including all);
+
+			insert into {$db_prefix}".$tab." select * from old_{$db_prefix}".$tab.";
+
+			drop table old_{$db_prefix}".$tab.";"
+			);
+	}
+
+}
+
+/******************************************************************************/
 --- remove redundant index
 /******************************************************************************/
 
@@ -2014,3 +2061,4 @@ DROP INDEX IF EXISTS {$db_prefix}messages_topic;
 ---# duplicate to topics_last_message_sticky and topics_board_news
 DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 ---#
+

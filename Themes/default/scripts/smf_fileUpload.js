@@ -321,7 +321,7 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Show each individual's progress bar.
-	myDropzone.on('sending', function(file) {
+	myDropzone.on('sending', function(file, xhr, formData) {
 
 		_thisElement = $(file.previewElement);
 
