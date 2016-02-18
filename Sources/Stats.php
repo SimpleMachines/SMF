@@ -450,7 +450,7 @@ function DisplayStats()
 	$max_num = 1;
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
-		$i = $members[$row_members['id_member']];
+		$i = array_search($row_members['id_member'], array_keys($members));
 		$context['stats_blocks']['starters'][$i] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
@@ -462,7 +462,7 @@ function DisplayStats()
 		if ($max_num < $members[$row_members['id_member']])
 			$max_num = $members[$row_members['id_member']];
 	}
-	krsort($context['stats_blocks']['starters']);
+	ksort($context['stats_blocks']['starters']);
 	$smcFunc['db_free_result']($members_result);
 
 	foreach ($context['stats_blocks']['starters'] as $i => $topic)
