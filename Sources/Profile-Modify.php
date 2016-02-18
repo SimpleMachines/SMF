@@ -1876,7 +1876,7 @@ function alert_configuration($memID)
 
 	$context['member'] += array(
 		'alert_timeout' => isset($context['alert_prefs']['alert_timeout']) ? $context['alert_prefs']['alert_timeout'] : 10,
-		'notify_announcements' => isset($context['alert_prefs']['notify_announcements']) ? $context['alert_prefs']['notify_announcements'] : 0,
+		'notify_announcements' => isset($context['alert_prefs']['announcements']) ? $context['alert_prefs']['announcements'] : 0,
 	);
 
 	// Now for the exciting stuff.
@@ -2572,10 +2572,10 @@ function list_getTopicNotifications($start, $items_per_page, $sort, $memID)
 	// All the topics with notification on...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
-			t.id_topic, ms.subject, ms.id_member, IFNULL(mem.real_name, ms.poster_name) AS real_name_col,
+			COALESCE(lt.id_msg, COALESCE(lmr.id_msg, -1)) + 1 AS new_from, b.id_board, b.name,
+			t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
 			ml.id_msg_modified, ml.poster_time, ml.id_member AS id_member_updated,
-			IFNULL(mem2.real_name, ml.poster_name) AS last_real_name,
+			COALESCE(mem2.real_name, ml.poster_name) AS last_real_name,
 			lt.unwatched
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic' . ($modSettings['postmod_active'] ? ' AND t.approved = {int:is_approved}' : '') . ')
@@ -2643,7 +2643,7 @@ function list_getBoardNotifications($start, $items_per_page, $sort, $memID)
 	$prefs = isset($prefs[$memID]) ? $prefs[$memID] : array();
 
 	$request = $smcFunc['db_query']('', '
-		SELECT b.id_board, b.name, IFNULL(lb.id_msg, 0) AS board_read, b.id_msg_updated
+		SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 		FROM {db_prefix}log_notify AS ln
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -3287,7 +3287,7 @@ function profileSaveAvatarData(&$value)
 				if (!empty($modSettings['avatar_resize_upload']))
 				{
 					// Attempt to chmod it.
-					@chmod($_FILES['attachment']['tmp_name'], 0644);
+					smf_chmod($_FILES['attachment']['tmp_name'], 0644);
 
 					// @todo remove this require when appropriate
 					require_once($sourcedir . '/Subs-Graphics.php');
@@ -3376,7 +3376,7 @@ function profileSaveAvatarData(&$value)
 				}
 
 				// Attempt to chmod it.
-				@chmod($uploadDir . '/' . $destinationPath, 0644);
+				smf_chmod($uploadDir . '/' . $destinationPath, 0644);
 			}
 			$profile_vars['avatar'] = '';
 
@@ -3712,7 +3712,7 @@ function groupMembership($memID)
 	// Get all the membergroups they can join.
 	$request = $smcFunc['db_query']('', '
 		SELECT mg.id_group, mg.group_name, mg.description, mg.group_type, mg.online_color, mg.hidden,
-			IFNULL(lgr.id_member, 0) AS pending
+			COALESCE(lgr.id_member, 0) AS pending
 		FROM {db_prefix}membergroups AS mg
 			LEFT JOIN {db_prefix}log_group_requests AS lgr ON (lgr.id_member = {int:selected_member} AND lgr.id_group = mg.id_group AND lgr.status = {int:status_open})
 		WHERE (mg.id_group IN ({array_int:group_list})

@@ -161,23 +161,11 @@ function automanage_attachments_create_directory($updir)
 		$count--;
 	}
 
-	// @todo: chmod (especially with some servers) is usually bad
-	if (!is_writable($directory))
+	// Check if the dir is writable.
+	if (!smf_chmod($directory))
 	{
-		chmod($directory, 0755);
-		if (!is_writable($directory))
-		{
-			chmod($directory, 0775);
-			if (!is_writable($directory))
-			{
-				chmod($directory, 0777);
-				if (!is_writable($directory))
-				{
-					$context['dir_creation_error'] = 'attachments_no_write';
-					return false;
-				}
-			}
-		}
+		$context['dir_creation_error'] = 'attachments_no_write';
+		return false;
 	}
 
 	// Everything seems fine...let's create the .htaccess
@@ -448,7 +436,7 @@ function processAttachments()
 
 			// Move the file to the attachments folder with a temp name for now.
 			if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-				@chmod($destName, 0644);
+				smf_chmod($destName, 0644);
 			else
 			{
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
@@ -1051,9 +1039,9 @@ function getAttachsByMsg($msgID = 0)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
 				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)

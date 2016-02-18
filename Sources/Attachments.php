@@ -265,7 +265,7 @@ class Attachments
 
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-					@chmod($destName, 0644);
+					smf_chmod($destName, 0644);
 
 				// This is madness!!
 				else
@@ -422,7 +422,7 @@ class Attachments
 
 	protected function sendResponse()
 	{
-		global $modSettings;
+		global $modSettings, $context;
 
 		ob_end_clean();
 
@@ -433,7 +433,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('Content-Type: application/json');
+		header('Content-Type: application/json; charset='. $context['character_set'] .'');
 
 		echo json_encode($this->_response ? $this->_response : array());
 

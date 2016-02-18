@@ -776,7 +776,7 @@ function removeMessage($message, $decreasePostCount = true)
 	{
 		// Check if the recycle board exists and if so get the read status.
 		$request = $smcFunc['db_query']('', '
-			SELECT (IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
+			SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 			WHERE b.id_board = {int:recycle_board}',
@@ -1052,7 +1052,7 @@ function RestoreTopic()
 		// Get the id_previous_board and id_previous_topic.
 		$request = $smcFunc['db_query']('', '
 			SELECT m.id_topic, m.id_msg, m.id_board, m.subject, m.id_member, t.id_previous_board, t.id_previous_topic,
-				t.id_first_msg, b.count_posts, IFNULL(pt.id_board, 0) AS possible_prev_board
+				t.id_first_msg, b.count_posts, COALESCE(pt.id_board, 0) AS possible_prev_board
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)

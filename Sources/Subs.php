@@ -2583,7 +2583,7 @@ function parsesmileys(&$message)
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
@@ -4080,6 +4080,10 @@ function call_integration_hook($hook, $parameters = array())
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
+		// Hook has been marked as "disabled". Skip it!
+		if (strpos($function, '!') !== false)
+			continue;
+
 		$call = call_helper($function, true);
 
 		// Is it valid?
@@ -5020,6 +5024,46 @@ function safe_unserialize($str)
 		mb_internal_encoding($mbIntEnc);
 
 	return $out;
+}
+
+/**
+ * Tries different modes to make file/dirs writable. Wrapper function for chmod()
+
+ * @param string $file The file/dir full path.
+ * @param int $value Not needed, added for legacy reasons.
+ * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
+ */
+function smf_chmod($file, $value = 0)
+{
+	// No file? no checks!
+	if (empty($file))
+		return false;
+
+	// Already writable?
+	if (is_writable($file))
+		return true;
+
+	// Do we have a file or a dir?
+	$isDir = is_dir($file);
+	$isWritable = false;
+
+	// Set different modes.
+	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
+
+	foreach($chmodValues as $val)
+	{
+		// If it's writable, break out of the loop.
+		if (is_writable($file))
+		{
+			$isWritable = true;
+			break;
+		}
+
+		else
+			@chmod($file, $val);
+	}
+
+	return $isWritable;
 }
 
 ?>

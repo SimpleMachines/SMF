@@ -1122,7 +1122,7 @@ function saveDBSettings(&$config_vars)
 	$inlinePermissions = array();
 	foreach ($config_vars as $var)
 	{
-		if (!isset($var[1]) || (!isset($_POST[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && ($var[0] != 'bbc' || !isset($_POST[$var[1] . '_enabledTags']))))
+		if (!isset($var[1]) || (!isset($_POST[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && $var[0] != 'boards' && ($var[0] != 'bbc' || !isset($_POST[$var[1] . '_enabledTags']))))
 			continue;
 
 		// Checkboxes!
@@ -1139,7 +1139,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = json_encode($options);
+			$setArray[$var[1]] = json_encode($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')
@@ -1153,15 +1153,18 @@ function saveDBSettings(&$config_vars)
 					FROM {db_prefix}boards');
 				while ($row = $smcFunc['db_fetch_row']($request))
 					$board_list[$row[0]] = true;
+
 				$smcFunc['db_free_result']($request);
 			}
 
 			$lOptions = array();
-			foreach ($_POST[$var[1]] as $invar => $dummy)
-				if (isset($board_list[$invar]))
-					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = implode(',', $lOptions);
+			if (!empty($_POST[$var[1]]))
+				foreach ($_POST[$var[1]] as $invar => $dummy)
+					if (isset($board_list[$invar]))
+						$lOptions[] = $invar;
+
+			$setArray[$var[1]] = !empty($lOptions) ? implode(',', $lOptions) : '';
 		}
 		// Integers!
 		elseif ($var[0] == 'int')
