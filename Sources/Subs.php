@@ -3440,7 +3440,7 @@ function ip2range($fullip)
 	$ip_parts = explode('-', $fullip);
 	
 	// if ip 22.12.31.21
-	if (count($ip_parts) == 1 && inet_pton($fullip))
+	if (count($ip_parts) == 1 && isValidIP($fullip))
 	{
 		$ip_array['low'] = $fullip;
 		$ip_array['high'] = $fullip;
@@ -3453,7 +3453,7 @@ function ip2range($fullip)
 	}
 	
 	// if ip 22.12.31.21-12.21.31.21
-	if (count($ip_parts) == 2 && inet_pton($ip_parts[0]) && inet_pton($ip_parts[1]))
+	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
 	{
 		$ip_array['low'] = $ip_parts[0];
 		$ip_array['high'] = $ip_parts[1];
@@ -3461,19 +3461,20 @@ function ip2range($fullip)
 	}
 	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
 	{
-		$valid_low = (inet_pton($ip_parts[0])? true:false);
-		$valid_high = (inet_pton($ip_parts[1])? true:false);
+		$valid_low = isValidIP($ip_parts[0]);
+		$valid_high = isValidIP($ip_parts[1]);
 		$count = 0;
 		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
 		$max = ($mode == ':' ? 'ffff' : '255');
+		$min = 0;
 		if(!$valid_low)
 		{
 			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
-			$valid_low = inet_pton($ip_parts[0]);
+			$valid_low = isValidIP($ip_parts[0]);
 			while (!$valid_low)
 			{
 				$ip_parts[0] .= $mode . $min;
-				$valid_low = inet_pton($ip_parts[0]);
+				$valid_low = isValidIP($ip_parts[0]);
 				$count++;
 				if ($count > 9) break;
 			}
@@ -3483,11 +3484,11 @@ function ip2range($fullip)
 		if(!$valid_high)
 		{
 			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
-			$valid_high = inet_pton($ip_parts[1]);
+			$valid_high = isValidIP($ip_parts[1]);
 			while (!$valid_high)
 			{
 				$ip_parts[1] .= $mode . $max;
-				$valid_high = inet_pton($ip_parts[1]);
+				$valid_high = isValidIP($ip_parts[1]);
 				$count++;
 				if ($count > 9) break;
 			}
@@ -5111,6 +5112,33 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
+}
+
+/**
+ * Check the given String if he is a valid IPv4 or IPv6
+ * return true or false
+ */
+function isValidIP($IPString)
+{
+	static $existFilterVar;
+	
+	if (empty($existFilterVar))
+		$existFilterVar = function_exists('filter_var');
+	
+	if($existFilterVar === true)
+	{
+		if (filter_var($IPString,FILTER_VALIDATE_IP))
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+		if (@inet_pton($IPString))
+			return true;
+		else
+			return false;
+	}
 }
 
 ?>
