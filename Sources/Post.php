@@ -45,6 +45,7 @@ function Post($post_errors = array())
 	// Posting an event?
 	$context['make_event'] = isset($_REQUEST['calendar']);
 	$context['robot_no_index'] = true;
+	$context['posting_fields'] = array();
 
 	// Get notification preferences for later
 	require_once($sourcedir . '/Subs-Notify.php');
@@ -189,7 +190,10 @@ function Post($post_errors = array())
 
 	// If there are attachments already uploaded, pass them to the current attachments array.
 	if (!empty($_SESSION['already_attached']))
-		$context['current_attachments'] = $_SESSION['already_attached'];
+	{
+		require_once($sourcedir . '/Subs-Attachments.php');
+		$context['current_attachments'] = getRawAttachInfo($_SESSION['already_attached']);
+	}
 
 	// Don't allow a post if it's locked and you aren't all powerful.
 	if ($locked && !allowedTo('moderate_board'))
@@ -1246,6 +1250,8 @@ function Post($post_errors = array())
 	// Finally, load the template.
 	if (!isset($_REQUEST['xml']))
 		loadTemplate('Post');
+
+	call_integration_hook('integrate_post_end');
 }
 
 /**
@@ -2148,6 +2154,8 @@ function Post2()
 
 	if ($board_info['num_topics'] == 0)
 		cache_put_data('board-' . $board, null, 120);
+
+	call_integration_hook('integrate_post2_end');
 
 	if (!empty($_POST['announce_topic']))
 		redirectexit('action=announce;sa=selectgroup;topic=' . $topic . (!empty($_POST['move']) && allowedTo('move_any') ? ';move' : '') . (empty($_REQUEST['goback']) ? '' : ';goback'));

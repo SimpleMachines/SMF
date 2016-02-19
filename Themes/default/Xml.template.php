@@ -224,6 +224,9 @@ function template_stats()
 {
 	global $context, $modSettings;
 
+	if (empty($context['yearly']))
+		return;
+
 	echo '<', '?xml version="1.0" encoding="', $context['character_set'], '"?', '>
 <smf>';
 	foreach ($context['yearly'] as $year)
