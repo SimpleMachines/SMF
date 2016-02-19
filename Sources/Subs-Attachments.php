@@ -830,41 +830,27 @@ function createAttachment(&$attachmentOptions)
 /**
  * Assigns the given attachments to the given message ID.
  *
- * @param $attachments array the attachments to be assigned with the attachment ID as key.
+ * @param $attachIDs array of attachment IDs to assign.
  * @param $msgID integer the message ID.
  *
  * @return boolean false on error or missing params.
  */
-function assignAttachments($attachments = array(), $msgID = 0)
+function assignAttachments($attachIDs = array(), $msgID = 0)
 {
 	global $smcFunc;
 
 	// Oh, come on!
-	if (empty($attachments) || empty($msgID))
+	if (empty($attachIDs) || empty($msgID))
 		return false;
 
-	// Work with arrays would ya?
-	$attachments = (array) $attachments;
-	$attachIDs = array();
-
 	// "I see what is right and approve, but I do what is wrong."
-	call_integration_hook('integrate_assign_attachments', array(&$attachments, &$msgID));
-
-	// Get the IDs.
-	foreach ($attachments as $k => $attach)
-	{
-		$attachIDs[] = $k;
-
-		// Any thumbnails?
-		if (!empty($attach['thumb']))
-			$attachIDs[] = $attach['thumb'];
-	}
+	call_integration_hook('integrate_assign_attachments', array(&$attachIDs, &$msgID));
 
 	// One last check
 	if (empty($attachIDs))
 		return false;
 
-	// Perform
+	// Perform.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}attachments
 		SET id_msg = {int:id_msg}
@@ -987,6 +973,52 @@ function parseAttachBBC($attachID = 0)
 
 	// Don't do any logic with the loaded data, leave it to whoever called this function.
 	return $attachContext;
+}
+
+/**
+ * Gets raw info directly from the attachments table.
+ *
+ * @param array $attachIDs An array of attachments IDs.
+ *
+ * @return array.
+ */
+function getRawAttachInfo($attachIDs)
+{
+	global $smcFunc, $modSettings;
+
+	if (empty($attachIDs))
+		return array();
+
+	$return = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT a.id_attach, a.id_msg, a.id_member, a.size, a.mime_type, a.id_folder, a.filename' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+		WHERE a.id_attach IN ({array_int:attach_ids})
+		LIMIT 1',
+		array(
+			'attach_ids' => (array) $attachIDs,
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) != 1)
+		return array();
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$return[$row['id_attach']] = array(
+			'name' => $smcFunc['htmlspecialchars']($row['filename']),
+			'size' => $row['size'],
+			'attachID' => $row['id_attach'],
+			'unchecked' => false,
+			'approved' => 1,
+			'mime_type' => $row['mime_type'],
+			'thumb' => $row['id_thumb'],
+		);
+	$smcFunc['db_free_result']($request);
+
+	return $return;
 }
 
 /**
