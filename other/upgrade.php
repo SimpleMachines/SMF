@@ -100,7 +100,7 @@ require_once($upgrade_path . '/Settings.php');
 // Are we logged in?
 if (isset($upgradeData))
 {
-	$upcontext['user'] = safe_unserialize((base64_decode($upgradeData));
+	$upcontext['user'] = unserialize(base64_decode($upgradeData));
 
 	// Check for sensible values.
 	if (empty($upcontext['user']['started']) || $upcontext['user']['started'] < time() - 86400)
@@ -129,10 +129,11 @@ if (empty($upcontext['updated']))
 // Load up some essential data...
 loadEssentialData();
 
+require_once($sourcedir . '/Subs.php');
+
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
-	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Errors.php');
 	require_once($sourcedir . '/Logging.php');
 	require_once($sourcedir . '/Load.php');
@@ -142,10 +143,6 @@ if (isset($_GET['ssi']))
 	loadUserSettings();
 	loadPermissions();
 }
-
-// All the non-SSI stuff.
-if (!function_exists('ip2range') && php_version_check())
-	require_once($sourcedir . '/Subs.php');
 
 if (!function_exists('un_htmlspecialchars'))
 {
@@ -609,7 +606,7 @@ $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SM
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
-	$upcontext['upgrade_status'] = safe_unserialize((base64_decode($_GET['data']));
+	$upcontext['upgrade_status'] = safe_unserialize(base64_decode($_GET['data']));
 	$upcontext['current_step'] = $upcontext['upgrade_status']['curstep'];
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 	$upcontext['rid'] = $upcontext['upgrade_status']['rid'];
@@ -1775,7 +1772,7 @@ function CleanupMods()
 	// Do we already know about some writable files?
 	if (isset($_POST['writable_files']))
 	{
-		$writable_files = safe_unserialize((base64_decode($_POST['writable_files']));
+		$writable_files = safe_unserialize(base64_decode($_POST['writable_files']));
 		if (!makeFilesWritable($writable_files))
 		{
 			// What have we left?
@@ -4055,7 +4052,7 @@ function convertUtf8()
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (@safe_unserialize(($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+			if (@safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_actions
 					SET extra = {string:extra}
@@ -4179,7 +4176,7 @@ function serialize_to_json()
 					if (isset($modSettings[$var]))
 					{
 						// Attempt to unserialize the setting
-						$temp = @safe_unserialize(($modSettings[$var]);
+						$temp = @safe_unserialize($modSettings[$var]);
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
@@ -4210,7 +4207,7 @@ function serialize_to_json()
 				{
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$temp = @safe_unserialize(($row['admin_preferences']);
+						$temp = @safe_unserialize($row['admin_preferences']);
 
 						if ($command_line)
 						{
@@ -4285,7 +4282,7 @@ function serialize_to_json()
 						{
 							if ($col !== true && $row[$col] != '')
 							{
-								$temp = @safe_unserialize(($row[$col]);
+								$temp = @safe_unserialize($row[$col]);
 
 								if ($temp === false && $command_line)
 								{
