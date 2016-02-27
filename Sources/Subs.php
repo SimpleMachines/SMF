@@ -3433,53 +3433,74 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  */
 function ip2range($fullip)
 {
-	// If its IPv6, validate it first.
-	if (isValidIPv6($fullip) !== false)
-	{
-		$ip_parts = explode(':', expandIPv6($fullip, false));
-		$ip_array = array();
-
-		if (count($ip_parts) != 8)
-			return array();
-
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($ip_parts[$i] == '*')
-				$ip_array[$i] = array('low' => '0', 'high' => hexdec('ffff'));
-			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
-				$ip_array[$i] = array('low' => hexdec($range[1]), 'high' => hexdec($range[2]));
-			elseif (is_numeric(hexdec($ip_parts[$i])))
-				$ip_array[$i] = array('low' => hexdec($ip_parts[$i]), 'high' => hexdec($ip_parts[$i]));
-		}
-
-		return $ip_array;
-	}
-
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
-
-	$ip_parts = explode('.', $fullip);
-	$ip_array = array();
-
-	if (count($ip_parts) != 4)
-		return array();
-
-	for ($i = 0; $i < 4; $i++)
+	
+	$ip_parts = explode('-', $fullip);
+	
+	// if ip 22.12.31.21
+	if (count($ip_parts) == 1 && isValidIP($fullip))
 	{
-		if ($ip_parts[$i] == '*')
-			$ip_array[$i] = array('low' => '0', 'high' => '255');
-		elseif (preg_match('/^(\d{1,3})\-(\d{1,3})$/', $ip_parts[$i], $range) == 1)
-			$ip_array[$i] = array('low' => $range[1], 'high' => $range[2]);
-		elseif (is_numeric($ip_parts[$i]))
-			$ip_array[$i] = array('low' => $ip_parts[$i], 'high' => $ip_parts[$i]);
+		$ip_array['low'] = $fullip;
+		$ip_array['high'] = $fullip;
+		return $ip_array;
+	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	elseif (count($ip_parts) == 1)
+	{
+		$ip_parts[0] = $fullip;
+		$ip_parts[1] = $fullip;
 	}
-
-	// Makes it simpiler to work with.
-	$ip_array[4] = array('low' => 0, 'high' => 0);
-	$ip_array[5] = array('low' => 0, 'high' => 0);
-	$ip_array[6] = array('low' => 0, 'high' => 0);
-	$ip_array[7] = array('low' => 0, 'high' => 0);
+	
+	// if ip 22.12.31.21-12.21.31.21
+	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
+	{
+		$ip_array['low'] = $ip_parts[0];
+		$ip_array['high'] = $ip_parts[1];
+		return $ip_array;
+	}
+	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
+	{
+		$valid_low = isValidIP($ip_parts[0]);
+		$valid_high = isValidIP($ip_parts[1]);
+		$count = 0;
+		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$max = ($mode == ':' ? 'ffff' : '255');
+		$min = 0;
+		if(!$valid_low)
+		{
+			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
+			$valid_low = isValidIP($ip_parts[0]);
+			while (!$valid_low)
+			{
+				$ip_parts[0] .= $mode . $min;
+				$valid_low = isValidIP($ip_parts[0]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+	    
+		$count = 0;
+		if(!$valid_high)
+		{
+			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
+			$valid_high = isValidIP($ip_parts[1]);
+			while (!$valid_high)
+			{
+				$ip_parts[1] .= $mode . $max;
+				$valid_high = isValidIP($ip_parts[1]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+	
+		if($valid_high && $valid_low)
+		{
+			$ip_array['low'] = $ip_parts[0];
+			$ip_array['high'] = $ip_parts[1];
+		}
+	
+	}
 
 	return $ip_array;
 }
@@ -4758,6 +4779,33 @@ function smf_list_timezones()
 }
 
 /**
+ * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
+ * @return binary The IP address in binary or false
+ */
+function inet_ptod($ip_address)
+{
+	if(strpos($bin,'.')===false && strpos($bin,':')===false)
+		return $ip_address;
+	
+	$bin = inet_pton($ip_address);
+	return $bin;
+}
+
+/**
+ * @param binary $bin An IP address in IPv4, IPv6 
+ * @return string The IP address in presentation format or false on error
+ */
+function inet_dtop($bin)
+{
+	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
+		return $bin;
+	
+	$ip_address = inet_ntop($bin);
+
+	return $ip_address;
+}
+
+/**
  * Safe serialize() and unserialize() replacements
  *
  * @license Public Domain
@@ -5064,6 +5112,33 @@ function smf_chmod($file, $value = 0)
 	}
 
 	return $isWritable;
+}
+
+/**
+ * Check the given String if he is a valid IPv4 or IPv6
+ * return true or false
+ */
+function isValidIP($IPString)
+{
+	static $existFilterVar;
+	
+	if (empty($existFilterVar))
+		$existFilterVar = function_exists('filter_var');
+	
+	if($existFilterVar === true)
+	{
+		if (filter_var($IPString,FILTER_VALIDATE_IP))
+			return true;
+		else
+			return false;
+	}
+	else
+	{
+		if (@inet_pton($IPString))
+			return true;
+		else
+			return false;
+	}
 }
 
 ?>

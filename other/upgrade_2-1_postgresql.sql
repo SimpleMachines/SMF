@@ -412,62 +412,6 @@ elseif (empty($modSettings['json_done']))
 ---#
 
 /******************************************************************************/
---- Adding support for IPv6...
-/******************************************************************************/
-
----# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 smallint NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 smallint NOT NULL DEFAULT '0';
----#
-
----# Changing existing columns to ban items...
----{
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 type smallint,
-	ALTER COLUMN ip_high1 type smallint,
-	ALTER COLUMN ip_low2 type smallint,
-	ALTER COLUMN ip_high2 type smallint,
-	ALTER COLUMN ip_low3 type smallint,
-	ALTER COLUMN ip_high3 type smallint,
-	ALTER COLUMN ip_low4 type smallint,
-	ALTER COLUMN ip_high4 type smallint;"
-);
-
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 SET DEFAULT '0',
-	ALTER COLUMN ip_high1 SET DEFAULT '0',
-	ALTER COLUMN ip_low2 SET DEFAULT '0',
-	ALTER COLUMN ip_high2 SET DEFAULT '0',
-	ALTER COLUMN ip_low3 SET DEFAULT '0',
-	ALTER COLUMN ip_high3 SET DEFAULT '0',
-	ALTER COLUMN ip_low4 SET DEFAULT '0',
-	ALTER COLUMN ip_high4 SET DEFAULT '0';"
-);
-
-upgrade_query("
-	ALTER TABLE {$db_prefix}ban_items
-	ALTER COLUMN ip_low1 SET NOT NULL,
-	ALTER COLUMN ip_high1 SET NOT NULL,
-	ALTER COLUMN ip_low2 SET NOT NULL,
-	ALTER COLUMN ip_high2 SET NOT NULL,
-	ALTER COLUMN ip_low3 SET NOT NULL,
-	ALTER COLUMN ip_high3 SET NOT NULL,
-	ALTER COLUMN ip_low4 SET NOT NULL,
-	ALTER COLUMN ip_high4 SET NOT NULL;"
-);
----}
----#
-
-/******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
 
@@ -2062,3 +2006,15 @@ DROP INDEX IF EXISTS {$db_prefix}messages_topic;
 DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 ---#
 
+/******************************************************************************/
+--- update ban ip with ipv6 support
+/******************************************************************************/
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+
+UPDATE {$db_prefix}ban_items
+SET ip_low = (ip_low1||'.'||ip_low2||'.'||ip_low3||'.'||ip_low4)::inet,
+	ip_high = (ip_high1||'.'||ip_high2||'.'||ip_high3||'.'||ip_high4)::inet
+WHERE ip_low1 > 0;
+
+CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);

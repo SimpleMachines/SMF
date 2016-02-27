@@ -244,22 +244,8 @@ CREATE SEQUENCE {$db_prefix}ban_items_seq;
 CREATE TABLE {$db_prefix}ban_items (
   id_ban int default nextval('{$db_prefix}ban_items_seq'),
   id_ban_group smallint NOT NULL default '0',
-  ip_low1 smallint NOT NULL default '0',
-  ip_high1 smallint NOT NULL default '0',
-  ip_low2 smallint NOT NULL default '0',
-  ip_high2 smallint NOT NULL default '0',
-  ip_low3 smallint NOT NULL default '0',
-  ip_high3 smallint NOT NULL default '0',
-  ip_low4 smallint NOT NULL default '0',
-  ip_high4 smallint NOT NULL default '0',
-  ip_low5 smallint NOT NULL default '0',
-  ip_high5 smallint NOT NULL default '0',
-  ip_low6 smallint NOT NULL default '0',
-  ip_high6 smallint NOT NULL default '0',
-  ip_low7 smallint NOT NULL default '0',
-  ip_high7 smallint NOT NULL default '0',
-  ip_low8 smallint NOT NULL default '0',
-  ip_high8 smallint NOT NULL default '0',
+  ip_low inet,
+  ip_high inet,
   hostname varchar(255) NOT NULL,
   email_address varchar(255) NOT NULL,
   id_member int NOT NULL default '0',
@@ -272,6 +258,7 @@ CREATE TABLE {$db_prefix}ban_items (
 #
 
 CREATE INDEX {$db_prefix}ban_items_id_ban_group ON {$db_prefix}ban_items (id_ban_group);
+CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 
 #
 # Table structure for table `board_permissions`

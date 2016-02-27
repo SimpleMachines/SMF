@@ -432,34 +432,6 @@ elseif (empty($modSettings['json_done']))
 ---#
 
 /******************************************************************************/
---- Adding support for IPv6...
-/******************************************************************************/
-
----# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Changing existing columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
----#
-
-/******************************************************************************/
 --- Adding support for logging who fulfils a group request.
 /******************************************************************************/
 
@@ -1909,3 +1881,27 @@ DROP INDEX idx_topic on {$db_prefix}messages;
 ---# duplicate to topics_last_message_sticky and topics_board_news
 DROP INDEX idx_id_board on {$db_prefix}topics;
 ---#
+
+/******************************************************************************/
+--- update ban ip with ipv6 support
+/******************************************************************************/
+
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low varbinary(16);
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
+
+UPDATE {$db_prefix}ban_items
+SET ip_low = 
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+        )
+    ),
+ip_high = 
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+        )
+    )
+where ip_low1 > 0;
+
+CREATE INDEX idx_ban_items_iplow_high(ip_low,ip_high) ON {$db_prefix}ban_items;

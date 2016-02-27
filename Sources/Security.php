@@ -1270,32 +1270,16 @@ else
  */
 function constructBanQueryIP($fullip)
 {
-	// First attempt a IPv6 address.
-	if (isValidIPv6($fullip))
-	{
-		$ip_parts = convertIPv6toInts($fullip);
-
-		$ban_query = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
-			AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
-			AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
-			AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
-	}
-	// Check if we have a valid IPv4 address.
-	elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $fullip, $ip_parts) == 1)
-		$ban_query = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
-	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
-	else
-		$ban_query = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
-			AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
-			AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
-			AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
+	//check for valid address
+	if (inet_pton($fullip) == false )
+		return;
+	
+	global $smcFunc;
+	
+	// PostgreSQL got native support
+	$ban_query =($smcFunc['db_title'] == 'PostgreSQL' ? $fullip : inet_ptod($fullip)); 
+	
+	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
 
 	return $ban_query;
 }
