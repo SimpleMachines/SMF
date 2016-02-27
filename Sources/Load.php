@@ -2019,7 +2019,7 @@ function loadTheme($id_theme = 0, $initialize = true)
 	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array(), 'smf_rtl');
+		loadCSSFile('rtl.css', array('dontMinimize' => true), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2042,9 +2042,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array('dontMinimize' => true), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('dontMinimize' => true), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2294,7 +2294,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
 /**
  * Add a CSS file for output later
  *
- * @param string $filename THe name of the file to load
+ * @param string $fileName The name of the file to load
  * @param array $params An array of parameters
  * Keys are the following:
  * 	- ['external'] (true/false): define if the file is a externally located file. Needs to be set to true if you are loading an external file
@@ -2303,9 +2303,10 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ *  - ['dontMinimize'] boolean to skip the file from being minimized, useful if your file isn't loaded everywhere and/or has user/membergroup/variable specific code.
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
-function loadCSSFile($filename, $params = array(), $id = '')
+function loadCSSFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
@@ -2314,28 +2315,35 @@ function loadCSSFile($filename, $params = array(), $id = '')
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 
 	// Account for shorthand like admin.css?alp21 filenames
-	$has_seed = strpos($filename, '.css?');
-	$id = empty($id) ? strtr(basename(str_replace('.css', '', $filename)), '?', '_') : $id;
+	$has_seed = strpos($fileName, '.css?');
+	$id = empty($id) ? strtr(basename(str_replace('.css', '', $fileName)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $fileName))
 		{
 			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $filename))
-				$filename = $settings['default_theme_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
+			{
+				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			}
+
 			else
-				$filename = false;
+				$fileUrl = false;
 		}
 		else
-			$filename = $settings[$theme . '_url'] . '/css/' . $filename . ($has_seed ? '' : $params['seed']);
+		{
+			$fileUrl = $settings[$theme . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$theme . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+		}
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['css_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($fileName))
+		$context['css_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
 
 	if (!empty($context['right_to_left']) && !empty($params['rtl']))
 		loadCSSFile($params['rtl'], array_diff_key($params, array('rtl' => 0)));
@@ -2376,6 +2384,7 @@ function addInlineCss($css)
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
+ *  - ['dontMinimize'] boolean to skip the file from being minimized, useful if your file isn't loaded everywhere and/or has user/membergroup/variable specific code.
  *
  * @param string $id An ID to stick on the end of the filename
  */

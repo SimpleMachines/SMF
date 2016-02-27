@@ -1823,7 +1823,7 @@ function notification($memID)
 	global $txt, $context;
 
 	// Going to want this for consistency.
-	loadCSSFile('admin.css', array(), 'smf_admin');
+	loadCSSFile('admin.css', array('dontMinimize' => true), 'smf_admin');
 
 	// This is just a bootstrap for everything else.
 	$sa = array(

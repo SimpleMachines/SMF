@@ -3332,15 +3332,29 @@ function template_css()
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
 
+	$toMinify = array();
+
 	foreach ($context['css_files'] as $id => $file)
 	{
 		// Last minute call! allow theme authors to disable single files.
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		echo '
-	<link rel="stylesheet" href="', $file['filename'], '">';
+		// By default all files get minimized unless the file explicitely says nope!
+		if (empty($file['options']['dontMinimize']))
+			$toMinify[] = $file;
+
+		else
+			echo '
+	<link rel="stylesheet" href="', $file['filename'] ,'">';
 	}
+
+	$result = Minify($toMinify, 'css');
+
+	if (!empty($result))
+		echo '
+	<link rel="stylesheet" href="', $settings['default_theme_url'] . '/css/minified.css">';
+
 
 	if ($db_show_debug === true)
 	{
@@ -3362,6 +3376,47 @@ function template_css()
 		echo'
 	</style>';
 	}
+}
+
+function Minify($data, $type)
+{
+	global $sourcedir, $smcFunc, $settings;
+
+	$types = array('css', 'js');
+	$type = !empty($type) && in_array($type, $types) ? $type : false;
+	$data = !empty($data) ? $data : false;
+
+	if (empty($type) || empty($data))
+		return;
+
+	// What kind of file are we going to create?
+	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified.'. $type;
+
+	// Did we do this already?
+	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
+		return true;
+
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
+
+	// Yep, need a bunch of files.
+	require_once $sourcedir . '/minify/src/Minify.php';
+	require_once $sourcedir . '/minify/src/'. strtoupper($type) .'.php';
+	require_once $sourcedir . '/minify/src/Exception.php';
+	require_once $sourcedir . '/minify/src/Converter.php';
+
+	$minifier = new $classType();
+
+	foreach ($data as $file)
+		$minifier->add(str_replace($file['options']['seed'], '', $file['filepath']));
+
+	// Create the file.
+	$minifier->minify($toCreate);
+
+	// And create a long lived cache entry.
+	cache_put_data('minimized_'. $type, $type, 86400);
+
+	return true;
 }
 
 /**
