@@ -1949,6 +1949,8 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 /******************************************************************************/
 ---UNLOGGED Table PG 9.1+
 /******************************************************************************/
+---# update table
+---{
 $result = $smcFunc['db_query']('', '
 	SHOW server_version_num'
 );
@@ -1992,6 +1994,8 @@ if(isset($pg_version) && $pg_version >= 90100)
 	}
 
 }
+---}
+---#
 
 /******************************************************************************/
 --- remove redundant index
@@ -2009,12 +2013,18 @@ DROP INDEX IF EXISTS {$db_prefix}topics_id_board;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
+---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low inet;
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high inet;
+---#
 
+---# convert data
 UPDATE {$db_prefix}ban_items
 SET ip_low = (ip_low1||'.'||ip_low2||'.'||ip_low3||'.'||ip_low4)::inet,
 	ip_high = (ip_high1||'.'||ip_high2||'.'||ip_high3||'.'||ip_high4)::inet
 WHERE ip_low1 > 0;
+---#
 
+---# index
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
+---#
