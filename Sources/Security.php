@@ -1270,15 +1270,16 @@ else
  */
 function constructBanQueryIP($fullip)
 {
-	//check for valid address
-	if (inet_pton($fullip) == false )
-		return;
-	
 	global $smcFunc;
-	
+
+	//check for valid address
+	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
+	if (!isValidIP($fullip))
+		$fullip = '255.255.255.255';
+
 	// PostgreSQL got native support
-	$ban_query =($smcFunc['db_title'] == 'PostgreSQL' ? $fullip : inet_ptod($fullip)); 
-	
+	$ban_query = $smcFunc['db_title'] == 'PostgreSQL' ? $fullip : 'BINARY \'' . $fullip . '\'';
+
 	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
 
 	return $ban_query;
