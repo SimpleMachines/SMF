@@ -3248,20 +3248,20 @@ function template_footer()
  * 	- tabbing in this function is to make the HTML source look good proper
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
- * @param bool $do_defered If true will only output the deferred JS (the stuff that goes right before the closing body tag)
+ * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
-function template_javascript($do_defered = false)
+function template_javascript($do_deferred = false)
 {
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
+	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
 
 	$toMinify = array();
 	$toMinifyDefer = array();
 
 	// Ouput the declared Javascript variables.
-	if (!empty($context['javascript_vars']) && !$do_defered)
+	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
 	<script>';
@@ -3294,31 +3294,31 @@ function template_javascript($do_defered = false)
 		// By default all files don't get minimized unless the file explicitly says so!
 		if (!empty($js_file['options']['minimize']))
 		{
-			if ($do_defered && !empty($js_file['options']['defer']))
+			if ($do_deferred && !empty($js_file['options']['defer']))
 				$toMinifyDefer[] = $js_file;
 
-			elseif (!$do_defered && empty($js_file['options']['defer']))
+			elseif (!$do_deferred && empty($js_file['options']['defer']))
 				$toMinify[] = $js_file;
 		}
 
-		elseif ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
+		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 	}
 
-	if ((!$do_defered && !empty($toMinify)) || ($do_defered && !empty($toMinifyDefer)))
+	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
 	{
-		Minify(($do_defered ? $toMinifyDefer : $toMinify), 'js', $do_defered);
+		Minify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
 		echo '
-	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_defered ? '_defered' : '') ,'.js"></script>';
+	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js"></script>';
 	}
 
 
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
 	{
-		if (!empty($context['javascript_inline']['defer']) && $do_defered)
+		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
 <script>';
@@ -3330,7 +3330,7 @@ function template_javascript($do_defered = false)
 </script>';
 		}
 
-		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
+		if (!empty($context['javascript_inline']['standard']) && !$do_deferred)
 		{
 			echo '
 	<script>';
@@ -3400,7 +3400,7 @@ function template_css()
 	}
 }
 
-function Minify($data, $type, $do_defered = false)
+function Minify($data, $type, $do_deferred = false)
 {
 	global $sourcedir, $smcFunc, $settings;
 
@@ -3412,7 +3412,7 @@ function Minify($data, $type, $do_defered = false)
 		return false;
 
 	// What kind of file are we going to create?
-	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_defered ? '_defered' : '') .'.'. $type;
+	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
 
 	// Did we do this already?
 	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
