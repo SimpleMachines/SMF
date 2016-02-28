@@ -3436,9 +3436,9 @@ function ip2range($fullip)
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
-	
+
 	$ip_parts = explode('-', $fullip);
-	
+
 	// if ip 22.12.31.21
 	if (count($ip_parts) == 1 && isValidIP($fullip))
 	{
@@ -3451,7 +3451,7 @@ function ip2range($fullip)
 		$ip_parts[0] = $fullip;
 		$ip_parts[1] = $fullip;
 	}
-	
+
 	// if ip 22.12.31.21-12.21.31.21
 	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
 	{
@@ -3479,7 +3479,7 @@ function ip2range($fullip)
 				if ($count > 9) break;
 			}
 		}
-	    
+
 		$count = 0;
 		if(!$valid_high)
 		{
@@ -3493,13 +3493,13 @@ function ip2range($fullip)
 				if ($count > 9) break;
 			}
 		}
-	
+
 		if($valid_high && $valid_low)
 		{
 			$ip_array['low'] = $ip_parts[0];
 			$ip_array['high'] = $ip_parts[1];
 		}
-	
+
 	}
 
 	return $ip_array;
@@ -4786,20 +4786,20 @@ function inet_ptod($ip_address)
 {
 	if (!isValidIP($ip_address))
 		return $ip_address;
-	
+
 	$bin = inet_pton($ip_address);
 	return $bin;
 }
 
 /**
- * @param binary $bin An IP address in IPv4, IPv6 
+ * @param binary $bin An IP address in IPv4, IPv6
  * @return string The IP address in presentation format or false on error
  */
 function inet_dtop($bin)
 {
 	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
 		return $bin;
-	
+
 	$ip_address = inet_ntop($bin);
 
 	return $ip_address;
