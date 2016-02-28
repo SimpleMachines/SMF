@@ -1872,12 +1872,11 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 /******************************************************************************/
 --- remove redundant index
 /******************************************************************************/
-
 ---# duplicate to messages_current_topic
 DROP INDEX idx_id_topic on {$db_prefix}messages;
 DROP INDEX idx_topic on {$db_prefix}messages;
 ---#
- 
+
 ---# duplicate to topics_last_message_sticky and topics_board_news
 DROP INDEX idx_id_board on {$db_prefix}topics;
 ---#
@@ -1885,23 +1884,28 @@ DROP INDEX idx_id_board on {$db_prefix}topics;
 /******************************************************************************/
 --- update ban ip with ipv6 support
 /******************************************************************************/
-
+---# add columns
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low varbinary(16);
 ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
+---#
 
+---# convert data
 UPDATE {$db_prefix}ban_items
-SET ip_low = 
+SET ip_low =
     UNHEX(
         hex(
             INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
         )
     ),
-ip_high = 
+ip_high =
     UNHEX(
         hex(
             INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
         )
     )
 where ip_low1 > 0;
+---#
 
-CREATE INDEX idx_ban_items_iplow_high(ip_low,ip_high) ON {$db_prefix}ban_items;
+---#  index
+CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
+---#
