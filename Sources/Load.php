@@ -2013,13 +2013,13 @@ function loadTheme($id_theme = 0, $initialize = true)
 	$settings['lang_images_url'] = $settings['images_url'] . '/' . (!empty($txt['image_lang']) ? $txt['image_lang'] : $user_info['language']);
 
 	// And of course, let's load the default CSS file.
-	loadCSSFile('index.css', array(), 'smf_index');
+	loadCSSFile('index.css', array('minimize' => true), 'smf_index');
 
 	// Here is my luvly Responsive CSS
-	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true), 'smf_responsive');
+	loadCSSFile('responsive.css', array('force_current' => false, 'validate' => true, 'minimize' => true), 'smf_responsive');
 
 	if ($context['right_to_left'])
-		loadCSSFile('rtl.css', array('dontMinimize' => true), 'smf_rtl');
+		loadCSSFile('rtl.css', array(), 'smf_rtl');
 
 	// We allow theme variants, because we're cool.
 	$context['theme_variant'] = '';
@@ -2042,9 +2042,9 @@ function loadTheme($id_theme = 0, $initialize = true)
 
 		if (!empty($context['theme_variant']))
 		{
-			loadCSSFile('index' . $context['theme_variant'] . '.css', array('dontMinimize' => true), 'smf_index' . $context['theme_variant']);
+			loadCSSFile('index' . $context['theme_variant'] . '.css', array(), 'smf_index' . $context['theme_variant']);
 			if ($context['right_to_left'])
-				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array('dontMinimize' => true), 'smf_rtl' . $context['theme_variant']);
+				loadCSSFile('rtl' . $context['theme_variant'] . '.css', array(), 'smf_rtl' . $context['theme_variant']);
 		}
 	}
 
@@ -2077,16 +2077,19 @@ function loadTheme($id_theme = 0, $initialize = true)
 	// Add the JQuery library to the list of files to load.
 	if (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'cdn')
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
+
 	elseif (isset($modSettings['jquery_source']) && $modSettings['jquery_source'] == 'local')
 		loadJavascriptFile('jquery-2.1.4.min.js', array('default_theme' => true, 'seed' => false), 'smf_jquery');
+
 	elseif (isset($modSettings['jquery_source'], $modSettings['jquery_custom']) && $modSettings['jquery_source'] == 'custom')
 		loadJavascriptFile($modSettings['jquery_custom'], array(), 'smf_jquery');
+
 	// Auto loading? template_javascript() will take care of the local half of this.
 	else
 		loadJavascriptFile('https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', array('external' => true), 'smf_jquery');
 
 	// Queue our JQuery plugins!
-	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true), 'smf_jquery_plugins');
+	loadJavascriptFile('smf_jquery_plugins.js', array('default_theme' => true, 'minimize' => true), 'smf_jquery_plugins');
 	if (!$user_info['is_guest'])
 	{
 		loadJavascriptFile('jquery.custom-scrollbar.js', array('default_theme' => true), 'smf_jquery_scrollbar');
@@ -2094,8 +2097,8 @@ function loadTheme($id_theme = 0, $initialize = true)
 	}
 
 	// script.js and theme.js, always required, so always add them! Makes index.template.php cleaner and all.
-	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false), 'smf_script');
-	loadJavascriptFile('theme.js', array(), 'smf_theme');
+	loadJavascriptFile('script.js', array('default_theme' => true, 'defer' => false, 'minimize' => true), 'smf_script');
+	loadJavascriptFile('theme.js', array('minimize' => true), 'smf_theme');
 
 	// If we think we have mail to send, let's offer up some possibilities... robots get pain (Now with scheduled task support!)
 	if ((!empty($modSettings['mail_next_send']) && $modSettings['mail_next_send'] < time() && empty($modSettings['mail_queue_use_cron'])) || empty($modSettings['next_task_time']) || $modSettings['next_task_time'] < time())
@@ -2303,7 +2306,7 @@ function loadSubTemplate($sub_template_name, $fatal = false)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['rtl'] (string): additional file to load in RTL mode
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
- *  - ['dontMinimize'] boolean to skip the file from being minimized, useful if your file isn't loaded everywhere and/or has user/membergroup/variable specific code.
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
  * @param string $id An ID to stick on the end of the filename for caching purposes
  */
 function loadCSSFile($fileName, $params = array(), $id = '')
@@ -2313,6 +2316,12 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['external'] = isset($params['external']) ? $params['external'] : false;
+
+	// If this is an external file, automatically set this to false.
+	if (!empty($params['external']))
+		$params['minimize'] = false;
 
 	// Account for shorthand like admin.css?alp21 filenames
 	$has_seed = strpos($fileName, '.css?');
@@ -2334,11 +2343,19 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 			else
 				$fileUrl = false;
 		}
+
 		else
 		{
 			$fileUrl = $settings[$theme . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
 			$filePath = $settings[$theme . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
 		}
+	}
+
+	// An external file doesn't have a filepath. Mock one for simplicity.
+	else
+	{
+		$fileUrl = $fileName;
+		$filePath = $fileName;
 	}
 
 	// Add it to the array for use in the template
@@ -2384,41 +2401,65 @@ function addInlineCss($css)
  *	- ['async'] (true/false): if the script should be loaded asynchronously (HTML5)
  *  - ['validate'] (true/false): if true script will validate the local file exists
  *  - ['seed'] (true/false/string): if true or null, use cache stale, false do not, or used a supplied string
- *  - ['dontMinimize'] boolean to skip the file from being minimized, useful if your file isn't loaded everywhere and/or has user/membergroup/variable specific code.
+ *  - ['minimize'] boolean to add your file to the main minimized file. Useful when you have a file thats loaded everywhere and for everyone.
  *
  * @param string $id An ID to stick on the end of the filename
  */
-function loadJavascriptFile($filename, $params = array(), $id = '')
+function loadJavascriptFile($fileName, $params = array(), $id = '')
 {
 	global $settings, $context, $modSettings;
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
 	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
+	$params['external'] = isset($params['external']) ? $params['external'] : false;
+
+	// If this is an external file, automatically set this to false.
+	if (!empty($params['external']))
+		$params['minimize'] = false;
 
 	// Account for shorthand like admin.js?alp21 filenames
-	$has_seed = strpos($filename, '.js?');
-	$id = empty($id) ? strtr(basename(str_replace('.js', '', $filename)), '?', '_') : $id;
+	$has_seed = strpos($fileName, '.js?');
+	$id = empty($id) ? strtr(basename(str_replace('.js', '', $fileName)), '?', '_') : $id;
 
 	// Is this a local file?
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $filename))
+		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $fileName))
 		{
-			// can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $filename))
-				$filename = $settings['default_theme_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+			// Can't find it in this theme, how about the default?
+			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			{
+				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			}
+
 			else
-				$filename = false;
+			{
+				$fileUrl = false;
+				$filePath = false;
+			}
 		}
+
 		else
-			$filename = $settings[$theme . '_url'] . '/scripts/' . $filename . ($has_seed ? '' : $params['seed']);
+		{
+			$fileUrl = $settings[$theme . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$theme . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+		}
+	}
+
+	// An external file doesn't have a filepath. Mock one for simplicity.
+	else
+	{
+		$fileUrl = $fileName;
+		$filePath = $fileName;
 	}
 
 	// Add it to the array for use in the template
-	if (!empty($filename))
-		$context['javascript_files'][$id] = array('filename' => $filename, 'options' => $params);
+	if (!empty($fileName))
+		$context['javascript_files'][$id] = array('filename' => $fileUrl, 'filepath' => $filePath, 'options' => $params);
 }
 
 /**

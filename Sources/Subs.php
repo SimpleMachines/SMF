@@ -3257,6 +3257,9 @@ function template_javascript($do_defered = false)
 	// Use this hook to minify/optimize Javascript files and vars
 	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
 
+	$toMinify = array();
+	$toMinifyDefer = array();
+
 	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_defered)
 	{
@@ -3288,10 +3291,29 @@ function template_javascript($do_defered = false)
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($js_file['options']['minimize']))
+		{
+			if ($do_defered && !empty($js_file['options']['defer']))
+				$toMinifyDefer[] = $js_file;
+
+			elseif (!$do_defered && empty($js_file['options']['defer']))
+				$toMinify[] = $js_file;
+		}
+
+		elseif ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
 	}
+
+	if ((!$do_defered && !empty($toMinify)) || ($do_defered && !empty($toMinifyDefer)))
+	{
+		Minify(($do_defered ? $toMinifyDefer : $toMinify), 'js', $do_defered);
+
+		echo '
+	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_defered ? '_defered' : '') ,'.js"></script>';
+	}
+
 
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
@@ -3340,8 +3362,8 @@ function template_css()
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		// By default all files get minimized unless the file explicitely says nope!
-		if (empty($file['options']['dontMinimize']))
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($file['options']['minimize']))
 			$toMinify[] = $file;
 
 		else
@@ -3378,7 +3400,7 @@ function template_css()
 	}
 }
 
-function Minify($data, $type)
+function Minify($data, $type, $do_defered = false)
 {
 	global $sourcedir, $smcFunc, $settings;
 
@@ -3387,10 +3409,10 @@ function Minify($data, $type)
 	$data = !empty($data) ? $data : false;
 
 	if (empty($type) || empty($data))
-		return;
+		return false;
 
 	// What kind of file are we going to create?
-	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified.'. $type;
+	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_defered ? '_defered' : '') .'.'. $type;
 
 	// Did we do this already?
 	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
@@ -3412,6 +3434,7 @@ function Minify($data, $type)
 
 	// Create the file.
 	$minifier->minify($toCreate);
+	unset($minifier);
 
 	// And create a long lived cache entry.
 	cache_put_data('minimized_'. $type, $type, 86400);
