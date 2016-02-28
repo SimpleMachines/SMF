@@ -4784,7 +4784,7 @@ function smf_list_timezones()
  */
 function inet_ptod($ip_address)
 {
-	if (isValidIP($ip_address,'.'))
+	if (!isValidIP($ip_address))
 		return $ip_address;
 	
 	$bin = inet_pton($ip_address);
