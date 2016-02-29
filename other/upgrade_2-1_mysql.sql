@@ -1909,3 +1909,15 @@ where ip_low1 > 0;
 ---#  index
 CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
 ---#
+
+---# Dropping columns from ban_items
+ALTER TABLE {$db_prefix}ban_items
+DROP ip_low1,
+DROP ip_low2,
+DROP ip_low3,
+DROP ip_low4,
+DROP ip_low5,
+DROP ip_low6,
+DROP ip_low7,
+DROP ip_low8;
+---#
