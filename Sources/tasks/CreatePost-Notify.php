@@ -6,10 +6,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -23,7 +23,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 	 */
 	public function execute()
 	{
-		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings, $language;
+		global $smcFunc, $sourcedir, $scripturl, $language, $modSettings;
 
 		require_once($sourcedir . '/Subs-Post.php');
 		require_once($sourcedir . '/Mentions.php');

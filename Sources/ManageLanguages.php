@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -886,6 +886,10 @@ function ModifyLanguage()
 
 	// This will be where we look
 	$lang_dirs = array();
+
+	// Does a hook need to add in some additional places to look for languages?
+	call_integration_hook('integrate_modifylanguages', array(&$themes, &$lang_dirs));
+
 	// Check we have themes with a path and a name - just in case - and add the path.
 	foreach ($themes as $id => $data)
 	{

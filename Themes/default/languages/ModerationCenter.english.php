@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; ModerationCenter
+// Version: 2.1 Beta 3; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';
@@ -147,7 +147,6 @@ $txt['report_action_message_delete_issue'] = 'The message you\'re trying to dele
 $txt['report_action_ignore'] = 'The report was successfully ignored.';
 $txt['report_action_unignore'] = 'The report was successfully un-ignored.';
 $txt['report_action_close'] = 'The report was successfully closed.';
-$txt['report_action_close_all'] = 'You successfully closed all reports.';
 $txt['report_action_open'] = 'The report was successfully open.';
 $txt['report_action_close_all'] = 'You successfully closed all selected reports.';
 

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -31,7 +31,7 @@ function Display()
 {
 	global $scripturl, $txt, $modSettings, $context, $settings;
 	global $options, $sourcedir, $user_info, $board_info, $topic, $board;
-	global $attachments, $messages_request, $topicinfo, $language, $smcFunc;
+	global $attachments, $messages_request, $language, $smcFunc;
 
 	// What are you gonna display if these are empty?!
 	if (empty($topic))
@@ -156,11 +156,11 @@ function Display()
 		SELECT
 			t.num_replies, t.num_views, t.locked, ms.subject, t.is_sticky, t.id_poll,
 			t.id_member_started, t.id_first_msg, t.id_last_msg, t.approved, t.unapproved_posts, t.id_redirect_topic,
-			IFNULL(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
-			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1') . ' AS new_from
+			COALESCE(mem.real_name, ms.poster_name) AS topic_started_name, ms.poster_time AS topic_started_time,
+			' . ($user_info['is_guest'] ? 't.id_last_msg + 1' : 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1') . ' AS new_from
 			' . (!empty($board_info['recycle']) ? ', id_previous_board, id_previous_topic' : '') . '
 			' . (!empty($topic_selects) ? (', '. implode(', ', $topic_selects)) : '') . '
-			' . (!$user_info['is_guest'] ? ', IFNULL(lt.unwatched, 0) as unwatched' : '') . '
+			' . (!$user_info['is_guest'] ? ', COALESCE(lt.unwatched, 0) as unwatched' : '') . '
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)
 			LEFT JOIN {db_prefix}members AS mem on (mem.id_member = ms.id_member)' . ($user_info['is_guest'] ? '' : '
@@ -253,7 +253,7 @@ function Display()
 			{
 				// Find the earliest unread message in the topic. (the use of topics here is just for both tables.)
 				$request = $smcFunc['db_query']('', '
-					SELECT IFNULL(lt.id_msg, IFNULL(lmr.id_msg, -1)) + 1 AS new_from
+					SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
 					FROM {db_prefix}topics AS t
 						LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
 						LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = {int:current_board} AND lmr.id_member = {int:current_member})
@@ -388,7 +388,7 @@ function Display()
 			WHERE INSTR(lo.url, {string:in_url_string}) > 0 OR lo.session = {string:session}',
 			array(
 				'reg_id_group' => 0,
-				'in_url_string' => 's:5:"topic";i:' . $topic . ';',
+				'in_url_string' => '"topic":'.$topic,
 				'session' => $user_info['is_guest'] ? 'ip' . $user_info['ip'] : session_id(),
 			)
 		);
@@ -598,7 +598,7 @@ function Display()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
-				p.guest_vote, p.id_member, IFNULL(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
+				p.guest_vote, p.id_member, COALESCE(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
 			FROM {db_prefix}polls AS p
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = p.id_member)
 			WHERE p.id_poll = {int:id_poll}
@@ -628,7 +628,7 @@ function Display()
 
 		// Get all the options, and calculate the total votes.
 		$request = $smcFunc['db_query']('', '
-			SELECT pc.id_choice, pc.label, pc.votes, IFNULL(lp.id_choice, -1) AS voted_this
+			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
 			WHERE pc.id_poll = {int:id_poll}',
@@ -811,12 +811,11 @@ function Display()
 	}
 
 	// Get each post and poster in this topic.
-	$request = $smcFunc['db_query']('display_get_post_poster', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_msg, id_member, approved
 		FROM {db_prefix}messages
-		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : (!empty($modSettings['db_mysql_group_by_fix']) ? '' : '
-		GROUP BY id_msg') . '
-		HAVING (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
+		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
+		AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
 		LIMIT ' . $start . ', ' . $limit),
 		array(
@@ -912,8 +911,8 @@ function Display()
 					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = {int:current_board} AND lb.id_member = {int:current_member})
 					LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				WHERE t.id_board = {int:current_board}
-					AND t.id_last_msg > IFNULL(lb.id_msg, 0)
-					AND t.id_last_msg > IFNULL(lt.id_msg, 0)' . (empty($_SESSION['id_msg_last_visit']) ? '' : '
+					AND t.id_last_msg > COALESCE(lb.id_msg, 0)
+					AND t.id_last_msg > COALESCE(lt.id_msg, 0)' . (empty($_SESSION['id_msg_last_visit']) ? '' : '
 					AND t.id_last_msg > {int:id_msg_last_visit}'),
 				array(
 					'current_board' => $board,
@@ -973,9 +972,9 @@ function Display()
 		{
 			$request = $smcFunc['db_query']('', '
 				SELECT
-					a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved,
+					a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved,
 					a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-					IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+					COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 				FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 					LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				WHERE a.id_msg IN ({array_int:message_list})
@@ -1450,12 +1449,13 @@ function prepareDisplayContext($reset = false)
 		foreach ($memberContext[$message['id_member']]['custom_fields'] as $custom)
 			$output['custom_fields'][$context['cust_profile_fields_placement'][$custom['placement']]][] = $custom;
 
-	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message));
-
 	if (empty($options['view_newest_first']))
 		$counter++;
+
 	else
 		$counter--;
+
+	call_integration_hook('integrate_prepare_display_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1483,26 +1483,35 @@ function Download()
 
 	$_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) $_REQUEST['id'];
 
-	// This checks only the current board for $board/$topic's permissions.
-	isAllowedTo('view_attachments');
+	// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
+	$attachRequest = null;
+	call_integration_hook('integrate_download_request', array(&$attachRequest));
+	if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
+		$request = $attachRequest;
+	else
+	{
+		// This checks only the current board for $board/$topic's permissions.
+		isAllowedTo('view_attachments');
 
-	// Make sure this attachment is on this board.
-	// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
-	$request = $smcFunc['db_query']('', '
-		SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
-		FROM {db_prefix}attachments AS a
-			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
-			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
-		WHERE a.id_attach = {int:attach}
-		LIMIT 1',
-		array(
-			'attach' => $_REQUEST['attach'],
-			'current_topic' => $topic,
-		)
-	);
+		// Make sure this attachment is on this board.
+		// @todo: We must verify that $topic is the attachment's topic, or else the permission check above is broken.
+		$request = $smcFunc['db_query']('', '
+			SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+			FROM {db_prefix}attachments AS a
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+				INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+			WHERE a.id_attach = {int:attach}
+			LIMIT 1',
+			array(
+				'attach' => $_REQUEST['attach'],
+				'current_topic' => $topic,
+			)
+		);
+	}
 
 	if ($smcFunc['db_num_rows']($request) == 0)
 		fatal_lang_error('no_access', false);
+
 	list ($id_folder, $real_filename, $file_hash, $file_ext, $id_attach, $attachment_type, $mime_type, $is_approved, $id_member) = $smcFunc['db_fetch_row']($request);
 	$smcFunc['db_free_result']($request);
 
@@ -1527,6 +1536,7 @@ function Download()
 	ob_end_clean();
 	if (!empty($modSettings['enableCompressedOutput']) && @filesize($filename) <= 4194304 && in_array($file_ext, array('txt', 'html', 'htm', 'js', 'doc', 'docx', 'rtf', 'css', 'php', 'log', 'xml', 'sql', 'c', 'java')))
 		@ob_start('ob_gzhandler');
+
 	else
 	{
 		ob_start();
@@ -1569,8 +1579,10 @@ function Download()
 
 	// Send the attachment headers.
 	header('Pragma: ');
+
 	if (!isBrowser('gecko'))
 		header('Content-Transfer-Encoding: binary');
+
 	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
 	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT');
 	header('Accept-Ranges: bytes');

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -386,7 +386,7 @@ function MoveTopic2()
  */
 function moveTopics($topics, $toBoard)
 {
-	global $sourcedir, $user_info, $modSettings, $smcFunc, $sourcedir;
+	global $sourcedir, $user_info, $modSettings, $smcFunc;
 
 	// Empty array?
 	if (empty($topics))
@@ -452,13 +452,13 @@ function moveTopics($topics, $toBoard)
 	// Move over the mark_read data. (because it may be read and now not by some!)
 	$SaveAServer = max(0, $modSettings['maxMsgID'] - 50000);
 	$request = $smcFunc['db_query']('', '
-		SELECT lmr.id_member, lmr.id_msg, t.id_topic, IFNULL(lt.unwatched, 0) AS unwatched
+		SELECT lmr.id_member, lmr.id_msg, t.id_topic, COALESCE(lt.unwatched, 0) AS unwatched
 		FROM {db_prefix}topics AS t
 			INNER JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board
 				AND lmr.id_msg > t.id_first_msg AND lmr.id_msg > {int:protect_lmr_msg})
 			LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = lmr.id_member)
 		WHERE t.id_topic IN ({array_int:topics})
-			AND lmr.id_msg > IFNULL(lt.id_msg, 0)',
+			AND lmr.id_msg > COALESCE(lt.id_msg, 0)',
 		array(
 			'protect_lmr_msg' => $SaveAServer,
 			'topics' => $topics,
@@ -665,7 +665,7 @@ function moveTopics($topics, $toBoard)
 
 	// Mark target board as seen, if it was already marked as seen before.
 	$request = $smcFunc['db_query']('', '
-		SELECT (IFNULL(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
+		SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS isSeen
 		FROM {db_prefix}boards AS b
 			LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
 		WHERE b.id_board = {int:id_board}',

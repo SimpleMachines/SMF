@@ -3,10 +3,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 (function ($) {
@@ -311,9 +311,13 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				};
 
 			// Is this an attachment?
-			if (element.data('attachment'))
+			if (element.attr('data-attachment'))
 			{
-				return '[attach]' + element.data('attachment') + '[/attach]';
+				if (element.attr('name'))
+					attribs += ' name=' + element.attr('name');
+				if (element.attr('type'))
+					attribs += ' type=' + 	element.attr('type');
+				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}
 
 			// check if this is an emoticon image
@@ -371,6 +375,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " alt=" + element.attr('alt');
 			if (element.attr('name'))
 				attribs += " name=" + element.attr('name');
+			if (element.attr('type'))
+				attribs += " type=" + element.attr('type');
 
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
@@ -384,6 +390,10 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
+			if (typeof attrs.type !== "undefined")
+				attribs += ' type="' + attrs.type + '"';
+			if (typeof attrs.name !== "undefined")
+				attribs += ' name="' + attrs.name + '"';
 
 			// Is this an image?
 			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
@@ -392,11 +402,15 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
 			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.width == 0){
-				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'">'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
+				var name='';
+				if (typeof attrs.name !== "undefined")
+					name = ' name="' + attrs.name + '"';
+
+				return '<a href="' + smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;file"' + ' data-attachment="'+ content +'"'+name+'>'+ (typeof attrs.name !== "undefined" ? attrs.name : content) +'</a>';
 			}
 
 			else{
-				return '<img' + attribs + ' src="' + contentUrl +'">';
+				return '<img' + attribs + ' src="' + contentUrl +'" data-attachment="' + content + '">';
 			}
 		}
 	}
@@ -405,6 +419,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'url', {
 		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		tags: {
 			a: {
 				href: null
@@ -437,7 +452,20 @@ $.sceditor.plugins.bbcode.bbcode.set(
 $.sceditor.plugins.bbcode.bbcode.set(
 	'iurl', {
 		allowsEmpty: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
+
+			// Attachment?
+			if (typeof attrs("data-attachment") !== undefined)
+			{
+				var attribs = '';
+				if (typeof attrs("name") !== undefined)
+					attribs += ' name=' + attrs("name");
+				if (typeof attrs("type") !== undefined)
+					attribs += ' type=' + attrs("type");
+
+				return '[attach' + attribs + ']' + content + '[/attach]';
+			}
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 

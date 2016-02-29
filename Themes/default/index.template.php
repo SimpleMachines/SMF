@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /*	This template is, perhaps, the most important template in the theme. It
@@ -166,7 +166,8 @@ function template_html_above()
 	echo '
 </head>
 <body id="', $context['browser_body_id'], '" class="action_', !empty($context['current_action']) ? $context['current_action'] : (!empty($context['current_board']) ?
-		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">';
+		'messageindex' : (!empty($context['current_topic']) ? 'display' : 'home')), !empty($context['current_board']) ? ' board_' . $context['current_board'] : '', '">
+<div id="footerfix">';
 }
 
 /**
@@ -190,7 +191,7 @@ function template_body_above()
 				<a href="', $scripturl, '?action=profile"', !empty($context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" onclick="return false;">';
 					if (!empty($context['user']['avatar']))
 						echo $context['user']['avatar']['image'];
-					echo $context['user']['name'], ' &#9660;</a>
+					echo $context['user']['name'], '</a>
 				<div id="profile_menu" class="top_menu"></div>
 			</li>';
 
@@ -339,7 +340,8 @@ function template_body_below()
 	echo '
 			</div>
 		</div>
-	</div>';
+	</div>
+</div>';
 
 	// Show the XHTML, RSS and WAP2 links, as well as the copyright.
 	// Footer is now full-width by default.

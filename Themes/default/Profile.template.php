@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -60,7 +60,6 @@ function template_profile_popup()
 			<span class="profile_username"><a href="', $scripturl, '?action=profile;u=', $context['user']['id'], '">', $context['user']['name'], '</a></span>
 			<span class="profile_group">', $context['member']['group'], '</span>
 		</div>
-		<br class="clear">
 		<div class="profile_user_links">
 			<ol>';
 
@@ -77,7 +76,6 @@ function template_profile_popup()
 
 	echo '
 			</ol>
-			<br class="clear">
 		</div>';
 }
 
@@ -111,11 +109,10 @@ function template_alerts_popup()
 		{
 			echo '
 			<div class="unread">
-				<div class="avatar floatleft">', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '</div>
-				<div class="details floatleft">
+				', !empty($details['sender']) ? $details['sender']['avatar']['image'] : '', '
+				<div class="details">
 					', !empty($details['icon']) ? $details['icon'] : '', '<span>', $details['text'], '</span> - ', $details['time'], '
 				</div>
-				<br class="clear">
 			</div>';
 		}
 	}
@@ -1031,6 +1028,17 @@ function template_trackIP()
 	echo '<br>';
 
 	template_show_list('track_user_list');
+
+	// 3rd party integrations may have added additional tracking.
+	if (!empty($context['additional_track_lists']))
+	{
+		foreach ($context['additional_track_lists'] as $list)
+		{
+			echo '<br>';
+
+			template_show_list($list);
+		}
+	}
 }
 
 /**

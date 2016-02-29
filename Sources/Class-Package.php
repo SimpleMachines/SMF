@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -860,15 +860,34 @@ class ftp_connection
 		if ($ftp_file == '')
 			$ftp_file = '.';
 
-		// Convert the chmod value from octal (0777) to text ("777").
-		fwrite($this->connection, 'SITE CHMOD ' . decoct($chmod) . ' ' . $ftp_file . "\r\n");
-		if (!$this->check_response(200))
-		{
-			$this->error = 'bad_file';
-			return false;
-		}
+		// Do we have a file or a dir?
+		$is_dir = is_dir($ftp_file);
+		$is_writable = false;
 
-		return true;
+		// Set different modes.
+		$chmod_values = $is_dir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
+
+		foreach($chmod_values as $val)
+		{
+			// If it's writable, break out of the loop.
+			if (is_writable($ftp_file))
+			{
+				$is_writable = true;
+				break;
+			}
+
+			else
+			{
+				// Convert the chmod value from octal (0777) to text ("777").
+				fwrite($this->connection, 'SITE CHMOD ' . decoct($val) . ' ' . $ftp_file . "\r\n");
+				if (!$this->check_response(200))
+				{
+					$this->error = 'bad_file';
+					break;
+				}
+			}
+		}
+		return $is_writable;
 	}
 
 	/**
@@ -996,7 +1015,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Generates a direcotry listing for the current directory
+	 * Generates a directory listing for the current directory
 	 *
 	 * @param string $ftp_path The path to the directory
 	 * @param bool $search Whether or not to get a recursive directory listing

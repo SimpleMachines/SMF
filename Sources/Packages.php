@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -531,7 +531,7 @@ function PackageInstallTest()
 
 			$thisAction = array(
 				'type' => $action['reverse'] ? $txt['execute_hook_remove'] : $txt['execute_hook_add'],
-				'action' => sprintf($txt['execute_hook_action'],  $smcFunc['htmlspecialchars']($action['hook'])),
+				'action' => sprintf($txt['execute_hook_action'. ($action['reverse'] ? '_inverse' : '')],  $smcFunc['htmlspecialchars']($action['hook'])),
 			);
 		}
 		elseif ($action['type'] == 'credits')
@@ -663,7 +663,7 @@ function PackageInstallTest()
 			$context['has_failure'] = true;
 
 			$thisAction += array(
-				'description' => $txt['package_action_error'],
+				'description' => $txt['package_action_missing'],
 				'failed' => true,
 			);
 		}
@@ -1339,7 +1339,7 @@ function PackageRemove()
 			deltree($packagesdir . '/' . $_GET['package']);
 		else
 		{
-			@chmod($packagesdir . '/' . $_GET['package'], 0777);
+			smf_chmod($packagesdir . '/' . $_GET['package'], 0777);
 			unlink($packagesdir . '/' . $_GET['package']);
 		}
 	}
@@ -1358,6 +1358,8 @@ function PackageBrowse()
 
 	$context['forum_version'] = $forum_version;
 	$context['modification_types'] = array('modification', 'avatar', 'language', 'unknown');
+
+	call_integration_hook('integrate_modification_types');
 
 	require_once($sourcedir . '/Subs-List.php');
 
@@ -1532,7 +1534,7 @@ function PackageBrowse()
 function list_getPackages($start, $items_per_page, $sort, $params)
 {
 	global $scripturl, $packagesdir, $context, $forum_version;
-	static $instmods, $packages;
+	static $packages, $installed_mods;
 
 	// Start things up
 	if (!isset($packages[$params]))
@@ -1564,7 +1566,7 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 	if (isset($_SESSION['single_version_emulate']))
 		unset($_SESSION['single_version_emulate']);
 
-	if (empty($instmods))
+	if (empty($installed_mods))
 	{
 		$instmods = loadInstalledPackages();
 		$installed_mods = array();
@@ -1594,6 +1596,8 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 			'language' => 1,
 			'unknown' => 1,
 		);
+		call_integration_hook('integrate_packages_sort_id', array(&$sort_id, &$packages));
+
 		while ($package = readdir($dir))
 		{
 			if ($package == '.' || $package == '..' || $package == 'temp' || (!(is_dir($packagesdir . '/' . $package) && file_exists($packagesdir . '/' . $package . '/package-info.xml')) && substr(strtolower($package), -7) != '.tar.gz' && substr(strtolower($package), -4) != '.tgz' && substr(strtolower($package), -4) != '.zip'))
@@ -1636,7 +1640,11 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 				$packageInfo['installed_id'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['id'] : 0;
 				$packageInfo['time_installed'] = isset($installed_mods[$packageInfo['id']]) ? $installed_mods[$packageInfo['id']]['time_installed'] : 0;
 
-				$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+				if (!isset($sort_id[$packageInfo['type']]))
+					$packageInfo['sort_id'] = $sort_id['unknown'];
+				else
+					$packageInfo['sort_id'] = $sort_id[$packageInfo['type']];
+
 				$packageInfo['is_installed'] = isset($installed_mods[$packageInfo['id']]);
 				$packageInfo['is_current'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] == $packageInfo['version']);
 				$packageInfo['is_newer'] = $packageInfo['is_installed'] && ($installed_mods[$packageInfo['id']]['version'] > $packageInfo['version']);
@@ -1742,6 +1750,13 @@ function list_getPackages($start, $items_per_page, $sort, $params)
 					$sort_id[$packageInfo['type']]++;
 					$packages['language'][strtolower($packageInfo[$sort])] = md5($package);
 					$context['available_language'][md5($package)] = $packageInfo;
+				}
+				// This might be a 3rd party section.
+				elseif (isset($sort_id[$packageInfo['type']], $packages[$packageInfo['type']], $context['available_' . $packageInfo['type']]))
+				{
+					$sort_id[$packageInfo['type']]++;
+					$packages[$packageInfo['type']][strtolower($packageInfo[$sort])] = md5($package);
+					$context['available_' . $packageInfo['type']][md5($package)] = $packageInfo;
 				}
 				// Other stuff.
 				else
@@ -2504,7 +2519,7 @@ function PackagePermissionsAction()
 					$package_ftp->chmod($ftp_file, $custom_value);
 				}
 				else
-					@chmod($path, $custom_value);
+					smf_chmod($path, $custom_value);
 			}
 
 			// This fish is fried...

@@ -10,10 +10,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -636,7 +636,7 @@ function create_chmod_control($chmodFiles = array(), $chmodOptions = array(), $r
 						$package_ftp->chmod($ftp_file, $perms);
 					}
 					else
-						@chmod($file, $perms);
+						smf_chmod($file, $perms);
 
 					$new_permissions = @fileperms($file);
 					$result = $new_permissions == $perms ? 'success' : 'failure';
@@ -928,13 +928,13 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 
 			// This looks odd, but it's an attempt to work around PHP suExec.
 			if (!@is_writable($file))
-				@chmod($file, 0755);
+				smf_chmod($file, 0755);
 			if (!@is_writable($file))
-				@chmod($file, 0777);
+				smf_chmod($file, 0777);
 			if (!@is_writable(dirname($file)))
-				@chmod($file, 0755);
+				smf_chmod($file, 0755);
 			if (!@is_writable(dirname($file)))
-				@chmod($file, 0777);
+				smf_chmod($file, 0777);
 
 			$fp = is_dir($file) ? @opendir($file) : @fopen($file, 'rb');
 			if (@is_writable($file) && $fp)
@@ -965,13 +965,13 @@ function packageRequireFTP($destination_url, $files = null, $return = false)
 			{
 				mktree(dirname($file), 0755);
 				@touch($file);
-				@chmod($file, 0755);
+				smf_chmod($file, 0755);
 			}
 
 			if (!@is_writable($file))
-				@chmod($file, 0777);
+				smf_chmod($file, 0777);
 			if (!@is_writable(dirname($file)))
-				@chmod(dirname($file), 0777);
+				smf_chmod(dirname($file), 0777);
 
 			if (@is_writable($file))
 				unset($files[$k]);
@@ -1784,7 +1784,7 @@ function deltree($dir, $delete_dir = true)
 			else
 			{
 				if (!is_writable($dir . '/' . $entryname))
-					@chmod($dir . '/' . $entryname, 0777);
+					smf_chmod($dir . '/' . $entryname, 0777);
 				unlink($dir . '/' . $entryname);
 			}
 		}
@@ -1804,7 +1804,7 @@ function deltree($dir, $delete_dir = true)
 		else
 		{
 			if (!is_writable($dir))
-				@chmod($dir, 0777);
+				smf_chmod($dir, 0777);
 			@rmdir($dir);
 		}
 	}
@@ -1829,7 +1829,7 @@ function mktree($strPath, $mode)
 			if (isset($package_ftp))
 				$package_ftp->chmod(strtr($strPath, array($_SESSION['pack_ftp']['root'] => '')), $mode);
 			else
-				@chmod($strPath, $mode);
+				smf_chmod($strPath, $mode);
 		}
 
 		$test = @opendir($strPath);
@@ -1850,7 +1850,7 @@ function mktree($strPath, $mode)
 		if (isset($package_ftp))
 			$package_ftp->chmod(dirname(strtr($strPath, array($_SESSION['pack_ftp']['root'] => ''))), $mode);
 		else
-			@chmod(dirname($strPath), $mode);
+			smf_chmod(dirname($strPath), $mode);
 	}
 
 	if ($mode !== false && isset($package_ftp))
@@ -2855,7 +2855,7 @@ function package_chmod($filename, $perm_state = 'writable', $track_change = fals
 
 					mktree(dirname($chmod_file), 0755);
 					@touch($chmod_file);
-					@chmod($chmod_file, 0755);
+					smf_chmod($chmod_file, 0755);
 				}
 				else
 					$file_permissions = @fileperms($chmod_file);
@@ -2863,17 +2863,17 @@ function package_chmod($filename, $perm_state = 'writable', $track_change = fals
 
 			// This looks odd, but it's another attempt to work around PHP suExec.
 			if ($perm_state != 'writable')
-				@chmod($chmod_file, $perm_state == 'execute' ? 0755 : 0644);
+				smf_chmod($chmod_file, $perm_state == 'execute' ? 0755 : 0644);
 			else
 			{
 				if (!@is_writable($chmod_file))
-					@chmod($chmod_file, 0755);
+					smf_chmod($chmod_file, 0755);
 				if (!@is_writable($chmod_file))
-					@chmod($chmod_file, 0777);
+					smf_chmod($chmod_file, 0777);
 				if (!@is_writable(dirname($chmod_file)))
-					@chmod($chmod_file, 0755);
+					smf_chmod($chmod_file, 0755);
 				if (!@is_writable(dirname($chmod_file)))
-					@chmod($chmod_file, 0777);
+					smf_chmod($chmod_file, 0777);
 			}
 
 			// The ultimate writable test.

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -524,8 +524,9 @@ function EditBoard()
 	{
 		$context['can_move_children'] = false;
 		$context['children'] = $boards[$_REQUEST['boardid']]['tree']['children'];
-		foreach ($context['board_order'] as $board)
-			if ($board['is_child'] == false && $board['selected'] == false)
+
+		foreach ($context['board_order'] as $lBoard)
+			if ($lBoard['is_child'] == false && $lBoard['selected'] == false)
 				$context['can_move_children'] = true;
 	}
 

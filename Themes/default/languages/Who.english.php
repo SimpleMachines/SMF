@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1 Beta 2; Who
+// Version: 2.1 Beta 3; Who
 
 global $scripturl, $context;
 
@@ -130,7 +130,7 @@ $txt['credits_team'] = 'The Team';
 $txt['credits_special'] = 'Special Thanks';
 $txt['credits_and'] = 'and';
 $txt['credits_anyone'] = 'And for anyone we may have missed, thank you!';
-$txt['credits_copyright'] = 'Copyrights';
+$txt['credits_copyright'] = 'Copyright';
 $txt['credits_forum'] = 'Forum';
 $txt['credits_modifications'] = 'Modifications';
 $txt['credits_software_graphics'] = 'Software/Graphics';
@@ -147,7 +147,6 @@ $txt['credits_groups_internationalizers'] = 'Localizers';
 $txt['credits_groups_servers'] = 'Servers Administrators';
 $txt['credits_groups_site'] = 'Site Administrators';
 $txt['credits_license'] = 'License';
-$txt['credits_copyright'] = 'Copyright';
 $txt['credits_version'] = 'Version';
 // Replace "English" with the name of this language pack in the string below.
 $txt['credits_groups_translation'] = 'English Translation';

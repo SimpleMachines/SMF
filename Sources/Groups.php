@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -443,7 +443,7 @@ function MembergroupMembers()
  */
 function GroupRequests()
 {
-	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings, $language;
+	global $txt, $context, $scripturl, $user_info, $sourcedir, $smcFunc, $modSettings;
 
 	// Set up the template stuff...
 	$context['page_title'] = $txt['mc_group_requests'];

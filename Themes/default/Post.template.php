@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -133,6 +133,18 @@ function template_main()
 	// The post header... important stuff
 	echo '
 					<dl id="post_header">';
+
+	// Custom posting fields.
+	if (!empty($context['posting_fields']) && is_array($context['posting_fields']))
+		foreach ($context['posting_fields'] as $pf)
+			echo '
+						<dt>
+							', $pf['dt'] ,'
+						</dt>
+						<dd>
+							', $pf['dd'] ,'
+						</dd>';
+
 
 	// Guests have to put in their name and email...
 	if (isset($context['name']) && isset($context['email']))
@@ -601,7 +613,6 @@ function template_main()
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
-			var current_board = ', empty($context['current_board']) ? 'null' : $context['current_board'], ';
 			var make_poll = ', $context['make_poll'] ? 'true' : 'false', ';
 			var txt_preview_title = "', $txt['preview_title'], '";
 			var txt_preview_fetch = "', $txt['preview_fetch'], '";

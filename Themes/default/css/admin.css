@@ -90,9 +90,6 @@ h3.catbg #quick_search form .button_submit:hover {
 span#quick_search {
 	display: block;
 }
-span#quick_search_results {
-	color: #346;
-}
 /* Browser tweaks. */
 body#chrome #quick_search form .input_text {
 	padding: 2px;

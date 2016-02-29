@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 /**
@@ -113,6 +113,12 @@ function template_main()
 
 	if (!$context['no_topic_listing'])
 	{
+	// Mobile action buttons (top)
+	echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+		</div>';
+
 		echo '
 	<div class="pagesection">
 		', $context['menu_separator'], '<a href="#bot" class="topbottom floatleft">', $txt['go_down'], '</a>
@@ -242,7 +248,7 @@ function template_main()
 								</span>
 							</div>
 							<p class="floatleft">', $txt['started_by'], ' ', $topic['first_post']['member']['link'], '</p>
-							<small id="pages', $topic['first_post']['id'], '">&nbsp;', $topic['pages'], '</small>
+							', !empty($topic['pages']) ? '<span id="pages'. $topic['first_post']['id']. '" class="topic_pages">&nbsp;'. $topic['pages']. '</span>' : '','
 							<br class="clear">
 						</div>
 					</div>
@@ -320,6 +326,12 @@ function template_main()
 	<input type="hidden" name="' . $context['session_var'] . '" value="' . $context['session_id'] . '">
 	</form>';
 
+	// Mobile action buttons (bottom)
+	echo '
+		<div class="mobile_buttons floatright">
+			<a class="button mobile_act">', $txt['mobile_action'],'</a>
+		</div>';
+
 		echo '
 	<div class="pagesection">
 		', template_button_strip($context['normal_buttons'], 'right'), '
@@ -362,6 +374,16 @@ function template_main()
 </script>';
 
 	template_topic_legend();
+
+	// Lets pop the...
+	echo '
+			<div id="mobile_action" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', $txt['mobile_action'],'
+					<a href="javascript:void(0);" class="generic_icons hide_popup"></a></div>
+					', template_button_strip($context['normal_buttons']), '
+				</div>
+			</div>';
 }
 
 /**

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -594,6 +594,9 @@ function BrowseFiles()
 		),
 	);
 
+	// Does a hook want to display their attachments better?
+	call_integration_hook('integrate_attachments_browse', array(&$listOptions, &$titles, &$list_title));
+
 	// Create the list.
 	require_once($sourcedir . '/Subs-List.php');
 	createList($listOptions);
@@ -620,7 +623,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 	if ($browse_type === 'avatars')
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				{string:blank_text} AS id_msg, IFNULL(mem.real_name, {string:not_applicable_text}) AS poster_name,
+				{string:blank_text} AS id_msg, COALESCE(mem.real_name, {string:not_applicable_text}) AS poster_name,
 				mem.last_login AS poster_time, 0 AS id_topic, a.id_member, a.id_attach, a.filename, a.file_hash, a.attachment_type,
 				a.size, a.width, a.height, a.downloads, {string:blank_text} AS subject, 0 AS id_board
 			FROM {db_prefix}attachments AS a
@@ -640,7 +643,7 @@ function list_getFiles($start, $items_per_page, $sort, $browse_type)
 	else
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				m.id_msg, IFNULL(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.id_topic, m.id_member,
+				m.id_msg, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.id_topic, m.id_member,
 				a.id_attach, a.filename, a.file_hash, a.attachment_type, a.size, a.width, a.height, a.downloads, mf.subject, t.id_board
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -721,10 +724,7 @@ function MaintainFiles()
 
 	$context['sub_template'] = 'maintenance';
 
-	if (!empty($modSettings['currentAttachmentUploadDir']))
-		$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
-	else
-		$attach_dirs = array($modSettings['attachmentUploadDir']);
+	$attach_dirs = json_decode($modSettings['attachmentUploadDir'], true);
 
 	// Get the number of attachments....
 	$request = $smcFunc['db_query']('', '
@@ -895,6 +895,10 @@ function RemoveAttachment()
 		foreach ($_POST['remove'] as $removeID => $dummy)
 			$attachments[] = (int) $removeID;
 
+		// If the attachments are from a 3rd party, let them remove it. Hooks should remove their ids from the array.
+		$filesRemoved = false;
+		call_integration_hook('integrate_attachment_remove', array(&$filesRemoved, $attachments));
+
 		if ($_REQUEST['type'] == 'avatars' && !empty($attachments))
 			removeAttachments(array('id_attach' => $attachments));
 		else if (!empty($attachments))
@@ -1019,7 +1023,7 @@ function removeAttachments($condition, $query_type = '', $return_affected_messag
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			a.id_folder, a.filename, a.file_hash, a.attachment_type, a.id_attach, a.id_member' . ($query_type == 'messages' ? ', m.id_msg' : ', a.id_msg') . ',
-			thumb.id_folder AS thumb_folder, IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
+			thumb.id_folder AS thumb_folder, COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
 		FROM {db_prefix}attachments AS a' .($query_type == 'members' ? '
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = a.id_member)' : ($query_type == 'messages' ? '
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)' : '')) . '
@@ -1532,6 +1536,8 @@ function RepairAttachments()
 		for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500)
 		{
 			$to_remove = array();
+			$ignore_ids = array(0);
+			call_integration_hook('integrate_repair_attachments_nomsg', array(&$ignore_ids, $_GET['substep'], $_GET['substep'] += 500));
 
 			$result = $smcFunc['db_query']('', '
 				SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
@@ -1540,11 +1546,13 @@ function RepairAttachments()
 				WHERE a.id_attach BETWEEN {int:substep} AND {int:substep} + 499
 					AND a.id_member = {int:no_member}
 					AND a.id_msg != {int:no_msg}
+					AND NOT FIND_IN_SET(a.id_msg, {array_int:ignore_ids})
 					AND m.id_msg IS NULL',
 				array(
 					'no_member' => 0,
 					'no_msg' => 0,
 					'substep' => $_GET['substep'],
+					'ignore_ids' => $ignore_ids,
 				)
 			);
 			while ($row = $smcFunc['db_fetch_assoc']($result))
@@ -1831,7 +1839,7 @@ function ApproveAttachments($attachments)
 	// For safety, check for thumbnails...
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			a.id_attach, a.id_member, IFNULL(thumb.id_attach, 0) AS id_thumb
+			a.id_attach, a.id_member, COALESCE(thumb.id_attach, 0) AS id_thumb
 		FROM {db_prefix}attachments AS a
 			LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
 		WHERE a.id_attach IN ({array_int:attachments})
@@ -2163,18 +2171,16 @@ function ManageAttachmentPaths()
 		checkSession();
 
 		// Changing the current base directory?
-		$_POST['current_base_dir'] = (int) $_POST['current_base_dir'];
+		$_POST['current_base_dir'] = isset($_POST['current_base_dir']) ? (int) $_POST['current_base_dir'] : 1;
 		if (empty($_POST['new_base_dir']) && !empty($_POST['current_base_dir']))
 		{
 			if ($modSettings['basedirectory_for_attachments'] != $modSettings['attachmentUploadDir'][$_POST['current_base_dir']])
 				$update = (array(
 					'basedirectory_for_attachments' => $modSettings['attachmentUploadDir'][$_POST['current_base_dir']],
 				));
-
-			//$modSettings['attachmentUploadDir'] = serialize($modSettings['attachmentUploadDir']);
 		}
 
-		If (isset($_POST['base_dir']))
+		if (isset($_POST['base_dir']))
 		{
 			foreach ($_POST['base_dir'] as $id => $dir)
 			{

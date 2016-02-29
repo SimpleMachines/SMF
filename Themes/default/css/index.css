@@ -2,6 +2,7 @@
 /* Index */
 html {
 	background: #3e5a78;
+	height: 100%;
 }
 body {
 	background: #e9eef2;
@@ -9,6 +10,8 @@ body {
 	color: #4d4d4d;
 	margin: 0;
 	padding: 0;
+	min-height: 100%;
+	position: relative;
 }
 /* <p> is a possible exception for margins. Must test that one a bit. */
 p, ul, ol, li, dl, dd ,dt, fieldset, form {
@@ -112,6 +115,9 @@ input.input_check, input.input_radio {
 	background: none;
 	vertical-align: top;
 }
+.moderationbuttons_mobile_check {
+	display: none;
+}
 /* Give disabled text input elements a different background color. */
 input[disabled].input_text {
 	background: #eee;
@@ -142,23 +148,21 @@ body#help_popup {
 	box-sizing: border-box;
 }
 
-ul#likes li {
+#likes li {
 	clear: both;
 }
-
-ul#likes span.avatar {
-	max-width: 100px;
-	max-height: 100px;
-	padding: 0 10px 0 0;
-}
-ul#likes span.avatar img {
+#likes .avatar {
 	max-height: 90px;
 	max-width: 90px;
+	padding: 0 10px 0 0;
 }
-ul#likes li span.description {
+#likes span {
+	display: inline-block;
+	vertical-align: top;
+}
+#likes .description {
 	font-style: italic;
 	opacity: 0.4;
-	padding: 0.4em 0.7em;
 	font-size: 0.9em;
 }
 
@@ -295,18 +299,18 @@ h3.largetext {
 
 /* BBC */
 /* A quote, perhaps from another post. */
-.bbc_standard_quote::before, .bbc_alternate_quote::before {
+.bbc_standard_quote:before, .bbc_alternate_quote:before {
 	color: #aaa;
 	font-size: 22px;
 	content: '\275D';
 	margin: -5px 5px 0 -5px;
 }
 /* Remove the difference IE/Opera/Chrome/Firefox etc... */
-#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before {
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before {
 	font-size: 30px;
 }
-#firefox .bbc_standard_quote::before, #firefox .bbc_alternate_quote::before,
-#chrome .bbc_standard_quote::before, #chrome .bbc_alternate_quote::before {
+#firefox .bbc_standard_quote:before, #firefox .bbc_alternate_quote:before,
+#chrome .bbc_standard_quote:before, #chrome .bbc_alternate_quote:before {
 	vertical-align: middle;
 	margin: 0 5px 0 0;
 }
@@ -397,7 +401,7 @@ a img {
 }
 
 /* Those collapse and expand icons are wonderful. */
-.toggle_up::before, .toggle_down::before {
+.toggle_up:before, .toggle_down:before {
 	width: 17px;
 	height: 17px;
 	display: inline-block;
@@ -407,7 +411,7 @@ a img {
 	vertical-align: middle;
 	margin: -5px 5px 0 5px;
 }
-.toggle_down::before {
+.toggle_down:before {
 	background-position: 0 -17px;
 }
 
@@ -443,7 +447,7 @@ a img {
 	margin: 0;
 	clear: both;
 }
-.pages::after, .jump_to::after, .code::after {
+.pages:after, .jump_to:after, .code:after {
 	content: ": ";
 }
 #main_content_section .pagesection {
@@ -471,10 +475,10 @@ div.pagesection div.floatright input, div.pagesection div.floatright select {
 	font-family: verdana, sans-serif;
 	font-weight: bold;
 }
-.current_page::before, .codeoperation::before {
+.current_page:before, .codeoperation:before {
 	content: "[";
 }
-.current_page::after, .codeoperation::after {
+.current_page:after, .codeoperation:after {
 	content: "]";
 }
 /* Go up and go down links. */
@@ -745,80 +749,62 @@ img.sort, .sort {
 	box-shadow: 0 5px 5px rgba(255,255,255,0.2) inset;
 	text-shadow: none;
 }
+
 /* User information. */
-#profile_menu a.avatar {
-	float: left;
-	margin: 0 20px 0 10px;
+#profile_menu_top:after {
+	content: ' \25BC';
 }
-#profile_menu a.avatar img {
-	height: 100%;
-	width: 100%;
-	max-width: 50px;
-	max-height: 50px;
+.profile_user_info, .profile_user_avatar {
+	display: inline-block;
+	margin: 0 9px;
+	vertical-align: middle;
 }
-#profile_menu .profile_user_info {
-	margin: 3px 0 5px 10px;
-}
-#profile_menu .profile_user_avatar img {
-	margin: 5px 0 0 10px;
-}
-#profile_menu .profile_username {
-	overflow: hidden;
+.profile_username {
 	font-size: 150%;
 	display: block;
 }
-#profile_menu .profile_user_links ol {
-	margin: 10px;
+.profile_user_links ol {
+	margin: 0 10px;
+	clear: both;
 }
-#profile_menu .profile_user_links li {
-	float: left;
-	width: 50%;
+.profile_user_links li {
+	display: inline-block;
+	width: 11em;
+	margin-bottom: 4px;
 }
-#profile_menu .profile_user_links li img {
-	margin-bottom: -1px;
-}
-#pm_menu, #alerts_menu {
+.top_menu.scrollable {
 	max-height: 30em;
 }
-#pm_menu .pm_unread, #alerts_menu .alerts_unread {
-	margin-top: 2px;
-	padding-top: 3px;
+.pm_unread, .alerts_unread {
+	margin-top: 5px;
 	border-top: 1px solid #ddd;
-	clear: both;
 }
-#pm_menu .no_unread, #alerts_menu .no_unread {
-	padding-top: 3px;
-	text-align: center;
-}
-#pm_menu .windowbg, #pm_menu .windowbg2, #alerts_menu .windowbg, #alerts_menu .windowbg2 {
-	clear: both;
-	padding: 2px;
-}
-#pm_menu .pm_unread div > .avatar, #alerts_menu .alerts_unread div > .avatar {
-	width: 40px;
-	height: 40px;
-	margin: 1px 6px 0 1px;
-}
-#pm_menu .pm_unread .avatar img, #alerts_menu .alerts_unread .avatar img {
-	width: 100%;
-	height: 100%;
-	max-width: 40px;
-	max-height: 40px;
-}
-#pm_menu .unread .subject {
-	font-weight: bold;
-}
-#pm_menu .unread, #alerts_menu .unread {
+.top_menu.scrollable .unread {
 	border-bottom: 1px solid #ddd;
 }
-#pm_menu .unread:hover, #alerts_menu .unread:hover {
+.top_menu.scrollable .no_unread {
+	margin-top: 5px;
+	text-align: center;
+}
+.top_menu.scrollable .unread:hover {
 	background: #eee;
 }
-#pm_menu .unread:last-of-type, #alerts_menu .unread:last-of-type {
-	border-bottom: 1px solid transparent;
+.top_menu.scrollable .unread:last-of-type {
+	border-bottom: none;
 }
-#pm_menu .details, #alerts_menu .details {
+.top_menu.scrollable .avatar {
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+	display: inline-block;
+}
+.top_menu.scrollable .details {
 	max-width: 80%;
+	display: inline-block;
+	vertical-align: top;
+}
+#pm_menu .subject {
+	font-weight: bold;
 }
 /* Levels 2 and 3 submenu wrapper. */
 .dropmenu li ul, .top_menu {
@@ -916,7 +902,7 @@ img.sort, .sort {
 .dropmenu li li:hover ul, .dropmenu li li ul {
 	left: -14px;
 }
-.dropmenu li li.subsections > a::after {
+.dropmenu li li.subsections > a:after {
 	position: absolute;
 	padding: 5px 0;
 	right: 10px;
@@ -1017,7 +1003,7 @@ img.sort, .sort {
 	background: #fff;
 	clear: both;
 }
-#top_section::after {
+#top_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1075,12 +1061,16 @@ img.sort, .sort {
 	color: #a85400;
 	text-decoration: none;
 }
+/* Limit input to avoid weird overflows */
+.input_text {
+	max-width: 150px;
+}
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
 	margin: 0 5%;
 }
-#header::after {
+#header:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1130,7 +1120,7 @@ img#smflogo {
 	padding: 12px 10px 2px 10px;
 	border-radius: 6px 6px 0 0;
 }
-#inner_section::after {
+#inner_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1231,7 +1221,7 @@ ul li.greeting {
 #main_content_section {
 	padding: 5px 12px 16px 12px;
 }
-#main_content_section::after {
+#main_content_section:after {
 	content:"";
 	display: block;
 	clear: both;
@@ -1243,6 +1233,9 @@ ul li.greeting {
 	padding: 10px 5%;
 	background: #3e5a78;
 	border-top: 3px solid #b2b6bd;
+	position:absolute;
+	bottom: 0;
+	width: 100%;
 }
 #footer li, #footer p, #footer a {
 	font-size: 0.9em;
@@ -1256,6 +1249,9 @@ ul li.greeting {
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
 }
 
+#footerfix{
+	padding-bottom: 75px;
+}
 /* the posting icons */
 #postbuttons_upper ul li a span {
 	line-height: 19px;
@@ -2006,7 +2002,7 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 	width: 80%;
 	margin: auto;
 }
-.errorbox::before, .noticebox::before, .infobox::before {
+.errorbox:before, .noticebox:before, .infobox:before {
 	width: 16px;
 	height: 16px;
 	background: url(../images/generic_icons.png) no-repeat -57px -83px;
@@ -2049,10 +2045,10 @@ tr.windowbg td, tr.windowbg2 td, .table_grid tr td {
 /* Styles for info boxes
 ------------------------------------------------- */
 
-.noticebox::before {
+.noticebox:before {
 	background-position: -83px -83px;
 }
-.infobox::before {
+.infobox:before {
 	background-position: -161px -83px;
 }
 .noticebox {
@@ -2598,7 +2594,7 @@ dl.addrules dt.floatleft {
 	width: 100%;
 	height: 100%;
 	background: rgba(40,64,80,0.5);
-	z-index: 3;
+	z-index: 5;
 }
 .popup_window {
 	position: relative;
@@ -2988,14 +2984,11 @@ span.postby {
 	width: 3%;
 	vertical-align: middle;
 	text-align: right;
-	padding: 0 5px 0 0;
+	padding: 0 5px 0 0 !important;
 }
 /* Quick moderation selects and submit */
 #quick_actions {
 	padding: 4px 0;
-}
-.qaction {
-	padding: 0;
 }
 /* Investigate default select and button sizing. Something is slightly off there.*/
 .qaction.button_submit {
@@ -3159,8 +3152,8 @@ div#pollmoderation {
 	padding: 2px 0;
 }
 /* poster and postarea + moderation area underneath */
-.post_wrapper::after {
-	content:"";
+.post_wrapper:after {
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -3429,7 +3422,7 @@ ul.post_options li {
 .under_message {
 	overflow: visible;
 }
-.under_message::after {
+.under_message:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -3569,6 +3562,16 @@ p.information img {
 #topic_icons .information,
 #messageindex .information {
 	border-top: 1px solid #ddd;
+}
+.topic_pages {
+	font-size: 0.75em;
+	margin: 0 0 0 5px;
+}
+.topic_pages:before {
+	content: " «";
+}
+.topic_pages:after {
+	content: " »"
 }
 /* Mentions */
 .atwho-view {
@@ -3781,6 +3784,11 @@ h3.profile_hd {
 .attach-info p.progressBar, .attach-info p.attached_BBC, a#attach-cancelAll, a#attach-uploadAll{
 	display:none;
 }
+p.attached_BBC a.insertBBC
+{
+	margin:0;
+}
+
 .attach-info p, .attach-info field{
 	display:inline-block;
 }
@@ -3819,15 +3827,21 @@ h3.profile_hd {
 }
 .progress_yellow span {
 	background-color: #fecf23;
-	background-image: linear-gradient(top, #fecf23, #fd9215);
 }
 
 .progress_green span {
 	background-color: #a5df41;
-	background-image: linear-gradient(top, #a5df41, #4ca916);
 }
 
 .progress_red span {
 	background-color: #F45D4C;
-	background-image: linear-gradient(top, #F6C7B7, #FA7F77);
+}
+
+.progress_blue span {
+	background-color: #34c2e3;
+}
+
+/* Hide this from desktop users sshh... our little sekrit */
+.mobile_buttons {
+	display: none;
 }

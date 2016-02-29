@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -25,7 +25,7 @@ if (!defined('SMF'))
 function AdminMain()
 {
 	global $txt, $context, $scripturl, $modSettings, $settings;
-	global $sourcedir, $options, $boarddir, $db_show_debug;
+	global $sourcedir, $options, $boarddir;
 
 	// Load the language and templates....
 	loadLanguage('Admin');
@@ -854,7 +854,7 @@ function AdminSearchOM()
 	$search_results = fetch_web_data($context['doc_apiurl'] . '?action=query&list=search&srprop=timestamp|snippet&format=xml&srwhat=text&srsearch=' . $postVars);
 
 	// If we didn't get any xml back we are in trouble - perhaps the doc site is overloaded?
-	if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?>\s*(<api>.+?</api>)~is', $search_results, $matches) != true)
+	if (!$search_results || preg_match('~<' . '\?xml\sversion="\d+\.\d+"\?' . '>\s*(<api>.+?</api>)~is', $search_results, $matches) != true)
 		fatal_lang_error('cannot_connect_doc_site');
 
 	$search_results = $matches[1];
@@ -903,7 +903,6 @@ function AdminLogs()
 		'settings' => array('ManageSettings.php', 'ModifyLogSettings'),
 	);
 
-	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	// If it's not got a sa set it must have come here for first time, pretend error log should be reversed.
 	if (!isset($_REQUEST['sa']))
 		$_REQUEST['desc'] = true;
@@ -940,6 +939,8 @@ function AdminLogs()
 	);
 
 	call_integration_hook('integrate_manage_logs', array(&$log_functions));
+
+	$subAction = isset($_REQUEST['sa']) && isset($log_functions[$_REQUEST['sa']]) && empty($log_functions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 
 	require_once($sourcedir . '/' . $log_functions[$subAction][0]);
 	call_helper($log_functions[$subAction][1]);

@@ -7,7 +7,7 @@ function smf_fileUpload(oOptions)
 
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
-		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id,
+		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
 		parallelUploads : 1,
 		filesizeBase:1000,
 		paramName: 'attachment',
@@ -25,7 +25,7 @@ function smf_fileUpload(oOptions)
 				type: typeof file.type !== "undefined" ? ('type='+ file.type) : (typeof file.mime_type !== "undefined" ? ('type='+ file.mime_type) : '')
 			};
 
-			return '[attach '+ bbcOptionalParams.name +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
+			return '[attach '+ decodeURIComponent(bbcOptionalParams.name) +' '+ bbcOptionalParams.type +']' + file.attachID + '[/attach]';
 		},
 		createMaxSizeBar: function(){
 
@@ -48,7 +48,7 @@ function smf_fileUpload(oOptions)
 				$('#maxFiles_progress span').width(range_maxFile + '%');
 
 				// Show or udate the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize * 0.001, 3)));
 
 				if (myDropzone.options.totalMaxSize == 0){
 					$('#maxFiles_progress').hide();
@@ -94,6 +94,8 @@ function smf_fileUpload(oOptions)
 		else if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
 			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) +'action=dlattach;attach='+ (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
 		}
+
+		file.name = file.name.php_to8bit().php_urlencode();
 
 		// Show the file info.
 		_thisElement.find('.attach-ui').fadeIn();
@@ -319,7 +321,7 @@ function smf_fileUpload(oOptions)
 	});
 
 	// Show each individual's progress bar.
-	myDropzone.on('sending', function(file) {
+	myDropzone.on('sending', function(file, xhr, formData) {
 
 		_thisElement = $(file.previewElement);
 

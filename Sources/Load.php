@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -402,7 +402,7 @@ function loadUserSettings()
 		if (empty($modSettings['cache_enable']) || $modSettings['cache_enable'] < 2 || ($user_settings = cache_get_data('user_settings-' . $id_member, 60)) == null)
 		{
 			$request = $smcFunc['db_query']('', '
-				SELECT mem.*, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
+				SELECT mem.*, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}attachments AS a ON (a.id_member = {int:id_member})
 				WHERE mem.id_member = {int:id_member}
@@ -822,8 +822,8 @@ function loadBoard()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				c.id_cat, b.name AS bname, b.description, b.num_topics, b.member_groups, b.deny_member_groups,
-				b.id_parent, c.name AS cname, IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name,
-				IFNULL(mem.id_member, 0) AS id_moderator,
+				b.id_parent, c.name AS cname, COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name,
+				COALESCE(mem.id_member, 0) AS id_moderator,
 				mem.real_name' . (!empty($topic) ? ', b.id_board' : '') . ', b.child_level,
 				b.id_theme, b.override_theme, b.count_posts, b.id_profile, b.redirect,
 				b.unapproved_topics, b.unapproved_posts' . (!empty($topic) ? ', t.approved, t.id_member_started' : '') . '
@@ -1195,12 +1195,12 @@ function loadMemberData($users, $is_name = false, $set = 'normal')
 
 	// Used by default
 	$select_columns = '
-			IFNULL(lo.log_time, 0) AS is_online, IFNULL(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
+			COALESCE(lo.log_time, 0) AS is_online, COALESCE(a.id_attach, 0) AS id_attach, a.filename, a.attachment_type,
 			mem.signature, mem.personal_text, mem.avatar, mem.id_member, mem.member_name,
 			mem.real_name, mem.email_address, mem.date_registered, mem.website_title, mem.website_url,
 			mem.birthdate, mem.member_ip, mem.member_ip2, mem.posts, mem.last_login, mem.id_post_group, mem.lngfile, mem.id_group, mem.time_offset, mem.show_online,
-			mg.online_color AS member_group_color, IFNULL(mg.group_name, {string:blank_string}) AS member_group,
-			pg.online_color AS post_group_color, IFNULL(pg.group_name, {string:blank_string}) AS post_group,
+			mg.online_color AS member_group_color, COALESCE(mg.group_name, {string:blank_string}) AS member_group,
+			pg.online_color AS post_group_color, COALESCE(pg.group_name, {string:blank_string}) AS post_group,
 			mem.is_activated, mem.warning, ' . (!empty($modSettings['titlesEnable']) ? 'mem.usertitle, ' : '') . '
 			CASE WHEN mem.id_group = 0 OR mg.icons = {string:blank_string} THEN pg.icons ELSE mg.icons END AS icons';
 	$select_tables = '
@@ -2315,7 +2315,7 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 
@@ -2331,10 +2331,10 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating the the file exists?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/css/' . $fileName))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/css/' . $fileName))
 		{
 			// Maybe the default theme has it?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/css/' . $fileName))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
 				$filePath = $settings['default_theme_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
@@ -2346,8 +2346,8 @@ function loadCSSFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$theme . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$theme . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$themeRef . '_dir'] . '/css/' . $fileName . ($has_seed ? '' : $params['seed']);
 		}
 	}
 
@@ -2411,7 +2411,7 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 
 	$params['seed'] = (!array_key_exists('seed', $params) || (array_key_exists('seed', $params) && $params['seed'] === true)) ? (array_key_exists('browser_cache', $modSettings) ? $modSettings['browser_cache'] : '') : (is_string($params['seed']) ? ($params['seed'] = $params['seed'][0] === '?' ? $params['seed'] : '?' . $params['seed']) : '');
 	$params['force_current'] = !empty($params['force_current']) ? $params['force_current'] : false;
-	$theme = !empty($params['default_theme']) ? 'default_theme' : 'theme';
+	$themeRef = !empty($params['default_theme']) ? 'default_theme' : 'theme';
 	$params['minimize'] = isset($params['minimize']) ? $params['minimize'] : false;
 	$params['external'] = isset($params['external']) ? $params['external'] : false;
 
@@ -2427,10 +2427,10 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 	if (empty($params['external']))
 	{
 		// Are we validating it exists on disk?
-		if (!empty($params['validate']) && !file_exists($settings[$theme . '_dir'] . '/scripts/' . $fileName))
+		if (!empty($params['validate']) && !file_exists($settings[$themeRef . '_dir'] . '/scripts/' . $fileName))
 		{
 			// Can't find it in this theme, how about the default?
-			if ($theme === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
+			if ($themeRef === 'theme' && !$params['force_current'] && file_exists($settings['default_theme_dir'] . '/' . $fileName))
 			{
 				$fileUrl = $settings['default_theme_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
 				$filePath = $settings['default_theme_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
@@ -2445,8 +2445,8 @@ function loadJavascriptFile($fileName, $params = array(), $id = '')
 
 		else
 		{
-			$fileUrl = $settings[$theme . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
-			$filePath = $settings[$theme . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$fileUrl = $settings[$themeRef . '_url'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
+			$filePath = $settings[$themeRef . '_dir'] . '/scripts/' . $fileName . ($has_seed ? '' : $params['seed']);
 		}
 	}
 
@@ -2648,8 +2648,8 @@ function getBoardParents($id_parent)
 			$result = $smcFunc['db_query']('', '
 				SELECT
 					b.id_parent, b.name, {int:board_parent} AS id_board, b.member_groups, b.deny_member_groups,
-					b.child_level, IFNULL(mem.id_member, 0) AS id_moderator, mem.real_name,
-					IFNULL(mg.id_group, 0) AS id_moderator_group, mg.group_name
+					b.child_level, COALESCE(mem.id_member, 0) AS id_moderator, mem.real_name,
+					COALESCE(mg.id_group, 0) AS id_moderator_group, mg.group_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board)
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = mods.id_member)
@@ -3150,7 +3150,7 @@ function cache_quick_get($key, $file, $function, $params, $level = 1)
  */
 function cache_put_data($key, $value, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 
@@ -3250,7 +3250,7 @@ function cache_put_data($key, $value, $ttl = 120)
  */
 function cache_get_data($key, $ttl = 120)
 {
-	global $boardurl, $sourcedir, $modSettings, $memcached;
+	global $boardurl, $modSettings, $memcached;
 	global $cache_hits, $cache_count, $db_show_debug, $cachedir;
 	global $cache_accelerator, $cache_enable;
 

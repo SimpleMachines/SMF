@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -47,7 +47,7 @@ function PrintTopic()
 
 	// Get the topic starter information.
 	$request = $smcFunc['db_query']('', '
-		SELECT mem.id_member, m.poster_time, IFNULL(mem.real_name, m.poster_name) AS poster_name, t.id_poll
+		SELECT mem.id_member, m.poster_time, COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_poll
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			LEFT JOIN {db_prefix}topics as t ON (t.id_first_msg = m.id_msg)
@@ -71,7 +71,7 @@ function PrintTopic()
 		$request = $smcFunc['db_query']('', '
 			SELECT
 				p.question, p.voting_locked, p.hide_results, p.expire_time, p.max_votes, p.change_vote,
-				p.guest_vote, p.id_member, IFNULL(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
+				p.guest_vote, p.id_member, COALESCE(mem.real_name, p.poster_name) AS poster_name, p.num_guest_voters, p.reset_poll
 			FROM {db_prefix}polls AS p
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = p.id_member)
 			WHERE p.id_poll = {int:id_poll}
@@ -101,7 +101,7 @@ function PrintTopic()
 
 		// Get all the options, and calculate the total votes.
 		$request = $smcFunc['db_query']('', '
-			SELECT pc.id_choice, pc.label, pc.votes, IFNULL(lp.id_choice, -1) AS voted_this
+			SELECT pc.id_choice, pc.label, pc.votes, COALESCE(lp.id_choice, -1) AS voted_this
 			FROM {db_prefix}poll_choices AS pc
 				LEFT JOIN {db_prefix}log_polls AS lp ON (lp.id_choice = pc.id_choice AND lp.id_poll = {int:id_poll} AND lp.id_member = {int:current_member} AND lp.id_member != {int:not_guest})
 			WHERE pc.id_poll = {int:id_poll}',
@@ -238,7 +238,7 @@ function PrintTopic()
 
 	// Split the topics up so we can print them.
 	$request = $smcFunc['db_query']('', '
-		SELECT subject, poster_time, body, IFNULL(mem.real_name, poster_name) AS poster_name, id_msg
+		SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_topic = {int:current_topic}' . ($modSettings['postmod_active'] && !allowedTo('approve_posts') ? '

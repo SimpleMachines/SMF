@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -514,7 +514,7 @@ function XmlDraft($id_draft)
  */
 function showProfileDrafts($memID, $draft_type = 0)
 {
-	global $txt, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// Some initial context.
 	$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
@@ -665,7 +665,7 @@ function showProfileDrafts($memID, $draft_type = 0)
  */
 function showPMDrafts($memID = -1)
 {
-	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc;
+	global $txt, $user_info, $scripturl, $modSettings, $context, $smcFunc, $options;
 
 	// init
 	$draft_type = 1;

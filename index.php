@@ -14,14 +14,14 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
-$forum_version = 'SMF 2.1 Beta 2';
-$software_year = '2015';
+$forum_version = 'SMF 2.1 Beta 3';
+$software_year = '2016';
 
 // Get everything started up...
 define('SMF', 1);
@@ -82,7 +82,7 @@ if (isset($_GET['scheduled']))
 // Displaying attachments.
 elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
 {
-	require_once($sourcedir. '/ShowAtachments.php');
+	require_once($sourcedir. '/ShowAttachments.php');
 	showAttachment();
 }
 
