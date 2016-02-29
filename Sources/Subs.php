@@ -3294,7 +3294,7 @@ function template_javascript($do_deferred = false)
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (!empty($js_file['options']['minimize']))
+		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
 		{
 			if ($do_deferred && !empty($js_file['options']['defer']))
 				$toMinifyDefer[] = $js_file;
@@ -3365,7 +3365,7 @@ function template_css()
 			continue;
 
 		// By default all files don't get minimized unless the file explicitly says so!
-		if (!empty($file['options']['minimize']))
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
 			$toMinify[] = $file;
 
 		else

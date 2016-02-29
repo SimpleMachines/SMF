@@ -169,6 +169,9 @@ function ModifyBasicSettings($return_config = false)
 			array('select', 'jquery_source', array('auto' => $txt['jquery_auto'], 'local' => $txt['jquery_local'], 'cdn' => $txt['jquery_cdn'], 'custom' => $txt['jquery_custom']), 'onchange' => 'if (this.value == \'custom\'){document.getElementById(\'jquery_custom\').disabled = false; } else {document.getElementById(\'jquery_custom\').disabled = true;}'),
 			array('text', 'jquery_custom', 'disabled' => isset($modSettings['jquery_source']) && $modSettings['jquery_source'] != 'custom', 'size' => 75),
 		'',
+			// css and js minification.
+			array('check', 'minimize_files'),
+		'',
 			// SEO stuff
 			array('check', 'queryless_urls', 'subtext' => '<strong>' . $txt['queryless_urls_note'] . '</strong>'),
 			array('text', 'meta_keywords', 'subtext' => $txt['meta_keywords_note'], 'size' => 50),
