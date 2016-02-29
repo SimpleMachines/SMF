@@ -436,22 +436,21 @@ function DisplayStats()
 		$members = array(0 => 0);
 
 	// Topic poster top 10.
-	$members_result = $smcFunc['db_query']('top_topic_starters', '
+	$members_result = $smcFunc['db_query']('', '
 		SELECT id_member, real_name
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:member_list})
-		ORDER BY FIND_IN_SET(id_member, {string:top_topic_posters})
 		LIMIT 10',
 		array(
 			'member_list' => array_keys($members),
-			'top_topic_posters' => implode(',', array_keys($members)),
 		)
 	);
 	$context['stats_blocks']['starters'] = array();
 	$max_num = 1;
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
-		$context['stats_blocks']['starters'][] = array(
+		$i = array_search($row_members['id_member'], array_keys($members));
+		$context['stats_blocks']['starters'][$i] = array(
 			'name' => $row_members['real_name'],
 			'id' => $row_members['id_member'],
 			'num' => $members[$row_members['id_member']],
@@ -462,6 +461,7 @@ function DisplayStats()
 		if ($max_num < $members[$row_members['id_member']])
 			$max_num = $members[$row_members['id_member']];
 	}
+	ksort($context['stats_blocks']['starters']);
 	$smcFunc['db_free_result']($members_result);
 
 	foreach ($context['stats_blocks']['starters'] as $i => $topic)
