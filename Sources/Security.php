@@ -1278,7 +1278,7 @@ function constructBanQueryIP($fullip)
 		$fullip = '255.255.255.255';
 
 	// PostgreSQL got native support
-	$ban_query = $smcFunc['db_title'] == 'PostgreSQL' ? $fullip : 'BINARY \'' . $fullip . '\'';
+	$ban_query = $smcFunc['db_title'] == 'PostgreSQL' ? $fullip : '\'' . inet_ptod($fullip) . '\'';
 
 	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
 
