@@ -5120,7 +5120,7 @@ function smf_chmod($file, $value = 0)
  */
 function isValidIP($IPString)
 {
-	return filter_var($IPString,FILTER_VALIDATE_IP);
+	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
 }
 
 ?>
