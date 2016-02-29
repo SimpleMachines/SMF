@@ -3301,6 +3301,10 @@ function template_javascript($do_deferred = false)
 
 			elseif (!$do_deferred && empty($js_file['options']['defer']))
 				$toMinify[] = $js_file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $js_file['options']['seed'];
 		}
 
 		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
@@ -3313,9 +3317,8 @@ function template_javascript($do_deferred = false)
 		Minify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
 		echo '
-	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js"></script>';
+	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
-
 
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
@@ -3351,7 +3354,7 @@ function template_javascript($do_deferred = false)
  */
 function template_css()
 {
-	global $context, $db_show_debug, $boardurl, $settings;
+	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
@@ -3366,18 +3369,26 @@ function template_css()
 
 		// By default all files don't get minimized unless the file explicitly says so!
 		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		{
 			$toMinify[] = $file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $file['options']['seed'];
+		}
 
 		else
 			echo '
 	<link rel="stylesheet" href="', $file['filename'] ,'">';
 	}
 
-	$result = Minify($toMinify, 'css');
+	if (!empty($toMinify))
+	{
+		Minify($toMinify, 'css');
 
-	if (!empty($result))
 		echo '
-	<link rel="stylesheet" href="', $settings['default_theme_url'] . '/css/minified.css">';
+	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	}
 
 
 	if ($db_show_debug === true)
