@@ -1010,12 +1010,12 @@ function ssi_queryMembers($query_where = null, $query_where_params = array(), $q
 
 	if (empty($members))
 		return array();
-
-	// Load the members.
-	loadMemberData($members);
 	
 	// If mods want to do somthing with this list of members, let them do that now.
 	call_integration_hook('integrate_ssi_queryMembers', array(&$members));
+
+	// Load the members.
+	loadMemberData($members);
 
 	// Draw the table!
 	if ($output_method == 'echo')
