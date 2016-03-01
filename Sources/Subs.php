@@ -3314,7 +3314,7 @@ function template_javascript($do_deferred = false)
 
 	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
 	{
-		Minify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
 
 		echo '
 	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
@@ -3384,7 +3384,7 @@ function template_css()
 
 	if (!empty($toMinify))
 	{
-		Minify($toMinify, 'css');
+		custMinify($toMinify, 'css');
 
 		echo '
 	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
@@ -3413,7 +3413,16 @@ function template_css()
 	}
 }
 
-function Minify($data, $type, $do_deferred = false)
+/**
+ * Get an array of previously defined files and adds them to out main minified file.
+ * Sets a one day cache to avoid re-creating a file on every request.
+ *
+ * @param array $data The files to minify.
+ * @param string $type either css or js
+ * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
+ * @return boolean
+ */
+function custMinify($data, $type, $do_deferred = false)
 {
 	global $sourcedir, $smcFunc, $settings;
 
