@@ -1102,6 +1102,8 @@ function prepareMessageContext($type = 'subject', $reset = false)
 				default:
 					$output['custom_fields']['standard'][] = $custom;
 			}
+	
+	call_integration_hook('integrate_prepare_pm_context', array(&$output, &$message, $counter));
 
 	return $output;
 }
@@ -1689,6 +1691,8 @@ function MessageSearch2()
 		}
 		$smcFunc['db_free_result']($request);
 	}
+	
+	call_integration_hook('integrate_search_pm_context');
 
 	// Finish off the context.
 	$context['page_title'] = $txt['pm_search_title'];
@@ -1983,6 +1987,8 @@ function MessagePost()
 		$context['require_verification'] = create_control_verification($verificationOptions);
 		$context['visual_verification_id'] = $verificationOptions['id'];
 	}
+	
+	call_integration_hook('integrate_pm_post');
 
 	// Register this form and get a sequence number in $context.
 	checkSubmitOnce('register');
@@ -2179,6 +2185,8 @@ function messagePostError($error_types, $named_recipients, $recipient_ids = arra
 
 	$context['to_value'] = empty($named_recipients['to']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['to']) . '&quot;';
 	$context['bcc_value'] = empty($named_recipients['bcc']) ? '' : '&quot;' . implode('&quot;, &quot;', $named_recipients['bcc']) . '&quot;';
+	
+	call_integration_hook('integrate_pm_error');
 
 	// No check for the previous submission is needed.
 	checkSubmitOnce('free');
