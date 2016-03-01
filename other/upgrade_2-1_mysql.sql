@@ -231,10 +231,15 @@ $step_progress['name'] = 'Converting legacy attachments';
 $step_progress['current'] = $_GET['a'];
 
 // We may be using multiple attachment directories.
-if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']))
+if (!empty($modSettings['currentAttachmentUploadDir']) && !is_array($modSettings['attachmentUploadDir']) && empty($modSettings['json_done']))
 	$modSettings['attachmentUploadDir'] = @unserialize($modSettings['attachmentUploadDir']);
 
-$is_done = false;
+// No need to do this if we already did it previously...
+if (empty($modSettings['json_done']))
+  $is_done = false;
+else
+  $is_done = true;
+
 while (!$is_done)
 {
 	nextSubStep($substep);
@@ -386,7 +391,7 @@ if (!empty($attachs))
 
 ---# Fixing attachment directory setting...
 ---{
-if (is_dir($modSettings['attachmentUploadDir']))
+if (!is_array($modSettings['attachmentUploadDir']) && is_dir($modSettings['attachmentUploadDir']))
 {
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}settings
@@ -404,10 +409,10 @@ if (is_dir($modSettings['attachmentUploadDir']))
 		array('variable')
 	);
 }
-else
+elseif (empty($modSettings['json_done']))
 {
 	// Serialized maybe?
-	$array = @unserialize($modSettings['attachmentUploadDir']);
+	$array = is_array($modSettings['attachmentUploadDir']) ? $modSettings['attachmentUploadDir'] : @unserialize($modSettings['attachmentUploadDir']);
 	if ($array !== false)
 	{
 		$smcFunc['db_query']('', '
@@ -424,34 +429,6 @@ else
 	}
 }
 ---}
----#
-
-/******************************************************************************/
---- Adding support for IPv6...
-/******************************************************************************/
-
----# Adding new columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-ADD COLUMN ip_low5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high5 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high6 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high7 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_low8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-ADD COLUMN ip_high8 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
----#
-
----# Changing existing columns to ban items...
-ALTER TABLE {$db_prefix}ban_items
-CHANGE ip_low1 ip_low1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high1 ip_high1 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low2 ip_low2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high2 ip_high2 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low3 ip_low3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high3 ip_high3 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_low4 ip_low4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0',
-CHANGE ip_high4 ip_high4 SMALLINT(255) UNSIGNED NOT NULL DEFAULT '0';
 ---#
 
 /******************************************************************************/
@@ -1890,4 +1867,57 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[green]',
 ---# Replacing [blue] with [color=blue]
 UPDATE {$db_prefix}messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
 UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', '[color=blue]'), '[/blue]', '[/color]') WHERE body LIKE '%[blue]%';
+---#
+
+/******************************************************************************/
+--- remove redundant index
+/******************************************************************************/
+---# duplicate to messages_current_topic
+DROP INDEX idx_id_topic on {$db_prefix}messages;
+DROP INDEX idx_topic on {$db_prefix}messages;
+---#
+
+---# duplicate to topics_last_message_sticky and topics_board_news
+DROP INDEX idx_id_board on {$db_prefix}topics;
+---#
+
+/******************************************************************************/
+--- update ban ip with ipv6 support
+/******************************************************************************/
+---# add columns
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_low varbinary(16);
+ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
+---#
+
+---# convert data
+UPDATE {$db_prefix}ban_items
+SET ip_low =
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_low1,'.',ip_low2,'.',ip_low3,'.',ip_low4))
+        )
+    ),
+ip_high =
+    UNHEX(
+        hex(
+            INET_ATON(concat(ip_high1,'.',ip_high2,'.',ip_high3,'.',ip_high4))
+        )
+    )
+where ip_low1 > 0;
+---#
+
+---#  index
+CREATE INDEX idx_ban_items_iplow_high ON {$db_prefix}ban_items(ip_low,ip_high);
+---#
+
+---# Dropping columns from ban_items
+ALTER TABLE {$db_prefix}ban_items
+DROP ip_low1,
+DROP ip_low2,
+DROP ip_low3,
+DROP ip_low4,
+DROP ip_low5,
+DROP ip_low6,
+DROP ip_low7,
+DROP ip_low8;
 ---#

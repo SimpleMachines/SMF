@@ -53,10 +53,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -348,7 +348,7 @@ function ModifyCookieSettings($return_config = false)
 
 			redirectexit('action=admin;area=serversettings;sa=cookie;' . $context['session_var'] . '=' . $original_session_id, $context['server']['needs_login_fix']);
 		}
-		
+
 		//If we disabled 2FA, reset all members and membergroups settings.
 		if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode']))
 		{
@@ -544,13 +544,13 @@ function ModifyLoadBalancingSettings($return_config = false)
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = $txt['loadavg_disabled_windows'];
 	}
-	elseif (stripos(PHP_OS, 'darwin') === 0) 
+	elseif (stripos(PHP_OS, 'darwin') === 0)
 	{
 		$context['settings_message'] = $txt['loadavg_disabled_osx'];
 		if (isset($_GET['save']))
 			$_SESSION['adm-save'] = $txt['loadavg_disabled_osx'];
-	}	
-	else 
+	}
+	else
 	{
 		$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
 		if (!empty($modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $modSettings['load_average'], $matches) !== 0)
@@ -1122,7 +1122,7 @@ function saveDBSettings(&$config_vars)
 	$inlinePermissions = array();
 	foreach ($config_vars as $var)
 	{
-		if (!isset($var[1]) || (!isset($_POST[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && ($var[0] != 'bbc' || !isset($_POST[$var[1] . '_enabledTags']))))
+		if (!isset($var[1]) || (!isset($_POST[$var[1]]) && $var[0] != 'check' && $var[0] != 'permissions' && $var[0] != 'boards' && ($var[0] != 'bbc' || !isset($_POST[$var[1] . '_enabledTags']))))
 			continue;
 
 		// Checkboxes!
@@ -1139,7 +1139,7 @@ function saveDBSettings(&$config_vars)
 				if (in_array($invar, array_keys($var[2])))
 					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = json_encode($options);
+			$setArray[$var[1]] = json_encode($lOptions);
 		}
 		// List of boards!
 		elseif ($var[0] == 'boards')
@@ -1153,15 +1153,18 @@ function saveDBSettings(&$config_vars)
 					FROM {db_prefix}boards');
 				while ($row = $smcFunc['db_fetch_row']($request))
 					$board_list[$row[0]] = true;
+
 				$smcFunc['db_free_result']($request);
 			}
 
 			$lOptions = array();
-			foreach ($_POST[$var[1]] as $invar => $dummy)
-				if (isset($board_list[$invar]))
-					$lOptions[] = $invar;
 
-			$setArray[$var[1]] = implode(',', $lOptions);
+			if (!empty($_POST[$var[1]]))
+				foreach ($_POST[$var[1]] as $invar => $dummy)
+					if (isset($board_list[$invar]))
+						$lOptions[] = $invar;
+
+			$setArray[$var[1]] = !empty($lOptions) ? implode(',', $lOptions) : '';
 		}
 		// Integers!
 		elseif ($var[0] == 'int')

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -567,9 +567,9 @@ function constructPageIndex($base_url, &$start, $max_value, $num_per_page, $flex
 	{
 		// This defines the formatting for the page indexes used throughout the forum.
 		$settings['page_index'] = array(
-			'extra_before' => '<span class="pages">' . $txt['pages'] . ': </span>',
+			'extra_before' => '<span class="pages">' . $txt['pages'] . '</span>',
 			'previous_page' => '<span class="generic_icons previous_page"></span>',
-			'current_page' => '<span class="current_page">[%1$d]</span> ',
+			'current_page' => '<span class="current_page">%1$d</span> ',
 			'page' => '<a class="navPages" href="{URL}">%2$s</a> ',
 			'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 			'next_page' => '<span class="generic_icons next_page"></span>',
@@ -2583,7 +2583,7 @@ function parsesmileys(&$message)
 			}
 		}
 
-		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
+		$smileyPregSearch = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . implode('|', $searchParts) . ')(?=[^[:alpha:]0-9]|$)~' . ($context['utf8'] ? 'u' : '');
 	}
 
 	// Replace away!
@@ -3433,53 +3433,75 @@ function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = fa
  */
 function ip2range($fullip)
 {
-	// If its IPv6, validate it first.
-	if (isValidIPv6($fullip) !== false)
-	{
-		$ip_parts = explode(':', expandIPv6($fullip, false));
-		$ip_array = array();
-
-		if (count($ip_parts) != 8)
-			return array();
-
-		for ($i = 0; $i < 8; $i++)
-		{
-			if ($ip_parts[$i] == '*')
-				$ip_array[$i] = array('low' => '0', 'high' => hexdec('ffff'));
-			elseif (preg_match('/^([0-9A-Fa-f]{1,4})\-([0-9A-Fa-f]{1,4})$/', $ip_parts[$i], $range) == 1)
-				$ip_array[$i] = array('low' => hexdec($range[1]), 'high' => hexdec($range[2]));
-			elseif (is_numeric(hexdec($ip_parts[$i])))
-				$ip_array[$i] = array('low' => hexdec($ip_parts[$i]), 'high' => hexdec($ip_parts[$i]));
-		}
-
-		return $ip_array;
-	}
-
 	// Pretend that 'unknown' is 255.255.255.255. (since that can't be an IP anyway.)
 	if ($fullip == 'unknown')
 		$fullip = '255.255.255.255';
 
-	$ip_parts = explode('.', $fullip);
+	$ip_parts = explode('-', $fullip);
 	$ip_array = array();
 
-	if (count($ip_parts) != 4)
-		return array();
-
-	for ($i = 0; $i < 4; $i++)
+	// if ip 22.12.31.21
+	if (count($ip_parts) == 1 && isValidIP($fullip))
 	{
-		if ($ip_parts[$i] == '*')
-			$ip_array[$i] = array('low' => '0', 'high' => '255');
-		elseif (preg_match('/^(\d{1,3})\-(\d{1,3})$/', $ip_parts[$i], $range) == 1)
-			$ip_array[$i] = array('low' => $range[1], 'high' => $range[2]);
-		elseif (is_numeric($ip_parts[$i]))
-			$ip_array[$i] = array('low' => $ip_parts[$i], 'high' => $ip_parts[$i]);
+		$ip_array['low'] = $fullip;
+		$ip_array['high'] = $fullip;
+		return $ip_array;
+	} // if ip 22.12.* -> 22.12.* - 22.12.*
+	elseif (count($ip_parts) == 1)
+	{
+		$ip_parts[0] = $fullip;
+		$ip_parts[1] = $fullip;
 	}
 
-	// Makes it simpiler to work with.
-	$ip_array[4] = array('low' => 0, 'high' => 0);
-	$ip_array[5] = array('low' => 0, 'high' => 0);
-	$ip_array[6] = array('low' => 0, 'high' => 0);
-	$ip_array[7] = array('low' => 0, 'high' => 0);
+	// if ip 22.12.31.21-12.21.31.21
+	if (count($ip_parts) == 2 && isValidIP($ip_parts[0]) && isValidIP($ip_parts[1]))
+	{
+		$ip_array['low'] = $ip_parts[0];
+		$ip_array['high'] = $ip_parts[1];
+		return $ip_array;
+	}
+	elseif (count($ip_parts) == 2) // if ip 22.22.*-22.22.*
+	{
+		$valid_low = isValidIP($ip_parts[0]);
+		$valid_high = isValidIP($ip_parts[1]);
+		$count = 0;
+		$mode = (preg_match('/:/',$ip_parts[0]) > 0 ? ':' : '.');
+		$max = ($mode == ':' ? 'ffff' : '255');
+		$min = 0;
+		if(!$valid_low)
+		{
+			$ip_parts[0] = preg_replace('/\*/', '0', $ip_parts[0]);
+			$valid_low = isValidIP($ip_parts[0]);
+			while (!$valid_low)
+			{
+				$ip_parts[0] .= $mode . $min;
+				$valid_low = isValidIP($ip_parts[0]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+
+		$count = 0;
+		if(!$valid_high)
+		{
+			$ip_parts[1] = preg_replace('/\*/', $max, $ip_parts[1]);
+			$valid_high = isValidIP($ip_parts[1]);
+			while (!$valid_high)
+			{
+				$ip_parts[1] .= $mode . $max;
+				$valid_high = isValidIP($ip_parts[1]);
+				$count++;
+				if ($count > 9) break;
+			}
+		}
+
+		if($valid_high && $valid_low)
+		{
+			$ip_array['low'] = $ip_parts[0];
+			$ip_array['high'] = $ip_parts[1];
+		}
+
+	}
 
 	return $ip_array;
 }
@@ -4080,6 +4102,10 @@ function call_integration_hook($hook, $parameters = array())
 	// Loop through each function.
 	foreach ($functions as $function)
 	{
+		// Hook has been marked as "disabled". Skip it!
+		if (strpos($function, '!') !== false)
+			continue;
+
 		$call = call_helper($function, true);
 
 		// Is it valid?
@@ -4751,6 +4777,351 @@ function smf_list_timezones()
 		'Pacific/Tongatapu' => '[UTC+13:00] Nuku\'alofa',
 		'Pacific/Kiritimati' => '[UTC+14:00] Kiritimati',
 	);
+}
+
+/**
+ * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
+ * @return binary The IP address in binary or false
+ */
+function inet_ptod($ip_address)
+{
+	if (!isValidIP($ip_address))
+		return $ip_address;
+
+	$bin = inet_pton($ip_address);
+	return $bin;
+}
+
+/**
+ * @param binary $bin An IP address in IPv4, IPv6
+ * @return string The IP address in presentation format or false on error
+ */
+function inet_dtop($bin)
+{
+	if(strpos($bin,'.')!==false || strpos($bin,':')!==false)
+		return $bin;
+
+	$ip_address = inet_ntop($bin);
+
+	return $ip_address;
+}
+
+/**
+ * Safe serialize() and unserialize() replacements
+ *
+ * @license Public Domain
+ *
+ * @author anthon (dot) pang (at) gmail (dot) com
+ */
+
+/*
+ * Arbitrary limits for safe_unserialize()
+ */
+define('MAX_SERIALIZED_INPUT_LENGTH', 4096);
+define('MAX_SERIALIZED_ARRAY_LENGTH', 256);
+define('MAX_SERIALIZED_ARRAY_DEPTH', 3);
+
+/**
+ * Safe serialize() replacement. Recursive
+ * - output a strict subset of PHP's native serialized representation
+ * - does not serialize objects
+ *
+ * @param mixed $value
+ * @return string
+ */
+function _safe_serialize($value)
+{
+	if(is_null($value))
+		return 'N;';
+
+	if(is_bool($value))
+		return 'b:'. (int) $value .';';
+
+	if(is_int($value))
+		return 'i:'. $value .';';
+
+	if(is_float($value))
+		return 'd:'. str_replace(',', '.', $value) .';';
+
+	if(is_string($value))
+		return 's:'. strlen($value) .':"'. $value .'";';
+
+	if(is_array($value))
+	{
+		$out = '';
+		foreach($value as $k => $v)
+			$out .= _safe_serialize($k) . _safe_serialize($v);
+
+		return 'a:'. count($value) .':{'. $out .'}';
+	}
+
+	// safe_serialize cannot serialize resources or objects.
+	return false;
+}
+/**
+ * Wrapper for _safe_serialize() that handles exceptions and multibyte encoding issues.
+ *
+ * @param mixed $value
+ * @return string
+ */
+function safe_serialize($value)
+{
+	// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+	if (function_exists('mb_internal_encoding') &&
+		(((int) ini_get('mbstring.func_overload')) & 2))
+	{
+		$mbIntEnc = mb_internal_encoding();
+		mb_internal_encoding('ASCII');
+	}
+
+	$out = _safe_serialize($value);
+
+	if (isset($mbIntEnc))
+		mb_internal_encoding($mbIntEnc);
+
+	return $out;
+}
+
+/**
+ * Safe unserialize() replacement
+ * - accepts a strict subset of PHP's native serialized representation
+ * - does not unserialize objects
+ *
+ * @param string $str
+ * @return mixed
+ * @throw Exception if $str is malformed or contains unsupported types (e.g., resources, objects)
+ */
+function _safe_unserialize($str)
+{
+	// Input exceeds MAX_SERIALIZED_INPUT_LENGTH.
+	if(strlen($str) > MAX_SERIALIZED_INPUT_LENGTH)
+		return false;
+
+	// Input  is not a string.
+	if(empty($str) || !is_string($str))
+		return false;
+
+	$stack = array();
+	$expected = array();
+
+	/*
+	 * states:
+	 *   0 - initial state, expecting a single value or array
+	 *   1 - terminal state
+	 *   2 - in array, expecting end of array or a key
+	 *   3 - in array, expecting value or another array
+	 */
+	$state = 0;
+	while($state != 1)
+	{
+		$type = isset($str[0]) ? $str[0] : '';
+		if($type == '}')
+			$str = substr($str, 1);
+
+		else if($type == 'N' && $str[1] == ';')
+		{
+			$value = null;
+			$str = substr($str, 2);
+		}
+		else if($type == 'b' && preg_match('/^b:([01]);/', $str, $matches))
+		{
+			$value = $matches[1] == '1' ? true : false;
+			$str = substr($str, 4);
+		}
+		else if($type == 'i' && preg_match('/^i:(-?[0-9]+);(.*)/s', $str, $matches))
+		{
+			$value = (int)$matches[1];
+			$str = $matches[2];
+		}
+		else if($type == 'd' && preg_match('/^d:(-?[0-9]+\.?[0-9]*(E[+-][0-9]+)?);(.*)/s', $str, $matches))
+		{
+			$value = (float)$matches[1];
+			$str = $matches[3];
+		}
+		else if($type == 's' && preg_match('/^s:([0-9]+):"(.*)/s', $str, $matches) && substr($matches[2], (int)$matches[1], 2) == '";')
+		{
+			$value = substr($matches[2], 0, (int)$matches[1]);
+			$str = substr($matches[2], (int)$matches[1] + 2);
+		}
+		else if($type == 'a' && preg_match('/^a:([0-9]+):{(.*)/s', $str, $matches) && $matches[1] < MAX_SERIALIZED_ARRAY_LENGTH)
+		{
+			$expectedLength = (int)$matches[1];
+			$str = $matches[2];
+		}
+
+		// Object or unknown/malformed type.
+		else
+			return false;
+
+		switch($state)
+		{
+			case 3: // In array, expecting value or another array.
+				if($type == 'a')
+				{
+					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
+					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
+						return false;
+
+					$stack[] = &$list;
+					$list[$key] = array();
+					$list = &$list[$key];
+					$expected[] = $expectedLength;
+					$state = 2;
+					break;
+				}
+				if($type != '}')
+				{
+					$list[$key] = $value;
+					$state = 2;
+					break;
+				}
+
+				// Missing array value.
+				return false;
+
+			case 2: // in array, expecting end of array or a key
+				if($type == '}')
+				{
+					// Array size is less than expected.
+					if(count($list) < end($expected))
+						return false;
+
+					unset($list);
+					$list = &$stack[count($stack)-1];
+					array_pop($stack);
+
+					// Go to terminal state if we're at the end of the root array.
+					array_pop($expected);
+
+					if(count($expected) == 0)
+						$state = 1;
+
+					break;
+				}
+
+				if($type == 'i' || $type == 's')
+				{
+					// Array size exceeds MAX_SERIALIZED_ARRAY_LENGTH.
+					if(count($list) >= MAX_SERIALIZED_ARRAY_LENGTH)
+						return false;
+
+					// Array size exceeds expected length.
+					if(count($list) >= end($expected))
+						return false;
+
+					$key = $value;
+					$state = 3;
+					break;
+				}
+
+				// Illegal array index type.
+				return false;
+
+			// Expecting array or value.
+			case 0:
+				if($type == 'a')
+				{
+					// Array nesting exceeds MAX_SERIALIZED_ARRAY_DEPTH.
+					if(count($stack) >= MAX_SERIALIZED_ARRAY_DEPTH)
+						return false;
+
+					$data = array();
+					$list = &$data;
+					$expected[] = $expectedLength;
+					$state = 2;
+					break;
+				}
+
+				if($type != '}')
+				{
+					$data = $value;
+					$state = 1;
+					break;
+				}
+
+				// Not in array.
+				return false;
+		}
+	}
+
+	// Trailing data in input.
+	if(!empty($str))
+		return false;
+
+	return $data;
+}
+
+/**
+ * Wrapper for _safe_unserialize() that handles exceptions and multibyte encoding issue
+ *
+ * @param string $str
+ * @return mixed
+ */
+function safe_unserialize($str)
+{
+	// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
+	if (function_exists('mb_internal_encoding') &&
+		(((int) ini_get('mbstring.func_overload')) & 0x02))
+	{
+		$mbIntEnc = mb_internal_encoding();
+		mb_internal_encoding('ASCII');
+	}
+
+	$out = _safe_unserialize($str);
+
+	if (isset($mbIntEnc))
+		mb_internal_encoding($mbIntEnc);
+
+	return $out;
+}
+
+/**
+ * Tries different modes to make file/dirs writable. Wrapper function for chmod()
+
+ * @param string $file The file/dir full path.
+ * @param int $value Not needed, added for legacy reasons.
+ * @return boolean  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
+ */
+function smf_chmod($file, $value = 0)
+{
+	// No file? no checks!
+	if (empty($file))
+		return false;
+
+	// Already writable?
+	if (is_writable($file))
+		return true;
+
+	// Do we have a file or a dir?
+	$isDir = is_dir($file);
+	$isWritable = false;
+
+	// Set different modes.
+	$chmodValues = $isDir ? array(0750, 0755, 0775, 0777) : array(0644, 0664, 0666);
+
+	foreach($chmodValues as $val)
+	{
+		// If it's writable, break out of the loop.
+		if (is_writable($file))
+		{
+			$isWritable = true;
+			break;
+		}
+
+		else
+			@chmod($file, $val);
+	}
+
+	return $isWritable;
+}
+
+/**
+ * Check the given String if he is a valid IPv4 or IPv6
+ * return true or false
+ */
+function isValidIP($IPString)
+{
+	return filter_var($IPString, FILTER_VALIDATE_IP) !== false;
 }
 
 ?>

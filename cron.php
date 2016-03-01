@@ -14,10 +14,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 define('SMF', 'BACKGROUND');
@@ -129,11 +129,10 @@ function fetch_task()
 	// Try to find a task. Specifically, try to find one that hasn't been claimed previously, or failing that,
 	// a task that was claimed but failed for whatever reason and failed long enough ago. We should not care
 	// what task it is, merely that it is one in the queue, the order is irrelevant.
-	$request = $smcFunc['db_query']('cron_find_task', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_task, task_file, task_class, task_data, claimed_time
 		FROM {db_prefix}background_tasks
 		WHERE claimed_time < {int:claim_limit}
-		ORDER BY null
 		LIMIT 1',
 		array(
 			'claim_limit' => time() - MAX_CLAIM_THRESHOLD,

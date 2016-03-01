@@ -11,10 +11,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -124,7 +124,7 @@ function sessionRead($session_id)
 	global $smcFunc;
 
 	if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0)
-		return false;
+		return '';
 
 	// Look for it in the database.
 	$result = $smcFunc['db_query']('', '
@@ -139,7 +139,7 @@ function sessionRead($session_id)
 	list ($sess_data) = $smcFunc['db_fetch_row']($result);
 	$smcFunc['db_free_result']($result);
 
-	return $sess_data;
+	return $sess_data != null ? $sess_data : '';
 }
 
 /**
@@ -177,7 +177,7 @@ function sessionWrite($session_id, $data)
 			array('session_id')
 		);
 
-	return $result;
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 /**
@@ -194,13 +194,15 @@ function sessionDestroy($session_id)
 		return false;
 
 	// Just delete the row...
-	return $smcFunc['db_query']('', '
+	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE session_id = {string:session_id}',
 		array(
 			'session_id' => $session_id,
 		)
 	);
+
+	return true;
 }
 
 /**
@@ -219,13 +221,15 @@ function sessionGC($max_lifetime)
 		$max_lifetime = max($modSettings['databaseSession_lifetime'], 60);
 
 	// Clean up after yerself ;).
-	return $smcFunc['db_query']('', '
+	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}sessions
 		WHERE last_update < {int:last_update}',
 		array(
 			'last_update' => time() - $max_lifetime,
 		)
 	);
+
+	return ($smcFunc['db_affected_rows']() == 0 ? false : true);
 }
 
 ?>

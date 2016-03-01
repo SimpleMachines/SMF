@@ -8,7 +8,7 @@ var updateAlerts = function ()
     if (typeof localStorage != 'undefined')
     {
         unreadAlerts = localStorage.getItem('alertsCounter');
-        
+
         if (unreadAlerts !== parseInt(unreadAlerts))
             return true;
 
@@ -36,13 +36,13 @@ var updateAlerts = function ()
             return true;
 
         unreadAlerts += alerts.length;
-        
+
         if (unreadAlerts !== parseInt(unreadAlerts))
             return true;
 
         if (typeof localStorage != 'undefined')
             localStorage.setItem('alertsCounter', unreadAlerts);
-        
+
         if ($('.amt:first').is(':visible'))
             $('.amt:first').text(unreadAlerts);
         else if (!$('.amt:first').is(':visible') && unreadAlerts != 0)

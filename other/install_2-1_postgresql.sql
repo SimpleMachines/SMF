@@ -10,30 +10,6 @@ CREATE OR REPLACE FUNCTION FROM_UNIXTIME(integer) RETURNS timestamp AS
   'SELECT timestamp ''epoch'' + $1 * interval ''1 second'' AS result'
 LANGUAGE 'sql';
 
-CREATE OR REPLACE FUNCTION IFNULL (text, text) RETURNS text AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int4, int4) RETURNS int4 AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int8, int8) RETURNS int8 AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (character varying, character varying) RETURNS character varying AS
-  'SELECT COALESCE($1, $2) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (character varying, boolean) RETURNS character varying AS
-  'SELECT COALESCE($1, CAST(CAST($2 AS int) AS varchar)) AS result'
-LANGUAGE 'sql';
-
-CREATE OR REPLACE FUNCTION IFNULL (int, boolean) RETURNS int AS
-  'SELECT COALESCE($1, CAST($2 AS int)) AS result'
-LANGUAGE 'sql';
-
 CREATE OR REPLACE FUNCTION INET_ATON(text) RETURNS bigint AS '
 	SELECT
 	CASE WHEN
@@ -268,22 +244,8 @@ CREATE SEQUENCE {$db_prefix}ban_items_seq;
 CREATE TABLE {$db_prefix}ban_items (
   id_ban int default nextval('{$db_prefix}ban_items_seq'),
   id_ban_group smallint NOT NULL default '0',
-  ip_low1 smallint NOT NULL default '0',
-  ip_high1 smallint NOT NULL default '0',
-  ip_low2 smallint NOT NULL default '0',
-  ip_high2 smallint NOT NULL default '0',
-  ip_low3 smallint NOT NULL default '0',
-  ip_high3 smallint NOT NULL default '0',
-  ip_low4 smallint NOT NULL default '0',
-  ip_high4 smallint NOT NULL default '0',
-  ip_low5 smallint NOT NULL default '0',
-  ip_high5 smallint NOT NULL default '0',
-  ip_low6 smallint NOT NULL default '0',
-  ip_high6 smallint NOT NULL default '0',
-  ip_low7 smallint NOT NULL default '0',
-  ip_high7 smallint NOT NULL default '0',
-  ip_low8 smallint NOT NULL default '0',
-  ip_high8 smallint NOT NULL default '0',
+  ip_low inet,
+  ip_high inet,
   hostname varchar(255) NOT NULL,
   email_address varchar(255) NOT NULL,
   id_member int NOT NULL default '0',
@@ -296,6 +258,7 @@ CREATE TABLE {$db_prefix}ban_items (
 #
 
 CREATE INDEX {$db_prefix}ban_items_id_ban_group ON {$db_prefix}ban_items (id_ban_group);
+CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 
 #
 # Table structure for table `board_permissions`
@@ -638,7 +601,7 @@ CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 # Table structure for table `log_floodcontrol`
 #
 
-CREATE TABLE {$db_prefix}log_floodcontrol (
+CREATE {$unlogged} TABLE {$db_prefix}log_floodcontrol (
   ip char(16) NOT NULL default '                ',
   log_time int NOT NULL default '0',
   log_type varchar(8) NOT NULL default 'post',
@@ -725,7 +688,7 @@ CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic
 # Table structure for table `log_online`
 #
 
-CREATE TABLE {$db_prefix}log_online (
+CREATE {$unlogged} TABLE {$db_prefix}log_online (
   session varchar(64) NOT NULL default '',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
@@ -1289,14 +1252,12 @@ CREATE TABLE {$db_prefix}messages (
 # Indexes for table `messages`
 #
 
-CREATE UNIQUE INDEX {$db_prefix}messages_topic ON {$db_prefix}messages (id_topic, id_msg);
 CREATE UNIQUE INDEX {$db_prefix}messages_id_board ON {$db_prefix}messages (id_board, id_msg);
 CREATE UNIQUE INDEX {$db_prefix}messages_id_member ON {$db_prefix}messages (id_member, id_msg);
 CREATE INDEX {$db_prefix}messages_approved ON {$db_prefix}messages (approved);
 CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
 CREATE INDEX {$db_prefix}messages_participation ON {$db_prefix}messages (id_member, id_topic);
 CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member, id_board);
-CREATE INDEX {$db_prefix}messages_id_topic ON {$db_prefix}messages (id_topic);
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
@@ -1541,7 +1502,7 @@ CREATE TABLE {$db_prefix}settings (
 # Table structure for table `sessions`
 #
 
-CREATE TABLE {$db_prefix}sessions (
+CREATE {$unlogged} TABLE {$db_prefix}sessions (
   session_id char(64) NOT NULL,
   last_update int NOT NULL,
   data text NOT NULL,
@@ -1677,7 +1638,6 @@ CREATE UNIQUE INDEX {$db_prefix}topics_first_message ON {$db_prefix}topics (id_f
 CREATE UNIQUE INDEX {$db_prefix}topics_poll ON {$db_prefix}topics (id_poll, id_topic);
 CREATE INDEX {$db_prefix}topics_is_sticky ON {$db_prefix}topics (is_sticky);
 CREATE INDEX {$db_prefix}topics_approved ON {$db_prefix}topics (approved);
-CREATE INDEX {$db_prefix}topics_id_board ON {$db_prefix}topics (id_board);
 CREATE INDEX {$db_prefix}topics_member_started ON {$db_prefix}topics (id_member_started, id_board);
 CREATE INDEX {$db_prefix}topics_last_message_sticky ON {$db_prefix}topics (id_board, is_sticky, id_last_msg);
 CREATE INDEX {$db_prefix}topics_board_news ON {$db_prefix}topics (id_board, id_first_msg);

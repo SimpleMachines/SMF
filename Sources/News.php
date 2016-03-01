@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -210,6 +210,10 @@ function ShowXmlFeed()
 	}
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	
+	// If mods want to do somthing with this feed, let them do that now.
+	// Provide the feed's data, title, format, and content type.
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -581,9 +585,9 @@ function getXmlNews($xml_format)
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 				m.icon, t.id_topic, t.id_board, t.num_replies,
 				b.name AS bname,
-				IFNULL(mem.id_member, 0) AS id_member,
-				IFNULL(mem.email_address, m.poster_email) AS poster_email,
-				IFNULL(mem.real_name, m.poster_name) AS poster_name
+				COALESCE(mem.id_member, 0) AS id_member,
+				COALESCE(mem.email_address, m.poster_email) AS poster_email,
+				COALESCE(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -748,9 +752,9 @@ function getXmlRecent($xml_format)
 		SELECT
 			m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 			b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
-			IFNULL(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
-			IFNULL(memf.real_name, mf.poster_name) AS first_poster_name,
-			IFNULL(mem.email_address, m.poster_email) AS poster_email, m.modified_time
+			COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
+			COALESCE(memf.real_name, mf.poster_name) AS first_poster_name,
+			COALESCE(mem.email_address, m.poster_email) AS poster_email, m.modified_time
 		FROM {db_prefix}messages AS m
 			INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 			INNER JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)
@@ -782,7 +786,7 @@ function getXmlRecent($xml_format)
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
-				'title' => $row['subject'],
+				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'description' => cdata_parse($row['body']),
 				'author' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
@@ -793,13 +797,13 @@ function getXmlRecent($xml_format)
 			);
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
-				'title' => $row['subject'],
+				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'description' => cdata_parse($row['body']),
 			);
 		elseif ($xml_format == 'atom')
 			$data[] = array(
-				'title' => $row['subject'],
+				'title' => cdata_parse($row['subject']),
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'summary' => cdata_parse($row['body']),
 				'category' => $row['bname'],

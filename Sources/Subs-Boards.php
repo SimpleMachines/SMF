@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -215,7 +215,7 @@ function MarkRead()
 	{
 		// First, let's figure out what the latest message is.
 		$result = $smcFunc['db_query']('', '
-			SELECT t.id_first_msg, t.id_last_msg, IFNULL(lt.unwatched, 0) as unwatched
+			SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
 			LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 			WHERE t.id_topic = {int:current_topic}',
@@ -423,7 +423,7 @@ function getMsgMemberID($messageID)
 
 	// Find the topic and make sure the member still exists.
 	$result = $smcFunc['db_query']('', '
-		SELECT IFNULL(mem.id_member, 0)
+		SELECT COALESCE(mem.id_member, 0)
 		FROM {db_prefix}messages AS m
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_msg = {int:selected_message}
@@ -1308,7 +1308,7 @@ function getBoardTree()
 	// Getting all the board and category information you'd ever wanted.
 	$request = $smcFunc['db_query']('', '
 		SELECT
-			IFNULL(b.id_board, 0) AS id_board, b.id_parent, b.name AS board_name, b.description, b.child_level,
+			COALESCE(b.id_board, 0) AS id_board, b.id_parent, b.name AS board_name, b.description, b.child_level,
 			b.board_order, b.count_posts, b.member_groups, b.id_theme, b.override_theme, b.id_profile, b.redirect,
 			b.num_posts, b.num_topics, b.deny_member_groups, c.id_cat, c.name AS cat_name, c.description AS cat_desc, c.cat_order, c.can_collapse
 		FROM {db_prefix}categories AS c

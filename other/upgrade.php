@@ -5,15 +5,15 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 // Version information...
-define('SMF_VERSION', '2.1 Beta 2');
-define('SMF_LANG_VERSION', '2.1 Beta 2');
+define('SMF_VERSION', '2.1 Beta 3');
+define('SMF_LANG_VERSION', '2.1 Beta 3');
 
 $GLOBALS['required_php_version'] = '5.3.8';
 $GLOBALS['required_mysql_version'] = '5.0.3';
@@ -129,10 +129,11 @@ if (empty($upcontext['updated']))
 // Load up some essential data...
 loadEssentialData();
 
+require_once($sourcedir . '/Subs.php');
+
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
-	require_once($sourcedir . '/Subs.php');
 	require_once($sourcedir . '/Errors.php');
 	require_once($sourcedir . '/Logging.php');
 	require_once($sourcedir . '/Load.php');
@@ -142,10 +143,6 @@ if (isset($_GET['ssi']))
 	loadUserSettings();
 	loadPermissions();
 }
-
-// All the non-SSI stuff.
-if (!function_exists('ip2range') && php_version_check())
-	require_once($sourcedir . '/Subs.php');
 
 if (!function_exists('un_htmlspecialchars'))
 {
@@ -609,7 +606,7 @@ $upcontext['page_title'] = isset($modSettings['smfVersion']) ? 'Updating Your SM
 // Have we got tracking data - if so use it (It will be clean!)
 if (isset($_GET['data']))
 {
-	$upcontext['upgrade_status'] = unserialize(base64_decode($_GET['data']));
+	$upcontext['upgrade_status'] = safe_unserialize(base64_decode($_GET['data']));
 	$upcontext['current_step'] = $upcontext['upgrade_status']['curstep'];
 	$upcontext['language'] = $upcontext['upgrade_status']['lang'];
 	$upcontext['rid'] = $upcontext['upgrade_status']['rid'];
@@ -687,7 +684,7 @@ function upgradeExit($fallThrough = false)
 		$upcontext['user']['step'] = $upcontext['current_step'];
 		$upcontext['user']['substep'] = $_GET['substep'];
 		$upcontext['user']['updated'] = time();
-		$upgradeData = base64_encode(serialize($upcontext['user']));
+		$upgradeData = base64_encode(safe_serialize($upcontext['user']));
 		copy($boarddir . '/Settings.php', $boarddir . '/Settings_bak.php');
 		changeSettings(array('upgradeData' => '"' . $upgradeData . '"'));
 		updateLastError();
@@ -736,7 +733,7 @@ function upgradeExit($fallThrough = false)
 		if (isset($upcontext['sub_template']))
 		{
 			$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(serialize($upcontext['upgrade_status']));
+			$upcontext['form_url'] = $upgradeurl . '?step=' . $upcontext['current_step'] . '&amp;substep=' . $_GET['substep'] . '&amp;data=' . base64_encode(safe_serialize($upcontext['upgrade_status']));
 
 			// Custom stuff to pass back?
 			if (!empty($upcontext['query_string']))
@@ -773,7 +770,7 @@ function redirectLocation($location, $addForm = true)
 	if ($addForm)
 	{
 		$upcontext['upgrade_status']['curstep'] = $upcontext['current_step'];
-		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(serialize($upcontext['upgrade_status'])) . $location;
+		$location = $upgradeurl . '?step=' . $upcontext['current_step'] . '&substep=' . $_GET['substep'] . '&data=' . base64_encode(safe_serialize($upcontext['upgrade_status'])) . $location;
 	}
 
 	while (@ob_end_clean());
@@ -790,7 +787,9 @@ function loadEssentialData()
 	global $modSettings, $sourcedir, $smcFunc;
 
 	// Do the non-SSI stuff...
-	@set_magic_quotes_runtime(0);
+	if (function_exists('set_magic_quotes_runtime'))
+		@set_magic_quotes_runtime(0);
+
 	error_reporting(E_ALL);
 	define('SMF', 1);
 
@@ -1773,7 +1772,7 @@ function CleanupMods()
 	// Do we already know about some writable files?
 	if (isset($_POST['writable_files']))
 	{
-		$writable_files = unserialize(base64_decode($_POST['writable_files']));
+		$writable_files = safe_unserialize(base64_decode($_POST['writable_files']));
 		if (!makeFilesWritable($writable_files))
 		{
 			// What have we left?
@@ -2134,7 +2133,7 @@ function DeleteUpgrade()
 		),
 		array(
 			time(), 3, $user_info['id'], $command_line ? '127.0.0.1' : $user_info['ip'], 'upgrade',
-			0, 0, 0, serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
+			0, 0, 0, safe_serialize(array('version' => $forum_version, 'member' => $user_info['id'])),
 		),
 		array('id_action')
 	);
@@ -4053,7 +4052,7 @@ function convertUtf8()
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (@unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
+			if (@safe_unserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1)
 				$smcFunc['db_query']('', '
 					UPDATE {db_prefix}log_actions
 					SET extra = {string:extra}
@@ -4177,7 +4176,7 @@ function serialize_to_json()
 					if (isset($modSettings[$var]))
 					{
 						// Attempt to unserialize the setting
-						$temp = @unserialize($modSettings[$var]);
+						$temp = @safe_unserialize($modSettings[$var]);
 						if (!$temp && $command_line)
 							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
 						elseif ($temp !== false)
@@ -4208,7 +4207,7 @@ function serialize_to_json()
 				{
 					while ($row = $smcFunc['db_fetch_assoc']($query))
 					{
-						$temp = @unserialize($row['admin_preferences']);
+						$temp = @safe_unserialize($row['admin_preferences']);
 
 						if ($command_line)
 						{
@@ -4283,7 +4282,7 @@ function serialize_to_json()
 						{
 							if ($col !== true && $row[$col] != '')
 							{
-								$temp = @unserialize($row[$col]);
+								$temp = @safe_unserialize($row[$col]);
 
 								if ($temp === false && $command_line)
 								{
@@ -4606,7 +4605,7 @@ function template_upgrade_below()
 		</div>
 		<div id="footer">
 			<ul>
-				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2015, Simple Machines</a></li>
+				<li class="copyright"><a href="http://www.simplemachines.org/" title="Simple Machines Forum" target="_blank" class="new_win">SMF &copy; 2016, Simple Machines</a></li>
 			</ul>
 		</div>
 	</body>
@@ -5506,7 +5505,7 @@ function template_clean_mods()
 	// Files to make writable?
 	if (!empty($upcontext['writable_files']))
 		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(serialize($upcontext['writable_files'])), '">';
+		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
 
 	// We'll want a continue button...
 	if (empty($upcontext['chmod']['files']))
@@ -5627,13 +5626,13 @@ function template_upgrade_templates()
 
 	if (!empty($upcontext['languages']))
 		echo '
-		<input type="hidden" name="languages" value="', base64_encode(serialize($upcontext['languages'])), '">';
+		<input type="hidden" name="languages" value="', base64_encode(safe_serialize($upcontext['languages'])), '">';
 	if (!empty($upcontext['themes']))
 		echo '
-		<input type="hidden" name="themes" value="', base64_encode(serialize($upcontext['themes'])), '">';
+		<input type="hidden" name="themes" value="', base64_encode(safe_serialize($upcontext['themes'])), '">';
 	if (!empty($upcontext['writable_files']))
 		echo '
-		<input type="hidden" name="writable_files" value="', base64_encode(serialize($upcontext['writable_files'])), '">';
+		<input type="hidden" name="writable_files" value="', base64_encode(safe_serialize($upcontext['writable_files'])), '">';
 
 	// Offer them the option to upgrade from YaBB SE?
 	if (!empty($upcontext['can_upgrade_yabbse']))

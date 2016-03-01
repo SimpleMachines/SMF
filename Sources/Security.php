@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -217,7 +217,7 @@ function is_not_banned($forceCheck = false)
 			);
 			$request = $smcFunc['db_query']('', '
 				SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
-					bg.cannot_post, bg.cannot_login, bg.reason, IFNULL(bg.expire_time, 0) AS expire_time
+					bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 				FROM {db_prefix}ban_items AS bi
 					INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
 				WHERE
@@ -1270,32 +1270,17 @@ else
  */
 function constructBanQueryIP($fullip)
 {
-	// First attempt a IPv6 address.
-	if (isValidIPv6($fullip))
-	{
-		$ip_parts = convertIPv6toInts($fullip);
+	global $smcFunc;
 
-		$ban_query = '((' . $ip_parts[0] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[1] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low4 AND bi.ip_high4)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low5 AND bi.ip_high5)
-			AND (' . $ip_parts[5] . ' BETWEEN bi.ip_low6 AND bi.ip_high6)
-			AND (' . $ip_parts[6] . ' BETWEEN bi.ip_low7 AND bi.ip_high7)
-			AND (' . $ip_parts[7] . ' BETWEEN bi.ip_low8 AND bi.ip_high8))';
-	}
-	// Check if we have a valid IPv4 address.
-	elseif (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $fullip, $ip_parts) == 1)
-		$ban_query = '((' . $ip_parts[1] . ' BETWEEN bi.ip_low1 AND bi.ip_high1)
-			AND (' . $ip_parts[2] . ' BETWEEN bi.ip_low2 AND bi.ip_high2)
-			AND (' . $ip_parts[3] . ' BETWEEN bi.ip_low3 AND bi.ip_high3)
-			AND (' . $ip_parts[4] . ' BETWEEN bi.ip_low4 AND bi.ip_high4))';
+	//check for valid address
 	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
-	else
-		$ban_query = '(bi.ip_low1 = 255 AND bi.ip_high1 = 255
-			AND bi.ip_low2 = 255 AND bi.ip_high2 = 255
-			AND bi.ip_low3 = 255 AND bi.ip_high3 = 255
-			AND bi.ip_low4 = 255 AND bi.ip_high4 = 255)';
+	if (!isValidIP($fullip))
+		$fullip = '255.255.255.255';
+
+	// PostgreSQL got native support
+	$ban_query = $smcFunc['db_title'] == 'PostgreSQL' ? $fullip : '\'' . inet_ptod($fullip) . '\'';
+
+	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
 
 	return $ban_query;
 }

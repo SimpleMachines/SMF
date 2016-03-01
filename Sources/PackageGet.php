@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -112,7 +112,7 @@ function PackageServers()
 
 	if ($context['package_download_broken'])
 	{
-		@chmod($packagesdir, 0777);
+		smf_chmod($packagesdir, 0777);
 	}
 
 	$context['package_download_broken'] = !is_writable($packagesdir);
@@ -667,7 +667,7 @@ function PackageUpload()
 
 	// Now move the file.
 	move_uploaded_file($_FILES['package']['tmp_name'], $destination);
-	@chmod($destination, 0777);
+	smf_chmod($destination, 0777);
 
 	// If we got this far that should mean it's available.
 	$context['package'] = getPackageInfo($packageName);

@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -161,23 +161,11 @@ function automanage_attachments_create_directory($updir)
 		$count--;
 	}
 
-	// @todo: chmod (especially with some servers) is usually bad
-	if (!is_writable($directory))
+	// Check if the dir is writable.
+	if (!smf_chmod($directory))
 	{
-		chmod($directory, 0755);
-		if (!is_writable($directory))
-		{
-			chmod($directory, 0775);
-			if (!is_writable($directory))
-			{
-				chmod($directory, 0777);
-				if (!is_writable($directory))
-				{
-					$context['dir_creation_error'] = 'attachments_no_write';
-					return false;
-				}
-			}
-		}
+		$context['dir_creation_error'] = 'attachments_no_write';
+		return false;
 	}
 
 	// Everything seems fine...let's create the .htaccess
@@ -448,7 +436,7 @@ function processAttachments()
 
 			// Move the file to the attachments folder with a temp name for now.
 			if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-				@chmod($destName, 0644);
+				smf_chmod($destName, 0644);
 			else
 			{
 				$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
@@ -842,41 +830,27 @@ function createAttachment(&$attachmentOptions)
 /**
  * Assigns the given attachments to the given message ID.
  *
- * @param $attachments array the attachments to be assigned with the attachment ID as key.
+ * @param $attachIDs array of attachment IDs to assign.
  * @param $msgID integer the message ID.
  *
  * @return boolean false on error or missing params.
  */
-function assignAttachments($attachments = array(), $msgID = 0)
+function assignAttachments($attachIDs = array(), $msgID = 0)
 {
 	global $smcFunc;
 
 	// Oh, come on!
-	if (empty($attachments) || empty($msgID))
+	if (empty($attachIDs) || empty($msgID))
 		return false;
 
-	// Work with arrays would ya?
-	$attachments = (array) $attachments;
-	$attachIDs = array();
-
 	// "I see what is right and approve, but I do what is wrong."
-	call_integration_hook('integrate_assign_attachments', array(&$attachments, &$msgID));
-
-	// Get the IDs.
-	foreach ($attachments as $k => $attach)
-	{
-		$attachIDs[] = $k;
-
-		// Any thumbnails?
-		if (!empty($attach['thumb']))
-			$attachIDs[] = $attach['thumb'];
-	}
+	call_integration_hook('integrate_assign_attachments', array(&$attachIDs, &$msgID));
 
 	// One last check
 	if (empty($attachIDs))
 		return false;
 
-	// Perform
+	// Perform.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}attachments
 		SET id_msg = {int:id_msg}
@@ -1002,6 +976,52 @@ function parseAttachBBC($attachID = 0)
 }
 
 /**
+ * Gets raw info directly from the attachments table.
+ *
+ * @param array $attachIDs An array of attachments IDs.
+ *
+ * @return array.
+ */
+function getRawAttachInfo($attachIDs)
+{
+	global $smcFunc, $modSettings;
+
+	if (empty($attachIDs))
+		return array();
+
+	$return = array();
+
+	$request = $smcFunc['db_query']('', '
+		SELECT a.id_attach, a.id_msg, a.id_member, a.size, a.mime_type, a.id_folder, a.filename' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+		FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
+				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
+		WHERE a.id_attach IN ({array_int:attach_ids})
+		LIMIT 1',
+		array(
+			'attach_ids' => (array) $attachIDs,
+		)
+	);
+
+	if ($smcFunc['db_num_rows']($request) != 1)
+		return array();
+
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+		$return[$row['id_attach']] = array(
+			'name' => $smcFunc['htmlspecialchars']($row['filename']),
+			'size' => $row['size'],
+			'attachID' => $row['id_attach'],
+			'unchecked' => false,
+			'approved' => 1,
+			'mime_type' => $row['mime_type'],
+			'thumb' => $row['id_thumb'],
+		);
+	$smcFunc['db_free_result']($request);
+
+	return $return;
+}
+
+/**
  * Gets all needed message data associated with an attach ID
  *
  * @param int $attachID the attachment ID to load info from.
@@ -1051,9 +1071,9 @@ function getAttachsByMsg($msgID = 0)
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT
-				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, IFNULL(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
+				a.id_attach, a.id_folder, a.id_msg, a.filename, a.file_hash, COALESCE(a.size, 0) AS filesize, a.downloads, a.approved, m.id_topic AS topic, m.id_board AS board,
 				a.width, a.height' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : ',
-				IFNULL(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
+				COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.width AS thumb_width, thumb.height AS thumb_height') . '
 			FROM {db_prefix}attachments AS a' . (empty($modSettings['attachmentShowImages']) || empty($modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)') . '
 				LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)

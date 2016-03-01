@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines http://www.simplemachines.org
- * @copyright 2015 Simple Machines and individual contributors
+ * @copyright 2016 Simple Machines and individual contributors
  * @license http://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1 Beta 2
+ * @version 2.1 Beta 3
  */
 
 if (!defined('SMF'))
@@ -265,7 +265,7 @@ class Attachments
 
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName))
-					@chmod($destName, 0644);
+					smf_chmod($destName, 0644);
 
 				// This is madness!!
 				else
@@ -337,16 +337,14 @@ class Attachments
 					// Avoid JS getting confused.
 					$attachmentOptions['attachID'] = $attachmentOptions['id'];
 					unset($attachmentOptions['id']);
-					$attachIDs[] = $attachmentOptions['attachID'];
+
+					$_SESSION['already_attached'][] = $attachmentOptions['attachID'];
+
 					if (!empty($attachmentOptions['thumb']))
-						$attachIDs[] = $attachmentOptions['thumb'];
+						$_SESSION['already_attached'][] = $attachmentOptions['thumb'];
 
-					// Super duper important! pass the already attached files if this was a newly created message.
-					if (!$this->_msg)
-						$_SESSION['already_attached'][$attachmentOptions['attachID']] = $attachmentOptions;
-
-					else
-						assignAttachments($attachmentOptions, $this->_msg);
+					if ($this->_msg)
+						assignAttachments($_SESSION['already_attached'], $this->_msg);
 				}
 
 			elseif (!empty($attachmentOptions['errors']))
@@ -422,7 +420,7 @@ class Attachments
 
 	protected function sendResponse()
 	{
-		global $modSettings;
+		global $modSettings, $context;
 
 		ob_end_clean();
 
@@ -433,7 +431,7 @@ class Attachments
 			ob_start();
 
 		// Set the header.
-		header('Content-Type: application/json');
+		header('Content-Type: application/json; charset='. $context['character_set'] .'');
 
 		echo json_encode($this->_response ? $this->_response : array());
 
