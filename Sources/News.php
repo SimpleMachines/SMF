@@ -210,6 +210,10 @@ function ShowXmlFeed()
 	}
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	
+	// If mods want to do somthing with this feed, let them do that now.
+	// Provide the feed's data, title, format, and content type.
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']));
 
 	// This is an xml file....
 	ob_end_clean();

@@ -3527,6 +3527,7 @@ function ip2range($fullip)
 		$fullip = '255.255.255.255';
 
 	$ip_parts = explode('-', $fullip);
+	$ip_array = array();
 
 	// if ip 22.12.31.21
 	if (count($ip_parts) == 1 && isValidIP($fullip))
