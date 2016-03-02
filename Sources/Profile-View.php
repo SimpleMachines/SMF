@@ -139,7 +139,8 @@ function summary($memID)
 			'time' => time(),
 		);
 		$ban_query[] = 'id_member = ' . $context['member']['id'];
-		$ban_query[] = constructBanQueryIP($memberContext[$memID]['ip']);
+		$ban_query[] = ' {inet:ip} BETWEEN bi.ip_low and bi.ip_high';
+		$ban_query_vars['ip'] = $memberContext[$memID]['ip'];
 		// Do we have a hostname already?
 		if (!empty($context['member']['hostname']))
 		{
