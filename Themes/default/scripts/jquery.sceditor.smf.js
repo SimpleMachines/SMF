@@ -381,7 +381,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
 		html: function (token, attrs, content) {
-			var	parts,
+			var parts,
 				attribs = '';
 
 			if (typeof attrs.width !== "undefined")
