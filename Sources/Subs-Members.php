@@ -896,19 +896,23 @@ function isReservedName($name, $current_ID_MEMBER = 0, $is_name = true, $fatal =
 
 	// Get rid of any SQL parts of the reserved name...
 	$checkName = strtr($name, array('_' => '\\_', '%' => '\\%'));
+	
+	//when we got no wildcard we can use equal -> fast
+	$operator = (strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=' );
 
 	// Make sure they don't want someone else's name.
-	$request = $smcFunc['db_query']('case_insensitive', '
+	$request = $smcFunc['db_query']('', '
 		SELECT id_member
 		FROM {db_prefix}members
 		WHERE ' . (empty($current_ID_MEMBER) ? '' : 'id_member != {int:current_member}
-			AND ') . '({raw:real_name} LIKE {string:check_name} OR {raw:member_name} LIKE {string:check_name})
+			AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
 		LIMIT 1',
 		array(
 			'real_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(real_name)' : 'real_name',
 			'member_name' => $smcFunc['db_case_sensitive'] ? 'LOWER(member_name)' : 'member_name',
 			'current_member' => $current_ID_MEMBER,
 			'check_name' => $checkName,
+			'operator' => $operator,
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)

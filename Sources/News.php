@@ -210,6 +210,10 @@ function ShowXmlFeed()
 	}
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
+	
+	// If mods want to do somthing with this feed, let them do that now.
+	// Provide the feed's data, title, format, and content type.
+	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']));
 
 	// This is an xml file....
 	ob_end_clean();
@@ -454,7 +458,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 
 		// If it's empty/0/nothing simply output an empty tag.
 		if ($val == '')
-			echo '<', $key, '>';
+			echo '<', $key, ' />';
 		elseif ($xml_format == 'atom' && $key == 'category')
 			echo '<', $key, ' term="', $val, '" />';
 		else
@@ -471,18 +475,22 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 			else
 				echo '<', $key, '>';
 
+			// The element's value.
 			if (is_array($val))
 			{
 				// An array.  Dump it, and then indent the tag.
 				dumpTags($val, $i + 1, null, $xml_format);
-				echo "\n", str_repeat("\t", $i), '</', $key, '>';
+				echo "\n", str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
-			elseif (strpos($val, "\n") !== false || strpos($val, '<br>') !== false)
-				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i), '</', $key, '>';
+			elseif (strpos($val, "\n") !== false || !empty(preg_match('~<br ?/?' . '>~', $val)))
+				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i);
 			// A simple string.
 			else
-				echo fix_possible_url($val), '</', $key, '>';
+				echo fix_possible_url($val);
+			
+			// Ending tag.
+			echo '</', $key, '>';
 		}
 	}
 }
