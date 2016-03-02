@@ -239,11 +239,15 @@ function ShowXmlFeed()
 	{
 		// Start with an RSS 2.0 header.
 		echo '
-<rss version=', $xml_format == 'rss2' ? '"2.0"' : '"0.92"', ' xml:lang="', strtr($txt['lang_locale'], '_', '-'), '">
+<rss version=', $xml_format == 'rss2' ? '"2.0" xmlns:atom="http://www.w3.org/2005/Atom"' : '"0.92"', ' xml:lang="', strtr($txt['lang_locale'], '_', '-'), '">
 	<channel>
 		<title>', $feed_title, '</title>
 		<link>', $scripturl, '</link>
 		<description><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></description>';
+
+		// RSS2 calls for this.
+		if ($xml_format == 'rss2')
+			echo '<atom:link rel="self" type="application/rss+xml" href="', $scripturl, '?action=.xml', !empty($_GET['sa']) ? ';sa=' . $_GET['sa'] : '', ';type=rss2" />';
 
 		// Output all of the associative array, start indenting with 2 tabs, and name everything "item".
 		dumpTags($xml, 2, 'item', $xml_format);
@@ -255,15 +259,15 @@ function ShowXmlFeed()
 	}
 	elseif ($xml_format == 'atom')
 	{
-		foreach (array('board', 'boards', 'c') as $var)
-			if (isset($_REQUEST[$var]))
+		foreach ($_REQUEST as $var => $val)
+			if (in_array($var, array('action', 'sa', 'type', 'board', 'boards', 'c', 'u', 'limit')))
 				$url_parts[] = $var . '=' . (is_array($_REQUEST[$var]) ? implode(',', $_REQUEST[$var]) : $_REQUEST[$var]);
 
 		echo '
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/atom+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/atom+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
@@ -665,7 +669,7 @@ function getXmlNews($xml_format)
 					'uri' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : null,
 				),
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
-				'modified' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
 				'id' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 			);
 		// The biggest difference here is more information.
