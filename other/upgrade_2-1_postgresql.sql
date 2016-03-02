@@ -1947,6 +1947,15 @@ UPDATE {$db_prefix}personal_messages SET body = REPLACE(REPLACE(body, '[blue]', 
 ---#
 
 /******************************************************************************/
+--- optimization of members
+/******************************************************************************/
+
+---# ADD INDEX to members
+CREATE INDEX {$db_prefix}members_member_name_low ON {$db_prefix}members (LOWER(member_name));
+CREATE INDEX {$db_prefix}members_real_name_low ON {$db_prefix}members (LOWER(real_name));
+---#
+
+/******************************************************************************/
 ---UNLOGGED Table PG 9.1+
 /******************************************************************************/
 ---# update table
@@ -2028,3 +2037,4 @@ WHERE ip_low1 > 0;
 ---# index
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 ---#
+
