@@ -3414,11 +3414,11 @@ function template_css()
 }
 
 /**
- * Get an array of previously defined files and adds them to out main minified file.
+ * Get an array of previously defined files and adds them to our main minified file.
  * Sets a one day cache to avoid re-creating a file on every request.
  *
  * @param array $data The files to minify.
- * @param string $type either css or js
+ * @param string $type either css or js.
  * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
  * @return boolean
  */
