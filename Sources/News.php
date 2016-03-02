@@ -267,7 +267,7 @@ function ShowXmlFeed()
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title>', $feed_title, '</title>
 	<link rel="alternate" type="text/html" href="', $scripturl, '" />
-	<link rel="self" type="application/atom+xml" href="', $scripturl, '?type=atom;action=.xml', !empty($url_parts) ? ';' . implode(';', $url_parts) : '', '" />
+	<link rel="self" type="application/atom+xml" href="', $scripturl, '?', !empty($url_parts) ? implode(';', $url_parts) : '', '" />
 	<id>', $scripturl, '</id>
 	<icon>', $boardurl, '/favicon.ico</icon>
 
