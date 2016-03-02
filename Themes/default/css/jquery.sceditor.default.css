@@ -1,31 +1,35 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
+html, body, p, code:before, table {
+	margin: 0;
+	padding: 0;
+}
 html {
 	height: 100%;
 	overflow: auto;
-	-webkit-overflow-scrolling: touch
+	-webkit-overflow-scrolling: touch;
 }
 body {
 	font: 83.33%/150% "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
 	position: relative;
 	min-height: 100%;
 	word-wrap: break-word;
-	overflow: auto
+	overflow: auto;
 }
-ol,ul {
+ol, ul {
 	margin-top: 0;
 	margin-bottom: 0;
 	padding-top: 0;
-	padding-bottom: 0
+	padding-bottom: 0;
 }
 table,td {
 	border: 1px dotted #000;
-	empty-cells: show
+	empty-cells: show;
 }
 code:before {
 	position: absolute;
-	content: 'Code: ';
-	top: -1.35em;
-	left: 0
+	content: 'Code:';
+	top: -1.65em;
+	left: 0;
 }
 code {
 	margin-top: 1.5em;
@@ -33,14 +37,14 @@ code {
 	background: #eee;
 	border: 1px solid #aaa;
 	white-space: pre;
-	padding: .25em
+	padding: .25em;
 }
 .ie6 code, .ie7 code {
-	margin-top: 0
+	margin-top: 0;
 }
-code,code:before {
+code, code:before {
 	display: block;
-	text-align: left
+	text-align: left;
 }
 blockquote {
 	margin: 0 0 8px 0;
@@ -58,10 +62,10 @@ blockquote cite {
 	border-bottom: 1px solid #aaa;
 	font-size: 0.9em;
 }
-div {
-	min-height: 1.25em
+div, p {
+	min-height: 1.25em;
 }
 h1,h2,h3,h4,h5,h6 {
 	padding: 0;
-	margin: 0
+	margin: 0;
 }
