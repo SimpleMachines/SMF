@@ -243,7 +243,7 @@ function ShowXmlFeed()
 	<channel>
 		<title>', $feed_title, '</title>
 		<link>', $scripturl, '</link>
-		<description><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></description>';
+		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>';
 
 		// RSS2 calls for this.
 		if ($xml_format == 'rss2')
@@ -272,10 +272,10 @@ function ShowXmlFeed()
 	<icon>', $boardurl, '/favicon.ico</icon>
 
 	<updated>', gmstrftime('%Y-%m-%dT%H:%M:%SZ'), '</updated>
-	<subtitle><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></subtitle>
+	<subtitle>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</subtitle>
 	<generator uri="http://www.simplemachines.org" version="', strtr($forum_version, array('SMF' => '')), '">SMF</generator>
 	<author>
-		<name>', strip_tags($context['forum_name']), '</name>
+		<name>', cdata_parse(strip_tags($context['forum_name'])), '</name>
 	</author>';
 
 		dumpTags($xml, 2, 'entry', $xml_format);
@@ -290,7 +290,7 @@ function ShowXmlFeed()
 	<channel rdf:about="', $scripturl, '">
 		<title>', $feed_title, '</title>
 		<link>', $scripturl, '</link>
-		<description><![CDATA[', strip_tags($txt['xml_rss_desc']), ']]></description>
+		<description>', cdata_parse(strip_tags($txt['xml_rss_desc'])), '</description>
 		<items>
 			<rdf:Seq>';
 
@@ -366,6 +366,10 @@ function cdata_parse($data, $ns = '')
 	// Are we not doing it?
 	if (!empty($cdata_override))
 		return $data;
+	
+	// Do we even need to do this?
+	if (empty(strpbrk($data, '<>&')))
+		return $data;
 
 	$cdata = '<![CDATA[';
 
@@ -440,12 +444,34 @@ function cdata_parse($data, $ns = '')
  */
 function dumpTags($data, $i, $tag = null, $xml_format = '')
 {
+	// Wrap the values of these keys into CDATA tags
+	$keysToCdata = array(
+		'title',
+		'name',
+		'description',
+		'summary',
+		'subject',
+		'body',
+		'username',
+		'signature',
+		'position',
+		'language',
+		'gender',
+		'blurb',
+	);
+	if ($xml_format != 'atom') 
+		$keysToCdata[] = 'category';
+	
 	// For every array in the data...
 	foreach ($data as $key => $val)
 	{
 		// Skip it, it's been set to null.
 		if ($val === null)
 			continue;
+		
+		// If the value should maybe be CDATA, do that now.
+		if (!is_array($val) && in_array($key, $keysToCdata))
+			$val = cdata_parse($val);
 
 		// If a tag was passed, use it instead of the key.
 		$key = isset($tag) ? $tag : $key;
@@ -530,7 +556,7 @@ function getXmlMembers($xml_format)
 		// Make the data look rss-ish.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
-				'title' => cdata_parse($row['real_name']),
+				'title' => $row['real_name'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member'],
 				'comments' => $scripturl . '?action=pm;sa=send;u=' . $row['id_member'],
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['date_registered']),
@@ -538,12 +564,12 @@ function getXmlMembers($xml_format)
 			);
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
-				'title' => cdata_parse($row['real_name']),
+				'title' => $row['real_name'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member'],
 			);
 		elseif ($xml_format == 'atom')
 			$data[] = array(
-				'title' => cdata_parse($row['real_name']),
+				'title' => $row['real_name'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member'],
 				'published' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
 				'updated' => gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
@@ -552,7 +578,7 @@ function getXmlMembers($xml_format)
 		// More logical format for the data, but harder to apply.
 		else
 			$data[] = array(
-				'name' => cdata_parse($row['real_name']),
+				'name' => $row['real_name'],
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['date_registered']))),
 				'id' => $row['id_member'],
 				'link' => $scripturl . '?action=profile;u=' . $row['id_member']
@@ -642,26 +668,26 @@ function getXmlNews($xml_format)
 		// Being news, this actually makes sense in rss format.
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'description' => cdata_parse($row['body']),
+				'description' => $row['body'],
 				'author' => (allowedTo('moderate_forum') || $row['id_member'] == $user_info['id']) ? $row['poster_email'] . ' ('.$row['poster_name'].')' : null,
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
-				'category' => '<![CDATA[' . $row['bname'] . ']]>',
+				'category' => $row['bname'],
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
 				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
 			);
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'description' => cdata_parse($row['body']),
+				'description' => $row['body'],
 			);
 		elseif ($xml_format == 'atom')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'summary' => cdata_parse($row['body']),
+				'summary' => $row['body'],
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
@@ -677,16 +703,16 @@ function getXmlNews($xml_format)
 			$data[] = array(
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_topic'],
-				'subject' => cdata_parse($row['subject']),
-				'body' => cdata_parse($row['body']),
+				'subject' => $row['subject'],
+				'body' => $row['body'],
 				'poster' => array(
-					'name' => cdata_parse($row['poster_name']),
+					'name' => $row['poster_name'],
 					'id' => $row['id_member'],
 					'link' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : '',
 				),
 				'topic' => $row['id_topic'],
 				'board' => array(
-					'name' => cdata_parse($row['bname']),
+					'name' => $row['bname'],
 					'id' => $row['id_board'],
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0',
 				),
@@ -794,26 +820,26 @@ function getXmlRecent($xml_format)
 		// Doesn't work as well as news, but it kinda does..
 		if ($xml_format == 'rss' || $xml_format == 'rss2')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'description' => cdata_parse($row['body']),
+				'description' => $row['body'],
 				'author' => (allowedTo('moderate_forum') || (!empty($row['id_member']) && $row['id_member'] == $user_info['id'])) ? $row['poster_email'] : null,
-				'category' => cdata_parse($row['bname']),
+				'category' => $row['bname'],
 				'comments' => $scripturl . '?action=post;topic=' . $row['id_topic'] . '.0',
 				'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $row['poster_time']),
 				'guid' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg']
 			);
 		elseif ($xml_format == 'rdf')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'description' => cdata_parse($row['body']),
+				'description' => $row['body'],
 			);
 		elseif ($xml_format == 'atom')
 			$data[] = array(
-				'title' => cdata_parse($row['subject']),
+				'title' => $row['subject'],
 				'link' => $scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
-				'summary' => cdata_parse($row['body']),
+				'summary' => $row['body'],
 				'category' => $row['bname'],
 				'author' => array(
 					'name' => $row['poster_name'],
@@ -829,25 +855,25 @@ function getXmlRecent($xml_format)
 			$data[] = array(
 				'time' => $smcFunc['htmlspecialchars'](strip_tags(timeformat($row['poster_time']))),
 				'id' => $row['id_msg'],
-				'subject' => cdata_parse($row['subject']),
-				'body' => cdata_parse($row['body']),
+				'subject' => $row['subject'],
+				'body' => $row['body'],
 				'starter' => array(
-					'name' => cdata_parse($row['first_poster_name']),
+					'name' => $row['first_poster_name'],
 					'id' => $row['id_first_member'],
 					'link' => !empty($row['id_first_member']) ? $scripturl . '?action=profile;u=' . $row['id_first_member'] : ''
 				),
 				'poster' => array(
-					'name' => cdata_parse($row['poster_name']),
+					'name' => $row['poster_name'],
 					'id' => $row['id_member'],
 					'link' => !empty($row['id_member']) ? $scripturl . '?action=profile;u=' . $row['id_member'] : ''
 				),
 				'topic' => array(
-					'subject' => cdata_parse($row['first_subject']),
+					'subject' => $row['first_subject'],
 					'id' => $row['id_topic'],
 					'link' => $scripturl . '?topic=' . $row['id_topic'] . '.new#new'
 				),
 				'board' => array(
-					'name' => cdata_parse($row['bname']),
+					'name' => $row['bname'],
 					'id' => $row['id_board'],
 					'link' => $scripturl . '?board=' . $row['id_board'] . '.0'
 				),
@@ -886,24 +912,24 @@ function getXmlProfile($xml_format)
 
 	if ($xml_format == 'rss' || $xml_format == 'rss2')
 		$data = array(array(
-			'title' => cdata_parse($profile['name']),
+			'title' => $profile['name'],
 			'link' => $scripturl . '?action=profile;u=' . $profile['id'],
-			'description' => cdata_parse(isset($profile['group']) ? $profile['group'] : $profile['post_group']),
+			'description' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
 			'comments' => $scripturl . '?action=pm;sa=send;u=' . $profile['id'],
 			'pubDate' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered']),
 			'guid' => $scripturl . '?action=profile;u=' . $profile['id'],
 		));
 	elseif ($xml_format == 'rdf')
 		$data = array(array(
-			'title' => cdata_parse($profile['name']),
+			'title' => $profile['name'],
 			'link' => $scripturl . '?action=profile;u=' . $profile['id'],
-			'description' => cdata_parse(isset($profile['group']) ? $profile['group'] : $profile['post_group']),
+			'description' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
 		));
 	elseif ($xml_format == 'atom')
 		$data[] = array(
-			'title' => cdata_parse($profile['name']),
+			'title' => $profile['name'],
 			'link' => $scripturl . '?action=profile;u=' . $profile['id'],
-			'summary' => cdata_parse(isset($profile['group']) ? $profile['group'] : $profile['post_group']),
+			'summary' => isset($profile['group']) ? $profile['group'] : $profile['post_group'],
 			'author' => array(
 				'name' => $profile['real_name'],
 				'email' => $profile['show_email'] ? $profile['email'] : null,
@@ -917,19 +943,19 @@ function getXmlProfile($xml_format)
 	else
 	{
 		$data = array(
-			'username' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? cdata_parse($profile['username']) : '',
-			'name' => cdata_parse($profile['name']),
+			'username' => $user_info['is_admin'] || $user_info['id'] == $profile['id'] ? $profile['username'] : '',
+			'name' => $profile['name'],
 			'link' => $scripturl . '?action=profile;u=' . $profile['id'],
 			'posts' => $profile['posts'],
-			'post-group' => cdata_parse($profile['post_group']),
-			'language' => cdata_parse($profile['language']),
+			'post-group' => $profile['post_group'],
+			'language' => $profile['language'],
 			'last-login' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['last_login']),
 			'registered' => gmdate('D, d M Y H:i:s \G\M\T', $user_profile[$profile['id']]['date_registered'])
 		);
 
 		// Everything below here might not be set, and thus maybe shouldn't be displayed.
 		if ($profile['gender']['name'] != '')
-			$data['gender'] = cdata_parse($profile['gender']['name']);
+			$data['gender'] = $profile['gender']['name'];
 
 		if ($profile['avatar']['name'] != '')
 			$data['avatar'] = $profile['avatar']['url'];
@@ -939,20 +965,20 @@ function getXmlProfile($xml_format)
 			$data['online'] = '';
 
 		if ($profile['signature'] != '')
-			$data['signature'] = cdata_parse($profile['signature']);
+			$data['signature'] = $profile['signature'];
 		if ($profile['blurb'] != '')
-			$data['blurb'] = cdata_parse($profile['blurb']);
+			$data['blurb'] = $profile['blurb'];
 		if ($profile['title'] != '')
-			$data['title'] = cdata_parse($profile['title']);
+			$data['title'] = $profile['title'];
 
 		if ($profile['website']['title'] != '')
 			$data['website'] = array(
-				'title' => cdata_parse($profile['website']['title']),
+				'title' => $profile['website']['title'],
 				'link' => $profile['website']['url']
 			);
 
 		if ($profile['group'] != '')
-			$data['position'] = cdata_parse($profile['group']);
+			$data['position'] = $profile['group'];
 
 		if ($profile['show_email'])
 			$data['email'] = $profile['email'];
