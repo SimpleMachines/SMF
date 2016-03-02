@@ -361,11 +361,7 @@ function fix_possible_url($val)
  */
 function cdata_parse($data, $ns = '')
 {
-	global $smcFunc, $cdata_override;
-
-	// Are we not doing it?
-	if (!empty($cdata_override))
-		return $data;
+	global $smcFunc;
 	
 	// Do we even need to do this?
 	if (empty(strpbrk($data, '<>&')))
