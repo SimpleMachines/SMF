@@ -232,11 +232,11 @@ function template_credits()
 			<br>', $context['credits_modifications']);
 
 		// Legacy.
-        if (!empty($context['copyrights']['mods']) && !empty($context['credits_modifications']))
+		if (!empty($context['copyrights']['mods']) && !empty($context['credits_modifications']))
 			echo '
 			<br>', implode('
 			<br>', $context['copyrights']['mods']);
-        else if (!empty($context['copyrights']['mods']))
+		else if (!empty($context['copyrights']['mods']))
 			echo '
 			', implode('
 			<br>', $context['copyrights']['mods']);
