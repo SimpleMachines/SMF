@@ -3250,17 +3250,20 @@ function template_footer()
  * 	- tabbing in this function is to make the HTML source look good proper
  *  - if defered is set function will output all JS (source & inline) set to load at page end
  *
- * @param bool $do_defered If true will only output the deferred JS (the stuff that goes right before the closing body tag)
+ * @param bool $do_deferred If true will only output the deferred JS (the stuff that goes right before the closing body tag)
  */
-function template_javascript($do_defered = false)
+function template_javascript($do_deferred = false)
 {
 	global $context, $modSettings, $settings;
 
 	// Use this hook to minify/optimize Javascript files and vars
-	call_integration_hook('integrate_pre_javascript_output', array(&$do_defered));
+	call_integration_hook('integrate_pre_javascript_output', array(&$do_deferred));
+
+	$toMinify = array();
+	$toMinifyDefer = array();
 
 	// Ouput the declared Javascript variables.
-	if (!empty($context['javascript_vars']) && !$do_defered)
+	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
 	<script>';
@@ -3290,15 +3293,37 @@ function template_javascript($do_defered = false)
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		if ((!$do_defered && empty($js_file['options']['defer'])) || ($do_defered && !empty($js_file['options']['defer'])))
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($js_file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		{
+			if ($do_deferred && !empty($js_file['options']['defer']))
+				$toMinifyDefer[] = $js_file;
+
+			elseif (!$do_deferred && empty($js_file['options']['defer']))
+				$toMinify[] = $js_file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $js_file['options']['seed'];
+		}
+
+		elseif ((!$do_deferred && empty($js_file['options']['defer'])) || ($do_deferred && !empty($js_file['options']['defer'])))
 			echo '
 	<script src="', $js_file['filename'], '"', !empty($js_file['options']['async']) ? ' async="async"' : '', '></script>';
+	}
+
+	if ((!$do_deferred && !empty($toMinify)) || ($do_deferred && !empty($toMinifyDefer)))
+	{
+		custMinify(($do_deferred ? $toMinifyDefer : $toMinify), 'js', $do_deferred);
+
+		echo '
+	<script src="', $settings['default_theme_url'] ,'/scripts/minified', ($do_deferred ? '_deferred' : '') ,'.js', $minSeed ,'"></script>';
 	}
 
 	// Inline JavaScript - Actually useful some times!
 	if (!empty($context['javascript_inline']))
 	{
-		if (!empty($context['javascript_inline']['defer']) && $do_defered)
+		if (!empty($context['javascript_inline']['defer']) && $do_deferred)
 		{
 			echo '
 <script>';
@@ -3310,7 +3335,7 @@ function template_javascript($do_defered = false)
 </script>';
 		}
 
-		if (!empty($context['javascript_inline']['standard']) && !$do_defered)
+		if (!empty($context['javascript_inline']['standard']) && !$do_deferred)
 		{
 			echo '
 	<script>';
@@ -3329,10 +3354,12 @@ function template_javascript($do_defered = false)
  */
 function template_css()
 {
-	global $context, $db_show_debug, $boardurl, $settings;
+	global $context, $db_show_debug, $boardurl, $settings, $modSettings;
 
 	// Use this hook to minify/optimize CSS files
 	call_integration_hook('integrate_pre_css_output');
+
+	$toMinify = array();
 
 	foreach ($context['css_files'] as $id => $file)
 	{
@@ -3340,9 +3367,29 @@ function template_css()
 		if (!empty($settings['disable_files']) && in_array($id, $settings['disable_files']))
 			continue;
 
-		echo '
-	<link rel="stylesheet" href="', $file['filename'], '">';
+		// By default all files don't get minimized unless the file explicitly says so!
+		if (!empty($file['options']['minimize']) && !empty($modSettings['minimize_files']))
+		{
+			$toMinify[] = $file;
+
+			// Grab a random seed.
+			if (!isset($minSeed))
+				$minSeed = $file['options']['seed'];
+		}
+
+		else
+			echo '
+	<link rel="stylesheet" href="', $file['filename'] ,'">';
 	}
+
+	if (!empty($toMinify))
+	{
+		custMinify($toMinify, 'css');
+
+		echo '
+	<link rel="stylesheet" href="', $settings['default_theme_url'] ,'/css/minified.css', $minSeed ,'">';
+	}
+
 
 	if ($db_show_debug === true)
 	{
@@ -3364,6 +3411,57 @@ function template_css()
 		echo'
 	</style>';
 	}
+}
+
+/**
+ * Get an array of previously defined files and adds them to our main minified file.
+ * Sets a one day cache to avoid re-creating a file on every request.
+ *
+ * @param array $data The files to minify.
+ * @param string $type either css or js.
+ * @param bool $do_deferred use for type js to indicate if the minified file will be deferred, IE, put at the closing </body> tag.
+ * @return boolean
+ */
+function custMinify($data, $type, $do_deferred = false)
+{
+	global $sourcedir, $smcFunc, $settings;
+
+	$types = array('css', 'js');
+	$type = !empty($type) && in_array($type, $types) ? $type : false;
+	$data = !empty($data) ? $data : false;
+
+	if (empty($type) || empty($data))
+		return false;
+
+	// What kind of file are we going to create?
+	$toCreate = $settings['default_theme_dir'] .'/'. ($type == 'css' ? 'css' : 'scripts') .'/minified'. ($do_deferred ? '_deferred' : '') .'.'. $type;
+
+	// Did we do this already?
+	if (file_exists($toCreate) && ($already = cache_get_data('minimized_'. $type, 86400)))
+		return true;
+
+	// No namespaces, sorry!
+	$classType = 'MatthiasMullie\\Minify\\'. strtoupper($type);
+
+	// Yep, need a bunch of files.
+	require_once $sourcedir . '/minify/src/Minify.php';
+	require_once $sourcedir . '/minify/src/'. strtoupper($type) .'.php';
+	require_once $sourcedir . '/minify/src/Exception.php';
+	require_once $sourcedir . '/minify/src/Converter.php';
+
+	$minifier = new $classType();
+
+	foreach ($data as $file)
+		$minifier->add(str_replace($file['options']['seed'], '', $file['filepath']));
+
+	// Create the file.
+	$minifier->minify($toCreate);
+	unset($minifier);
+
+	// And create a long lived cache entry.
+	cache_put_data('minimized_'. $type, $type, 86400);
+
+	return true;
 }
 
 /**
