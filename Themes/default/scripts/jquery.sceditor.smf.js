@@ -401,7 +401,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
-			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.width == 0){
+			if ((typeof attrs.type !== "undefined") && (attrs.type.indexOf('image') === -1) || contentIMG.width == 0){
 				var name='';
 				if (typeof attrs.name !== "undefined")
 					name = ' name="' + attrs.name + '"';
@@ -455,17 +455,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
 
-			// Attachment?
-			if (typeof attrs("data-attachment") !== undefined)
-			{
-				var attribs = '';
-				if (typeof attrs("name") !== undefined)
-					attribs += ' name=' + attrs("name");
-				if (typeof attrs("type") !== undefined)
-					attribs += ' type=' + attrs("type");
-
-				return '[attach' + attribs + ']' + content + '[/attach]';
-			}
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
