@@ -226,14 +226,9 @@ function cleanRequest()
 		$_SERVER['is_cli'] = true;
 	}
 	// Perhaps we have a IPv6 address.
-	elseif (!isValidIPv6($_SERVER['REMOTE_ADDR']) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER['REMOTE_ADDR']) !== 0)
+	elseif (isValidIP($_SERVER['REMOTE_ADDR']))
 	{
 		$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER['REMOTE_ADDR']);
-
-		// Just incase we have a legacy IPv4 address.
-		// @ TODO: Convert to IPv6.
-		if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER['REMOTE_ADDR']) === 0)
-			$_SERVER['REMOTE_ADDR'] = 'unknown';
 	}
 
 	// Try to calculate their most likely IP for those people behind proxies (And the like).
@@ -316,7 +311,7 @@ function cleanRequest()
 	$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? (isset($smcFunc['htmlspecialchars']) ? $smcFunc['htmlspecialchars']($smcFunc['db_unescape_string']($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : htmlspecialchars($smcFunc['db_unescape_string']($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES)) : '';
 
 	// Some final checking.
-	if (preg_match('~^((([1]?\d)?\d|2[0-4]\d|25[0-5])\.){3}(([1]?\d)?\d|2[0-4]\d|25[0-5])$~', $_SERVER['BAN_CHECK_IP']) === 0 || !isValidIPv6($_SERVER['BAN_CHECK_IP']))
+	if (!isValidIP($_SERVER['BAN_CHECK_IP']))
 		$_SERVER['BAN_CHECK_IP'] = '';
 	if ($_SERVER['REMOTE_ADDR'] == 'unknown')
 		$_SERVER['REMOTE_ADDR'] = '';
