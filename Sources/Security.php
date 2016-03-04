@@ -179,7 +179,8 @@ function is_not_banned($forceCheck = false)
 		{
 			if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
 				continue;
-			$ban_query[] = constructBanQueryIP($user_info[$ip_number]);
+			$ban_query[] = ' {inet:'.$ip_number.'} BETWEEN bi.ip_low and bi.ip_high';
+			$ban_query_vars[$ip_number] = $user_info[$ip_number];
 			// IP was valid, maybe there's also a hostname...
 			if (empty($modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
 			{
@@ -1259,30 +1260,6 @@ else
 		return $errors;
 	else
 		return true;
-}
-
-/**
- * Helper function that puts together a ban query for a given ip
- * builds the query for ipv6, ipv4 or 255.255.255.255 depending on whats supplied
- *
- * @param string $fullip An IP address (IPv4 or IPv6)
- * @return string An SQL condition
- */
-function constructBanQueryIP($fullip)
-{
-	global $smcFunc;
-
-	//check for valid address
-	// We use '255.255.255.255' for 'unknown' since it's not valid anyway.
-	if (!isValidIP($fullip))
-		$fullip = '255.255.255.255';
-
-	// PostgreSQL got native support
-	$ban_query = $smcFunc['db_title'] == 'PostgreSQL' ? $fullip : '\'' . inet_ptod($fullip) . '\'';
-
-	$ban_query .= ' BETWEEN bi.ip_low and bi.ip_high';
-
-	return $ban_query;
 }
 
 /**
