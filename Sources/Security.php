@@ -179,8 +179,8 @@ function is_not_banned($forceCheck = false)
 		{
 			if ($ip_number == 'ip2' && $user_info['ip2'] == $user_info['ip'])
 				continue;
-			$ban_query[] = ' {inet:ip} BETWEEN bi.ip_low and bi.ip_high';
-			$ban_query_vars['ip'] = $user_info[$ip_number];
+			$ban_query[] = ' {inet:'.$ip_number.'} BETWEEN bi.ip_low and bi.ip_high';
+			$ban_query_vars[$ip_number] = $user_info[$ip_number];
 			// IP was valid, maybe there's also a hostname...
 			if (empty($modSettings['disableHostnameLookup']) && $user_info[$ip_number] != 'unknown')
 			{
