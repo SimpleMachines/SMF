@@ -397,11 +397,11 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			// Is this an image?
 			var contentUrl = smf_scripturl +'?action=dlattach;attach='+ content + ';type=preview;thumb';
-				contentIMG = new Image();
+			contentIMG = new Image();
 				contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
-			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.width == 0){
+			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') === 0){
 				var name='';
 				if (typeof attrs.name !== "undefined")
 					name = ' name="' + attrs.name + '"';
