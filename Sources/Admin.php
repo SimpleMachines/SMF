@@ -29,8 +29,9 @@ function AdminMain()
 
 	// Load the language and templates....
 	loadLanguage('Admin');
-	loadTemplate('Admin', 'admin');
+	loadTemplate('Admin');
 	loadJavascriptFile('admin.js', array('default_theme' => true), 'smf_admin');
+	loadCSSFile('admin.css', array('default_theme' => true), 'smf_admin');
 
 	// No indexing evil stuff.
 	$context['robot_no_index'] = true;
