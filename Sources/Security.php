@@ -187,8 +187,8 @@ function is_not_banned($forceCheck = false)
 				$hostname = host_from_ip($user_info[$ip_number]);
 				if (strlen($hostname) > 0)
 				{
-					$ban_query[] = '({string:hostname} LIKE bi.hostname)';
-					$ban_query_vars['hostname'] = $hostname;
+					$ban_query[] = '({string:hostname'.$ip_number.'} LIKE bi.hostname)';
+					$ban_query_vars['hostname'.$ip_number] = $hostname;
 				}
 			}
 		}
