@@ -317,6 +317,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 					attribs += ' name=' + element.attr('name');
 				if (element.attr('type'))
 					attribs += ' type=' + 	element.attr('type');
+
 				return '[attach' + attribs + ']' + element.attr('data-attachment') + '[/attach]';
 			}
 
@@ -401,7 +402,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				contentIMG.src = contentUrl;
 
 			// Show a link to the file, check if the name attribute has been set and use that, if not use the attachment ID.
-			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') === 0){
+			if ((typeof attrs.type !== "undefined" && !attrs.type.match(/image.*/)) || contentIMG.getAttribute('width') == 0){
 				var name='';
 				if (typeof attrs.name !== "undefined")
 					name = ' name="' + attrs.name + '"';
@@ -437,6 +438,17 @@ $.sceditor.plugins.bbcode.bbcode.set(
 
 			if (element.attr('target') !== undefined)
 				return '[url=' + decodeURI(url) + ']' + content + '[/url]';
+			// Is this an attachment?
+			else if (element.attr('data-attachment') !== "undefined")
+			{
+				var attribs = '';
+				if (typeof element.attr('name') !== "undefined")
+					attribs += ' name=' + element.attr('name');
+				if (typeof element.attr('type') !== "undefined")
+					attribs += ' type=' + element.attr("type");
+
+				return '[attach'+attribs+']'+content+'[/attach]';
+			}
 			else
 				return '[iurl=' + decodeURI(url) + ']' + content + '[/iurl]';
 		},
@@ -454,18 +466,6 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
-
-			// Attachment?
-			if (typeof attrs("data-attachment") !== undefined)
-			{
-				var attribs = '';
-				if (typeof attrs("name") !== undefined)
-					attribs += ' name=' + attrs("name");
-				if (typeof attrs("type") !== undefined)
-					attribs += ' type=' + attrs("type");
-
-				return '[attach' + attribs + ']' + content + '[/attach]';
-			}
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 
