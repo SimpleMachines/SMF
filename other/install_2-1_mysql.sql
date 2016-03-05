@@ -2061,27 +2061,27 @@ VALUES (':)', 'smiley.gif', '{$default_smiley_smiley}', 0, 0),
 #
 
 INSERT INTO {$db_prefix}spiders
-	(id_spider, spider_name, user_agent, ip_info)
-VALUES (1, 'Google', 'googlebot', ''),
-	(2, 'Yahoo!', 'slurp', ''),
-	(3, 'MSN', 'msnbot', ''),
-	(4, 'Google (Mobile)', 'Googlebot-Mobile', ''),
-	(5, 'Google (Image)', 'Googlebot-Image', ''),
-	(6, 'Google (AdSense)', 'Mediapartners-Google', ''),
-	(7, 'Google (Adwords)', 'AdsBot-Google', ''),
-	(8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', ''),
-	(9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', ''),
-	(10, 'MSN (Mobile)', 'MSNBOT_Mobile', ''),
-	(11, 'MSN (Media)', 'msnbot-media', ''),
-	(12, 'Cuil', 'twiceler', ''),
-	(13, 'Ask', 'Teoma', ''),
-	(14, 'Baidu', 'Baiduspider', ''),
-	(15, 'Gigablast', 'Gigabot', ''),
-	(16, 'InternetArchive', 'ia_archiver-web.archive.org', ''),
-	(17, 'Alexa', 'ia_archiver', ''),
-	(18, 'Omgili', 'omgilibot', ''),
-	(19, 'EntireWeb', 'Speedy Spider', ''),
-	(20, 'Yandex', 'yandex', '');
+	(spider_name, user_agent, ip_info)
+VALUES ('Google', 'googlebot', ''),
+	('Yahoo!', 'slurp', ''),
+	('MSN', 'msnbot', ''),
+	('Google (Mobile)', 'Googlebot-Mobile', ''),
+	('Google (Image)', 'Googlebot-Image', ''),
+	('Google (AdSense)', 'Mediapartners-Google', ''),
+	('Google (Adwords)', 'AdsBot-Google', ''),
+	('Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', ''),
+	('Yahoo! (Image)', 'Yahoo-MMCrawler', ''),
+	('MSN (Mobile)', 'MSNBOT_Mobile', ''),
+	('MSN (Media)', 'msnbot-media', ''),
+	('Cuil', 'twiceler', ''),
+	('Ask', 'Teoma', ''),
+	('Baidu', 'Baiduspider', ''),
+	('Gigablast', 'Gigabot', ''),
+	('InternetArchive', 'ia_archiver-web.archive.org', ''),
+	('Alexa', 'ia_archiver', ''),
+	('Omgili', 'omgilibot', ''),
+	('EntireWeb', 'Speedy Spider', ''),
+	('Yandex', 'yandex', '');
 #---------------------------------------------------------
 
 #
