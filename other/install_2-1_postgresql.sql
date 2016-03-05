@@ -2578,6 +2578,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('httponlyCookies', '1
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('tfa_mode', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('allow_expire_redirect', '1');
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('json_done', '1');
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
 
 # --------------------------------------------------------
 #

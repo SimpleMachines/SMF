@@ -105,6 +105,10 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('topic_move_any', '1'
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('enable_ajax_alerts', '1');
 ---#
 
+---# Adding new "minimize_files" setting
+INSERT INTO {$db_prefix}settings (variable, value) VALUES ('minimize_files', '1');
+---#
+
 ---# Collapse object
 INSERT INTO {$db_prefix}settings (variable, value) VALUES ('additional_options_collapsable', '1');
 ---#
