@@ -1891,7 +1891,7 @@ ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
 ---#
 
 ---# convert data
-UPDATE {$db_prefix}ban_items
+UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
     UNHEX(
         hex(
