@@ -1784,6 +1784,7 @@ CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
 ---# Changing url column in log_online from TEXT to VARCHAR(1024)
 ALTER TABLE {$db_prefix}log_online
 CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
+---#
 
 /******************************************************************************/
 --- Adding support for 2FA
@@ -1890,7 +1891,7 @@ ALTER TABLE {$db_prefix}ban_items ADD COLUMN ip_high varbinary(16);
 ---#
 
 ---# convert data
-UPDATE {$db_prefix}ban_items
+UPDATE IGNORE {$db_prefix}ban_items
 SET ip_low =
     UNHEX(
         hex(
@@ -1916,8 +1917,8 @@ DROP ip_low1,
 DROP ip_low2,
 DROP ip_low3,
 DROP ip_low4,
-DROP ip_low5,
-DROP ip_low6,
-DROP ip_low7,
-DROP ip_low8;
+DROP ip_high1,
+DROP ip_high2,
+DROP ip_high3,
+DROP ip_high4;
 ---#
