@@ -1784,6 +1784,7 @@ CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
 ---# Changing url column in log_online from TEXT to VARCHAR(1024)
 ALTER TABLE {$db_prefix}log_online
 CHANGE `url` `url` VARCHAR(1024) NOT NULL DEFAULT '';
+---#
 
 /******************************************************************************/
 --- Adding support for 2FA
