@@ -1917,8 +1917,8 @@ DROP ip_low1,
 DROP ip_low2,
 DROP ip_low3,
 DROP ip_low4,
-DROP ip_low5,
-DROP ip_low6,
-DROP ip_low7,
-DROP ip_low8;
+DROP ip_high1,
+DROP ip_high2,
+DROP ip_high3,
+DROP ip_high4;
 ---#
