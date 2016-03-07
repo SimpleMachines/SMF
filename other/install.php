@@ -1025,9 +1025,15 @@ function DatabasePopulation()
 			)
 		);
 
+	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
+	if (substr(__DIR__, -1) == '\\')
+		$attachdir = __DIR__ . 'attachments';
+	else
+		$attachdir = __DIR__ . '/attachments';
+
 	$replaces = array(
 		'{$db_prefix}' => $db_prefix,
-		'{$attachdir}' => json_encode(array(1 => dirname(__FILE__) . '/attachments')),
+		'{$attachdir}' => json_encode(array(1 => $smcFunc['db_escape_string']($attachdir))),
 		'{$boarddir}' => $smcFunc['db_escape_string'](dirname(__FILE__)),
 		'{$boardurl}' => $boardurl,
 		'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
