@@ -231,11 +231,11 @@ function template_credits()
 			', implode('
 			<br>', $context['credits_modifications']);
 
-        // Legacy.
-        if (!empty($context['copyrights']['mods']))
-            echo (empty($context['credits_modifications']) ? '<br>' : ''),
-            implode('
-            <br>', $context['copyrights']['mods']);
+		// Legacy.
+		if (!empty($context['copyrights']['mods']))
+			echo (empty($context['credits_modifications']) ? '<br>' : ''),
+			implode('
+			<br>', $context['copyrights']['mods']);
 
 		echo '
 		</div>';
