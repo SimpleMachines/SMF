@@ -233,10 +233,9 @@ function template_credits()
 
 		// Legacy.
 		if (!empty($context['copyrights']['mods']))
-			echo '
-			<br>', implode('
+			echo (empty($context['credits_modifications']) ? '<br>' : ''),
+			implode('
 			<br>', $context['copyrights']['mods']);
-
 
 		echo '
 		</div>';
