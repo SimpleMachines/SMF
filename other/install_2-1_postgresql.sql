@@ -2612,26 +2612,26 @@ INSERT INTO {$db_prefix}smileys	(code, filename, description, smiley_order, hidd
 # Dumping data for table `spiders`
 #
 
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (1, 'Google', 'googlebot', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (2, 'Yahoo!', 'slurp', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (3, 'MSN', 'msnbot', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (4, 'Google (Mobile)', 'Googlebot-Mobile', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (5, 'Google (Image)', 'Googlebot-Image', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (6, 'Google (AdSense)', 'Mediapartners-Google', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (7, 'Google (Adwords)', 'AdsBot-Google', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (8, 'Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (9, 'Yahoo! (Image)', 'Yahoo-MMCrawler', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (10, 'MSN (Mobile)', 'MSNBOT_Mobile', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (11, 'MSN (Media)', 'msnbot-media', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (12, 'Cuil', 'twiceler', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (13, 'Ask', 'Teoma', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (14, 'Baidu', 'Baiduspider', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (15, 'Gigablast', 'Gigabot', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (16, 'InternetArchive', 'ia_archiver-web.archive.org', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (17, 'Alexa', 'ia_archiver', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (18, 'Omgili', 'omgilibot', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (19, 'EntireWeb', 'Speedy Spider', '');
-INSERT INTO {$db_prefix}spiders (id_spider, spider_name, user_agent, ip_info) VALUES (20, 'Yandex', 'yandex', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Google', 'googlebot', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Yahoo!', 'slurp', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('MSN', 'msnbot', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Google (Mobile)', 'Googlebot-Mobile', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Google (Image)', 'Googlebot-Image', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Google (AdSense)', 'Mediapartners-Google', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Google (Adwords)', 'AdsBot-Google', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Yahoo! (Mobile)', 'YahooSeeker/M1A1-R2D2', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Yahoo! (Image)', 'Yahoo-MMCrawler', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('MSN (Mobile)', 'MSNBOT_Mobile', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('MSN (Media)', 'msnbot-media', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Cuil', 'twiceler', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Ask', 'Teoma', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Baidu', 'Baiduspider', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Gigablast', 'Gigabot', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('InternetArchive', 'ia_archiver-web.archive.org', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Alexa', 'ia_archiver', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Omgili', 'omgilibot', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('EntireWeb', 'Speedy Spider', '');
+INSERT INTO {$db_prefix}spiders (spider_name, user_agent, ip_info) VALUES ('Yandex', 'yandex', '');
 
 #
 # Dumping data for table `themes`

@@ -2038,3 +2038,9 @@ WHERE ip_low1 > 0;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 ---#
 
+/******************************************************************************/
+--- update sequence from spider table
+/******************************************************************************/
+---# update sequence
+SELECT setval('{$db_prefix}spiders_seq',(SELECT GREATEST(MAX(id_spider)+1,nextval('{$db_prefix}spiders_seq'))-1 FROM {$db_prefix}spiders));
+---#
