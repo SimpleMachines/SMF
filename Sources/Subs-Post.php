@@ -31,7 +31,7 @@ function preparsecode(&$message, $previewing = false)
 	global $user_info, $modSettings, $context;
 
 	// Remove empty bbc.
-	$message = preg_replace('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]~i', '', $message);
+	$message = preg_replace('~\[([^\]=\s]+)[^\]]*\]\s*\[/\1\]\s?~i', '', $message);
 
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
