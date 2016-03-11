@@ -1477,7 +1477,7 @@ function Download()
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['no_last_modified'] = true;
 
-	// Prevent an preview image from being displayed twice.
+	// Prevent a preview image from being displayed twice.
 	if (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
 		return;
 
