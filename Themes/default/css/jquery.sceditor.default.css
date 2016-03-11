@@ -1,5 +1,5 @@
 /*! SCEditor | (C) 2011-2013, Sam Clarke | sceditor.com/license */
-html, body, p, code:before, table {
+html, p, code:before, table {
 	margin: 0;
 	padding: 0;
 }
@@ -14,6 +14,8 @@ body {
 	min-height: 100%;
 	word-wrap: break-word;
 	overflow: auto;
+	margin: 5px;
+	padding: 0;
 }
 ol, ul {
 	margin-top: 0;
