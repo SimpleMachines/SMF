@@ -172,6 +172,9 @@ div.sceditor-grip {
 	min-width: 100%;
 	max-width: 100%;
 }
+.sceditor-container textarea {
+	padding: 5px;
+}
 div.sceditor-resize-cover {
 	position: absolute;
 	top: 0;
