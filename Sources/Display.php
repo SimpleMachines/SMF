@@ -1467,6 +1467,7 @@ function prepareDisplayContext($reset = false)
  * It depends on the attachmentUploadDir setting being correct.
  * It is accessed via the query string ?action=dlattach.
  * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
+ * Legacy code, all attachments are now handled by ShowAttachments.php
  */
 function Download()
 {
