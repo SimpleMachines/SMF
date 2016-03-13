@@ -623,6 +623,14 @@ function setupProfileContext($fields)
 {
 	global $profile_fields, $context, $cur_profile, $txt;
 
+	// Some default bits.
+	$context['profile_prehtml'] = '';
+	$context['profile_posthtml'] = '';
+	$context['profile_javascript'] = '';
+	$context['profile_onsubmit_javascript'] = '';
+
+	call_integration_hook('integrate_setup_profile_context', array(&$fields));
+
 	// Make sure we have this!
 	loadProfileFields(true);
 
@@ -630,12 +638,6 @@ function setupProfileContext($fields)
 	foreach ($profile_fields as $key => $field)
 		if (isset($field['link_with']) && in_array($field['link_with'], $fields))
 			$fields[] = $key;
-
-	// Some default bits.
-	$context['profile_prehtml'] = '';
-	$context['profile_posthtml'] = '';
-	$context['profile_javascript'] = '';
-	$context['profile_onsubmit_javascript'] = '';
 
 	$i = 0;
 	$last_type = '';
