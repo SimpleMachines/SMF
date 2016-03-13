@@ -14,7 +14,7 @@ body {
 	min-height: 100%;
 	word-wrap: break-word;
 	overflow: auto;
-	margin: 5px;
+	margin: 0 5px;
 	padding: 0;
 }
 ol, ul {
