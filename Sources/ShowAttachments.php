@@ -173,7 +173,7 @@ function showAttachment()
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (strtotime($modified_since) >= filemtime($file['filename']))
+		if (strtotime($modified_since) >= filemtime($file['filePath']))
 		{
 			ob_end_clean();
 
