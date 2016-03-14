@@ -1989,8 +1989,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos2 = $pos - 1;
 
 				// See the comment at the end of the big loop - just eating whitespace ;).
-				if (!empty($tag['block_level']) && substr($message, $pos, 6) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
+				if (!empty($tag['block_level']) && substr($message, $pos, 4) == '<br>')
+					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
 				if (!empty($tag['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 			}
@@ -2191,7 +2191,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$pos3 = strpos($message, '[/', $pos);
 			if ($pos2 !== false && ($pos2 <= $pos3 || $pos3 === false))
 			{
-				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 6), $matches);
+				preg_match('~^(<br>|&nbsp;|\s|\[)+~', substr($message, $pos2 + 4), $matches);
 				$message = substr($message, 0, $pos2) . (!empty($matches[0]) && substr($matches[0], -1) == '[' ? '[/li]' : '[/li][/list]') . substr($message, $pos2);
 
 				$open_tags[count($open_tags) - 2]['after'] = '</ul>';
@@ -2261,8 +2261,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$pos1 += $ot_strlen + 2;
 
 				// Trim or eat trailing stuff... see comment at the end of the big loop.
-				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 6) == '<br>')
-					$message = substr($message, 0, $pos) . substr($message, $pos + 6);
+				if (!empty($open_tags[$i]['block_level']) && substr($message, $pos, 4) == '<br>')
+					$message = substr($message, 0, $pos) . substr($message, $pos + 4);
 				if (!empty($open_tags[$i]['trim']) && $tag['trim'] != 'inside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos), $matches) != 0)
 					$message = substr($message, 0, $pos) . substr($message, $pos + strlen($matches[0]));
 
@@ -2287,8 +2287,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 			$data = substr($message, $pos1, $pos2 - $pos1);
 
-			if (!empty($tag['block_level']) && substr($data, 0, 6) == '<br>')
-				$data = substr($data, 6);
+			if (!empty($tag['block_level']) && substr($data, 0, 4) == '<br>')
+				$data = substr($data, 4);
 
 			if (isset($tag['validate']))
 				$tag['validate']($tag, $data, $disabled);
@@ -2329,8 +2329,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
-			if (!empty($tag['block_level']) && substr($data[0], 0, 6) == '<br>')
-				$data[0] = substr($data[0], 6);
+			if (!empty($tag['block_level']) && substr($data[0], 0, 4) == '<br>')
+				$data[0] = substr($data[0], 4);
 
 			// Validation for my parking, please!
 			if (isset($tag['validate']))
@@ -2436,8 +2436,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($tag['block_level']) && substr($message, $pos + 1, 6) == '<br>')
-			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 7);
+		if (!empty($tag['block_level']) && substr($message, $pos + 1, 4) == '<br>')
+			$message = substr($message, 0, $pos + 1) . substr($message, $pos + 5);
 
 		// Are we trimming outside this tag?
 		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($message, $pos + 1), $matches) != 0)
