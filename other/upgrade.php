@@ -129,8 +129,6 @@ if (empty($upcontext['updated']))
 // Load up some essential data...
 loadEssentialData();
 
-require_once($sourcedir . '/Subs.php');
-
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
@@ -849,6 +847,8 @@ function loadEssentialData()
 	{
 		return throw_error('Cannot find ' . $sourcedir . '/Subs-Db-' . $db_type . '.php' . '. Please check you have uploaded all source files and have the correct paths set.');
 	}
+
+	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
