@@ -2035,15 +2035,16 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				}
 				
 				// Extract the parameters from the opening tag.
-				if ($possible['type'] != 'closed') {
+				if (isset($possible['type']) && $possible['type'] == 'closed') {
+					// Closed type BBCodes require a simpler approach. Side effect is that a closed type BBC can't accept a ] in its params. But SMF doesn't ship with any BBC that this would affect anyway.
+					$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
+				else {
+				}	
 					// This regex works even if there are a bunch of ] characters in the params.
 					preg_match('~\[' . $possible['tag'] . '(.*)\](?' . '>.|(?R))*?\[/' . $possible['tag'] . '\]~i', substr($message, $pos), $matches);
 					$given_param_string = $matches[1];
 				}
-				else {
-					// Closed type BBCodes require another, simpler approach. Side effect is that a closed type BBC can't accept a ] in its params. But SMF doesn't ship with any BBC that this would affect anyway.
-					$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
-				}	
+	
 
 				$given_params = preg_split('~\s(?=(' . implode('|', $splitters) . '))~i', $given_param_string);
 				sort($given_params, SORT_STRING);
