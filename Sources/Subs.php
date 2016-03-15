@@ -2025,8 +2025,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible['parameters']))
 			{
-				$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
-				
 				// Build a regular expression for each parameter for the current tag.
 				// ... And also an array for use in another regular expression in a moment.
 				$preg = array();
@@ -2036,6 +2034,17 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
 				}
 				
+				// Extract the parameters from the opening tag.
+				if ($possible['type'] != 'closed') {
+					// This regex works even if there are a bunch of ] characters in the params.
+					preg_match('~\[' . $possible['tag'] . '(.*)\](?' . '>.|(?R))*?\[/' . $possible['tag'] . '\]~i', substr($message, $pos), $matches);
+					$given_param_string = $matches[1];
+				}
+				else {
+					// Closed type BBCodes require another, simpler approach. Side effect is that a closed type BBC can't accept a ] in its params. But SMF doesn't ship with any BBC that this would affect anyway.
+					$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
+				}	
+
 				$given_params = preg_split('~\s(?=(' . implode('|', $splitters) . '))~i', $given_param_string);
 				sort($given_params, SORT_STRING);
 				$given_param_string = implode(' ', $given_params);
