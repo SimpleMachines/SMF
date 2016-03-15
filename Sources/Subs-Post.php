@@ -1127,10 +1127,10 @@ function sendpm($recipients, $subject, $message, $store_outbox = false, $from = 
 
 	foreach ($notifications as $lang => $notification_list)
 	{
-		$mail = loadEmailTemplate($email_template, $replacements, $lang);
+		$emaildata = loadEmailTemplate($email_template, $replacements, $lang);
 
 		// Off the notification email goes!
-		sendmail($notification_list, $mail['subject'], $mail['body'], null, 'p' . $id_pm, false, 2, null, true);
+		sendmail($notification_list, $emaildata['subject'], $emaildata['body'], null, 'p' . $id_pm, $emaildata['is_html'], 2, null, true);
 	}
 
 	// Integrated After PMs
@@ -2670,6 +2670,7 @@ function loadEmailTemplate($template, $replacements = array(), $lang = '', $load
 	$ret = array(
 		'subject' => $txt[$template . '_subject'],
 		'body' => $txt[$template . '_body'],
+		'is_html' => !empty($txt[$template . '_html']),
 	);
 
 	// Add in the default replacements.
