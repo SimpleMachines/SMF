@@ -2395,6 +2395,7 @@ VALUES
 #
 # Dumping data for table `settings`
 #
+
 INSERT INTO {$db_prefix}settings
 	(variable, value)
 VALUES ('smfVersion', '{$smf_version}'),
