@@ -137,7 +137,7 @@ class GroupAct_Notify_Background extends SMF_BackgroundTask
 
 					$emaildata = loadEmailTemplate($email_template_name, $replacements, $user['language']);
 
-					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], false, 2);
+					sendmail($user['email'], $emaildata['subject'], $emaildata['body'], null, $email_message_id_prefix . $user['rid'], $emaildata['is_html'], 2);
 				}
 			}
 
