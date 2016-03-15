@@ -332,6 +332,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += " height=" + $(element).height();
 			if (element.attr('alt'))
 				attribs += " alt=" + element.attr('alt');
+			if (element.attr('title'))
+				attribs += " title=" + element.attr('title');
 
 			return '[img' + attribs + ']' + element.attr('src') + '[/img]';
 		},
@@ -346,6 +348,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				attribs += ' height="' + attrs.height + '"';
 			if (typeof attrs.alt !== "undefined")
 				attribs += ' alt="' + attrs.alt + '"';
+			if (typeof attrs.title !== "undefined")
+				attribs += ' title="' + attrs.title + '"';
 
 			return '<img' + attribs + ' src="' + content + '">';
 		}
