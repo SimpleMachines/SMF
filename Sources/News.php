@@ -509,7 +509,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 				echo "\n", str_repeat("\t", $i);
 			}
 			// A string with returns in it.... show this as a multiline element.
-			elseif (strpos($val, "\n") !== false || !empty(preg_match('~<br ?/?' . '>~', $val)))
+			elseif (strpos($val, "\n") !== false || preg_match('~<br ?/?' . '>~', $val) !== false)
 				echo "\n", fix_possible_url($val), "\n", str_repeat("\t", $i);
 			// A simple string.
 			else
