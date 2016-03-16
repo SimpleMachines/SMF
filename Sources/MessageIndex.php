@@ -379,10 +379,6 @@ function MessageIndex()
 				if ($smcFunc['strlen']($row['first_body']) > $modSettings['preview_characters'])
 					$row['first_body'] = $smcFunc['substr']($row['first_body'], 0, $modSettings['preview_characters']) . '...';
 
-				$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
-				if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
-					$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
-
 				// Censor the subject and message preview.
 				censorText($row['first_subject']);
 				censorText($row['first_body']);
@@ -395,6 +391,10 @@ function MessageIndex()
 				}
 				else
 				{
+					$row['last_body'] = strip_tags(strtr(parse_bbc($row['last_body'], $row['last_smileys'], $row['id_last_msg']), array('<br>' => '&#10;')));
+					if ($smcFunc['strlen']($row['last_body']) > $modSettings['preview_characters'])
+						$row['last_body'] = $smcFunc['substr']($row['last_body'], 0, $modSettings['preview_characters']) . '...';
+
 					censorText($row['last_subject']);
 					censorText($row['last_body']);
 				}
