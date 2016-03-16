@@ -386,7 +386,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 			return '[attach' + attribs + ']' + content + '[/attach]';
 		},
 		html: function (token, attrs, content) {
-			var	parts,
+			var parts,
 				attribs = '';
 
 			if (typeof attrs.width !== "undefined")
@@ -470,6 +470,7 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		allowsEmpty: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.never,
 		html: function (token, attrs, content) {
+
 			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
 				attrs.defaultattr = content;
 

@@ -23,18 +23,16 @@ function showAttachment()
 {
 	global $smcFunc, $modSettings, $maintenance, $context;
 
-	// We need a valid ID.
-	if(empty($_GET['attach']) || (string)$_GET['attach'] != (string)(int)$_GET['attach'])
-		die;
+	// Some defaults that we need.
+	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
+	$context['utf8'] = $context['character_set'] === 'UTF-8';
 
-	// A thumbnail has been requested? madness! madness I say!
-	$showThumb = isset($_GET['thumb']);
-
-	// No access in strict maintenance mode.
-	if(!empty($maintenance) && $maintenance == 2)
-		die;
+	// An early hook to set up global vars, clean cache and other early process.
+	call_integration_hook('integrate_pre_download_request');
 
 	// This is done to clear any output that was made before now.
+	ob_end_clean();
+
 	if(!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
 		if(@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
@@ -51,48 +49,85 @@ function showAttachment()
 	}
 
 	// Better handling.
-	$id_attach = (int) $_GET['attach'];
+	$attachId = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
+
+	// We need a valid ID.
+	if(empty($attachId))
+	{
+		header('HTTP/1.0 404 File Not Found');
+		die('404 File Not Found');
+	}
+
+	// A thumbnail has been requested? madness! madness I say!
+	$showThumb = isset($_GET['thumb']);
+	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
+
+	// No access in strict maintenance mode.
+	if(!empty($maintenance) && $maintenance == 2)
+	{
+		header('HTTP/1.0 404 File Not Found');
+		die('404 File Not Found');
+	}
 
 	// Use cache when possible.
-	if(($cache = cache_get_data('attachment_lookup_id-'. $id_attach)) != null)
+	if(($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
 		$file = $cache;
 
 	// Get the info from the DB.
 	else
 	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
-			FROM {db_prefix}attachments
-			WHERE id_attach = {int:id_attach}
-			LIMIT 1',
-			array(
-				'id_attach' => $id_attach,
-				'blank_id_member' => 0,
-			)
-		);
+		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
+		$attachRequest = null;
+		call_integration_hook('integrate_download_request', array(&$attachRequest));
+		if (!is_null($attachRequest) && $smcFunc['db_is_resource']($attachRequest))
+			$request = $attachRequest;
+
+		else
+		{
+			// Make sure this attachment is on this board and load its info while we are at it.
+			$request = $smcFunc['db_query']('', '
+				SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+				FROM {db_prefix}attachments AS a
+					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
+					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
+				WHERE a.id_attach = {int:attach}
+				LIMIT 1',
+				array(
+					'attach' => $attachId,
+					'current_topic' => $attachTopic,
+				)
+			);
+		}
+
+		// The provided topic must match the one stored in the DB for this particular attachment, also, you need permission to view attachments.
+		if ($smcFunc['db_num_rows']($request) == 0 || !allowedTo('view_attachments'))
+		{
+			header('HTTP/1.0 404 File Not Found');
+			die('404 File Not Found');
+		}
 
 		$file = $smcFunc['db_fetch_assoc']($request);
 		$smcFunc['db_free_result']($request);
 
-		// Update the download counter (unless it's a thumbnail).
-		if ($file['attachment_type'] != 3)
-			$smcFunc['db_query']('attach_download_increase', '
-				UPDATE LOW_PRIORITY {db_prefix}attachments
-				SET downloads = downloads + 1
-				WHERE id_attach = {int:id_attach}',
-				array(
-					'id_attach' => $id_attach,
-				)
-			);
-
-		$file['filename'] = getAttachmentFilename($file['real_filename'], $id_attach, $file['id_folder'], false, $file['file_hash']);
+		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 
 		// ETag time.
-		$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
+		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
 
 		// Cache it.
-		cache_put_data('attachment_lookup_id-'. $id_attach, $file, mt_rand(850, 900));
+		cache_put_data('attachment_lookup_id-'. $attachId, $file, mt_rand(850, 900));
 	}
+
+	// Update the download counter (unless it's a thumbnail).
+	if ($file['attachment_type'] != 3)
+		$smcFunc['db_query']('attach_download_increase', '
+			UPDATE LOW_PRIORITY {db_prefix}attachments
+			SET downloads = downloads + 1
+			WHERE id_attach = {int:id_attach}',
+			array(
+				'id_attach' => $attachId,
+			)
+		);
 
 	// Replace the normal file with its thumbnail if it has one!
 	if ($showThumb && $file['id_thumb'])
@@ -115,27 +150,30 @@ function showAttachment()
 		// Got something! replace the $file var with the thumbnail info.
 		if ($thumbFile)
 		{
-			$id_attach = $file['id_thumb'];
+			$attachId = $file['id_thumb'];
 			$file = $thumbFile;
-			$file['filename'] = getAttachmentFilename($file['real_filename'], $id_attach, $file['id_folder'], false, $file['file_hash']);
+			$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 
 			// ETag time.
-			$file['etag'] = '"'. function_exists('md5_file') ? md5_file($file['filename']) : md5(file_get_contents($file['filename'])). '"';
+			$file['etag'] = '"'. md5_file($file['filename']) .'"';
 		}
 	}
 
-	// The file does not exists
-	if(!file_exists($file['filename']))
+	// No point in a nicer message, because this is supposed to be an attachment anyway...
+	if (!file_exists($file['filePath']))
 	{
-		header('HTTP/1.0 404 File Not Found');
-		die('404 File Not Found');
+		header((preg_match('~HTTP/1\.[01]~i', $_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0') . ' 404 Not Found');
+		header('Content-Type: text/plain; charset=' . (empty($context['character_set']) ? 'ISO-8859-1' : $context['character_set']));
+
+		// We need to die like this *before* we send any anti-caching headers as below.
+		die('File not found.');
 	}
 
 	// If it hasn't been modified since the last time this attachment was retrieved, there's no need to display it again.
 	if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 	{
 		list($modified_since) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		if (strtotime($modified_since) >= filemtime($file['filename']))
+		if (strtotime($modified_since) >= filemtime($file['filePath']))
 		{
 			ob_end_clean();
 
@@ -145,35 +183,99 @@ function showAttachment()
 		}
 	}
 
-	header('Pragma: ');
-	header('Expires: '. gmdate('D, d M Y H:i:s', time() + 31536000). ' GMT');
-	header('Last-Modified: '. gmdate('D, d M Y H:i:s', filemtime($file['filename'])). ' GMT');
-	header('Accept-Ranges: bytes');
-	header('Connection: close');
-	header('ETag: '. $file['etag']);
-
-	// Are we handling a file? This is just a quick way to force downloading, its not really designed to actually download an attachment properly. Doens't take into consideration which browser the user is using.
-	if (isset($_GET['file']))
+	// Check whether the ETag was sent back, and cache based on that...
+	$eTag = '"' . substr($_REQUEST['attach'] . $file['filePath'] . filemtime($file['filePath']), 0, 64) . '"';
+	if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $eTag) !== false)
 	{
-		header('Content-Type: application/octet-stream');
+		ob_end_clean();
 
-		// Convert the file to UTF-8, cuz most browsers dig that.
-		$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['real_filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['real_filename'], 'UTF-8', $context['character_set']) : $file['real_filename']);
-
-		header('Content-Disposition: attachment; filename="' . $utf8name . '"');
-		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
+		header('HTTP/1.1 304 Not Modified');
+		exit;
 	}
 
-	header('Content-Type: '. $file['mime_type']);
+	// Send the attachment headers.
+	header('Pragma: ');
+
+	if (!isBrowser('gecko'))
+		header('Content-Transfer-Encoding: binary');
+
+	header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 525600 * 60) . ' GMT');
+	header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($file['filePath'])) . ' GMT');
+	header('Accept-Ranges: bytes');
+	header('Connection: close');
+	header('ETag: ' . $eTag);
+
+	// Make sure the mime type warrants an inline display.
+	if (isset($_REQUEST['image']) && !empty($file['mime_type']) && strpos($file['mime_type'], 'image/') !== 0)
+		unset($_REQUEST['image']);
+
+	// Does this have a mime type?
+	elseif (!empty($file['mime_type']) && (isset($_REQUEST['image']) || !in_array($file['fileext'], array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff'))))
+		header('Content-Type: ' . strtr($file['mime_type'], array('image/bmp' => 'image/x-ms-bmp')));
+
+	else
+	{
+		header('Content-Type: ' . (isBrowser('ie') || isBrowser('opera') ? 'application/octetstream' : 'application/octet-stream'));
+		if (isset($_REQUEST['image']))
+			unset($_REQUEST['image']);
+	}
+
+	// Convert the file to UTF-8, cuz most browsers dig that.
+	$utf8name = !$context['utf8'] && function_exists('iconv') ? iconv($context['character_set'], 'UTF-8', $file['filename']) : (!$context['utf8'] && function_exists('mb_convert_encoding') ? mb_convert_encoding($file['filename'], 'UTF-8', $context['character_set']) : $file['filename']);
+	$disposition = !isset($_REQUEST['image']) ? 'attachment' : 'inline';
+
+	// Different browsers like different standards...
+	if (isBrowser('firefox'))
+		header('Content-Disposition: ' . $disposition . '; filename*=UTF-8\'\'' . rawurlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)));
+
+	elseif (isBrowser('opera'))
+		header('Content-Disposition: ' . $disposition . '; filename="' . preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name) . '"');
+
+	elseif (isBrowser('ie'))
+		header('Content-Disposition: ' . $disposition . '; filename="' . urlencode(preg_replace_callback('~&#(\d{3,8});~', 'fixchar__callback', $utf8name)) . '"');
+
+	else
+		header('Content-Disposition: ' . $disposition . '; filename="' . $utf8name . '"');
+
+	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
+	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
+		header('Cache-Control: no-cache');
+	else
+		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
+
+	header('Content-Length: ' . filesize($file['filePath']));
+
+	// Try to buy some time...
+	@set_time_limit(600);
+
+	// Recode line endings for text files, if enabled.
+	if (!empty($modSettings['attachmentRecodeLineEndings']) && !isset($_REQUEST['image']) && in_array($file['fileext'], array('txt', 'css', 'htm', 'html', 'php', 'xml')))
+	{
+		if (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows') !== false)
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r\n", $buffer);
+			};
+		elseif (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false)
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\r", $buffer);
+			};
+		else
+			$callback = function ($buffer)
+			{
+				return preg_replace('~[\r]?\n~', "\n", $buffer);
+			};
+	}
 
 	// Since we don't do output compression for files this large...
-	if (filesize($file['filename']) > 4194304)
+	if (filesize($file['filePath']) > 4194304)
 	{
 		// Forcibly end any output buffering going on.
 		while (@ob_get_level() > 0)
 			@ob_end_clean();
 
-		$fp = fopen($file['filename'], 'rb');
+		$fp = fopen($file['filePath'], 'rb');
 		while (!feof($fp))
 		{
 			echo fread($fp, 8192);
@@ -183,8 +285,8 @@ function showAttachment()
 	}
 
 	// On some of the less-bright hosts, readfile() is disabled.  It's just a faster, more byte safe, version of what's in the if.
-	elseif (@readfile($file['filename']) === null)
-		echo file_get_contents($file['filename']);
+	elseif (@readfile($file['filePath']) === null)
+		echo file_get_contents($file['filePath']);
 
 	die();
 }

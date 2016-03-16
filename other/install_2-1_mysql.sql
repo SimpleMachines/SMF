@@ -2022,7 +2022,8 @@ VALUES ('smfVersion', '{$smf_version}'),
 	('httponlyCookies', '1'),
 	('tfa_mode', '1'),
 	('allow_expire_redirect', '1'),
-	('json_done', '1');
+	('json_done', '1'),
+	('minimize_files', '1');
 
 # --------------------------------------------------------
 
