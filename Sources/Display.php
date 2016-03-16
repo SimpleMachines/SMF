@@ -1467,6 +1467,7 @@ function prepareDisplayContext($reset = false)
  * It depends on the attachmentUploadDir setting being correct.
  * It is accessed via the query string ?action=dlattach.
  * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
+ * Legacy code, all attachments are now handled by ShowAttachments.php
  */
 function Download()
 {
@@ -1476,6 +1477,10 @@ function Download()
 	$context['character_set'] = empty($modSettings['global_character_set']) ? (empty($txt['lang_character_set']) ? 'ISO-8859-1' : $txt['lang_character_set']) : $modSettings['global_character_set'];
 	$context['utf8'] = $context['character_set'] === 'UTF-8';
 	$context['no_last_modified'] = true;
+
+	// Prevent a preview image from being displayed twice.
+	if (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
+		return;
 
 	// Make sure some attachment was requested!
 	if (!isset($_REQUEST['attach']) && !isset($_REQUEST['id']))

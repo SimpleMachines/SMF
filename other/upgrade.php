@@ -129,8 +129,6 @@ if (empty($upcontext['updated']))
 // Load up some essential data...
 loadEssentialData();
 
-require_once($sourcedir . '/Subs.php');
-
 // Are we going to be mimic'ing SSI at this point?
 if (isset($_GET['ssi']))
 {
@@ -849,6 +847,8 @@ function loadEssentialData()
 	{
 		return throw_error('Cannot find ' . $sourcedir . '/Subs-Db-' . $db_type . '.php' . '. Please check you have uploaded all source files and have the correct paths set.');
 	}
+
+	require_once($sourcedir . '/Subs.php');
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
 	if (file_exists($sourcedir . '/QueryString.php') && php_version_check())
@@ -4475,6 +4475,7 @@ function template_upgrade_above()
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css?alp21">
 		<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/install.css?alp21">
 		', $txt['lang_rtl'] == true ? '<link rel="stylesheet" href="' . $settings['default_theme_url'] . '/css/rtl.css?alp21">' : '' , '
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 		<script>
 			var smf_scripturl = \'', $upgradeurl, '\';
@@ -4486,16 +4487,16 @@ function template_upgrade_above()
 			{
 				// What out the actual percent.
 				var width = parseInt((current / max) * 100);
-				if (document.getElementById(\'step_progress\'))
+				if (document.getElementById(\'step_progress_upgrade\'))
 				{
-					document.getElementById(\'step_progress\').style.width = width + "%";
-					setInnerHTML(document.getElementById(\'step_text\'), width + "%");
+					document.getElementById(\'step_progress_upgrade\').style.width = width + "%";
+					setInnerHTML(document.getElementById(\'step_text_upgrade\'), width + "%");
 				}
-				if (overall_weight && document.getElementById(\'overall_progress\'))
+				if (overall_weight && document.getElementById(\'overall_progress_upgrade\'))
 				{
 					overall_width = parseInt(startPercent + width * (overall_weight / 100));
-					document.getElementById(\'overall_progress\').style.width = overall_width + "%";
-					setInnerHTML(document.getElementById(\'overall_text\'), overall_width + "%");
+					document.getElementById(\'overall_progress_upgrade\').style.width = overall_width + "%";
+					setInnerHTML(document.getElementById(\'overall_text_upgrade\'), overall_width + "%");
 				}
 			}
 		</script>
@@ -5011,7 +5012,10 @@ function template_backup_database()
 		// If debug flood the screen.
 		if ($is_debug)
 			echo '
-				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');';
+				setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>Completed Table: &quot;\' + sCompletedTableName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+				if (document.getElementById(\'debuginfo\').scrollHeight)
+					document.getElementById(\'debuginfo\').scrollTop = document.getElementById(\'debuginfo\').scrollHeight;';
 
 		echo '
 				// Get the next update...

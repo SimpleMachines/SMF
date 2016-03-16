@@ -79,13 +79,6 @@ if (isset($_GET['scheduled']))
 	AutoTask();
 }
 
-// Displaying attachments.
-elseif (isset($_GET['action']) && $_GET['action'] == 'dlattach' && isset($_GET['type']) && ($_GET['type'] == 'avatar' || $_GET['type'] == 'preview'))
-{
-	require_once($sourcedir. '/ShowAttachments.php');
-	showAttachment();
-}
-
 // And important includes.
 require_once($sourcedir . '/Session.php');
 require_once($sourcedir . '/Errors.php');
@@ -247,7 +240,7 @@ function smf_main()
 		'coppa' => array('Register.php', 'CoppaForm'),
 		'credits' => array('Who.php', 'Credits'),
 		'deletemsg' => array('RemoveTopic.php', 'DeleteMessage'),
-		'dlattach' => array('Display.php', 'Download'),
+		'dlattach' => array('ShowAttachments.php', 'showAttachment'),
 		'editpoll' => array('Poll.php', 'EditPoll'),
 		'editpoll2' => array('Poll.php', 'EditPoll2'),
 		'findmember' => array('Subs-Auth.php', 'JSMembers'),
