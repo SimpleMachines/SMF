@@ -30,9 +30,6 @@ function preparsecode(&$message, $previewing = false)
 {
 	global $user_info, $modSettings, $context;
 
-	// Remove empty bbc.
-	$message = preg_replace('~\[([^\]=]+)(?:=[^\]]*)?\](?>(?R))*?\[\/\1\]~i', '', $message);
-
 	// This line makes all languages *theoretically* work even with the wrong charset ;).
 	$message = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $message);
 
@@ -41,6 +38,9 @@ function preparsecode(&$message, $previewing = false)
 	{
 		return '[nobbc]' . strtr($a[1], array('[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;')) . '[/nobbc]';
 	}, $message);
+
+	// Remove empty bbc.
+	$message = preg_replace('~\[([^\]=\s]+)[^\]]*\](?' . '>\s|(?R))*?\[/\1\]\s?~i', '', $message);
 
 	// Remove \r's... they're evil!
 	$message = strtr($message, array("\r" => ''));
