@@ -210,7 +210,7 @@ function ShowXmlFeed()
 	}
 
 	$feed_title = $smcFunc['htmlspecialchars'](strip_tags($context['forum_name'])) . (isset($feed_title) ? $feed_title : '');
-	
+
 	// If mods want to do somthing with this feed, let them do that now.
 	// Provide the feed's data, title, format, and content type.
 	call_integration_hook('integrate_xml_data', array(&$xml, &$feed_title, $xml_format, $_GET['sa']));
@@ -362,9 +362,9 @@ function fix_possible_url($val)
 function cdata_parse($data, $ns = '')
 {
 	global $smcFunc;
-	
+
 	// Do we even need to do this?
-	if (empty(strpbrk($data, '<>&')))
+	if (strpbrk($data, '<>&') == false)
 		return $data;
 
 	$cdata = '<![CDATA[';
@@ -455,16 +455,16 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 		'gender',
 		'blurb',
 	);
-	if ($xml_format != 'atom') 
+	if ($xml_format != 'atom')
 		$keysToCdata[] = 'category';
-	
+
 	// For every array in the data...
 	foreach ($data as $key => $val)
 	{
 		// Skip it, it's been set to null.
 		if ($val === null)
 			continue;
-		
+
 		// If the value should maybe be CDATA, do that now.
 		if (!is_array($val) && in_array($key, $keysToCdata))
 			$val = cdata_parse($val);
@@ -514,7 +514,7 @@ function dumpTags($data, $i, $tag = null, $xml_format = '')
 			// A simple string.
 			else
 				echo fix_possible_url($val);
-			
+
 			// Ending tag.
 			echo '</', $key, '>';
 		}
