@@ -1061,10 +1061,6 @@ img.sort, .sort {
 	color: #a85400;
 	text-decoration: none;
 }
-/* Limit input to avoid weird overflows */
-.input_text {
-	max-width: 150px;
-}
 /* The logo and slogan. */
 #header {
 	padding: 2px 2px 12px 2px;
