@@ -516,7 +516,7 @@ function UnapprovedAttachments()
 						<option value="delete">&nbsp;--&nbsp;' . $txt['delete'] . '</option>
 					</select>
 					<noscript><input type="submit" name="ml_go" value="' . $txt['go'] . '" class="button_submit"></noscript>',
-				'align' => 'right',
+				'class' => 'floatright',
 			),
 		),
 	);

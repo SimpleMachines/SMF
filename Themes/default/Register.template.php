@@ -401,21 +401,21 @@ function template_coppa_form()
 	echo '
 		<table style="width: 100%; padding: 3px; border: 0" class="tborder">
 			<tr>
-				<td align="left">', $context['forum_contacts'], '</td>
+				<td>', $context['forum_contacts'], '</td>
 			</tr><tr>
-				<td align="right">
+				<td class="righttext">
 					<em>', $txt['coppa_form_address'], '</em>: ', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '<br>
 					', $context['ul'], '
 				</td>
 			</tr><tr>
-				<td align="right">
+				<td class="righttext">
 					<em>', $txt['coppa_form_date'], '</em>: ', $context['ul'], '
 					<br><br>
 				</td>
 			</tr><tr>
-				<td align="left">
+				<td>
 					', $context['coppa_body'], '
 				</td>
 			</tr>

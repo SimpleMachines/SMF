@@ -1541,12 +1541,12 @@ function template_php_info()
 
 				echo '
 								<tr class="windowbg">
-									<td align="left" class="equal_table">', $key, '</td>';
+									<td class="equal_table">', $key, '</td>';
 
 				foreach ($setting as $key_lm => $value)
 				{
 					echo '
-									<td align="left" class="equal_table">', $value, '</td>';
+									<td class="equal_table">', $value, '</td>';
 				}
 				echo '
 								</tr>';
@@ -1556,8 +1556,8 @@ function template_php_info()
 			{
 				echo '
 								<tr class="windowbg">
-									<td align="left" class="equal_table">', $key,  '</td>
-									<td align="left" colspan="2">', $setting, '</td>
+									<td class="equal_table">', $key,  '</td>
+									<td colspan="2">', $setting, '</td>
 								</tr>';
 			}
 		}

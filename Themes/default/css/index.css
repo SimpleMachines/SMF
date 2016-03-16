@@ -57,6 +57,10 @@ textarea, textarea.editor {
 input, button, select {
 	font-size: 0.9em;
 }
+/* Height fixation */
+input, select {
+	height: 25px;
+}
 select {
 	padding: 2px;
 }
@@ -114,6 +118,7 @@ input.input_check, input.input_radio {
 	border: none;
 	background: none;
 	vertical-align: top;
+	height: 0;
 }
 .moderationbuttons_mobile_check {
 	display: none;
@@ -173,7 +178,7 @@ body#help_popup {
 }
 .button_submit, .button_reset, .button_link {
 	margin: 0 0 0 12px;
-	padding: 2px 4px;
+	padding: 0 4px;
 	float: right;
 	cursor: pointer;
 	border: 1px solid #ddd;
@@ -442,7 +447,7 @@ a img {
 /* the page navigation area */
 .pagesection {
 	font-size: 0.9em;
-	padding: 2px 4px;
+	padding: 2px 0;
 	overflow: hidden;
 	margin: 0;
 	clear: both;
@@ -452,9 +457,6 @@ a img {
 }
 #main_content_section .pagesection {
 	margin: 4px 0 0 0;
-}
-div.pagesection div.floatright input, div.pagesection div.floatright select {
-	margin-top: 3px;
 }
 .pagelinks {
 	margin: 8px 0 0 0;
@@ -1052,9 +1054,6 @@ img.sort, .sort {
 	margin: 1px;
 }
 #search_form .button_submit {
-	margin: 2px 10px 2px 5px;
-	padding: 2px 5px;
-	border-radius: 3px;
 	color: #333;
 }
 #search_form .button_submit:hover {
