@@ -2049,9 +2049,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				sort($given_params, SORT_STRING);
 				$given_param_string = implode(' ', $given_params);
 
-				$match_preg = '~^' . implode('', $preg) . '$~i';
-				
-				$match = preg_match($match_preg, $given_param_string, $matches) !== 0;
+				$match = preg_match('~^' . implode('', $preg) . '$~i', $given_param_string, $matches) !== 0;
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
