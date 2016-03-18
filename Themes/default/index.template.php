@@ -85,7 +85,7 @@ function template_html_above()
 
 	// Show right to left and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', $context['right_to_left'] ? ' dir="rtl"' : '', '>
+	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . substr($txt['lang_locale'], 0, 2) . '"' : '' , '>
 <head>
 	<meta charset="', $context['character_set'], '">';
 
