@@ -265,6 +265,9 @@ span.hidelink {
 		border: none;
 		background: none;
 	}
+	#main_grid tr {
+		margin-bottom: 1em;
+	}
 	#main_grid tr:not(.days_wrapper) {
 		display: none;
 	}
@@ -288,12 +291,11 @@ span.hidelink {
 		margin: 0 0.5em;
 		vertical-align: top;
 	}
-	#main_grid .calendar_table tr:nth-of-type(2) .weeks {
+	#main_grid .calendar_table .weeks {
 		margin-top: 0;
 	}
 	
 	#main_grid .calendar_week tr {
-		margin-bottom: 1em;
 		border: 1px solid #ddd !important;
 	}
 	#main_grid .calendar_week td {
