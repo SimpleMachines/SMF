@@ -263,8 +263,13 @@ function template_body_above()
 		if (!empty($context['current_board']))
 			echo '
 				<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', $txt['search_thisbrd'], '</option>';
+		
+		// Can't search for members if we can't see the memberlist
+		if (!empty($context['allow_memberlist']))
 			echo '
-				<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>
+				<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', $txt['search_members'], ' </option>';
+				
+		echo '
 			</select>';
 
 		// Search within current topic?
