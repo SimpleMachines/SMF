@@ -245,13 +245,6 @@ span.hidelink {
 	word-break: break-word;
 }
 
-/* Make main calendar same height as the stack of mini calendars */
-@media (min-width: 1024px) {
-	#main_grid .calendar_table {
-		min-height: 650px;
-	}
-}
-
 /* At less than 1024px wide, #main_grid needs all the space it can get */
 @media (max-width: 1023px) {
 	#month_grid {
