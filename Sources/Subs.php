@@ -897,59 +897,6 @@ function permute($array)
 	return $orders;
 }
 
- /**
- * Lexicographic permutation function.
- *
- * This is a special type of permutation which involves the order of the set. The next
- * lexicographic permutation of '32541' is '34125'. Numerically, it is simply the smallest
- * set larger than the current one.
- *
- * The benefit of this over a recursive solution is that the whole list does NOT need
- * to be held in memory. So it's actually possible to run 30! permutations without
- * causing a memory overflow.
- *
- * Source: O'Reilly PHP Cookbook
- *
- * @param mixed[] $p An array of permutations
- * @param int $size The size of our array
- *
- * @return mixed[] The next permutation of the passed array $p
- */
-function pc_next_permutation($p, $size)
-{
-	// Slide down the array looking for where we're smaller than the next guy
-	for ($i = $size - 1; isset($p[$i]) && $p[$i] >= $p[$i + 1]; --$i)
-	{
-	}
-
-	// If this doesn't occur, we've finished our permutations
-	// the array is reversed: (1, 2, 3, 4) => (4, 3, 2, 1)
-	if ($i === -1)
-	{
-		return false;
-	}
-
-	// Slide down the array looking for a bigger number than what we found before
-	for ($j = $size; $p[$j] <= $p[$i]; --$j)
-	{
-	}
-
-	// Swap them
-	$tmp = $p[$i];
-	$p[$i] = $p[$j];
-	$p[$j] = $tmp;
-
-	// Now reverse the elements in between by swapping the ends
-	for ($i, $j = $size; $i < $j; $i, --$j)
-	{
-		$tmp = $p[$i];
-		$p[$i] = $p[$j];
-		$p[$j] = $tmp;
-	}
-
-	return $p;
-}
-
 /**
  * Parse bulletin board code in a string, as well as smileys optionally.
  *
@@ -1696,6 +1643,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 		foreach ($codes as $code)
 		{
+			// Make it easier to process parameters later
+			if (!empty($code['parameters']))
+				ksort($code['parameters'], SORT_STRING);
+			
 			// If we are not doing every tag only do ones we are interested in.
 			if (empty($parse_tags) || in_array($code['tag'], $parse_tags))
 				$bbc_codes[substr($code['tag'], 0, 1)][] = $code;
@@ -2075,31 +2026,30 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
+				// ... And also an array for use in another regular expression in a moment.
 				$preg = array();
-				foreach ($possible['parameters'] as $p => $info)
+				$splitters = array();
+				foreach ($possible['parameters'] as $p => $info) {
+					$splitters[] = $p . '=';
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
-
-				// Okay, this may look ugly and it is, but it's not going to happen much and it is the best way of allowing any order of parameters but still parsing them right.
-				$param_size = count($preg) - 1;
-				$preg_keys = range(0, $param_size);
-				$message_stub = substr($message, $pos1 - 1);
-
-				// If sometthhing adds many parameters we can exceed max_execution time; let's prevent that.
-				// 5040 = 7, 40,320 = 8, (N!) etc
-				$max_iterations = 5040;
-
-				// Step, one by one, through all possible permutations of the parameters until we have a match.
-				do
-				{
-					$match_preg = '~^';
-					foreach ($preg_keys as $key)
-						$match_preg .= $preg[$key];
-					$match_preg .= '\]~i';
-
-					// Check if this combination of parameters matches the user input.
-					$match = preg_match($match_preg, $message_stub, $matches) !== 0;
 				}
-				while (!$match && --$max_iterations && ($preg_keys = pc_next_permutation($preg_keys, $param_size)));
+				
+				// Extract the parameters from the opening tag.
+				if (isset($possible['type']) && $possible['type'] == 'closed') {
+					// Closed type BBCodes require a simpler approach. Side effect is that a closed type BBC can't accept a ] in its params. But SMF doesn't ship with any BBC that this would affect anyway.
+					$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
+				}
+				else {
+					// This regex works even if there are a bunch of ] characters in the params.
+					preg_match('~\[' . $possible['tag'] . '(.*)\](?' . '>.|(?R))*?\[/' . $possible['tag'] . '\]~i', substr($message, $pos), $matches);
+					$given_param_string = $matches[1];
+				}
+	
+				$given_params = preg_split('~\s(?=(' . implode('|', $splitters) . '))~i', $given_param_string);
+				sort($given_params, SORT_STRING);
+				$given_param_string = implode(' ', $given_params);
+
+				$match = preg_match('~^' . implode('', $preg) . '$~i', $given_param_string, $matches) !== 0;
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
@@ -2136,7 +2086,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (isset($tag['content']))
 					$tag['content'] = strtr($tag['content'], $params);
 
-				$pos1 += strlen($matches[0]) - 1;
+				$pos1 += strlen($matches[0]);
 			}
 			else
 				$tag = $possible;
