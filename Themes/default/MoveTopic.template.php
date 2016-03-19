@@ -298,11 +298,11 @@ function template_merge_extra_options()
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" width="10px">', $txt['merge_check'], '</th>
+						<th scope="col" style="width:10px;">', $txt['merge_check'], '</th>
 						<th scope="col" class="lefttext">', $txt['subject'], '</th>
 						<th scope="col" class="lefttext">', $txt['started_by'], '</th>
 						<th scope="col" class="lefttext">', $txt['last_post'], '</th>
-						<th scope="col" width="20px">' . $txt['merge_include_notifications'] . '</th>
+						<th scope="col" style="width:20px;">' . $txt['merge_include_notifications'] . '</th>
 					</tr>
 				</thead>
 				<tbody>';

@@ -49,7 +49,8 @@ textarea, textarea.editor {
 	box-shadow: none;
 }
 #quick_edit_body_container textarea,
-.move_topic textarea {
+.move_topic textarea,
+dd textarea {
 	width: 100%;
 	min-height: 100px;
 }
@@ -621,11 +622,8 @@ table.table_grid {
 table.table_grid td {
 	padding: 3px;
 }
-.table_grid.half_content {
-	width: 50%;
-}
 /* Some predefined widths (mostly for tables) */
-.half_table {
+.table_grid.half_content, .half_table {
 	width: 50%;
 }
 .equal_table {
