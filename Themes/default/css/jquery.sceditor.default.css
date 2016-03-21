@@ -52,8 +52,6 @@ blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
 	font-size: small;
-	text-indent: 12px;
-	background: url(../images/theme/quote.png) 2px 3px no-repeat;
 	border: 1px solid #d6dfe2;
 	border-left: 2px solid #aaa;
 	border-right: 2px solid #aaa;
@@ -63,6 +61,13 @@ blockquote cite {
 	display: block;
 	border-bottom: 1px solid #aaa;
 	font-size: 0.9em;
+}
+blockquote cite:before {
+	color: #aaa;
+	font-size: 22px;
+	font-style: normal;
+	content: '\275D';
+	margin-right: 5px;
 }
 div, p {
 	min-height: 1.25em;
