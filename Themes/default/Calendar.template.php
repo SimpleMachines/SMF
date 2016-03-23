@@ -551,6 +551,7 @@ function template_event_post()
 			</div>';
 	}
 
+	// @todo Add start_time and end_time support
 	echo '
 			<div class="roundframe">
 				<fieldset id="event_main">

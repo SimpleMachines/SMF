@@ -252,6 +252,7 @@ function CalendarPost()
 			return Post();
 		}
 		// New...
+		// @todo Add start_time and end_time support
 		elseif ($_REQUEST['eventid'] == -1)
 		{
 			$eventOptions = array(
@@ -270,6 +271,7 @@ function CalendarPost()
 			removeEvent($_REQUEST['eventid']);
 
 		// ... or just update it?
+		// @todo Add start_time and end_time support
 		else
 		{
 			$eventOptions = array(
@@ -408,6 +410,7 @@ function iCalDownload()
 	}
 
 	// Format the dates.
+	// @todo Add start_time and end_time support
 	$datestamp = date('Ymd\THis\Z', time());
 	$datestart = $event['year'] . ($event['month'] < 10 ? '0' . $event['month'] : $event['month']) . ($event['day'] < 10 ? '0' . $event['day'] : $event['day']);
 
@@ -428,6 +431,7 @@ function iCalDownload()
 	$filecontents .= 'BEGIN:VEVENT' . "\n";
 	// @TODO - Should be the members email who created the event rather than $webmaster_email.
 	$filecontents .= 'ORGANIZER;CN="' . $event['realname'] . '":MAILTO:' . $webmaster_email . "\n";
+	// @todo Add start_time and end_time support
 	$filecontents .= 'DTSTAMP:' . $datestamp . "\n";
 	$filecontents .= 'DTSTART;VALUE=DATE:' . $datestart . "\n";
 

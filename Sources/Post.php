@@ -262,6 +262,7 @@ function Post($post_errors = array())
 			}
 
 			// Get the current event information.
+			// @todo Add start_time and end_time support
 			$request = $smcFunc['db_query']('', '
 				SELECT
 					id_member, title, MONTH(start_date) AS month, DAYOFMONTH(start_date) AS day,
@@ -2027,6 +2028,7 @@ function Post2()
 		canLinkEvent();
 
 		// Insert the event.
+		// @todo Add start_time and end_time support
 		$eventOptions = array(
 			'board' => $board,
 			'topic' => $topic,
@@ -2077,6 +2079,7 @@ function Post2()
 		else
 		{
 			// Set up our options
+			// @todo Add start_time and end_time support
 			$eventOptions = array(
 				'board' => $board,
 				'topic' => $topic,

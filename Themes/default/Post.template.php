@@ -193,6 +193,7 @@ function template_main()
 					</dl>';
 
 	// Are you posting a calendar event?
+	// @todo Add start_time and end_time support
 	if ($context['make_event'])
 	{
 		echo '

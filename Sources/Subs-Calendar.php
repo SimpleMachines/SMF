@@ -105,6 +105,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 	$high_date_time = mktime(0, 0, 0, $high_date_time[1], $high_date_time[2], $high_date_time[0]);
 
 	// Find all the calendar info...
+	// @todo Add start_time and end_time support
 	$result = $smcFunc['db_query']('', '
 		SELECT
 			cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
@@ -131,6 +132,7 @@ function getEventRange($low_date, $high_date, $use_permissions = true)
 		// Force a censor of the title - as often these are used by others.
 		censorText($row['title'], $use_permissions ? false : true);
 
+		// @todo Add start_time and end_time support
 		$start_date = sscanf($row['start_date'], '%04d-%02d-%02d');
 		$start_date = max(mktime(0, 0, 0, $start_date[1], $start_date[2], $start_date[0]), $low_date_time);
 		$end_date = sscanf($row['end_date'], '%04d-%02d-%02d');
@@ -827,6 +829,7 @@ function insertEvent(&$eventOptions)
 	$eventOptions['board'] = isset($eventOptions['board']) ? (int) $eventOptions['board'] : 0;
 	$eventOptions['topic'] = isset($eventOptions['topic']) ? (int) $eventOptions['topic'] : 0;
 
+	// @todo Add start_time and end_time support
 	$event_columns = array(
 		'id_board' => 'int', 'id_topic' => 'int', 'title' => 'string-60', 'id_member' => 'int',
 		'start_date' => 'date', 'end_date' => 'date',
@@ -898,6 +901,7 @@ function modifyEvent($event_id, &$eventOptions)
 	if (!isset($eventOptions['end_date']))
 		$eventOptions['end_date'] = strftime('%Y-%m-%d', mktime(0, 0, 0, $month, $day, $year) + $eventOptions['span'] * 86400);
 
+	// @todo Add start_time and end_time support
 	$event_columns = array(
 		'start_date' => '{date:start_date}',
 		'end_date' => '{date:end_date}',
@@ -975,6 +979,7 @@ function getEventProperties($event_id)
 {
 	global $smcFunc;
 
+	// @todo Add start_time and end_time support
 	$request = $smcFunc['db_query']('', '
 		SELECT
 			c.id_event, c.id_board, c.id_topic, MONTH(c.start_date) AS month,
