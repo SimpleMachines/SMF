@@ -1467,7 +1467,7 @@ function loadMemberContext($user, $display_custom_fields = false)
 			// So it's stored in the member table?
 			if (!empty($profile['avatar']))
 			{
-				$image = stristr($profile['avatar'], 'http://') ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
+				$image = (stristr($profile['avatar'], 'http://') || stristr($profile['avatar'], 'https://')) ? $profile['avatar'] : $modSettings['avatar_url'] . '/' . $profile['avatar'];
 			}
 			elseif (!empty($profile['filename']))
 				$image = $modSettings['custom_avatar_url'] . '/' . $profile['filename'];
