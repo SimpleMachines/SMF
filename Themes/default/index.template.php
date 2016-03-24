@@ -83,9 +83,9 @@ function template_html_above()
 {
 	global $context, $settings, $scripturl, $txt, $modSettings, $mbname;
 
-	// Show right to left and the character set for ease of translating.
+	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . substr($txt['lang_locale'], 0, 2) . '"' : '' , '>
+	<html', $context['right_to_left'] ? ' dir="rtl"' : '', !empty($txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr($txt['lang_locale'], 0, strcspn($txt['lang_locale'], "."))) . '"' : '' , '>
 <head>
 	<meta charset="', $context['character_set'], '">';
 
