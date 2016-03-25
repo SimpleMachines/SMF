@@ -2402,6 +2402,7 @@ function AnnouncementSend()
 			$announcements[$cur_language] = array(
 				'subject' => $emaildata['subject'],
 				'body' => $emaildata['body'],
+				'is_html' => $emaildata['is_html'],
 				'recipients' => array(),
 			);
 		}
@@ -2412,7 +2413,7 @@ function AnnouncementSend()
 
 	// For each language send a different mail - low priority...
 	foreach ($announcements as $lang => $mail)
-		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, false, 5);
+		sendmail($mail['recipients'], $mail['subject'], $mail['body'], null, 'ann-' . $lang, $mail['is_html'], 5);
 
 	$context['percentage_done'] = round(100 * $context['start'] / $modSettings['latestMember'], 1);
 
