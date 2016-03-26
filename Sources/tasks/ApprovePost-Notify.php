@@ -77,7 +77,7 @@ class ApprovePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('alert_unapproved_post', $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
+				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
 			if ($pref & 0x01)

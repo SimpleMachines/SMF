@@ -1125,7 +1125,7 @@ function AdminApprove()
 				);
 
 				$emaildata = loadEmailTemplate('admin_approve_accept', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $member['id'], false, 0);
+				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accapp' . $member['id'], $emaildata['is_html'], 0);
 			}
 		}
 	}
@@ -1165,7 +1165,7 @@ function AdminApprove()
 			);
 
 			$emaildata = loadEmailTemplate('admin_approve_activation', $replacements, $member['language']);
-			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accact' . $member['id'], false, 0);
+			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accact' . $member['id'], $emaildata['is_html'], 0);
 		}
 	}
 	// Are we rejecting them?
@@ -1184,7 +1184,7 @@ function AdminApprove()
 				);
 
 				$emaildata = loadEmailTemplate('admin_approve_reject', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrej', false, 1);
+				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrej', $emaildata['is_html'], 1);
 			}
 		}
 	}
@@ -1204,7 +1204,7 @@ function AdminApprove()
 				);
 
 				$emaildata = loadEmailTemplate('admin_approve_delete', $replacements, $member['language']);
-				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accdel', false, 1);
+				sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accdel', $emaildata['is_html'], 1);
 			}
 		}
 	}
@@ -1221,7 +1221,7 @@ function AdminApprove()
 			);
 
 			$emaildata = loadEmailTemplate('admin_approve_remind', $replacements, $member['language']);
-			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrem' . $member['id'], false, 1);
+			sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'accrem' . $member['id'], $emaildata['is_html'], 1);
 		}
 	}
 

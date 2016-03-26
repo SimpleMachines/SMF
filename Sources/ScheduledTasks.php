@@ -367,7 +367,7 @@ function scheduled_approval_notification()
 		$emaildata = loadEmailTemplate('scheduled_approval', $replacements, $current_language);
 
 		// Send the actual email.
-		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', false, 2);
+		sendmail($member['email'], $emaildata['subject'], $emaildata['body'], null, 'schedapp', $emaildata['is_html'], 2);
 	}
 
 	// All went well!
@@ -1558,7 +1558,7 @@ function scheduled_paid_subscriptions()
 
 		// Send the actual email.
 		if ($notifyPrefs[$row['id_member']] & 0x02)
-			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', false, 2);
+			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', $emaildata['is_html'], 2);
 
 		if ($notifyPrefs[$row['id_member']] & 0x01)
 		{

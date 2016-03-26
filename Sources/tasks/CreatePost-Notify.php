@@ -158,7 +158,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate($message_type, $replacements, empty($data['lngfile']) || empty($modSettings['userLanguage']) ? $language : $data['lngfile']);
-				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id']);
+				sendmail($data['email_address'], $emaildata['subject'], $emaildata['body'], null, 'm' . $topicOptions['id'], $emaildata['is_html']);
 			}
 
 			if ($pref & 0x01)
@@ -241,7 +241,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_quote', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], false, 2);
+				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_quote_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
 			if ($prefs[$id]['msg_quote'] & 0x01)
@@ -353,7 +353,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				);
 
 				$emaildata = loadEmailTemplate('msg_mention', $replacements, empty($member['lngfile']) || empty($modSettings['userLanguage']) ? $language : $member['lngfile']);
-				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], false, 2);
+				sendmail($member['email_address'], $emaildata['subject'], $emaildata['body'], null, 'msg_mention_' . $msgOptions['id'], $emaildata['is_html'], 2);
 			}
 
 			if ($prefs[$id]['msg_mention'] & 0x01)
