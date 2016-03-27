@@ -2046,7 +2046,7 @@ CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip
 --- update log_action ip with ipv6 support without converting
 /******************************************************************************/
 ---# delete old columns
-ALTER TABLE {$db_prefix}log_actions REMOVE COLUMN ip;
+ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
 ---#
 
 ---# add the new one
