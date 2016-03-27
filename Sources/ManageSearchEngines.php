@@ -502,33 +502,25 @@ function SpiderCheck()
 	// Only do these bits once.
 	$ci_user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
-	// Always attempt IPv6 first.
-	if (strpos($_SERVER['REMOTE_ADDR'], ':') !== false)
-		$ip_parts = convertIPv6toInts($_SERVER['REMOTE_ADDR']);
-	else
-		preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $ip_parts);
-
 	foreach ($spider_data as $spider)
 	{
 		// User agent is easy.
 		if (!empty($spider['user_agent']) && strpos($ci_user_agent, strtolower($spider['user_agent'])) !== false)
 			$_SESSION['id_robot'] = $spider['id_spider'];
 		// IP stuff is harder.
-		elseif (!empty($ip_parts))
+		elseif ($_SERVER['REMOTE_ADDR'])
 		{
 			$ips = explode(',', $spider['ip_info']);
 			foreach ($ips as $ip)
 			{
+				if ($ip === '')
+					continue;
+				
 				$ip = ip2range($ip);
 				if (!empty($ip))
 				{
-					foreach ($ip as $key => $value)
-					{
-						if ($value['low'] > $ip_parts[$key + 1] || $value['high'] < $ip_parts[$key + 1])
-							break;
-						elseif (($key == 7 && strpos($_SERVER['REMOTE_ADDR'], ':') !== false) || ($key == 3 && strpos($_SERVER['REMOTE_ADDR'], ':') === false))
-							$_SESSION['id_robot'] = $spider['id_spider'];
-					}
+					if (inet_ptod($ip['low']) <= inet_ptod($_SERVER['REMOTE_ADDR']) && inet_ptod($ip['high']) >= inet_ptod($_SERVER['REMOTE_ADDR']))
+						$_SESSION['id_robot'] = $spider['id_spider'];
 				}
 			}
 		}
