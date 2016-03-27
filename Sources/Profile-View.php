@@ -2451,7 +2451,7 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 
 		$edits[] = array(
 			'id' => $row['id_action'],
-			'ip' => $row['ip'],
+			'ip' => inet_dtop($row['ip']),
 			'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
 			'member_link' => $txt['trackEdit_deleted_member'],
 			'action' => $row['action'],

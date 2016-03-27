@@ -451,7 +451,7 @@ CREATE TABLE {$db_prefix}log_actions (
   id_log smallint NOT NULL default '1',
   log_time int NOT NULL default '0',
   id_member int NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
+  ip inet,
   action varchar(30) NOT NULL default '',
   id_board smallint NOT NULL default '0',
   id_topic int NOT NULL default '0',
