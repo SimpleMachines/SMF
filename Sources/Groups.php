@@ -410,6 +410,7 @@ function MembergroupMembers()
 	$context['members'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$row['member_ip'] = inet_dtop($row['member_ip']);
 		$last_online = empty($row['last_login']) ? $txt['never'] : timeformat($row['last_login']);
 
 		// Italicize the online note if they aren't activated.

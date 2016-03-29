@@ -237,6 +237,27 @@ function smf_db_replacement__callback($matches)
 			//we don't use the native support of mysql > 5.6.2
 			return sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
 		break;
+		
+		case 'array_inet':
+			if (is_array($replacement))
+			{
+				if (empty($replacement))
+					smf_db_error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+
+				foreach ($replacement as $key => $value)
+				{
+					if ($replacement == 'null')
+						$replacement[$key] = 'null';
+					if (!isValidIP($replacement))
+						smf_db_error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+					$replacement[$key] =  sprintf('unhex(\'%1$s\')', bin2hex(inet_pton($replacement)));
+				}
+
+				return implode(', ', $replacement);
+			}
+			else
+				smf_db_error_backtrace('Wrong value type sent to the database. Array of IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
+		break;
 
 		default:
 			smf_db_error_backtrace('Undefined type used in the database query. (' . $matches[1] . ':' . $matches[2] . ')', '', false, __FILE__, __LINE__);
