@@ -1702,7 +1702,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
 	
-	$alltags_regex = implode("|", array_unique(array_map(function($code){return $code['tag'];}, $codes)));
+	foreach ($bbc_codes as $section) {
+		foreach ($section as $code) {
+			$alltags[] = $code['tag'];
+		}
+	}
+	$alltags_regex = implode("|", array_unique($alltags));
 
 	// The non-breaking-space looks a bit different each time.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
