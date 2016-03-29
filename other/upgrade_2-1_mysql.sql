@@ -1926,3 +1926,14 @@ DROP ip_high2,
 DROP ip_high3,
 DROP ip_high4;
 ---#
+
+/******************************************************************************/
+--- update log_banned ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
+---#
