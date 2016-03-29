@@ -47,6 +47,7 @@ code {
 code, code:before {
 	display: block;
 	text-align: left;
+	direction: ltr;
 }
 blockquote {
 	margin: 0 0 8px 0;

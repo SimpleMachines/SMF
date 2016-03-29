@@ -719,6 +719,7 @@ span.pages {
 }
 
 /* Code is a code do it LTR */
-code.bbc_code {
+code.bbc_code, pre.file_content {
 	text-align: left;
+	direction: ltr;
 }
