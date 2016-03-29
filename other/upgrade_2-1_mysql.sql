@@ -1928,12 +1928,16 @@ DROP ip_high4;
 ---#
 
 /******************************************************************************/
---- update log_errors ip with ipv6 support without converting
+--- update log_errors members ip with ipv6 support without converting
 /******************************************************************************/
 ---# delete old columns
 ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip;
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2;
 ---#
 
 ---# add the new one
 ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
+ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
 ---#
