@@ -1791,11 +1791,11 @@ function BanBrowseTriggers()
 		$listOptions['columns']['banned_entity']['data'] = array(
 			'function' => function ($rowData)
 			{
-				return range2ip(array(
+				return range2ip(
 					$rowData['ip_low']
-				), array(
+				,
 					$rowData['ip_high']
-				));
+				);
 			},
 		);
 		$listOptions['columns']['banned_entity']['sort'] = array(
