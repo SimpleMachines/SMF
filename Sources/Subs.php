@@ -2034,9 +2034,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			{
 				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
-				foreach ($possible['parameters'] as $p => $info) {
+				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
-				}
 				
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~is', substr($message, $pos));
