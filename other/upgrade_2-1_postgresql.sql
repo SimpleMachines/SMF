@@ -2056,3 +2056,7 @@ ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip inet;
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
 ---#
+
+---# add the index again
+CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
+---#
