@@ -2360,7 +2360,6 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (isset($tag['quoted']))
 			{
 				$quoted = substr($message, $pos1, 6) == '&quot;';
-				echo '<pre>'; echo substr($message, $pos1, 6); echo '</pre>';
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
