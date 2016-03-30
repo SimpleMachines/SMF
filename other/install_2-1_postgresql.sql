@@ -1236,7 +1236,7 @@ CREATE TABLE {$db_prefix}messages (
   subject varchar(255) NOT NULL,
   poster_name varchar(255) NOT NULL,
   poster_email varchar(255) NOT NULL,
-  poster_ip varchar(255) NOT NULL,
+  poster_ip inet,
   smileys_enabled smallint NOT NULL default '1',
   modified_time int NOT NULL default '0',
   modified_name varchar(255) NOT NULL,
