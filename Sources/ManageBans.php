@@ -2107,7 +2107,10 @@ function list_getBanLogEntries($start, $items_per_page, $sort)
 	);
 	$log_entries = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		$row['ip'] = $row['ip'] === '-'? '-' : inet_dtop($row['ip']);
 		$log_entries[] = $row;
+	}
 	$smcFunc['db_free_result']($request);
 
 	return $log_entries;

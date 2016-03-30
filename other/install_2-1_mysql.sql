@@ -272,7 +272,7 @@ CREATE TABLE {$db_prefix}log_activity (
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log MEDIUMINT(8) UNSIGNED AUTO_INCREMENT,
   id_member MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  ip CHAR(16) NOT NULL DEFAULT '                ',
+  ip VARBINARY(16),
   email VARCHAR(255) NOT NULL DEFAULT '',
   log_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (id_ban_log),

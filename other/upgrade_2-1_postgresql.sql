@@ -2053,3 +2053,13 @@ ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
 ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip INET;
 ---#
 
+--- update log_banned ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip inet;
+---#
+

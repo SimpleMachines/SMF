@@ -498,7 +498,7 @@ CREATE SEQUENCE {$db_prefix}log_banned_seq;
 CREATE TABLE {$db_prefix}log_banned (
   id_ban_log int default nextval('{$db_prefix}log_banned_seq'),
   id_member int NOT NULL default '0',
-  ip char(16) NOT NULL default '                ',
+  ip inet,
   email varchar(255) NOT NULL,
   log_time int NOT NULL default '0',
   PRIMARY KEY (id_ban_log)
