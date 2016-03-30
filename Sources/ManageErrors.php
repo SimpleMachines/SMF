@@ -134,7 +134,7 @@ function ViewErrorLog()
 		$context['errors'][$row['id_error']] = array(
 			'member' => array(
 				'id' => $row['id_member'],
-				'ip' => $row['ip'],
+				'ip' => inet_dtop($row['ip']),
 				'session' => $row['session']
 			),
 			'time' => timeformat($row['log_time']),

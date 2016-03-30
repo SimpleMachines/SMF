@@ -529,7 +529,10 @@ function BanEdit()
 					)
 				);
 				if ($smcFunc['db_num_rows']($request) > 0)
+				{
 					list ($context['ban_suggestions']['member']['id'], $context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
+				}
 				$smcFunc['db_free_result']($request);
 
 				if (!empty($context['ban_suggestions']['member']['id']))
@@ -768,19 +771,18 @@ function banLoadAdditionalIPsError($member_id)
 	global $smcFunc;
 
 	$error_ips = array();
-	$request = $smcFunc['db_query']('ban_suggest_error_ips', '
+	$request = $smcFunc['db_query']('', '
 		SELECT DISTINCT ip
 		FROM {db_prefix}log_errors
 		WHERE id_member = {int:current_user}
-			AND ip RLIKE {string:poster_ip_regex}
+			AND ip IS NOT NULL
 		ORDER BY ip',
 		array(
 			'current_user' => $member_id,
-			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$error_ips[] = $row['ip'];
+	    $error_ips[] = inet_dtop($row['ip']);
 	$smcFunc['db_free_result']($request);
 
 	return $error_ips;
@@ -2355,7 +2357,10 @@ function getMemberData($id)
 		)
 	);
 	if ($smcFunc['db_num_rows']($request) > 0)
+	{
 		list ($suggestions['member']['id'], $suggestions['member']['name'], $suggestions['main_ip'], $suggestions['email']) = $smcFunc['db_fetch_row']($request);
+		$suggestions['main_ip'] = inet_dtop($suggestions['main_ip']);
+	}
 	$smcFunc['db_free_result']($request);
 
 	return $suggestions;
