@@ -373,6 +373,10 @@ function updateMemberData($members, $data)
 			$type = 'float';
 		elseif ($var == 'birthdate')
 			$type = 'date';
+		elseif ($var == 'member_ip')
+			$type = 'inet';
+		elseif ($var == 'member_ip2')
+			$type = 'inet';
 
 		// Doing an increment?
 		if ($type == 'int' && ($val === '+' || $val === '-'))
