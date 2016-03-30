@@ -1898,7 +1898,7 @@ function prepareSearchContext($reset = false)
 		$memberContext[$message['id_member']]['link'] = $message['poster_name'];
 		$memberContext[$message['id_member']]['email'] = $message['poster_email'];
 	}
-	$memberContext[$message['id_member']]['ip'] = $message['poster_ip'];
+	$memberContext[$message['id_member']]['ip'] = inet_dtop($message['poster_ip']);
 
 	// Do the censor thang...
 	censorText($message['body']);

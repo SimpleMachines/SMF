@@ -1628,8 +1628,8 @@ function trackActivity($memID)
 	$context['ips'] = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		$context['ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . $row['poster_ip'] . ';u=' . $memID . '">' . $row['poster_ip'] . '</a>';
-		$ips[] = $row['poster_ip'];
+		$context['ips'][] = '<a href="' . $scripturl . '?action=profile;area=tracking;sa=ip;searchip=' . inet_dtop($row['poster_ip']) . ';u=' . $memID . '">' . inet_dtop($row['poster_ip']) . '</a>';
+		$ips[] = inet_dtop($row['poster_ip']);
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -1661,7 +1661,7 @@ function trackActivity($memID)
 			SELECT mem.id_member
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			WHERE m.poster_ip IN ({array_string:ip_list})
+			WHERE m.poster_ip IN ({array_inet:ip_list})
 				AND mem.id_member != {int:current_member}',
 			array(
 				'current_member' => $memID,
@@ -1828,7 +1828,7 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 	$messages = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$messages[] = array(
-			'ip' => $row['poster_ip'],
+			'ip' => inet_dtop($row['poster_ip']),
 			'member_link' => empty($row['id_member']) ? $row['display_name'] : '<a href="' . $scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['display_name'] . '</a>',
 			'board' => array(
 				'id' => $row['id_board'],
@@ -1946,8 +1946,8 @@ function TrackIP($memID = 0)
 					),
 				),
 				'sort' => array(
-					'default' => 'INET_ATON(m.poster_ip)',
-					'reverse' => 'INET_ATON(m.poster_ip) DESC',
+					'default' => 'm.poster_ip',
+					'reverse' => 'm.poster_ip DESC',
 				),
 			),
 			'poster' => array(

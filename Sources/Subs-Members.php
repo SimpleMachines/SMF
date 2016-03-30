@@ -1443,7 +1443,7 @@ function populateDuplicateMembers(&$members)
 			INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE m.id_member != 0
 			' . (!empty($duplicate_ids) ? 'AND m.id_member NOT IN ({array_int:duplicate_ids})' : '') . '
-			AND m.poster_ip IN ({array_string:ips})',
+			AND m.poster_ip IN ({array_inet:ips})',
 		array(
 			'duplicate_ids' => $duplicate_ids,
 			'ips' => $ips,
@@ -1453,6 +1453,8 @@ function populateDuplicateMembers(&$members)
 	$had_ips = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
+		$row['poster_ip'] = inet_dtop($row['poster_ip']);
+		
 		// Don't collect lots of the same.
 		if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']]))
 			continue;

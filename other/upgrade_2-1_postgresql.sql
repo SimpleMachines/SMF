@@ -2078,3 +2078,19 @@ ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip inet;
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
 ---#
+
+/******************************************************************************/
+--- update messages poster_ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}messages DROP COLUMN psoter_ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip inet;
+---#
+
+---# add the index again
+CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+---#

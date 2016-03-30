@@ -1936,6 +1936,7 @@ ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
 
 ---# add the new one
 ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip VARBINARY(16);
+---#
 
 /******************************************************************************/
 --- update log_banned ip with ipv6 support without converting
@@ -1961,4 +1962,20 @@ ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2;
 ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update messages poster_ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}messages DROP COLUMN psoter_ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+---#
+
+---# add the index again
+CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
+CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
 ---#

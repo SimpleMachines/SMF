@@ -566,7 +566,10 @@ function BanEdit()
 					)
 				);
 				if ($smcFunc['db_num_rows']($request) > 0)
+				{
 					list ($context['ban_suggestions']['member']['name'], $context['ban_suggestions']['main_ip'], $context['ban_suggestions']['email']) = $smcFunc['db_fetch_row']($request);
+					$context['ban_suggestions']['main_ip'] = inet_dtop($context['ban_suggestions']['main_ip']);
+				}
 				$smcFunc['db_free_result']($request);
 
 				// Can't hurt to ban base on the guest name...
@@ -744,19 +747,18 @@ function banLoadAdditionalIPsMember($member_id)
 
 	// Find some additional IP's used by this member.
 	$message_ips = array();
-	$request = $smcFunc['db_query']('ban_suggest_message_ips', '
+	$request = $smcFunc['db_query']('', '
 		SELECT DISTINCT poster_ip
 		FROM {db_prefix}messages
 		WHERE id_member = {int:current_user}
-			AND poster_ip RLIKE {string:poster_ip_regex}
+			AND poster_ip IS NOT NULL
 		ORDER BY poster_ip',
 		array(
 			'current_user' => $member_id,
-			'poster_ip_regex' => '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$',
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
-		$message_ips[] = $row['poster_ip'];
+		$message_ips[] = inet_dtop($row['poster_ip']);
 	$smcFunc['db_free_result']($request);
 
 	return $message_ips;

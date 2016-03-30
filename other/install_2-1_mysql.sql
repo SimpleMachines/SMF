@@ -779,7 +779,7 @@ CREATE TABLE {$db_prefix}messages (
   subject VARCHAR(255) NOT NULL DEFAULT '',
   poster_name VARCHAR(255) NOT NULL DEFAULT '',
   poster_email VARCHAR(255) NOT NULL DEFAULT '',
-  poster_ip VARCHAR(255) NOT NULL DEFAULT '',
+  poster_ip VARBINARY(16),
   smileys_enabled TINYINT(4) NOT NULL DEFAULT '1',
   modified_time INT(10) UNSIGNED NOT NULL DEFAULT '0',
   modified_name VARCHAR(255) NOT NULL DEFAULT '',
