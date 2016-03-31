@@ -2087,3 +2087,9 @@ ALTER TABLE {$db_prefix}members ALTER member_ip2 TYPE inet USING migrate_inet(me
 ALTER TABLE {$db_prefix}messages ALTER poster_ip TYPE inet USING migrate_inet(poster_ip);
 ---#
 
+/******************************************************************************/
+--- update log_floodcontrol ip with ipv6 support
+/******************************************************************************/
+---# convert old column
+ALTER TABLE {$db_prefix}log_floodcontrol ALTER ip TYPE inet USING migrate_inet(ip);
+---#
