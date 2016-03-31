@@ -1142,8 +1142,8 @@ CREATE TABLE {$db_prefix}member_logins (
   id_login int default nextval('{$db_prefix}member_logins_seq'),
   id_member int NOT NULL default '0',
   time int NOT NULL default '0',
-  ip varchar(255) NOT NULL default '0',
-  ip2 varchar(255) NOT NULL default '0',
+  ip inet,
+  ip2 inet,
   PRIMARY KEY (id_login)
 );
 

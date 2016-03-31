@@ -2143,3 +2143,17 @@ ALTER TABLE {$db_prefix}log_reported_comments
 	ALTER member_ip DROP default,
 	ALTER member_ip TYPE inet USING migrate_inet(member_ip);
 ---#
+
+/******************************************************************************/
+--- update member_logins ip with ipv6 support
+/******************************************************************************/
+---# convert old columns
+ALTER TABLE {$db_prefix}member_logins
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}member_logins
+	ALTER ip2 DROP not null,
+	ALTER ip2 DROP default,
+	ALTER ip2 TYPE inet USING migrate_inet(ip2);
+---#

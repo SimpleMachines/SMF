@@ -615,7 +615,7 @@ function DoLogin()
 		$smcFunc['db_insert']('insert',
 			'{db_prefix}member_logins',
 			array(
-				'id_member' => 'int', 'time' => 'int', 'ip' => 'string', 'ip2' => 'string',
+				'id_member' => 'int', 'time' => 'int', 'ip' => 'inet', 'ip2' => 'inet',
 			),
 			array(
 				$user_info['id'], time(), $user_info['ip'], $user_info['ip2']

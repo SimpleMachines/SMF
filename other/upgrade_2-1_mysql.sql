@@ -2025,3 +2025,16 @@ ALTER TABLE {$db_prefix}log_reported_comments DROP COLUMN member_ip;
 ---# add the new one
 ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
 ---#
+
+/******************************************************************************/
+--- update member_logins ip with ipv6 support without converting
+/******************************************************************************/
+---# drop old columns
+ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip;
+ALTER TABLE {$db_prefix}member_logins DROP COLUMN ip2;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}member_logins ADD COLUMN ip2 VARBINARY(16);
+---#

@@ -744,8 +744,8 @@ CREATE TABLE {$db_prefix}member_logins (
   id_login INT(10) AUTO_INCREMENT,
   id_member MEDIUMINT(8) NOT NULL DEFAULT '0',
   time INT(10) NOT NULL DEFAULT '0',
-  ip VARCHAR(255) NOT NULL DEFAULT '0',
-  ip2 VARCHAR(255) NOT NULL DEFAULT '0',
+  ip VARBINARY(16),
+  ip2 VARBINARY(16),
   PRIMARY KEY (id_login),
   INDEX idx_id_member (id_member),
   INDEX idx_time (time)

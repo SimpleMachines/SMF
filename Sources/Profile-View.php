@@ -2267,8 +2267,8 @@ function list_getLogins($start, $items_per_page, $sort, $where, $where_vars = ar
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 		$logins[] = array(
 			'time' => timeformat($row['time']),
-			'ip' => $row['ip'],
-			'ip2' => $row['ip2'],
+			'ip' => inet_dtop($row['ip']),
+			'ip2' => inet_dtop($row['ip2']),
 		);
 	$smcFunc['db_free_result']($request);
 
