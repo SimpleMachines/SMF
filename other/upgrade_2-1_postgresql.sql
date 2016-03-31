@@ -2043,58 +2043,47 @@ CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip
 ---#
 
 /******************************************************************************/
---- update log_action ip with ipv6 support without converting
+--- helper function for ip convert
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}log_actions DROP COLUMN ip;
----#
-
----# add the new one
-ALTER TABLE {$db_prefix}log_actions ADD COLUMN ip INET;
----#
-
-/******************************************************************************/
---- update log_banned ip with ipv6 support without converting
-/******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
----#
-
----# add the new one
-ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip inet;
+---# the function migrate_inet
+CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet 
+AS 
+$$ 
+BEGIN 
+   RETURN val::inet; 
+EXCEPTION 
+   WHEN OTHERS THEN RETURN NULL; 
+END; 
+$$ LANGUAGE plpgsql;
 ---#
 
 /******************************************************************************/
---- update log_errors members ip with ipv6 support without converting
+--- update log_action ip with ipv6 support
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;
-ALTER TABLE {$db_prefix}members DROP COLUMN member_ip;
-ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2;
----#
-
----# add the new one
-ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip inet;
-ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
-ALTER TABLE {$db_prefix}members ADD COLUMN member_ip inet;
----#
-
----# add the index again
-CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
+---# convert column
+ALTER TABLE {$db_prefix}log_actions ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
 /******************************************************************************/
---- update messages poster_ip with ipv6 support without converting
+--- update log_banned ip with ipv6 support
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}messages DROP COLUMN psoter_ip;
+---# convert old column
+ALTER TABLE {$db_prefix}log_banned ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
----# add the new one
-ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip inet;
+/******************************************************************************/
+--- update log_errors members ip with ipv6 support
+/******************************************************************************/
+---# convert old columns
+ALTER TABLE {$db_prefix}log_errors ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}members ALTER member_ip TYPE inet USING migrate_inet(member_ip);
+ALTER TABLE {$db_prefix}members ALTER member_ip2 TYPE inet USING migrate_inet(member_ip2);
 ---#
 
----# add the index again
-CREATE INDEX {$db_prefix}messages_ip_index ON {$db_prefix}messages (poster_ip, id_topic);
-CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
+/******************************************************************************/
+--- update messages poster_ip with ipv6 support
+/******************************************************************************/
+---# convert old column
+ALTER TABLE {$db_prefix}messages ALTER poster_ip TYPE inet USING migrate_inet(poster_ip);
 ---#
+
