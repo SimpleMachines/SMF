@@ -2050,7 +2050,7 @@ CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
 AS 
 $$ 
 BEGIN 
-   RETURN val::inet; 
+   RETURN (trim(val))::inet; 
 EXCEPTION 
    WHEN OTHERS THEN RETURN NULL; 
 END; 
@@ -2061,35 +2061,65 @@ $$ LANGUAGE plpgsql;
 --- update log_action ip with ipv6 support
 /******************************************************************************/
 ---# convert column
-ALTER TABLE {$db_prefix}log_actions ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}log_actions 
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
 /******************************************************************************/
 --- update log_banned ip with ipv6 support
 /******************************************************************************/
 ---# convert old column
-ALTER TABLE {$db_prefix}log_banned ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}log_banned 
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
 
 /******************************************************************************/
 --- update log_errors members ip with ipv6 support
 /******************************************************************************/
 ---# convert old columns
-ALTER TABLE {$db_prefix}log_errors ALTER ip TYPE inet USING migrate_inet(ip);
-ALTER TABLE {$db_prefix}members ALTER member_ip TYPE inet USING migrate_inet(member_ip);
-ALTER TABLE {$db_prefix}members ALTER member_ip2 TYPE inet USING migrate_inet(member_ip2);
+ALTER TABLE {$db_prefix}log_errors
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}members 
+	ALTER member_ip DROP not null,
+	ALTER member_ip DROP default,
+	ALTER member_ip TYPE inet USING migrate_inet(member_ip);
+ALTER TABLE {$db_prefix}members
+	ALTER member_ip2 DROP not null,
+	ALTER member_ip2 DROP default,
+	ALTER member_ip2 TYPE inet USING migrate_inet(member_ip2);
 ---#
 
 /******************************************************************************/
 --- update messages poster_ip with ipv6 support
 /******************************************************************************/
 ---# convert old column
-ALTER TABLE {$db_prefix}messages ALTER poster_ip TYPE inet USING migrate_inet(poster_ip);
+ALTER TABLE {$db_prefix}messages
+	ALTER poster_ip DROP not null,
+	ALTER poster_ip DROP default,
+	ALTER poster_ip TYPE inet USING migrate_inet(poster_ip);
 ---#
 
 /******************************************************************************/
 --- update log_floodcontrol ip with ipv6 support
 /******************************************************************************/
+---# drop pk
+ALTER TABLE {$db_prefix}log_floodcontrol DROP CONSTRAINT {$db_prefix}log_floodcontrol_pkey;
+---#
+
 ---# convert old column
-ALTER TABLE {$db_prefix}log_floodcontrol ALTER ip TYPE inet USING migrate_inet(ip);
+ALTER TABLE {$db_prefix}log_floodcontrol
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
+---#
+
+---# add pk
+ALTER TABLE {$db_prefix}log_floodcontrol
+  ADD CONSTRAINT {$db_prefix}log_floodcontrol_pkey PRIMARY KEY(ip, log_type);
 ---#
