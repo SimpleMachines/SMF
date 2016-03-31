@@ -2109,12 +2109,12 @@ ALTER TABLE {$db_prefix}messages
 --- update log_floodcontrol ip with ipv6 support
 /******************************************************************************/
 ---# drop pk
+TRUNCATE TABLE {$db_prefix}log_floodcontrol;
 ALTER TABLE {$db_prefix}log_floodcontrol DROP CONSTRAINT {$db_prefix}log_floodcontrol_pkey;
 ---#
 
 ---# convert old column
 ALTER TABLE {$db_prefix}log_floodcontrol
-	ALTER ip DROP not null,
 	ALTER ip DROP default,
 	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#
@@ -2128,8 +2128,18 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 --- update log_online ip with ipv6 support
 /******************************************************************************/
 ---# convert old columns
-ALTER TABLE smf_log_online
+ALTER TABLE {$db_prefix}log_online
 	ALTER ip DROP not null,
 	ALTER ip DROP default,
 	ALTER ip TYPE inet USING migrate_inet(ip);
 ---#	
+
+/******************************************************************************/
+--- update log_reported_comments member_ip with ipv6 support
+/******************************************************************************/
+---# convert old columns
+ALTER TABLE {$db_prefix}log_reported_comments
+	ALTER member_ip DROP not null,
+	ALTER member_ip DROP default,
+	ALTER member_ip TYPE inet USING migrate_inet(member_ip);
+---#

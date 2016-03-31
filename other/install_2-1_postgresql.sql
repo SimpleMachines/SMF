@@ -809,7 +809,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report int NOT NULL default '0',
   id_member int NOT NULL,
   membername varchar(255) NOT NULL,
-  member_ip varchar(255) NOT NULL,
+  member_ip inet,
   comment varchar(255) NOT NULL,
   time_sent int NOT NULL,
   PRIMARY KEY (id_comment)

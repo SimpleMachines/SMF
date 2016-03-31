@@ -496,7 +496,7 @@ CREATE TABLE {$db_prefix}log_reported_comments (
   id_report MEDIUMINT(8) NOT NULL DEFAULT '0',
   id_member MEDIUMINT(8) NOT NULL,
   membername VARCHAR(255) NOT NULL DEFAULT '',
-  member_ip VARCHAR(255) NOT NULL DEFAULT '',
+  member_ip VARBINARY(16),
   comment VARCHAR(255) NOT NULL DEFAULT '',
   time_sent INT(10) NOT NULL,
   PRIMARY KEY (id_comment),

@@ -1997,7 +1997,7 @@ ALTER TABLE {$db_prefix}log_floodcontrol DROP COLUMN ip;
 ---#
 
 ---# add the new one
-ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
+ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null ;
 ---#
 
 ---# create pk
@@ -2007,10 +2007,21 @@ ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type)
 /******************************************************************************/
 --- update log_online ip with ipv6 support without converting
 /******************************************************************************/
----# delete old columns
+---# delete old column
 ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;
 ---#
 
 ---# add the new one
 ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
+---#
+
+/******************************************************************************/
+--- update log_reported_comments member_ip with ipv6 support without converting
+/******************************************************************************/
+---# drop old column
+ALTER TABLE {$db_prefix}log_reported_comments DROP COLUMN member_ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_reported_comments ADD COLUMN member_ip VARBINARY(16);
 ---#
