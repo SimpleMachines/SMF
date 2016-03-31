@@ -2035,7 +2035,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				// Build a regular expression for each parameter for the current tag.
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
+					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
 				
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
@@ -2049,7 +2049,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
 					
-					$given_params = preg_split('~(\s|&nbsp;)+(?=(' . $splitters . '))~i', $given_param_string);
+					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
 					
 					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
