@@ -2042,3 +2042,13 @@ WHERE ip_low1 > 0;
 CREATE INDEX {$db_prefix}ban_items_id_ban_ip ON {$db_prefix}ban_items (ip_low,ip_high);
 ---#
 
+/******************************************************************************/
+--- update log_banned ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_banned DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip inet;
+---#
