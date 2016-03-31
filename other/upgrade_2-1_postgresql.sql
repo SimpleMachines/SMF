@@ -2123,3 +2123,13 @@ ALTER TABLE {$db_prefix}log_floodcontrol
 ALTER TABLE {$db_prefix}log_floodcontrol
   ADD CONSTRAINT {$db_prefix}log_floodcontrol_pkey PRIMARY KEY(ip, log_type);
 ---#
+
+/******************************************************************************/
+--- update log_online ip with ipv6 support
+/******************************************************************************/
+---# convert old columns
+ALTER TABLE smf_log_online
+	ALTER ip DROP not null,
+	ALTER ip DROP default,
+	ALTER ip TYPE inet USING migrate_inet(ip);
+---#	

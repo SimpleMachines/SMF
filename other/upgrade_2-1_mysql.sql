@@ -1987,10 +1987,30 @@ CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member,
 /******************************************************************************/
 --- update log_floodcontrol ip with ipv6 support without converting
 /******************************************************************************/
+---# prep
+ALTER TABLE {$db_prefix}log_floodcontrol DROP PRIMARY KEY;
+TRUNCATE TABLE {$db_prefix}log_floodcontrol;
+---#
+
 ---# delete old columns
 ALTER TABLE {$db_prefix}log_floodcontrol DROP COLUMN ip;
 ---#
 
 ---# add the new one
 ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16);
+---#
+
+---# create pk
+ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type)
+---#
+
+/******************************************************************************/
+--- update log_online ip with ipv6 support without converting
+/******************************************************************************/
+---# delete old columns
+ALTER TABLE {$db_prefix}log_online DROP COLUMN ip;
+---#
+
+---# add the new one
+ALTER TABLE {$db_prefix}log_online ADD COLUMN ip VARBINARY(16);
 ---#
