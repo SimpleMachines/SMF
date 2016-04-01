@@ -1701,6 +1701,13 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
+	
+	foreach ($bbc_codes as $section) {
+		foreach ($section as $code) {
+			$alltags[] = $code['tag'];
+		}
+	}
+	$alltags_regex = '\b' . implode("\b|\b", array_unique($alltags)) . '\b';
 
 	// The non-breaking-space looks a bit different each time.
 	$non_breaking_space = $context['utf8'] ? '\x{A0}' : '\xA0';
@@ -2026,30 +2033,29 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			if (!empty($possible['parameters']))
 			{
 				// Build a regular expression for each parameter for the current tag.
-				// ... And also an array for use in another regular expression in a moment.
 				$preg = array();
-				$splitters = array();
-				foreach ($possible['parameters'] as $p => $info) {
-					$splitters[] = $p . '=';
-					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . ')' . (empty($info['optional']) ? '' : '?');
-				}
+				foreach ($possible['parameters'] as $p => $info)
+					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
 				
-				// Extract the parameters from the opening tag.
-				if (isset($possible['type']) && $possible['type'] == 'closed') {
-					// Closed type BBCodes require a simpler approach. Side effect is that a closed type BBC can't accept a ] in its params. But SMF doesn't ship with any BBC that this would affect anyway.
-					$given_param_string = substr($message, $pos1 - 1, strpos($message, ']', $pos1) - $pos1 + 1);
-				}
-				else {
-					// This regex works even if there are a bunch of ] characters in the params.
-					preg_match('~\[' . $possible['tag'] . '(.*)\](?' . '>.|(?R))*?\[/' . $possible['tag'] . '\]~i', substr($message, $pos), $matches);
-					$given_param_string = $matches[1];
-				}
-	
-				$given_params = preg_split('~\s(?=(' . implode('|', $splitters) . '))~i', $given_param_string);
-				sort($given_params, SORT_STRING);
-				$given_param_string = implode(' ', $given_params);
+				// Extract the string that potentially holds our parameters.
+				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
+				$blobs = preg_split('~\]~i', $blob[1]);
+				
+				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
-				$match = preg_match('~^' . implode('', $preg) . '$~i', $given_param_string, $matches) !== 0;
+				// Progressively append more blobs until we find our parameters or run out of blobs
+				$blob_counter = 0;
+				while ($blob_counter <= count($blobs)) {
+					
+					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
+					
+					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
+					sort($given_params, SORT_STRING);
+					
+					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
+					
+					if ($match) $blob_counter = count($blobs) + 1;
+				}
 
 				// Didn't match our parameter list, try the next possible.
 				if (!$match)
@@ -2086,7 +2092,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				if (isset($tag['content']))
 					$tag['content'] = strtr($tag['content'], $params);
 
-				$pos1 += strlen($matches[0]);
+				$pos1 += strlen($given_param_string);
 			}
 			else
 				$tag = $possible;
