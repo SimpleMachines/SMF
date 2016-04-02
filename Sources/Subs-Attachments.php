@@ -901,11 +901,11 @@ function parseAttachBBC($attachID = 0)
 	if (!empty($context['preview_message']))
 	{
 		$allAttachments = getAttachsByMsg(0);
-		$attachContext = $allAttachments[0][$attachID];
 
-		if (empty($attachContext))
+		if (empty($allAttachments[0][$attachID]))
 			return 'attachments_no_data_loaded';
 
+		$attachContext = $allAttachments[0][$attachID];
 		$attachLoaded = loadAttachmentContext(0, $allAttachments);
 
 		$attachContext = $attachLoaded[$attachID];
