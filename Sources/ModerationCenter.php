@@ -397,8 +397,10 @@ function ModBlockNotes()
 				)
 			);
 
-			$note_owner = $smcFunc['db_fetch_assoc']($get_owner)['id_member'];
+			list($note_owner) = $smcFunc['db_fetch_row']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
+
+			$note_owner = $note_owner['id_member'];
 
 			if ($note_owner != $user_info['id'])
 				fatal_lang_error('mc_notes_delete_own', false);
