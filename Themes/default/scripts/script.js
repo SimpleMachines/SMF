@@ -691,7 +691,7 @@ function smf_sessionKeepAlive()
 window.setTimeout('smf_sessionKeepAlive();', 1200000);
 
 // Set a theme option through javascript.
-function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_var, additional_vars)
+function smf_setThemeOption(optionVar, value, theme, cur_session_id, cur_session_var, additional_vars)
 {
 	// Compatibility.
 	if (cur_session_id == null)
@@ -703,7 +703,7 @@ function smf_setThemeOption(option, value, theme, cur_session_id, cur_session_va
 		additional_vars = '';
 
 	var tempImage = new Image();
-	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + option + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
+	tempImage.src = smf_prepareScriptUrl(smf_scripturl) + 'action=jsoption;var=' + optionVar + ';val=' + value + ';' + cur_session_var + '=' + cur_session_id + additional_vars + (theme == null ? '' : '&th=' + theme) + ';time=' + (new Date().getTime());
 }
 
 // Shows the page numbers by clicking the dots (in compact view).

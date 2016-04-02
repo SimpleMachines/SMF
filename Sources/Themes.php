@@ -1580,7 +1580,7 @@ function SetJavaScript()
 	if (empty($_GET['var']) || !isset($_GET['val']))
 		redirectexit($settings['images_url'] . '/blank.png');
 
-	// Sorry, guests can't go any further than this..
+	// Sorry, guests can't go any further than this.
 	if ($user_info['is_guest'] || $user_info['id'] == 0)
 		obExit(false);
 
