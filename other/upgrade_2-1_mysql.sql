@@ -1950,33 +1950,57 @@ ALTER TABLE {$db_prefix}log_banned ADD COLUMN ip VARBINARY(16);
 ---#
 
 /******************************************************************************/
---- update log_errors members ip with ipv6 support without converting
+--- update log_errors members ip with ipv6 support
 /******************************************************************************/
----# delete old columns
+---# rename old columns
+ALTER TABLE {$db_prefix}members CHANGE member_ip member_ip_old varchar(200);
+ALTER TABLE {$db_prefix}members CHANGE member_ip2 member_ip2_old varchar(200);
+---#
+
+---# delete old column
 ALTER TABLE {$db_prefix}log_errors DROP COLUMN ip;
-ALTER TABLE {$db_prefix}members DROP COLUMN member_ip;
-ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2;
 ---#
 
 ---# add the new one
 ALTER TABLE {$db_prefix}log_errors ADD COLUMN ip VARBINARY(16);
 ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
-ALTER TABLE {$db_prefix}members ADD COLUMN member_ip VARBINARY(16);
+ALTER TABLE {$db_prefix}members ADD COLUMN member_ip2 VARBINARY(16);
+---#
+
+---# convert
+---{
+MySQLConvertOldIp('members','member_ip_old','member_ip');
+MySQLConvertOldIp('members','member_ip2_old','member_ip2');
+---}
 ---#
 
 ---# add the index again
 CREATE INDEX {$db_prefix}log_errors_ip ON {$db_prefix}log_errors (ip);
 ---#
 
+---#
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip_old;
+ALTER TABLE {$db_prefix}members DROP COLUMN member_ip2_old;
+---#
 /******************************************************************************/
---- update messages poster_ip with ipv6 support without converting
+--- update messages poster_ip with ipv6 support
 /******************************************************************************/
----# delete old columns
-ALTER TABLE {$db_prefix}messages DROP COLUMN psoter_ip;
+---# rename old column
+ALTER TABLE {$db_prefix}messages CHANGE poster_ip poster_ip_old varchar(200);
 ---#
 
 ---# add the new one
 ALTER TABLE {$db_prefix}messages ADD COLUMN poster_ip VARBINARY(16);
+---#
+
+---# convert
+---{
+MySQLConvertOldIp('messages','poster_ip_old','poster_ip');
+---}
+---#
+
+---# drop old column
+ALTER TABLE {$db_prefix}messages DROP COLUMN poster_ip_old;
 ---#
 
 ---# add the index again
