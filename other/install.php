@@ -1290,7 +1290,7 @@ function DatabasePopulation()
 	}
 	
 	// MySQL specific stuff 
-	IF (substr($db_type, 0, 5) != 'mysql')
+	if (substr($db_type, 0, 5) != 'mysql')
 		return false;
 	
 	// Find database user privileges.
