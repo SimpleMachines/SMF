@@ -391,18 +391,18 @@ function ModBlockNotes()
 				SELECT id_member
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:note}
-					AND comment_type = {literal:modnote}',
+					AND comment_type = {literal:modnote}
+					AND id_member = {int:user}',
 				array(
 					'note' => $_GET['delete'],
+					'user' => $user_info['id'],
 				)
 			);
 
-			list($note_owner) = $smcFunc['db_fetch_row']($get_owner);
+			$note_owner = $smcFunc['db_num_rows']($get_owner);
 			$smcFunc['db_free_result']($get_owner);
 
-			$note_owner = $note_owner['id_member'];
-
-			if ($note_owner != $user_info['id'])
+			if(empty($note_owner))
 				fatal_lang_error('mc_notes_delete_own', false);
 		}
 
