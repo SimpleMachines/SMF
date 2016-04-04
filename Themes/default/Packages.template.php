@@ -699,7 +699,7 @@ function template_servers()
 						<strong>' . $txt['package_upload_select'] . ':</strong>
 					</dt>
 					<dd>
-						<input type="file" name="package" size="38" class="input_file">
+						<input type="file" name="package" size="38" class="input_file select_list">
 					</dd>
 				</dl>
 				<input type="submit" value="' . $txt['upload'] . '" class="button_submit">
