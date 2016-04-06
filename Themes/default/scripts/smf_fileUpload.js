@@ -60,8 +60,14 @@ function smf_fileUpload(oOptions)
 			// Need to check if the added file doesn't surpass the total max size setting.
 			myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize + file.size;
 
+			// This file has reached the max total size per post.
 			if (myDropzone.options.totalMaxSize > myDropzone.options.maxLimitReferenceUploadSize){
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', myDropzone.options.totalMaxSize * 0.001));
+			}
+
+			// The file is too big.
+			if (file.size > myDropzone.options.maxFilesize){
+				done(myDropzone.options.dictFileTooBig);
 
 				// File wasn't accepted so remove its size.
 				myDropzone.options.totalMaxSize = myDropzone.options.totalMaxSize - file.size;
