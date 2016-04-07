@@ -110,7 +110,8 @@ function showAttachment()
 		$smcFunc['db_free_result']($request);
 
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen(pathinfo($file['filePath'])['extension'])+1)) : $file['filePath'];
+		$filePath = pathinfo($file['filePath']);
+		$file['filePath'] = !file_exists($file['filePath']) ? substr($file['filePath'], 0, -(strlen($filePath['extension'])+1)) : $file['filePath'];
 
 		// ETag time.
 		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
