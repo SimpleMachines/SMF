@@ -605,7 +605,7 @@ function loadUserSettings()
 	{
 		// This is what a guest's variables should be.
 		$username = '';
-		$user_info = array('groups' => array(-1), 'permissions' => array());
+		$user_info = array('groups' => array(-1));
 		$user_settings = array();
 
 		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
