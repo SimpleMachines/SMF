@@ -9,7 +9,7 @@ function smf_fileUpload(oOptions)
 	var dOptions = {
 		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
 		parallelUploads : 1,
-		filesizeBase:1000,
+		filesizeBase:1024,
 		paramName: 'attachment',
 		uploadMultiple:true,
 		previewsContainer: '#au-previews',
@@ -66,7 +66,7 @@ function smf_fileUpload(oOptions)
 			}
 
 			// The file is too big.
-			if (file.size > myDropzone.options.maxFilesize){
+			if ((file.size * 0.001) > myDropzone.options.maxFilesize){
 				done(myDropzone.options.dictFileTooBig);
 
 				// File wasn't accepted so remove its size.
