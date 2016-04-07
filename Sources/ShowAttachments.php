@@ -61,9 +61,10 @@ function showAttachment()
 	// A thumbnail has been requested? madness! madness I say!
 	$showThumb = isset($_GET['thumb']);
 	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
+	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
 
-	// No access in strict maintenance mode.
-	if(!empty($maintenance) && $maintenance == 2)
+	// No access in strict maintenance mode or you don't have permission to see attachments.
+	if((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
 	{
 		header('HTTP/1.0 404 File Not Found');
 		die('404 File Not Found');
@@ -86,7 +87,38 @@ function showAttachment()
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT a.id_folder, a.filename, a.file_hash, a.fileext, a.id_attach, a.attachment_type, a.mime_type, a.approved, m.id_member
+				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_msg
+				FROM {db_prefix}attachments
+				WHERE id_attach = {int:attach}
+				LIMIT 1',
+				array(
+					'attach' => $attachId,
+				)
+			);
+		}
+
+		// No attachment has been found.
+		if ($smcFunc['db_num_rows']($request) == 0)
+		{
+			header('HTTP/1.0 404 File Not Found');
+			die('404 File Not Found');
+		}
+
+		$file = $smcFunc['db_fetch_assoc']($request);
+		$smcFunc['db_free_result']($request);
+
+		// If theres a message ID stored, we NEED a topic ID.
+		if (!empty($file['id_msg']) && empty($attachTopic))
+		{
+			header('HTTP/1.0 404 File Not Found');
+			die('404 File Not Found');
+		}
+
+		// Previews doesn't have this info.
+		if (empty($preview))
+		{
+			$request2 = $smcFunc['db_query']('', '
+				SELECT a.id_msg
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg AND m.id_topic = {int:current_topic})
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND {query_see_board})
@@ -97,17 +129,16 @@ function showAttachment()
 					'current_topic' => $attachTopic,
 				)
 			);
-		}
 
-		// The provided topic must match the one stored in the DB for this particular attachment, also, you need permission to view attachments.
-		if ($smcFunc['db_num_rows']($request) == 0 || !allowedTo('view_attachments'))
-		{
-			header('HTTP/1.0 404 File Not Found');
-			die('404 File Not Found');
-		}
+			// The provided topic must match the one stored in the DB for this particular attachment, also.
+			if ($smcFunc['db_num_rows']($request2) == 0)
+			{
+				header('HTTP/1.0 404 File Not Found');
+				die('404 File Not Found');
+			}
 
-		$file = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
+			$smcFunc['db_free_result']($request2);
+		}
 
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 
@@ -130,7 +161,7 @@ function showAttachment()
 		);
 
 	// Replace the normal file with its thumbnail if it has one!
-	if ($showThumb && $file['id_thumb'])
+	if ($showThumb && !empty($file['id_thumb']))
 	{
 		$request = $smcFunc['db_query']('', '
 			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
