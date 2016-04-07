@@ -68,7 +68,7 @@ select {
 select option {
 	padding: 0 4px;
 }
-select:not(size) {
+select[size] {
 	height: auto;
 }
 input:hover, textarea:hover, button:hover, select:hover {
