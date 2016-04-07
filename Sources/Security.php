@@ -910,13 +910,15 @@ function allowedTo($permission, $boards = null)
 	if ($user_info['is_admin'])
 		return true;
 
-	if (!is_array($permission))
+	if (gettype($permission) !== 'array')
 		$permission = array($permission);
 
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		if (count(array_intersect($permission, $user_info['permissions'])) != 0)
+		$matchPermission = array_uintersect($permission, $user_info['permissions'], "permissionCallback");
+
+		if (count($matchPermission) != 0)
 			return true;
 		// You aren't allowed, by default.
 		else
@@ -1290,4 +1292,14 @@ function frameOptionsHeader($override = null)
 	header('X-Content-Type-Options: nosniff');
 }
 
+function permissionCallback($perm1,$perm2)
+{
+	if ($perm1 === $perm2)
+		return 0;
+
+	if ($perm1 > $perm2)
+		return 1;
+
+	return -1;
+}
 ?>
