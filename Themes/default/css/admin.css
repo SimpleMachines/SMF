@@ -13,10 +13,6 @@
 	box-shadow: none;
 	background: #f0f4f7;
 }
-
-.action_admin .table_grid th {
-	padding: 6px 6px 5px 6px;
-}
 .action_admin .table_grid td {
 	border: 1px solid #ddd;
 	border-top: 0;

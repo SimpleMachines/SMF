@@ -919,6 +919,7 @@ function newTable($title = '', $default_value = '', $shading = 'all', $width_nor
 			'normal' => $width_normal,
 			'shaded' => $width_shaded,
 		),
+		/* Align usage deprecated due to HTML5 */
 		'align' => array(
 			'normal' => $align_normal,
 			'shaded' => $align_shaded,

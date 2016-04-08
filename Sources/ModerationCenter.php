@@ -1138,7 +1138,7 @@ function ViewWatchedUsers()
 				'position' => 'bottom_of_list',
 				'value' => '
 					<input type="submit" name="delete_selected" value="' . $txt['quickmod_delete_selected'] . '" class="button_submit">',
-				'align' => 'right',
+				'class' => 'floatright',
 			) : array(),
 		),
 	);

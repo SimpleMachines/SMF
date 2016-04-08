@@ -600,7 +600,7 @@ function ssi_recentTopics($num_recent = 8, $exclude_boards = null, $include_boar
 			'new' => !empty($row['is_read']),
 			'is_new' => empty($row['is_read']),
 			'new_from' => $row['new_from'],
-			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" align="middle" alt="' . $row['icon'] . '">',
+			'icon' => '<img src="' . $settings[$icon_sources[$row['icon']]] . '/post/' . $row['icon'] . '.png" style="vertical-align:middle;" alt="' . $row['icon'] . '">',
 		);
 	}
 	$smcFunc['db_free_result']($request);

@@ -2398,7 +2398,7 @@ function alert_notifications_topics($memID)
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="edit_notify_topics" value="' . $txt['notifications_update'] . '" class="button_submit" />
 							<input type="submit" name="remove_notify_topics" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
-				'align' => 'right',
+				'class' => 'floatright',
 			),
 		),
 	);
@@ -2516,7 +2516,7 @@ function alert_notifications_boards($memID)
 				'position' => 'bottom_of_list',
 				'value' => '<input type="submit" name="edit_notify_boards" value="' . $txt['notifications_update'] . '" class="button_submit">
 							<input type="submit" name="remove_notify_boards" value="' . $txt['notification_remove_pref'] . '" class="button_submit" />',
-				'align' => 'right',
+				'class' => 'floatright',
 			),
 		),
 	);
