@@ -33,16 +33,16 @@ function showAttachment()
 	// This is done to clear any output that was made before now.
 	ob_end_clean();
 
-	if(!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
+	if (!empty($modSettings['enableCompressedOutput']) && !headers_sent() && ob_get_length() == 0)
 	{
-		if(@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
+		if (@ini_get('zlib.output_compression') == '1' || @ini_get('output_handler') == 'ob_gzhandler')
 			$modSettings['enableCompressedOutput'] = 0;
 
 		else
 			ob_start('ob_gzhandler');
 	}
 
-	if(empty($modSettings['enableCompressedOutput']))
+	if (empty($modSettings['enableCompressedOutput']))
 	{
 		ob_start();
 		header('Content-Encoding: none');
@@ -52,26 +52,26 @@ function showAttachment()
 	$attachId = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 
 	// We need a valid ID.
-	if(empty($attachId))
+	if (empty($attachId))
 	{
 		header('HTTP/1.0 404 File Not Found');
 		die('404 File Not Found');
 	}
 
 	// A thumbnail has been requested? madness! madness I say!
-	$showThumb = isset($_GET['thumb']);
-	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
+	$showThumb = isset($_GET['thumb']) || !empty($preview);
+	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
 	// No access in strict maintenance mode or you don't have permission to see attachments.
-	if((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
+	if ((!empty($maintenance) && $maintenance == 2) || !allowedTo('view_attachments'))
 	{
 		header('HTTP/1.0 404 File Not Found');
 		die('404 File Not Found');
 	}
 
 	// Use cache when possible.
-	if(($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
+	if (empty($preview) && ($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
 		$file = $cache;
 
 	// Get the info from the DB.
@@ -108,7 +108,7 @@ function showAttachment()
 		$smcFunc['db_free_result']($request);
 
 		// If theres a message ID stored, we NEED a topic ID.
-		if (!empty($file['id_msg']) && empty($attachTopic))
+		if (!empty($file['id_msg']) && empty($attachTopic) && empty($preview))
 		{
 			header('HTTP/1.0 404 File Not Found');
 			die('404 File Not Found');
@@ -150,7 +150,7 @@ function showAttachment()
 	}
 
 	// Update the download counter (unless it's a thumbnail).
-	if ($file['attachment_type'] != 3)
+	if ($file['attachment_type'] != 3 && empty($preview))
 		$smcFunc['db_query']('attach_download_increase', '
 			UPDATE LOW_PRIORITY {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -164,7 +164,7 @@ function showAttachment()
 	if ($showThumb && !empty($file['id_thumb']))
 	{
 		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member, id_thumb
+			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
 			FROM {db_prefix}attachments
 			WHERE id_attach = {int:id_attach}
 			LIMIT 1',
@@ -181,12 +181,12 @@ function showAttachment()
 		// Got something! replace the $file var with the thumbnail info.
 		if ($thumbFile)
 		{
-			$attachId = $file['id_thumb'];
+			$attachId = $thumbFile['id_attach'];
 			$file = $thumbFile;
 			$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
 
 			// ETag time.
-			$file['etag'] = '"'. md5_file($file['filename']) .'"';
+			$file['etag'] = '"'. md5_file($file['filePath']) .'"';
 		}
 	}
 
