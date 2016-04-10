@@ -68,7 +68,7 @@ select {
 select option {
 	padding: 0 4px;
 }
-select[size] {
+select[size], input.input_check, input.input_radio {
 	height: auto;
 }
 input:hover, textarea:hover, button:hover, select:hover {
@@ -122,7 +122,6 @@ input.input_check, input.input_radio {
 	border: none;
 	background: none;
 	vertical-align: top;
-	height: 0;
 }
 .moderationbuttons_mobile_check {
 	display: none;
