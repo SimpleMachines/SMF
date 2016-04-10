@@ -2025,7 +2025,7 @@ ALTER TABLE {$db_prefix}log_floodcontrol ADD COLUMN ip VARBINARY(16) not null ;
 ---#
 
 ---# create pk
-ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type)
+ALTER TABLE {$db_prefix}log_floodcontrol ADD PRIMARY KEY (ip,log_type);
 ---#
 
 /******************************************************************************/
