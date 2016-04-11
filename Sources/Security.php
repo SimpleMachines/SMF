@@ -910,7 +910,7 @@ function allowedTo($permission, $boards = null)
 	if ($user_info['is_admin'])
 		return true;
 
-	if (gettype($permission) !== 'array')
+	if (!is_array($permission))
 		$permission = array($permission);
 
 	// Are we checking the _current_ board, or some other boards?
@@ -1302,4 +1302,5 @@ function permissionCallback($perm1,$perm2)
 
 	return -1;
 }
+
 ?>
