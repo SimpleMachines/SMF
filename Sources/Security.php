@@ -916,7 +916,7 @@ function allowedTo($permission, $boards = null)
 	// Are we checking the _current_ board, or some other boards?
 	if ($boards === null)
 	{
-		$matchPermission = array_uintersect($permission, $user_info['permissions'], "permissionCallback");
+		$matchPermission = array_uintersect($permission, $user_info['permissions'], function ($perm1, $perm2) {if ($perm1 === $perm2){return 0;}elseif ($perm1 > $perm2){return 1;}else return -1;});
 
 		if (count($matchPermission) != 0)
 			return true;
@@ -1290,17 +1290,6 @@ function frameOptionsHeader($override = null)
 	// And some other useful ones.
 	header('X-XSS-Protection: 1');
 	header('X-Content-Type-Options: nosniff');
-}
-
-function permissionCallback($perm1,$perm2)
-{
-	if ($perm1 === $perm2)
-		return 0;
-
-	if ($perm1 > $perm2)
-		return 1;
-
-	return -1;
 }
 
 ?>
