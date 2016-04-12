@@ -909,7 +909,7 @@ function allowedTo($permission, $boards = null)
 	// Administrators are supermen :P.
 	if ($user_info['is_admin'])
 		return true;
-	
+
 	// Let's ensure this is an array.
 	$permission = (array)$permission;
 
