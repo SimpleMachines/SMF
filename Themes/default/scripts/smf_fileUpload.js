@@ -48,7 +48,7 @@ function smf_fileUpload(oOptions)
 				$('#maxFiles_progress span').width(range_maxFile + '%');
 
 				// Show or udate the text.
-				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxLimitReferenceUploadSize * 0.001).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize * 0.001, 3)));
+				$('#maxFiles_progress_text').text(myDropzone.options.text_max_size_progress.replace('{currentTotal}', myDropzone.options.maxFilesize).replace('{currentRemain}', Math.round(myDropzone.options.totalMaxSize * 0.001, 3)));
 
 				if (myDropzone.options.totalMaxSize == 0){
 					$('#maxFiles_progress').hide();
@@ -77,12 +77,24 @@ function smf_fileUpload(oOptions)
 		totalMaxSize: 0
 	};
 
+	// Dropzone correction for ascpect ratio
+	if(oOptions.thumbnailHeight && oOptions.thumbnailWidth)
+	{
+		if(oOptions.thumbnailHeight > oOptions.thumbnailWidth)
+			oOptions.thumbnailWidth = null;
+		else
+			oOptions.thumbnailHeight = null;
+	}
+	else
+	{
+		oOptions.thumbnailWidth = 150;
+		oOptions.thumbnailHeight = null;
+	}
 	$.extend(true, dOptions, oOptions);
 
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
 
 	myDropzone.on('addedfile', function(file) {
-
 		_thisElement = $(file.previewElement);
 
 		// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
