@@ -259,7 +259,7 @@ function smf_fileUpload(oOptions)
 		// Server returns an array.
 		response = responseText.files[0];
 
-		// Show the input field.
+		// Show the input field if Image
 		if (response.mime_type.indexOf('image') >= 0)
 			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
@@ -276,14 +276,12 @@ function smf_fileUpload(oOptions)
 		// If there wasn't any error, change the current cover.
 		_thisElement.addClass('infobox').removeClass('descbox');
 
-		// Append the BBC.
-		if (response.mime_type.indexOf('image') >= 0)
-		{
-			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
+		// Append the BBC if Image.
+		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
+		file.insertAttachment(_thisElement, response);
 
-			file.insertAttachment(_thisElement, response);
-		}
-		else
+		// Hide the input field if not Image
+		if (response.mime_type.indexOf('image') == -1)
 			_thisElement.find('p.attachBBC').fadeOut();
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
@@ -311,7 +309,7 @@ function smf_fileUpload(oOptions)
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
 
-			// Show the input field.
+			// Show the input field if Image.
 			if (file.type.indexOf('image') >= 0)
 				_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 			else
@@ -324,8 +322,7 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('.start').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			if (file.type.indexOf('image') >= 0)
-				_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
 
 			file.insertAttachment(_thisElement, file);
 
