@@ -260,7 +260,8 @@ function smf_fileUpload(oOptions)
 		response = responseText.files[0];
 
 		// Show the input field.
-		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+		if (response.mime_type.indexOf('image') >= 0)
+			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
 		// The request was complete but the server returned an error.
 		if (typeof response.errors !== 'undefined' && response.errors.length > 0){
@@ -276,9 +277,14 @@ function smf_fileUpload(oOptions)
 		_thisElement.addClass('infobox').removeClass('descbox');
 
 		// Append the BBC.
-		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
+		if (response.mime_type.indexOf('image') >= 0)
+		{
+			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
 
-		file.insertAttachment(_thisElement, response);
+			file.insertAttachment(_thisElement, response);
+		}
+		else
+			_thisElement.find('p.attachBBC').fadeOut();
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
 		_thisElement.find('a.delete').fadeOutAndRemove('slow');
@@ -304,8 +310,12 @@ function smf_fileUpload(oOptions)
 
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
+
 			// Show the input field.
-			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+			if (file.type.indexOf('image') >= 0)
+				_thisElement.find('.attach-info p.attached_BBC').fadeIn();
+			else
+				_thisElement.find('.attach-info p.attached_BBC').fadeOut();
 
 			// If there wasn't any error, change the current cover.
 			_thisElement.addClass('infobox').removeClass('descbox');
@@ -314,7 +324,8 @@ function smf_fileUpload(oOptions)
 			_thisElement.find('.start').fadeOutAndRemove('slow');
 
 			// Append the BBC.
-			_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
+			if (file.type.indexOf('image') >= 0)
+				_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(file));
 
 			file.insertAttachment(_thisElement, file);
 

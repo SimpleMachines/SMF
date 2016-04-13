@@ -1079,7 +1079,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			),
 			array(
 				'tag' => 'attach',
-				'type' => 'unparsed_content',
+				'type' => 'unparsed_equals_content',
 				'parameters' => array(
 					'name' => array('optional' => true),
 				),
@@ -1093,7 +1093,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						return $data;
 
 					// Save the attach ID.
-					$attachID = $data;
+					$attachID = is_array($data) ? $data[0] : $data;
 
 					// Kinda need this.
 					require_once($sourcedir . '/Subs-Attachments.php');
@@ -1119,7 +1119,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$returnContext .= $currentAttachment['link'];
 
 					// Gotta append what we just did.
-					$data = $returnContext;
+					$data[0] = $returnContext;
 				},
 			),
 			array(

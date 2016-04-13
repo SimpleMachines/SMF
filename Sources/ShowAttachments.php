@@ -76,7 +76,7 @@ function showAttachment()
 		list($file, $thumbFile) = $cache[$attachId];
 
 	// Get the info from the DB.
-	if (empty($file) || (empty($thumbFile) && !empty($file['id_thumb'])))
+	if (empty($cache) || empty($file) || (empty($thumbFile) && !empty($file['id_thumb'])))
 	{
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;

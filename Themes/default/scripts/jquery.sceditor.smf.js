@@ -461,7 +461,9 @@ $.sceditor.plugins.bbcode.bbcode.set(
 		html: function (token, attrs, content) {
 
 			// Attachment?
-			if (typeof attrs("data-attachment") !== undefined)
+			if (typeof attrs.defaultattr !== "undefined" || attrs.defaultattr.length !== 0)
+				return '<a href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
+			else
 			{
 				var attribs = '';
 				if (typeof attrs("name") !== undefined)
@@ -469,14 +471,8 @@ $.sceditor.plugins.bbcode.bbcode.set(
 				if (typeof attrs("type") !== undefined)
 					attribs += ' type=' + attrs("type");
 
-				return '[attach' + attribs + ']' + content + '[/attach]';
+					return '[attach' + attribs + ']' + content + '[/attach]';
 			}
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				attrs.defaultattr = content;
-			if (typeof attrs.defaultattr === "undefined" || attrs.defaultattr.length === 0)
-				attrs.defaultattr = content;
-
-			return '<a href="' + encodeURI(attrs.defaultattr) + '">' + content + '</a>';
 		}
 	}
 );
