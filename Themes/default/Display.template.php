@@ -466,7 +466,7 @@ function template_single_post($message)
 	if (!empty($modSettings['show_user_images']) && empty($options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
 								<li class="avatar">
-									<a href="', $scripturl, '?action=profile;u=', $message['member']['id'], '">', $message['member']['avatar']['image'], '</a>
+									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
 								</li>';
 
 	// Are there any custom fields below the avatar?
