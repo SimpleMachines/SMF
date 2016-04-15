@@ -77,12 +77,24 @@ function smf_fileUpload(oOptions)
 		totalMaxSize: 0
 	};
 
+	// Dropzone correction for ascpect ratio
+	if(oOptions.thumbnailHeight && oOptions.thumbnailWidth)
+	{
+		if(oOptions.thumbnailHeight > oOptions.thumbnailWidth)
+			oOptions.thumbnailWidth = null;
+		else
+			oOptions.thumbnailHeight = null;
+	}
+	else
+	{
+		oOptions.thumbnailWidth = 150;
+		oOptions.thumbnailHeight = null;
+	}
 	$.extend(true, dOptions, oOptions);
 
 	var myDropzone = new Dropzone('div#attachUpload', dOptions);
 
 	myDropzone.on('addedfile', function(file) {
-
 		_thisElement = $(file.previewElement);
 
 		// If the attachment is an image and has a thumbnail, show it. Otherwise fallback to the generic thumbfile.
@@ -247,7 +259,7 @@ function smf_fileUpload(oOptions)
 		// Server returns an array.
 		response = responseText.files[0];
 
-		// Show the input field.
+		// Show the input field if Image
 		_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
 		// The request was complete but the server returned an error.
@@ -263,9 +275,8 @@ function smf_fileUpload(oOptions)
 		// If there wasn't any error, change the current cover.
 		_thisElement.addClass('infobox').removeClass('descbox');
 
-		// Append the BBC.
+		// Append the BBC if Image.
 		_thisElement.find('input[name="attachBBC"]').val(myDropzone.options.smf_insertBBC(response));
-
 		file.insertAttachment(_thisElement, response);
 
 		// You have already loaded this attachment, to prevent abuse, you cannot cancel it and upload a new one.
@@ -292,7 +303,8 @@ function smf_fileUpload(oOptions)
 
 		// Finishing up mocking!
 		if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined"){
-			// Show the input field.
+
+			// Show the input field if Image.
 			_thisElement.find('.attach-info p.attached_BBC').fadeIn();
 
 			// If there wasn't any error, change the current cover.

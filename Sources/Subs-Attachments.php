@@ -1146,9 +1146,6 @@ function loadAttachmentContext($id_msg, $attachments)
 			if (!$attachment['approved'])
 				$have_unapproved = true;
 
-			if (!$attachmentData[$i]['is_image'])
-				continue;
-
 			$attachmentData[$i]['real_width'] = $attachment['width'];
 			$attachmentData[$i]['width'] = $attachment['width'];
 			$attachmentData[$i]['real_height'] = $attachment['height'];
@@ -1265,7 +1262,8 @@ function loadAttachmentContext($id_msg, $attachments)
 				if (((!empty($modSettings['max_image_width']) && $attachmentData[$i]['real_width'] > $modSettings['max_image_width']) || (!empty($modSettings['max_image_height']) && $attachmentData[$i]['real_height'] > $modSettings['max_image_height'])))
 					$attachmentData[$i]['thumbnail']['javascript'] = 'return reqWin(\'' . $attachmentData[$i]['href'] . ';image\', ' . ($attachment['width'] + 20) . ', ' . ($attachment['height'] + 20) . ', true);';
 				else
-					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
+					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(this);';
+//					$attachmentData[$i]['thumbnail']['javascript'] = 'return expandThumb(' . $attachment['id_attach'] . ');';
 			}
 
 			if (!$attachmentData[$i]['thumbnail']['has_thumb'])
