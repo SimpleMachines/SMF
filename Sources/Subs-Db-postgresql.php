@@ -31,7 +31,7 @@ if (!defined('SMF'))
  */
 function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix, $db_options = array())
 {
-	global $smcFunc, $mysql_set_mode;
+	global $smcFunc;
 
 	// Map some database specific functions, only do this once.
 	if (!isset($smcFunc['db_fetch_assoc']) || $smcFunc['db_fetch_assoc'] != 'postg_fetch_assoc')
@@ -272,7 +272,7 @@ function smf_db_quote($db_string, $db_values, $connection = null)
 function smf_db_query($identifier, $db_string, $db_values = array(), $connection = null)
 {
 	global $db_cache, $db_count, $db_connection, $db_show_debug, $time_start;
-	global $db_unbuffered, $db_callback, $db_last_result, $db_replace_result, $modSettings;
+	global $db_callback, $db_last_result, $db_replace_result, $modSettings;
 
 	// Decide which connection to use.
 	$connection = $connection === null ? $db_connection : $connection;
@@ -645,7 +645,7 @@ function smf_db_unescape_string($string)
  */
 function smf_db_insert($method = 'replace', $table, $columns, $data, $keys, $disable_trans = false, $connection = null)
 {
-	global $db_replace_result, $db_in_transact, $smcFunc, $db_connection, $db_prefix;
+	global $db_in_transact, $smcFunc, $db_connection, $db_prefix;
 
 	$connection = $connection === null ? $db_connection : $connection;
 	
