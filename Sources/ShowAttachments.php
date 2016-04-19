@@ -60,7 +60,7 @@ function showAttachment()
 
 	// A thumbnail has been requested? madness! madness I say!
 	$preview = isset($_REQUEST['preview']) ? $_REQUEST['preview'] : (isset($_REQUEST['type']) && $_REQUEST['type'] == 'preview' ? $_REQUEST['type'] : 0);
-	$showThumb = isset($_GET['thumb']) || !empty($preview);
+	$showThumb = isset($_REQUEST['thumb']) || !empty($preview);
 	$attachTopic = isset($_REQUEST['topic']) ? (int) $_REQUEST['topic'] : 0;
 
 	// No access in strict maintenance mode or you don't have permission to see attachments.
@@ -71,11 +71,11 @@ function showAttachment()
 	}
 
 	// Use cache when possible.
-	if (empty($preview) && ($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
-		$file = $cache;
+	if (($cache = cache_get_data('attachment_lookup_id-'. $attachId)) != null)
+		list($file, $thumbFile) = $cache;
 
 	// Get the info from the DB.
-	else
+	if(empty($file) || empty($thumbFile) && !empty($file['id_thumb']))
 	{
 		// Do we have a hook wanting to use our attachment system? We use $attachRequest to prevent accidental usage of $request.
 		$attachRequest = null;
@@ -87,7 +87,7 @@ function showAttachment()
 		{
 			// Make sure this attachment is on this board and load its info while we are at it.
 			$request = $smcFunc['db_query']('', '
-				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_msg
+				SELECT id_folder, filename, file_hash, fileext, id_attach, id_thumb, attachment_type, mime_type, approved, id_msg
 				FROM {db_prefix}attachments
 				WHERE id_attach = {int:attach}
 				LIMIT 1',
@@ -140,17 +140,45 @@ function showAttachment()
 			$smcFunc['db_free_result']($request2);
 		}
 
+		// set filePath and ETag time
 		$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-
-		// ETag time.
 		$file['etag'] = '"'. md5_file($file['filePath']) .'"';
 
+		// now get the thumbfile!
+		$thumbFile = array();
+		if (!empty($file['id_thumb']))
+		{
+			$request = $smcFunc['db_query']('', '
+				SELECT id_folder, filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
+				FROM {db_prefix}attachments
+				WHERE id_attach = {int:thumb_id}
+				LIMIT 1',
+				array(
+					'thumb_id' => $file['id_thumb'],
+				)
+			);
+
+			$thumbFile = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
+
+			// Got something! replace the $file var with the thumbnail info.
+			if ($thumbFile)
+			{
+				$attachId = $thumbFile['id_attach'];
+
+				// set filePath and ETag time
+				$thumbFile['filePath'] = getAttachmentFilename($thumbFile['filename'], $attachId, $thumbFile['id_folder'], false, $thumbFile['file_hash']);
+				$thumbFile['etag'] = '"'. md5_file($thumbFile['filePath']) .'"';
+			}
+		}
+
 		// Cache it.
-		cache_put_data('attachment_lookup_id-'. $attachId, $file, mt_rand(850, 900));
+		if(!empty($file) || !empty($thumbFile))
+			cache_put_data('attachment_lookup_id-'. $file['id_attach'], array($file, $thumbFile), mt_rand(850, 900));
 	}
 
 	// Update the download counter (unless it's a thumbnail).
-	if ($file['attachment_type'] != 3 && empty($preview))
+	if ($file['attachment_type'] != 3 && empty($showThumb))
 		$smcFunc['db_query']('attach_download_increase', '
 			UPDATE LOW_PRIORITY {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -161,34 +189,8 @@ function showAttachment()
 		);
 
 	// Replace the normal file with its thumbnail if it has one!
-	if ($showThumb && !empty($file['id_thumb']))
-	{
-		$request = $smcFunc['db_query']('', '
-			SELECT id_folder, filename AS real_filename, file_hash, fileext, id_attach, attachment_type, mime_type, approved, id_member
-			FROM {db_prefix}attachments
-			WHERE id_attach = {int:id_attach}
-			LIMIT 1',
-			array(
-				'id_attach' => $file['id_thumb'],
-				'blank_id_member' => 0,
-				'attachment_type' => 3,
-			)
-		);
-
-		$thumbFile = $smcFunc['db_fetch_assoc']($request);
-		$smcFunc['db_free_result']($request);
-
-		// Got something! replace the $file var with the thumbnail info.
-		if ($thumbFile)
-		{
-			$attachId = $thumbFile['id_attach'];
-			$file = $thumbFile;
-			$file['filePath'] = getAttachmentFilename($file['filename'], $attachId, $file['id_folder'], false, $file['file_hash']);
-
-			// ETag time.
-			$file['etag'] = '"'. md5_file($file['filePath']) .'"';
-		}
-	}
+	if (!empty($showThumb) && !empty($thumbFile))
+		$file = $thumbFile;
 
 	// No point in a nicer message, because this is supposed to be an attachment anyway...
 	if (!file_exists($file['filePath']))
@@ -271,6 +273,7 @@ function showAttachment()
 	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
 	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
 		header('Cache-Control: no-cache');
+
 	else
 		header('Cache-Control: max-age=' . (525600 * 60) . ', private');
 
