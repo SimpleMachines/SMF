@@ -337,11 +337,11 @@ function list_getSpiders($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, spider_name, user_agent, ip_info
 		FROM {db_prefix}spiders
-		ORDER BY {string:sort}
+		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items}',
 		array(
 			'sort' => $sort,
-			'strat' => $start,
+			'start' => $start,
 			'items' => $items_per_page,
 		)
 	);
@@ -518,7 +518,7 @@ function SpiderCheck()
 			{
 				if ($ip === '')
 					continue;
-				
+
 				$ip = ip2range($ip);
 				if (!empty($ip))
 				{
@@ -828,7 +828,7 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 		SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 		FROM {db_prefix}log_spider_hits AS sl
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
-		ORDER BY {string:sort}
+		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items}',
 		array(
 			'sort' => $sort,
@@ -1055,7 +1055,7 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 		SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 		FROM {db_prefix}log_spider_stats AS ss
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
-		ORDER BY {string:sort}
+		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items}',
 		array(
 			'sort' => $sort,

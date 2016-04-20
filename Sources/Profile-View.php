@@ -637,11 +637,13 @@ function showPosts($memID)
 					AND {query_see_board}' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY t.id_first_msg ' . ($reverse ? 'ASC' : 'DESC') . '
-				LIMIT ' . $start . ', ' . $maxIndex,
+				LIMIT {int:start}, {int:max}',
 				array(
 					'current_member' => $memID,
 					'is_approved' => 1,
 					'board' => $board,
+					'start' => $start,
+					'max' => $maxIndex,
 				)
 			);
 		}
@@ -662,11 +664,13 @@ function showPosts($memID)
 					AND {query_see_board}' . (!$modSettings['postmod_active'] || $context['user']['is_owner'] ? '' : '
 					AND t.approved = {int:is_approved} AND m.approved = {int:is_approved}') . '
 				ORDER BY m.id_msg ' . ($reverse ? 'ASC' : 'DESC') . '
-				LIMIT ' . $start . ', ' . $maxIndex,
+				LIMIT {int:start}, {int:max}',
 				array(
 					'current_member' => $memID,
 					'is_approved' => 1,
 					'board' => $board,
+					'start' => $start,
+					'max' => $maxIndex,
 				)
 			);
 		}
@@ -909,7 +913,6 @@ function showAttachments($memID)
 
 	// Create the request list.
 	createList($listOptions);
-
 }
 
 /**
@@ -1751,10 +1754,13 @@ function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars 
 		FROM {db_prefix}log_errors AS le
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = le.id_member)
 		WHERE ' . $where . '
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
 			'guest_title' => $txt['guest_title'],
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$error_messages = array();
@@ -1820,9 +1826,12 @@ function list_getIPMessages($start, $items_per_page, $sort, $where, $where_vars 
 			INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 		WHERE {query_see_board} AND ' . $where . '
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array_merge($where_vars, array(
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		))
 	);
 	$messages = array();
@@ -2420,11 +2429,14 @@ function list_getProfileEdits($start, $items_per_page, $sort, $memID)
 		FROM {db_prefix}log_actions
 		WHERE id_log = {int:log_type}
 			AND id_member = {int:owner}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'log_type' => 2,
 			'owner' => $memID,
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$edits = array();
@@ -2616,10 +2628,13 @@ function list_getGroupRequests($start, $items_per_page, $sort, $memID)
 			INNER JOIN {db_prefix}membergroups AS mg ON (lgr.id_group = mg.id_group)
 		WHERE lgr.id_member = {int:memID}
 			AND ' . ($user_info['mod_cache']['gq'] == '1=1' ? $user_info['mod_cache']['gq'] : 'lgr.' . $user_info['mod_cache']['gq']) . '
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'memID' => $memID,
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))

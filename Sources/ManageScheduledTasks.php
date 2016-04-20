@@ -590,7 +590,7 @@ function list_getTaskLogEntries($start, $items_per_page, $sort)
 		SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 		FROM {db_prefix}log_scheduled_tasks AS lst
 			INNER JOIN {db_prefix}scheduled_tasks AS st ON (st.id_task = lst.id_task)
-		ORDER BY {string:sort}
+		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:items}',
 		array(
 			'sort' => $sort,

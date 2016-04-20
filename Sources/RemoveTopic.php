@@ -290,10 +290,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})
 				AND id_board != {int:recycle_board}
-			LIMIT ' . count($topics),
+			LIMIT {int:limit}',
 			array(
 				'recycle_board' => $recycle_board,
 				'topics' => $topics,
+				'limit' => count($topics),
 			)
 		);
 		if ($smcFunc['db_num_rows']($request) > 0)
@@ -429,10 +430,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 		FROM {db_prefix}topics
 		WHERE id_topic IN ({array_int:topics})
 			AND id_poll > {int:no_poll}
-		LIMIT ' . count($topics),
+		LIMIT {int:limit}',
 		array(
 			'no_poll' => 0,
 			'topics' => $topics,
+			'limit' => count($topics),
 		)
 	);
 	$polls = array();

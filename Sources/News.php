@@ -108,9 +108,10 @@ function ShowXmlFeed()
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:board_list})
 				AND {query_see_board}
-			LIMIT ' . count($_REQUEST['boards']),
+			LIMIT {int:limit}',
 			array(
 				'board_list' => $_REQUEST['boards'],
+				'limit' => count($_REQUEST['boards']),
 			)
 		);
 

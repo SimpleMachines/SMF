@@ -403,10 +403,9 @@ function issueWarning($memID)
 	$request = $smcFunc['db_query']('', '
 		SELECT recipient_name AS template_title, body
 		FROM {db_prefix}log_comments
-		WHERE comment_type = {string:warntpl}
+		WHERE comment_type = {literal:warntpl}
 			AND (id_recipient = {int:generic} OR id_recipient = {int:current_member})',
 		array(
-			'warntpl' => 'warntpl',
 			'generic' => 0,
 			'current_member' => $user_info['id'],
 		)
@@ -450,10 +449,9 @@ function list_getUserWarningCount($memID)
 		SELECT COUNT(*)
 		FROM {db_prefix}log_comments
 		WHERE id_recipient = {int:selected_member}
-			AND comment_type = {string:warning}',
+			AND comment_type = {literal:warning}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
 		)
 	);
 	list ($total_warnings) = $smcFunc['db_fetch_row']($request);
@@ -481,12 +479,14 @@ function list_getUserWarnings($start, $items_per_page, $sort, $memID)
 		FROM {db_prefix}log_comments AS lc
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 		WHERE lc.id_recipient = {int:selected_member}
-			AND lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+			AND lc.comment_type = {literal:warning}
+		ORDER BY {raw:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'selected_member' => $memID,
-			'warning' => 'warning',
+			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$previous_warnings = array();

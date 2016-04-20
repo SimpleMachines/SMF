@@ -328,9 +328,9 @@ function loadForumTests()
 							'topics' => $topics,
 						)
 					);
-					$smcFunc['db_query']('', "
+					$smcFunc['db_query']('', '
 						DELETE FROM {db_prefix}log_topics
-						WHERE id_topic IN ({array_int:topics})",
+						WHERE id_topic IN ({array_int:topics})',
 						array(
 							'topics' => $topics,
 						)

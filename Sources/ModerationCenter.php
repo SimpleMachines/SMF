@@ -833,7 +833,7 @@ function ReportedMembers()
 		WHERE lr.closed = {int:view_closed}
 			AND lr.id_board = {int:not_a_reported_post}
 		ORDER BY lr.time_updated DESC
-LIMIT {int:limit}, {int:max}',
+		LIMIT {int:limit}, {int:max}',
 		array(
 			'view_closed' => $context['view_closed'],
 			'not_a_reported_post' => 0,
@@ -1621,7 +1621,7 @@ function list_getWarnings($start, $items_per_page, $sort)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = lc.id_recipient)
 		WHERE lc.comment_type = {string:warning}
-		ORDER BY {string:sort}
+		ORDER BY {raw:sort}
 		LIMIT {int:start}, {int:max}',
 		array(
 			'warning' => 'warning',
