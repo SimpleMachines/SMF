@@ -403,10 +403,11 @@ function removeMembersFromGroups($members, $groups = null, $permissionCheckDone 
 		FROM {db_prefix}members
 		WHERE (FIND_IN_SET({raw:additional_groups_implode}, additional_groups) != 0)
 			AND id_member IN ({array_int:member_list})
-		LIMIT ' . count($members),
+		LIMIT {int:limit}',
 		array(
 			'member_list' => $members,
 			'additional_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $groups),
+			'limit' => count($members),
 		)
 	);
 	$updates = array();

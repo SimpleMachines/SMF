@@ -77,10 +77,11 @@ function deleteMembers($users, $check_not_admin = false)
 		SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:user_list})
-		LIMIT ' . count($users),
+		LIMIT {int:limit}',
 		array(
 			'user_list' => $users,
 			'admin_group' => 1,
+			'limit' => count($users),
 		)
 	);
 	$admins = array();

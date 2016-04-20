@@ -337,9 +337,12 @@ function list_getSpiders($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, spider_name, user_agent, ip_info
 		FROM {db_prefix}spiders
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {string:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'strat' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spiders = array();
@@ -632,7 +635,7 @@ function consolidateSpiderStats()
 		$date = strftime('%Y-%m-%d', $stat['last_seen']);
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}log_spider_stats
-			SET page_hits = page_hits + ' . $stat['num_hits'] . ',
+			SET page_hits = page_hits + {int:hits},
 				last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
 			WHERE id_spider = {int:current_spider}
 				AND stat_date = {date:last_seen_date}',
@@ -640,6 +643,7 @@ function consolidateSpiderStats()
 				'last_seen_date' => $date,
 				'last_seen' => $stat['last_seen'],
 				'current_spider' => $stat['id_spider'],
+				'hits' => $stat['num_hits'],
 			)
 		);
 		if ($smcFunc['db_affected_rows']() == 0)
@@ -824,9 +828,12 @@ function list_getSpiderLogs($start, $items_per_page, $sort)
 		SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 		FROM {db_prefix}log_spider_hits AS sl
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {string:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spider_logs = array();
@@ -1048,9 +1055,12 @@ function list_getSpiderStats($start, $items_per_page, $sort)
 		SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 		FROM {db_prefix}log_spider_stats AS ss
 			INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {string:sort}
+		LIMIT {int:start}, {int:items}',
 		array(
+			'sort' => $sort,
+			'start' => $start,
+			'items' => $items_per_page,
 		)
 	);
 	$spider_stats = array();

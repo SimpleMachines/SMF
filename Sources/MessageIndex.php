@@ -293,7 +293,7 @@ function MessageIndex()
 				LEFT JOIN {db_prefix}members AS meml ON (meml.id_member = ml.id_member)' : '') . '
 			WHERE t.id_board = {int:current_board}' . (!$modSettings['postmod_active'] || $context['can_approve_posts'] ? '' : '
 				AND (t.approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR t.id_member_started = {int:current_member}') . ')') . '
-			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', ' . $_REQUEST['sort'] . ($ascending ? '' : ' DESC') . '
+			ORDER BY is_sticky' . ($fake_ascending ? '' : ' DESC') . ', {string:sort}' . ($ascending ? '' : ' DESC') . '
 			LIMIT {int:start}, {int:maxindex}',
 			array(
 				'current_board' => $board,
@@ -302,6 +302,7 @@ function MessageIndex()
 				'id_member_guest' => 0,
 				'start' => $start,
 				'maxindex' => $maxindex,
+				'sort' => $_REQUEST['sort'],
 			)
 		);
 		$topic_ids = array();
@@ -882,9 +883,10 @@ function QuickModeration()
 			SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:action_topic_ids})
-			LIMIT ' . count($_REQUEST['actions']),
+			LIMIT {int:limit}',
 			array(
 				'action_topic_ids' => array_keys($_REQUEST['actions']),
+				'limit' => count($_REQUEST['actions']),
 			)
 		);
 		while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -977,9 +979,10 @@ function QuickModeration()
 			SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
-			LIMIT ' . count($stickyCache),
+			LIMIT {int:limit}',
 			array(
 				'sticky_topic_ids' => $stickyCache,
+				'limit' => count($stickyCache),
 			)
 		);
 		$stickyCacheBoards = array();
@@ -1002,10 +1005,11 @@ function QuickModeration()
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
 			WHERE t.id_topic IN ({array_int:move_topic_ids})' . (!empty($board) && !allowedTo('move_any') ? '
 				AND t.id_member_started = {int:current_member}' : '') . '
-			LIMIT ' . count($moveCache[0]),
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'move_topic_ids' => $moveCache[0],
+				'limit' => count($moveCache[0])
 			)
 		);
 		$moveTos = array();
@@ -1114,10 +1118,11 @@ function QuickModeration()
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty($board) && !allowedTo('remove_any') ? '
 				AND id_member_started = {int:current_member}' : '') . '
-			LIMIT ' . count($removeCache),
+			LIMIT {int:limit}',
 			array(
 				'current_member' => $user_info['id'],
 				'removed_topic_ids' => $removeCache,
+				'limit' => count($removeCache),
 			)
 		);
 
@@ -1155,10 +1160,11 @@ function QuickModeration()
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
 				AND approved = {int:not_approved}
-			LIMIT ' . count($approveCache),
+			LIMIT {int:limit}',
 			array(
 				'approve_topic_ids' => $approveCache,
 				'not_approved' => 0,
+				'limit' => count($approveCache),
 			)
 		);
 		$approveCache = array();
@@ -1197,10 +1203,11 @@ function QuickModeration()
 				WHERE id_topic IN ({array_int:locked_topic_ids})
 					AND id_member_started = {int:current_member}
 					AND locked IN (2, 0)
-				LIMIT ' . count($lockCache),
+				LIMIT {int:limit}',
 				array(
 					'current_member' => $user_info['id'],
 					'locked_topic_ids' => $lockCache,
+					'limit' => count($lockCache),
 				)
 			);
 			$lockCache = array();
@@ -1219,9 +1226,10 @@ function QuickModeration()
 				SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
-				LIMIT ' . count($lockCache),
+				LIMIT {int:limit}',
 				array(
 					'locked_topic_ids' => $lockCache,
+					'limit' => count($lockCache)
 				)
 			);
 			$lockCacheBoards = array();

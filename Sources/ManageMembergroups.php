@@ -967,9 +967,10 @@ function EditMembergroup()
 						SELECT id_member
 						FROM {db_prefix}members
 						WHERE member_name IN ({array_string:moderators}) OR real_name IN ({array_string:moderators})
-						LIMIT ' . count($moderators),
+						LIMIT {int:count}',
 						array(
 							'moderators' => $moderators,
+							'count' => count($moderators),
 						)
 					);
 					while ($row = $smcFunc['db_fetch_assoc']($request))

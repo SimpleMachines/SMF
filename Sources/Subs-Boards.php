@@ -692,9 +692,10 @@ function modifyBoard($board_id, &$boardOptions)
 					SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:moderator_list}) OR real_name IN ({array_string:moderator_list})
-					LIMIT ' . count($moderators),
+					LIMIT {int:limit}',
 					array(
 						'moderator_list' => $moderators,
+						'limit' => count($moderators),
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))
@@ -755,12 +756,13 @@ function modifyBoard($board_id, &$boardOptions)
 						AND hidden = {int:visible}
 						AND min_posts = {int:negative_one}
 						AND id_group NOT IN ({array_int:invalid_groups})
-					LIMIT ' . count($moderator_groups),
+					LIMIT {int:limit}',
 					array(
 						'visible' => 0,
 						'negative_one' => -1,
 						'invalid_groups' => array(1,3),
 						'moderator_group_list' => $moderator_groups,
+						'limit' => count($moderator_groups),
 					)
 				);
 				while ($row = $smcFunc['db_fetch_assoc']($request))

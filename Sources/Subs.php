@@ -1646,7 +1646,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// Make it easier to process parameters later
 			if (!empty($code['parameters']))
 				ksort($code['parameters'], SORT_STRING);
-			
+
 			// If we are not doing every tag only do ones we are interested in.
 			if (empty($parse_tags) || in_array($code['tag'], $parse_tags))
 				$bbc_codes[substr($code['tag'], 0, 1)][] = $code;
@@ -1701,7 +1701,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 	$open_tags = array();
 	$message = strtr($message, array("\n" => '<br>'));
-	
+
 	foreach ($bbc_codes as $section) {
 		foreach ($section as $code) {
 			$alltags[] = $code['tag'];
@@ -2036,24 +2036,24 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				$preg = array();
 				foreach ($possible['parameters'] as $p => $info)
 					$preg[] = '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . (isset($info['match']) ? $info['match'] : '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
-				
+
 				// Extract the string that potentially holds our parameters.
 				$blob = preg_split('~\[/?(?:' . $alltags_regex . ')~i', substr($message, $pos));
 				$blobs = preg_split('~\]~i', $blob[1]);
-				
+
 				$splitters = implode('=|', array_keys($possible['parameters'])) . '=';
 
 				// Progressively append more blobs until we find our parameters or run out of blobs
 				$blob_counter = 0;
 				while ($blob_counter <= count($blobs)) {
-					
+
 					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
-					
+
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
-					
+
 					$match = preg_match('~^' . implode('', $preg) . '$~i', implode(' ', $given_params), $matches) !== 0;
-					
+
 					if ($match) $blob_counter = count($blobs) + 1;
 				}
 

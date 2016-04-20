@@ -833,10 +833,12 @@ function ReportedMembers()
 		WHERE lr.closed = {int:view_closed}
 			AND lr.id_board = {int:not_a_reported_post}
 		ORDER BY lr.time_updated DESC
-		LIMIT ' . $context['start'] . ', 10',
+LIMIT {int:limit}, {int:max}',
 		array(
 			'view_closed' => $context['view_closed'],
 			'not_a_reported_post' => 0,
+			'limit' => $context['start'],
+			'max' => 10,
 		)
 	);
 	$context['reports'] = array();
@@ -1208,10 +1210,12 @@ function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $d
 		FROM {db_prefix}members
 		WHERE warning >= {int:warning_watch}
 		ORDER BY {raw:sort}
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
 			'sort' => $sort,
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$watched_users = array();
@@ -1345,9 +1349,11 @@ function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query
 			AND {query_see_board}
 			' . $approve_query . '
 		ORDER BY m.id_msg DESC
-		LIMIT ' . $start . ', ' . $items_per_page,
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning_watch' => $modSettings['warning_watch'],
+			'start' => $start,
+			'max' => $items_per_page,
 		)
 	);
 	$member_posts = array();
@@ -1615,10 +1621,13 @@ function list_getWarnings($start, $items_per_page, $sort)
 			LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
 			LEFT JOIN {db_prefix}members AS mem2 ON (mem2.id_member = lc.id_recipient)
 		WHERE lc.comment_type = {string:warning}
-		ORDER BY ' . $sort . '
-		LIMIT ' . $start . ', ' . $items_per_page,
+		ORDER BY {string:sort}
+		LIMIT {int:start}, {int:max}',
 		array(
 			'warning' => 'warning',
+			'start' => $start,
+			'max' => $items_per_page,
+			'sort' => $sort,
 		)
 	);
 	$warnings = array();

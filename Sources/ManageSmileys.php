@@ -1218,8 +1218,9 @@ function list_getSmileys($start, $items_per_page, $sort)
 	$request = $smcFunc['db_query']('', '
 		SELECT id_smiley, code, filename, description, smiley_row, smiley_order, hidden
 		FROM {db_prefix}smileys
-		ORDER BY ' . $sort,
+		ORDER BY {string:sort}',
 		array(
+			'sort' => $sort,
 		)
 	);
 	$smileys = array();
