@@ -2224,6 +2224,7 @@ function loadIllegalGuestPermissions()
 		'delete_replies',
 		'edit_news',
 		'issue_warning',
+		'likes_like',
 		'lock',
 		'make_sticky',
 		'manage_attachments',
