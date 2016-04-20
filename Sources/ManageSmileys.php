@@ -156,7 +156,6 @@ function EditSmileySettings($return_config = false)
 
 	// Finish up the form...
 	$context['post_url'] = $scripturl . '?action=admin;area=smileys;save;sa=settings';
-	$context['permissions_excluded'] = array(-1);
 
 	// Saving the settings?
 	if (isset($_GET['save']))

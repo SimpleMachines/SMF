@@ -1230,9 +1230,6 @@ function ModifyMembergroupsettings()
 	// Needed for the settings functions.
 	require_once($sourcedir . '/ManageServer.php');
 
-	// Don't allow assignment of guests.
-	$context['permissions_excluded'] = array(-1);
-
 	// Only one thing here!
 	$config_vars = array(
 			array('permissions', 'manage_membergroups'),
