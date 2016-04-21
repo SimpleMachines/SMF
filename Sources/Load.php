@@ -2756,7 +2756,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 		$language_directories = array_unique($language_directories);
 
 		// Get a list of languages.
-		$langList = !empty($modSettings['langList']) ? unserialize($modSettings['langList']) : array();
+		$langList = !empty($modSettings['langList']) ? json_decode($modSettings['langList'], true) : array();
 		$langList = is_array($langList) ? $langList : false;
 
 		$catchLang = array();
@@ -2821,7 +2821,7 @@ function getLanguages($use_cache = true, $favor_utf8 = true)
 
 		// Do we need to store the lang list?
 		if (empty($langList))
-			updateSettings(array('langList' => serialize($catchLang)));
+			updateSettings(array('langList' => json_encode($catchLang)));
 
 		// Favoring UTF8? Then prevent us from selecting non-UTF8 versions.
 		if ($favor_utf8)
