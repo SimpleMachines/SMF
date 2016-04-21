@@ -18,8 +18,10 @@
 @media (max-width: 480px) {
 	/* This is general */
 	.popup_window {
-		width: 93% !important;
+		width: 90%;
 		min-height: 285px !important;
+		padding: 0;
+		margin: 0 auto;
 	}
 	.button_submit {
 		min-width: 15%;
@@ -299,10 +301,13 @@
 		display: inline-block;
 	}
 	#mobile_action .button, #mobile_moderation .button, #mobile_action .top_menu {
-		width: 95% !important;
-		padding: 5px;
+		width: 100% !important;
+		padding: 5px 0;
 		margin: 0;
 		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		text-indent: 5px;
 	}
 	#mobile_action .notify_dropdown {
 		top: 0 !important;
