@@ -1103,8 +1103,7 @@ function recacheSpiderNames()
 	$request = $smcFunc['db_query']('', '
 		SELECT id_spider, spider_name
 		FROM {db_prefix}spiders',
-		array(
-		)
+		array()
 	);
 	$spiders = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))

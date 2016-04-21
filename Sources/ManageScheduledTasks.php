@@ -138,9 +138,10 @@ function ScheduledTasks()
 			SELECT id_task, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task IN ({array_int:tasks})
-			LIMIT ' . count($tasks),
+			LIMIT {int:limit}',
 			array(
 				'tasks' => $tasks,
+				'limit' => count($tasks),
 			)
 		);
 

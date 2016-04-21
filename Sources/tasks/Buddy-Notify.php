@@ -56,5 +56,4 @@ class Buddy_Notify_Background extends SMF_BackgroundTask
 		return true;
 	}
 }
-
 ?>

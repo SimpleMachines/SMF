@@ -402,9 +402,11 @@ function MembergroupMembers()
 		FROM {db_prefix}members
 		WHERE ' . $where . '
 		ORDER BY ' . $querySort . ' ' . ($context['sort_direction'] == 'down' ? 'DESC' : 'ASC') . '
-		LIMIT ' . $context['start'] . ', ' . $modSettings['defaultMaxMembers'],
+		LIMIT {int:start}, {int:max}',
 		array(
 			'group' => $_REQUEST['group'],
+			'start' => $context['start'],
+			'max' => $modSettings['defaultMaxMembers'],
 		)
 	);
 	$context['members'] = array();

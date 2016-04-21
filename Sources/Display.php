@@ -817,12 +817,14 @@ function Display()
 		WHERE id_topic = {int:current_topic}' . (!$modSettings['postmod_active'] || $approve_posts ? '' : '
 		AND (approved = {int:is_approved}' . ($user_info['is_guest'] ? '' : ' OR id_member = {int:current_member}') . ')') . '
 		ORDER BY id_msg ' . ($ascending ? '' : 'DESC') . ($context['messages_per_page'] == -1 ? '' : '
-		LIMIT ' . $start . ', ' . $limit),
+		LIMIT {int:start}, {int:max}'),
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'is_approved' => 1,
 			'blank_id_member' => 0,
+			'start' => $start,
+			'max' => $limit,
 		)
 	);
 
@@ -1769,11 +1771,12 @@ function QuickInTopicModeration()
 		WHERE id_msg IN ({array_int:message_list})
 			AND id_topic = {int:current_topic}' . (!$allowed_all ? '
 			AND id_member = {int:current_member}' : '') . '
-		LIMIT ' . count($messages),
+		LIMIT {int:limit}',
 		array(
 			'current_member' => $user_info['id'],
 			'current_topic' => $topic,
 			'message_list' => $messages,
+			'limit' => count($messages),
 		)
 	);
 	$messages = array();
