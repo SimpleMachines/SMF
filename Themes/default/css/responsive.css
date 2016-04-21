@@ -437,7 +437,10 @@
 	}
 
 	/* Display (Topics) */
-	.user_info {
+	.user_info li {
+		display: inline-block;
+	}
+	.user_info li.avatar, .user_info li.poster_ip {
 		display: none;
 	}
 	#moderationbuttons_strip a {
